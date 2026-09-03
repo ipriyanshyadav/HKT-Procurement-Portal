@@ -1,0 +1,255 @@
+_format_version: "3.0"
+
+services:
+  - name: api
+    url: http://api:8000
+
+routes:
+  - name: auth-route
+    service: api
+    paths:
+      - /api/v1/auth
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 5
+  
+  - name: orgs-users-route
+    service: api
+    paths:
+      - /api/v1/organizations
+      - /api/v1/users
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 100
+  
+  - name: master-data-route
+    service: api
+    paths:
+      - /api/v1/master-data
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 100
+  
+  - name: vendors-route
+    service: api
+    paths:
+      - /api/v1/vendors
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 100
+          
+  - name: requisitions-route
+    service: api
+    paths:
+      - /api/v1/requisitions
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 100
+          
+  - name: unmapped-prs-route
+    service: api
+    paths:
+      - /api/v1/unmapped-prs
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 100
+          
+  - name: sourcing-route
+    service: api
+    paths:
+      - /api/v1/sourcing
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 100
+          
+  - name: bids-route
+    service: api
+    paths:
+      - /api/v1/bids
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 100
+          
+  - name: evaluations-route
+    service: api
+    paths:
+      - /api/v1/evaluations
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 100
+          
+  - name: awards-route
+    service: api
+    paths:
+      - /api/v1/awards
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 30
+          
+  - name: contracts-route
+    service: api
+    paths:
+      - /api/v1/contracts
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 100
+          
+  - name: purchase-orders-route
+    service: api
+    paths:
+      - /api/v1/purchase-orders
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 100
+          
+  - name: grn-route
+    service: api
+    paths:
+      - /api/v1/grn
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 100
+          
+  - name: invoices-route
+    service: api
+    paths:
+      - /api/v1/invoices
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 100
+          
+  - name: payments-route
+    service: api
+    paths:
+      - /api/v1/payments
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 30
+          
+  - name: notifications-route
+    service: api
+    paths:
+      - /api/v1/notifications
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 100
+          
+  - name: documents-route
+    service: api
+    paths:
+      - /api/v1/documents
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 10
+          
+  - name: workflows-route
+    service: api
+    paths:
+      - /api/v1/workflows
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 100
+          
+  - name: approval-rules-route
+    service: api
+    paths:
+      - /api/v1/approval-rules
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 100
+          
+  - name: integrations-route
+    service: api
+    paths:
+      - /api/v1/integrations
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 50
+          
+  - name: analytics-route
+    service: api
+    paths:
+      - /api/v1/analytics
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 50
+          
+  - name: admin-route
+    service: api
+    paths:
+      - /api/v1/admin
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 100
+          
+  - name: health-route
+    service: api
+    paths:
+      - /health
+      - /health/ready
+      - /health/live
+      
+  - name: websocket-route
+    service: api
+    paths:
+      - /ws/notifications
+    protocols:
+      - http
+      - https
+      - ws
+      - wss
+
+plugins:
+  - name: jwt
+    config:
+      key_claim_name: kid
+      secret_is_base64: false
+  - name: correlation-id
+    config:
+      generator: uuid
+      header_name: X-Request-ID
+  - name: request-size-limiting
+    config:
+      allowed_payload_size: 50
+  - name: cors
+    config:
+      origins:
+        - http://localhost:3000
+        - http://localhost:3001
+        - http://localhost:3002
+      methods:
+        - GET
+        - POST
+        - PUT
+        - PATCH
+        - DELETE
+        - OPTIONS
+      headers:
+        - Authorization
+        - Content-Type
+        - X-Request-ID
+        - X-Idempotency-Key
+      credentials: true
+      max_age: 3600

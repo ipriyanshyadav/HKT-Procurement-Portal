@@ -1,0 +1,28 @@
+repos:
+  - repo: https://github.com/psf/black
+    rev: 24.4.2
+    hooks:
+      - id: black
+        language_version: python3.14
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.4.8
+    hooks:
+      - id: ruff
+        args: [--fix]
+  - repo: local
+    hooks:
+      - id: no-print-statements
+        name: No print() statements
+        language: pygrep
+        entry: '(?<!#.*)\bprint\('
+        types: [python]
+      - id: no-console-log
+        name: No console.log statements
+        language: pygrep
+        entry: 'console\.log\('
+        types_or: [ts, tsx, javascript]
+      - id: no-todo-without-ticket
+        name: No TODO without ticket number
+        language: pygrep
+        entry: '# TODO(?! #[0-9]+)'
+        types: [python]

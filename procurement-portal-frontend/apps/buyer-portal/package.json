@@ -1,0 +1,31 @@
+{
+  "name": "buyer-portal",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --port 3000",
+    "build": "next build",
+    "start": "next start --port 3000",
+    "lint": "next lint",
+    "test": "echo 'No tests yet'",
+    "typecheck": "tsc --noEmit",
+    "generate:types": "tsx ../../packages/types/generate.ts"
+  },
+  "dependencies": {
+    "next": "14.2.4",
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0",
+    "@procurement/ui": "workspace:*",
+    "@procurement/hooks": "workspace:*",
+    "@procurement/stores": "workspace:*",
+    "@procurement/utils": "workspace:*",
+    "@procurement/types": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "typescript": "^5.5.0",
+    "@procurement/config": "workspace:*"
+  }
+}

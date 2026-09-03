@@ -1,0 +1,15 @@
+FROM python:3.14-slim AS base
+WORKDIR /app
+RUN apt-get update && apt-get install -y --no-install-recommends libmagic1 && rm -rf /var/lib/apt/lists/*
+
+FROM base AS deps
+COPY pyproject.toml .
+RUN pip install --no-cache-dir .
+
+FROM deps AS app
+COPY . .
+COPY docker/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+EXPOSE 8000
+ENTRYPOINT ["/entrypoint.sh"]
