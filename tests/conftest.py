@@ -16,7 +16,7 @@ def pytest_configure(config):
     os.environ.setdefault("MINIO_SECRET_KEY", "testsecret")
     os.environ.setdefault("JWT_PRIVATE_KEY_PATH", "keys/private.pem")
     os.environ.setdefault("JWT_PUBLIC_KEY_PATH", "keys/public.pem")
-    os.environ.setdefault("FIELD_ENCRYPTION_KEY", "dGVzdC1lbmNyeXB0aW9uLWtleS0zMi1ieXRlcw==")
+    os.environ.setdefault("FIELD_ENCRYPTION_KEY", "U5RAQQjKHzcBauoi8R7GrRrj7bBSf-eQPhPtfGg370A=")
 
 @pytest.fixture
 def anyio_backend():
