@@ -56,6 +56,10 @@
 | A-03-6 | `audit_logs` partition primary key is `(id, created_at)` composite — this means lookups by id alone require full partition scan; acceptable for audit query patterns (always time-bounded) | PostgreSQL partitioned table constraint | LOW — audit queries always include date range | Squad A DBA |
 | A-03-7 | `po_lines.total_price` and `requisition_lines.estimated_total` are GENERATED ALWAYS AS columns — no application code sets them | SPEC DDL specifies GENERATED ALWAYS AS STORED | LOW | Squad A DBA |
 | A-03-8 | `erp_material_group_mapping` table prefixed with `erp_` for clarity but lives in master_data migration because it bridges master and ERP | SPEC places it in Section 3.3 (Master Data) | LOW | Squad A DBA |
+| A-03-9 | Forward references to `documents(id)` in migrations 0009, 0013, 0014, 0015, 0016 create document ID columns as UUID, with foreign key constraints added in 0019_document.py | Migration sequence strictly ordered as requested | LOW | Squad A DBA |
+| A-03-10 | `password_history.user_id` created as UUID in 0005, FK to `users(id)` added in 0007 | `users` created in 0007 | LOW | Squad A DBA |
+| A-03-11 | Concurrent index creation in 0024 uses `op.get_context().autocommit_block()` | PostgreSQL requires autocommit for CONCURRENTLY | LOW | Squad A DBA |
+| A-03-12 | `app_audit_writer` role created safely via DO block if not exists | Re-runnable without error | LOW | Squad A DBA |
 
 ---
 

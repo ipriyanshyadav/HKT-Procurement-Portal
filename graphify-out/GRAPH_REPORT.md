@@ -1,13 +1,18 @@
 # Graph Report - procurement-portal  (2026-09-04)
 
 ## Corpus Check
-- 193 files · ~114,620 words
+- 244 files · ~138,926 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1230 nodes · 1420 edges · 161 communities (66 shown, 80 thin omitted)
-- Extraction: 95% EXTRACTED · 5% INFERRED · 0% AMBIGUOUS · INFERRED: 69 edges (avg confidence: 0.91)
+- 1520 nodes · 1989 edges · 206 communities (85 shown, 83 thin omitted)
+- Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 73 edges (avg confidence: 0.91)
 - Token cost: 0 input · 0 output
+
+## Graph Freshness
+- Built from commit: `9f4377ba`
+- Run `git rev-parse HEAD` and compare to check if the graph is stale.
+- Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
 - Generic Finite State Machine Orchestrator
@@ -29,7 +34,7 @@
 - Approval Rules Engine Service
 - Document Upload Pipeline
 - PostgreSQL Shared-Database Multi-Tenancy
-- test_config.py
+- PermissionCode
 - GRN Linkage and Invoice Eligibility
 - Testing Framework and Tooling
 - Graphify Agent Rules
@@ -54,7 +59,7 @@
 - Uptime Kuma Synthetic Monitors
 - Audit Immutability Validation Tests
 - Security Test Checklist
-- BaseModel
+- test_responses.py
 - dependencies
 - dependencies
 - dependencies
@@ -156,30 +161,52 @@
 - supplier-portal/next.config.js
 - tailwind.config.ts
 - procurement-portal
+- Base
+- enums.py
+- BaseModel
+- test_all_models.py
+- config.py
+- user/models.py
+- test_migrations.py
+- asyncio
+- test_grn_and_invoice_models
+- workflow/models.py
+- Procurement Portal — Enterprise S2C & P2P Platform
+- 2. Requirement-by-Requirement Traceability
+- evaluation/models.py
+- vendor/models.py
+- contract/models.py
+- sourcing/models.py
+- env.py
+- organization/models.py
+- session.py
+- 0002_create_enums.py
+- 0024_indexes.py
+- 0027_data_seed.py
 
 ## God Nodes (most connected - your core abstractions)
-1. `BaseEvent` - 49 edges
-2. `RedisKeys` - 33 edges
-3. `AppException` - 21 edges
-4. `Implementation Prompts All Modules` - 18 edges
-5. `compilerOptions` - 16 edges
-6. `Purchase Requisition Service` - 13 edges
-7. `Bid Service` - 12 edges
-8. `BaseModel` - 11 edges
-9. `compilerOptions` - 11 edges
-10. `compilerOptions` - 11 edges
+1. `BaseModel` - 109 edges
+2. `BaseEvent` - 49 edges
+3. `Base` - 38 edges
+4. `RedisKeys` - 33 edges
+5. `AppException` - 21 edges
+6. `Implementation Prompts All Modules` - 18 edges
+7. `compilerOptions` - 16 edges
+8. `test_user_models()` - 13 edges
+9. `Purchase Requisition Service` - 13 edges
+10. `test_master_data_models()` - 12 edges
 
 ## Surprising Connections (you probably didn't know these)
+- `test_permanently_denied_permissions()` --uses--> `PermissionCode`  [INFERRED]
+  tests/unit/test_config.py → app/core/constants.py
 - `Generic Finite State Machine Orchestrator` --conceptually_related_to--> `FSM State Synchronization Pattern`  [INFERRED]
   plans/plan_spec_05_workflow_engine.md → FRONTEND_BACKEND_WIRING_GUIDE.md
 - `seed_data()` --uses--> `PermissionCode`  [INFERRED]
   scripts/seed_master_data.py → app/core/constants.py
-- `test_permanently_denied_permissions()` --uses--> `PermissionCode`  [INFERRED]
-  tests/unit/test_config.py → app/core/constants.py
 - `test_permission_code_attributes()` --uses--> `PermissionCode`  [INFERRED]
   tests/unit/test_constants.py → app/core/constants.py
-- `Dynamic Data Factories` --conceptually_related_to--> `Purchase Requisition Service`  [INFERRED]
-  plans/plan_spec_23_testing.md → specs/SPEC_08_PURCHASE_REQUISITION.md
+- `SampleModel` --inherits--> `BaseModel`  [EXTRACTED]
+  tests/unit/test_base_model.py → app/db/base.py
 
 ## Import Cycles
 - None detected.
@@ -195,7 +222,7 @@
 - **Cryptographic Sealing and Data Integrity Architecture** — specs_spec_10_rfq_lifecycle_bid_sealing_service, specs_spec_11_bid_management_bid_sha256_hash_integrity, specs_spec_17_document_management_clamav_virus_scanner, specs_spec_17_document_management_bid_document_sealing, specs_spec_23_testing_audit_validation_tests [INFERRED 0.95]
 - **Defense-in-Depth & Zero-Trust Security Architecture** — specs_spec_04_auth_security_auth_pipeline, specs_spec_04_auth_security_sod_enforcement, plans_plan_spec_20_integration_safehttpclient, plans_plan_spec_21_infrastructure_networkpolicies, plans_plan_spec_17_document_management_documentscanner [INFERRED 0.95]
 
-## Communities (161 total, 80 thin omitted)
+## Communities (206 total, 83 thin omitted)
 
 ### Community 0 - "Generic Finite State Machine Orchestrator"
 Cohesion: 0.20
@@ -273,9 +300,9 @@ Nodes (7): ClamAV Virus Scanner, Document Upload Pipeline, Document Versioning, 
 Cohesion: 0.20
 Nodes (10): HRMS Employee Lifecycle Consumer, Elasticsearch Audit Search Service, Audit Logs Monthly Partitioning & Immutability, SPEC 03: Complete Database Specification, PostgreSQL Shared-Database Multi-Tenancy, Requisitions Database Schema, Vendors Database Schema, Workflow Database Tables (+2 more)
 
-### Community 19 - "test_config.py"
-Cohesion: 0.06
-Nodes (31): get_settings(), Settings, AuditAction, PermissionCode, AsyncSession, UUID, user_has_permission(), get_db() (+23 more)
+### Community 19 - "PermissionCode"
+Cohesion: 0.21
+Nodes (9): AuditAction, PermissionCode, AsyncSession, UUID, user_has_permission(), Master data seed script. Seeds default roles, all 100+ permissions from…, seed_data(), test_audit_action_login_success() (+1 more)
 
 ### Community 20 - "GRN Linkage and Invoice Eligibility"
 Cohesion: 0.33
@@ -305,9 +332,9 @@ Nodes (4): Blue-Green Deployment Strategy, Docker Multi-Stage Container Setup, G
 Cohesion: 0.50
 Nodes (4): Grafana Alert Rules Suite, Grafana Procurement Dashboards, On-Call Runbooks, Prometheus Custom Procurement Metrics
 
-### Community 44 - "BaseModel"
-Cohesion: 0.10
-Nodes (30): do_run_migrations(), get_url(), Run migrations in 'offline' mode., Run migrations in 'online' mode., run_migrations_offline(), run_migrations_online(), decode_cursor(), encode_cursor() (+22 more)
+### Community 44 - "test_responses.py"
+Cohesion: 0.18
+Nodes (18): decode_cursor(), encode_cursor(), paginate_query(), PaginationParams, Any, APIResponse, created_response(), Links (+10 more)
 
 ### Community 45 - "dependencies"
 Cohesion: 0.05
@@ -334,8 +361,8 @@ Cohesion: 0.06
 Nodes (26): metadata, metadata, metadata, dependsOn, outputs, cache, cache, persistent (+18 more)
 
 ### Community 51 - "AppException"
-Cohesion: 0.17
-Nodes (20): AppException, AuthenticationError, BusinessRuleError, ConflictError, ForbiddenError, NotFoundError, OptimisticLockError, Any (+12 more)
+Cohesion: 0.10
+Nodes (31): AppException, AuthenticationError, BusinessRuleError, ConflictError, ForbiddenError, NotFoundError, OptimisticLockError, Any (+23 more)
 
 ### Community 52 - "compilerOptions"
 Cohesion: 0.09
@@ -461,24 +488,100 @@ Nodes (3): AuthState, CurrentUser, useAuthStore
 Cohesion: 0.50
 Nodes (4): Plan Spec 01: Project Overview & Governance, Multi-Squad Governance Model, Procurement Portal Enterprise Scope, Superadmin Initialization Protocol
 
+### Community 161 - "Base"
+Cohesion: 0.13
+Nodes (22): Base, Database definitions., AuditLog, BidDocument, BidLineResponse, BidResponse, BidVersion, FeatureFlag (+14 more)
+
+### Community 162 - "enums.py"
+Cohesion: 0.15
+Nodes (25): ApprovalTaskStatus, AuditEntityType, BidStatus, ContractStatus, DocumentCategory, EvaluationType, IntegrationJobStatus, InvoiceStatus (+17 more)
+
+### Community 163 - "BaseModel"
+Cohesion: 0.25
+Nodes (18): BaseModel, Category, CurrencyMaster, DeliveryLocation, DocumentType, ErpMaterialGroupMapping, HolidayMaster, Incoterm (+10 more)
+
+### Community 164 - "test_all_models.py"
+Cohesion: 0.21
+Nodes (11): Document, DocumentVersion, Dispute, DisputeMessage, PaymentRecord, PoAmendment, PoLine, PurchaseOrder (+3 more)
+
+### Community 165 - "config.py"
+Cohesion: 0.22
+Nodes (11): get_settings(), Settings, BaseSettings, env_setup(), fixture, test_all_celery_intervals_accessible(), test_cors_origins(), test_environment_is_literal() (+3 more)
+
+### Community 166 - "user/models.py"
+Cohesion: 0.26
+Nodes (13): DelegationRule, PasswordHistory, Permission, Role, RolePermission, User, UserBuScope, UserCategoryScope (+5 more)
+
+### Community 167 - "test_migrations.py"
+Cohesion: 0.14
+Nodes (13): Integration tests for database migrations, immutability, indexes, and RLS., Verify document numbering sequences exist and generate consecutive values., Verify that migration created at least 70 tables in public schema., Verify that at least 20 ENUM types are defined., Verify that at least 40 indexes exist in public schema., Verify that audit_logs is append-only: UPDATE and DELETE are prohibited by…, Verify Row Level Security tenant isolation on vendors table., test_audit_log_immutable() (+5 more)
+
+### Community 168 - "asyncio"
+Cohesion: 0.18
+Nodes (7): asyncio, Idempotent RabbitMQ topology setup. Run once per environment. Safe to re-run.…, Create all exchanges, queues, DLQs, and bindings idempotently., setup_rabbitmq(), test_health_endpoint(), test_health_live_endpoint(), test_health_ready_endpoint()
+
+### Community 169 - "test_grn_and_invoice_models"
+Cohesion: 0.29
+Nodes (9): GoodsReceiptNote, GrnLine, QualityInspection, ServiceEntrySheet, SesLine, Invoice, InvoiceLine, InvoiceMatchResult (+1 more)
+
+### Community 170 - "workflow/models.py"
+Cohesion: 0.36
+Nodes (9): ApprovalGroup, ApprovalGroupMember, ApprovalRule, ApprovalRuleVersion, WorkflowEvent, WorkflowInstance, WorkflowTask, WorkflowTemplate (+1 more)
+
+### Community 171 - "Procurement Portal — Enterprise S2C & P2P Platform"
+Cohesion: 0.20
+Nodes (9): Current Session State, Module Status, Procurement Portal — Enterprise S2C & P2P Platform, Quickstart & Verification, Run Backend Tests, Seed Master Data, Squad Decomposition, Start Docker Stack (+1 more)
+
+### Community 172 - "2. Requirement-by-Requirement Traceability"
+Cohesion: 0.20
+Nodes (9): 1. Executive Summary, 2.1 Enums (SPEC_03 Section 2), 2.2 Migrations Traceability (SPEC_03 Section 3), 2.3 Indexes (SPEC_03 Section 4), 2.4 Row Level Security (SPEC_03 Section 6), 2.5 Audit Log Partitioning & Immutability (SPEC_03 Section 5 & 7), 2. Requirement-by-Requirement Traceability, 3. Overall Spec Audit Score (+1 more)
+
+### Community 173 - "evaluation/models.py"
+Cohesion: 0.39
+Nodes (8): AwardDetail, AwardRecommendation, ComparativeStatement, CsLineRanking, Evaluation, EvaluationScore, Negotiation, test_evaluation_models()
+
+### Community 174 - "vendor/models.py"
+Cohesion: 0.39
+Nodes (8): Vendor, VendorBankAccount, VendorCategoryMapping, VendorContact, VendorDocument, VendorErpSyncLog, VendorScorecard, test_vendor_models()
+
+### Community 175 - "contract/models.py"
+Cohesion: 0.43
+Nodes (7): Contract, ContractAmendment, ContractDocument, ContractLine, ContractMilestone, ContractTemplate, test_contract_models()
+
+### Community 176 - "sourcing/models.py"
+Cohesion: 0.43
+Nodes (7): Rfq, RfqAmendment, RfqClarification, RfqLine, RfqLot, RfqParticipant, test_sourcing_models()
+
+### Community 177 - "env.py"
+Cohesion: 0.43
+Nodes (6): do_run_migrations(), get_url(), Run migrations in 'offline' mode., Run migrations in 'online' mode., run_migrations_offline(), run_migrations_online()
+
+### Community 178 - "organization/models.py"
+Cohesion: 0.48
+Nodes (6): BusinessUnit, CostCenter, Department, Organization, Plant, test_organization_models()
+
+### Community 179 - "session.py"
+Cohesion: 0.60
+Nodes (4): get_db(), get_db_with_rls(), AsyncSession, UUID
+
 ## Knowledge Gaps
-- **447 isolated node(s):** `entrypoint.sh script`, `metadata`, `nextConfig`, `name`, `version` (+442 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 622 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **80 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **460 isolated node(s):** `entrypoint.sh script`, `metadata`, `nextConfig`, `name`, `version` (+455 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 704 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **83 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `BaseModel` connect `BaseModel` to `schemas.py`?**
-  _High betweenness centrality (0.031) - this node is a cross-community bridge._
+- **Why does `BaseModel` connect `BaseModel` to `Base`, `test_all_models.py`, `user/models.py`, `schemas.py`, `test_grn_and_invoice_models`, `workflow/models.py`, `test_responses.py`, `evaluation/models.py`, `vendor/models.py`, `contract/models.py`, `sourcing/models.py`, `organization/models.py`, `AppException`?**
+  _High betweenness centrality (0.053) - this node is a cross-community bridge._
 - **Why does `BaseEvent` connect `schemas.py` to `BaseModel`?**
-  _High betweenness centrality (0.023) - this node is a cross-community bridge._
+  _High betweenness centrality (0.016) - this node is a cross-community bridge._
+- **Why does `RedisKeys` connect `RedisKeys` to `AppException`?**
+  _High betweenness centrality (0.013) - this node is a cross-community bridge._
 - **Are the 16 inferred relationships involving `RedisKeys` (e.g. with `check_idempotency()` and `store_idempotency()`) actually correct?**
   _`RedisKeys` has 16 INFERRED edges - model-reasoned connections that need verification._
-- **Are the 8 inferred relationships involving `AppException` (e.g. with `test_authentication_error()` and `test_business_rule_error()`) actually correct?**
-  _`AppException` has 8 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `entrypoint.sh script`, `metadata`, `nextConfig` to the rest of the system?**
-  _447 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _460 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Master Data Twelve Entities Registry` be split into smaller, more focused modules?**
   _Cohesion score 0.08 - nodes in this community are weakly interconnected._
 - **Should `K3s Kubernetes Cluster Topology` be split into smaller, more focused modules?**
