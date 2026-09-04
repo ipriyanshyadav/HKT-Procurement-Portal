@@ -5,7 +5,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.auth.dependencies import get_current_user, require_permission
+from app.auth.dependencies import get_current_user, require_permission, require_any_permission
 from app.core.constants import PermissionCode
 from app.core.exceptions import NotFoundError
 from app.core.responses import APIResponse, PaginationMeta, created_response, success_response
@@ -131,7 +131,7 @@ async def withdraw_bid(
 @router.get("/bids/{bid_id}", response_model=APIResponse[BidDetailResponse])
 async def get_bid_details(
     bid_id: UUID,
-    current_user: User = Depends(require_permission(PermissionCode.BID_VIEW_ALL)),
+    current_user: User = Depends(require_any_permission(PermissionCode.BID_VIEW_ALL, PermissionCode.BID_VIEW_OWN)),
     db: AsyncSession = Depends(get_db),
 ):
     """

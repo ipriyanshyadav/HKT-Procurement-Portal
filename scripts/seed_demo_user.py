@@ -31,7 +31,9 @@ from app.db.session import async_session, engine
 from app.core.security import hash_password
 from app.db.enums import (
     UserStatusEnum, VendorStatusEnum, PrStatusEnum, PrSourceEnum,
-    ProcurementTypeEnum, UnmappedPrStatusEnum
+    ProcurementTypeEnum, UnmappedPrStatusEnum,
+    RfqStatusEnum, RfqTypeEnum, SourcingTypeEnum, EvaluationTypeEnum,
+    BidStatusEnum,
 )
 from app.modules.organization.models import (
     Organization, LegalEntity, BusinessUnit, Plant, Department, CostCenter
@@ -40,6 +42,9 @@ from app.modules.master_data.models import Category, DeliveryLocation, UomMaster
 from app.modules.user.models import User, Role, UserRoleAssignment
 from app.modules.vendor.models import Vendor
 from app.modules.requisition.models import Requisition, RequisitionLine, UnmappedPrException
+from app.modules.sourcing.models import Rfq, RfqLot, RfqLine, RfqParticipant, RfqClarification
+from app.modules.bid.models import BidResponse, BidLineResponse
+from app.core.encryption import encrypt_field
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -373,7 +378,7 @@ async def seed_demo():
 
                 # Ensure SUPPLIER role has supplier permissions
                 supplier_perms = [
-                    "vendor.view_own", "bid.submit", "bid.view_own", "bid.revise",
+                    "vendor.view_own", "rfq.view_own", "bid.submit", "bid.view_own", "bid.revise",
                     "bid.withdraw", "invoice.submit", "invoice.view_own", "po.acknowledge",
                     "po.view_own", "grn.view_own", "document.upload", "document.view_own",
                     "notification.view_own", "user.view_own", "user.update_own", "contract.view_own"
@@ -543,6 +548,256 @@ async def seed_demo():
             )
             db.add(exc)
             logger.info("Created Sample Unmapped PR Exception for %s", unmapped_req.pr_number)
+
+        # 12. Sample RFQs & Tenders
+        res = await db.execute(select(Rfq).where(Rfq.org_id == DEFAULT_ORG_ID))
+        existing_rfq = res.scalars().first()
+        if not existing_rfq:
+            now = datetime.now(timezone.utc)
+            res = await db.execute(select(Vendor).where(and_(Vendor.org_id == DEFAULT_ORG_ID, Vendor.vendor_code == "V-10002")))
+            gc_vendor = res.scalar_one_or_none()
+
+            # RFQ 1: Published Limited Tender with invited participants and clarifications
+            rfq1 = Rfq(
+                org_id=DEFAULT_ORG_ID,
+                rfq_number="RFQ-2026-000001",
+                title="Developer Laptops & Displays Refresh",
+                description="Procurement of high-performance MacBook Pro 16-inch laptops and color-accurate 4K USB-C monitors for the engineering team.",
+                rfq_type=RfqTypeEnum.LIMITED_TENDER,
+                sourcing_type=SourcingTypeEnum.GOODS,
+                evaluation_type=EvaluationTypeEnum.QCBS_QUALITY_COST,
+                procurement_type=ProcurementTypeEnum.CAPEX,
+                status=RfqStatusEnum.PUBLISHED,
+                buyer_id=buyer_user.id,
+                business_unit_id=bu.id,
+                category_id=categories["CAT-HW"].id,
+                currency="INR",
+                estimated_value=Decimal("3300000.00"),
+                bid_open_at=now + timedelta(days=7, hours=1),
+                bid_close_at=now + timedelta(days=7),
+                bid_validity_days=60,
+                is_multi_lot=False,
+                published_at=now - timedelta(days=1),
+                created_by=buyer_user.id,
+                updated_by=buyer_user.id,
+                source_pr_id=None,
+            )
+            db.add(rfq1)
+            await db.flush()
+
+            lot1 = RfqLot(
+                org_id=DEFAULT_ORG_ID,
+                rfq_id=rfq1.id,
+                lot_number=1,
+                title="Engineering Workstations Lot",
+                estimated_value=Decimal("3300000.00"),
+            )
+            db.add(lot1)
+            await db.flush()
+
+            line1_1 = RfqLine(
+                org_id=DEFAULT_ORG_ID,
+                rfq_id=rfq1.id,
+                lot_id=lot1.id,
+                line_number=1,
+                item_description="Apple MacBook Pro 16-inch M3 Pro / 36GB / 1TB SSD",
+                category_id=categories["CAT-HW"].id,
+                uom_id=uom_ea_id,
+                quantity=Decimal("10.00"),
+                estimated_unit_price=Decimal("240000.00"),
+                delivery_location_id=loc.id,
+            )
+            line1_2 = RfqLine(
+                org_id=DEFAULT_ORG_ID,
+                rfq_id=rfq1.id,
+                lot_id=lot1.id,
+                line_number=2,
+                item_description="27-inch 4K USB-C Color-Calibrated Displays",
+                category_id=categories["CAT-HW"].id,
+                uom_id=uom_ea_id,
+                quantity=Decimal("20.00"),
+                estimated_unit_price=Decimal("45000.00"),
+                delivery_location_id=loc.id,
+            )
+            db.add_all([line1_1, line1_2])
+
+            if acme_vendor:
+                part1_1 = RfqParticipant(
+                    org_id=DEFAULT_ORG_ID,
+                    rfq_id=rfq1.id,
+                    vendor_id=acme_vendor.id,
+                    invited_at=now - timedelta(days=1),
+                    invitation_status="INVITED",
+                )
+                db.add(part1_1)
+            if gc_vendor:
+                part1_2 = RfqParticipant(
+                    org_id=DEFAULT_ORG_ID,
+                    rfq_id=rfq1.id,
+                    vendor_id=gc_vendor.id,
+                    invited_at=now - timedelta(days=1),
+                    invitation_status="INVITED",
+                )
+                db.add(part1_2)
+
+            clarif1 = RfqClarification(
+                org_id=DEFAULT_ORG_ID,
+                rfq_id=rfq1.id,
+                question="Is 3-year on-site AppleCare+ enterprise warranty required to be bundled?",
+                answer="Yes, 3-year comprehensive on-site next-business-day warranty is mandatory.",
+                asked_by=supplier_user.id if acme_vendor else buyer_user.id,
+                asked_by_vendor_id=acme_vendor.id if acme_vendor else None,
+                answered_by=buyer_user.id,
+                answered_at=now - timedelta(hours=12),
+                is_published=True,
+                published_at=now - timedelta(hours=12),
+            )
+            db.add(clarif1)
+            logger.info("Created Demo RFQ: RFQ-2026-000001 (PUBLISHED)")
+
+            # RFQ 2: Open Tender with closed deadline and submitted sealed bids (ready for Dual-Auth Opening)
+            rfq2 = Rfq(
+                org_id=DEFAULT_ORG_ID,
+                rfq_number="RFQ-2026-000002",
+                title="Enterprise Cloud Object Storage & Backup Expansion",
+                description="Procurement of 500TB high-throughput multi-region cloud object storage with 99.999999999% durability SLA.",
+                rfq_type=RfqTypeEnum.OPEN_TENDER,
+                sourcing_type=SourcingTypeEnum.SERVICES,
+                evaluation_type=EvaluationTypeEnum.L1_PRICE_ONLY,
+                procurement_type=ProcurementTypeEnum.OPEX,
+                status=RfqStatusEnum.BID_OPEN,
+                buyer_id=buyer_user.id,
+                business_unit_id=bu.id,
+                category_id=categories["CAT-CLOUD"].id,
+                currency="INR",
+                estimated_value=Decimal("1200000.00"),
+                bid_open_at=now - timedelta(hours=1),
+                bid_close_at=now - timedelta(hours=1),
+                bid_validity_days=90,
+                is_multi_lot=False,
+                published_at=now - timedelta(days=3),
+                created_by=buyer_user.id,
+                updated_by=buyer_user.id,
+            )
+            db.add(rfq2)
+            await db.flush()
+
+            lot2 = RfqLot(
+                org_id=DEFAULT_ORG_ID,
+                rfq_id=rfq2.id,
+                lot_number=1,
+                title="Cloud Storage Service Lot",
+                estimated_value=Decimal("1200000.00"),
+            )
+            db.add(lot2)
+            await db.flush()
+
+            line2_1 = RfqLine(
+                org_id=DEFAULT_ORG_ID,
+                rfq_id=rfq2.id,
+                lot_id=lot2.id,
+                line_number=1,
+                item_description="500TB Managed S3-Compatible Object Storage (Annual)",
+                category_id=categories["CAT-CLOUD"].id,
+                uom_id=uom_ea_id,
+                quantity=Decimal("1.00"),
+                estimated_unit_price=Decimal("1200000.00"),
+                delivery_location_id=loc.id,
+            )
+            db.add(line2_1)
+            await db.flush()
+
+            if acme_vendor:
+                part2_1 = RfqParticipant(
+                    org_id=DEFAULT_ORG_ID,
+                    rfq_id=rfq2.id,
+                    vendor_id=acme_vendor.id,
+                    invited_at=now - timedelta(days=3),
+                    invitation_status="ACCEPTED",
+                    accepted_at=now - timedelta(days=2),
+                )
+                db.add(part2_1)
+
+                bid2 = BidResponse(
+                    org_id=DEFAULT_ORG_ID,
+                    rfq_id=rfq2.id,
+                    vendor_id=acme_vendor.id,
+                    status=BidStatusEnum.SUBMITTED,
+                    total_amount_encrypted=encrypt_field("1150000.00"),
+                    total_amount=Decimal("0.00"),
+                    current_version=1,
+                    submitted_at=now - timedelta(hours=2),
+                    bid_sealed_at=now - timedelta(hours=2),
+                    bid_validity_days=90,
+                    technical_offer_compliant=True,
+                )
+                db.add(bid2)
+                await db.flush()
+
+                bid2_line = BidLineResponse(
+                    org_id=DEFAULT_ORG_ID,
+                    bid_id=bid2.id,
+                    rfq_line_id=line2_1.id,
+                    lot_id=lot2.id,
+                    unit_price_encrypted=encrypt_field("1150000.00"),
+                    total_price_encrypted=encrypt_field("1150000.00"),
+                    quantity=Decimal("1.00"),
+                    currency="INR",
+                    delivery_days=14,
+                    tax_rate_declared=Decimal("18.00"),
+                )
+                db.add(bid2_line)
+
+            logger.info("Created Demo RFQ: RFQ-2026-000002 (BID_OPEN - ready for Dual-Auth Opening)")
+
+            # RFQ 3: Draft RFQ for Buyer
+            rfq3 = Rfq(
+                org_id=DEFAULT_ORG_ID,
+                rfq_number="RFQ-2026-000003",
+                title="Office Ergonomic Workstations & Accessories",
+                description="Procurement of ergonomic task chairs and motorized standing desks for expansion floor.",
+                rfq_type=RfqTypeEnum.LIMITED_TENDER,
+                sourcing_type=SourcingTypeEnum.GOODS,
+                evaluation_type=EvaluationTypeEnum.L1_PRICE_ONLY,
+                procurement_type=ProcurementTypeEnum.OPEX,
+                status=RfqStatusEnum.DRAFT,
+                buyer_id=buyer_user.id,
+                business_unit_id=bu.id,
+                category_id=categories["CAT-HW"].id,
+                currency="INR",
+                estimated_value=Decimal("450000.00"),
+                bid_validity_days=30,
+                is_multi_lot=False,
+                created_by=buyer_user.id,
+                updated_by=buyer_user.id,
+            )
+            db.add(rfq3)
+            await db.flush()
+
+            lot3 = RfqLot(
+                org_id=DEFAULT_ORG_ID,
+                rfq_id=rfq3.id,
+                lot_number=1,
+                title="Ergonomic Furniture Lot",
+                estimated_value=Decimal("450000.00"),
+            )
+            db.add(lot3)
+            await db.flush()
+
+            line3_1 = RfqLine(
+                org_id=DEFAULT_ORG_ID,
+                rfq_id=rfq3.id,
+                lot_id=lot3.id,
+                line_number=1,
+                item_description="High-Back Ergonomic Mesh Task Chairs with 3D Armrests",
+                category_id=categories["CAT-HW"].id,
+                uom_id=uom_ea_id,
+                quantity=Decimal("25.00"),
+                estimated_unit_price=Decimal("18000.00"),
+                delivery_location_id=loc.id,
+            )
+            db.add(line3_1)
+            logger.info("Created Demo RFQ: RFQ-2026-000003 (DRAFT)")
 
         await db.commit()
         logger.info("Demo data seeding completed successfully!")

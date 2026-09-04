@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy import select, and_, desc
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.auth.dependencies import get_current_user, require_permission
+from app.auth.dependencies import get_current_user, require_permission, require_any_permission
 from app.core.constants import PermissionCode, AuditAction
 from app.core.exceptions import ForbiddenError, NotFoundError
 from app.core.responses import APIResponse, PaginationMeta, created_response, success_response
@@ -70,21 +70,34 @@ async def list_rfqs(
     search: Optional[str] = Query(None),
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
-    current_user: User = Depends(require_permission(PermissionCode.RFQ_VIEW_ALL)),
+    current_user: User = Depends(require_any_permission(PermissionCode.RFQ_VIEW_ALL, PermissionCode.RFQ_VIEW_OWN)),
     db: AsyncSession = Depends(get_db),
 ):
     skip = (page - 1) * page_size
-    items, total = await rfq_service.list_rfqs(
-        db,
-        org_id=current_user.org_id,
-        status=status_filter,
-        rfq_type=rfq_type,
-        business_unit_id=business_unit_id,
-        category_id=category_id,
-        search=search,
-        skip=skip,
-        limit=page_size,
-    )
+    if current_user.is_supplier_user or current_user.vendor_id:
+        if not current_user.vendor_id:
+            raise ForbiddenError("Supplier user is not linked to any vendor")
+        items, total = await rfq_service.list_for_supplier(
+            db,
+            org_id=current_user.org_id,
+            vendor_id=current_user.vendor_id,
+            status=status_filter,
+            search=search,
+            skip=skip,
+            limit=page_size,
+        )
+    else:
+        items, total = await rfq_service.list_rfqs(
+            db,
+            org_id=current_user.org_id,
+            status=status_filter,
+            rfq_type=rfq_type,
+            business_unit_id=business_unit_id,
+            category_id=category_id,
+            search=search,
+            skip=skip,
+            limit=page_size,
+        )
     total_pages = math.ceil(total / page_size) if total > 0 else 1
     meta = PaginationMeta(
         page=page,
@@ -109,9 +122,25 @@ async def list_rfqs(
 @router.get("/{id}", response_model=APIResponse[RfqDetailResponse])
 async def get_rfq(
     id: UUID,
-    current_user: User = Depends(require_permission(PermissionCode.RFQ_VIEW_ALL)),
+    current_user: User = Depends(require_any_permission(PermissionCode.RFQ_VIEW_ALL, PermissionCode.RFQ_VIEW_OWN)),
     db: AsyncSession = Depends(get_db),
 ):
+    if current_user.is_supplier_user or current_user.vendor_id:
+        if not current_user.vendor_id:
+            raise ForbiddenError("Supplier user is not linked to any vendor")
+        rfq = await rfq_service.get_for_supplier(db, id, current_user.org_id, current_user.vendor_id)
+        res = RfqDetailResponse.model_validate(rfq)
+        if res.participants:
+            res.participants = [p for p in res.participants if p.vendor_id == current_user.vendor_id]
+        if res.clarifications:
+            published_clarifs = []
+            for c in res.clarifications:
+                if c.is_published:
+                    c.asked_by_vendor_id = None
+                    published_clarifs.append(c)
+            res.clarifications = published_clarifs
+        return success_response(res)
+
     rfq = await rfq_service.get_by_id(db, id, current_user.org_id)
     return success_response(RfqDetailResponse.model_validate(rfq))
 
@@ -280,12 +309,21 @@ async def co_authorize_bid_opening(
 @router.get("/{id}/clarifications", response_model=APIResponse[List[RfqClarificationResponse]])
 async def get_clarifications(
     id: UUID,
-    current_user: User = Depends(require_permission(PermissionCode.RFQ_VIEW_ALL)),
+    current_user: User = Depends(require_any_permission(PermissionCode.RFQ_VIEW_ALL, PermissionCode.RFQ_VIEW_OWN)),
     db: AsyncSession = Depends(get_db),
 ):
-    clarifications = await rfq_service.get_clarifications(
-        db, rfq_id=id, org_id=current_user.org_id
-    )
+    if current_user.is_supplier_user or current_user.vendor_id:
+        if not current_user.vendor_id:
+            raise ForbiddenError("Supplier user is not linked to any vendor")
+        await rfq_service.get_for_supplier(db, id, current_user.org_id, current_user.vendor_id)
+        clarifications = await rfq_service.get_clarifications(
+            db, rfq_id=id, org_id=current_user.org_id, actor_vendor_id=current_user.vendor_id
+        )
+    else:
+        await rfq_service.get_by_id(db, id, current_user.org_id)
+        clarifications = await rfq_service.get_clarifications(
+            db, rfq_id=id, org_id=current_user.org_id
+        )
     return success_response([RfqClarificationResponse.model_validate(c) for c in clarifications])
 
 
@@ -293,12 +331,30 @@ async def get_clarifications(
 async def add_clarification(
     id: UUID,
     data: ClarificationCreateRequest,
-    current_user: User = Depends(require_permission(PermissionCode.RFQ_VIEW_ALL)),
+    current_user: User = Depends(require_any_permission(PermissionCode.RFQ_VIEW_ALL, PermissionCode.RFQ_VIEW_OWN)),
     db: AsyncSession = Depends(get_db),
 ):
-    clarification = await rfq_service.add_clarification(
-        db, rfq_id=id, data=data, actor_id=current_user.id, org_id=current_user.org_id
-    )
+    if current_user.is_supplier_user or current_user.vendor_id:
+        if not current_user.vendor_id:
+            raise ForbiddenError("Supplier user is not linked to any vendor")
+        await rfq_service.get_for_supplier(db, id, current_user.org_id, current_user.vendor_id)
+        clarification = await rfq_service.add_clarification(
+            db,
+            rfq_id=id,
+            data=data,
+            actor_id=current_user.id,
+            org_id=current_user.org_id,
+            vendor_id=current_user.vendor_id,
+        )
+    else:
+        await rfq_service.get_by_id(db, id, current_user.org_id)
+        clarification = await rfq_service.add_clarification(
+            db,
+            rfq_id=id,
+            data=data,
+            actor_id=current_user.id,
+            org_id=current_user.org_id,
+        )
     await db.commit()
     return created_response(RfqClarificationResponse.model_validate(clarification))
 

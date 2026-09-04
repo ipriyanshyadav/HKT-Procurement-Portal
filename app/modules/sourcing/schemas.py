@@ -200,6 +200,8 @@ class RfqDetailResponse(BaseModel):
     updated_at: datetime
     lots: List[RfqLotResponse] = Field(default_factory=list)
     lines: List[RfqLineResponse] = Field(default_factory=list)
+    participants: List[RfqParticipantResponse] = Field(default_factory=list)
+    clarifications: List[RfqClarificationResponse] = Field(default_factory=list)
 
 
 class RfqListResponse(BaseModel):

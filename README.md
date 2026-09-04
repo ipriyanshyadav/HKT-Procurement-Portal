@@ -1,17 +1,16 @@
 # Procurement Portal — Enterprise S2C & P2P Platform
 
 ## Current Session State
-**Status:** SPEC_10 (RFQ Lifecycle) & SPEC_11 (Bid Management) Complete (100%)
+**Status:** SPEC_10 & SPEC_11 Frontend-Backend Wiring & Demo Seed Complete (100%)
 **Completed:**
-- **Backend RFQ Lifecycle (SPEC_10):** Implemented 14-state RFQ FSM, `RfqRepository`, `RfqService`, all 18 endpoints in `app/modules/sourcing/router.py`, dual-authorization bid opening protocol, anonymized Q&A clarifications broadcast, multi-lot/line management, and Celery auto-close task `check_bid_windows`.
-- **Backend Bid Management (SPEC_11):** Implemented 11-state Bid FSM, `BidRepository`, `BidService`, AES-256 Fernet price encryption at rest, immutable version snapshots in `bid_versions`, single-vendor situation detection, late-bid rejection, price normalization on unsealing, and permanent denial of pre-opening bid inspection.
-- **Database & Migrations:** Applied migration `0029_rfq_bid_spec10_11.py` with dual-authorization columns, encrypted prices, and indexes.
-- **Frontend Applications (SPEC_10/11):** Implemented TanStack Query hooks `useRfqs` & `useBids`, `BidSealedIndicator` and `ClarificationThread` components, Buyer Portal RFQ pages (list, creation wizard, detail, dual-auth opening UI), and Supplier Portal pages (tenders list, bid submission & revision form).
-- **Verification:** 17/17 security and integration tests passing (`tests/security/test_bid_security.py`, `tests/integration/test_rfq.py`, `tests/integration/test_bid.py`), and 7/7 Turborepo TypeScript packages passing typecheck cleanly.
+- **Supplier Tender Access & Auth:** Implemented `require_any_permission` in `app/auth/dependencies.py`, granted `rfq.view_own` to supplier roles in `seed_master_data.py` & `seed_demo_user.py`, and added `list_for_supplier` & `get_for_supplier` in `RfqRepository`/`RfqService` with participant/open-tender scoping.
+- **Demo Data Seed:** Seeded realistic demo RFQs in `scripts/seed_demo_user.py` (`RFQ-2026-000001` PUBLISHED with invited participants & clarifications, `RFQ-2026-000002` BID_OPEN with sealed bid ready for Dual-Auth Opening, and `RFQ-2026-000003` DRAFT).
+- **Portal Verification:** Verified Buyer Portal displays all 3 RFQs, and Supplier Portal displays invited/open tenders with full bid submission & clarification capabilities without 403 or empty errors.
+- **Verification:** 16/16 backend tests passing, 7/7 Turborepo TypeScript packages passing typecheck cleanly.
 **Migration Head:** 0029_rfq_bid_spec10_11
-**Test Commands:** `OTEL_SDK_DISABLED=true .venv/bin/pytest tests/security/test_bid_security.py tests/integration/test_rfq.py tests/integration/test_bid.py -v` & `pnpm typecheck`
+**Test Commands:** `OTEL_SDK_DISABLED=true .venv/bin/pytest tests/security/test_bid_security.py tests/integration/test_rfq.py tests/integration/test_bid.py -q` & `pnpm typecheck`
 **Next:** SPEC_12 Comparative Statement (CS)
-**Graphify:** 3918 nodes, 8999 edges, 296 communities
+**Graphify:** 3923 nodes, 9040 edges, 309 communities
 
 ---
 

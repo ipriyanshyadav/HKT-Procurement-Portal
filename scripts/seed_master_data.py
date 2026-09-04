@@ -225,6 +225,7 @@ ROLE_PERMISSIONS: dict[str, list[str]] = {
     ],
     "SUPPLIER_ADMIN": [
         PermissionCode.VENDOR_VIEW_OWN,
+        PermissionCode.RFQ_VIEW_OWN,
         PermissionCode.BID_SUBMIT, PermissionCode.BID_VIEW_OWN, PermissionCode.BID_REVISE, PermissionCode.BID_WITHDRAW,
         PermissionCode.INVOICE_SUBMIT, PermissionCode.INVOICE_VIEW_OWN,
         PermissionCode.PO_ACKNOWLEDGE, PermissionCode.PO_VIEW_OWN,
@@ -236,6 +237,7 @@ ROLE_PERMISSIONS: dict[str, list[str]] = {
     ],
     "SUPPLIER_USER": [
         PermissionCode.VENDOR_VIEW_OWN,
+        PermissionCode.RFQ_VIEW_OWN,
         PermissionCode.BID_SUBMIT, PermissionCode.BID_VIEW_OWN,
         PermissionCode.INVOICE_SUBMIT, PermissionCode.INVOICE_VIEW_OWN,
         PermissionCode.PO_VIEW_OWN,

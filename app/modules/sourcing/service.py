@@ -138,6 +138,32 @@ class RfqService:
             raise NotFoundError(f"RFQ {rfq_id} not found")
         return rfq
 
+    async def get_for_supplier(
+        self,
+        db: AsyncSession,
+        rfq_id: UUID,
+        org_id: UUID,
+        vendor_id: UUID,
+    ) -> Rfq:
+        rfq = await rfq_repository.get(db, rfq_id, org_id)
+        if not rfq:
+            raise NotFoundError(f"RFQ {rfq_id} not found")
+        unapproved = {
+            RFQStatus.DRAFT.value,
+            RFQStatus.PENDING_APPROVAL.value,
+            RFQStatus.APPROVED.value,
+            RFQStatus.COMPLIANCE_HOLD.value,
+        }
+        if rfq.status in unapproved:
+            raise ForbiddenError("RFQ is not published")
+        if rfq.rfq_type != RFQType.OPEN_TENDER.value:
+            participant = await rfq_participant_repository.get_by_vendor(
+                db, rfq_id=rfq_id, vendor_id=vendor_id, org_id=org_id
+            )
+            if not participant:
+                raise ForbiddenError("You are not an invited participant for this RFQ")
+        return rfq
+
     async def list_rfqs(
         self,
         db: AsyncSession,
@@ -159,6 +185,26 @@ class RfqService:
             business_unit_id=business_unit_id,
             category_id=category_id,
             buyer_id=buyer_id,
+            search=search,
+            skip=skip,
+            limit=limit,
+        )
+
+    async def list_for_supplier(
+        self,
+        db: AsyncSession,
+        org_id: UUID,
+        vendor_id: UUID,
+        status: Optional[str] = None,
+        search: Optional[str] = None,
+        skip: int = 0,
+        limit: int = 20,
+    ):
+        return await rfq_repository.list_for_supplier(
+            db,
+            org_id=org_id,
+            vendor_id=vendor_id,
+            status=status,
             search=search,
             skip=skip,
             limit=limit,

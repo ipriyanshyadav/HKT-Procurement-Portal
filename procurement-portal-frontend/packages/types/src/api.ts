@@ -2710,7 +2710,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T12:31:28.869303
+             * @default 2026-09-04T12:49:59.269282
              */
             timestamp: string;
         };
@@ -2722,7 +2722,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T12:31:28.869303
+             * @default 2026-09-04T12:49:59.269282
              */
             timestamp: string;
         };
@@ -2735,7 +2735,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T12:31:28.869303
+             * @default 2026-09-04T12:49:59.269282
              */
             timestamp: string;
         };
@@ -2748,7 +2748,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T12:31:28.869303
+             * @default 2026-09-04T12:49:59.269282
              */
             timestamp: string;
         };
@@ -2761,7 +2761,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T12:31:28.869303
+             * @default 2026-09-04T12:49:59.269282
              */
             timestamp: string;
         };
@@ -2774,7 +2774,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T12:31:28.869303
+             * @default 2026-09-04T12:49:59.269282
              */
             timestamp: string;
         };
@@ -2787,7 +2787,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T12:31:28.869303
+             * @default 2026-09-04T12:49:59.269282
              */
             timestamp: string;
         };
@@ -2800,7 +2800,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T12:31:28.869303
+             * @default 2026-09-04T12:49:59.269282
              */
             timestamp: string;
         };
@@ -2815,7 +2815,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T12:31:28.869303
+             * @default 2026-09-04T12:49:59.269282
              */
             timestamp: string;
         };
@@ -2827,7 +2827,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T12:31:28.869303
+             * @default 2026-09-04T12:49:59.269282
              */
             timestamp: string;
         };
@@ -2839,7 +2839,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T12:31:28.869303
+             * @default 2026-09-04T12:49:59.269282
              */
             timestamp: string;
         };
@@ -2851,7 +2851,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T12:31:28.869303
+             * @default 2026-09-04T12:49:59.269282
              */
             timestamp: string;
         };
@@ -2863,7 +2863,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T12:31:28.869303
+             * @default 2026-09-04T12:49:59.269282
              */
             timestamp: string;
         };
@@ -2875,7 +2875,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T12:31:28.869303
+             * @default 2026-09-04T12:49:59.269282
              */
             timestamp: string;
         };
@@ -2887,7 +2887,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T12:31:28.869303
+             * @default 2026-09-04T12:49:59.269282
              */
             timestamp: string;
         };
@@ -2899,7 +2899,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T12:31:28.869303
+             * @default 2026-09-04T12:49:59.269282
              */
             timestamp: string;
         };
@@ -4055,6 +4055,10 @@ export interface components {
             lots?: components["schemas"]["RfqLotResponse"][];
             /** Lines */
             lines?: components["schemas"]["RfqLineResponse"][];
+            /** Participants */
+            participants?: components["schemas"]["RfqParticipantResponse"][];
+            /** Clarifications */
+            clarifications?: components["schemas"]["RfqClarificationResponse"][];
         };
         /** RfqLineCreateRequest */
         RfqLineCreateRequest: {
