@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import {
   useWorkflowInstance,
@@ -97,11 +98,11 @@ export default function TaskDetailPage() {
   return (
     <div className="p-6 max-w-2xl mx-auto space-y-6">
       {/* Back link */}
-      <nav aria-label="Breadcrumb">
-        <a href="/tasks" className="text-sm text-blue-600 hover:underline">
-          ← Back to Inbox
-        </a>
-      </nav>
+      <div>
+        <Link href="/tasks" className="text-xs text-blue-600 hover:underline mb-1 inline-block">
+          ← Back to Tasks List
+        </Link>
+      </div>
 
       {/* Instance details */}
       {instance && (

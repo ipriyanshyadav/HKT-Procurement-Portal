@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import {
   useValidateInvitationToken,
@@ -95,6 +96,14 @@ export default function SupplierRegistrationWizard() {
             This invitation token is either invalid or has expired (7-day TTL exceeded).
             Please request a new invitation from your procurement contact.
           </p>
+          <div className="pt-2">
+            <Link
+              href="/register"
+              className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-800"
+            >
+              ← Back to Registration Overview
+            </Link>
+          </div>
         </div>
       </div>
     );
@@ -187,12 +196,20 @@ export default function SupplierRegistrationWizard() {
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-4 sm:px-6">
       <div className="max-w-3xl mx-auto space-y-8">
-        {/* Header */}
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900">Supplier Onboarding Wizard</h1>
-          <p className="text-sm text-gray-500 mt-1">
-            Step {step} of {WIZARD_STEPS.length}: {WIZARD_STEPS[step - 1]}
-          </p>
+        {/* Back Link & Header */}
+        <div>
+          <Link
+            href="/register"
+            className="text-xs text-blue-600 hover:underline mb-4 inline-flex items-center gap-1 font-medium"
+          >
+            ← Back to Registration Overview
+          </Link>
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-gray-900">Supplier Onboarding Wizard</h1>
+            <p className="text-sm text-gray-500 mt-1">
+              Step {step} of {WIZARD_STEPS.length}: {WIZARD_STEPS[step - 1]}
+            </p>
+          </div>
         </div>
 
         {/* Step Progress Bar */}

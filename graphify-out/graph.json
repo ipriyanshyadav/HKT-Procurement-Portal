@@ -3644,7 +3644,7 @@
       "file_type": "code",
       "norm_label": "actiontype",
       "source_file": "procurement-portal-frontend/apps/buyer-portal/app/(main)/tasks/[taskId]/page.tsx",
-      "source_location": "L15"
+      "source_location": "L16"
     },
     {
       "id": "procurement_portal_frontend_packages_hooks_src_useworkflowtasks_taskactionpayload",
@@ -14249,7 +14249,7 @@
       "file_type": "code",
       "norm_label": "statusbadge()",
       "source_file": "procurement-portal-frontend/apps/buyer-portal/app/(main)/tasks/[taskId]/page.tsx",
-      "source_location": "L17"
+      "source_location": "L18"
     },
     {
       "id": "procurement_portal_frontend_apps_buyer_portal_app_main_tasks_taskid_page_taskdetailpage",
@@ -14261,7 +14261,7 @@
       "file_type": "code",
       "norm_label": "taskdetailpage()",
       "source_file": "procurement-portal-frontend/apps/buyer-portal/app/(main)/tasks/[taskId]/page.tsx",
-      "source_location": "L39"
+      "source_location": "L40"
     },
     {
       "id": "procurement_portal_frontend_apps_buyer_portal_app_main_tasks_taskid_page_taskdetailpage_handlesubmit",
@@ -14273,7 +14273,7 @@
       "file_type": "code",
       "norm_label": "handlesubmit()",
       "source_file": "procurement-portal-frontend/apps/buyer-portal/app/(main)/tasks/[taskId]/page.tsx",
-      "source_location": "L64"
+      "source_location": "L65"
     },
     {
       "id": "procurement_portal_frontend_packages_hooks_src_useworkflowtasks_useapprovetask",
@@ -15485,7 +15485,7 @@
       "file_type": "code",
       "norm_label": "supplierregistrationwizard()",
       "source_file": "procurement-portal-frontend/apps/supplier-portal/app/register/[token]/page.tsx",
-      "source_location": "L24"
+      "source_location": "L25"
     },
     {
       "id": "procurement_portal_frontend_packages_hooks_src_usemasterdata_usecategorytree",
@@ -23809,7 +23809,7 @@
       "node_kind": "heading",
       "norm_label": "module status",
       "source_file": "README.md",
-      "source_location": "L29"
+      "source_location": "L28"
     },
     {
       "id": "readme_procurement_portal_enterprise_s2c_p2p_platform",
@@ -23833,7 +23833,7 @@
       "node_kind": "heading",
       "norm_label": "quickstart & verification",
       "source_file": "README.md",
-      "source_location": "L60"
+      "source_location": "L59"
     },
     {
       "id": "readme_run_backend_tests",
@@ -23845,7 +23845,7 @@
       "node_kind": "heading",
       "norm_label": "run backend tests",
       "source_file": "README.md",
-      "source_location": "L62"
+      "source_location": "L61"
     },
     {
       "id": "readme_seed_master_data",
@@ -23857,7 +23857,7 @@
       "node_kind": "heading",
       "norm_label": "seed master data",
       "source_file": "README.md",
-      "source_location": "L67"
+      "source_location": "L66"
     },
     {
       "id": "readme_squad_decomposition",
@@ -23869,7 +23869,7 @@
       "node_kind": "heading",
       "norm_label": "squad decomposition",
       "source_file": "README.md",
-      "source_location": "L22"
+      "source_location": "L21"
     },
     {
       "id": "readme_start_docker_stack",
@@ -23881,7 +23881,7 @@
       "node_kind": "heading",
       "norm_label": "start docker stack",
       "source_file": "README.md",
-      "source_location": "L73"
+      "source_location": "L72"
     },
     {
       "id": "readme_system_overview",
@@ -23893,7 +23893,7 @@
       "node_kind": "heading",
       "norm_label": "system overview",
       "source_file": "README.md",
-      "source_location": "L18"
+      "source_location": "L17"
     },
     {
       "id": "reports_spec_03_audit",
@@ -27396,7 +27396,7 @@
       "file_type": "code",
       "norm_label": "wizard_steps",
       "source_file": "procurement-portal-frontend/apps/supplier-portal/app/register/[token]/page.tsx",
-      "source_location": "L13"
+      "source_location": "L14"
     },
     {
       "id": "app_modules_admin_router",
@@ -48431,7 +48431,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "procurement-portal-frontend/apps/buyer-portal/app/(main)/tasks/[taskId]/page.tsx",
-      "source_location": "L44",
+      "source_location": "L45",
       "weight": 1.0
     },
     {
@@ -48443,7 +48443,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "procurement-portal-frontend/apps/buyer-portal/app/(main)/tasks/[taskId]/page.tsx",
-      "source_location": "L51",
+      "source_location": "L52",
       "weight": 1.0
     },
     {
@@ -48455,7 +48455,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "procurement-portal-frontend/apps/buyer-portal/app/(main)/tasks/[taskId]/page.tsx",
-      "source_location": "L55",
+      "source_location": "L56",
       "weight": 1.0
     },
     {
@@ -48467,7 +48467,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "procurement-portal-frontend/apps/buyer-portal/app/(main)/tasks/[taskId]/page.tsx",
-      "source_location": "L57",
+      "source_location": "L58",
       "weight": 1.0
     },
     {
@@ -48479,7 +48479,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "procurement-portal-frontend/apps/buyer-portal/app/(main)/tasks/[taskId]/page.tsx",
-      "source_location": "L58",
+      "source_location": "L59",
       "weight": 1.0
     },
     {
@@ -48491,7 +48491,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "procurement-portal-frontend/apps/buyer-portal/app/(main)/tasks/[taskId]/page.tsx",
-      "source_location": "L59",
+      "source_location": "L60",
       "weight": 1.0
     },
     {
@@ -48815,7 +48815,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "procurement-portal-frontend/apps/supplier-portal/app/register/[token]/page.tsx",
-      "source_location": "L29",
+      "source_location": "L30",
       "weight": 1.0
     },
     {
@@ -48827,7 +48827,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "procurement-portal-frontend/apps/supplier-portal/app/register/[token]/page.tsx",
-      "source_location": "L30",
+      "source_location": "L31",
       "weight": 1.0
     },
     {
@@ -48839,7 +48839,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "procurement-portal-frontend/apps/supplier-portal/app/register/[token]/page.tsx",
-      "source_location": "L31",
+      "source_location": "L32",
       "weight": 1.0
     },
     {
@@ -48851,7 +48851,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "procurement-portal-frontend/apps/supplier-portal/app/register/[token]/page.tsx",
-      "source_location": "L32",
+      "source_location": "L33",
       "weight": 1.0
     },
     {
@@ -69266,7 +69266,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "procurement-portal-frontend/apps/buyer-portal/app/(main)/tasks/[taskId]/page.tsx",
-      "source_location": "L12",
+      "source_location": "L13",
       "weight": 1.0
     },
     {
@@ -69278,7 +69278,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "procurement-portal-frontend/apps/buyer-portal/app/(main)/tasks/[taskId]/page.tsx",
-      "source_location": "L13",
+      "source_location": "L14",
       "weight": 1.0
     },
     {
@@ -69290,7 +69290,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "procurement-portal-frontend/apps/buyer-portal/app/(main)/tasks/[taskId]/page.tsx",
-      "source_location": "L5",
+      "source_location": "L6",
       "weight": 1.0
     },
     {
@@ -69302,7 +69302,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "procurement-portal-frontend/apps/buyer-portal/app/(main)/tasks/[taskId]/page.tsx",
-      "source_location": "L5",
+      "source_location": "L6",
       "weight": 1.0
     },
     {
@@ -69314,7 +69314,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "procurement-portal-frontend/apps/buyer-portal/app/(main)/tasks/[taskId]/page.tsx",
-      "source_location": "L5",
+      "source_location": "L6",
       "weight": 1.0
     },
     {
@@ -69326,7 +69326,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "procurement-portal-frontend/apps/buyer-portal/app/(main)/tasks/[taskId]/page.tsx",
-      "source_location": "L5",
+      "source_location": "L6",
       "weight": 1.0
     },
     {
@@ -69338,7 +69338,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "procurement-portal-frontend/apps/buyer-portal/app/(main)/tasks/[taskId]/page.tsx",
-      "source_location": "L5",
+      "source_location": "L6",
       "weight": 1.0
     },
     {
@@ -70046,7 +70046,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "procurement-portal-frontend/apps/supplier-portal/app/register/[token]/page.tsx",
-      "source_location": "L11",
+      "source_location": "L12",
       "weight": 1.0
     },
     {
@@ -70058,7 +70058,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "procurement-portal-frontend/apps/supplier-portal/app/register/[token]/page.tsx",
-      "source_location": "L5",
+      "source_location": "L6",
       "weight": 1.0
     },
     {
@@ -70070,7 +70070,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "procurement-portal-frontend/apps/supplier-portal/app/register/[token]/page.tsx",
-      "source_location": "L5",
+      "source_location": "L6",
       "weight": 1.0
     },
     {
@@ -70082,7 +70082,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "procurement-portal-frontend/apps/supplier-portal/app/register/[token]/page.tsx",
-      "source_location": "L5",
+      "source_location": "L6",
       "weight": 1.0
     },
     {
@@ -70094,7 +70094,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "procurement-portal-frontend/apps/supplier-portal/app/register/[token]/page.tsx",
-      "source_location": "L5",
+      "source_location": "L6",
       "weight": 1.0
     },
     {
@@ -79180,7 +79180,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "procurement-portal-frontend/apps/buyer-portal/app/(main)/tasks/[taskId]/page.tsx",
-      "source_location": "L12",
+      "source_location": "L13",
       "weight": 1.0
     },
     {
@@ -79192,7 +79192,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "procurement-portal-frontend/apps/buyer-portal/app/(main)/tasks/[taskId]/page.tsx",
-      "source_location": "L13",
+      "source_location": "L14",
       "weight": 1.0
     },
     {
@@ -79204,7 +79204,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "procurement-portal-frontend/apps/buyer-portal/app/(main)/tasks/[taskId]/page.tsx",
-      "source_location": "L5",
+      "source_location": "L6",
       "weight": 1.0
     },
     {
@@ -79433,7 +79433,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "procurement-portal-frontend/apps/supplier-portal/app/register/[token]/page.tsx",
-      "source_location": "L11",
+      "source_location": "L12",
       "weight": 1.0
     },
     {
@@ -79445,7 +79445,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "procurement-portal-frontend/apps/supplier-portal/app/register/[token]/page.tsx",
-      "source_location": "L5",
+      "source_location": "L6",
       "weight": 1.0
     },
     {
@@ -100347,7 +100347,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "procurement-portal-frontend/apps/buyer-portal/app/(main)/tasks/[taskId]/page.tsx",
-      "source_location": "L15",
+      "source_location": "L16",
       "weight": 1.0
     },
     {
@@ -100358,7 +100358,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "procurement-portal-frontend/apps/buyer-portal/app/(main)/tasks/[taskId]/page.tsx",
-      "source_location": "L17",
+      "source_location": "L18",
       "weight": 1.0
     },
     {
@@ -100369,7 +100369,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "procurement-portal-frontend/apps/buyer-portal/app/(main)/tasks/[taskId]/page.tsx",
-      "source_location": "L39",
+      "source_location": "L40",
       "weight": 1.0
     },
     {
@@ -100380,7 +100380,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "procurement-portal-frontend/apps/buyer-portal/app/(main)/tasks/[taskId]/page.tsx",
-      "source_location": "L64",
+      "source_location": "L65",
       "weight": 1.0
     },
     {
@@ -101106,7 +101106,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "procurement-portal-frontend/apps/supplier-portal/app/register/[token]/page.tsx",
-      "source_location": "L13",
+      "source_location": "L14",
       "weight": 1.0
     },
     {
@@ -101117,7 +101117,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "procurement-portal-frontend/apps/supplier-portal/app/register/[token]/page.tsx",
-      "source_location": "L24",
+      "source_location": "L25",
       "weight": 1.0
     },
     {
@@ -105649,7 +105649,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L18",
+      "source_location": "L17",
       "weight": 1.0
     },
     {
@@ -105671,7 +105671,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L60",
+      "source_location": "L59",
       "weight": 1.0
     },
     {
@@ -105682,7 +105682,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L62",
+      "source_location": "L61",
       "weight": 1.0
     },
     {
@@ -105693,7 +105693,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L67",
+      "source_location": "L66",
       "weight": 1.0
     },
     {
@@ -105704,7 +105704,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L73",
+      "source_location": "L72",
       "weight": 1.0
     },
     {
@@ -105715,7 +105715,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L22",
+      "source_location": "L21",
       "weight": 1.0
     },
     {
@@ -105726,7 +105726,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L29",
+      "source_location": "L28",
       "weight": 1.0
     },
     {
@@ -130601,5 +130601,5 @@
       "source_file": "specs/SPEC_04_AUTH_SECURITY.md"
     }
   ],
-  "built_at_commit": "14c9e31945f8c5dbd8abe0f14889054920850c09"
+  "built_at_commit": "3cf25d035d3176ba09965a63e359c5db16764656"
 }

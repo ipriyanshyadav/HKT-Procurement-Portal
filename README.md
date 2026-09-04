@@ -1,17 +1,16 @@
 # Procurement Portal — Enterprise S2C & P2P Platform
 
 ## Current Session State
-**Status:** Portals Architecture & UI Consistency Completed (100%)
+**Status:** Portals Backtrack Navigation & Layout Alignment Completed (100%)
 **Completed:**
-- **Approvals & Tasks 500 Fix:** Added migration `0028_fix_missing_model_columns` adding `deleted_at` to `workflow_tasks`; enhanced `success_response` in `app/core/responses.py` to handle both `dict` and `PaginationMeta` seamlessly.
-- **Admin System Dashboard:** Created `apps/admin-portal/app/(main)/dashboard/page.tsx`, redirected `/` to `/dashboard`, and updated navigation link from categories to dedicated dashboard view.
-- **Supplier Self-Service Registration:** Created `apps/supplier-portal/app/register/page.tsx` with 8-step overview, token input, and 1-click demo wizard launcher; linked in navbar and login page.
-- **Unified Portal UI Consistency:** Standardized ProcureFlow top navbar, portal badge, tab styling, user profile pill, and sign-out across all 3 portals (3000, 3001, 3002).
-- **Verification:** Unit and integration test suite passing (220 passed); full monorepo build passing (`turbo build` 7/7); all routes verified with HTTP 200.
+- **Universal Backtrack Links:** Added standard `← Back to ...` links across all portals: `← Back to Requisitions List` (`/requisitions/new`, `/requisitions/[id]`), `← Back to Vendors List` (`/vendors/invite`, `/vendors/[id]`), `← Back to Tasks List` (`/tasks/[taskId]`), `← Back to Categories List` (`/master-data/categories/[id]`), and `← Back to Registration Overview` (`/register/[token]`).
+- **ProcureFlow Brand Redirects:** Clicking the ProcureFlow header logo now redirects to post-login landing in each portal: Buyer -> `/requisitions`, Supplier -> `/profile`, Admin -> `/dashboard`.
+- **Admin Portal Layout Margins:** Standardized `Categories`, `CSV Bulk Import`, and `Category Details` views with `p-6 max-w-7xl mx-auto space-y-6`, eliminating over-wide stretching and matching Dashboard margins.
+- **Verification:** Monorepo build passes cleanly (`turbo build` 7/7); all routes responding with HTTP 200; pytest suite passing (220 passed).
 **Migration Head:** 0028_fix_missing_model_columns
 **Test Commands:** `OTEL_SDK_DISABLED=true .venv/bin/pytest tests/unit tests/integration/test_auth_router.py -v`
 **Next:** SPEC_10 RFQ Lifecycle
-**Graphify:** 3440 nodes, 7545 edges, 288 communities
+**Graphify:** 3504 nodes, 7613 edges, 298 communities
 
 ---
 

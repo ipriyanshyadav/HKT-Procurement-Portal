@@ -105,12 +105,19 @@ export default function CategoryDetailPage() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Breadcrumb */}
-      <nav className="flex items-center gap-2 text-xs text-gray-500 font-medium">
-        <Link href="/master-data/categories" className="hover:text-blue-600">
-          Categories
+    <div className="p-6 max-w-7xl mx-auto space-y-6">
+      <div>
+        <Link
+          href="/master-data/categories"
+          className="text-xs text-blue-600 hover:underline mb-2 inline-flex items-center gap-1 font-medium"
+        >
+          ← Back to Categories List
         </Link>
+        {/* Breadcrumb */}
+        <nav className="flex items-center gap-2 text-xs text-gray-500 font-medium mt-1">
+          <Link href="/master-data/categories" className="hover:text-blue-600">
+            Categories
+          </Link>
         {breadcrumbPath.map((item, index) => (
           <React.Fragment key={item.id}>
             <span>/</span>
@@ -123,7 +130,8 @@ export default function CategoryDetailPage() {
             )}
           </React.Fragment>
         ))}
-      </nav>
+        </nav>
+      </div>
 
       {/* Detail Card */}
       <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 space-y-6">

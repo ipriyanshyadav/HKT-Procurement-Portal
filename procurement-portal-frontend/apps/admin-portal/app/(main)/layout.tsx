@@ -23,14 +23,14 @@ export default function AdminMainLayout({ children }: { children: ReactNode }) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center gap-8">
-              <div className="flex items-center gap-2">
+              <Link href="/dashboard" className="flex items-center gap-2 hover:opacity-90 transition-opacity">
                 <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                   ProcureFlow
                 </span>
                 <span className="text-xs font-semibold px-2 py-0.5 bg-blue-50 text-blue-700 border border-blue-200 rounded">
                   Admin Portal
                 </span>
-              </div>
+              </Link>
               <nav className="hidden sm:flex space-x-1">
                 {navItems.map((item) => {
                   const isActive = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href));

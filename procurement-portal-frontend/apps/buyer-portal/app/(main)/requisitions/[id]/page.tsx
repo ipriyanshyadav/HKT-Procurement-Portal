@@ -130,11 +130,12 @@ export default function RequisitionDetailPage() {
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b pb-4">
         <div>
-          <nav className="text-xs text-gray-500 mb-1">
-            <Link href="/requisitions" className="hover:underline">Requisitions</Link>
-            <span className="mx-2">/</span>
-            <span className="font-mono text-gray-700">{pr.pr_number}</span>
-          </nav>
+          <Link
+            href="/requisitions"
+            className="text-xs text-blue-600 hover:underline mb-1 inline-block"
+          >
+            ← Back to Requisitions List
+          </Link>
           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-bold text-gray-900">{pr.title}</h1>
             <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">

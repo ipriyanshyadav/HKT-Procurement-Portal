@@ -131,11 +131,12 @@ export default function NewRequisitionPage() {
       {/* Breadcrumb Header */}
       <div className="flex items-center justify-between">
         <div>
-          <nav className="text-xs text-gray-500 mb-1">
-            <Link href="/requisitions" className="hover:underline">Requisitions</Link>
-            <span className="mx-2">/</span>
-            <span>New Requisition</span>
-          </nav>
+          <Link
+            href="/requisitions"
+            className="text-xs text-blue-600 hover:underline mb-1 inline-block"
+          >
+            ← Back to Requisitions List
+          </Link>
           <h1 className="text-2xl font-bold text-gray-900">Create Purchase Requisition</h1>
         </div>
       </div>
