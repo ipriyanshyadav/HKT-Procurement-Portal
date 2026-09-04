@@ -816,9 +816,9 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/buyer-portal/app/page.tsx": {
-    "mtime": 1788465543.9971895,
-    "seen": 1788466385.863095,
-    "ast_hash": "6c44acbe1158aefbc12a8e5a8da10ebf",
+    "mtime": 1788513916.7872465,
+    "seen": 1788514071.096503,
+    "ast_hash": "e9ec8b769da5c37ca1d2181ab165e70e",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/buyer-portal/next.config.js": {
@@ -948,8 +948,8 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/types/src/api.ts": {
-    "mtime": 1788513400.2060022,
-    "seen": 1788513486.955511,
+    "mtime": 1788513547.214008,
+    "seen": 1788514071.0965528,
     "ast_hash": "a10fabbcdbeb28a64ac0449d61e7107a",
     "semantic_hash": ""
   },
@@ -1482,9 +1482,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1788511805.4277303,
-    "seen": 1788513486.9555871,
-    "ast_hash": "a45a3d4579ee3948958e09fe87fa3fb9",
+    "mtime": 1788513553.0786114,
+    "seen": 1788514071.096637,
+    "ast_hash": "fbb1d9950d47e8d6ba1b937c19ca761a",
     "semantic_hash": ""
   },
   "graphify_diff_20260904_014322.txt": {
@@ -2385,6 +2385,12 @@
     "mtime": 1788513348.0542653,
     "seen": 1788513486.955435,
     "ast_hash": "cc9906d5a8c31785a42191119894291d",
+    "semantic_hash": ""
+  },
+  "procurement-portal-frontend/apps/buyer-portal/app/(main)/layout.tsx": {
+    "mtime": 1788513912.9193127,
+    "seen": 1788514071.096489,
+    "ast_hash": "6a9a19be7195ee774ae80298dfeeb949",
     "semantic_hash": ""
   }
 }

@@ -14,7 +14,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.dependencies import get_current_user, require_permission
 from app.core.constants import PermissionCode
-from app.core.responses import success_response
+from app.core.responses import PaginationMeta, success_response
 from app.db.session import get_db
 from app.modules.user.models import User
 from app.modules.workflow.schemas import (
@@ -57,9 +57,15 @@ async def get_my_tasks(
     total = await workflow_engine._repo.count_pending_tasks_by_user(
         db, current_user.id, current_user.org_id
     )
+    total_pages = max(1, (total + page_size - 1) // page_size) if page_size else 1
     return success_response(
         [WorkflowTaskResponse.model_validate(t) for t in tasks],
-        meta={"page": page, "page_size": page_size, "total": total},
+        meta=PaginationMeta(
+            page=page,
+            page_size=page_size,
+            total_count=total,
+            total_pages=total_pages,
+        ),
     )
 
 

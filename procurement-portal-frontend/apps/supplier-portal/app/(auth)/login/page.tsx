@@ -1,4 +1,6 @@
 "use client";
+
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -104,6 +106,15 @@ export default function SupplierLoginPage() {
           >
             {isPending ? "Signing in..." : "Sign in"}
           </button>
+
+          <div className="text-center pt-4 border-t border-gray-200">
+            <p className="text-sm text-gray-600">
+              New supplier?{" "}
+              <Link href="/register" className="font-medium text-blue-600 hover:text-blue-500">
+                Self-Service Registration →
+              </Link>
+            </p>
+          </div>
         </form>
       </div>
     </div>

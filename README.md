@@ -1,16 +1,17 @@
 # Procurement Portal — Enterprise S2C & P2P Platform
 
 ## Current Session State
-**Status:** Portals End-to-End Bug Fixes Verified (100%)
+**Status:** Portals Architecture & UI Consistency Completed (100%)
 **Completed:**
-- **Admin Portal (3002):** Created `apps/admin-portal/app/(auth)/login/page.tsx` resolving 404; fixed recursive CTE in `CategoryService.get_tree` to dynamically compute category paths without requiring non-existent columns.
-- **Supplier Portal (3001):** Seeded demo supplier user `supplier@acme.com` linked to vendor `V-10001` (Acme Tech Solutions) with role `SUPPLIER` and verified profile loading at `/profile`.
-- **Buyer Portal (3000):** Fixed `PaginationMeta` schema compatibility in `responses.py` for `/requisitions`; resolved cookie session churn in `auth/router.py` with `COOKIE_SECURE=False` for local dev; verified PR list loading.
-- **Verification:** Automated unit & integration tests passing (234 passing, 0 failed); `turbo build` passes across all 7 packages/apps; graphify updated (3,438 nodes, 7,539 edges).
-**Migration Head:** 0027_data_seed
+- **Approvals & Tasks 500 Fix:** Added migration `0028_fix_missing_model_columns` adding `deleted_at` to `workflow_tasks`; enhanced `success_response` in `app/core/responses.py` to handle both `dict` and `PaginationMeta` seamlessly.
+- **Admin System Dashboard:** Created `apps/admin-portal/app/(main)/dashboard/page.tsx`, redirected `/` to `/dashboard`, and updated navigation link from categories to dedicated dashboard view.
+- **Supplier Self-Service Registration:** Created `apps/supplier-portal/app/register/page.tsx` with 8-step overview, token input, and 1-click demo wizard launcher; linked in navbar and login page.
+- **Unified Portal UI Consistency:** Standardized ProcureFlow top navbar, portal badge, tab styling, user profile pill, and sign-out across all 3 portals (3000, 3001, 3002).
+- **Verification:** Unit and integration test suite passing (220 passed); full monorepo build passing (`turbo build` 7/7); all routes verified with HTTP 200.
+**Migration Head:** 0028_fix_missing_model_columns
 **Test Commands:** `OTEL_SDK_DISABLED=true .venv/bin/pytest tests/unit tests/integration/test_auth_router.py -v`
 **Next:** SPEC_10 RFQ Lifecycle
-**Graphify:** 3438 nodes, 7539 edges, 284 communities
+**Graphify:** 3440 nodes, 7545 edges, 288 communities
 
 ---
 

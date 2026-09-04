@@ -13,6 +13,7 @@ export default function SupplierMainLayout({ children }: { children: ReactNode }
   const navItems = [
     { label: "Profile", href: "/profile" },
     { label: "Documents & Compliance", href: "/documents" },
+    { label: "Self-Service Registration", href: "/register" },
   ];
 
   return (
