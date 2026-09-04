@@ -4,7 +4,7 @@ import React, { ReactNode } from "react";
 import { useCurrentUser, useLogout } from "@procurement/hooks";
 import { useAuthStore } from "@procurement/stores";
 import { AppShell } from "@procurement/ui";
-import { Building2, FileCheck, UserPlus } from "lucide-react";
+import { Building2, FileCheck, UserPlus, Gavel } from "lucide-react";
 
 export default function SupplierMainLayout({ children }: { children: ReactNode }) {
   const { data: currentUser } = useCurrentUser();
@@ -13,6 +13,12 @@ export default function SupplierMainLayout({ children }: { children: ReactNode }
   const logoutMutation = useLogout();
 
   const navItems = [
+    {
+      label: "Tenders & Bids",
+      href: "/rfqs",
+      icon: <Gavel className="w-4 h-4" />,
+      section: "Bidding",
+    },
     {
       label: "My Profile",
       href: "/profile",

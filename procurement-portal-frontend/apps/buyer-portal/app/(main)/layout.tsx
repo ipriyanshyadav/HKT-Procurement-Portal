@@ -4,7 +4,7 @@ import React, { ReactNode } from "react";
 import { useCurrentUser, useLogout } from "@procurement/hooks";
 import { useAuthStore } from "@procurement/stores";
 import { AppShell } from "@procurement/ui";
-import { ShoppingCart, CheckSquare, FileQuestion, Users } from "lucide-react";
+import { ShoppingCart, CheckSquare, FileQuestion, Users, FileText } from "lucide-react";
 
 export default function BuyerMainLayout({ children }: { children: ReactNode }) {
   const { data: currentUser } = useCurrentUser();
@@ -18,6 +18,12 @@ export default function BuyerMainLayout({ children }: { children: ReactNode }) {
       href: "/requisitions",
       icon: <ShoppingCart className="w-4 h-4" />,
       section: "Purchasing",
+    },
+    {
+      label: "RFQs & Tenders",
+      href: "/rfqs",
+      icon: <FileText className="w-4 h-4" />,
+      section: "Sourcing",
     },
     {
       label: "Approvals & Tasks",
