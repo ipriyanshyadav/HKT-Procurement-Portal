@@ -8,6 +8,7 @@ import {
   useMergeRequisitions,
   Requisition,
 } from "@procurement/hooks";
+import { PermissionGuard } from "@procurement/ui";
 
 export default function RequisitionsListPage() {
   const router = useRouter();
@@ -92,20 +93,24 @@ export default function RequisitionsListPage() {
         </div>
         <div className="flex items-center gap-3">
           {selectedPRs.length >= 2 && (
-            <button
-              onClick={handleMerge}
-              disabled={mergeMutation.isPending}
-              className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors"
-            >
-              {mergeMutation.isPending ? "Merging..." : `Merge (${selectedPRs.length}) PRs`}
-            </button>
+            <PermissionGuard permission="pr.create">
+              <button
+                onClick={handleMerge}
+                disabled={mergeMutation.isPending}
+                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors"
+              >
+                {mergeMutation.isPending ? "Merging..." : `Merge (${selectedPRs.length}) PRs`}
+              </button>
+            </PermissionGuard>
           )}
-          <Link
-            href="/requisitions/new"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors"
-          >
-            <span>+ New Requisition</span>
-          </Link>
+          <PermissionGuard permission="pr.create">
+            <Link
+              href="/requisitions/new"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors"
+            >
+              <span>+ New Requisition</span>
+            </Link>
+          </PermissionGuard>
         </div>
       </div>
 

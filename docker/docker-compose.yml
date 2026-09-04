@@ -172,9 +172,15 @@ services:
     build:
       context: ../procurement-portal-frontend
       dockerfile: apps/buyer-portal/Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+        NEXT_PUBLIC_WS_URL: ${NEXT_PUBLIC_WS_URL:-ws://localhost:8000}
     container_name: procurement_buyer_portal
     ports:
       - "3000:3000"
+    environment:
+      INTERNAL_API_URL: http://api:8000
+      NODE_ENV: production
     networks:
       - procurement_net
     depends_on:
@@ -184,9 +190,16 @@ services:
     build:
       context: ../procurement-portal-frontend
       dockerfile: apps/supplier-portal/Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+        NEXT_PUBLIC_WS_URL: ${NEXT_PUBLIC_WS_URL:-ws://localhost:8000}
     container_name: procurement_supplier_portal
     ports:
       - "3001:3001"
+    environment:
+      INTERNAL_API_URL: http://api:8000
+      PORT: "3001"
+      NODE_ENV: production
     networks:
       - procurement_net
     depends_on:
@@ -196,9 +209,16 @@ services:
     build:
       context: ../procurement-portal-frontend
       dockerfile: apps/admin-portal/Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+        NEXT_PUBLIC_WS_URL: ${NEXT_PUBLIC_WS_URL:-ws://localhost:8000}
     container_name: procurement_admin_portal
     ports:
       - "3002:3002"
+    environment:
+      INTERNAL_API_URL: http://api:8000
+      PORT: "3002"
+      NODE_ENV: production
     networks:
       - procurement_net
     depends_on:

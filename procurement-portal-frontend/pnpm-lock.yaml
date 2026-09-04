@@ -262,6 +262,9 @@ importers:
 
   packages/ui:
     dependencies:
+      '@procurement/stores':
+        specifier: workspace:*
+        version: link:../stores
       '@radix-ui/react-dialog':
         specifier: ^1.0.0
         version: 1.1.23(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)

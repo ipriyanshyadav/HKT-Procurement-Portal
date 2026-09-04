@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useVendors, Vendor } from "@procurement/hooks";
-import { VendorStatusBadge } from "@procurement/ui";
+import { VendorStatusBadge, PermissionGuard } from "@procurement/ui";
 
 export default function VendorsListPage() {
   const [page, setPage] = useState(1);
@@ -33,13 +33,15 @@ export default function VendorsListPage() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Link
-            href="/vendors/invite"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors"
-          >
-            <span aria-hidden="true">+</span>
-            <span>Invite Vendor</span>
-          </Link>
+          <PermissionGuard permission="vendor.invite">
+            <Link
+              href="/vendors/invite"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors"
+            >
+              <span aria-hidden="true">+</span>
+              <span>Invite Vendor</span>
+            </Link>
+          </PermissionGuard>
         </div>
       </div>
 

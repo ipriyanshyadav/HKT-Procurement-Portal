@@ -11,7 +11,8 @@
     "@radix-ui/react-toast": "^1.1.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
-    "tailwind-merge": "^2.3.0"
+    "tailwind-merge": "^2.3.0",
+    "@procurement/stores": "workspace:*"
   },
   "peerDependencies": {
     "react": "^18.0.0",

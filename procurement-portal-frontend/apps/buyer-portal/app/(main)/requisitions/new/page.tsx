@@ -6,18 +6,30 @@ import Link from "next/link";
 import {
   useCreateRequisition,
   useSubmitRequisition,
+  useBusinessUnits,
+  useCostCenters,
+  useUoms,
   RequisitionLineItem,
 } from "@procurement/hooks";
 import {
   CategoryTreeSelect,
   PRLineItemTable,
   BudgetIndicator,
+  PermissionGuard,
 } from "@procurement/ui";
 
 export default function NewRequisitionPage() {
   const router = useRouter();
   const createMutation = useCreateRequisition();
   const submitMutation = useSubmitRequisition();
+
+  const { data: businessUnits = [] } = useBusinessUnits();
+  const [businessUnitId, setBusinessUnitId] = useState("");
+  const { data: costCenters = [] } = useCostCenters({
+    business_unit_id: businessUnitId || undefined,
+  });
+  const [costCenterId, setCostCenterId] = useState("");
+  const { data: uoms = [] } = useUoms();
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -27,8 +39,6 @@ export default function NewRequisitionPage() {
   const [isCapex, setIsCapex] = useState(false);
   const [requiredByDate, setRequiredByDate] = useState("");
   const [categoryId, setCategoryId] = useState("");
-  const [businessUnitId, setBusinessUnitId] = useState("");
-  const [costCenterId, setCostCenterId] = useState("");
 
   const [lines, setLines] = useState<RequisitionLineItem[]>([
     {
@@ -36,7 +46,7 @@ export default function NewRequisitionPage() {
       item_description: "",
       item_code: "",
       category_id: "",
-      uom_id: "00000000-0000-0000-0000-000000000001",
+      uom_id: "",
       quantity: 1,
       estimated_unit_price: 0,
       estimated_total: 0,
@@ -44,6 +54,33 @@ export default function NewRequisitionPage() {
   ]);
 
   const [error, setError] = useState<string | null>(null);
+
+  // Auto-select first Business Unit if not set
+  React.useEffect(() => {
+    if (!businessUnitId && businessUnits.length > 0) {
+      setBusinessUnitId(businessUnits[0].id);
+    }
+  }, [businessUnits, businessUnitId]);
+
+  // Auto-select first Cost Center when available or when BU changes
+  React.useEffect(() => {
+    if (costCenters.length > 0) {
+      if (!costCenterId || !costCenters.some((c) => c.id === costCenterId)) {
+        setCostCenterId(costCenters[0].id);
+      }
+    } else {
+      setCostCenterId("");
+    }
+  }, [costCenters, costCenterId]);
+
+  // Set default UOM for existing lines once loaded
+  React.useEffect(() => {
+    if (uoms.length > 0) {
+      setLines((prev) =>
+        prev.map((l) => (l.uom_id ? l : { ...l, uom_id: uoms[0].id }))
+      );
+    }
+  }, [uoms]);
 
   const estimatedTotal = lines.reduce(
     (acc, curr) => acc + (curr.estimated_total || curr.quantity * curr.estimated_unit_price || 0),
@@ -58,7 +95,7 @@ export default function NewRequisitionPage() {
         item_description: "",
         item_code: "",
         category_id: categoryId || "",
-        uom_id: "00000000-0000-0000-0000-000000000001",
+        uom_id: uoms[0]?.id || "",
         quantity: 1,
         estimated_unit_price: 0,
         estimated_total: 0,
@@ -81,12 +118,24 @@ export default function NewRequisitionPage() {
       setError("Title must be at least 3 characters");
       return;
     }
+    if (!businessUnitId) {
+      setError("Please select a Business Unit");
+      return;
+    }
+    if (!costCenterId) {
+      setError("Please select a Cost Center");
+      return;
+    }
     if (!categoryId) {
       setError("Please select a primary category");
       return;
     }
     if (lines.some((l) => !l.item_description.trim())) {
       setError("All line items must have a description");
+      return;
+    }
+    if (lines.some((l) => !l.uom_id)) {
+      setError("All line items must have a Unit of Measure");
       return;
     }
 
@@ -96,8 +145,8 @@ export default function NewRequisitionPage() {
         title,
         description: description || undefined,
         procurement_type: procurementType,
-        business_unit_id: businessUnitId || "11111111-1111-1111-1111-111111111111",
-        cost_center_id: costCenterId || "22222222-2222-2222-2222-222222222222",
+        business_unit_id: businessUnitId,
+        cost_center_id: costCenterId,
         category_id: categoryId,
         currency,
         is_emergency: isEmergency,
@@ -217,6 +266,47 @@ export default function NewRequisitionPage() {
               </div>
             </div>
 
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">
+                  Business Unit *
+                </label>
+                <select
+                  value={businessUnitId}
+                  onChange={(e) => {
+                    setBusinessUnitId(e.target.value);
+                    setCostCenterId("");
+                  }}
+                  className="w-full px-3.5 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                >
+                  <option value="">Select Business Unit...</option>
+                  {businessUnits.map((bu) => (
+                    <option key={bu.id} value={bu.id}>
+                      {bu.name} ({bu.code})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">
+                  Cost Center *
+                </label>
+                <select
+                  value={costCenterId}
+                  onChange={(e) => setCostCenterId(e.target.value)}
+                  className="w-full px-3.5 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                >
+                  <option value="">Select Cost Center...</option>
+                  {costCenters.map((cc) => (
+                    <option key={cc.id} value={cc.id}>
+                      {cc.name} ({cc.code})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
             <div>
               <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">
                 Category *
@@ -269,17 +359,20 @@ export default function NewRequisitionPage() {
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <h2 className="text-base font-semibold text-gray-900">Line Items ({lines.length})</h2>
-              <button
-                type="button"
-                onClick={handleAddLine}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 text-xs font-semibold rounded-lg transition-colors"
-              >
-                <span>+ Add Item</span>
-              </button>
+              <PermissionGuard permission="pr.create">
+                <button
+                  type="button"
+                  onClick={handleAddLine}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 text-xs font-semibold rounded-lg transition-colors"
+                >
+                  <span>+ Add Item</span>
+                </button>
+              </PermissionGuard>
             </div>
 
             <PRLineItemTable
               lines={lines}
+              uoms={uoms}
               editable={true}
               currency={currency}
               onLinesChange={(newLines) => setLines(newLines)}
@@ -305,25 +398,27 @@ export default function NewRequisitionPage() {
               Saving as draft allows editing anytime. Submitting routes the PR through automated approval rules.
             </p>
 
-            <div className="space-y-2 pt-2">
-              <button
-                type="button"
-                onClick={() => handleSubmit(false)}
-                disabled={createMutation.isPending}
-                className="w-full py-2.5 px-4 bg-gray-100 hover:bg-gray-200 text-gray-800 text-sm font-semibold rounded-lg transition-colors disabled:opacity-50"
-              >
-                {createMutation.isPending ? "Saving Draft..." : "Save as Draft"}
-              </button>
+            <PermissionGuard permission="pr.create">
+              <div className="space-y-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => handleSubmit(false)}
+                  disabled={createMutation.isPending}
+                  className="w-full py-2.5 px-4 bg-gray-100 hover:bg-gray-200 text-gray-800 text-sm font-semibold rounded-lg transition-colors disabled:opacity-50"
+                >
+                  {createMutation.isPending ? "Saving Draft..." : "Save as Draft"}
+                </button>
 
-              <button
-                type="button"
-                onClick={() => handleSubmit(true)}
-                disabled={createMutation.isPending || submitMutation.isPending}
-                className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors disabled:opacity-50"
-              >
-                {submitMutation.isPending ? "Submitting..." : "Submit for Approval"}
-              </button>
-            </div>
+                <button
+                  type="button"
+                  onClick={() => handleSubmit(true)}
+                  disabled={createMutation.isPending || submitMutation.isPending}
+                  className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors disabled:opacity-50"
+                >
+                  {submitMutation.isPending ? "Submitting..." : "Submit for Approval"}
+                </button>
+              </div>
+            </PermissionGuard>
           </div>
         </div>
       </div>

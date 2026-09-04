@@ -11,7 +11,7 @@ import {
   useReturnTask,
 } from "@procurement/hooks";
 import { useAuthStore } from "@procurement/stores";
-import { SLAIndicator } from "@procurement/ui";
+import { SLAIndicator, PermissionGuard } from "@procurement/ui";
 
 type ActionType = "approve" | "reject" | "return" | null;
 
@@ -155,72 +155,74 @@ export default function TaskDetailPage() {
 
       {/* Action panel — only show if task is still pending */}
       {task && task.status === "PENDING" && instance?.status === "ACTIVE" && (
-        <section className="bg-white rounded-lg shadow ring-1 ring-gray-200 p-5">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            Your Action
-          </h2>
+        <PermissionGuard permission={["pr.approve", "pr.reject", "workflow.update"]}>
+          <section className="bg-white rounded-lg shadow ring-1 ring-gray-200 p-5">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              Your Action
+            </h2>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Action selector */}
-            <fieldset>
-              <legend className="sr-only">Select action</legend>
-              <div className="flex gap-3" role="group" aria-label="Task action">
-                {(["approve", "reject", "return"] as const).map((a) => (
-                  <button
-                    key={a}
-                    type="button"
-                    onClick={() => setAction(a)}
-                    aria-pressed={action === a}
-                    className={`flex-1 rounded-md px-3 py-2 text-sm font-semibold capitalize ring-1 ring-inset transition-colors ${
-                      action === a
-                        ? a === "approve"
-                          ? "bg-green-600 text-white ring-green-600"
-                          : a === "reject"
-                          ? "bg-red-600 text-white ring-red-600"
-                          : "bg-yellow-500 text-white ring-yellow-500"
-                        : "bg-white text-gray-700 ring-gray-300 hover:bg-gray-50"
-                    }`}
-                  >
-                    {a}
-                  </button>
-                ))}
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Action selector */}
+              <fieldset>
+                <legend className="sr-only">Select action</legend>
+                <div className="flex gap-3" role="group" aria-label="Task action">
+                  {(["approve", "reject", "return"] as const).map((a) => (
+                    <button
+                      key={a}
+                      type="button"
+                      onClick={() => setAction(a)}
+                      aria-pressed={action === a}
+                      className={`flex-1 rounded-md px-3 py-2 text-sm font-semibold capitalize ring-1 ring-inset transition-colors ${
+                        action === a
+                          ? a === "approve"
+                            ? "bg-green-600 text-white ring-green-600"
+                            : a === "reject"
+                            ? "bg-red-600 text-white ring-red-600"
+                            : "bg-yellow-500 text-white ring-yellow-500"
+                          : "bg-white text-gray-700 ring-gray-300 hover:bg-gray-50"
+                      }`}
+                    >
+                      {a}
+                    </button>
+                  ))}
+                </div>
+              </fieldset>
+
+              {/* Comment box */}
+              <div>
+                <label htmlFor="comment" className="block text-sm font-medium text-gray-700">
+                  Comment {action === "reject" || action === "return" ? "(required)" : "(optional)"}
+                </label>
+                <textarea
+                  id="comment"
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  rows={3}
+                  required={action === "reject" || action === "return"}
+                  maxLength={2000}
+                  placeholder="Add a comment..."
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                />
               </div>
-            </fieldset>
 
-            {/* Comment box */}
-            <div>
-              <label htmlFor="comment" className="block text-sm font-medium text-gray-700">
-                Comment {action === "reject" || action === "return" ? "(required)" : "(optional)"}
-              </label>
-              <textarea
-                id="comment"
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                rows={3}
-                required={action === "reject" || action === "return"}
-                maxLength={2000}
-                placeholder="Add a comment..."
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-              />
-            </div>
+              {/* Error */}
+              {submitError && (
+                <div role="alert" className="rounded-md bg-red-50 p-3">
+                  <p className="text-sm text-red-600">{submitError}</p>
+                </div>
+              )}
 
-            {/* Error */}
-            {submitError && (
-              <div role="alert" className="rounded-md bg-red-50 p-3">
-                <p className="text-sm text-red-600">{submitError}</p>
-              </div>
-            )}
-
-            {/* Submit */}
-            <button
-              type="submit"
-              disabled={!action || isSubmitting}
-              className="w-full rounded-md bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isSubmitting ? "Submitting…" : "Submit Decision"}
-            </button>
-          </form>
-        </section>
+              {/* Submit */}
+              <button
+                type="submit"
+                disabled={!action || isSubmitting}
+                className="w-full rounded-md bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? "Submitting…" : "Submit Decision"}
+              </button>
+            </form>
+          </section>
+        </PermissionGuard>
       )}
 
       {/* Task already actioned */}

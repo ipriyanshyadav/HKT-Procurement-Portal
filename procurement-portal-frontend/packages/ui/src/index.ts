@@ -30,3 +30,6 @@ export type { WorkflowTimelineProps, WorkflowStep } from "./WorkflowTimeline";
 export { BudgetIndicator } from "./BudgetIndicator";
 export type { BudgetIndicatorProps } from "./BudgetIndicator";
 
+export { PermissionGuard, useHasPermission } from "./PermissionGuard";
+export type { PermissionGuardProps } from "./PermissionGuard";
+

@@ -1,16 +1,17 @@
 # Procurement Portal — Enterprise S2C & P2P Platform
 
 ## Current Session State
-**Status:** Portals Backtrack Navigation & Layout Alignment Completed (100%)
+**Status:** Wiring & PermissionGuard Compliance Completed (100%)
 **Completed:**
-- **Universal Backtrack Links:** Added standard `← Back to ...` links across all portals: `← Back to Requisitions List` (`/requisitions/new`, `/requisitions/[id]`), `← Back to Vendors List` (`/vendors/invite`, `/vendors/[id]`), `← Back to Tasks List` (`/tasks/[taskId]`), `← Back to Categories List` (`/master-data/categories/[id]`), and `← Back to Registration Overview` (`/register/[token]`).
-- **ProcureFlow Brand Redirects:** Clicking the ProcureFlow header logo now redirects to post-login landing in each portal: Buyer -> `/requisitions`, Supplier -> `/profile`, Admin -> `/dashboard`.
-- **Admin Portal Layout Margins:** Standardized `Categories`, `CSV Bulk Import`, and `Category Details` views with `p-6 max-w-7xl mx-auto space-y-6`, eliminating over-wide stretching and matching Dashboard margins.
-- **Verification:** Monorepo build passes cleanly (`turbo build` 7/7); all routes responding with HTTP 200; pytest suite passing (220 passed).
+- **PermissionGuard (Rule 12):** Created `packages/ui/src/PermissionGuard.tsx` and wrapped action buttons across buyer and admin portals.
+- **Requisition Creation Wiring:** Implemented Organization module (`schemas`, `repository`, `service`, `router`), exposed `/api/v1/business-units` and `/api/v1/cost-centers`, seeded default BU/CC/UOM data, and wired real selectors in `new/page.tsx` and `PRLineItemTable.tsx` (zero hardcoded UUIDs).
+- **Admin Portal Protection:** Added `apps/admin-portal/middleware.ts` cookie route protection.
+- **Docker Configs:** Fixed `ENV` assignments and added build `args` + `INTERNAL_API_URL` to `docker-compose.yml`.
+- **Verification:** 331 pytest integration/unit tests passed; 7 Turborepo tasks passed cleanly; Graphify updated.
 **Migration Head:** 0028_fix_missing_model_columns
-**Test Commands:** `OTEL_SDK_DISABLED=true .venv/bin/pytest tests/unit tests/integration/test_auth_router.py -v`
+**Test Commands:** `OTEL_SDK_DISABLED=true .venv/bin/pytest tests/ -q` & `pnpm build`
 **Next:** SPEC_10 RFQ Lifecycle
-**Graphify:** 3504 nodes, 7613 edges, 298 communities
+**Graphify:** 3549 nodes, 7736 edges, 302 communities
 
 ---
 

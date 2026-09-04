@@ -474,9 +474,9 @@
     "semantic_hash": ""
   },
   "app/main.py": {
-    "mtime": 1788511280.3263185,
-    "seen": 1788511795.5494888,
-    "ast_hash": "d7b154ff8bfe230bb4bb20efa12f5fe7",
+    "mtime": 1788517806.788316,
+    "seen": 1788518111.8159978,
+    "ast_hash": "189bfb64fb6bae712d5a4e00f15fbfe2",
     "semantic_hash": ""
   },
   "app/modules/admin/__init__.py": {
@@ -630,9 +630,9 @@
     "semantic_hash": ""
   },
   "app/modules/master_data/router.py": {
-    "mtime": 1788503446.6781697,
-    "seen": 1788503849.524266,
-    "ast_hash": "f9ea197e2b23453bf5a916913478c8ee",
+    "mtime": 1788517925.5562487,
+    "seen": 1788518111.816042,
+    "ast_hash": "a8d8088c02ea1805b5cca2048fec3f6b",
     "semantic_hash": ""
   },
   "app/modules/notification/channels/__init__.py": {
@@ -660,9 +660,9 @@
     "semantic_hash": ""
   },
   "app/modules/organization/router.py": {
-    "mtime": 1788465648.4568098,
-    "seen": 1788466385.86308,
-    "ast_hash": "2dc07e4afc18f7cf6a3edb776b72982f",
+    "mtime": 1788517800.5589304,
+    "seen": 1788518111.816052,
+    "ast_hash": "19889ef7b614babb27968e5cef1d6bf4",
     "semantic_hash": ""
   },
   "app/modules/payment/__init__.py": {
@@ -900,9 +900,9 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/hooks/src/index.ts": {
-    "mtime": 1788507920.7129195,
-    "seen": 1788508950.983867,
-    "ast_hash": "e576d0178fc3f084e963feff686a9b94",
+    "mtime": 1788517958.5370214,
+    "seen": 1788518111.8161511,
+    "ast_hash": "92447e69680ea03783345d6bf941391c",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/hooks/tsconfig.json": {
@@ -948,9 +948,9 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/types/src/api.ts": {
-    "mtime": 1788515025.1034575,
-    "seen": 1788515265.0405178,
-    "ast_hash": "688a7418893620792c1e7027b2d3bc60",
+    "mtime": 1788518058.6272576,
+    "seen": 1788518111.816162,
+    "ast_hash": "f0a635ffb432516d7abe304337520d32",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/types/src/index.ts": {
@@ -966,15 +966,15 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/ui/package.json": {
-    "mtime": 1788465531.13415,
-    "seen": 1788466385.8631098,
-    "ast_hash": "ac1693603fb1ae9b121a0b9f188ecc25",
+    "mtime": 1788517493.0778637,
+    "seen": 1788518111.8161652,
+    "ast_hash": "4cc922d6422b9d4a2652682e93ad6b58",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/ui/src/index.ts": {
-    "mtime": 1788507955.7473252,
-    "seen": 1788508950.9838872,
-    "ast_hash": "8bb37b49dce5de52e128127a5b4bdc9f",
+    "mtime": 1788517509.121373,
+    "seen": 1788518111.816174,
+    "ast_hash": "68b973ea98285302ba60856021b2bbe4",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/ui/src/utils.ts": {
@@ -1050,9 +1050,9 @@
     "semantic_hash": ""
   },
   "scripts/seed_master_data.py": {
-    "mtime": 1788469656.560476,
-    "seen": 1788469734.5116212,
-    "ast_hash": "7a426c31b013e3772f16dfade7d30464",
+    "mtime": 1788517929.573148,
+    "seen": 1788518111.816185,
+    "ast_hash": "56e9f60a7336bc5947f38c4d242a76fd",
     "semantic_hash": ""
   },
   "tests/__init__.py": {
@@ -1164,9 +1164,9 @@
     "semantic_hash": ""
   },
   "docker/docker-compose.yml": {
-    "mtime": 1788465742.1879256,
-    "seen": 1788466385.863137,
-    "ast_hash": "ce9c11084f2b79c9c670339758ffb28c",
+    "mtime": 1788517451.6701946,
+    "seen": 1788518111.8162189,
+    "ast_hash": "df18d2ea847518cc6d20d5f4e810c4b2",
     "semantic_hash": ""
   },
   "kong/kong.yml": {
@@ -1482,9 +1482,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1788515252.9235337,
-    "seen": 1788515265.040592,
-    "ast_hash": "83ec30b6b4bda48b67c23f639950f041",
+    "mtime": 1788516293.203017,
+    "seen": 1788516303.724854,
+    "ast_hash": "bd1f09f3768ff8463157341101ea2ca4",
     "semantic_hash": ""
   },
   "graphify_diff_20260904_014322.txt": {
@@ -1722,9 +1722,9 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/buyer-portal/app/(main)/tasks/[taskId]/page.tsx": {
-    "mtime": 1788501466.470802,
-    "seen": 1788502105.286968,
-    "ast_hash": "ae87cd29802940b6ffde2930c254c696",
+    "mtime": 1788517567.5467076,
+    "seen": 1788518111.8161228,
+    "ast_hash": "17c85374f60a3e4753dcabf1cd558922",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/buyer-portal/app/(main)/tasks/page.tsx": {
@@ -1920,27 +1920,27 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/admin-portal/app/(main)/layout.tsx": {
-    "mtime": 1788514968.0819423,
-    "seen": 1788515265.040443,
-    "ast_hash": "a128333cd4383ac17fb1a984d307b176",
+    "mtime": 1788515987.741398,
+    "seen": 1788516303.7246919,
+    "ast_hash": "81e4596eb9efbe780103607add47f055",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/admin-portal/app/(main)/master-data/categories/[id]/page.tsx": {
-    "mtime": 1788503573.1805959,
-    "seen": 1788503849.5243058,
-    "ast_hash": "033567538edca98c91d34596cd07b49e",
+    "mtime": 1788516159.410368,
+    "seen": 1788516303.724694,
+    "ast_hash": "a0e1325b4e146ebc4c6812ec17f489cd",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/admin-portal/app/(main)/master-data/categories/page.tsx": {
-    "mtime": 1788503560.0663133,
-    "seen": 1788503849.524307,
-    "ast_hash": "b6f35c6eb5bd50ca62fef421b2729832",
+    "mtime": 1788517624.0655034,
+    "seen": 1788518111.816109,
+    "ast_hash": "4b510b1651ac19e4f395467946545a8b",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/admin-portal/app/(main)/master-data/import/page.tsx": {
-    "mtime": 1788503583.4760711,
-    "seen": 1788503849.524308,
-    "ast_hash": "9f3db0703d070d3011aca429debf7b0a",
+    "mtime": 1788516016.914638,
+    "seen": 1788516303.7246962,
+    "ast_hash": "d316b64eded5e887b084741af8c79c16",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/admin-portal/app/providers.tsx": {
@@ -2064,21 +2064,21 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/buyer-portal/app/(main)/vendors/[id]/page.tsx": {
-    "mtime": 1788505083.7646916,
-    "seen": 1788506675.4661179,
-    "ast_hash": "36aa96dfa53b396a09f31e8c029b7351",
+    "mtime": 1788517598.2544355,
+    "seen": 1788518111.8161259,
+    "ast_hash": "6b8937ef908a39c953553ea86ebc0709",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/buyer-portal/app/(main)/vendors/invite/page.tsx": {
-    "mtime": 1788505524.1088357,
-    "seen": 1788506675.4661179,
-    "ast_hash": "8cbab7a723eedc5a880e8cf7bb88bf30",
+    "mtime": 1788516047.9447803,
+    "seen": 1788516303.7247202,
+    "ast_hash": "29a6bdafc7888c657c4971be3cdcf8d9",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/buyer-portal/app/(main)/vendors/page.tsx": {
-    "mtime": 1788505067.6901114,
-    "seen": 1788506675.4661188,
-    "ast_hash": "f02c193162beb514dbccd3b200d95169",
+    "mtime": 1788517579.9071271,
+    "seen": 1788518111.816127,
+    "ast_hash": "2eadea14dee627374ea79cdb263f0963",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/buyer-portal/next-env.d.ts": {
@@ -2094,9 +2094,9 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/supplier-portal/app/(main)/layout.tsx": {
-    "mtime": 1788514997.3661373,
-    "seen": 1788515265.040483,
-    "ast_hash": "01507597f35972c6a551e20909a3dae1",
+    "mtime": 1788515965.4250998,
+    "seen": 1788516303.724736,
+    "ast_hash": "cf746afa73a8cd96bc0220f549ebfa69",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/supplier-portal/app/(main)/profile/page.tsx": {
@@ -2112,9 +2112,9 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/supplier-portal/app/register/[token]/page.tsx": {
-    "mtime": 1788505486.998815,
-    "seen": 1788506675.4661288,
-    "ast_hash": "5e2968bc86f96b076d5d84915fc30159",
+    "mtime": 1788516131.2993717,
+    "seen": 1788516303.724742,
+    "ast_hash": "aa2c5ab06f613dbcbafe23ae1215dd9f",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/supplier-portal/next-env.d.ts": {
@@ -2262,21 +2262,21 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/buyer-portal/app/(main)/requisitions/[id]/page.tsx": {
-    "mtime": 1788508010.6792579,
-    "seen": 1788508950.983843,
-    "ast_hash": "9429a1931690c7bb03b06b6253db91bd",
+    "mtime": 1788517545.8160026,
+    "seen": 1788518111.816121,
+    "ast_hash": "f5f3ce20f307a9cb46163a1ff61eb9f0",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/buyer-portal/app/(main)/requisitions/new/page.tsx": {
-    "mtime": 1788508820.121859,
-    "seen": 1788508950.983844,
-    "ast_hash": "b186e33921098f0ea370fdb2f9aa4bac",
+    "mtime": 1788518053.929993,
+    "seen": 1788518111.816122,
+    "ast_hash": "66904c1dbd74238d3cef7b6caed690b9",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/buyer-portal/app/(main)/requisitions/page.tsx": {
-    "mtime": 1788507985.584313,
-    "seen": 1788508950.983844,
-    "ast_hash": "1fe6bc9a8f0df9e42fbb48d61ce641c4",
+    "mtime": 1788517525.4338279,
+    "seen": 1788518111.816122,
+    "ast_hash": "e298cfc2eacd5d3389ca220b46d10245",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/buyer-portal/app/(main)/unmapped-prs/page.tsx": {
@@ -2298,9 +2298,9 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/ui/src/PRLineItemTable.tsx": {
-    "mtime": 1788508805.625228,
-    "seen": 1788508950.983882,
-    "ast_hash": "5c69b755db4f630ff2d2860734f7855a",
+    "mtime": 1788518016.4809883,
+    "seen": 1788518111.8161678,
+    "ast_hash": "e8f7cdb06e512038319f4c26cf9d439d",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/ui/src/WorkflowTimeline.tsx": {
@@ -2388,9 +2388,9 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/buyer-portal/app/(main)/layout.tsx": {
-    "mtime": 1788513912.9193127,
-    "seen": 1788514071.096489,
-    "ast_hash": "6a9a19be7195ee774ae80298dfeeb949",
+    "mtime": 1788515958.7875738,
+    "seen": 1788516303.724711,
+    "ast_hash": "2090e0d3cca27b8db9900216eb528ddb",
     "semantic_hash": ""
   },
   "alembic/versions/0028_fix_missing_model_columns.py": {
@@ -2406,15 +2406,57 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/supplier-portal/app/register/page.tsx": {
-    "mtime": 1788514988.8732193,
-    "seen": 1788515265.040489,
-    "ast_hash": "3aceb9469416d6c5384c3b63de94e735",
+    "mtime": 1788515998.1377163,
+    "seen": 1788516303.724743,
+    "ast_hash": "705a375cda64a3777468bf371914f20b",
     "semantic_hash": ""
   },
   "specs/PROCUREMENT_APPLE_DESIGN_SPEC.md": {
     "mtime": 1788376276.6049738,
     "seen": 1788515265.04063,
     "ast_hash": "8e04c3fc21e505ed741090ac095726e1",
+    "semantic_hash": ""
+  },
+  "app/modules/organization/repository.py": {
+    "mtime": 1788517794.3475027,
+    "seen": 1788518111.816051,
+    "ast_hash": "24b5a23c8f2839edcc10e3c48d732d6f",
+    "semantic_hash": ""
+  },
+  "app/modules/organization/schemas.py": {
+    "mtime": 1788517790.0070636,
+    "seen": 1788518111.816053,
+    "ast_hash": "be8507f76f5515ed3f6daa80dc5f3e98",
+    "semantic_hash": ""
+  },
+  "app/modules/organization/service.py": {
+    "mtime": 1788517797.2310154,
+    "seen": 1788518111.816054,
+    "ast_hash": "249e67e89a8d36b60d4b21076d070e96",
+    "semantic_hash": ""
+  },
+  "procurement-portal-frontend/apps/admin-portal/middleware.ts": {
+    "mtime": 1788517467.336651,
+    "seen": 1788518111.816113,
+    "ast_hash": "354b969c17b45a310dbe666ffecce6f5",
+    "semantic_hash": ""
+  },
+  "procurement-portal-frontend/packages/hooks/src/useOrganization.ts": {
+    "mtime": 1788517938.8194635,
+    "seen": 1788518111.816154,
+    "ast_hash": "b7ea5daca5e0058a14a008e6bd469ea6",
+    "semantic_hash": ""
+  },
+  "procurement-portal-frontend/packages/ui/src/PermissionGuard.tsx": {
+    "mtime": 1788517498.7982879,
+    "seen": 1788518111.81617,
+    "ast_hash": "4f06b1c4942b67ae6ca9c533aa2f7f09",
+    "semantic_hash": ""
+  },
+  "tests/integration/test_organization_router.py": {
+    "mtime": 1788517872.1050074,
+    "seen": 1788518111.816192,
+    "ast_hash": "87a0778da60ca899f7845e18859c1ed9",
     "semantic_hash": ""
   }
 }

@@ -8,7 +8,7 @@ import {
   useDeleteCategory,
   type CategoryTreeNode,
 } from "@procurement/hooks";
-import { CategoryTreeSelect } from "@procurement/ui";
+import { CategoryTreeSelect, PermissionGuard } from "@procurement/ui";
 
 export default function CategoriesPage() {
   const { data: categories = [], isLoading, error, refetch } = useCategoryTree();
@@ -138,13 +138,15 @@ export default function CategoriesPage() {
               View
             </Link>
 
-            <button
-              type="button"
-              onClick={() => handleDelete(node.id, node.name)}
-              className="px-2.5 py-1 text-xs font-medium text-red-600 bg-white border border-red-200 rounded hover:bg-red-50"
-            >
-              Delete
-            </button>
+            <PermissionGuard permission="master.delete">
+              <button
+                type="button"
+                onClick={() => handleDelete(node.id, node.name)}
+                className="px-2.5 py-1 text-xs font-medium text-red-600 bg-white border border-red-200 rounded hover:bg-red-50"
+              >
+                Delete
+              </button>
+            </PermissionGuard>
           </div>
         </div>
 
@@ -182,13 +184,15 @@ export default function CategoriesPage() {
           >
             Collapse All
           </button>
-          <button
-            type="button"
-            onClick={() => setShowCreateModal(true)}
-            className="px-4 py-1.5 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 shadow-sm"
-          >
-            + Add Category
-          </button>
+          <PermissionGuard permission="master.create">
+            <button
+              type="button"
+              onClick={() => setShowCreateModal(true)}
+              className="px-4 py-2 text-xs font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700 shadow-sm"
+            >
+              + Add Category
+            </button>
+          </PermissionGuard>
         </div>
       </div>
 
@@ -207,13 +211,15 @@ export default function CategoriesPage() {
           <div className="p-12 text-center text-gray-500">
             <p className="text-base font-medium">No categories found</p>
             <p className="text-xs text-gray-400 mt-1">Get started by creating your root categories.</p>
-            <button
-              type="button"
-              onClick={() => setShowCreateModal(true)}
-              className="mt-4 px-4 py-2 text-xs font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
-            >
-              Add First Category
-            </button>
+            <PermissionGuard permission="master.create">
+              <button
+                type="button"
+                onClick={() => setShowCreateModal(true)}
+                className="mt-4 px-4 py-2 text-xs font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
+              >
+                Add First Category
+              </button>
+            </PermissionGuard>
           </div>
         ) : (
           <div>

@@ -88,6 +88,7 @@ ROLE_PERMISSIONS: dict[str, list[str]] = {
         PermissionCode.PR_CANCEL, PermissionCode.USER_VIEW_OWN, PermissionCode.USER_UPDATE_OWN,
         PermissionCode.DOCUMENT_UPLOAD, PermissionCode.DOCUMENT_VIEW_OWN,
         PermissionCode.NOTIFICATION_VIEW_OWN, PermissionCode.ANALYTICS_VIEW_DASHBOARD,
+        PermissionCode.MASTER_VIEW,
     ],
     "APPROVER": [
         PermissionCode.PR_VIEW_BU, PermissionCode.PR_APPROVE, PermissionCode.PR_REJECT,
@@ -378,12 +379,56 @@ async def seed_data() -> None:
             })
 
         # 5. Seed UOMs
-        for uom in DEFAULT_UOMS:
+        DEFAULT_ORG_ID = "00000000-0000-0000-0000-000000000001"
+        await session.execute(text("""
+            INSERT INTO organizations (id, name, legal_name, country_code, version)
+            VALUES (:id, 'Default Organization', 'Default Organization Private Limited', 'IN', 1)
+            ON CONFLICT (id) DO NOTHING
+        """), {"id": DEFAULT_ORG_ID})
+
+        for target_org in [SYSTEM_ORG_ID, DEFAULT_ORG_ID]:
+            for uom in DEFAULT_UOMS:
+                await session.execute(text("""
+                    INSERT INTO uom_master (id, org_id, code, name, is_active, version)
+                    VALUES (:id, :org_id, :code, :name, true, 1)
+                    ON CONFLICT (org_id, code) DO NOTHING
+                """), {"id": str(uuid4()), "org_id": target_org, "code": uom["code"], "name": uom["name"]})
+
+            # 6. Seed Default Legal Entity, Business Unit, and Cost Center
+            le_id = str(uuid4())
             await session.execute(text("""
-                INSERT INTO uom_master (id, org_id, code, name, is_active, version)
-                VALUES (:id, :org_id, :code, :name, true, 1)
+                INSERT INTO legal_entities (id, org_id, name, registration_number, country_code, version)
+                VALUES (:id, :org_id, 'Corporate Legal Entity', 'REG-001', 'IN', 1)
+                ON CONFLICT (org_id, registration_number) DO NOTHING
+            """), {"id": le_id, "org_id": target_org})
+
+            le_res = await session.execute(
+                text("SELECT id FROM legal_entities WHERE org_id = :org_id AND registration_number = 'REG-001'"),
+                {"org_id": target_org}
+            )
+            real_le_id = str(le_res.scalar_one())
+
+            bu_id = str(uuid4())
+            await session.execute(text("""
+                INSERT INTO business_units (id, org_id, legal_entity_id, code, name, default_currency, is_active, version)
+                VALUES (:id, :org_id, :legal_entity_id, 'BU-CORP', 'Corporate & HQ', 'INR', true, 1)
                 ON CONFLICT (org_id, code) DO NOTHING
-            """), {"id": str(uuid4()), "org_id": SYSTEM_ORG_ID, "code": uom["code"], "name": uom["name"]})
+            """), {"id": bu_id, "org_id": target_org, "legal_entity_id": real_le_id})
+
+            bu_res = await session.execute(
+                text("SELECT id FROM business_units WHERE org_id = :org_id AND code = 'BU-CORP'"),
+                {"org_id": target_org}
+            )
+            real_bu_id = str(bu_res.scalar_one())
+
+            cc_id = str(uuid4())
+            await session.execute(text("""
+                INSERT INTO cost_centers (id, org_id, business_unit_id, code, name, annual_budget, available_budget, is_active, version)
+                VALUES (:id, :org_id, :business_unit_id, 'CC-EXEC', 'Executive & Administration', 10000000, 10000000, true, 1)
+                ON CONFLICT (org_id, code) DO NOTHING
+            """), {"id": cc_id, "org_id": target_org, "business_unit_id": real_bu_id})
+
+        logger.info("Seeded default Legal Entity, Business Unit, and Cost Center")
 
         await session.commit()
         logger.info("Master data seeding completed successfully.")

@@ -19,6 +19,7 @@ export interface RequisitionLineItem {
 
 export interface PRLineItemTableProps {
   lines: RequisitionLineItem[];
+  uoms?: Array<{ id: string; code: string; name: string }>;
   editable?: boolean;
   currency?: string;
   onLinesChange?: (lines: RequisitionLineItem[]) => void;
@@ -27,6 +28,7 @@ export interface PRLineItemTableProps {
 
 export const PRLineItemTable: React.FC<PRLineItemTableProps> = ({
   lines,
+  uoms,
   editable = false,
   currency = "INR",
   onLinesChange,
@@ -56,6 +58,7 @@ export const PRLineItemTable: React.FC<PRLineItemTableProps> = ({
               <th scope="col" className="px-4 py-3 w-12 text-center">#</th>
               <th scope="col" className="px-4 py-3">Description</th>
               <th scope="col" className="px-4 py-3">Item Code</th>
+              <th scope="col" className="px-4 py-3">UOM</th>
               <th scope="col" className="px-4 py-3 text-right">Qty</th>
               <th scope="col" className="px-4 py-3 text-right">Unit Price ({currency})</th>
               <th scope="col" className="px-4 py-3 text-right">Total ({currency})</th>
@@ -66,7 +69,7 @@ export const PRLineItemTable: React.FC<PRLineItemTableProps> = ({
           <tbody className="divide-y divide-gray-100 text-gray-800">
             {lines.length === 0 ? (
               <tr>
-                <td colSpan={editable ? 8 : 7} className="text-center py-8 text-gray-400">
+                <td colSpan={editable ? 9 : 8} className="text-center py-8 text-gray-400">
                   No line items added yet.
                 </td>
               </tr>
@@ -100,6 +103,25 @@ export const PRLineItemTable: React.FC<PRLineItemTableProps> = ({
                       />
                     ) : (
                       line.item_code || "—"
+                    )}
+                  </td>
+                  <td className="px-4 py-3">
+                    {editable && uoms && uoms.length > 0 ? (
+                      <select
+                        value={line.uom_id}
+                        onChange={(e) => handleUpdate(idx, "uom_id", e.target.value)}
+                        className="w-28 px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:outline-none bg-white text-xs"
+                      >
+                        {uoms.map((u) => (
+                          <option key={u.id} value={u.id}>
+                            {u.code} ({u.name})
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <span className="text-gray-700 text-xs">
+                        {uoms?.find((u) => u.id === line.uom_id)?.code || line.uom_id || "—"}
+                      </span>
                     )}
                   </td>
                   <td className="px-4 py-3 text-right">
@@ -163,7 +185,7 @@ export const PRLineItemTable: React.FC<PRLineItemTableProps> = ({
           </tbody>
           <tfoot className="bg-gray-50/80 font-semibold border-t border-gray-200">
             <tr>
-              <td colSpan={editable ? 5 : 4} className="px-4 py-3 text-right text-gray-600">
+              <td colSpan={editable ? 6 : 5} className="px-4 py-3 text-right text-gray-600">
                 Estimated Total:
               </td>
               <td className="px-4 py-3 text-right text-base text-blue-600 font-bold">

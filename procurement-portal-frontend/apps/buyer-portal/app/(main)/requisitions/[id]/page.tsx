@@ -16,6 +16,7 @@ import {
   WorkflowTimeline,
   PRLineItemTable,
   BudgetIndicator,
+  PermissionGuard,
 } from "@procurement/ui";
 
 export default function RequisitionDetailPage() {
@@ -148,55 +149,67 @@ export default function RequisitionDetailPage() {
         <div className="flex flex-wrap items-center gap-2">
           {pr.status === "DRAFT" && (
             <>
-              <button
-                onClick={handleSubmit}
-                disabled={submitMutation.isPending}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors"
-              >
-                {submitMutation.isPending ? "Submitting..." : "Submit for Approval"}
-              </button>
-              <button
-                onClick={handleWithdraw}
-                disabled={withdrawMutation.isPending}
-                className="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-semibold rounded-lg transition-colors"
-              >
-                Withdraw
-              </button>
+              <PermissionGuard permission="pr.submit">
+                <button
+                  onClick={handleSubmit}
+                  disabled={submitMutation.isPending}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors"
+                >
+                  {submitMutation.isPending ? "Submitting..." : "Submit for Approval"}
+                </button>
+              </PermissionGuard>
+              <PermissionGuard permission="pr.cancel">
+                <button
+                  onClick={handleWithdraw}
+                  disabled={withdrawMutation.isPending}
+                  className="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-semibold rounded-lg transition-colors"
+                >
+                  Withdraw
+                </button>
+              </PermissionGuard>
             </>
           )}
 
           {["SUBMITTED", "PENDING_APPROVAL"].includes(pr.status) && (
-            <button
-              onClick={handleWithdraw}
-              disabled={withdrawMutation.isPending}
-              className="px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 text-sm font-semibold rounded-lg transition-colors"
-            >
-              {withdrawMutation.isPending ? "Withdrawing..." : "Withdraw Requisition"}
-            </button>
+            <PermissionGuard permission="pr.cancel">
+              <button
+                onClick={handleWithdraw}
+                disabled={withdrawMutation.isPending}
+                className="px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 text-sm font-semibold rounded-lg transition-colors"
+              >
+                {withdrawMutation.isPending ? "Withdrawing..." : "Withdraw Requisition"}
+              </button>
+            </PermissionGuard>
           )}
 
           {pr.status === "APPROVED" && (
             <>
-              <button
-                onClick={handleConvertToRFQ}
-                disabled={rfqMutation.isPending}
-                className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors"
-              >
-                {rfqMutation.isPending ? "Converting..." : "Convert to RFQ"}
-              </button>
-              <button
-                onClick={handleConvertToPO}
-                disabled={poMutation.isPending}
-                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors"
-              >
-                {poMutation.isPending ? "Converting..." : "Convert to PO"}
-              </button>
-              <button
-                onClick={() => setShowSplitModal(true)}
-                className="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-semibold rounded-lg transition-colors"
-              >
-                Split PR
-              </button>
+              <PermissionGuard permission="rfq.create">
+                <button
+                  onClick={handleConvertToRFQ}
+                  disabled={rfqMutation.isPending}
+                  className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors"
+                >
+                  {rfqMutation.isPending ? "Converting..." : "Convert to RFQ"}
+                </button>
+              </PermissionGuard>
+              <PermissionGuard permission="po.create">
+                <button
+                  onClick={handleConvertToPO}
+                  disabled={poMutation.isPending}
+                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors"
+                >
+                  {poMutation.isPending ? "Converting..." : "Convert to PO"}
+                </button>
+              </PermissionGuard>
+              <PermissionGuard permission="pr.create">
+                <button
+                  onClick={() => setShowSplitModal(true)}
+                  className="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-semibold rounded-lg transition-colors"
+                >
+                  Split PR
+                </button>
+              </PermissionGuard>
             </>
           )}
         </div>

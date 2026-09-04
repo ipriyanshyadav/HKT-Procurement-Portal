@@ -15,7 +15,7 @@ import {
   useVendorDetail,
   VendorDocument,
 } from "@procurement/hooks";
-import { ComplianceExpiryAlert, VendorStatusBadge } from "@procurement/ui";
+import { ComplianceExpiryAlert, VendorStatusBadge, PermissionGuard } from "@procurement/ui";
 
 export default function VendorDetailPage() {
   const params = useParams();
@@ -109,77 +109,95 @@ export default function VendorDetailPage() {
         <div className="flex flex-wrap items-center gap-2">
           {["SUBMITTED", "UNDER_REVIEW"].includes(vendor.status) && (
             <>
-              <button
-                onClick={() => setModalAction("QUALIFY")}
-                className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold shadow-sm transition"
-              >
-                Qualify Vendor
-              </button>
-              <button
-                onClick={() => setModalAction("RESUBMIT")}
-                className="px-3.5 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-semibold shadow-sm transition"
-              >
-                Request Resubmission
-              </button>
-              <button
-                onClick={() => setModalAction("REJECT")}
-                className="px-3.5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-semibold shadow-sm transition"
-              >
-                Reject
-              </button>
+              <PermissionGuard permission="vendor.qualify">
+                <button
+                  onClick={() => setModalAction("QUALIFY")}
+                  className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold shadow-sm transition"
+                >
+                  Qualify Vendor
+                </button>
+              </PermissionGuard>
+              <PermissionGuard permission="vendor.reject">
+                <button
+                  onClick={() => setModalAction("RESUBMIT")}
+                  className="px-3.5 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-semibold shadow-sm transition"
+                >
+                  Request Resubmission
+                </button>
+              </PermissionGuard>
+              <PermissionGuard permission="vendor.reject">
+                <button
+                  onClick={() => setModalAction("REJECT")}
+                  className="px-3.5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-semibold shadow-sm transition"
+                >
+                  Reject
+                </button>
+              </PermissionGuard>
             </>
           )}
 
           {vendor.status === "QUALIFIED" && (
-            <button
-              onClick={() => setModalAction("ACTIVATE")}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shadow-sm transition"
-            >
-              Activate Vendor
-            </button>
+            <PermissionGuard permission="vendor.activate">
+              <button
+                onClick={() => setModalAction("ACTIVATE")}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shadow-sm transition"
+              >
+                Activate Vendor
+              </button>
+            </PermissionGuard>
           )}
 
           {vendor.status === "ACTIVE" && (
             <>
-              <button
-                onClick={() => setModalAction("SUSPEND")}
-                className="px-3.5 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-semibold shadow-sm transition"
-              >
-                Suspend
-              </button>
-              <button
-                onClick={() => setModalAction("INITIATE_BLACKLIST")}
-                className="px-3.5 py-2 bg-red-700 hover:bg-red-800 text-white rounded-lg text-xs font-semibold shadow-sm transition"
-              >
-                Initiate Blacklist
-              </button>
+              <PermissionGuard permission="vendor.suspend">
+                <button
+                  onClick={() => setModalAction("SUSPEND")}
+                  className="px-3.5 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-semibold shadow-sm transition"
+                >
+                  Suspend
+                </button>
+              </PermissionGuard>
+              <PermissionGuard permission="vendor.blacklist_initiate">
+                <button
+                  onClick={() => setModalAction("INITIATE_BLACKLIST")}
+                  className="px-3.5 py-2 bg-red-700 hover:bg-red-800 text-white rounded-lg text-xs font-semibold shadow-sm transition"
+                >
+                  Initiate Blacklist
+                </button>
+              </PermissionGuard>
             </>
           )}
 
           {vendor.status === "SUSPENDED" && (
             <>
-              <button
-                onClick={() => setModalAction("REINSTATE")}
-                className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold shadow-sm transition"
-              >
-                Reinstate Vendor
-              </button>
-              <button
-                onClick={() => setModalAction("INITIATE_BLACKLIST")}
-                className="px-3.5 py-2 bg-red-700 hover:bg-red-800 text-white rounded-lg text-xs font-semibold shadow-sm transition"
-              >
-                Initiate Blacklist
-              </button>
+              <PermissionGuard permission="vendor.reinstate">
+                <button
+                  onClick={() => setModalAction("REINSTATE")}
+                  className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold shadow-sm transition"
+                >
+                  Reinstate Vendor
+                </button>
+              </PermissionGuard>
+              <PermissionGuard permission="vendor.blacklist_initiate">
+                <button
+                  onClick={() => setModalAction("INITIATE_BLACKLIST")}
+                  className="px-3.5 py-2 bg-red-700 hover:bg-red-800 text-white rounded-lg text-xs font-semibold shadow-sm transition"
+                >
+                  Initiate Blacklist
+                </button>
+              </PermissionGuard>
             </>
           )}
 
           {vendor.blacklist_reason && !vendor.blacklisted_at && (
-            <button
-              onClick={() => setModalAction("CONFIRM_BLACKLIST")}
-              className="px-3.5 py-2 bg-red-900 hover:bg-red-950 text-white rounded-lg text-xs font-semibold shadow-sm transition animate-pulse"
-            >
-              Confirm Blacklisting (Dual-Approval)
-            </button>
+            <PermissionGuard permission="vendor.blacklist_approve">
+              <button
+                onClick={() => setModalAction("CONFIRM_BLACKLIST")}
+                className="px-3.5 py-2 bg-red-900 hover:bg-red-950 text-white rounded-lg text-xs font-semibold shadow-sm transition animate-pulse"
+              >
+                Confirm Blacklisting (Dual-Approval)
+              </button>
+            </PermissionGuard>
           )}
         </div>
       </div>

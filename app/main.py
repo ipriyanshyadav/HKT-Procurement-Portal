@@ -188,7 +188,7 @@ def create_app() -> FastAPI:
 
     # Routers
     api_router = APIRouter(prefix="/api/v1")
-    api_router.include_router(organization_router, prefix="/organizations", tags=["Organization"])
+    api_router.include_router(organization_router, tags=["Organization"])
     api_router.include_router(user_router, prefix="/users", tags=["User"])
     api_router.include_router(master_data_router, prefix="/master-data", tags=["Master Data"])
     api_router.include_router(vendor_router, prefix="/vendors", tags=["Vendor"])

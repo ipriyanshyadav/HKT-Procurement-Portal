@@ -147,6 +147,7 @@ async def delete_category(
 
 
 @router.get("/uom")
+@router.get("/uoms")
 async def list_uoms(
     active_only: bool = Query(default=True),
     current_user: User = Depends(require_permission(PermissionCode.MASTER_VIEW)),
