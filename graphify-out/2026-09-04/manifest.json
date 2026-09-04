@@ -948,8 +948,8 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/types/src/api.ts": {
-    "mtime": 1788521496.3892667,
-    "seen": 1788521546.8975072,
+    "mtime": 1788521721.6285074,
+    "seen": 1788521776.892013,
     "ast_hash": "49f5bb3143f014f6698d00ba2bd80ae5",
     "semantic_hash": ""
   },
@@ -972,9 +972,9 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/ui/src/index.ts": {
-    "mtime": 1788521076.3208663,
-    "seen": 1788521157.1080298,
-    "ast_hash": "acca039cff5292a5db15b2deb620997a",
+    "mtime": 1788521716.2632422,
+    "seen": 1788521776.893774,
+    "ast_hash": "cb0ea5945814ce4165ef1b70fd8a7168",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/ui/src/utils.ts": {
@@ -1482,9 +1482,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1788521164.2311592,
-    "seen": 1788521226.674348,
-    "ast_hash": "902ee3503fc7191e00533df1b6f6a91e",
+    "mtime": 1788521555.9576895,
+    "seen": 1788521776.8939462,
+    "ast_hash": "1248da6bdf9071db905cb259cc141eae",
     "semantic_hash": ""
   },
   "graphify_diff_20260904_014322.txt": {
@@ -2412,9 +2412,9 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/ui/src/components/AppShell.tsx": {
-    "mtime": 1788521489.795368,
-    "seen": 1788521546.89752,
-    "ast_hash": "ce18d6314a10f728fa3ad8b6fa799e71",
+    "mtime": 1788521707.5982566,
+    "seen": 1788521776.892055,
+    "ast_hash": "24165d3f7aff95e5a464429acdf65561",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/ui/src/components/Badge.tsx": {
@@ -2454,9 +2454,9 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/ui/src/components/Navbar.tsx": {
-    "mtime": 1788520478.0650783,
-    "seen": 1788520787.055826,
-    "ast_hash": "b9d45abf8a1ed1f6d92ffa232fbd3c7f",
+    "mtime": 1788521692.2250683,
+    "seen": 1788521776.892072,
+    "ast_hash": "424c4504ee79b92528e6487ad0786178",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/ui/src/components/PageHeader.tsx": {
@@ -2466,9 +2466,9 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/ui/src/components/Sidebar.tsx": {
-    "mtime": 1788521483.2901325,
-    "seen": 1788521546.897527,
-    "ast_hash": "614c85d528adbed5367dce0b73cb5ff9",
+    "mtime": 1788521682.9959583,
+    "seen": 1788521776.892077,
+    "ast_hash": "b9067aead0a27fb7e67d390591d5acda",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/ui/src/components/Skeleton.tsx": {

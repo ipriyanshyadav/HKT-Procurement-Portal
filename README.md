@@ -1,13 +1,11 @@
 # Procurement Portal — Enterprise S2C & P2P Platform
 
 ## Current Session State
-**Status:** Multi-Mode Sidebar (Pinned / Minimized / Auto-Hide) Complete (100%)
+**Status:** Responsive Symmetrical Canvas Layout & Multi-Mode Sidebar Complete (100%)
 **Completed:**
-- **Sidebar Mode Controls (Pinned / Minimized / Auto-Hide):** Added user-selectable options to minimize, auto-hide, or pin the sidebar across all portals (`admin-portal`, `buyer-portal`, `supplier-portal`).
-- **Sidebar Header Segmented Control:** Added Apple segmented pill selector (`[ Pin | Mini | Auto ]`) in the sidebar header with instant switching.
-- **Top Navbar Quick Cycle Toggle:** Added `PanelLeft` toggle button in `Navbar` cycling between modes with active mode indicator and tooltips.
-- **Persistent Preference:** User's preferred sidebar mode persists in `localStorage` under `procurement_sidebar_mode`.
-- **Dynamic Content Offsets:** Responsive desktop offsets (`md:pl-[264px]` for pinned, `md:pl-[76px]` for minimized rail, `md:pl-10 lg:pl-12` for auto-hide).
+- **Symmetrical Balanced Layout in Mini Mode:** Adjusted `<main>` desktop margins (`md:ml-[60px]`) and symmetrical horizontal padding (`px-4 sm:px-6 md:px-8 lg:px-10`), eliminating the left-side squish and empty right void.
+- **Expansive Widescreen Width:** Replaced nested restrictive `max-w-7xl` containers across requisition, vendor, category, and compliance pages with full-width responsive layouts (`w-full space-y-6`) so tables utilize the full available canvas.
+- **Sidebar Mode Controls (Pinned / Minimized / Auto-Hide):** Added user-selectable options to minimize, auto-hide, or pin the sidebar across all portals with persistent `localStorage` preference.
 - **Verification:** 331 pytest integration/unit tests passed; 7 Turborepo tasks passed cleanly; Graphify updated.
 **Migration Head:** 0028_fix_missing_model_columns
 **Test Commands:** `OTEL_SDK_DISABLED=true .venv/bin/pytest tests/ -q` & `pnpm build`

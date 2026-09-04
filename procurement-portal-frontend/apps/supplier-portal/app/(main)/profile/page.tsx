@@ -116,7 +116,7 @@ export default function SupplierProfilePage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+    <div className="w-full space-y-6">
       {/* Messages */}
       {successMessage && (
         <div className="p-4 bg-green-50 border border-green-200 rounded-xl text-green-800 text-sm flex items-center justify-between">

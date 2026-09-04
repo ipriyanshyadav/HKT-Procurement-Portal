@@ -59,14 +59,14 @@ export function AppShell({
     icon: item.icon,
   }));
 
-  let mainPaddingClass = '';
+  let mainMarginClass = '';
   if (showSidebar) {
     if (sidebarMode === 'pinned') {
-      mainPaddingClass = 'md:pl-[264px]';
+      mainMarginClass = 'md:ml-[250px]';
     } else if (sidebarMode === 'minimized') {
-      mainPaddingClass = 'md:pl-[76px]';
+      mainMarginClass = 'md:ml-[60px]';
     } else {
-      mainPaddingClass = 'md:pl-10 lg:pl-12';
+      mainMarginClass = 'md:ml-0';
     }
   }
 
@@ -100,9 +100,11 @@ export function AppShell({
 
         {/* Main Content Area */}
         <main
-          className={`flex-1 transition-all duration-250 p-4 sm:p-6 lg:p-8 pb-20 md:pb-8 w-full max-w-7xl mx-auto ${mainPaddingClass}`}
+          className={`flex-1 transition-[margin] duration-250 min-w-0 w-full ${mainMarginClass}`}
         >
-          {children}
+          <div className="w-full px-4 sm:px-6 md:px-8 lg:px-10 py-6 pb-20 md:pb-10">
+            {children}
+          </div>
         </main>
       </div>
     </div>
