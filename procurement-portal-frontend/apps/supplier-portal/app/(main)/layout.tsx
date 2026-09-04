@@ -32,12 +32,6 @@ export default function SupplierMainLayout({ children }: { children: ReactNode }
       section: "Bidding",
     },
     {
-      label: "Live Auctions",
-      href: "/auctions",
-      icon: <Gavel className="w-4 h-4" />,
-      section: "Bidding",
-    },
-    {
       label: "My Profile",
       href: "/profile",
       icon: <Building2 className="w-4 h-4" />,

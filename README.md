@@ -1,24 +1,20 @@
 # Procurement Portal — Enterprise S2C & P2P Platform
 
 ## Current Session State
-**Status:** Live Reverse Auction Portal Synchronization (100% Complete)
+**Status:** Live Auction Section Removed from Portals (100% Complete)
 **Completed:**
-- **Buyer Portal:**
-  - Synced `/auctions` view with RFQs & Tenders (`useRfqs`) displaying RFQ Number, Title, Type, Status, Est. Value, and Deadline.
-  - Linked primary action directly to `⚡ Live Auction Room` (`/rfqs/${rfq.id}/auction`) and `Details` (`/rfqs/${rfq.id}`).
-  - Added seamless redirects from `/auctions/[id]` and `/auctions/[id]/monitor` to `/rfqs/${id}/auction`.
-- **Supplier Portal:**
-  - Synced `/auctions` view with Tenders & Bids (`useRfqs`) displaying Tender Number, Title, Sourcing Type, Evaluation Mode, Deadline, and Bid Validity.
-  - Linked primary action directly to `⚡ Enter Live Auction Room` (`/rfqs/${rfq.id}/auction`) and `Submit / Revise Bid` (`/rfqs/${rfq.id}/bid`).
-  - Added seamless redirect from `/auctions/[id]` to `/rfqs/${id}/auction`.
+- **Navigation & Routing Cleanup:**
+  - Removed "Live Auctions" navigation item from Buyer Portal sidebar (`apps/buyer-portal/app/(main)/layout.tsx`).
+  - Removed "Live Auctions" navigation item from Supplier Portal sidebar (`apps/supplier-portal/app/(main)/layout.tsx`).
+  - Removed `/auctions` route directories from both portals (`apps/buyer-portal/app/(main)/auctions`, `apps/supplier-portal/app/(main)/auctions`).
 - **Verification:**
-  - 42/42 backend integration, security, and sequence tests passing.
-  - All Turborepo frontend workspaces passing typecheck (`turbo run typecheck` 0 errors).
+  - Full Turborepo frontend build and typecheck passing clean (`turbo run typecheck` 0 errors across all 7 workspace packages).
+  - Integration test suite passing (`tests/integration/test_rfq.py`, `tests/integration/test_bid.py`).
   - Knowledge graph updated via `graphify update .`.
 **Migration Head:** 0028_live_auction
-**Test Commands:** `.venv/bin/pytest tests/integration/test_live_bidding.py tests/security/test_auction*.py tests/unit/test_auction_sequence.py tests/integration/test_rfq.py tests/integration/test_bid.py -v` & `cd procurement-portal-frontend && pnpm turbo run typecheck`
+**Test Commands:** `.venv/bin/pytest tests/integration/test_rfq.py tests/integration/test_bid.py -v` & `cd procurement-portal-frontend && pnpm turbo run typecheck`
 **Next:** SPEC_12 Comparative Statement (CS)
-**Graphify:** 4489 nodes, 10658 edges, 319 communities
+**Graphify:** 4479 nodes, 10644 edges, 327 communities
 
 ---
 

@@ -4,7 +4,7 @@ import React, { ReactNode } from "react";
 import { useAuthInit, useCurrentUser, useLogout } from "@procurement/hooks";
 import { useAuthStore } from "@procurement/stores";
 import { AppShell } from "@procurement/ui";
-import { ShoppingCart, CheckSquare, FileQuestion, Users, FileText, Gavel } from "lucide-react";
+import { ShoppingCart, CheckSquare, FileQuestion, Users, FileText } from "lucide-react";
 
 export default function BuyerMainLayout({ children }: { children: ReactNode }) {
   const { isInitializing } = useAuthInit();
@@ -35,12 +35,6 @@ export default function BuyerMainLayout({ children }: { children: ReactNode }) {
       label: "RFQs & Tenders",
       href: "/rfqs",
       icon: <FileText className="w-4 h-4" />,
-      section: "Sourcing",
-    },
-    {
-      label: "Live Auctions",
-      href: "/auctions",
-      icon: <Gavel className="w-4 h-4" />,
       section: "Sourcing",
     },
     {
