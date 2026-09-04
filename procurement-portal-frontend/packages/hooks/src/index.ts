@@ -83,3 +83,4 @@ export type {
 } from "./useVendors";
 
 export { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+export * from "./useRequisitions";

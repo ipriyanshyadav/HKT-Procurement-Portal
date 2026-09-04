@@ -2,12 +2,12 @@ from __future__ import annotations
 from datetime import datetime, date
 from decimal import Decimal
 from typing import Optional, List, Dict, Any
-from uuid import UUID
-from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import String, Boolean, Numeric, Integer, Date, ForeignKey, Text, CHAR
-from sqlalchemy.dialects.postgresql import ARRAY, JSONB
+from uuid import UUID, uuid4
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import String, Boolean, Numeric, Integer, Date, DateTime, ForeignKey, Text, CHAR, FetchedValue
+from sqlalchemy.dialects.postgresql import ARRAY, JSONB, UUID as PG_UUID
 from sqlalchemy.sql import func
-from app.db.base import BaseModel
+from app.db.base import BaseModel, Base
 from app.db.enums import (
     PrSourceEnum, PR_SOURCE_PG,
     PrStatusEnum, PR_STATUS_PG,
@@ -40,13 +40,17 @@ class Requisition(BaseModel):
     delivery_location_id: Mapped[Optional[UUID]] = mapped_column(ForeignKey("delivery_locations.id"), nullable=True)
     erp_pr_number: Mapped[Optional[str]] = mapped_column(String(30), nullable=True)
     erp_sync_status: Mapped[str] = mapped_column(String(20), default="NOT_SYNCED", nullable=False)
-    merged_from: Mapped[Optional[List[UUID]]] = mapped_column(ARRAY(ForeignKey("requisitions.id")), nullable=True)
-    split_into: Mapped[Optional[List[UUID]]] = mapped_column(ARRAY(ForeignKey("requisitions.id")), nullable=True)
-    split_from: Mapped[Optional[UUID]] = mapped_column(ForeignKey("requisitions.id"), nullable=True)
-    approved_at: Mapped[Optional[datetime]] = mapped_column(nullable=True)
+    merged_from: Mapped[Optional[List[UUID]]] = mapped_column(ARRAY(PG_UUID(as_uuid=True)), nullable=True)
+    split_into: Mapped[Optional[List[UUID]]] = mapped_column(ARRAY(PG_UUID(as_uuid=True)), nullable=True)
+    split_from: Mapped[Optional[UUID]] = mapped_column(PG_UUID(as_uuid=True), nullable=True)
+    approved_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
     aging_alert_level: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     created_by: Mapped[Optional[UUID]] = mapped_column(ForeignKey("users.id"), nullable=True)
     updated_by: Mapped[Optional[UUID]] = mapped_column(ForeignKey("users.id"), nullable=True)
+
+    lines: Mapped[List[RequisitionLine]] = relationship(
+        "RequisitionLine", back_populates="requisition", cascade="all, delete-orphan", lazy="selectin", order_by="RequisitionLine.line_number"
+    )
 
 class RequisitionLine(BaseModel):
     __tablename__ = "requisition_lines"
@@ -59,31 +63,42 @@ class RequisitionLine(BaseModel):
     uom_id: Mapped[UUID] = mapped_column(ForeignKey("uom_master.id"), nullable=False)
     quantity: Mapped[Decimal] = mapped_column(Numeric(18, 4), nullable=False)
     estimated_unit_price: Mapped[Decimal] = mapped_column(Numeric(18, 4), default=Decimal("0.0"), nullable=False)
-    estimated_total: Mapped[Optional[Decimal]] = mapped_column(Numeric(18, 2), nullable=True)
+    estimated_total: Mapped[Optional[Decimal]] = mapped_column(Numeric(18, 2), server_default=FetchedValue(), nullable=True)
     hsn_code: Mapped[Optional[str]] = mapped_column(String(10), nullable=True)
-    specifications: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    specifications: Mapped[Optional[Text]] = mapped_column(Text, nullable=True)
     required_by_date: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
     delivery_location_id: Mapped[Optional[UUID]] = mapped_column(ForeignKey("delivery_locations.id"), nullable=True)
 
-class UnmappedPrException(BaseModel):
+    requisition: Mapped[Requisition] = relationship("Requisition", back_populates="lines")
+
+class UnmappedPrException(Base):
     __tablename__ = "unmapped_pr_exceptions"
 
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    org_id: Mapped[UUID] = mapped_column(index=True, nullable=False)
     requisition_id: Mapped[UUID] = mapped_column(ForeignKey("requisitions.id"), nullable=False)
     failed_fields: Mapped[Dict[str, Any]] = mapped_column(JSONB, nullable=False)
     status: Mapped[UnmappedPrStatusEnum] = mapped_column(UNMAPPED_PR_STATUS_PG, default=UnmappedPrStatusEnum.PENDING, nullable=False)
     assigned_to: Mapped[Optional[UUID]] = mapped_column(ForeignKey("users.id"), nullable=True)
-    sla_deadline: Mapped[Optional[datetime]] = mapped_column(nullable=True)
+    sla_deadline: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
     sla_breach_level: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     proposed_mappings: Mapped[Optional[Dict[str, Any]]] = mapped_column(JSONB, nullable=True)
     resolution_notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
-    resolved_at: Mapped[Optional[datetime]] = mapped_column(nullable=True)
+    resolved_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
     resolved_by: Mapped[Optional[UUID]] = mapped_column(ForeignKey("users.id"), nullable=True)
     reprocessing_attempts: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     last_reprocessing_error: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    version: Mapped[int] = mapped_column(default=1)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
-class UnmappedPrMappingLog(BaseModel):
+    requisition: Mapped[Requisition] = relationship("Requisition", lazy="selectin")
+
+class UnmappedPrMappingLog(Base):
     __tablename__ = "unmapped_pr_mapping_log"
 
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    org_id: Mapped[UUID] = mapped_column(index=True, nullable=False)
     exception_id: Mapped[UUID] = mapped_column(ForeignKey("unmapped_pr_exceptions.id"), nullable=False)
     field_name: Mapped[str] = mapped_column(String(50), nullable=False)
     source_value: Mapped[str] = mapped_column(String(200), nullable=False)
@@ -93,4 +108,5 @@ class UnmappedPrMappingLog(BaseModel):
     confidence: Mapped[Optional[Decimal]] = mapped_column(Numeric(3, 2), nullable=True)
     mapped_by: Mapped[UUID] = mapped_column(ForeignKey("users.id"), nullable=False)
     checked_by: Mapped[Optional[UUID]] = mapped_column(ForeignKey("users.id"), nullable=True)
-    checked_at: Mapped[Optional[datetime]] = mapped_column(nullable=True)
+    checked_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

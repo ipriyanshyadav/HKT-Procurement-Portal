@@ -1,0 +1,331 @@
+"use client";
+
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import {
+  useCreateRequisition,
+  useSubmitRequisition,
+  RequisitionLineItem,
+} from "@procurement/hooks";
+import {
+  CategoryTreeSelect,
+  PRLineItemTable,
+  BudgetIndicator,
+} from "@procurement/ui";
+
+export default function NewRequisitionPage() {
+  const router = useRouter();
+  const createMutation = useCreateRequisition();
+  const submitMutation = useSubmitRequisition();
+
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [procurementType, setProcurementType] = useState("OPEX");
+  const [currency, setCurrency] = useState("INR");
+  const [isEmergency, setIsEmergency] = useState(false);
+  const [isCapex, setIsCapex] = useState(false);
+  const [requiredByDate, setRequiredByDate] = useState("");
+  const [categoryId, setCategoryId] = useState("");
+  const [businessUnitId, setBusinessUnitId] = useState("");
+  const [costCenterId, setCostCenterId] = useState("");
+
+  const [lines, setLines] = useState<RequisitionLineItem[]>([
+    {
+      line_number: 1,
+      item_description: "",
+      item_code: "",
+      category_id: "",
+      uom_id: "00000000-0000-0000-0000-000000000001",
+      quantity: 1,
+      estimated_unit_price: 0,
+      estimated_total: 0,
+    },
+  ]);
+
+  const [error, setError] = useState<string | null>(null);
+
+  const estimatedTotal = lines.reduce(
+    (acc, curr) => acc + (curr.estimated_total || curr.quantity * curr.estimated_unit_price || 0),
+    0
+  );
+
+  const handleAddLine = () => {
+    setLines((prev) => [
+      ...prev,
+      {
+        line_number: prev.length + 1,
+        item_description: "",
+        item_code: "",
+        category_id: categoryId || "",
+        uom_id: "00000000-0000-0000-0000-000000000001",
+        quantity: 1,
+        estimated_unit_price: 0,
+        estimated_total: 0,
+      },
+    ]);
+  };
+
+  const handleRemoveLine = (lineNumber: number) => {
+    if (lines.length <= 1) return;
+    setLines((prev) =>
+      prev
+        .filter((l) => l.line_number !== lineNumber)
+        .map((l, idx) => ({ ...l, line_number: idx + 1 }))
+    );
+  };
+
+  const handleSubmit = async (shouldSubmitImmediately = false) => {
+    setError(null);
+    if (!title.trim() || title.length < 3) {
+      setError("Title must be at least 3 characters");
+      return;
+    }
+    if (!categoryId) {
+      setError("Please select a primary category");
+      return;
+    }
+    if (lines.some((l) => !l.item_description.trim())) {
+      setError("All line items must have a description");
+      return;
+    }
+
+    try {
+      // Create draft PR
+      const payload = {
+        title,
+        description: description || undefined,
+        procurement_type: procurementType,
+        business_unit_id: businessUnitId || "11111111-1111-1111-1111-111111111111",
+        cost_center_id: costCenterId || "22222222-2222-2222-2222-222222222222",
+        category_id: categoryId,
+        currency,
+        is_emergency: isEmergency,
+        is_capex: isCapex,
+        required_by_date: requiredByDate || undefined,
+        lines: lines.map((l, idx) => ({
+          ...l,
+          line_number: idx + 1,
+          category_id: l.category_id || categoryId,
+        })),
+      };
+
+      const createdPr = await createMutation.mutateAsync(payload);
+
+      if (shouldSubmitImmediately) {
+        await submitMutation.mutateAsync(createdPr.id);
+      }
+
+      router.push(`/requisitions/${createdPr.id}`);
+    } catch (err: any) {
+      setError(
+        err?.response?.data?.error?.message ||
+          err?.response?.data?.message ||
+          "Failed to create requisition"
+      );
+    }
+  };
+
+  return (
+    <div className="p-6 max-w-5xl mx-auto space-y-6">
+      {/* Breadcrumb Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <nav className="text-xs text-gray-500 mb-1">
+            <Link href="/requisitions" className="hover:underline">Requisitions</Link>
+            <span className="mx-2">/</span>
+            <span>New Requisition</span>
+          </nav>
+          <h1 className="text-2xl font-bold text-gray-900">Create Purchase Requisition</h1>
+        </div>
+      </div>
+
+      {error && (
+        <div className="p-4 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg flex items-center justify-between">
+          <span>{error}</span>
+          <button onClick={() => setError(null)} className="text-red-500 font-bold">✕</button>
+        </div>
+      )}
+
+      {/* Main Form */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left 2 Cols: Form Fields */}
+        <div className="lg:col-span-2 space-y-6">
+          <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-4">
+            <h2 className="text-base font-semibold text-gray-900 border-b pb-2">Requisition Header</h2>
+
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">
+                Title *
+              </label>
+              <input
+                type="text"
+                required
+                placeholder="e.g. Q3 Office Hardware Refresh"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                className="w-full px-3.5 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">
+                Description / Purpose
+              </label>
+              <textarea
+                rows={3}
+                placeholder="Business justification and requirements..."
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className="w-full px-3.5 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">
+                  Procurement Type
+                </label>
+                <select
+                  value={procurementType}
+                  onChange={(e) => setProcurementType(e.target.value)}
+                  className="w-full px-3.5 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                >
+                  <option value="OPEX">OPEX (Operational)</option>
+                  <option value="CAPEX">CAPEX (Capital)</option>
+                  <option value="PROJECT">Project</option>
+                  <option value="MRO">MRO</option>
+                  <option value="SERVICES">Services</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">
+                  Currency
+                </label>
+                <select
+                  value={currency}
+                  onChange={(e) => setCurrency(e.target.value)}
+                  className="w-full px-3.5 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                >
+                  <option value="INR">INR (₹)</option>
+                  <option value="USD">USD ($)</option>
+                  <option value="EUR">EUR (€)</option>
+                  <option value="GBP">GBP (£)</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">
+                Category *
+              </label>
+              <CategoryTreeSelect
+                value={categoryId}
+                onChange={(val) => setCategoryId(val)}
+                placeholder="Select procurement category..."
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">
+                  Required By Date
+                </label>
+                <input
+                  type="date"
+                  value={requiredByDate}
+                  onChange={(e) => setRequiredByDate(e.target.value)}
+                  className="w-full px-3.5 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                />
+              </div>
+
+              <div className="flex items-center gap-6 pt-5">
+                <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={isEmergency}
+                    onChange={(e) => setIsEmergency(e.target.checked)}
+                    className="rounded border-gray-300 text-red-600 focus:ring-red-500"
+                  />
+                  <span>Emergency PR</span>
+                </label>
+
+                <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={isCapex}
+                    onChange={(e) => setIsCapex(e.target.checked)}
+                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
+                  <span>Capex Budget</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          {/* Line Items Section */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="text-base font-semibold text-gray-900">Line Items ({lines.length})</h2>
+              <button
+                type="button"
+                onClick={handleAddLine}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 text-xs font-semibold rounded-lg transition-colors"
+              >
+                <span>+ Add Item</span>
+              </button>
+            </div>
+
+            <PRLineItemTable
+              lines={lines}
+              editable={true}
+              currency={currency}
+              onLinesChange={(newLines) => setLines(newLines)}
+              onRemoveLine={handleRemoveLine}
+            />
+          </div>
+        </div>
+
+        {/* Right 1 Col: Summary & Actions */}
+        <div className="space-y-6">
+          <BudgetIndicator
+            estimatedTotal={estimatedTotal}
+            availableBudget={500000}
+            budgetStatus="SUFFICIENT"
+            currency={currency}
+          />
+
+          <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-4">
+            <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wider">
+              Submission Actions
+            </h3>
+            <p className="text-xs text-gray-500">
+              Saving as draft allows editing anytime. Submitting routes the PR through automated approval rules.
+            </p>
+
+            <div className="space-y-2 pt-2">
+              <button
+                type="button"
+                onClick={() => handleSubmit(false)}
+                disabled={createMutation.isPending}
+                className="w-full py-2.5 px-4 bg-gray-100 hover:bg-gray-200 text-gray-800 text-sm font-semibold rounded-lg transition-colors disabled:opacity-50"
+              >
+                {createMutation.isPending ? "Saving Draft..." : "Save as Draft"}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleSubmit(true)}
+                disabled={createMutation.isPending || submitMutation.isPending}
+                className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors disabled:opacity-50"
+              >
+                {submitMutation.isPending ? "Submitting..." : "Submit for Approval"}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -33,6 +33,8 @@
 | A-08-4 | PR aging Celery task runs at 7:00 AM org timezone; timezone stored in tenant_settings.timezone | SPEC references business-hours alert; no time specified | LOW | Squad B |
 | A-08-5 | PR cache (Redis) TTL is 5 minutes; invalidated on any PR status change in that org | SPEC_08 Section 13 mentions Redis cache | LOW | Squad B |
 | A-08-6 | `requisition_lines.estimated_unit_price` nullable — free-text items need no price | SPEC allows non-catalog items | LOW | Squad B |
+| A-08-7 | Maker-checker enforcement: PR creator cannot approve their own PR | SPEC maker-checker rule; raises ForbiddenError if attempted | LOW | Squad B |
+| A-08-8 | Convert to RFQ transitions PR to IN_SOURCING; Convert to PO transitions PR to CONVERTED | SPEC_08 Section 9.2 state machine transitions | LOW | Squad B |
 
 ---
 ## STEP 2 — IMPLEMENT

@@ -21,3 +21,12 @@ export type { VendorStatus } from "./VendorStatusBadge";
 
 export { ComplianceExpiryAlert } from "./ComplianceExpiryAlert";
 
+export { PRLineItemTable } from "./PRLineItemTable";
+export type { PRLineItemTableProps } from "./PRLineItemTable";
+
+export { WorkflowTimeline } from "./WorkflowTimeline";
+export type { WorkflowTimelineProps, WorkflowStep } from "./WorkflowTimeline";
+
+export { BudgetIndicator } from "./BudgetIndicator";
+export type { BudgetIndicatorProps } from "./BudgetIndicator";
+

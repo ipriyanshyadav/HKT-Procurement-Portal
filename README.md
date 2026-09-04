@@ -1,12 +1,16 @@
 # Procurement Portal — Enterprise S2C & P2P Platform
 
 ## Current Session State
-**Status:** SPEC_07 (Vendor Management) COMPLETED (100%)
-**Completed:** 11-status lifecycle FSM (INVITED→BLACKLISTED) + validate_transition(); VendorRepository (CRUD, duplicate check, full-text search, scorecards, ERP sync logs); VendorService (invite with SHA-256 token hashing, register_with_token, qualify, reject, request_resubmission, suspend, reinstate, initiate_blacklist, confirm_blacklist with Segregation of Duties, scorecard 40/30/20/10 calculation, GSTIN validation with 90-day Redis cache, PAN validation with entity-type decoding and 90-day Redis cache, Bank account validation + penny drop simulation); Vendor router with buyer-side endpoints & supplier self-service `/me` endpoints; Celery beat daily compliance monitoring task (30/15/7 day alerts, immediate COMPLIANCE_HOLD at 0 days); Buyer Portal `/vendors`, `/vendors/[id]`, `/vendors/invite`; Supplier Portal `/register/[token]` (8-step wizard), `/profile`, `/documents`; Shared UI components (`VendorStatusBadge`, `ComplianceExpiryAlert`); Shared hooks `useVendors.ts`; 21 vendor integration & workflow tests passing (253 passed across suite).
+**Status:** SPEC_08 (Purchase Requisition) & SPEC_09 (Unmapped PR) COMPLETED (100%)
+**Completed:**
+- **SPEC_08 (Purchase Requisition):** 12-status FSM with `validate_pr_transition()`; `RequisitionRepository` & `RequisitionService` (CRUD, submit with synchronous budget check, withdraw, amend with 10% tolerance, merge PRs with same BU/category, split PR into child PRs, convert to RFQ / PO, PR sequence generation `PR-{BU}-{YYYY}-{NNNNNN}`, Redis cache invalidation); 12 REST endpoints in `app/modules/requisition/router.py`; PR aging Celery task `app/tasks/pr_aging.py` using `settings.PR_AGING_ALERT_DAYS`.
+- **SPEC_09 (Unmapped PR):** `UnmappedPrRepository` & `UnmappedPrService` (`flag_as_unmapped`, `map_pr` with mapping log audit trail, `suggest_mapping` with category heuristic suggestions, `auto_map` enforcing >= 0.85 confidence threshold); 5 REST endpoints in `app/modules/unmapped_pr/router.py`; 4-tier SLA escalation Celery task in `app/tasks/unmapped_pr_sla.py` using `settings.UNMAPPED_PR_SLA_HOURS` ([4, 8, 24, 48]).
+- **Frontend Wiring:** Buyer Portal pages `/requisitions` (filterable list), `/requisitions/new` (PR creation wizard with budget indicator), `/requisitions/[id]` (PR detail, approval timeline, actions), `/unmapped-prs` (exception dashboard with mapping modal); Shared UI components `PRLineItemTable`, `WorkflowTimeline`, `BudgetIndicator`; Shared hook `useRequisitions.ts`.
+- **Testing:** 17 PR integration & workflow tests passing (`test_requisition.py` & `test_pr_workflows.py`), full repository suite 328 passed.
 **Migration Head:** 0027_data_seed
-**Test Commands:** OTEL_SDK_DISABLED=true .venv/bin/pytest tests/integration/test_vendor.py tests/workflow/test_vendor_workflows.py -v
-**Next:** SPEC_08 Purchase Requisition (PR)
-**Graphify:** 3130 nodes, 6469 edges, 270 communities
+**Test Commands:** `OTEL_SDK_DISABLED=true .venv/bin/pytest tests/integration/test_requisition.py tests/workflow/test_pr_workflows.py -v`
+**Next:** SPEC_10 RFQ Lifecycle
+**Graphify:** 3382 nodes, 7401 edges, 274 communities
 
 ---
 
@@ -31,8 +35,8 @@ The Procurement Portal is an enterprise-grade Source-to-Contract (S2C), Procure-
 | 05 | Workflow Engine | SPEC_05 | ✅ Complete | 0027_data_seed | ✅ 38 Passing (100% cov) |
 | 06 | Approval Rules Engine | SPEC_06 | ✅ Complete | 0027_data_seed | ✅ 9 Passing (100% cov) |
 | 07 | Vendor Management | SPEC_07 | ✅ Complete | 0027_data_seed | ✅ 21 Passing (100% cov) |
-| 08 | Purchase Requisition (PR) | SPEC_08 | ⏳ Planned | Pending | Pending |
-| 09 | Unmapped PR | SPEC_09 | ⏳ Planned | Pending | Pending |
+| 08 | Purchase Requisition (PR) | SPEC_08 | ✅ Complete | 0027_data_seed | ✅ 10 Passing (100% cov) |
+| 09 | Unmapped PR | SPEC_09 | ✅ Complete | 0027_data_seed | ✅ 7 Passing (100% cov) |
 | 10 | RFQ Lifecycle | SPEC_10 | ⏳ Planned | Pending | Pending |
 | 11 | Bid Management | SPEC_11 | ⏳ Planned | Pending | Pending |
 | 12 | Comparative Statement (CS) | SPEC_12 | ⏳ Planned | Pending | Pending |

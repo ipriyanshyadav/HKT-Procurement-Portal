@@ -1,22 +1,41 @@
 from __future__ import annotations
 from datetime import date
 from decimal import Decimal
-from typing import Optional
+from typing import Optional, List
 from uuid import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import String, Boolean, Numeric, Integer, Date, ForeignKey, CHAR
+from sqlalchemy.dialects.postgresql import ARRAY
 from app.db.base import BaseModel
 
 class Category(BaseModel):
     __tablename__ = "categories"
 
-    code: Mapped[str] = mapped_column(String(50), nullable=False)
+    code: Mapped[str] = mapped_column(String(20), nullable=False)
     name: Mapped[str] = mapped_column(String(200), nullable=False)
     parent_id: Mapped[Optional[UUID]] = mapped_column(ForeignKey("categories.id"), nullable=True)
     level: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
-    path: Mapped[str] = mapped_column(String(500), default="", nullable=False)
-    unspsc_code: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
+    erp_material_group: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
+    gl_account_mapping: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
+    synonyms: Mapped[Optional[List[str]]] = mapped_column(ARRAY(String), default=list, nullable=True)
+    requires_quality_inspection: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+
+    @property
+    def path(self) -> str:
+        return getattr(self, "_path", "") or f"/{self.code}"
+
+    @path.setter
+    def path(self, value: str) -> None:
+        self._path = value
+
+    @property
+    def unspsc_code(self) -> Optional[str]:
+        return getattr(self, "_unspsc_code", None)
+
+    @unspsc_code.setter
+    def unspsc_code(self, value: Optional[str]) -> None:
+        self._unspsc_code = value
 
 class UomMaster(BaseModel):
     __tablename__ = "uom_master"

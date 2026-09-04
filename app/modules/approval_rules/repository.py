@@ -33,12 +33,9 @@ class ApprovalRulesRepository(BaseRepository[ApprovalRule]):
             select(ApprovalRule)
             .where(
                 and_(
-                    ApprovalRule.entity_type == entity_type,
+                    ApprovalRule.transaction_type == entity_type,
                     ApprovalRule.org_id == org_id,
                     ApprovalRule.is_active.is_(True),
-                    ApprovalRule.effective_from <= now,
-                    (ApprovalRule.effective_to.is_(None))
-                    | (ApprovalRule.effective_to >= now),
                     ApprovalRule.deleted_at.is_(None),
                 )
             )

@@ -15,9 +15,9 @@ export interface CategoryTreeNode {
 }
 
 export interface CategoryTreeSelectProps {
-  categories: CategoryTreeNode[];
+  categories?: CategoryTreeNode[];
   value?: string;
-  onChange: (categoryId: string, categoryName: string) => void;
+  onChange: (categoryId: string, categoryName?: string) => void;
   placeholder?: string;
   disabled?: boolean;
   maxLevel?: number;
