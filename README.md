@@ -1,32 +1,24 @@
 # Procurement Portal — Enterprise S2C & P2P Platform
 
 ## Current Session State
-**Status:** SPEC_11B Live / Reverse Auction Bidding (100% Complete)
+**Status:** Live Reverse Auction Portal Synchronization (100% Complete)
 **Completed:**
-- **Backend Infrastructure:**
-  - Database schema & migration `0028_live_auction` (4 tables: `live_auctions`, `live_bids`, `auction_participants`, `auction_rank_snapshots` with concurrent indexes and reversible downgrade).
-  - Auction FSM (`SCHEDULED`, `OPEN`, `EXTENDED`, `CLOSING`, `PAUSED`, `CLOSED`, `RESULTS_RELEASED`, `CANCELLED`).
-  - 5-guard bid processing pipeline (participant admission, status guard, minimum decrement, reserve price silent rejection).
-  - Anti-sniping dynamic extension, proxy bidding engine, and monotonic bid sequence generation via Redis INCR.
-  - SPEC_12 Bridge: Seamlessly persists winning bids to `bid_line_responses` (`normalized_price_inr`, `source="LIVE_AUCTION"`) so downstream CS evaluation operates without modifications.
-  - Real-time WebSocket route (`/ws/auction/{id}`) with Redis Pub/Sub broadcast and private vendor channels.
-  - Celery background beat tasks for lifecycle transitions (`open_scheduled_auctions`, `close_due_auctions`, `warn_closing_auctions`, `remind_upcoming_auctions`).
-- **Frontend Applications:**
-  - `@procurement/hooks`: `useAuctionSocket` with exponential reconnect and heartbeat keep-alive.
-  - `@procurement/ui`: `AuctionCountdownTimer`, `BidEntryPanel`, `PriceLeaderboard` with decimal.js precision.
-  - Supplier Portal: `/auctions` list & `/auctions/[id]` live bidding terminal enriched with RFQ Number & Tender Title.
-  - Buyer Portal: `/auctions` list & `/auctions/[id]/monitor` real-time monitor enriched with RFQ Number & RFQ Title.
-  - All 7 Turborepo workspaces typecheck clean (`turbo typecheck` 0 errors).
-- **Verification & Three-Persona Testing:**
-  - Developer Integration Suite: 15/15 passed (`tests/integration/test_live_bidding.py`) including `test_list_and_get_auctions_enrich_rfq_number_and_title`.
-  - Security Persona: 5/5 passed on visibility & reserve price masking (`tests/security/test_auction_visibility.py`), 7/7 passed on permissions & WS admission (`tests/security/test_auction_permissions.py`).
-  - QA Persona: 6/6 passed on Redis monotonic sequence & DB fallback (`tests/unit/test_auction_sequence.py`).
-  - Regression: SPEC_10/11 sealed bids and RFQ lifecycle all green (16/16 passed).
-  - Migration Safety: Round-trip downgrade/upgrade verified.
+- **Buyer Portal:**
+  - Synced `/auctions` view with RFQs & Tenders (`useRfqs`) displaying RFQ Number, Title, Type, Status, Est. Value, and Deadline.
+  - Linked primary action directly to `⚡ Live Auction Room` (`/rfqs/${rfq.id}/auction`) and `Details` (`/rfqs/${rfq.id}`).
+  - Added seamless redirects from `/auctions/[id]` and `/auctions/[id]/monitor` to `/rfqs/${id}/auction`.
+- **Supplier Portal:**
+  - Synced `/auctions` view with Tenders & Bids (`useRfqs`) displaying Tender Number, Title, Sourcing Type, Evaluation Mode, Deadline, and Bid Validity.
+  - Linked primary action directly to `⚡ Enter Live Auction Room` (`/rfqs/${rfq.id}/auction`) and `Submit / Revise Bid` (`/rfqs/${rfq.id}/bid`).
+  - Added seamless redirect from `/auctions/[id]` to `/rfqs/${id}/auction`.
+- **Verification:**
+  - 42/42 backend integration, security, and sequence tests passing.
+  - All Turborepo frontend workspaces passing typecheck (`turbo run typecheck` 0 errors).
+  - Knowledge graph updated via `graphify update .`.
 **Migration Head:** 0028_live_auction
-**Test Commands:** `.venv/bin/pytest tests/integration/test_live_bidding.py tests/security/test_auction*.py tests/unit/test_auction_sequence.py -v` & `cd procurement-portal-frontend && pnpm typecheck`
+**Test Commands:** `.venv/bin/pytest tests/integration/test_live_bidding.py tests/security/test_auction*.py tests/unit/test_auction_sequence.py tests/integration/test_rfq.py tests/integration/test_bid.py -v` & `cd procurement-portal-frontend && pnpm turbo run typecheck`
 **Next:** SPEC_12 Comparative Statement (CS)
-**Graphify:** 4489 nodes, 10670 edges, 320 communities
+**Graphify:** 4489 nodes, 10658 edges, 319 communities
 
 ---
 
