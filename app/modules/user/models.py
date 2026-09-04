@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Optional, List
 from uuid import UUID, uuid4
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import String, Boolean, Integer, ForeignKey, Text, CHAR
+from sqlalchemy import String, Boolean, Integer, ForeignKey, Text, CHAR, DateTime
 from sqlalchemy.dialects.postgresql import ARRAY, INET
 from sqlalchemy.sql import func
 from app.db.base import BaseModel, Base
@@ -70,17 +70,20 @@ class User(BaseModel):
     created_by: Mapped[Optional[UUID]] = mapped_column(nullable=True)
     updated_by: Mapped[Optional[UUID]] = mapped_column(nullable=True)
 
-class UserSession(BaseModel):
+class UserSession(Base):
     __tablename__ = "user_sessions"
 
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    org_id: Mapped[UUID] = mapped_column(ForeignKey("organizations.id"), nullable=False)
     user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"), nullable=False)
     token_jti: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     ip_address: Mapped[Optional[str]] = mapped_column(INET, nullable=True)
     user_agent: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
-    expires_at: Mapped[datetime] = mapped_column(nullable=False)
-    last_activity_at: Mapped[datetime] = mapped_column(server_default=func.now(), nullable=False)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    last_activity_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     is_revoked: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     revoked_reason: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
 class UserMfa(BaseModel):
     __tablename__ = "user_mfa"
@@ -89,18 +92,21 @@ class UserMfa(BaseModel):
     totp_secret_encrypted: Mapped[str] = mapped_column(String(500), nullable=False)
     backup_codes_hashed: Mapped[List[str]] = mapped_column(ARRAY(Text), default=list, nullable=False)
     is_verified: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
-    enabled_at: Mapped[Optional[datetime]] = mapped_column(nullable=True)
+    enabled_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
 
-class UserRoleAssignment(BaseModel):
+class UserRoleAssignment(Base):
     __tablename__ = "user_role_assignments"
 
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    org_id: Mapped[UUID] = mapped_column(ForeignKey("organizations.id"), nullable=False)
     user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"), nullable=False)
     role_id: Mapped[UUID] = mapped_column(ForeignKey("roles.id"), nullable=False)
-    assigned_at: Mapped[datetime] = mapped_column(server_default=func.now(), nullable=False)
+    assigned_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     assigned_by: Mapped[Optional[UUID]] = mapped_column(ForeignKey("users.id"), nullable=True)
-    valid_from: Mapped[datetime] = mapped_column(server_default=func.now(), nullable=False)
-    valid_until: Mapped[Optional[datetime]] = mapped_column(nullable=True)
+    valid_from: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    valid_until: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
 class UserCategoryScope(BaseModel):
     __tablename__ = "user_category_scopes"

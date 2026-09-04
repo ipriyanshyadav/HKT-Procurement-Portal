@@ -1,16 +1,15 @@
 # Procurement Portal — Enterprise S2C & P2P Platform
 
 ## Current Session State
-**Status:** SPEC_08 (Purchase Requisition) & SPEC_09 (Unmapped PR) COMPLETED (100%)
+**Status:** Local Development Setup & Portals Runtime COMPLETED (100%)
 **Completed:**
-- **SPEC_08 (Purchase Requisition):** 12-status FSM with `validate_pr_transition()`; `RequisitionRepository` & `RequisitionService` (CRUD, submit with synchronous budget check, withdraw, amend with 10% tolerance, merge PRs with same BU/category, split PR into child PRs, convert to RFQ / PO, PR sequence generation `PR-{BU}-{YYYY}-{NNNNNN}`, Redis cache invalidation); 12 REST endpoints in `app/modules/requisition/router.py`; PR aging Celery task `app/tasks/pr_aging.py` using `settings.PR_AGING_ALERT_DAYS`.
-- **SPEC_09 (Unmapped PR):** `UnmappedPrRepository` & `UnmappedPrService` (`flag_as_unmapped`, `map_pr` with mapping log audit trail, `suggest_mapping` with category heuristic suggestions, `auto_map` enforcing >= 0.85 confidence threshold); 5 REST endpoints in `app/modules/unmapped_pr/router.py`; 4-tier SLA escalation Celery task in `app/tasks/unmapped_pr_sla.py` using `settings.UNMAPPED_PR_SLA_HOURS` ([4, 8, 24, 48]).
-- **Frontend Wiring:** Buyer Portal pages `/requisitions` (filterable list), `/requisitions/new` (PR creation wizard with budget indicator), `/requisitions/[id]` (PR detail, approval timeline, actions), `/unmapped-prs` (exception dashboard with mapping modal); Shared UI components `PRLineItemTable`, `WorkflowTimeline`, `BudgetIndicator`; Shared hook `useRequisitions.ts`.
-- **Testing:** 17 PR integration & workflow tests passing (`test_requisition.py` & `test_pr_workflows.py`), full repository suite 328 passed.
+- **Backend Auth & Session Pipeline:** Fixed `UserSession` tracking by unifying `session_jti` across access/refresh tokens and importing all module models in `app/main.py` so SQLAlchemy foreign keys to `organizations` resolve during commit. Made `org_id` optional in `LoginRequest` with automatic tenant resolution. Verified `POST /auth/login`, `GET /users/me`, and `GET /users/me/permissions` for admin, buyer, and approver.
+- **Frontend Portals Wiring (3000, 3001, 3002):** Configured Tailwind CSS and PostCSS across all apps (`apps/buyer-portal`, `apps/admin-portal`, `apps/supplier-portal`); imported `globals.css` in all root layouts; created supplier login page (`apps/supplier-portal/app/(auth)/login/page.tsx`) resolving 404 on port 3001; redirected admin portal root to `/master-data/categories` on port 3002; updated buyer portal login to redirect to `/requisitions` on port 3000.
+- **Verification:** All 3 Next.js applications build with 0 errors (`turbo build`); dev servers healthy on ports 3000, 3001, 3002; Pytest suite passing (220 tests, 100% pass).
 **Migration Head:** 0027_data_seed
-**Test Commands:** `OTEL_SDK_DISABLED=true .venv/bin/pytest tests/integration/test_requisition.py tests/workflow/test_pr_workflows.py -v`
+**Test Commands:** `OTEL_SDK_DISABLED=true .venv/bin/pytest tests/unit tests/integration/test_auth_router.py -v`
 **Next:** SPEC_10 RFQ Lifecycle
-**Graphify:** 3382 nodes, 7401 edges, 274 communities
+**Graphify:** 3434 nodes, 7513 edges, 295 communities
 
 ---
 

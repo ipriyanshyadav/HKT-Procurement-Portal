@@ -19,6 +19,13 @@ class UserRepository(BaseRepository[User]):
         result = await db.execute(stmt)
         return result.scalar_one_or_none()
 
+    async def find_by_email_any_org(self, db: AsyncSession, email: str) -> Optional[User]:
+        stmt = select(User).where(
+            and_(User.email == email, User.deleted_at.is_(None))
+        )
+        result = await db.execute(stmt)
+        return result.scalars().first()
+
     async def get_by_id(self, db: AsyncSession, user_id: UUID, org_id: UUID) -> Optional[User]:
         stmt = select(User).where(
             and_(User.id == user_id, User.org_id == org_id, User.deleted_at.is_(None))

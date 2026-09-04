@@ -18,6 +18,27 @@ from app.core.middleware import (
     RequestIDMiddleware
 )
 
+# Import all module models so SQLAlchemy Base.metadata is fully populated
+import app.modules.organization.models  # noqa: F401
+import app.modules.user.models  # noqa: F401
+import app.modules.master_data.models  # noqa: F401
+import app.modules.vendor.models  # noqa: F401
+import app.modules.requisition.models  # noqa: F401
+import app.modules.sourcing.models  # noqa: F401
+import app.modules.bid.models  # noqa: F401
+import app.modules.evaluation.models  # noqa: F401
+import app.modules.contract.models  # noqa: F401
+import app.modules.purchase_order.models  # noqa: F401
+import app.modules.grn.models  # noqa: F401
+import app.modules.invoice.models  # noqa: F401
+import app.modules.payment.models  # noqa: F401
+import app.modules.workflow.models  # noqa: F401
+import app.modules.approval_rules.models  # noqa: F401
+import app.modules.document.models  # noqa: F401
+import app.modules.notification.models  # noqa: F401
+import app.modules.audit.models  # noqa: F401
+import app.modules.integration.models  # noqa: F401
+
 # Placeholder routers for dynamic import or manual definition
 from app.modules.organization.router import router as organization_router
 from app.modules.user.router import router as user_router
@@ -69,9 +90,15 @@ def create_app() -> FastAPI:
         title="Procurement Portal",
         version=settings.APP_VERSION,
         lifespan=lifespan,
+        openapi_url="/api/v1/openapi.json",
         docs_url="/docs" if settings.DEBUG else None,
         redoc_url="/redoc" if settings.DEBUG else None
     )
+
+    @app.get("/openapi.json", include_in_schema=False)
+    async def openapi_alias():
+        from fastapi.responses import JSONResponse
+        return JSONResponse(app.openapi())
 
     # Middleware order: Outermost first -> SecurityHeaders -> Timing -> LoggingContext -> RequestID
     app.add_middleware(SecurityHeadersMiddleware)

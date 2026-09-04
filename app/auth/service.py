@@ -48,7 +48,7 @@ class LoginResult:
 class AuthService:
 
     async def login(
-        self, db: AsyncSession, email: str, password: str, org_id: UUID
+        self, db: AsyncSession, email: str, password: str, org_id: Optional[UUID] = None
     ) -> LoginResult:
         redis = get_redis_client(settings.REDIS_SESSION_DB)
 
@@ -60,7 +60,14 @@ class AuthService:
                 "ACCOUNT_LOCKED",
             )
 
-        user = await user_repository.find_by_email(db, email, org_id)
+        if org_id is not None:
+            user = await user_repository.find_by_email(db, email, org_id)
+        else:
+            user = await user_repository.find_by_email_any_org(db, email)
+            if user:
+                org_id = user.org_id
+            else:
+                org_id = UUID("00000000-0000-0000-0000-000000000001")
 
         if not user or not verify_password(password, user.password_hash or ""):
             await self._increment_fail_count(redis, email)
@@ -311,20 +318,19 @@ class AuthService:
             if oldest:
                 await session_repository.revoke(db, oldest.id, "MAX_SESSIONS_EXCEEDED")
 
-        access_jti = str(uuid4())
-        refresh_jti = str(uuid4())
+        session_jti = str(uuid4())
 
         access_token = create_access_token(
             user.id, org_id, user.email, roles,
             bu_scope, cat_scope, plant_scope,
-            user.is_supplier_user, user.vendor_id, access_jti,
+            user.is_supplier_user, user.vendor_id, session_jti,
         )
-        refresh_token = create_refresh_token(user.id, org_id, refresh_jti)
+        refresh_token = create_refresh_token(user.id, org_id, session_jti)
 
         session = UserSession(
             org_id=org_id,
             user_id=user.id,
-            token_jti=refresh_jti,
+            token_jti=session_jti,
             expires_at=datetime.now(timezone.utc)
             + timedelta(hours=settings.JWT_REFRESH_TOKEN_EXPIRE_HOURS),
         )

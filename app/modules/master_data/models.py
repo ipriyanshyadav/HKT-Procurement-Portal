@@ -90,7 +90,7 @@ class DeliveryLocation(BaseModel):
 
     code: Mapped[str] = mapped_column(String(50), nullable=False)
     name: Mapped[str] = mapped_column(String(200), nullable=False)
-    address: Mapped[str] = mapped_column(nullable=False)
+    address: Mapped[str] = mapped_column("address_line1", String(300), nullable=False)
     city: Mapped[str] = mapped_column(String(100), nullable=False)
     state: Mapped[str] = mapped_column(String(100), nullable=False)
     postal_code: Mapped[str] = mapped_column(String(20), nullable=False)

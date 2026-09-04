@@ -13,9 +13,7 @@ class SessionRepository(BaseRepository[UserSession]):
         super().__init__(UserSession)
 
     async def get_by_jti(self, db: AsyncSession, jti: str) -> Optional[UserSession]:
-        stmt = select(UserSession).where(
-            and_(UserSession.token_jti == jti, UserSession.deleted_at.is_(None))
-        )
+        stmt = select(UserSession).where(UserSession.token_jti == jti)
         result = await db.execute(stmt)
         return result.scalar_one_or_none()
 
@@ -26,7 +24,6 @@ class SessionRepository(BaseRepository[UserSession]):
                 UserSession.org_id == org_id,
                 UserSession.is_revoked.is_(False),
                 UserSession.expires_at > datetime.now(timezone.utc),
-                UserSession.deleted_at.is_(None),
             )
         )
         result = await db.execute(stmt)
@@ -43,7 +40,6 @@ class SessionRepository(BaseRepository[UserSession]):
                     UserSession.org_id == org_id,
                     UserSession.is_revoked.is_(False),
                     UserSession.expires_at > datetime.now(timezone.utc),
-                    UserSession.deleted_at.is_(None),
                 )
             )
             .order_by(UserSession.created_at.asc())
@@ -56,7 +52,7 @@ class SessionRepository(BaseRepository[UserSession]):
         stmt = (
             update(UserSession)
             .where(UserSession.id == session_id)
-            .values(is_revoked=True, revoked_reason=reason[:100], updated_at=datetime.now(timezone.utc))
+            .values(is_revoked=True, revoked_reason=reason[:100])
         )
         await db.execute(stmt)
 
@@ -72,7 +68,7 @@ class SessionRepository(BaseRepository[UserSession]):
                     UserSession.is_revoked.is_(False),
                 )
             )
-            .values(is_revoked=True, revoked_reason=reason[:100], updated_at=datetime.now(timezone.utc))
+            .values(is_revoked=True, revoked_reason=reason[:100])
         )
         await db.execute(stmt)
 
@@ -80,7 +76,7 @@ class SessionRepository(BaseRepository[UserSession]):
         stmt = (
             update(UserSession)
             .where(UserSession.id == session_id)
-            .values(last_activity_at=now, updated_at=now)
+            .values(last_activity_at=now)
         )
         await db.execute(stmt)
 

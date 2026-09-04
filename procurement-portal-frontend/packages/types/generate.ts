@@ -1,4 +1,4 @@
-import openapiTS from "openapi-typescript";
+import openapiTS, { astToString } from "openapi-typescript";
 import { writeFileSync, mkdirSync } from "fs";
 import { join, dirname } from "path";
 
@@ -7,7 +7,8 @@ const OUTPUT_PATH = join(dirname(new URL(import.meta.url).pathname), "src", "api
 
 async function generateTypes(): Promise<void> {
   try {
-    const output = await openapiTS(new URL(`${API_URL}/api/v1/openapi.json`));
+    const ast = await openapiTS(new URL(`${API_URL}/api/v1/openapi.json`));
+    const output = astToString(ast);
     mkdirSync(dirname(OUTPUT_PATH), { recursive: true });
     writeFileSync(OUTPUT_PATH, output, "utf-8");
   } catch (error: unknown) {

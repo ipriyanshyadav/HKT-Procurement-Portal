@@ -12,23 +12,26 @@
     "generate:types": "tsx ../../packages/types/generate.ts"
   },
   "dependencies": {
+    "@hookform/resolvers": "^3.9.0",
+    "@procurement/hooks": "workspace:*",
+    "@procurement/stores": "workspace:*",
+    "@procurement/types": "workspace:*",
+    "@procurement/ui": "workspace:*",
+    "@procurement/utils": "workspace:*",
     "next": "14.2.4",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
-    "@procurement/ui": "workspace:*",
-    "@procurement/hooks": "workspace:*",
-    "@procurement/stores": "workspace:*",
-    "@procurement/utils": "workspace:*",
-    "@procurement/types": "workspace:*",
     "react-hook-form": "^7.52.0",
-    "@hookform/resolvers": "^3.9.0",
     "zod": "^3.23.0"
   },
   "devDependencies": {
+    "@procurement/config": "workspace:*",
     "@types/node": "^20.0.0",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
-    "typescript": "^5.5.0",
-    "@procurement/config": "workspace:*"
+    "autoprefixer": "^10.4.19",
+    "postcss": "^8.4.38",
+    "tailwindcss": "^3.4.4",
+    "typescript": "^5.5.0"
   }
 }

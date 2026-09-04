@@ -4,7 +4,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useLogin } from "@procurement/hooks";
-import { useState } from "react";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -14,10 +13,9 @@ const loginSchema = z.object({
 
 type LoginForm = z.infer<typeof loginSchema>;
 
-export default function LoginPage() {
+export default function SupplierLoginPage() {
   const router = useRouter();
   const { mutate: login, isPending, error } = useLogin();
-  const [mfaToken, setMfaToken] = useState<string | null>(null);
 
   const {
     register,
@@ -33,11 +31,8 @@ export default function LoginPage() {
   const onSubmit = (data: LoginForm) => {
     login(data as any, {
       onSuccess: (response) => {
-        if (response.data.mfa_required && response.data.mfa_token) {
-          setMfaToken(response.data.mfa_token);
-          router.push(`/mfa?token=${encodeURIComponent(response.data.mfa_token)}`);
-        } else if (response.data.access_token) {
-          router.push("/requisitions");
+        if (response.data.access_token) {
+          router.push("/profile");
         }
       },
     });
@@ -47,7 +42,7 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 text-center">Procurement Portal</h1>
+          <h1 className="text-3xl font-bold text-gray-900 text-center">Supplier Portal</h1>
           <h2 className="mt-2 text-center text-lg text-gray-600">Sign in to your account</h2>
         </div>
 

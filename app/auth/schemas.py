@@ -7,7 +7,7 @@ from pydantic import BaseModel, EmailStr
 class LoginRequest(BaseModel):
     email: EmailStr
     password: str
-    org_id: UUID
+    org_id: Optional[UUID] = None
 
 
 class LoginResponse(BaseModel):
