@@ -105,3 +105,9 @@ export { BidEntryPanel } from "./BidEntryPanel";
 export type { BidEntryPanelProps } from "./BidEntryPanel";
 export { PriceLeaderboard } from "./PriceLeaderboard";
 export type { PriceLeaderboardProps, RankEntry } from "./PriceLeaderboard";
+
+// Evaluation & Comparative Statement Components (SPEC_12)
+export { ComparativeStatementTable } from "./ComparativeStatementTable";
+export type { ComparativeStatementTableProps } from "./ComparativeStatementTable";
+export { NegotiationPriceInput } from "./NegotiationPriceInput";
+export type { NegotiationPriceInputProps } from "./NegotiationPriceInput";

@@ -95,3 +95,4 @@ export * from "./useUsers";
 export * from "./useWorkflows";
 export * from "./useAuction";
 export * from "./useAuctionSocket";
+export * from "./useEvaluation";

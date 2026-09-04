@@ -2119,6 +2119,194 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/evaluations/rfq/{rfq_id}/generate-cs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Generate Comparative Statement */
+        post: operations["generate_comparative_statement_api_v1_evaluations_rfq__rfq_id__generate_cs_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/evaluations/rfq/{rfq_id}/cs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Latest Cs For Rfq */
+        get: operations["get_latest_cs_for_rfq_api_v1_evaluations_rfq__rfq_id__cs_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/evaluations/rfq/{rfq_id}/cs-versions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Cs Versions */
+        get: operations["list_cs_versions_api_v1_evaluations_rfq__rfq_id__cs_versions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/evaluations/{cs_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Cs By Id */
+        get: operations["get_cs_by_id_api_v1_evaluations__cs_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/evaluations/{cs_id}/shortlist": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Shortlist Vendors */
+        post: operations["shortlist_vendors_api_v1_evaluations__cs_id__shortlist_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/evaluations/{cs_id}/negotiations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Negotiations For Cs */
+        get: operations["get_negotiations_for_cs_api_v1_evaluations__cs_id__negotiations_get"];
+        put?: never;
+        /** Start Negotiation */
+        post: operations["start_negotiation_api_v1_evaluations__cs_id__negotiations_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/evaluations/negotiations/{negotiation_id}/submit-price": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Submit Negotiated Price */
+        post: operations["submit_negotiated_price_api_v1_evaluations_negotiations__negotiation_id__submit_price_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/evaluations/{cs_id}/recommend-award": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Recommend Award */
+        post: operations["recommend_award_api_v1_evaluations__cs_id__recommend_award_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/evaluations/{cs_id}/award": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Award Recommendation */
+        get: operations["get_award_recommendation_api_v1_evaluations__cs_id__award_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/evaluations/awards/{arn_id}/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Approve Award */
+        post: operations["approve_award_api_v1_evaluations_awards__arn_id__approve_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/evaluations/{cs_id}/send-regret-letters": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Send Regret Letters */
+        post: operations["send_regret_letters_api_v1_evaluations__cs_id__send_regret_letters_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/awards/health": {
         parameters: {
             query?: never;
@@ -3074,6 +3262,18 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** APIResponse[AwardRecommendationResponse] */
+        APIResponse_AwardRecommendationResponse_: {
+            data: components["schemas"]["AwardRecommendationResponse"];
+            meta?: components["schemas"]["PaginationMeta"] | null;
+            links?: components["schemas"]["Links"] | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             * @default 2026-09-04T22:47:52.636005
+             */
+            timestamp: string;
+        };
         /** APIResponse[BidCountResponse] */
         APIResponse_BidCountResponse_: {
             data: components["schemas"]["BidCountResponse"];
@@ -3082,7 +3282,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T22:10:52.765454
+             * @default 2026-09-04T22:47:52.636005
              */
             timestamp: string;
         };
@@ -3094,7 +3294,45 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T22:10:52.765454
+             * @default 2026-09-04T22:47:52.636005
+             */
+            timestamp: string;
+        };
+        /** APIResponse[ComparativeStatementResponse] */
+        APIResponse_ComparativeStatementResponse_: {
+            data: components["schemas"]["ComparativeStatementResponse"];
+            meta?: components["schemas"]["PaginationMeta"] | null;
+            links?: components["schemas"]["Links"] | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             * @default 2026-09-04T22:47:52.636005
+             */
+            timestamp: string;
+        };
+        /** APIResponse[List[CSVersionSummaryResponse]] */
+        APIResponse_List_CSVersionSummaryResponse__: {
+            /** Data */
+            data: components["schemas"]["CSVersionSummaryResponse"][];
+            meta?: components["schemas"]["PaginationMeta"] | null;
+            links?: components["schemas"]["Links"] | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             * @default 2026-09-04T22:47:52.636005
+             */
+            timestamp: string;
+        };
+        /** APIResponse[List[NegotiationResponse]] */
+        APIResponse_List_NegotiationResponse__: {
+            /** Data */
+            data: components["schemas"]["NegotiationResponse"][];
+            meta?: components["schemas"]["PaginationMeta"] | null;
+            links?: components["schemas"]["Links"] | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             * @default 2026-09-04T22:47:52.636005
              */
             timestamp: string;
         };
@@ -3107,7 +3345,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T22:10:52.765454
+             * @default 2026-09-04T22:47:52.636005
              */
             timestamp: string;
         };
@@ -3120,7 +3358,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T22:10:52.765454
+             * @default 2026-09-04T22:47:52.636005
              */
             timestamp: string;
         };
@@ -3133,7 +3371,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T22:10:52.765454
+             * @default 2026-09-04T22:47:52.636005
              */
             timestamp: string;
         };
@@ -3146,7 +3384,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T22:10:52.765454
+             * @default 2026-09-04T22:47:52.636005
              */
             timestamp: string;
         };
@@ -3159,7 +3397,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T22:10:52.765454
+             * @default 2026-09-04T22:47:52.636005
              */
             timestamp: string;
         };
@@ -3172,7 +3410,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T22:10:52.765454
+             * @default 2026-09-04T22:47:52.636005
              */
             timestamp: string;
         };
@@ -3187,7 +3425,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T22:10:52.765454
+             * @default 2026-09-04T22:47:52.636005
              */
             timestamp: string;
         };
@@ -3199,7 +3437,19 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T22:10:52.765454
+             * @default 2026-09-04T22:47:52.636005
+             */
+            timestamp: string;
+        };
+        /** APIResponse[NegotiationResponse] */
+        APIResponse_NegotiationResponse_: {
+            data: components["schemas"]["NegotiationResponse"];
+            meta?: components["schemas"]["PaginationMeta"] | null;
+            links?: components["schemas"]["Links"] | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             * @default 2026-09-04T22:47:52.636005
              */
             timestamp: string;
         };
@@ -3211,7 +3461,19 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T22:10:52.765454
+             * @default 2026-09-04T22:47:52.636005
+             */
+            timestamp: string;
+        };
+        /** APIResponse[RegretLettersResponse] */
+        APIResponse_RegretLettersResponse_: {
+            data: components["schemas"]["RegretLettersResponse"];
+            meta?: components["schemas"]["PaginationMeta"] | null;
+            links?: components["schemas"]["Links"] | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             * @default 2026-09-04T22:47:52.636005
              */
             timestamp: string;
         };
@@ -3223,7 +3485,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T22:10:52.765454
+             * @default 2026-09-04T22:47:52.636005
              */
             timestamp: string;
         };
@@ -3235,7 +3497,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T22:10:52.765454
+             * @default 2026-09-04T22:47:52.636005
              */
             timestamp: string;
         };
@@ -3247,7 +3509,19 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T22:10:52.765454
+             * @default 2026-09-04T22:47:52.636005
+             */
+            timestamp: string;
+        };
+        /** APIResponse[ShortlistResponse] */
+        APIResponse_ShortlistResponse_: {
+            data: components["schemas"]["ShortlistResponse"];
+            meta?: components["schemas"]["PaginationMeta"] | null;
+            links?: components["schemas"]["Links"] | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             * @default 2026-09-04T22:47:52.636005
              */
             timestamp: string;
         };
@@ -3259,7 +3533,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T22:10:52.765454
+             * @default 2026-09-04T22:47:52.636005
              */
             timestamp: string;
         };
@@ -3271,7 +3545,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T22:10:52.765454
+             * @default 2026-09-04T22:47:52.636005
              */
             timestamp: string;
         };
@@ -3283,7 +3557,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T22:10:52.765454
+             * @default 2026-09-04T22:47:52.636005
              */
             timestamp: string;
         };
@@ -3296,7 +3570,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T22:10:52.765454
+             * @default 2026-09-04T22:47:52.636005
              */
             timestamp: string;
         };
@@ -3460,6 +3734,149 @@ export interface components {
              */
             rfq_id: string;
             config: components["schemas"]["AuctionConfig"];
+        };
+        /** AwardApprovalRequest */
+        AwardApprovalRequest: {
+            /** Task Id */
+            task_id?: string | null;
+            /** Comments */
+            comments?: string | null;
+        };
+        /** AwardDetailResponse */
+        AwardDetailResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Arn Id
+             * Format: uuid
+             */
+            arn_id: string;
+            /** Lot Id */
+            lot_id?: string | null;
+            /** Rfq Line Id */
+            rfq_line_id?: string | null;
+            /**
+             * Vendor Id
+             * Format: uuid
+             */
+            vendor_id: string;
+            /**
+             * Bid Id
+             * Format: uuid
+             */
+            bid_id: string;
+            /** Awarded Unit Price */
+            awarded_unit_price: string;
+            /** Awarded Quantity */
+            awarded_quantity: string;
+            /** Awarded Total */
+            awarded_total: string;
+            /** Award Type */
+            award_type: string;
+            /** Justification */
+            justification?: string | null;
+            /** Created At */
+            created_at?: string | null;
+        };
+        /** AwardRecommendRequest */
+        AwardRecommendRequest: {
+            /** Awards */
+            awards: components["schemas"]["AwardRecommendationItem"][];
+            /**
+             * Justification
+             * @description Overall business case justification for award
+             */
+            justification: string;
+        };
+        /** AwardRecommendationItem */
+        AwardRecommendationItem: {
+            /** Lot Id */
+            lot_id?: string | null;
+            /** Rfq Line Id */
+            rfq_line_id?: string | null;
+            /**
+             * Vendor Id
+             * Format: uuid
+             */
+            vendor_id: string;
+            /**
+             * Bid Id
+             * Format: uuid
+             */
+            bid_id: string;
+            /**
+             * Value
+             * @description Total awarded value in INR
+             */
+            value: number | string;
+            /**
+             * Quantity
+             * @default 1.0
+             */
+            quantity: number | string | null;
+            /** Unit Price */
+            unit_price?: number | string | null;
+            /**
+             * Award Type
+             * @description FULL / SPLIT
+             * @default FULL
+             */
+            award_type: string | null;
+            /**
+             * Justification
+             * @description Award reason / L1 justification
+             */
+            justification: string;
+        };
+        /** AwardRecommendationResponse */
+        AwardRecommendationResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Org Id
+             * Format: uuid
+             */
+            org_id: string;
+            /**
+             * Rfq Id
+             * Format: uuid
+             */
+            rfq_id: string;
+            /**
+             * Cs Id
+             * Format: uuid
+             */
+            cs_id: string;
+            /** Arn Number */
+            arn_number: string;
+            /** Status */
+            status: string;
+            /** Justification */
+            justification: string;
+            /** Total Awarded Value */
+            total_awarded_value?: string | null;
+            /**
+             * Recommended By
+             * Format: uuid
+             */
+            recommended_by: string;
+            /** Approved By */
+            approved_by?: string | null;
+            /** Approved At */
+            approved_at?: string | null;
+            /** Created At */
+            created_at?: string | null;
+            /**
+             * Details
+             * @default []
+             */
+            details: components["schemas"]["AwardDetailResponse"][];
         };
         /** BidCountResponse */
         BidCountResponse: {
@@ -3690,6 +4107,103 @@ export interface components {
             entity_id: string;
             category: components["schemas"]["DocumentCategory"];
         };
+        /** CSGenerateRequest */
+        CSGenerateRequest: {
+            /**
+             * Cost Of Capital Rate
+             * @description Annual cost of capital (e.g. 0.12 for 12%)
+             */
+            cost_of_capital_rate?: number | string | null;
+            /**
+             * Evaluation Methodology
+             * @description L1_PRICE_ONLY / QCBS / TECHNICAL_MERIT
+             */
+            evaluation_methodology?: string | null;
+        };
+        /** CSLineRankingResponse */
+        CSLineRankingResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Cs Id
+             * Format: uuid
+             */
+            cs_id: string;
+            /** Lot Id */
+            lot_id?: string | null;
+            /** Rfq Line Id */
+            rfq_line_id?: string | null;
+            /**
+             * Bid Id
+             * Format: uuid
+             */
+            bid_id: string;
+            /**
+             * Vendor Id
+             * Format: uuid
+             */
+            vendor_id: string;
+            /** Raw Unit Price */
+            raw_unit_price: string;
+            /** Freight Per Unit */
+            freight_per_unit: string;
+            /** Tax Per Unit */
+            tax_per_unit: string;
+            /** Landed Cost */
+            landed_cost: string;
+            /** Npv Adjusted Cost */
+            npv_adjusted_cost: string;
+            /** Rank */
+            rank: number;
+            /** Tax Discrepancy */
+            tax_discrepancy: boolean;
+            /** Supplier Declared Rate */
+            supplier_declared_rate?: string | null;
+            /** Hsn Master Rate */
+            hsn_master_rate?: string | null;
+            /** Tie Breaking Applied */
+            tie_breaking_applied: boolean;
+            /** Tie Breaking Reason */
+            tie_breaking_reason?: string | null;
+            /** Lot Total Inr */
+            lot_total_inr?: string | null;
+            /** Technical Score */
+            technical_score?: string | null;
+            /** Commercial Score */
+            commercial_score?: string | null;
+            /** Composite Score */
+            composite_score?: string | null;
+            /** Is L1 */
+            is_l1: boolean;
+        };
+        /** CSVersionSummaryResponse */
+        CSVersionSummaryResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Cs Number */
+            cs_number: string;
+            /** Cs Version */
+            cs_version: number;
+            /** Status */
+            status: string;
+            /** L1 Total Value */
+            l1_total_value?: string | null;
+            /** Savings Percentage */
+            savings_percentage?: string | null;
+            /** Created At */
+            created_at?: string | null;
+            /**
+             * Generated By
+             * Format: uuid
+             */
+            generated_by: string;
+        };
         /** CancelAuctionRequest */
         CancelAuctionRequest: {
             /** Reason */
@@ -3736,6 +4250,62 @@ export interface components {
              * @default true
              */
             broadcast: boolean;
+        };
+        /** ComparativeStatementResponse */
+        ComparativeStatementResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Org Id
+             * Format: uuid
+             */
+            org_id: string;
+            /**
+             * Rfq Id
+             * Format: uuid
+             */
+            rfq_id: string;
+            /** Cs Number */
+            cs_number: string;
+            /** Status */
+            status: string;
+            /** Cost Of Capital Rate */
+            cost_of_capital_rate: string;
+            /** Evaluation Methodology */
+            evaluation_methodology: string;
+            /** Total Estimated Value */
+            total_estimated_value: string;
+            /** L1 Total Value */
+            l1_total_value?: string | null;
+            /** Savings Percentage */
+            savings_percentage?: string | null;
+            /** Recommendations */
+            recommendations?: string | null;
+            /**
+             * Generated By
+             * Format: uuid
+             */
+            generated_by: string;
+            /** Approved By */
+            approved_by?: string | null;
+            /** Approved At */
+            approved_at?: string | null;
+            /** Pdf Document Id */
+            pdf_document_id?: string | null;
+            /** Document Path */
+            document_path?: string | null;
+            /** Cs Version */
+            cs_version: number;
+            /** Created At */
+            created_at?: string | null;
+            /**
+             * Rankings
+             * @default []
+             */
+            rankings: components["schemas"]["CSLineRankingResponse"][];
         };
         /**
          * DocumentCategory
@@ -3934,6 +4504,76 @@ export interface components {
             confidence: number;
             /** Method */
             method: string;
+        };
+        /** NegotiatedPriceSubmitRequest */
+        NegotiatedPriceSubmitRequest: {
+            /**
+             * Negotiated Price
+             * @description Revised negotiated total price in INR
+             */
+            negotiated_price: number | string;
+            /** Notes */
+            notes?: string | null;
+        };
+        /** NegotiationResponse */
+        NegotiationResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Org Id
+             * Format: uuid
+             */
+            org_id: string;
+            /**
+             * Rfq Id
+             * Format: uuid
+             */
+            rfq_id: string;
+            /** Cs Id */
+            cs_id?: string | null;
+            /**
+             * Vendor Id
+             * Format: uuid
+             */
+            vendor_id: string;
+            /** Round Number */
+            round_number: number;
+            /** Original Price */
+            original_price?: string | null;
+            /** Negotiated Price */
+            negotiated_price?: string | null;
+            /** Price Change Pct */
+            price_change_pct?: string | null;
+            /** Proposed Price */
+            proposed_price?: string | null;
+            /** Counter Price */
+            counter_price?: string | null;
+            /** Status */
+            status: string;
+            /** Notes */
+            notes?: string | null;
+            /**
+             * Negotiated By
+             * Format: uuid
+             */
+            negotiated_by: string;
+            /** Initiated By */
+            initiated_by?: string | null;
+            /** Created At */
+            created_at?: string | null;
+        };
+        /** NegotiationStartRequest */
+        NegotiationStartRequest: {
+            /**
+             * Vendor Ids
+             * @description Shortlisted vendor IDs to initiate negotiations with
+             */
+            vendor_ids: string[];
+            /** Notes */
+            notes?: string | null;
         };
         /** PRApprovalAction */
         PRApprovalAction: {
@@ -4341,6 +4981,15 @@ export interface components {
          * @enum {string}
          */
         ProcurementType: "CAPEX" | "OPEX" | "PROJECT" | "MRO" | "SERVICES";
+        /** RegretLettersResponse */
+        RegretLettersResponse: {
+            /** Sent To Vendors */
+            sent_to_vendors: string[];
+            /** Count */
+            count: number;
+            /** Message */
+            message: string;
+        };
         /** RfqClarificationResponse */
         RfqClarificationResponse: {
             /**
@@ -4833,6 +5482,31 @@ export interface components {
             lot_id?: string | null;
             /** Floor Amount Inr */
             floor_amount_inr: number | string;
+        };
+        /** ShortlistResponse */
+        ShortlistResponse: {
+            /**
+             * Cs Id
+             * Format: uuid
+             */
+            cs_id: string;
+            /** Shortlisted Vendor Ids */
+            shortlisted_vendor_ids: string[];
+            /** Message */
+            message: string;
+        };
+        /** ShortlistVendorsRequest */
+        ShortlistVendorsRequest: {
+            /**
+             * Vendor Ids
+             * @description Vendors to shortlist for negotiation or award
+             */
+            vendor_ids: string[];
+            /**
+             * Criteria
+             * @description Shortlisting rationale or filter (e.g. TOP_3, L1_AND_L2)
+             */
+            criteria?: string | null;
         };
         /** SimulateRequest */
         SimulateRequest: {
@@ -9419,6 +10093,402 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+        };
+    };
+    generate_comparative_statement_api_v1_evaluations_rfq__rfq_id__generate_cs_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                rfq_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["CSGenerateRequest"] | null;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_ComparativeStatementResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_latest_cs_for_rfq_api_v1_evaluations_rfq__rfq_id__cs_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                rfq_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_ComparativeStatementResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_cs_versions_api_v1_evaluations_rfq__rfq_id__cs_versions_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                rfq_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_List_CSVersionSummaryResponse__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_cs_by_id_api_v1_evaluations__cs_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                cs_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_ComparativeStatementResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    shortlist_vendors_api_v1_evaluations__cs_id__shortlist_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                cs_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ShortlistVendorsRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_ShortlistResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_negotiations_for_cs_api_v1_evaluations__cs_id__negotiations_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                cs_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_List_NegotiationResponse__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    start_negotiation_api_v1_evaluations__cs_id__negotiations_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                cs_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NegotiationStartRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_List_NegotiationResponse__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    submit_negotiated_price_api_v1_evaluations_negotiations__negotiation_id__submit_price_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                negotiation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NegotiatedPriceSubmitRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_NegotiationResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    recommend_award_api_v1_evaluations__cs_id__recommend_award_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                cs_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AwardRecommendRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_AwardRecommendationResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_award_recommendation_api_v1_evaluations__cs_id__award_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                cs_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_AwardRecommendationResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    approve_award_api_v1_evaluations_awards__arn_id__approve_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                arn_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["AwardApprovalRequest"] | null;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_AwardRecommendationResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    send_regret_letters_api_v1_evaluations__cs_id__send_regret_letters_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                cs_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_RegretLettersResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

@@ -1,20 +1,29 @@
 # Procurement Portal — Enterprise S2C & P2P Platform
 
 ## Current Session State
-**Status:** Live Auction Section Removed from Portals (100% Complete)
+**Status:** SPEC_12 — Comparative Statement (CS) & Evaluation (100% Complete)
 **Completed:**
-- **Navigation & Routing Cleanup:**
-  - Removed "Live Auctions" navigation item from Buyer Portal sidebar (`apps/buyer-portal/app/(main)/layout.tsx`).
-  - Removed "Live Auctions" navigation item from Supplier Portal sidebar (`apps/supplier-portal/app/(main)/layout.tsx`).
-  - Removed `/auctions` route directories from both portals (`apps/buyer-portal/app/(main)/auctions`, `apps/supplier-portal/app/(main)/auctions`).
+- **Backend Implementation:**
+  - `EvaluationService`: CS auto-generation with multi-currency normalized price validation, lot/line rankings, L1 discovery, commercial scoring (L1=100) & technical weighted composite scoring.
+  - MinIO landscape CS PDF generation using ReportLab (`comparative-statement` bucket).
+  - Negotiation workflow: round tracking, price tolerance check (`<= 0.5%`), price change percentage.
+  - Award recommendation triggering rules engine approval workflow (`AWARD`), split/lot awards, and regret letter dispatch excluding awarded vendors.
+  - REST endpoints at `/api/v1/evaluations/*`.
+- **Database Migration:**
+  - `0030_evaluation_spec12` adding CS document path, rankings scores, lot totals, negotiation prices, award details, and RFQ evaluation weights.
+- **Frontend Applications & Wiring:**
+  - `ComparativeStatementTable` & `NegotiationPriceInput` components in `@procurement/ui` and `@procurement/components`.
+  - Buyer Portal pages: `/rfqs/[id]/evaluation`, `/rfqs/[id]/evaluation/negotiate`, `/rfqs/[id]/award`.
+  - `useEvaluation` TanStack query/mutation hooks.
 - **Verification:**
-  - Full Turborepo frontend build and typecheck passing clean (`turbo run typecheck` 0 errors across all 7 workspace packages).
-  - Integration test suite passing (`tests/integration/test_rfq.py`, `tests/integration/test_bid.py`).
+  - `tests/integration/test_evaluation.py` (7/7 passing).
+  - Backend regression suite (`test_all_models.py`, `test_rfq.py`, `test_bid.py`, `test_evaluation.py` — 30 passing).
+  - Full Turborepo frontend build and typecheck passing clean (`turbo run typecheck` 0 errors across 7 workspace packages).
   - Knowledge graph updated via `graphify update .`.
-**Migration Head:** 0028_live_auction
-**Test Commands:** `.venv/bin/pytest tests/integration/test_rfq.py tests/integration/test_bid.py -v` & `cd procurement-portal-frontend && pnpm turbo run typecheck`
-**Next:** SPEC_12 Comparative Statement (CS)
-**Graphify:** 4479 nodes, 10644 edges, 327 communities
+**Migration Head:** 0030_evaluation_spec12
+**Test Commands:** `.venv/bin/pytest tests/integration/test_evaluation.py -v` & `cd procurement-portal-frontend && pnpm turbo run typecheck`
+**Next:** SPEC_13 Contract Management
+**Graphify:** 4599 nodes, 11127 edges, 316 communities
 
 ---
 
@@ -44,7 +53,7 @@ The Procurement Portal is an enterprise-grade Source-to-Contract (S2C), Procure-
 | 10 | RFQ Lifecycle | SPEC_10 | ✅ Complete | 0029_rfq_bid_spec10_11 | ✅ 12 Passing (100% cov) |
 | 11 | Bid Management | SPEC_11 | ✅ Complete | 0029_rfq_bid_spec10_11 | ✅ 11 Passing (100% cov) |
 | 11B | Live Reverse Auction | SPEC_11B | ✅ Complete | 0028_live_auction | ✅ 32 Passing (100% cov) |
-| 12 | Comparative Statement (CS) | SPEC_12 | ⏳ Planned | Pending | Pending |
+| 12 | Comparative Statement (CS) | SPEC_12 | ✅ Complete | 0030_evaluation_spec12 | ✅ 7 Passing (100% cov) |
 | 13 | Contract Management | SPEC_13 | ⏳ Planned | Pending | Pending |
 | 14 | Purchase Order (PO) | SPEC_14 | ⏳ Planned | Pending | Pending |
 | 15 | Invoice & Payment | SPEC_15 | ⏳ Planned | Pending | Pending |
