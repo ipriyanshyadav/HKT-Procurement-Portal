@@ -48,9 +48,14 @@ class AuctionConnectionManager:
             participant.joined_at = datetime.now(timezone.utc)
             await db.commit()
         else:
-            # Buyer role: must have monitor permission
-            has_perm = await role_repository.user_has_permission(
-                db, current_user.id, org_id, PermissionCode.LIVE_AUCTION_MONITOR
+            # Buyer role: must have monitor or bid view permission
+            has_perm = (
+                await role_repository.user_has_permission(
+                    db, current_user.id, org_id, PermissionCode.LIVE_AUCTION_MONITOR
+                )
+                or await role_repository.user_has_permission(
+                    db, current_user.id, org_id, PermissionCode.BID_VIEW_ALL
+                )
             )
             if not has_perm:
                 await websocket.close(code=status.WS_1008_POLICY_VIOLATION)

@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import Optional
 from uuid import UUID
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, and_
+from sqlalchemy import select, and_, or_
 from app.db.repository_base import BaseRepository
 from app.modules.user.models import Role, UserRoleAssignment, RolePermission, Permission
 
@@ -18,7 +18,7 @@ class RoleRepository(BaseRepository[Role]):
             .where(
                 and_(
                     UserRoleAssignment.user_id == user_id,
-                    Role.org_id == org_id,
+                    or_(Role.org_id == org_id, Role.is_system_role.is_(True)),
                     Role.is_active.is_(True),
                     Role.deleted_at.is_(None),
                 )
@@ -38,7 +38,7 @@ class RoleRepository(BaseRepository[Role]):
             .where(
                 and_(
                     UserRoleAssignment.user_id == user_id,
-                    Role.org_id == org_id,
+                    or_(Role.org_id == org_id, Role.is_system_role.is_(True)),
                     Permission.code == permission_code,
                     Role.is_active.is_(True),
                 )

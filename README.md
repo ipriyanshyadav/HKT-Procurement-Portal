@@ -26,7 +26,7 @@
 **Migration Head:** 0028_live_auction
 **Test Commands:** `.venv/bin/pytest tests/integration/test_live_bidding.py tests/security/test_auction*.py tests/unit/test_auction_sequence.py -v` & `cd procurement-portal-frontend && pnpm typecheck`
 **Next:** SPEC_12 Comparative Statement (CS)
-**Graphify:** 4484 nodes, 10642 edges, 312 communities
+**Graphify:** 4485 nodes, 10653 edges, 301 communities
 
 ---
 

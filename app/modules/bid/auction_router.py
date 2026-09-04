@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends, Query, status
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.auth.dependencies import get_current_user, require_permission
+from app.auth.dependencies import get_current_user, require_permission, require_any_permission
 from app.core.constants import PermissionCode
 from app.core.exceptions import NotFoundError, ForbiddenError
 from app.core.responses import success_response, created_response, PaginationMeta
@@ -145,7 +145,7 @@ async def release_results(
 @router.get("/{auction_id}/leaderboard")
 async def get_leaderboard(
     auction_id: UUID,
-    current_user=Depends(require_permission(PermissionCode.LIVE_AUCTION_MONITOR)),
+    current_user=Depends(require_any_permission(PermissionCode.LIVE_AUCTION_MONITOR, PermissionCode.BID_VIEW_ALL)),
     db: AsyncSession = Depends(get_db),
 ):
     """Buyer-only: full leaderboard with prices and vendor names."""
@@ -167,7 +167,7 @@ async def get_my_rank(
 @router.get("/{auction_id}/bids")
 async def get_bid_history(
     auction_id: UUID,
-    current_user=Depends(require_permission(PermissionCode.LIVE_AUCTION_MONITOR)),
+    current_user=Depends(require_any_permission(PermissionCode.LIVE_AUCTION_MONITOR, PermissionCode.BID_VIEW_ALL)),
     db: AsyncSession = Depends(get_db),
 ):
     bids = await live_bid_service.get_bid_history(db, auction_id, current_user, current_user.org_id)

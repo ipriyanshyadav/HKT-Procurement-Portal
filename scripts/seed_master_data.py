@@ -104,6 +104,8 @@ ROLE_PERMISSIONS: dict[str, list[str]] = {
         PermissionCode.DOCUMENT_UPLOAD, PermissionCode.DOCUMENT_VIEW_ALL,
         PermissionCode.NOTIFICATION_VIEW_OWN, PermissionCode.ANALYTICS_VIEW_DASHBOARD,
         PermissionCode.WORKFLOW_VIEW, PermissionCode.USER_VIEW_OWN, PermissionCode.USER_UPDATE_OWN,
+        PermissionCode.LIVE_AUCTION_CREATE, PermissionCode.LIVE_AUCTION_CANCEL,
+        PermissionCode.LIVE_AUCTION_MONITOR, PermissionCode.LIVE_AUCTION_RELEASE_RESULTS,
     ],
     "PROCUREMENT_MANAGER": [
         PermissionCode.PR_VIEW_ALL, PermissionCode.PR_APPROVE, PermissionCode.PR_REJECT,
@@ -120,6 +122,8 @@ ROLE_PERMISSIONS: dict[str, list[str]] = {
         PermissionCode.WORKFLOW_VIEW, PermissionCode.RULES_VIEW,
         PermissionCode.USER_VIEW_ALL, PermissionCode.USER_UPDATE_OWN,
         PermissionCode.MASTER_VIEW,
+        PermissionCode.LIVE_AUCTION_CREATE, PermissionCode.LIVE_AUCTION_CANCEL,
+        PermissionCode.LIVE_AUCTION_MONITOR, PermissionCode.LIVE_AUCTION_RELEASE_RESULTS,
     ],
     "PROCUREMENT_HEAD": [
         PermissionCode.PR_VIEW_ALL, PermissionCode.PR_APPROVE, PermissionCode.PR_REJECT,
@@ -314,62 +318,63 @@ async def seed_data() -> None:
 
         # 2. Ensure system org exists (FK required by roles.org_id)
         SYSTEM_ORG_ID = "00000000-0000-0000-0000-000000000000"
+        DEFAULT_ORG_ID = "00000000-0000-0000-0000-000000000001"
         await session.execute(text("""
             INSERT INTO organizations (id, name, legal_name, country_code, version)
             VALUES (:id, 'System Organization', 'System Organization', 'IN', 1)
             ON CONFLICT (id) DO NOTHING
         """), {"id": SYSTEM_ORG_ID})
 
-        # 3. Seed roles (system-wide: use a consistent org_id of zeros for system roles)
-        role_code_to_id: dict[str, str] = {}
-        for role in ROLES:
-            role_id = str(uuid4())
-            await session.execute(text("""
-                INSERT INTO roles (id, org_id, code, name, is_system_role, is_supplier_role, is_active, version)
-                VALUES (:id, :org_id, :code, :name, :is_system_role, :is_supplier_role, true, 1)
-                ON CONFLICT DO NOTHING
-            """), {
-                "id": role_id,
-                "org_id": SYSTEM_ORG_ID,
-                "code": role["code"],
-                "name": role["name"],
-                "is_system_role": role["is_system_role"],
-                "is_supplier_role": role["is_supplier_role"],
-            })
-            result = await session.execute(
-                text("SELECT id FROM roles WHERE code = :code AND org_id = :org_id"),
-                {"code": role["code"], "org_id": SYSTEM_ORG_ID}
-            )
-            row = result.fetchone()
-            if row:
-                role_code_to_id[role["code"]] = str(row[0])
+        target_org_ids = [SYSTEM_ORG_ID, DEFAULT_ORG_ID]
 
-        logger.info("Seeded %d roles", len(role_code_to_id))
-
-        # 3. Seed role-permission mappings
-        mapping_count = 0
-        for role_code, perm_codes in ROLE_PERMISSIONS.items():
-            role_id = role_code_to_id.get(role_code)
-            if not role_id:
-                continue
-            for perm_code in perm_codes:
-                perm_id = perm_code_to_id.get(perm_code)
-                if not perm_id:
-                    logger.warning("Permission code not found: %s", perm_code)
-                    continue
+        # 3. Seed roles and role-permission mappings for each organization
+        total_mappings = 0
+        for current_org_id in target_org_ids:
+            role_code_to_id: dict[str, str] = {}
+            for role in ROLES:
+                role_id = str(uuid4())
                 await session.execute(text("""
-                    INSERT INTO role_permissions (id, org_id, role_id, permission_id)
-                    VALUES (:id, :org_id, :role_id, :permission_id)
-                    ON CONFLICT DO NOTHING
+                    INSERT INTO roles (id, org_id, code, name, is_system_role, is_supplier_role, is_active, version)
+                    VALUES (:id, :org_id, :code, :name, :is_system_role, :is_supplier_role, true, 1)
+                    ON CONFLICT (org_id, code) DO NOTHING
                 """), {
-                    "id": str(uuid4()),
-                    "org_id": SYSTEM_ORG_ID,
-                    "role_id": role_id,
-                    "permission_id": perm_id,
+                    "id": role_id,
+                    "org_id": current_org_id,
+                    "code": role["code"],
+                    "name": role["name"],
+                    "is_system_role": role["is_system_role"],
+                    "is_supplier_role": role["is_supplier_role"],
                 })
-                mapping_count += 1
+                result = await session.execute(
+                    text("SELECT id FROM roles WHERE code = :code AND org_id = :org_id"),
+                    {"code": role["code"], "org_id": current_org_id}
+                )
+                row = result.fetchone()
+                if row:
+                    role_code_to_id[role["code"]] = str(row[0])
 
-        logger.info("Seeded %d role-permission mappings", mapping_count)
+            for role_code, perm_codes in ROLE_PERMISSIONS.items():
+                role_id = role_code_to_id.get(role_code)
+                if not role_id:
+                    continue
+                for perm_code in perm_codes:
+                    perm_id = perm_code_to_id.get(perm_code)
+                    if not perm_id:
+                        logger.warning("Permission code not found: %s", perm_code)
+                        continue
+                    await session.execute(text("""
+                        INSERT INTO role_permissions (id, org_id, role_id, permission_id)
+                        VALUES (:id, :org_id, :role_id, :permission_id)
+                        ON CONFLICT (org_id, role_id, permission_id) DO NOTHING
+                    """), {
+                        "id": str(uuid4()),
+                        "org_id": current_org_id,
+                        "role_id": role_id,
+                        "permission_id": perm_id,
+                    })
+                    total_mappings += 1
+
+        logger.info("Seeded %d role-permission mappings across %d organizations", total_mappings, len(target_org_ids))
 
         # 4. Seed Incoterms
         for term in INCOTERMS:
