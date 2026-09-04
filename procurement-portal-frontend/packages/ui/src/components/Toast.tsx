@@ -2,7 +2,6 @@
 
 import React, { ReactNode } from 'react';
 import { CheckCircle2, AlertCircle, Info, AlertTriangle, X } from 'lucide-react';
-import { useTheme } from '../theme/ThemeProvider';
 
 export type ToastType = 'success' | 'error' | 'info' | 'warning';
 
@@ -23,25 +22,23 @@ export function Toast({
   onClose,
   className = '',
 }: ToastProps) {
-  const { isLiquidGlass } = useTheme();
-
   let Icon = Info;
-  let iconColor = 'text-blue-500';
+  let iconColor = 'text-blue-500 dark:text-blue-400';
 
   if (type === 'success') {
     Icon = CheckCircle2;
-    iconColor = 'text-emerald-500';
+    iconColor = 'text-emerald-500 dark:text-emerald-400';
   } else if (type === 'error') {
     Icon = AlertCircle;
-    iconColor = 'text-red-500';
+    iconColor = 'text-red-500 dark:text-red-400';
   } else if (type === 'warning') {
     Icon = AlertTriangle;
-    iconColor = 'text-amber-500';
+    iconColor = 'text-amber-500 dark:text-amber-400';
   }
 
   return (
     <div
-      className={`apple-toast ${isLiquidGlass ? 'glass-surface glass-surface--near' : ''} ${className}`}
+      className={`apple-toast ${className}`}
       role="alert"
     >
       <Icon className={`w-5 h-5 flex-shrink-0 mt-0.5 ${iconColor}`} />

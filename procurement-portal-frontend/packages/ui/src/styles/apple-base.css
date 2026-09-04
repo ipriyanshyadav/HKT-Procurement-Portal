@@ -26,12 +26,95 @@
   color: var(--apple-label-primary);
 }
 
+body {
+  min-height: 100vh;
+  background-color: var(--apple-bg-secondary);
+  color: var(--apple-label-primary);
+  transition: background-color 250ms cubic-bezier(0.25, 0.1, 0.25, 1),
+              color 250ms cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
 /* === APPLE DARK === */
+.dark,
 .theme-apple-dark,
 [data-theme='apple-dark'] {
   color-scheme: dark;
-  background-color: var(--apple-bg-primary);
-  color: var(--apple-label-primary);
+  background-color: #000000;
+  color: #FFFFFF;
+}
+
+.dark body,
+.theme-apple-dark body,
+[data-theme='apple-dark'] body {
+  background-color: #000000;
+  color: #FFFFFF;
+}
+
+/* === DARK THEME SURFACES & UTILITY OVERRIDES === */
+.dark .bg-white {
+  background-color: #1C1C1E !important;
+}
+
+.dark .bg-gray-50 {
+  background-color: #161618 !important;
+}
+
+.dark .bg-gray-100 {
+  background-color: #2C2C2E !important;
+}
+
+.dark .text-gray-900 {
+  color: #FFFFFF !important;
+}
+
+.dark .text-gray-800 {
+  color: rgba(255, 255, 255, 0.92) !important;
+}
+
+.dark .text-gray-700 {
+  color: rgba(235, 235, 245, 0.80) !important;
+}
+
+.dark .text-gray-600 {
+  color: rgba(235, 235, 245, 0.65) !important;
+}
+
+.dark .text-gray-500 {
+  color: rgba(235, 235, 245, 0.50) !important;
+}
+
+.dark .border-gray-200,
+.dark .border-gray-300 {
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+.dark .divide-gray-200 > :not([hidden]) ~ :not([hidden]) {
+  border-color: rgba(255, 255, 255, 0.10) !important;
+}
+
+.dark input:not([type="checkbox"]):not([type="radio"]),
+.dark select,
+.dark textarea {
+  background-color: #2C2C2E !important;
+  color: #FFFFFF !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: rgba(235, 235, 245, 0.40) !important;
+}
+
+.dark table thead {
+  background-color: #242426 !important;
+}
+
+.dark table thead th {
+  color: rgba(235, 235, 245, 0.65) !important;
+}
+
+.dark table tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.05) !important;
 }
 
 /* === Smooth scroll === */
@@ -41,7 +124,7 @@ html {
 
 /* === Selection === */
 ::selection {
-  background: rgba(0, 122, 255, 0.25);
+  background: rgba(0, 122, 255, 0.30);
 }
 
 /* === Scrollbar (WebKit) === */
@@ -56,16 +139,15 @@ html {
   background: rgba(0, 0, 0, 0.20);
   border-radius: 4px;
 }
+.dark ::-webkit-scrollbar-thumb,
 .theme-apple-dark ::-webkit-scrollbar-thumb,
-[data-theme='apple-dark'] ::-webkit-scrollbar-thumb,
-.theme-liquid-glass ::-webkit-scrollbar-thumb,
-[data-theme='liquid-glass'] ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.20);
+[data-theme='apple-dark'] ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.22);
 }
 
 /* === Focus Visible === */
 :focus-visible {
-  outline: 3px solid rgba(0, 122, 255, 0.60);
+  outline: 3px solid rgba(10, 132, 255, 0.65);
   outline-offset: 2px;
   border-radius: 4px;
 }

@@ -13,13 +13,14 @@
   gap: 4px;
   overflow-y: auto;
   z-index: 50;
-  transition: transform 300ms var(--apple-ease);
+  transition: background 250ms var(--apple-ease), border-color 250ms var(--apple-ease);
 }
 
+.dark .apple-sidebar,
 .theme-apple-dark .apple-sidebar,
 [data-theme='apple-dark'] .apple-sidebar {
-  background: var(--apple-bg-secondary);
-  border-color: rgba(255, 255, 255, 0.08);
+  background: #141416;
+  border-color: rgba(255, 255, 255, 0.10);
 }
 
 .sidebar-section-label {
@@ -90,6 +91,10 @@
     justify-content: space-around;
     align-items: center;
     z-index: 100;
+  }
+  .dark .apple-tab-bar {
+    background: rgba(24, 24, 26, 0.85);
+    border-top: 0.5px solid rgba(255, 255, 255, 0.12);
   }
   .apple-tab-item {
     display: flex;

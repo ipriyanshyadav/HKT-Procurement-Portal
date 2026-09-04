@@ -2,7 +2,6 @@
 
 import React, { ReactNode } from 'react';
 import { useCountUp } from '../hooks/useCountUp';
-import { useTheme } from '../theme/ThemeProvider';
 
 export interface KPIItemProps {
   value: number;
@@ -32,12 +31,12 @@ export function KPIItem({
 
   return (
     <div className="kpi-item">
-      <div className="kpi-value">
+      <div className="kpi-value text-neutral-900 dark:text-white">
         {prefix}{formatted}{suffix}
       </div>
-      <div className="kpi-label">{label}</div>
+      <div className="kpi-label text-neutral-500 dark:text-neutral-400">{label}</div>
       {sublabel && (
-        <div className="text-xs text-neutral-400 mt-1 font-normal">{sublabel}</div>
+        <div className="text-xs text-neutral-400 dark:text-neutral-500 mt-1 font-normal">{sublabel}</div>
       )}
     </div>
   );
@@ -50,10 +49,8 @@ export interface HeroKPIStripProps {
 }
 
 export function HeroKPIStrip({ items, className = '', children }: HeroKPIStripProps) {
-  const { isLiquidGlass } = useTheme();
-
   return (
-    <section className={`kpi-strip ${isLiquidGlass ? 'glass-surface' : ''} ${className}`}>
+    <section className={`kpi-strip ${className}`}>
       {items.map((item, idx) => (
         <KPIItem key={idx} {...item} delay={idx * 100} />
       ))}

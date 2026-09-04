@@ -1,7 +1,6 @@
 "use client";
 
 import React, { ReactNode } from 'react';
-import { useTheme } from '../theme/ThemeProvider';
 
 export interface TableColumn<T> {
   key: string;
@@ -28,10 +27,8 @@ export function Table<T>({
   emptyMessage = 'No data available',
   className = '',
 }: TableProps<T>) {
-  const { isLiquidGlass } = useTheme();
-
   return (
-    <div className={`apple-table-container ${isLiquidGlass ? 'glass-surface' : ''} ${className}`}>
+    <div className={`apple-table-container ${className}`}>
       <table className="apple-table">
         <thead>
           <tr>

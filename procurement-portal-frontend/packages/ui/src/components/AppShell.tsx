@@ -3,7 +3,6 @@
 import React, { ReactNode } from 'react';
 import { Navbar, NavItem } from './Navbar';
 import { Sidebar, SidebarItemData } from './Sidebar';
-import { LiquidGlassBackground } from '../glass/LiquidGlassBackground';
 
 export interface AppShellProps {
   portalName?: string;
@@ -34,7 +33,6 @@ export function AppShell({
   actions,
   showSidebar = true,
 }: AppShellProps) {
-  // Convert Sidebar items to top nav items
   const topNavItems: NavItem[] = navItems.map((item) => ({
     label: item.label,
     href: item.href,
@@ -42,11 +40,8 @@ export function AppShell({
   }));
 
   return (
-    <div className="min-h-screen flex flex-col relative antialiased transition-colors duration-300">
-      {/* Liquid Glass Dynamic Background */}
-      <LiquidGlassBackground />
-
-      {/* Top Frosted Navbar */}
+    <div className="min-h-screen flex flex-col relative antialiased transition-colors duration-250 bg-[var(--apple-bg-secondary)] text-[var(--apple-label-primary)]">
+      {/* Top Apple Frosted Navbar */}
       <Navbar
         portalName={portalName}
         portalBadge={portalBadge}
@@ -65,7 +60,7 @@ export function AppShell({
 
         {/* Main Content Area */}
         <main
-          className={`flex-1 transition-all duration-300 p-4 sm:p-6 lg:p-8 pb-20 md:pb-8 w-full max-w-7xl mx-auto ${
+          className={`flex-1 transition-all duration-250 p-4 sm:p-6 lg:p-8 pb-20 md:pb-8 w-full max-w-7xl mx-auto ${
             showSidebar ? 'md:pl-[264px]' : ''
           }`}
         >

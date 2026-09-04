@@ -948,8 +948,8 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/types/src/api.ts": {
-    "mtime": 1788520713.5807798,
-    "seen": 1788520787.0558,
+    "mtime": 1788521187.9928393,
+    "seen": 1788521226.674276,
     "ast_hash": "49f5bb3143f014f6698d00ba2bd80ae5",
     "semantic_hash": ""
   },
@@ -972,9 +972,9 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/ui/src/index.ts": {
-    "mtime": 1788520492.0937984,
-    "seen": 1788520787.055841,
-    "ast_hash": "ae4487dcc1c49587b2c131059f0c75bf",
+    "mtime": 1788521076.3208663,
+    "seen": 1788521157.1080298,
+    "ast_hash": "acca039cff5292a5db15b2deb620997a",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/ui/src/utils.ts": {
@@ -1482,9 +1482,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1788518892.299366,
-    "seen": 1788519178.811531,
-    "ast_hash": "97699199b11d3efabc5424aca5a7935e",
+    "mtime": 1788521164.2311592,
+    "seen": 1788521226.674348,
+    "ast_hash": "902ee3503fc7191e00533df1b6f6a91e",
     "semantic_hash": ""
   },
   "graphify_diff_20260904_014322.txt": {
@@ -2298,9 +2298,9 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/admin-portal/tailwind.config.ts": {
-    "mtime": 1788511548.4311287,
-    "seen": 1788511795.549603,
-    "ast_hash": "d374e44c24f24f4e64d02a39a6b0c95f",
+    "mtime": 1788520985.137203,
+    "seen": 1788521157.107959,
+    "ast_hash": "2ca675b93f03fb7c425f47eded72ded1",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/buyer-portal/postcss.config.js": {
@@ -2310,9 +2310,9 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/buyer-portal/tailwind.config.ts": {
-    "mtime": 1788511548.409891,
-    "seen": 1788511795.54962,
-    "ast_hash": "d374e44c24f24f4e64d02a39a6b0c95f",
+    "mtime": 1788520989.3657742,
+    "seen": 1788521157.107977,
+    "ast_hash": "2ca675b93f03fb7c425f47eded72ded1",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/supplier-portal/app/(auth)/login/page.tsx": {
@@ -2328,9 +2328,9 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/supplier-portal/tailwind.config.ts": {
-    "mtime": 1788511548.4359076,
-    "seen": 1788511795.5496309,
-    "ast_hash": "d374e44c24f24f4e64d02a39a6b0c95f",
+    "mtime": 1788520993.9137108,
+    "seen": 1788521157.1079879,
+    "ast_hash": "2ca675b93f03fb7c425f47eded72ded1",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/admin-portal/app/(auth)/login/page.tsx": {
@@ -2352,9 +2352,9 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/admin-portal/app/(main)/dashboard/page.tsx": {
-    "mtime": 1788520593.8238592,
-    "seen": 1788520787.055715,
-    "ast_hash": "7c8e247b58ab392fc6a70cfe6c5187cb",
+    "mtime": 1788521087.4526258,
+    "seen": 1788521157.107948,
+    "ast_hash": "e31bad9bbd7b988b5ceba4cebe1912ed",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/supplier-portal/app/register/page.tsx": {
@@ -2412,9 +2412,9 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/ui/src/components/AppShell.tsx": {
-    "mtime": 1788520486.7490196,
-    "seen": 1788520787.055819,
-    "ast_hash": "6f22182ac383f36b88ba117aae4338c2",
+    "mtime": 1788521051.6967099,
+    "seen": 1788521157.108017,
+    "ast_hash": "911faa84702aa92884a7a6266f3db735",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/ui/src/components/Badge.tsx": {
@@ -2430,9 +2430,9 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/ui/src/components/Card.tsx": {
-    "mtime": 1788520520.8710303,
-    "seen": 1788520787.0558221,
-    "ast_hash": "9327e7c8361488424c9a364d0a59362f",
+    "mtime": 1788521035.791666,
+    "seen": 1788521157.10802,
+    "ast_hash": "99e902c7100f6e4fc42d1db42339e78d",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/ui/src/components/Input.tsx": {
@@ -2442,15 +2442,15 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/ui/src/components/KPICard.tsx": {
-    "mtime": 1788520459.7277853,
-    "seen": 1788520787.0558238,
-    "ast_hash": "c1942fcdb7a4c9b2fb7102400a8ddd06",
+    "mtime": 1788521055.537791,
+    "seen": 1788521157.108021,
+    "ast_hash": "7f55733fc8785fb62ac46031eaa96e05",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/ui/src/components/Modal.tsx": {
-    "mtime": 1788520445.853451,
-    "seen": 1788520787.055825,
-    "ast_hash": "19a7adefee5df99289098d742243356e",
+    "mtime": 1788521066.7004595,
+    "seen": 1788521157.108022,
+    "ast_hash": "61f80c7671e96ce27c39cc1e6d17c9de",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/ui/src/components/Navbar.tsx": {
@@ -2478,9 +2478,9 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/ui/src/components/Table.tsx": {
-    "mtime": 1788520455.5544777,
-    "seen": 1788520787.05583,
-    "ast_hash": "462aeaa5f26332cd0c2c08a9e5daff49",
+    "mtime": 1788521060.5926318,
+    "seen": 1788521157.108025,
+    "ast_hash": "39b6281aa853a3c680d85947afd861a2",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/ui/src/components/Tabs.tsx": {
@@ -2490,33 +2490,15 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/ui/src/components/Toast.tsx": {
-    "mtime": 1788520450.8792517,
-    "seen": 1788520787.0558321,
-    "ast_hash": "d689fae82e4b1f4710135f0ffe5b733c",
+    "mtime": 1788521071.0382361,
+    "seen": 1788521157.108027,
+    "ast_hash": "554cebaa78271b0d87390c538673266e",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/ui/src/components/Toggle.tsx": {
     "mtime": 1788520441.08692,
     "seen": 1788520787.055833,
     "ast_hash": "60cf55ed21e944f526d67ba3bc35e2cf",
-    "semantic_hash": ""
-  },
-  "procurement-portal-frontend/packages/ui/src/glass/GlassCard.tsx": {
-    "mtime": 1788520414.1948454,
-    "seen": 1788520787.055834,
-    "ast_hash": "138f4982bdb1f64a726c4b1db9007135",
-    "semantic_hash": ""
-  },
-  "procurement-portal-frontend/packages/ui/src/glass/LiquidGlassBackground.tsx": {
-    "mtime": 1788520392.0375082,
-    "seen": 1788520787.0558348,
-    "ast_hash": "004dea2a77cf30147b8e4dc9df5b9c0b",
-    "semantic_hash": ""
-  },
-  "procurement-portal-frontend/packages/ui/src/glass/refraction.ts": {
-    "mtime": 1788520378.0056,
-    "seen": 1788520787.055836,
-    "ast_hash": "2385fd07c9d5adbea65564681613a0f3",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/ui/src/hooks/useAppleReveal.ts": {
@@ -2531,12 +2513,6 @@
     "ast_hash": "3519d01123e588962a5bc15e6e0714cb",
     "semantic_hash": ""
   },
-  "procurement-portal-frontend/packages/ui/src/hooks/useLiquidGlassCursor.ts": {
-    "mtime": 1788520409.852917,
-    "seen": 1788520787.0558379,
-    "ast_hash": "8d6cee5286772bbda117d983a6e08895",
-    "semantic_hash": ""
-  },
   "procurement-portal-frontend/packages/ui/src/hooks/useParallaxTilt.ts": {
     "mtime": 1788520404.4586427,
     "seen": 1788520787.055839,
@@ -2544,15 +2520,15 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/ui/src/theme/ThemeProvider.tsx": {
-    "mtime": 1788520381.2426505,
-    "seen": 1788520787.0558422,
-    "ast_hash": "779ab1728d0acac0177b89e1fbc1984f",
+    "mtime": 1788521043.142494,
+    "seen": 1788521157.108031,
+    "ast_hash": "61f64ecaf69e87ca5f214a548d442b13",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/ui/src/theme/ThemeSwitcher.tsx": {
-    "mtime": 1788520386.635753,
-    "seen": 1788520787.055843,
-    "ast_hash": "c29d7d1ca834125140d00904e49de19e",
+    "mtime": 1788521047.0992076,
+    "seen": 1788521157.108032,
+    "ast_hash": "34e1be6c1fd859ae8522996782e93b08",
     "semantic_hash": ""
   },
   "plans/plan_apple_design_spec.md": {
@@ -2562,9 +2538,9 @@
     "semantic_hash": ""
   },
   "reports/spec_apple_design_coverage_report.md": {
-    "mtime": 1788520774.3417606,
-    "seen": 1788520787.055951,
-    "ast_hash": "54e8965f1683493b75b6a7864ec22f79",
+    "mtime": 1788521149.0909324,
+    "seen": 1788521157.108108,
+    "ast_hash": "fc6ca8bc4c88210ea379abe9d2f58da1",
     "semantic_hash": ""
   }
 }

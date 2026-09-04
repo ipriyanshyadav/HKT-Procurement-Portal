@@ -2,7 +2,6 @@
 
 import React, { useEffect, ReactNode } from 'react';
 import { X } from 'lucide-react';
-import { useTheme } from '../theme/ThemeProvider';
 
 export interface ModalProps {
   isOpen: boolean;
@@ -23,8 +22,6 @@ export function Modal({
   maxWidth = 'max-w-xl',
   showCloseButton = true,
 }: ModalProps) {
-  const { isLiquidGlass } = useTheme();
-
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
@@ -51,7 +48,7 @@ export function Modal({
       aria-modal="true"
     >
       <div
-        className={`apple-modal ${isLiquidGlass ? 'glass-surface glass-surface--near' : ''} ${maxWidth}`}
+        className={`apple-modal ${maxWidth}`}
       >
         <div className="apple-modal__handle" />
 

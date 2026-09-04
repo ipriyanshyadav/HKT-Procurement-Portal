@@ -1,18 +1,18 @@
 # Procurement Portal — Enterprise S2C & P2P Platform
 
 ## Current Session State
-**Status:** Apple Design System & Liquid Glass Implementation Complete (100%)
+**Status:** Apple Design System (Light & Dark) Complete (100%)
 **Completed:**
-- **Apple Design Foundations:** Created comprehensive design tokens (`apple-tokens.css`), base styles (`apple-base.css`), and component stylesheets in `packages/ui/src/styles/`.
-- **Liquid Glass Theme:** Built macOS 26 / visionOS 2 accurate Liquid Glass system with real-time backdrop refraction (`feTurbulence` / `feDisplacementMap`), specular rim highlights, chromatic edge glow, animated wallpaper canvas (`LiquidGlassBackground.tsx`), and interaction ripple.
-- **Theme Provider & Switcher:** Implemented 3-way segmented toggle (`apple-light`, `apple-dark`, `liquid-glass`) with `localStorage` persistence and zero hydration mismatch.
-- **Apple Component Library:** Pill buttons (`border-radius: 980px`), cards with hover elevation & tilt, status badges with dot indicators, form controls, modals/sheets, toasts, tables, and `HeroKPIStrip` with `useCountUp`.
-- **Portal Rollout:** Upgraded Admin Portal (`localhost:3000`), Supplier Portal (`localhost:3001`), and Buyer Portal (`localhost:3002`) with the unified `AppShell`, respective brand accents (`#0071E3`, `#30D158`, `#FF9F0A`), and mobile tab bar.
-- **Zero Regression:** All existing API wiring, Zustand auth store, TanStack Query hooks, forms, tables, and 331 backend pytest tests passing (100%).
+- **Apple Light & Dark System:** Refined Apple design system tokens (`apple-tokens.css`) and global typography/surface styles (`apple-base.css`) with pure OLED black `#000000`, elevated cards `#1C1C1E`, and controls `#2C2C2E`.
+- **Tailwind Class Dark Mode:** Configured `darkMode: "class"` in all 3 portals' `tailwind.config.ts`, syncing DOM `dark` class with `ThemeProvider.tsx` and `data-theme`.
+- **Liquid Glass Removal:** Completely removed Liquid Glass theme, animated canvas background, SVG refraction filters, and related tokens per instructions.
+- **Apple Light/Dark Switcher:** Implemented a 2-way toggle with Sun (amber) and Moon (sky) icons and active pill indicator.
+- **Component & Layout Polish:** Navbar, Sidebar, Cards, Tables, Modals, Badges, and Form elements automatically adapt with high contrast and smooth Apple transitions.
+- **Verification:** 331 pytest integration/unit tests passed; 7 Turborepo tasks passed cleanly; Graphify updated.
 **Migration Head:** 0028_fix_missing_model_columns
 **Test Commands:** `OTEL_SDK_DISABLED=true .venv/bin/pytest tests/ -q` & `pnpm build`
 **Next:** SPEC_10 RFQ Lifecycle
-**Graphify:** 3659 nodes, 7976 edges, 306 communities
+**Graphify:** 3648 nodes, 7923 edges, 296 communities
 
 ---
 

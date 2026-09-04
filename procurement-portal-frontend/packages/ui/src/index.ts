@@ -34,19 +34,13 @@ export type { BudgetIndicatorProps } from "./BudgetIndicator";
 export { PermissionGuard, useHasPermission } from "./PermissionGuard";
 export type { PermissionGuardProps } from "./PermissionGuard";
 
-// === Apple Design System & Liquid Glass Exports ===
+// === Apple Design System Exports (Light & Dark) ===
 // Theme
 export { ThemeProvider, useTheme, ThemeContext } from "./theme/ThemeProvider";
 export type { Theme, ThemeContextValue } from "./theme/ThemeProvider";
 export { ThemeSwitcher } from "./theme/ThemeSwitcher";
 
-// Liquid Glass
-export { LiquidGlassBackground } from "./glass/LiquidGlassBackground";
-export { GlassCard } from "./glass/GlassCard";
-export type { GlassCardProps } from "./glass/GlassCard";
-export { injectRefractionFilter, triggerGlassRipple } from "./glass/refraction";
-
-// Core UI Components
+// Core Apple UI Components
 export { Button } from "./components/Button";
 export type { ButtonProps } from "./components/Button";
 
@@ -97,4 +91,3 @@ export type { AppShellProps } from "./components/AppShell";
 export { useAppleReveal } from "./hooks/useAppleReveal";
 export { useCountUp } from "./hooks/useCountUp";
 export { useParallaxTilt } from "./hooks/useParallaxTilt";
-export { useLiquidGlassCursor } from "./hooks/useLiquidGlassCursor";

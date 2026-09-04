@@ -1,42 +1,45 @@
 "use client";
 
 import React from 'react';
-import { useTheme, Theme } from './ThemeProvider';
+import { useTheme } from './ThemeProvider';
+import { Sun, Moon } from 'lucide-react';
 
 export function ThemeSwitcher() {
   const { theme, setTheme } = useTheme();
 
-  const options: { id: Theme; label: string; emoji: string }[] = [
-    { id: 'apple-light', label: 'Light', emoji: '☀️' },
-    { id: 'apple-dark', label: 'Dark', emoji: '🌙' },
-    { id: 'liquid-glass', label: 'Glass', emoji: '🫧' },
-  ];
-
   return (
     <div
-      className="inline-flex items-center p-0.5 rounded-full bg-black/5 dark:bg-white/10 backdrop-blur-md border border-black/5 dark:border-white/10"
+      className="inline-flex items-center p-0.5 rounded-full bg-neutral-200/70 dark:bg-neutral-800/80 border border-neutral-300/60 dark:border-neutral-700/60 transition-colors"
       role="group"
       aria-label="Theme Selection"
     >
-      {options.map((o) => {
-        const isActive = theme === o.id;
-        return (
-          <button
-            key={o.id}
-            type="button"
-            className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-full transition-all duration-200 cursor-pointer ${
-              isActive
-                ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-sm'
-                : 'text-neutral-500 hover:text-black dark:text-neutral-400 dark:hover:text-white'
-            }`}
-            onClick={() => setTheme(o.id)}
-            aria-pressed={isActive}
-          >
-            <span aria-hidden="true" className="text-xs">{o.emoji}</span>
-            <span>{o.label}</span>
-          </button>
-        );
-      })}
+      <button
+        type="button"
+        className={`flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-full transition-all duration-200 cursor-pointer ${
+          theme === 'apple-light'
+            ? 'bg-white text-neutral-900 shadow-sm font-semibold'
+            : 'text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white'
+        }`}
+        onClick={() => setTheme('apple-light')}
+        aria-pressed={theme === 'apple-light'}
+      >
+        <Sun className="w-3.5 h-3.5 text-amber-500" />
+        <span>Light</span>
+      </button>
+
+      <button
+        type="button"
+        className={`flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-full transition-all duration-200 cursor-pointer ${
+          theme === 'apple-dark'
+            ? 'bg-[#2C2C2E] text-white shadow-sm font-semibold'
+            : 'text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white'
+        }`}
+        onClick={() => setTheme('apple-dark')}
+        aria-pressed={theme === 'apple-dark'}
+      >
+        <Moon className="w-3.5 h-3.5 text-sky-400" />
+        <span>Dark</span>
+      </button>
     </div>
   );
 }

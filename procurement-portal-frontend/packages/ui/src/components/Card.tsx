@@ -1,8 +1,6 @@
 "use client";
 
 import React, { forwardRef, HTMLAttributes, ReactNode, useRef } from 'react';
-import { useTheme } from '../theme/ThemeProvider';
-import { useLiquidGlassCursor } from '../hooks/useLiquidGlassCursor';
 import { useParallaxTilt } from '../hooks/useParallaxTilt';
 
 export interface CardProps extends Omit<HTMLAttributes<HTMLDivElement>, 'title'> {
@@ -11,7 +9,6 @@ export interface CardProps extends Omit<HTMLAttributes<HTMLDivElement>, 'title'>
   subtitle?: ReactNode;
   action?: ReactNode;
   footer?: ReactNode;
-  glass?: boolean;
   tilt?: boolean;
   className?: string;
 }
@@ -24,29 +21,23 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
       subtitle,
       action,
       footer,
-      glass = false,
       tilt = false,
       className = '',
       ...rest
     },
     forwardedRef
   ) => {
-    const { isLiquidGlass } = useTheme();
     const internalRef = useRef<HTMLDivElement>(null);
     const refToUse = (forwardedRef as React.RefObject<HTMLDivElement>) || internalRef;
 
-    useLiquidGlassCursor(refToUse);
     if (tilt) {
       useParallaxTilt(refToUse, 5);
     }
 
-    const useGlassStyle = glass || isLiquidGlass;
-    const cardBaseClass = useGlassStyle ? 'apple-card glass-surface' : 'apple-card';
-
     return (
       <div
         ref={refToUse}
-        className={`${cardBaseClass} ${className}`}
+        className={`apple-card ${className}`}
         {...rest}
       >
         {(title || action) && (

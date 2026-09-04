@@ -146,7 +146,6 @@ export default function AdminDashboardPage() {
         <Card
           title="Taxonomy & Catalog Engine"
           subtitle="Multi-tier tree classification & approval thresholds"
-          glass
           action={
             <Link href="/master-data/categories">
               <Button variant="ghost" size="sm" icon={<ArrowUpRight className="w-3.5 h-3.5" />}>
@@ -173,7 +172,6 @@ export default function AdminDashboardPage() {
         <Card
           title="Bulk Data Ingestion"
           subtitle="Transaction-safe CSV ingestion pipeline"
-          glass
           action={
             <Link href="/master-data/import">
               <Button variant="ghost" size="sm" icon={<ArrowUpRight className="w-3.5 h-3.5" />}>
@@ -200,7 +198,6 @@ export default function AdminDashboardPage() {
         <Card
           title="Platform Architecture"
           subtitle="System health & container telemetry"
-          glass
         >
           <div className="flex items-center gap-4 py-2">
             <div className="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
@@ -223,7 +220,6 @@ export default function AdminDashboardPage() {
         <Card
           title="Tenant & Security"
           subtitle="Multi-tenant isolation & cryptographic tokens"
-          glass
         >
           <div className="flex items-center gap-4 py-2">
             <div className="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-900/30 flex items-center justify-center text-amber-600 dark:text-amber-400">
@@ -248,7 +244,6 @@ export default function AdminDashboardPage() {
       <Card
         title="Master Data Modules"
         subtitle="Core reference records governing spend approvals, accounting, and compliance."
-        glass
       >
         <div className="apple-table-container mt-2">
           <table className="apple-table">
