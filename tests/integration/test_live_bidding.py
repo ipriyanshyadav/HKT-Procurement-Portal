@@ -612,3 +612,52 @@ async def test_audit_events_count():
         assert "AUCTION_OPENED" in actions
         assert "BID_SUBMITTED" in actions
         assert "AUCTION_CLOSED" in actions
+
+
+@pytest.mark.asyncio
+async def test_list_and_get_auctions_enrich_rfq_number_and_title():
+    """Verify list_auctions and get_auction enrich LiveAuction models with rfq_number and rfq_title."""
+    org_id = uuid4()
+    async with TestSession() as db:
+        fx = await create_live_auction_fixtures(db, org_id)
+        rfq, lot, auction, service = await setup_auction_with_rfq(db, fx, org_id)
+
+        buyer_actor = SimpleNamespace(id=fx["buyer_id"], org_id=org_id)
+        assert auction.rfq_number == rfq.rfq_number
+        assert auction.rfq_title == rfq.title
+
+        # Test get_auction
+        fetched = await service.get_auction(db, auction.id, org_id)
+        assert fetched is not None
+        assert fetched.rfq_number == rfq.rfq_number
+        assert fetched.rfq_title == rfq.title
+
+        # Test list_auctions (buyer)
+        auctions, total = await service.list_auctions(db, org_id)
+        assert total >= 1
+        matching = next((a for a in auctions if a.id == auction.id), None)
+        assert matching is not None
+        assert matching.rfq_number == rfq.rfq_number
+        assert matching.rfq_title == rfq.title
+
+        # Test list_auctions (supplier)
+        vendor_auctions, v_total = await service.list_auctions(
+            db, org_id, vendor_id=fx["vendor1_id"]
+        )
+        assert v_total >= 1
+        v_matching = next((a for a in vendor_auctions if a.id == auction.id), None)
+        assert v_matching is not None
+        assert v_matching.rfq_number == rfq.rfq_number
+        assert v_matching.rfq_title == rfq.title
+
+        # Test _sanitize_auction_for_actor serialization
+        from app.modules.bid.auction_router import _sanitize_auction_for_actor
+        buyer_sanitized = _sanitize_auction_for_actor(matching, buyer_actor)
+        assert buyer_sanitized["rfq_number"] == rfq.rfq_number
+        assert buyer_sanitized["rfq_title"] == rfq.title
+
+        supplier_actor = SimpleNamespace(id=fx["vendor1_user_id"], vendor_id=fx["vendor1_id"])
+        supplier_sanitized = _sanitize_auction_for_actor(v_matching, supplier_actor)
+        assert supplier_sanitized["rfq_number"] == rfq.rfq_number
+        assert supplier_sanitized["rfq_title"] == rfq.title
+

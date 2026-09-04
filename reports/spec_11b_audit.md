@@ -27,6 +27,7 @@
 | S11B-20 | Frontend — BidEntryPanel component | `packages/ui/src/BidEntryPanel.tsx` | DONE | Decrement validation, Decimal precision, quick decrement shortcuts |
 | S11B-21 | Frontend — PriceLeaderboard component | `packages/ui/src/PriceLeaderboard.tsx` | DONE | L1 highlight, masked/unmasked vendor view, tabular display |
 | S11B-22 | Frontend — AuctionCountdownTimer component | `packages/ui/src/AuctionCountdownTimer.tsx` | DONE | Urgent <60s red pulse, onExpired callback, millisecond precision |
+| S11B-23 | Live Auction RFQ Number & Title Enrichment | `app/modules/bid/live_bid_service.py`, `app/modules/bid/auction_router.py`, Buyer & Supplier Portals | DONE | Batch-joins RFQ details (`rfq_number`, `rfq_title`) for list and detail displays |
 
 ## Summary Metric
 
@@ -55,6 +56,7 @@ S11B-19 [DONE] → packages/hooks/src/useAuctionSocket.ts
 S11B-20 [DONE] → packages/ui/src/BidEntryPanel.tsx
 S11B-21 [DONE] → packages/ui/src/PriceLeaderboard.tsx
 S11B-22 [DONE] → packages/ui/src/AuctionCountdownTimer.tsx
+S11B-23 [DONE] → live_bid_service.py, auction_router.py, buyer & supplier portals
 
-OVERALL: 22/22 (100%) | BACKEND 100% | FRONTEND 100% | TESTS (Proceed to Step 3)
+OVERALL: 23/23 (100%) | BACKEND 100% | FRONTEND 100% | TESTS 100%
 ```

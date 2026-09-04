@@ -95,9 +95,11 @@ export default function AuctionRoomPage() {
               Tenders
             </Link>
             <span>/</span>
-            <span className="font-mono text-gray-700">Live Auction</span>
+            <span className="font-mono text-blue-600 font-semibold">{auction.rfq_number || "Live Auction"}</span>
           </div>
-          <h1 className="text-xl font-bold text-gray-900">{auction.rfq_title || `Auction ${auctionId.slice(0, 8)}`}</h1>
+          <h1 className="text-xl font-bold text-gray-900">
+            {auction.rfq_number ? `${auction.rfq_number} — ` : ""}{auction.rfq_title || `Auction ${auctionId.slice(0, 8)}`}
+          </h1>
           <p className="text-xs text-gray-500">Live Reverse Auction Bidding Terminal</p>
         </div>
         <div className="flex items-center gap-2">

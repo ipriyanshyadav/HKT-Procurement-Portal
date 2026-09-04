@@ -3082,7 +3082,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T21:43:54.271678
+             * @default 2026-09-04T22:10:52.765454
              */
             timestamp: string;
         };
@@ -3094,7 +3094,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T21:43:54.271678
+             * @default 2026-09-04T22:10:52.765454
              */
             timestamp: string;
         };
@@ -3107,7 +3107,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T21:43:54.271678
+             * @default 2026-09-04T22:10:52.765454
              */
             timestamp: string;
         };
@@ -3120,7 +3120,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T21:43:54.271678
+             * @default 2026-09-04T22:10:52.765454
              */
             timestamp: string;
         };
@@ -3133,7 +3133,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T21:43:54.271678
+             * @default 2026-09-04T22:10:52.765454
              */
             timestamp: string;
         };
@@ -3146,7 +3146,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T21:43:54.271678
+             * @default 2026-09-04T22:10:52.765454
              */
             timestamp: string;
         };
@@ -3159,7 +3159,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T21:43:54.271678
+             * @default 2026-09-04T22:10:52.765454
              */
             timestamp: string;
         };
@@ -3172,7 +3172,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T21:43:54.271678
+             * @default 2026-09-04T22:10:52.765454
              */
             timestamp: string;
         };
@@ -3187,7 +3187,19 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T21:43:54.271678
+             * @default 2026-09-04T22:10:52.765454
+             */
+            timestamp: string;
+        };
+        /** APIResponse[LiveAuctionDetailResponse] */
+        APIResponse_LiveAuctionDetailResponse_: {
+            data: components["schemas"]["LiveAuctionDetailResponse"];
+            meta?: components["schemas"]["PaginationMeta"] | null;
+            links?: components["schemas"]["Links"] | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             * @default 2026-09-04T22:10:52.765454
              */
             timestamp: string;
         };
@@ -3199,7 +3211,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T21:43:54.271678
+             * @default 2026-09-04T22:10:52.765454
              */
             timestamp: string;
         };
@@ -3211,7 +3223,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T21:43:54.271678
+             * @default 2026-09-04T22:10:52.765454
              */
             timestamp: string;
         };
@@ -3223,7 +3235,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T21:43:54.271678
+             * @default 2026-09-04T22:10:52.765454
              */
             timestamp: string;
         };
@@ -3235,7 +3247,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T21:43:54.271678
+             * @default 2026-09-04T22:10:52.765454
              */
             timestamp: string;
         };
@@ -3247,7 +3259,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T21:43:54.271678
+             * @default 2026-09-04T22:10:52.765454
              */
             timestamp: string;
         };
@@ -3259,7 +3271,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T21:43:54.271678
+             * @default 2026-09-04T22:10:52.765454
              */
             timestamp: string;
         };
@@ -3271,7 +3283,20 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T21:43:54.271678
+             * @default 2026-09-04T22:10:52.765454
+             */
+            timestamp: string;
+        };
+        /** APIResponse[list[LiveAuctionDetailResponse]] */
+        APIResponse_list_LiveAuctionDetailResponse__: {
+            /** Data */
+            data: components["schemas"]["LiveAuctionDetailResponse"][];
+            meta?: components["schemas"]["PaginationMeta"] | null;
+            links?: components["schemas"]["Links"] | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             * @default 2026-09-04T22:10:52.765454
              */
             timestamp: string;
         };
@@ -3772,6 +3797,67 @@ export interface components {
             next_?: string | null;
             /** Prev */
             prev_?: string | null;
+        };
+        /** LiveAuctionDetailResponse */
+        LiveAuctionDetailResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Org Id
+             * Format: uuid
+             */
+            org_id: string;
+            /**
+             * Rfq Id
+             * Format: uuid
+             */
+            rfq_id: string;
+            /** Rfq Number */
+            rfq_number?: string | null;
+            /** Rfq Title */
+            rfq_title?: string | null;
+            /** Status */
+            status: string;
+            /** Config */
+            config: {
+                [key: string]: unknown;
+            };
+            /**
+             * Scheduled Start At
+             * Format: date-time
+             */
+            scheduled_start_at: string;
+            /** Actual Start At */
+            actual_start_at?: string | null;
+            /**
+             * Current Close At
+             * Format: date-time
+             */
+            current_close_at: string;
+            /** Extension Count */
+            extension_count: number;
+            /** Winner Vendor Id */
+            winner_vendor_id?: string | null;
+            /** Winning Bid Id */
+            winning_bid_id?: string | null;
+            /**
+             * Created By
+             * Format: uuid
+             */
+            created_by: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
         };
         /**
          * LocationCreateRequest
@@ -10652,7 +10738,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["APIResponse_list_LiveAuctionDetailResponse__"];
                 };
             };
             /** @description Validation Error */
@@ -10685,7 +10771,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["APIResponse_LiveAuctionDetailResponse_"];
                 };
             };
             /** @description Validation Error */
@@ -10716,7 +10802,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["APIResponse_LiveAuctionDetailResponse_"];
                 };
             };
             /** @description Validation Error */

@@ -14,19 +14,19 @@
 - **Frontend Applications:**
   - `@procurement/hooks`: `useAuctionSocket` with exponential reconnect and heartbeat keep-alive.
   - `@procurement/ui`: `AuctionCountdownTimer`, `BidEntryPanel`, `PriceLeaderboard` with decimal.js precision.
-  - Supplier Portal: `/auctions/[id]` interactive live auction room terminal.
-  - Buyer Portal: `/auctions/[id]/monitor` real-time auction monitor & leaderboard.
+  - Supplier Portal: `/auctions` list & `/auctions/[id]` live bidding terminal enriched with RFQ Number & Tender Title.
+  - Buyer Portal: `/auctions` list & `/auctions/[id]/monitor` real-time monitor enriched with RFQ Number & RFQ Title.
   - All 7 Turborepo workspaces typecheck clean (`turbo typecheck` 0 errors).
 - **Verification & Three-Persona Testing:**
-  - Developer Integration Suite: 14/14 passed (`tests/integration/test_live_bidding.py`).
+  - Developer Integration Suite: 15/15 passed (`tests/integration/test_live_bidding.py`) including `test_list_and_get_auctions_enrich_rfq_number_and_title`.
   - Security Persona: 5/5 passed on visibility & reserve price masking (`tests/security/test_auction_visibility.py`), 7/7 passed on permissions & WS admission (`tests/security/test_auction_permissions.py`).
   - QA Persona: 6/6 passed on Redis monotonic sequence & DB fallback (`tests/unit/test_auction_sequence.py`).
-  - Regression: SPEC_10/11 sealed bids and RFQ lifecycle all green.
+  - Regression: SPEC_10/11 sealed bids and RFQ lifecycle all green (16/16 passed).
   - Migration Safety: Round-trip downgrade/upgrade verified.
 **Migration Head:** 0028_live_auction
 **Test Commands:** `.venv/bin/pytest tests/integration/test_live_bidding.py tests/security/test_auction*.py tests/unit/test_auction_sequence.py -v` & `cd procurement-portal-frontend && pnpm typecheck`
 **Next:** SPEC_12 Comparative Statement (CS)
-**Graphify:** 4485 nodes, 10653 edges, 301 communities
+**Graphify:** 4489 nodes, 10670 edges, 320 communities
 
 ---
 

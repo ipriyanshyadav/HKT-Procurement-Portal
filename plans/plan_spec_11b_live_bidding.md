@@ -48,6 +48,7 @@
 | A-11B-8 | `rank_visibility = RANK_ONLY` → suppliers see rank number and L1 price only (not other vendor names/prices); `PRICE_AND_RANK` → suppliers see full leaderboard minus vendor names; `NO_RANK` → suppliers see only their own bid confirmation; buyer monitor always sees full leaderboard regardless of setting | SPEC_11B Section 5.2 | LOW | Squad C |
 | A-11B-9 | Auction WebSocket auth: JWT passed as `?token=` query param (same pattern as SPEC_16 notification WS); standard `get_current_user` dependency applied; vendor users validated against `auction_participants` table | SPEC_11B Section 5.1 | LOW | Squad C |
 | A-11B-10 | `notify_auction_start_reminders` Celery task sends notification via outbox → notification module using template_code `AUCTION_START_REMINDER_60M` and `AUCTION_START_REMINDER_15M`; not a new channel, reuses SPEC_16 email channel | SPEC_11B Section 9 | LOW | Squad C |
+| A-11B-11 | Live auction responses (`GET /auctions`, `GET /auctions/{id}`, `POST /auctions`) join RFQ details to expose `rfq_number` and `rfq_title`; frontend Buyer and Supplier portals render these fields prominently in list cards and auction terminal rooms instead of raw UUID slices | UX consistency between RFQ/Tender lists and Live Auctions | LOW — non-breaking additive fields | Squad C |
 
 ---
 

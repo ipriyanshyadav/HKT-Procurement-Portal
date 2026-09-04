@@ -10,30 +10,32 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.auth.dependencies import get_current_user, require_permission, require_any_permission
 from app.core.constants import PermissionCode
 from app.core.exceptions import NotFoundError, ForbiddenError
-from app.core.responses import success_response, created_response, PaginationMeta
+from app.core.responses import success_response, created_response, PaginationMeta, APIResponse
 from app.db.session import get_db
 from app.modules.bid.live_bid_service import live_bid_service
-from app.modules.bid.schemas import AuctionCreateRequest
+from app.modules.bid.schemas import AuctionCreateRequest, LiveAuctionDetailResponse
 
 router = APIRouter(prefix="/auctions", tags=["live-auction"])
 
 
 def _sanitize_auction_for_actor(auction, current_user) -> dict:
     d = {
-        "id": auction.id,
-        "org_id": auction.org_id,
-        "rfq_id": auction.rfq_id,
-        "status": auction.status,
-        "scheduled_start_at": auction.scheduled_start_at,
-        "actual_start_at": auction.actual_start_at,
-        "current_close_at": auction.current_close_at,
-        "extension_count": auction.extension_count,
-        "winner_vendor_id": auction.winner_vendor_id,
-        "winning_bid_id": auction.winning_bid_id,
-        "created_by": auction.created_by,
-        "created_at": auction.created_at,
-        "updated_at": auction.updated_at,
-        "config": dict(auction.config) if auction.config else {},
+        "id": auction.id if not isinstance(auction, dict) else auction.get("id"),
+        "org_id": auction.org_id if not isinstance(auction, dict) else auction.get("org_id"),
+        "rfq_id": auction.rfq_id if not isinstance(auction, dict) else auction.get("rfq_id"),
+        "rfq_number": getattr(auction, "rfq_number", None) if not isinstance(auction, dict) else auction.get("rfq_number"),
+        "rfq_title": getattr(auction, "rfq_title", None) if not isinstance(auction, dict) else auction.get("rfq_title"),
+        "status": auction.status if not isinstance(auction, dict) else auction.get("status"),
+        "scheduled_start_at": auction.scheduled_start_at if not isinstance(auction, dict) else auction.get("scheduled_start_at"),
+        "actual_start_at": auction.actual_start_at if not isinstance(auction, dict) else auction.get("actual_start_at"),
+        "current_close_at": auction.current_close_at if not isinstance(auction, dict) else auction.get("current_close_at"),
+        "extension_count": auction.extension_count if not isinstance(auction, dict) else auction.get("extension_count", 0),
+        "winner_vendor_id": auction.winner_vendor_id if not isinstance(auction, dict) else auction.get("winner_vendor_id"),
+        "winning_bid_id": auction.winning_bid_id if not isinstance(auction, dict) else auction.get("winning_bid_id"),
+        "created_by": auction.created_by if not isinstance(auction, dict) else auction.get("created_by"),
+        "created_at": auction.created_at if not isinstance(auction, dict) else auction.get("created_at"),
+        "updated_at": auction.updated_at if not isinstance(auction, dict) else auction.get("updated_at"),
+        "config": dict(auction.config) if (not isinstance(auction, dict) and auction.config) else dict(auction.get("config", {})) if isinstance(auction, dict) else {},
     }
     is_vendor = bool(getattr(current_user, "vendor_id", None) or getattr(current_user, "is_supplier_user", False))
     if is_vendor and "reserve_price_inr" in d["config"]:
@@ -50,7 +52,7 @@ class SetProxyFloorRequest(BaseModel):
     floor_amount_inr: Decimal = Field(gt=0)
 
 
-@router.post("", status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=APIResponse[LiveAuctionDetailResponse], status_code=status.HTTP_201_CREATED)
 async def create_auction(
     data: AuctionCreateRequest,
     current_user=Depends(require_permission(PermissionCode.LIVE_AUCTION_CREATE)),
@@ -61,7 +63,7 @@ async def create_auction(
     return created_response(_sanitize_auction_for_actor(auction, current_user))
 
 
-@router.get("")
+@router.get("", response_model=APIResponse[list[LiveAuctionDetailResponse]])
 async def list_auctions(
     rfq_id: Optional[UUID] = Query(None),
     status: Optional[str] = Query(None),
@@ -72,7 +74,7 @@ async def list_auctions(
 ):
     skip = (page - 1) * page_size
     vendor_id = getattr(current_user, "vendor_id", None)
-    auctions, total = await live_bid_service.live_bid_repo.list_auctions(
+    auctions, total = await live_bid_service.list_auctions(
         db, current_user.org_id, vendor_id=vendor_id, rfq_id=rfq_id, status=status, skip=skip, limit=page_size
     )
     sanitized = [_sanitize_auction_for_actor(a, current_user) for a in auctions]
@@ -87,13 +89,13 @@ async def list_auctions(
     return success_response(sanitized, meta=meta)
 
 
-@router.get("/{auction_id}")
+@router.get("/{auction_id}", response_model=APIResponse[LiveAuctionDetailResponse])
 async def get_auction(
     auction_id: UUID,
     current_user=Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    auction = await live_bid_service.live_bid_repo.get(db, auction_id, current_user.org_id)
+    auction = await live_bid_service.get_auction(db, auction_id, current_user.org_id)
     if not auction:
         raise NotFoundError(f"Auction {auction_id} not found")
     vendor_id = getattr(current_user, "vendor_id", None)

@@ -87,12 +87,12 @@ export default function AuctionMonitorPage() {
               Auctions
             </Link>
             <span>/</span>
-            <span className="font-mono text-gray-700">{auctionId.slice(0, 8)}</span>
+            <span className="font-mono text-blue-600 font-semibold">{auction.rfq_number || auctionId.slice(0, 8)}</span>
             <span>/</span>
             <span className="font-medium text-gray-900">Live Monitor</span>
           </div>
           <h1 className="text-2xl font-bold text-gray-900">
-            {auction.rfq_title ? `${auction.rfq_title} — Live Monitor` : "Auction Monitor"}
+            {auction.rfq_number ? `${auction.rfq_number} — ` : ""}{auction.rfq_title || "Live Auction Monitor"}
           </h1>
           <p className="text-xs text-gray-500">
             Status: <span className="font-semibold text-gray-700">{auction.status}</span> · Type: {auction.auction_type}

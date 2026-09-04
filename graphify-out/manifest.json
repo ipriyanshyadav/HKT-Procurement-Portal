@@ -948,9 +948,9 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/types/src/api.ts": {
-    "mtime": 1788558276.3231702,
-    "seen": 1788558291.185468,
-    "ast_hash": "eab1ff8b2c4cde44ad2fb7dd38dc4339",
+    "mtime": 1788559937.4238296,
+    "seen": 1788559972.979756,
+    "ast_hash": "8a0b8ba6d3c23e5f72c4c44015674ba5",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/types/src/index.ts": {
@@ -1482,9 +1482,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1788556907.7291605,
-    "seen": 1788557202.761133,
-    "ast_hash": "b5eb09aa07bda091c9685126e635ccbb",
+    "mtime": 1788558295.5697095,
+    "seen": 1788559972.979837,
+    "ast_hash": "c778ed23aec397ba077e47079b83323e",
     "semantic_hash": ""
   },
   "graphify_diff_20260904_014322.txt": {
@@ -2562,9 +2562,9 @@
     "semantic_hash": ""
   },
   "app/modules/bid/schemas.py": {
-    "mtime": 1788555508.5767722,
-    "seen": 1788556887.3430789,
-    "ast_hash": "1c69e47cc8e9f1f1d21e544ff9189954",
+    "mtime": 1788559771.3183675,
+    "seen": 1788559972.9795861,
+    "ast_hash": "cc773d726912e47ad207c23fb654541b",
     "semantic_hash": ""
   },
   "app/modules/bid/service.py": {
@@ -2844,9 +2844,9 @@
     "semantic_hash": ""
   },
   "plans/plan_spec_11b_live_bidding.md": {
-    "mtime": 1788548338.990479,
-    "seen": 1788551155.312308,
-    "ast_hash": "1666f98128e4b7c6a82ff74ad743d032",
+    "mtime": 1788559766.3783462,
+    "seen": 1788559972.979851,
+    "ast_hash": "4d13e06fe5a9daed4a3ac0ee6ee1a6a1",
     "semantic_hash": ""
   },
   "specs/SPEC_11B_LIVE_BIDDING.md": {
@@ -2874,9 +2874,9 @@
     "semantic_hash": ""
   },
   "app/modules/bid/auction_router.py": {
-    "mtime": 1788557703.63668,
-    "seen": 1788558291.1852648,
-    "ast_hash": "273fc4fb7f31c44e798c627bd4661d20",
+    "mtime": 1788559814.8016062,
+    "seen": 1788559972.97958,
+    "ast_hash": "56477598812fb7561ce6365f0b7382c3",
     "semantic_hash": ""
   },
   "app/modules/bid/auction_ws.py": {
@@ -2892,9 +2892,9 @@
     "semantic_hash": ""
   },
   "app/modules/bid/live_bid_service.py": {
-    "mtime": 1788556782.4131432,
-    "seen": 1788556887.343076,
-    "ast_hash": "029b56f60c1406b9e0ca372a09e14d79",
+    "mtime": 1788559804.639148,
+    "seen": 1788559972.979583,
+    "ast_hash": "cc97ed050832ebe719c13fc4d777742b",
     "semantic_hash": ""
   },
   "app/tasks/auction.py": {
@@ -2904,27 +2904,27 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/buyer-portal/app/(main)/auctions/[id]/monitor/page.tsx": {
-    "mtime": 1788555846.4959307,
-    "seen": 1788556887.343214,
-    "ast_hash": "27a948a460bf410a4788ab7ea6428f4f",
+    "mtime": 1788559915.9866552,
+    "seen": 1788559972.979695,
+    "ast_hash": "9e4d015c06f24b88a34b644100ed936e",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/buyer-portal/app/(main)/auctions/page.tsx": {
-    "mtime": 1788555851.8845177,
-    "seen": 1788556887.343215,
-    "ast_hash": "f1e3dc241519fb89ed936db439789956",
+    "mtime": 1788559910.91139,
+    "seen": 1788559972.979696,
+    "ast_hash": "6594e07894039e393e90228d322a2889",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/supplier-portal/app/(main)/auctions/[id]/page.tsx": {
-    "mtime": 1788555839.9670997,
-    "seen": 1788556887.343241,
-    "ast_hash": "c01194613d4a8bf486092a3d5205c04c",
+    "mtime": 1788559932.9928768,
+    "seen": 1788559972.979718,
+    "ast_hash": "fc720f044c205ec5a9728080ea97cec2",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/supplier-portal/app/(main)/auctions/page.tsx": {
-    "mtime": 1788555856.3611753,
-    "seen": 1788556887.343242,
-    "ast_hash": "3a6ae4a29f4b32122d2e2c55386ef8f9",
+    "mtime": 1788559927.9612832,
+    "seen": 1788559972.979718,
+    "ast_hash": "bbecab5fa0263da3df55fcce02914265",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/components/AuctionCountdownTimer.tsx": {
@@ -2976,9 +2976,9 @@
     "semantic_hash": ""
   },
   "tests/integration/test_live_bidding.py": {
-    "mtime": 1788556647.7011867,
-    "seen": 1788556887.3433459,
-    "ast_hash": "6084dfa759c7989db24736dafdb84398",
+    "mtime": 1788559851.5748017,
+    "seen": 1788559972.9798012,
+    "ast_hash": "a10c413ce2a14278dda6022d7ba8c88f",
     "semantic_hash": ""
   },
   "tests/security/test_auction_permissions.py": {
@@ -3000,9 +3000,9 @@
     "semantic_hash": ""
   },
   "reports/spec_11b_audit.md": {
-    "mtime": 1788556249.3425407,
-    "seen": 1788556887.3434272,
-    "ast_hash": "d9d63bd369c73586b6ae927d51865776",
+    "mtime": 1788559964.073683,
+    "seen": 1788559972.979867,
+    "ast_hash": "eb1ff035da9346ca49eaf6e6fc9fe2e1",
     "semantic_hash": ""
   }
 }

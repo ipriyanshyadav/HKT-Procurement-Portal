@@ -2,7 +2,7 @@ from __future__ import annotations
 import json
 from datetime import datetime, timezone, timedelta
 from decimal import Decimal
-from typing import Optional, List, Any
+from typing import Optional, List, Any, Tuple
 from uuid import UUID
 from loguru import logger
 from sqlalchemy import select
@@ -122,7 +122,58 @@ class LiveBidService:
             },
             org_id,
         )
+        auction.rfq_number = rfq.rfq_number
+        auction.rfq_title = rfq.title
         return auction
+
+    async def get_auction(
+        self, db: AsyncSession, auction_id: UUID, org_id: Optional[UUID] = None
+    ) -> Optional[LiveAuction]:
+        auction = await self.live_bid_repo.get(db, auction_id, org_id)
+        if not auction:
+            return None
+        rfq_stmt = select(Rfq.rfq_number, Rfq.title).where(Rfq.id == auction.rfq_id)
+        rfq_res = await db.execute(rfq_stmt)
+        rfq_row = rfq_res.first()
+        if rfq_row:
+            auction.rfq_number = rfq_row.rfq_number
+            auction.rfq_title = rfq_row.title
+        else:
+            auction.rfq_number = None
+            auction.rfq_title = None
+        return auction
+
+    async def list_auctions(
+        self,
+        db: AsyncSession,
+        org_id: UUID,
+        vendor_id: Optional[UUID] = None,
+        rfq_id: Optional[UUID] = None,
+        status: Optional[str] = None,
+        skip: int = 0,
+        limit: int = 20,
+    ) -> Tuple[List[LiveAuction], int]:
+        auctions, total = await self.live_bid_repo.list_auctions(
+            db, org_id, vendor_id=vendor_id, rfq_id=rfq_id, status=status, skip=skip, limit=limit
+        )
+        if not auctions:
+            return [], total
+
+        rfq_ids = list({a.rfq_id for a in auctions})
+        rfq_stmt = select(Rfq.id, Rfq.rfq_number, Rfq.title).where(Rfq.id.in_(rfq_ids))
+        rfq_res = await db.execute(rfq_stmt)
+        rfq_map = {row.id: (row.rfq_number, row.title) for row in rfq_res.all()}
+
+        for a in auctions:
+            info = rfq_map.get(a.rfq_id)
+            if info:
+                a.rfq_number = info[0]
+                a.rfq_title = info[1]
+            else:
+                a.rfq_number = None
+                a.rfq_title = None
+
+        return auctions, total
 
     async def open_auction(self, db: AsyncSession, auction_id: UUID, org_id: UUID) -> LiveAuction:
         """Called by Celery beat task at scheduled_start_at or manually."""

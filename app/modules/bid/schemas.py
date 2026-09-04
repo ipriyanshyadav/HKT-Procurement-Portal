@@ -155,6 +155,8 @@ class LiveAuctionDetailResponse(BaseModel):
     id: UUID
     org_id: UUID
     rfq_id: UUID
+    rfq_number: Optional[str] = None
+    rfq_title: Optional[str] = None
     status: str
     config: dict
     scheduled_start_at: datetime

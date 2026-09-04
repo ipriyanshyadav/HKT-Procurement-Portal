@@ -7,7 +7,8 @@ import { apiClient } from "@procurement/utils";
 interface AuctionListItem {
   id: string;
   rfq_id: string;
-  rfq_title?: string;
+  rfq_number?: string | null;
+  rfq_title?: string | null;
   auction_type: string;
   status: string;
   scheduled_start_at: string;
@@ -82,10 +83,18 @@ export default function SupplierAuctionsPage() {
                   </div>
 
                   <div>
-                    <h3 className="font-semibold text-gray-900 line-clamp-1">
+                    {a.rfq_number ? (
+                      <span className="font-mono text-xs font-semibold text-blue-600 block">
+                        {a.rfq_number}
+                      </span>
+                    ) : (
+                      <span className="font-mono text-xs text-gray-400 block">
+                        RFQ: {a.rfq_id.slice(0, 8)}
+                      </span>
+                    )}
+                    <h3 className="font-semibold text-gray-900 line-clamp-1 mt-0.5" title={a.rfq_title || undefined}>
                       {a.rfq_title || `Auction ${a.id.slice(0, 8)}`}
                     </h3>
-                    <p className="text-xs text-gray-500 mt-0.5 font-mono">RFQ: {a.rfq_id.slice(0, 8)}</p>
                   </div>
 
                   <div className="text-xs text-gray-600 space-y-1 pt-2 border-t border-gray-100">
