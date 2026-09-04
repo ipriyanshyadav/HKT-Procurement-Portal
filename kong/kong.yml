@@ -88,6 +88,16 @@ routes:
       - name: rate-limiting
         config:
           minute: 100
+
+  - name: auctions-route
+    service: api
+    strip_path: false
+    paths:
+      - /api/v1/auctions
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 100
           
   - name: evaluations-route
     service: api
@@ -250,6 +260,7 @@ routes:
     strip_path: false
     paths:
       - /ws/notifications
+      - /ws/auction
     protocols:
       - http
       - https

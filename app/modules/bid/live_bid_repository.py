@@ -28,6 +28,7 @@ class LiveBidRepository:
         self,
         db: AsyncSession,
         org_id: UUID,
+        vendor_id: Optional[UUID] = None,
         rfq_id: Optional[UUID] = None,
         status: Optional[str] = None,
         skip: int = 0,
@@ -37,6 +38,12 @@ class LiveBidRepository:
             LiveAuction.org_id == org_id,
             LiveAuction.deleted_at.is_(None),
         )
+        if vendor_id:
+            base_stmt = base_stmt.join(
+                AuctionParticipant,
+                (AuctionParticipant.auction_id == LiveAuction.id)
+                & (AuctionParticipant.vendor_id == vendor_id),
+            )
         if rfq_id:
             base_stmt = base_stmt.where(LiveAuction.rfq_id == rfq_id)
         if status:

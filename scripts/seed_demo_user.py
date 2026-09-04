@@ -43,7 +43,7 @@ from app.modules.user.models import User, Role, UserRoleAssignment
 from app.modules.vendor.models import Vendor
 from app.modules.requisition.models import Requisition, RequisitionLine, UnmappedPrException
 from app.modules.sourcing.models import Rfq, RfqLot, RfqLine, RfqParticipant, RfqClarification
-from app.modules.bid.models import BidResponse, BidLineResponse
+from app.modules.bid.models import BidResponse, BidLineResponse, LiveAuction, AuctionParticipant
 from app.core.encryption import encrypt_field
 
 logging.basicConfig(level=logging.INFO)
@@ -798,6 +798,67 @@ async def seed_demo():
             )
             db.add(line3_1)
             logger.info("Created Demo RFQ: RFQ-2026-000003 (DRAFT)")
+
+        # 13. Seed Demo Live Auction (idempotent)
+        res_auc = await db.execute(select(LiveAuction).where(LiveAuction.org_id == DEFAULT_ORG_ID))
+        existing_auction = res_auc.scalars().first()
+        if not existing_auction:
+            res_rfq = await db.execute(
+                select(Rfq).where(and_(Rfq.org_id == DEFAULT_ORG_ID, Rfq.rfq_number == "RFQ-2026-000001"))
+            )
+            rfq1 = res_rfq.scalar_one_or_none()
+            if rfq1:
+                res_lot = await db.execute(select(RfqLot).where(RfqLot.rfq_id == rfq1.id))
+                lot1 = res_lot.scalars().first()
+                lot_id_str = str(lot1.id) if lot1 else str(uuid4())
+
+                now_utc = datetime.now(timezone.utc)
+                rfq1.bidding_mode = "LIVE_AUCTION"
+                auction = LiveAuction(
+                    id=uuid4(),
+                    org_id=DEFAULT_ORG_ID,
+                    rfq_id=rfq1.id,
+                    status="OPEN",
+                    config={
+                        "auction_start_at": (now_utc - timedelta(minutes=15)).isoformat(),
+                        "auction_duration_minutes": 120,
+                        "lot_ids": [lot_id_str],
+                        "min_decrement_type": "ABSOLUTE",
+                        "min_decrement_value": 5000.00,
+                        "reserve_price_inr": 2500000.00,
+                        "rank_visibility": "RANK_ONLY",
+                        "auto_extend": True,
+                        "auto_extend_trigger_minutes": 5,
+                        "auto_extend_duration_minutes": 10,
+                        "max_extensions": 3,
+                        "allow_proxy_bid": True,
+                        "require_all_lots": True,
+                    },
+                    scheduled_start_at=now_utc - timedelta(minutes=15),
+                    actual_start_at=now_utc - timedelta(minutes=15),
+                    current_close_at=now_utc + timedelta(minutes=105),
+                    extension_count=0,
+                    created_by=buyer_user.id,
+                )
+                db.add(auction)
+                await db.flush()
+
+                # Add participants from RFQ
+                res_parts = await db.execute(
+                    select(RfqParticipant).where(RfqParticipant.rfq_id == rfq1.id)
+                )
+                rfq_participants = res_parts.scalars().all()
+                for p in rfq_participants:
+                    db.add(
+                        AuctionParticipant(
+                            id=uuid4(),
+                            org_id=DEFAULT_ORG_ID,
+                            auction_id=auction.id,
+                            vendor_id=p.vendor_id,
+                            is_connected=False,
+                        )
+                    )
+                logger.info(f"Created Demo Live Auction: {auction.id} (OPEN)")
 
         await db.commit()
         logger.info("Demo data seeding completed successfully!")

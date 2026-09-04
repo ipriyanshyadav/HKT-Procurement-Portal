@@ -9,13 +9,36 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.dependencies import get_current_user, require_permission
 from app.core.constants import PermissionCode
-from app.core.exceptions import NotFoundError
+from app.core.exceptions import NotFoundError, ForbiddenError
 from app.core.responses import success_response, created_response, PaginationMeta
 from app.db.session import get_db
 from app.modules.bid.live_bid_service import live_bid_service
 from app.modules.bid.schemas import AuctionCreateRequest
 
 router = APIRouter(prefix="/auctions", tags=["live-auction"])
+
+
+def _sanitize_auction_for_actor(auction, current_user) -> dict:
+    d = {
+        "id": auction.id,
+        "org_id": auction.org_id,
+        "rfq_id": auction.rfq_id,
+        "status": auction.status,
+        "scheduled_start_at": auction.scheduled_start_at,
+        "actual_start_at": auction.actual_start_at,
+        "current_close_at": auction.current_close_at,
+        "extension_count": auction.extension_count,
+        "winner_vendor_id": auction.winner_vendor_id,
+        "winning_bid_id": auction.winning_bid_id,
+        "created_by": auction.created_by,
+        "created_at": auction.created_at,
+        "updated_at": auction.updated_at,
+        "config": dict(auction.config) if auction.config else {},
+    }
+    is_vendor = bool(getattr(current_user, "vendor_id", None) or getattr(current_user, "is_supplier_user", False))
+    if is_vendor and "reserve_price_inr" in d["config"]:
+        d["config"].pop("reserve_price_inr", None)
+    return d
 
 
 class CancelAuctionRequest(BaseModel):
@@ -35,7 +58,7 @@ async def create_auction(
 ):
     auction = await live_bid_service.create_auction(db, data, current_user, current_user.org_id)
     await db.commit()
-    return created_response(auction)
+    return created_response(_sanitize_auction_for_actor(auction, current_user))
 
 
 @router.get("")
@@ -48,9 +71,11 @@ async def list_auctions(
     db: AsyncSession = Depends(get_db),
 ):
     skip = (page - 1) * page_size
+    vendor_id = getattr(current_user, "vendor_id", None)
     auctions, total = await live_bid_service.live_bid_repo.list_auctions(
-        db, current_user.org_id, rfq_id=rfq_id, status=status, skip=skip, limit=page_size
+        db, current_user.org_id, vendor_id=vendor_id, rfq_id=rfq_id, status=status, skip=skip, limit=page_size
     )
+    sanitized = [_sanitize_auction_for_actor(a, current_user) for a in auctions]
     meta = PaginationMeta(
         page=page,
         page_size=page_size,
@@ -59,7 +84,7 @@ async def list_auctions(
         has_next=(page * page_size) < total,
         has_prev=page > 1,
     )
-    return success_response(auctions, meta=meta)
+    return success_response(sanitized, meta=meta)
 
 
 @router.get("/{auction_id}")
@@ -71,7 +96,14 @@ async def get_auction(
     auction = await live_bid_service.live_bid_repo.get(db, auction_id, current_user.org_id)
     if not auction:
         raise NotFoundError(f"Auction {auction_id} not found")
-    return success_response(auction)
+    vendor_id = getattr(current_user, "vendor_id", None)
+    if vendor_id:
+        participant = await live_bid_service.live_bid_repo.get_participant(
+            db, auction_id, vendor_id, current_user.org_id
+        )
+        if not participant:
+            raise ForbiddenError("NOT_PARTICIPANT", "Vendor is not a participant in this auction")
+    return success_response(_sanitize_auction_for_actor(auction, current_user))
 
 
 @router.post("/{auction_id}/open")
