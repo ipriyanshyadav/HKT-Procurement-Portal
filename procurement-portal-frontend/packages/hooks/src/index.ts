@@ -46,4 +46,40 @@ export type {
   ImportJobStatus,
 } from "./useMasterData";
 
+export {
+  useVendors,
+  useVendorDetail,
+  useValidateInvitationToken,
+  useRegisterVendor,
+  useInviteVendor,
+  useUpdateVendor,
+  useSubmitVendor,
+  useQualifyVendor,
+  useActivateVendor,
+  useRejectVendor,
+  useRequestResubmission,
+  useSuspendVendor,
+  useReinstateVendor,
+  useInitiateBlacklist,
+  useConfirmBlacklist,
+  useAddVendorDocument,
+  useAddBankAccount,
+  useMyVendor,
+  useUpdateMyVendor,
+  useVendorDocuments,
+  useMyVendorDocuments,
+  useAddMyVendorDocument,
+} from "./useVendors";
+export type {
+  Vendor,
+  VendorContact,
+  VendorBankAccount,
+  VendorDocument,
+  VendorScorecard,
+  VendorDetail,
+  VendorListParams,
+  VendorInvitePayload,
+  VendorRegistrationPayload,
+} from "./useVendors";
+
 export { QueryClient, QueryClientProvider } from "@tanstack/react-query";

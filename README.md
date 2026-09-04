@@ -1,12 +1,12 @@
 # Procurement Portal — Enterprise S2C & P2P Platform
 
 ## Current Session State
-**Status:** SPEC_24 (Master Data Management) COMPLETED (100%)
-**Completed:** CategoryService (5-level CTE tree, ancestors, soft-delete safety), UOM master CRUD, CurrencyService (Redis exchange rate cache, DB persist, base currency rules), Payment terms CRUD (net days bounds, discount days rules), Tax codes CRUD (GST HSN/SAC, TDS, tax types), Delivery locations CRUD (ISO 3166-1 alpha-2 validation), Holiday master CRUD (past date guards, plant scoping), ERP material group mapping CRUD with confidence scoring, MasterDataImportService (async CSV import via Celery with max 5000 rows), Master Data Router with ALL 15 endpoints, Celery daily exchange rate sync task, Celery CSV import task, Admin Portal category hierarchy UI + category detail + sub-categories + drag-and-drop CSV import with live job status, shared UI dropdowns (CategoryTreeSelect, UOMSelect, CurrencySelect, PaymentTermsSelect), useMasterData TanStack Query hooks (staleTime 30min), 38 master data tests passing (216 passed across entire test suite).
+**Status:** SPEC_07 (Vendor Management) COMPLETED (100%)
+**Completed:** 11-status lifecycle FSM (INVITED→BLACKLISTED) + validate_transition(); VendorRepository (CRUD, duplicate check, full-text search, scorecards, ERP sync logs); VendorService (invite with SHA-256 token hashing, register_with_token, qualify, reject, request_resubmission, suspend, reinstate, initiate_blacklist, confirm_blacklist with Segregation of Duties, scorecard 40/30/20/10 calculation, GSTIN validation with 90-day Redis cache, PAN validation with entity-type decoding and 90-day Redis cache, Bank account validation + penny drop simulation); Vendor router with buyer-side endpoints & supplier self-service `/me` endpoints; Celery beat daily compliance monitoring task (30/15/7 day alerts, immediate COMPLIANCE_HOLD at 0 days); Buyer Portal `/vendors`, `/vendors/[id]`, `/vendors/invite`; Supplier Portal `/register/[token]` (8-step wizard), `/profile`, `/documents`; Shared UI components (`VendorStatusBadge`, `ComplianceExpiryAlert`); Shared hooks `useVendors.ts`; 21 vendor integration & workflow tests passing (253 passed across suite).
 **Migration Head:** 0027_data_seed
-**Test Commands:** OTEL_SDK_DISABLED=true DATABASE_URL="postgresql+asyncpg://postgres:postgres@localhost:5432/procurement" REDIS_URL="redis://localhost:6379/0" RABBITMQ_URL="amqp://guest:guest@localhost:5672" JWT_PRIVATE_KEY_PATH="keys/private.pem" JWT_PUBLIC_KEY_PATH="keys/public.pem" FIELD_ENCRYPTION_KEY="U5RAQQjKHzcBauoi8R7GrRrj7bBSf-eQPhPtfGg370A=" .venv/bin/pytest tests/unit/test_master_data.py tests/integration/test_master_data_router.py -v
-**Next:** SPEC_07 Vendor Management / SPEC_08 Purchase Requisition
-**Graphify:** 2797 nodes, 5351 edges, 252 communities
+**Test Commands:** OTEL_SDK_DISABLED=true .venv/bin/pytest tests/integration/test_vendor.py tests/workflow/test_vendor_workflows.py -v
+**Next:** SPEC_08 Purchase Requisition (PR)
+**Graphify:** 3130 nodes, 6469 edges, 270 communities
 
 ---
 
@@ -30,7 +30,7 @@ The Procurement Portal is an enterprise-grade Source-to-Contract (S2C), Procure-
 | 04 | Auth & RBAC Security | SPEC_04 | ✅ Complete | 0027_data_seed | ✅ 205 Passing (89% cov) |
 | 05 | Workflow Engine | SPEC_05 | ✅ Complete | 0027_data_seed | ✅ 38 Passing (100% cov) |
 | 06 | Approval Rules Engine | SPEC_06 | ✅ Complete | 0027_data_seed | ✅ 9 Passing (100% cov) |
-| 07 | Vendor Management | SPEC_07 | ⏳ Planned | Pending | Pending |
+| 07 | Vendor Management | SPEC_07 | ✅ Complete | 0027_data_seed | ✅ 21 Passing (100% cov) |
 | 08 | Purchase Requisition (PR) | SPEC_08 | ⏳ Planned | Pending | Pending |
 | 09 | Unmapped PR | SPEC_09 | ⏳ Planned | Pending | Pending |
 | 10 | RFQ Lifecycle | SPEC_10 | ⏳ Planned | Pending | Pending |

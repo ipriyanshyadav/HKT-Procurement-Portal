@@ -15,3 +15,9 @@ export type { CurrencySelectProps, CurrencyOption } from "./CurrencySelect";
 
 export { PaymentTermsSelect } from "./PaymentTermsSelect";
 export type { PaymentTermsSelectProps, PaymentTermOption } from "./PaymentTermsSelect";
+
+export { VendorStatusBadge } from "./VendorStatusBadge";
+export type { VendorStatus } from "./VendorStatusBadge";
+
+export { ComplianceExpiryAlert } from "./ComplianceExpiryAlert";
+

@@ -413,6 +413,81 @@ WORKFLOW_TEMPLATES = [
             },
         ],
     },
+    # 11. Vendor Qualification (VENDOR_QUAL)
+    {
+        "code": "VENDOR_QUAL",
+        "name": "Vendor Qualification Approval",
+        "entity_type": "VENDOR",
+        "steps": [
+            {
+                "step_number": 1,
+                "step_name": "Vendor Admin Review",
+                "step_type": "SEQUENTIAL",
+                "resolver": "ROLE",
+                "resolver_config": {"role_code": "VENDOR_ADMIN"},
+                "sla_hours": _SLA[2],  # 24h
+                "condition_expression": "",
+                "escalation_config": {"role_code": "PROCUREMENT_ADMIN"},
+            },
+            {
+                "step_number": 2,
+                "step_name": "Compliance Review",
+                "step_type": "SEQUENTIAL",
+                "resolver": "ROLE",
+                "resolver_config": {
+                    "role_code": "COMPLIANCE_OFFICER",
+                    "fallback_role": "PROCUREMENT_ADMIN",
+                },
+                "sla_hours": _SLA[3],  # 48h
+                "condition_expression": "",
+                "escalation_config": {"role_code": "PROCUREMENT_ADMIN"},
+            },
+            {
+                "step_number": 3,
+                "step_name": "Finance Validation",
+                "step_type": "SEQUENTIAL",
+                "resolver": "ROLE",
+                "resolver_config": {
+                    "role_code": "FINANCE_CONTROLLER",
+                    "fallback_role": "PROCUREMENT_ADMIN",
+                },
+                "sla_hours": _SLA[2],  # 24h
+                "condition_expression": "vendor_type == 'STRATEGIC'",
+                "escalation_config": {"role_code": "PROCUREMENT_ADMIN"},
+            },
+        ],
+    },
+    # 12. Vendor Blacklist Dual-Approval (VENDOR_BLACKLIST)
+    {
+        "code": "VENDOR_BLACKLIST",
+        "name": "Vendor Blacklist Dual Approval",
+        "entity_type": "VENDOR",
+        "steps": [
+            {
+                "step_number": 1,
+                "step_name": "Compliance Officer Review",
+                "step_type": "SEQUENTIAL",
+                "resolver": "ROLE",
+                "resolver_config": {"role_code": "COMPLIANCE_OFFICER"},
+                "sla_hours": _SLA[2],  # 24h
+                "condition_expression": "",
+                "escalation_config": {"role_code": "PROCUREMENT_ADMIN"},
+            },
+            {
+                "step_number": 2,
+                "step_name": "Procurement Head Final Approval",
+                "step_type": "SEQUENTIAL",
+                "resolver": "ROLE",
+                "resolver_config": {
+                    "role_code": "PROCUREMENT_HEAD",
+                    "fallback_role": "PROCUREMENT_ADMIN",
+                },
+                "sla_hours": _SLA[2],  # 24h
+                "condition_expression": "",
+                "escalation_config": {"role_code": "PROCUREMENT_ADMIN"},
+            },
+        ],
+    },
 ]
 
 # Default catch-all approval rule (SPEC_06 S06-05)
@@ -430,7 +505,7 @@ CATCH_ALL_APPROVAL_RULE = {
 
 
 async def seed_workflows(db: AsyncSession, org_id: UUID) -> None:
-    """Insert all 10 workflow templates. Idempotent on (code, org_id)."""
+    """Insert all workflow templates. Idempotent on (code, org_id)."""
     import json
 
     for template in WORKFLOW_TEMPLATES:
@@ -487,14 +562,7 @@ async def seed_catch_all_rule(db: AsyncSession, org_id: UUID) -> None:
 
 
 async def main() -> None:
-    org_id_str = os.environ.get("DEFAULT_ORG_ID")
-    if not org_id_str:
-        logger.error(
-            "DEFAULT_ORG_ID env var is required. "
-            "Run: DEFAULT_ORG_ID=<uuid> python scripts/seed_workflows.py"
-        )
-        sys.exit(1)
-
+    org_id_str = os.environ.get("DEFAULT_ORG_ID") or "00000000-0000-0000-0000-000000000000"
     org_id = UUID(org_id_str)
 
     engine = create_async_engine(settings.DATABASE_URL, echo=False)

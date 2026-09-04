@@ -27,6 +27,7 @@ class UserResponse(BaseModel):
     status: str
     mfa_enabled: bool
     is_supplier_user: bool
+    vendor_id: Optional[UUID] = None
     org_id: UUID
 
     model_config = {"from_attributes": True}
@@ -65,6 +66,7 @@ async def get_me(current_user: User = Depends(get_current_user)) -> dict:
             "status": current_user.status.value,
             "mfa_enabled": current_user.mfa_enabled,
             "is_supplier_user": current_user.is_supplier_user,
+            "vendor_id": str(current_user.vendor_id) if current_user.vendor_id else None,
             "org_id": str(current_user.org_id),
         }
     }
