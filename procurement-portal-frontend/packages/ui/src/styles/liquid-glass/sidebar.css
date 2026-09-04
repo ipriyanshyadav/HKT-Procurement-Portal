@@ -1,0 +1,30 @@
+/* Liquid Glass Sidebar */
+.theme-liquid-glass .apple-sidebar,
+[data-theme='liquid-glass'] .apple-sidebar {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(48px) saturate(240%) brightness(1.10);
+  -webkit-backdrop-filter: blur(48px) saturate(240%) brightness(1.10);
+  border-right: 0.5px solid rgba(255, 255, 255, 0.12);
+  box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.08);
+}
+
+.theme-liquid-glass .sidebar-item,
+[data-theme='liquid-glass'] .sidebar-item {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.theme-liquid-glass .sidebar-item:hover,
+[data-theme='liquid-glass'] .sidebar-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.theme-liquid-glass .sidebar-item.active,
+[data-theme='liquid-glass'] .sidebar-item.active {
+  background: rgba(10, 132, 255, 0.35);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 0.5px solid rgba(10, 132, 255, 0.40);
+  color: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.20) inset;
+}

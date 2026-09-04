@@ -1,0 +1,35 @@
+/* Liquid Glass Buttons */
+.theme-liquid-glass .btn-primary,
+[data-theme='liquid-glass'] .btn-primary {
+  background: rgba(10, 132, 255, 0.70);
+  backdrop-filter: blur(20px) saturate(200%);
+  -webkit-backdrop-filter: blur(20px) saturate(200%);
+  border: 0.5px solid rgba(255, 255, 255, 0.30);
+  box-shadow:
+    0 4px 16px rgba(10, 132, 255, 0.30),
+    0 1px 0 rgba(255, 255, 255, 0.35) inset;
+  color: rgba(255, 255, 255, 0.98);
+}
+
+.theme-liquid-glass .btn-primary:hover:not(:disabled),
+[data-theme='liquid-glass'] .btn-primary:hover:not(:disabled) {
+  background: rgba(10, 132, 255, 0.85);
+  box-shadow:
+    0 6px 24px rgba(10, 132, 255, 0.45),
+    0 1px 0 rgba(255, 255, 255, 0.40) inset;
+}
+
+.theme-liquid-glass .btn-secondary,
+[data-theme='liquid-glass'] .btn-secondary {
+  background: rgba(255, 255, 255, 0.10);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 0.5px solid rgba(255, 255, 255, 0.20);
+  color: rgba(255, 255, 255, 0.90);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.25) inset;
+}
+
+.theme-liquid-glass .btn-secondary:hover:not(:disabled),
+[data-theme='liquid-glass'] .btn-secondary:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.18);
+}

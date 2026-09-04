@@ -1,0 +1,127 @@
+/* Apple Form Elements */
+.apple-input {
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--apple-label-primary);
+  background: var(--apple-fill-quaternary);
+  border: 0.5px solid var(--apple-separator);
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 200ms var(--apple-ease),
+              box-shadow 200ms var(--apple-ease),
+              background 200ms var(--apple-ease);
+  appearance: none;
+}
+
+.apple-input::placeholder {
+  color: var(--apple-label-tertiary);
+}
+
+.apple-input:focus {
+  background: var(--apple-bg-primary);
+  border-color: var(--apple-blue);
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.20);
+}
+
+.theme-apple-dark .apple-input,
+[data-theme='apple-dark'] .apple-input {
+  background: rgba(118, 118, 128, 0.16);
+  border-color: rgba(255, 255, 255, 0.10);
+  color: #FFFFFF;
+}
+
+.theme-apple-dark .apple-input:focus,
+[data-theme='apple-dark'] .apple-input:focus {
+  background: rgba(44, 44, 46, 0.8);
+  border-color: var(--apple-blue);
+}
+
+/* Label */
+.apple-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--apple-label-secondary);
+  margin-bottom: 6px;
+}
+
+/* Search input with SF-style icon */
+.apple-search-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.apple-search-wrap .search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--apple-label-tertiary);
+  pointer-events: none;
+}
+
+.apple-search-wrap input {
+  padding-left: 36px;
+  border-radius: 10px;
+}
+
+/* Select */
+.apple-select {
+  width: 100%;
+  padding: 10px 36px 10px 14px;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--apple-label-primary);
+  background-color: var(--apple-fill-quaternary);
+  border: 0.5px solid var(--apple-separator);
+  border-radius: 8px;
+  outline: none;
+  appearance: none;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%238E8E93' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 12px;
+}
+
+.apple-select:focus {
+  border-color: var(--apple-blue);
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.20);
+}
+
+/* Toggle / Checkbox */
+.apple-toggle {
+  width: 48px;
+  height: 28px;
+  background: var(--apple-fill-primary);
+  border-radius: 14px;
+  position: relative;
+  cursor: pointer;
+  transition: background 300ms var(--apple-ease);
+  border: none;
+  outline: none;
+  flex-shrink: 0;
+}
+
+.apple-toggle.on {
+  background: #34C759;
+}
+
+.apple-toggle::after {
+  content: '';
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  background: #FFFFFF;
+  border-radius: 50%;
+  top: 2px;
+  left: 2px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25);
+  transition: transform 300ms cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.apple-toggle.on::after {
+  transform: translateX(20px);
+}

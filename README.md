@@ -1,17 +1,18 @@
 # Procurement Portal — Enterprise S2C & P2P Platform
 
 ## Current Session State
-**Status:** Wiring & PermissionGuard Compliance Completed (100%)
+**Status:** Apple Design System & Liquid Glass Implementation Complete (100%)
 **Completed:**
-- **PermissionGuard (Rule 12):** Created `packages/ui/src/PermissionGuard.tsx` and wrapped action buttons across buyer and admin portals.
-- **Requisition Creation Wiring:** Implemented Organization module (`schemas`, `repository`, `service`, `router`), exposed `/api/v1/business-units` and `/api/v1/cost-centers`, seeded default BU/CC/UOM data, and wired real selectors in `new/page.tsx` and `PRLineItemTable.tsx` (zero hardcoded UUIDs).
-- **Admin Portal Protection:** Added `apps/admin-portal/middleware.ts` cookie route protection.
-- **Docker Configs:** Fixed `ENV` assignments and added build `args` + `INTERNAL_API_URL` to `docker-compose.yml`.
-- **Verification:** 331 pytest integration/unit tests passed; 7 Turborepo tasks passed cleanly; Graphify updated.
+- **Apple Design Foundations:** Created comprehensive design tokens (`apple-tokens.css`), base styles (`apple-base.css`), and component stylesheets in `packages/ui/src/styles/`.
+- **Liquid Glass Theme:** Built macOS 26 / visionOS 2 accurate Liquid Glass system with real-time backdrop refraction (`feTurbulence` / `feDisplacementMap`), specular rim highlights, chromatic edge glow, animated wallpaper canvas (`LiquidGlassBackground.tsx`), and interaction ripple.
+- **Theme Provider & Switcher:** Implemented 3-way segmented toggle (`apple-light`, `apple-dark`, `liquid-glass`) with `localStorage` persistence and zero hydration mismatch.
+- **Apple Component Library:** Pill buttons (`border-radius: 980px`), cards with hover elevation & tilt, status badges with dot indicators, form controls, modals/sheets, toasts, tables, and `HeroKPIStrip` with `useCountUp`.
+- **Portal Rollout:** Upgraded Admin Portal (`localhost:3000`), Supplier Portal (`localhost:3001`), and Buyer Portal (`localhost:3002`) with the unified `AppShell`, respective brand accents (`#0071E3`, `#30D158`, `#FF9F0A`), and mobile tab bar.
+- **Zero Regression:** All existing API wiring, Zustand auth store, TanStack Query hooks, forms, tables, and 331 backend pytest tests passing (100%).
 **Migration Head:** 0028_fix_missing_model_columns
 **Test Commands:** `OTEL_SDK_DISABLED=true .venv/bin/pytest tests/ -q` & `pnpm build`
 **Next:** SPEC_10 RFQ Lifecycle
-**Graphify:** 3549 nodes, 7736 edges, 302 communities
+**Graphify:** 3659 nodes, 7976 edges, 306 communities
 
 ---
 
@@ -47,7 +48,7 @@ The Procurement Portal is an enterprise-grade Source-to-Contract (S2C), Procure-
 | 16 | Notification Service | SPEC_16 | ⏳ Planned | Pending | Pending |
 | 17 | Document Management | SPEC_17 | ⏳ Planned | Pending | Pending |
 | 18 | API Standards & Resilience | SPEC_18 | ⏳ Planned | Pending | Pending |
-| 19 | Frontend Applications | SPEC_19 | 🔄 In Progress | Scaffolding complete | Turborepo ready |
+| 19 | Frontend Applications | SPEC_19 | ✅ Complete | Apple & Glass active | ✅ Turborepo passing |
 | 20 | Integration Hub | SPEC_20 | ⏳ Planned | Pending | Pending |
 | 21 | Infrastructure & Deployment | SPEC_21 | 🔄 Scaffolded | Docker/Kong ready | K8s stubs |
 | 22 | Observability & Telemetry | SPEC_22 | 🔄 Scaffolded | OTel/Jaeger ready | Passing |

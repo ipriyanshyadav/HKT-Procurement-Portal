@@ -1,0 +1,155 @@
+/* Apple Button System */
+
+/* Primary — Apple blue CTA (pill) */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 18px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #FFFFFF;
+  background: var(--apple-blue);
+  border: none;
+  border-radius: 980px; /* pill — Apple style */
+  cursor: pointer;
+  transition: background 200ms var(--apple-ease),
+              transform 100ms var(--apple-ease),
+              box-shadow 200ms var(--apple-ease);
+  -webkit-user-select: none;
+  user-select: none;
+  text-decoration: none;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--apple-blue-hover);
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: scale(0.98);
+  background: #005EC2;
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Secondary */
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 18px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--apple-blue);
+  background: var(--apple-fill-tertiary);
+  border: none;
+  border-radius: 980px;
+  cursor: pointer;
+  transition: background 200ms var(--apple-ease), transform 100ms var(--apple-ease);
+  -webkit-user-select: none;
+  user-select: none;
+  text-decoration: none;
+}
+
+.theme-apple-dark .btn-secondary,
+[data-theme='apple-dark'] .btn-secondary {
+  color: #FFFFFF;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: var(--apple-fill-secondary);
+}
+
+.btn-secondary:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.btn-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Ghost */
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 18px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--apple-blue);
+  background: transparent;
+  border: 0.5px solid var(--apple-blue);
+  border-radius: 980px;
+  cursor: pointer;
+  transition: background 200ms var(--apple-ease), transform 100ms var(--apple-ease);
+  -webkit-user-select: none;
+  user-select: none;
+  text-decoration: none;
+}
+
+.btn-ghost:hover:not(:disabled) {
+  background: rgba(0, 113, 227, 0.08);
+}
+
+.btn-ghost:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* Destructive */
+.btn-destructive {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 18px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #FFFFFF;
+  background: var(--status-rejected);
+  border: none;
+  border-radius: 980px;
+  cursor: pointer;
+  transition: background 200ms var(--apple-ease), transform 100ms var(--apple-ease);
+  -webkit-user-select: none;
+  user-select: none;
+  text-decoration: none;
+}
+
+.btn-destructive:hover:not(:disabled) {
+  background: #FF3B30;
+}
+
+.btn-destructive:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* Icon button */
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: none;
+  background: var(--apple-fill-quaternary);
+  color: var(--apple-label-primary);
+  cursor: pointer;
+  transition: background 200ms var(--apple-ease), transform 100ms var(--apple-ease);
+}
+
+.btn-icon:hover {
+  background: var(--apple-fill-tertiary);
+}
+
+.btn-icon:active {
+  transform: scale(0.96);
+}

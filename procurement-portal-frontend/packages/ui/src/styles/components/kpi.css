@@ -1,0 +1,39 @@
+/* Apple KPI Strip & Stats */
+.kpi-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1px; /* hairline separator between items */
+  background: var(--apple-separator);
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 20px 0;
+  border: 0.5px solid var(--apple-separator);
+}
+
+.kpi-item {
+  background: var(--apple-bg-primary);
+  padding: 24px 20px;
+  text-align: center;
+  transition: background 200ms var(--apple-ease);
+}
+
+.kpi-value {
+  font-size: 42px;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: var(--apple-label-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.kpi-label {
+  font-size: 13px;
+  color: var(--apple-label-secondary);
+  margin-top: 8px;
+  font-weight: 500;
+}
+
+.theme-apple-dark .kpi-item,
+[data-theme='apple-dark'] .kpi-item {
+  background: var(--apple-bg-secondary);
+}

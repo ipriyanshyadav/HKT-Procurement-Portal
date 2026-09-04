@@ -1,3 +1,4 @@
+// Shared UI Components & Utilities
 export { cn } from "./utils";
 export { SLAIndicator } from "./SLAIndicator";
 export type { SLAIndicatorProps } from "./SLAIndicator";
@@ -33,3 +34,67 @@ export type { BudgetIndicatorProps } from "./BudgetIndicator";
 export { PermissionGuard, useHasPermission } from "./PermissionGuard";
 export type { PermissionGuardProps } from "./PermissionGuard";
 
+// === Apple Design System & Liquid Glass Exports ===
+// Theme
+export { ThemeProvider, useTheme, ThemeContext } from "./theme/ThemeProvider";
+export type { Theme, ThemeContextValue } from "./theme/ThemeProvider";
+export { ThemeSwitcher } from "./theme/ThemeSwitcher";
+
+// Liquid Glass
+export { LiquidGlassBackground } from "./glass/LiquidGlassBackground";
+export { GlassCard } from "./glass/GlassCard";
+export type { GlassCardProps } from "./glass/GlassCard";
+export { injectRefractionFilter, triggerGlassRipple } from "./glass/refraction";
+
+// Core UI Components
+export { Button } from "./components/Button";
+export type { ButtonProps } from "./components/Button";
+
+export { Card } from "./components/Card";
+export type { CardProps } from "./components/Card";
+
+export { Badge } from "./components/Badge";
+export type { BadgeProps, BadgeVariant } from "./components/Badge";
+
+export { Input, SearchInput, Select, Textarea } from "./components/Input";
+export type { InputProps, SearchInputProps, SelectProps, TextareaProps } from "./components/Input";
+
+export { Toggle } from "./components/Toggle";
+export type { ToggleProps } from "./components/Toggle";
+
+export { Modal } from "./components/Modal";
+export type { ModalProps } from "./components/Modal";
+
+export { Toast } from "./components/Toast";
+export type { ToastProps, ToastType } from "./components/Toast";
+
+export { Table } from "./components/Table";
+export type { TableProps, TableColumn } from "./components/Table";
+
+export { KPIItem, HeroKPIStrip } from "./components/KPICard";
+export type { KPIItemProps, HeroKPIStripProps } from "./components/KPICard";
+
+export { Tabs } from "./components/Tabs";
+export type { TabsProps, TabOption } from "./components/Tabs";
+
+export { Skeleton } from "./components/Skeleton";
+export type { SkeletonProps } from "./components/Skeleton";
+
+// Layout Components
+export { PageHeader } from "./components/PageHeader";
+export type { PageHeaderProps, BreadcrumbItem } from "./components/PageHeader";
+
+export { Navbar } from "./components/Navbar";
+export type { NavbarProps, NavItem } from "./components/Navbar";
+
+export { Sidebar } from "./components/Sidebar";
+export type { SidebarProps, SidebarItemData } from "./components/Sidebar";
+
+export { AppShell } from "./components/AppShell";
+export type { AppShellProps } from "./components/AppShell";
+
+// Interaction Hooks
+export { useAppleReveal } from "./hooks/useAppleReveal";
+export { useCountUp } from "./hooks/useCountUp";
+export { useParallaxTilt } from "./hooks/useParallaxTilt";
+export { useLiquidGlassCursor } from "./hooks/useLiquidGlassCursor";

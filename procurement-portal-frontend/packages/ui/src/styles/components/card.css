@@ -1,0 +1,57 @@
+/* Apple Card Component */
+.apple-card {
+  background: var(--apple-bg-primary);
+  border-radius: 12px;
+  border: 0.5px solid var(--apple-separator);
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  transition: box-shadow 300ms cubic-bezier(0.25, 0.1, 0.25, 1),
+              transform 300ms cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.apple-card:hover {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.10);
+  transform: translateY(-1px);
+}
+
+.theme-apple-dark .apple-card,
+[data-theme='apple-dark'] .apple-card {
+  background: var(--apple-bg-secondary);
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.30);
+}
+
+.theme-apple-dark .apple-card:hover,
+[data-theme='apple-dark'] .apple-card:hover {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.50);
+}
+
+.apple-card__header {
+  padding: 20px 20px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.apple-card__body {
+  padding: 16px 20px 20px;
+}
+
+.apple-card__footer {
+  padding: 12px 20px;
+  border-top: 0.5px solid var(--apple-separator);
+  background: var(--apple-fill-quaternary);
+}
+
+.apple-card__title {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.3px;
+  color: var(--apple-label-primary);
+}
+
+.apple-card__subtitle {
+  font-size: 13px;
+  color: var(--apple-label-secondary);
+  margin-top: 2px;
+}

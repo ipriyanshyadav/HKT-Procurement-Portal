@@ -1,0 +1,83 @@
+/* Apple Base Global Styles */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+:root {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display',
+               'SF Pro Text', 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  font-size: 16px;
+  text-rendering: optimizeLegibility;
+}
+
+/* === APPLE LIGHT === */
+.theme-apple-light,
+[data-theme='apple-light'] {
+  color-scheme: light;
+  background-color: var(--apple-bg-secondary);
+  color: var(--apple-label-primary);
+}
+
+/* === APPLE DARK === */
+.theme-apple-dark,
+[data-theme='apple-dark'] {
+  color-scheme: dark;
+  background-color: var(--apple-bg-primary);
+  color: var(--apple-label-primary);
+}
+
+/* === Smooth scroll === */
+html {
+  scroll-behavior: smooth;
+}
+
+/* === Selection === */
+::selection {
+  background: rgba(0, 122, 255, 0.25);
+}
+
+/* === Scrollbar (WebKit) === */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.20);
+  border-radius: 4px;
+}
+.theme-apple-dark ::-webkit-scrollbar-thumb,
+[data-theme='apple-dark'] ::-webkit-scrollbar-thumb,
+.theme-liquid-glass ::-webkit-scrollbar-thumb,
+[data-theme='liquid-glass'] ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.20);
+}
+
+/* === Focus Visible === */
+:focus-visible {
+  outline: 3px solid rgba(0, 122, 255, 0.60);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* === Reduced Motion === */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

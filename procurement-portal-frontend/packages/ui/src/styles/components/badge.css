@@ -1,0 +1,60 @@
+/* Apple Status Badge / Pill Component */
+.apple-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 50px;
+  line-height: 1.3;
+}
+
+/* Dot indicator */
+.apple-badge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.85;
+}
+
+.badge-approved,
+.badge-active,
+.badge-completed,
+.badge-delivered,
+.badge-paid {
+  color: var(--status-approved);
+  background: rgba(48, 209, 88, 0.12);
+}
+
+.badge-pending,
+.badge-in_approval,
+.badge-under_review,
+.badge-submitted,
+.badge-warning {
+  color: var(--status-pending);
+  background: rgba(255, 159, 10, 0.12);
+}
+
+.badge-rejected,
+.badge-cancelled,
+.badge-overdue,
+.badge-failed {
+  color: var(--status-rejected);
+  background: rgba(255, 69, 58, 0.12);
+}
+
+.badge-draft,
+.badge-inactive {
+  color: var(--status-draft);
+  background: rgba(99, 99, 102, 0.12);
+}
+
+.badge-review,
+.badge-rfq_issued,
+.badge-info {
+  color: var(--status-review);
+  background: rgba(10, 132, 255, 0.12);
+}

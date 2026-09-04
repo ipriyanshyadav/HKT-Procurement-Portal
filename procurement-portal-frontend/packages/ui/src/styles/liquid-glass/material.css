@@ -1,0 +1,112 @@
+/* Core Liquid Glass Material Mixin */
+
+.glass-surface {
+  /* 1. Backdrop effect — main material */
+  backdrop-filter:
+    blur(var(--lg-glass-blur, 28px))
+    saturate(var(--lg-glass-saturation, 220%))
+    brightness(var(--lg-glass-brightness, 1.08));
+  -webkit-backdrop-filter:
+    blur(var(--lg-glass-blur, 28px))
+    saturate(var(--lg-glass-saturation, 220%))
+    brightness(var(--lg-glass-brightness, 1.08));
+
+  /* 2. Base fill */
+  background: rgba(255, 255, 255, var(--lg-fill-opacity, 0.08));
+
+  /* 3. Edge specular */
+  border: 1px solid transparent;
+  background-clip: padding-box;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 4. Top specular highlight — dynamic cursor tracking */
+.glass-surface::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: radial-gradient(
+    circle at var(--specular-x, 30%) var(--specular-y, 20%),
+    rgba(255, 255, 255, 0.40) 0%,
+    rgba(255, 255, 255, 0.10) 35%,
+    rgba(255, 255, 255, 0.02) 65%,
+    rgba(255, 255, 255, 0.12) 100%
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* 5. Chromatic aberration — colored fringe at edges */
+.glass-surface::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    linear-gradient(90deg,
+      rgba(120, 0, 255, 0.04) 0%,
+      transparent 30%,
+      transparent 70%,
+      rgba(0, 120, 255, 0.04) 100%
+    );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* === DEPTH VARIANTS === */
+.glass-surface--near {
+  --lg-glass-blur: 48px;
+  --lg-fill-opacity: 0.12;
+}
+
+.glass-surface--mid {
+  --lg-glass-blur: 28px;
+  --lg-fill-opacity: 0.08;
+}
+
+.glass-surface--far {
+  --lg-glass-blur: 12px;
+  --lg-fill-opacity: 0.05;
+}
+
+/* === TINT VARIANTS (per-portal) === */
+.glass-surface--admin {
+  background: rgba(10, 132, 255, 0.08);
+}
+
+.glass-surface--supplier {
+  background: rgba(48, 209, 88, 0.08);
+}
+
+.glass-surface--buyer {
+  background: rgba(255, 159, 10, 0.08);
+}
+
+/* === GLASS LITE FALLBACK === */
+.glass-lite .glass-surface,
+@media (prefers-reduced-motion: reduce) {
+  .glass-surface {
+    animation: none !important;
+    filter: none !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+  }
+}
+
+/* High contrast override */
+@media (forced-colors: active) {
+  .glass-surface {
+    background: Canvas !important;
+    border: 2px solid ButtonText !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+}

@@ -1,0 +1,74 @@
+/* Apple Design Tokens — Light, Dark & Semantic Procurement Tokens */
+:root {
+  /* === LIGHT MODE === */
+  --apple-bg-primary: #FFFFFF;
+  --apple-bg-secondary: #F5F5F7;
+  --apple-bg-tertiary: #FBFBFD;
+  --apple-bg-grouped: #F2F2F7;
+
+  --apple-label-primary: #1D1D1F;
+  --apple-label-secondary: #6E6E73;
+  --apple-label-tertiary: #AEAEB2;
+  --apple-label-quaternary: #C7C7CC;
+
+  --apple-blue: #0071E3; /* primary CTA */
+  --apple-blue-hover: #0077ED;
+  --apple-blue-light: #007AFF; /* system blue */
+
+  --apple-separator: rgba(0, 0, 0, 0.08);
+  --apple-fill-primary: rgba(120, 120, 128, 0.20);
+  --apple-fill-secondary: rgba(120, 120, 128, 0.16);
+  --apple-fill-tertiary: rgba(118, 118, 128, 0.12);
+  --apple-fill-quaternary: rgba(116, 116, 128, 0.08);
+
+  --apple-vibrancy-light: rgba(255, 255, 255, 0.72);
+  --apple-vibrancy-ultra: rgba(255, 255, 255, 0.88);
+
+  /* === SEMANTIC PROCUREMENT COLORS === */
+  --status-approved: #30D158; /* Apple green */
+  --status-pending: #FF9F0A; /* Apple orange */
+  --status-rejected: #FF453A; /* Apple red */
+  --status-draft: #636366; /* Apple gray */
+  --status-review: #0A84FF; /* Apple blue */
+
+  /* Spacing and Radii */
+  --apple-radius-sm: 8px;
+  --apple-radius-md: 12px;
+  --apple-radius-lg: 16px;
+  --apple-radius-xl: 20px;
+  --apple-radius-full: 980px;
+
+  /* Standard Apple Motion Curves */
+  --apple-ease: cubic-bezier(0.25, 0.1, 0.25, 1.0);
+  --apple-spring: cubic-bezier(0.32, 0.72, 0, 1);
+  --apple-duration-micro: 120ms;
+  --apple-duration-standard: 300ms;
+  --apple-duration-page: 500ms;
+}
+
+/* === DARK MODE === */
+.theme-apple-dark,
+[data-theme='apple-dark'] {
+  --apple-bg-primary: #000000;
+  --apple-bg-secondary: #1C1C1E;
+  --apple-bg-tertiary: #2C2C2E;
+  --apple-bg-grouped: #1C1C1E;
+
+  --apple-label-primary: #FFFFFF;
+  --apple-label-secondary: rgba(235, 235, 245, 0.80);
+  --apple-label-tertiary: rgba(235, 235, 245, 0.48);
+  --apple-label-quaternary: rgba(235, 235, 245, 0.20);
+
+  --apple-blue: #0A84FF;
+  --apple-blue-hover: #409CFF;
+  --apple-blue-light: #0A84FF;
+
+  --apple-separator: rgba(255, 255, 255, 0.10);
+  --apple-fill-primary: rgba(120, 120, 128, 0.36);
+  --apple-fill-secondary: rgba(120, 120, 128, 0.32);
+  --apple-fill-tertiary: rgba(118, 118, 128, 0.24);
+  --apple-fill-quaternary: rgba(116, 116, 128, 0.18);
+
+  --apple-vibrancy-light: rgba(28, 28, 30, 0.72);
+  --apple-vibrancy-ultra: rgba(28, 28, 30, 0.88);
+}

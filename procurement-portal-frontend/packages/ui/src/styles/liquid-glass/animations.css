@@ -1,0 +1,61 @@
+/* Liquid Glass Surface Tension Animations */
+
+/* Glass cards "breathe" very subtly — surface tension effect */
+@keyframes glassBreathe {
+  0%, 100% {
+    backdrop-filter: blur(28px) saturate(220%) brightness(1.08);
+    -webkit-backdrop-filter: blur(28px) saturate(220%) brightness(1.08);
+  }
+  50% {
+    backdrop-filter: blur(32px) saturate(240%) brightness(1.10);
+    -webkit-backdrop-filter: blur(32px) saturate(240%) brightness(1.10);
+  }
+}
+
+.theme-liquid-glass .glass-breathe,
+[data-theme='liquid-glass'] .glass-breathe {
+  animation: glassBreathe 8s ease-in-out infinite;
+}
+
+/* On hover: glass "pulls" toward cursor */
+.theme-liquid-glass .glass-hover-pull:hover,
+[data-theme='liquid-glass'] .glass-hover-pull:hover {
+  backdrop-filter: blur(36px) saturate(260%) brightness(1.12);
+  -webkit-backdrop-filter: blur(36px) saturate(260%) brightness(1.12);
+  transform: translateY(-2px) scale(1.005);
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.30),
+    0 0 0 0.5px rgba(255, 255, 255, 0.25) inset,
+    0 1px 0 rgba(255, 255, 255, 0.5) inset;
+  transition: transform 300ms cubic-bezier(0.25, 0.1, 0.25, 1),
+              box-shadow 300ms cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+/* On press: glass "indents" */
+.theme-liquid-glass .glass-hover-pull:active,
+[data-theme='liquid-glass'] .glass-hover-pull:active {
+  transform: scale(0.995);
+  backdrop-filter: blur(24px) saturate(200%) brightness(1.05);
+  -webkit-backdrop-filter: blur(24px) saturate(200%) brightness(1.05);
+}
+
+/* Liquid Glass card entrance */
+@keyframes glassReveal {
+  0% {
+    opacity: 0;
+    backdrop-filter: blur(0px) saturate(100%);
+    -webkit-backdrop-filter: blur(0px) saturate(100%);
+    transform: translateY(20px) scale(0.97);
+  }
+  100% {
+    opacity: 1;
+    backdrop-filter: blur(28px) saturate(220%);
+    -webkit-backdrop-filter: blur(28px) saturate(220%);
+    transform: translateY(0) scale(1);
+  }
+}
+
+.theme-liquid-glass .glass-reveal,
+[data-theme='liquid-glass'] .glass-reveal {
+  animation: glassReveal 600ms cubic-bezier(0.32, 0.72, 0, 1) both;
+}

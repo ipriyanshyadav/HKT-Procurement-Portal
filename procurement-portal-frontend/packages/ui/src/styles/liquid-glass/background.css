@@ -1,0 +1,55 @@
+/* Liquid Glass Wallpaper / Ambient Background */
+.theme-liquid-glass,
+[data-theme='liquid-glass'] {
+  min-height: 100vh;
+  background: var(--lg-bg-wallpaper);
+  position: relative;
+}
+
+.theme-liquid-glass body,
+[data-theme='liquid-glass'] body {
+  min-height: 100vh;
+  background: transparent;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Animated ambient light orbs */
+.theme-liquid-glass::before,
+[data-theme='liquid-glass']::before,
+.theme-liquid-glass::after,
+[data-theme='liquid-glass']::after {
+  content: '';
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.55;
+  pointer-events: none;
+  z-index: 0;
+  animation: ambientFloat 12s ease-in-out infinite alternate;
+}
+
+.theme-liquid-glass::before,
+[data-theme='liquid-glass']::before {
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(100, 60, 255, 0.45) 0%, transparent 70%);
+  top: -100px;
+  left: -100px;
+}
+
+.theme-liquid-glass::after,
+[data-theme='liquid-glass']::after {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(0, 200, 255, 0.35) 0%, transparent 70%);
+  bottom: -100px;
+  right: -100px;
+  animation-direction: alternate-reverse;
+}
+
+@keyframes ambientFloat {
+  0%   { transform: translate(0, 0) scale(1); }
+  50%  { transform: translate(40px, 30px) scale(1.05); }
+  100% { transform: translate(-20px, 50px) scale(0.95); }
+}

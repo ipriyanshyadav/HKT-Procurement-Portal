@@ -2135,7 +2135,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T10:52:26.049467
+             * @default 2026-09-04T10:59:02.275170
              */
             timestamp: string;
         };
@@ -2148,7 +2148,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T10:52:26.049467
+             * @default 2026-09-04T10:59:02.275170
              */
             timestamp: string;
         };
@@ -2161,7 +2161,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T10:52:26.049467
+             * @default 2026-09-04T10:59:02.275170
              */
             timestamp: string;
         };
@@ -2176,7 +2176,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T10:52:26.049467
+             * @default 2026-09-04T10:59:02.275170
              */
             timestamp: string;
         };
@@ -2188,7 +2188,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T10:52:26.049467
+             * @default 2026-09-04T10:59:02.275170
              */
             timestamp: string;
         };
@@ -2200,7 +2200,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T10:52:26.049467
+             * @default 2026-09-04T10:59:02.275170
              */
             timestamp: string;
         };
@@ -2212,7 +2212,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T10:52:26.049467
+             * @default 2026-09-04T10:59:02.275170
              */
             timestamp: string;
         };

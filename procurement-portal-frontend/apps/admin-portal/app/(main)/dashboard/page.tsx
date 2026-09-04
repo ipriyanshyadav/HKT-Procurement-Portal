@@ -3,16 +3,43 @@
 import React from "react";
 import Link from "next/link";
 import { useCategoryTree } from "@procurement/hooks";
+import {
+  PageHeader,
+  HeroKPIStrip,
+  Card,
+  Badge,
+  Button,
+} from "@procurement/ui";
+import {
+  FolderTree,
+  FileUp,
+  Server,
+  ShieldCheck,
+  Building2,
+  Layers,
+  ArrowUpRight,
+} from "lucide-react";
+
+interface CategoryNode {
+  children?: CategoryNode[];
+}
 
 export default function AdminDashboardPage() {
   const { data: categories, isLoading: isCategoriesLoading } = useCategoryTree();
 
-  const countCategories = (nodes: any[]): number => {
+  const countCategories = (nodes: CategoryNode[]): number => {
     if (!nodes) return 0;
     return nodes.reduce((acc, node) => acc + 1 + countCategories(node.children || []), 0);
   };
 
-  const totalCategories = categories ? countCategories(categories) : 4;
+  const totalCategories = categories ? countCategories(categories as CategoryNode[]) : 4;
+
+  const kpiItems = [
+    { value: 100, label: "System Health", suffix: "%", sublabel: "FastAPI · PostgreSQL 16 · Redis" },
+    { value: isCategoriesLoading ? 4 : totalCategories, label: "Master Categories", sublabel: "UNSPSC Taxonomies" },
+    { value: 1, label: "Active Tenant", sublabel: "Default Enterprise Org" },
+    { value: 100, label: "RBAC Security", suffix: "%", sublabel: "RS256 JWT & MFA Active" },
+  ];
 
   const masterDataModules = [
     {
@@ -24,6 +51,7 @@ export default function AdminDashboardPage() {
       status: "ACTIVE",
       href: "/master-data/categories",
       actionLabel: "View Tree",
+      icon: <FolderTree className="w-5 h-5 text-blue-500" />,
     },
     {
       name: "Currencies & Exchange Rates",
@@ -34,6 +62,7 @@ export default function AdminDashboardPage() {
       status: "ACTIVE",
       href: "/master-data/import",
       actionLabel: "Import CSV",
+      icon: <Layers className="w-5 h-5 text-indigo-500" />,
     },
     {
       name: "Payment Terms",
@@ -44,6 +73,7 @@ export default function AdminDashboardPage() {
       status: "ACTIVE",
       href: "/master-data/import",
       actionLabel: "Import CSV",
+      icon: <Layers className="w-5 h-5 text-sky-500" />,
     },
     {
       name: "Tax Codes & HSN",
@@ -54,6 +84,7 @@ export default function AdminDashboardPage() {
       status: "ACTIVE",
       href: "/master-data/import",
       actionLabel: "Import CSV",
+      icon: <Layers className="w-5 h-5 text-emerald-500" />,
     },
     {
       name: "Cost Centers",
@@ -64,6 +95,7 @@ export default function AdminDashboardPage() {
       status: "ACTIVE",
       href: "/master-data/import",
       actionLabel: "Import CSV",
+      icon: <Building2 className="w-5 h-5 text-amber-500" />,
     },
     {
       name: "General Ledger (GL) Accounts",
@@ -74,148 +106,196 @@ export default function AdminDashboardPage() {
       status: "ACTIVE",
       href: "/master-data/import",
       actionLabel: "Import CSV",
+      icon: <Layers className="w-5 h-5 text-purple-500" />,
     },
   ];
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6">
-      {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">System Dashboard</h1>
-          <p className="text-sm text-gray-500 mt-1">
-            Real-time master data health, tenant configuration, and platform metrics.
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <Link
-            href="/master-data/import"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors"
-          >
-            <span>📥</span>
-            <span>Bulk CSV Import</span>
-          </Link>
-          <Link
-            href="/master-data/categories"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 text-sm font-semibold rounded-lg shadow-sm transition-colors"
-          >
-            <span>📁</span>
-            <span>Manage Categories</span>
-          </Link>
-        </div>
+    <div className="space-y-6">
+      {/* Apple Page Header */}
+      <PageHeader
+        title="Admin Control Center"
+        subtitle="Real-time master data health, tenant configuration, and platform governance."
+        actions={
+          <div className="flex items-center gap-3">
+            <Link href="/master-data/import">
+              <Button
+                variant="primary"
+                icon={<FileUp className="w-4 h-4 mr-1.5" />}
+              >
+                Bulk CSV Import
+              </Button>
+            </Link>
+            <Link href="/master-data/categories">
+              <Button
+                variant="secondary"
+                icon={<FolderTree className="w-4 h-4 mr-1.5" />}
+              >
+                Manage Categories
+              </Button>
+            </Link>
+          </div>
+        }
+      />
+
+      {/* Apple KPI Strip */}
+      <HeroKPIStrip items={kpiItems} />
+
+      {/* 4-Panel Grid (Spec 6.1) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <Card
+          title="Taxonomy & Catalog Engine"
+          subtitle="Multi-tier tree classification & approval thresholds"
+          glass
+          action={
+            <Link href="/master-data/categories">
+              <Button variant="ghost" size="sm" icon={<ArrowUpRight className="w-3.5 h-3.5" />}>
+                Open
+              </Button>
+            </Link>
+          }
+        >
+          <div className="flex items-center gap-4 py-2">
+            <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
+              <FolderTree className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="text-xl font-bold text-neutral-900 dark:text-white">
+                {isCategoriesLoading ? "Loading..." : `${totalCategories} Active Nodes`}
+              </div>
+              <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
+                Full UNSPSC standard hierarchy with drag-and-drop hierarchy reordering.
+              </p>
+            </div>
+          </div>
+        </Card>
+
+        <Card
+          title="Bulk Data Ingestion"
+          subtitle="Transaction-safe CSV ingestion pipeline"
+          glass
+          action={
+            <Link href="/master-data/import">
+              <Button variant="ghost" size="sm" icon={<ArrowUpRight className="w-3.5 h-3.5" />}>
+                Import
+              </Button>
+            </Link>
+          }
+        >
+          <div className="flex items-center gap-4 py-2">
+            <div className="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+              <FileUp className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="text-xl font-bold text-neutral-900 dark:text-white">
+                Bulk CSV Pipeline
+              </div>
+              <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
+                Batch imports for Currencies, Tax Codes, Payment Terms, and Cost Centers.
+              </p>
+            </div>
+          </div>
+        </Card>
+
+        <Card
+          title="Platform Architecture"
+          subtitle="System health & container telemetry"
+          glass
+        >
+          <div className="flex items-center gap-4 py-2">
+            <div className="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+              <Server className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-lg font-bold text-neutral-900 dark:text-white">
+                  FastAPI Monolith
+                </span>
+                <Badge variant="approved">Healthy</Badge>
+              </div>
+              <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
+                PostgreSQL 16 · Redis Cache · RabbitMQ Broker · OpenTelemetry Tracing
+              </p>
+            </div>
+          </div>
+        </Card>
+
+        <Card
+          title="Tenant & Security"
+          subtitle="Multi-tenant isolation & cryptographic tokens"
+          glass
+        >
+          <div className="flex items-center gap-4 py-2">
+            <div className="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-900/30 flex items-center justify-center text-amber-600 dark:text-amber-400">
+              <ShieldCheck className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-lg font-bold text-neutral-900 dark:text-white">
+                  Default Organization
+                </span>
+                <Badge variant="review">Protected</Badge>
+              </div>
+              <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5 font-mono">
+                RS256 JWT · Role & Scope Guard Enforcement
+              </p>
+            </div>
+          </div>
+        </Card>
       </div>
 
-      {/* Metric Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-        <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-              System Health
-            </span>
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-              ● Healthy
-            </span>
-          </div>
-          <p className="text-2xl font-bold text-gray-900 mt-3">Operational</p>
-          <p className="text-xs text-gray-500 mt-1">FastAPI v1 · PostgreSQL 16 · Redis</p>
-        </div>
-
-        <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-              Master Categories
-            </span>
-            <span className="text-lg">📁</span>
-          </div>
-          <p className="text-2xl font-bold text-blue-600 mt-3">
-            {isCategoriesLoading ? "..." : totalCategories}
-          </p>
-          <p className="text-xs text-gray-500 mt-1">Hierarchical UNSPSC commodities</p>
-        </div>
-
-        <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-              Active Tenant
-            </span>
-            <span className="text-lg">🏢</span>
-          </div>
-          <p className="text-2xl font-bold text-gray-900 mt-3">Default Org</p>
-          <p className="text-xs text-gray-500 mt-1 font-mono">00000000-0000...0001</p>
-        </div>
-
-        <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-              Security & RBAC
-            </span>
-            <span className="text-lg">🔒</span>
-          </div>
-          <p className="text-2xl font-bold text-gray-900 mt-3">RS256 JWT</p>
-          <p className="text-xs text-gray-500 mt-1">MFA & Multi-Tenant Isolated</p>
-        </div>
-      </div>
-
-      {/* Master Data Registry Table */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
-          <div>
-            <h2 className="text-base font-semibold text-gray-900">Master Data Modules</h2>
-            <p className="text-xs text-gray-500 mt-0.5">
-              Core reference records governing spend approvals, accounting, and tax compliance.
-            </p>
-          </div>
-          <span className="text-xs font-medium text-gray-500">SPEC_24 MDM</span>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+      {/* Master Data Registry (Card + Apple Table) */}
+      <Card
+        title="Master Data Modules"
+        subtitle="Core reference records governing spend approvals, accounting, and compliance."
+        glass
+      >
+        <div className="apple-table-container mt-2">
+          <table className="apple-table">
+            <thead>
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Module Name
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Spec Ref
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Records
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
+                <th>Module Name</th>
+                <th>Spec Ref</th>
+                <th>Records</th>
+                <th>Status</th>
+                <th className="text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody>
               {masterDataModules.map((item) => (
-                <tr key={item.name} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-semibold text-gray-900">{item.name}</div>
-                    <div className="text-xs text-gray-500">{item.description}</div>
+                <tr key={item.name}>
+                  <td>
+                    <div className="flex items-center gap-3">
+                      {item.icon}
+                      <div>
+                        <div className="font-semibold text-neutral-900 dark:text-white text-sm">
+                          {item.name}
+                        </div>
+                        <div className="text-xs text-neutral-500 dark:text-neutral-400">
+                          {item.description}
+                        </div>
+                      </div>
+                    </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800 font-mono">
+                  <td>
+                    <span className="font-mono text-xs px-2 py-0.5 bg-neutral-100 dark:bg-neutral-800 rounded text-neutral-700 dark:text-neutral-300">
                       {item.code}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                    <span className="font-semibold text-gray-900">{item.count}</span>{" "}
-                    <span className="text-gray-500 text-xs">{item.unit}</span>
+                  <td>
+                    <span className="font-semibold text-neutral-900 dark:text-white">
+                      {item.count}
+                    </span>{" "}
+                    <span className="text-xs text-neutral-500">{item.unit}</span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                      {item.status}
-                    </span>
+                  <td>
+                    <Badge variant="approved">{item.status}</Badge>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <Link
-                      href={item.href}
-                      className="text-blue-600 hover:text-blue-900 font-semibold text-xs"
-                    >
-                      {item.actionLabel} →
+                  <td className="text-right">
+                    <Link href={item.href}>
+                      <Button variant="ghost" size="sm">
+                        {item.actionLabel} →
+                      </Button>
                     </Link>
                   </td>
                 </tr>
@@ -223,7 +303,7 @@ export default function AdminDashboardPage() {
             </tbody>
           </table>
         </div>
-      </div>
+      </Card>
     </div>
   );
 }
