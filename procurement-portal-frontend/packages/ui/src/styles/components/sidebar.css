@@ -1,4 +1,4 @@
-/* Apple Sidebar Navigation Component (Hover Expandable) */
+/* Apple Sidebar Navigation Component (Modes: Auto-Hide, Minimized, Pinned) */
 
 /* Dock container positioned on desktop left */
 .apple-sidebar-dock {
@@ -6,16 +6,80 @@
   left: 0;
   top: 52px;
   bottom: 0;
-  width: 16px;
   z-index: 90;
   pointer-events: auto;
+  transition: width 260ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* When expanded, widen container so mouse stays inside hit area */
-.apple-sidebar-dock.expanded,
-.apple-sidebar-dock:hover,
-.apple-sidebar-dock:focus-within {
+/* Mode: Pinned (Always expanded at 250px) */
+.apple-sidebar-dock.mode-pinned {
+  width: 250px;
+}
+
+.apple-sidebar-dock.mode-pinned .apple-sidebar {
+  width: 250px;
+  transform: translateX(0);
+  box-shadow: none;
+}
+
+.apple-sidebar-dock.mode-pinned .sidebar-peek-tab,
+.apple-sidebar-dock.mode-pinned .sidebar-edge-trigger {
+  display: none;
+}
+
+/* Mode: Minimized (Compact 60px icon rail) */
+.apple-sidebar-dock.mode-minimized {
+  width: 60px;
+}
+
+.apple-sidebar-dock.mode-minimized .apple-sidebar {
+  width: 60px;
+  transform: translateX(0);
+  padding: 16px 8px 24px;
+  box-shadow: none;
+}
+
+.apple-sidebar-dock.mode-minimized .sidebar-peek-tab,
+.apple-sidebar-dock.mode-minimized .sidebar-edge-trigger {
+  display: none;
+}
+
+/* Mode: Minimized expanded on hover */
+.apple-sidebar-dock.mode-minimized.expanded,
+.apple-sidebar-dock.mode-minimized:hover,
+.apple-sidebar-dock.mode-minimized:focus-within {
+  width: 250px;
+}
+
+.apple-sidebar-dock.mode-minimized.expanded .apple-sidebar,
+.apple-sidebar-dock.mode-minimized:hover .apple-sidebar,
+.apple-sidebar-dock.mode-minimized:focus-within .apple-sidebar {
+  width: 250px;
+  padding: 16px 12px 24px;
+  box-shadow: 12px 0 36px rgba(0, 0, 0, 0.14);
+}
+
+/* Mode: Auto-hide (Hidden at 16px edge, expands on hover) */
+.apple-sidebar-dock.mode-auto-hide {
+  width: 16px;
+}
+
+.apple-sidebar-dock.mode-auto-hide .apple-sidebar {
+  width: 250px;
+  transform: translateX(-100%);
+}
+
+.apple-sidebar-dock.mode-auto-hide.expanded,
+.apple-sidebar-dock.mode-auto-hide:hover,
+.apple-sidebar-dock.mode-auto-hide:focus-within {
   width: 256px;
+}
+
+.apple-sidebar-dock.mode-auto-hide.expanded .apple-sidebar,
+.apple-sidebar-dock.mode-auto-hide:hover .apple-sidebar,
+.apple-sidebar-dock.mode-auto-hide:focus-within .apple-sidebar {
+  transform: translateX(0);
+  box-shadow: 12px 0 36px rgba(0, 0, 0, 0.14);
 }
 
 /* Invisible edge trigger zone spanning full screen height */
@@ -29,7 +93,7 @@
   z-index: 2;
 }
 
-/* Apple Sleek Peek Tab when minimized & hidden */
+/* Apple Sleek Peek Tab when auto-hidden */
 .sidebar-peek-tab {
   position: absolute;
   left: 0;
@@ -73,7 +137,6 @@
 
 /* The sliding Apple sidebar panel */
 .apple-sidebar {
-  width: 250px;
   height: 100%;
   position: absolute;
   left: 0;
@@ -87,22 +150,15 @@
   flex-direction: column;
   gap: 4px;
   overflow-y: auto;
+  overflow-x: hidden;
   z-index: 1;
-  transform: translateX(-100%);
   transition: transform 260ms cubic-bezier(0.16, 1, 0.3, 1),
+              width 260ms cubic-bezier(0.16, 1, 0.3, 1),
+              padding 260ms cubic-bezier(0.16, 1, 0.3, 1),
               box-shadow 260ms cubic-bezier(0.16, 1, 0.3, 1),
               background 250ms var(--apple-ease),
               border-color 250ms var(--apple-ease);
   box-shadow: none;
-}
-
-/* Expanded state on hover, focus-within, or state flag */
-.apple-sidebar-dock.expanded .apple-sidebar,
-.apple-sidebar-dock:hover .apple-sidebar,
-.apple-sidebar-dock:focus-within .apple-sidebar,
-.apple-sidebar.expanded {
-  transform: translateX(0);
-  box-shadow: 12px 0 36px rgba(0, 0, 0, 0.14);
 }
 
 .dark .apple-sidebar,
@@ -112,10 +168,12 @@
   border-color: rgba(255, 255, 255, 0.12);
 }
 
-.dark .apple-sidebar-dock.expanded .apple-sidebar,
-.dark .apple-sidebar-dock:hover .apple-sidebar,
-.dark .apple-sidebar-dock:focus-within .apple-sidebar,
-.dark .apple-sidebar.expanded {
+.dark .apple-sidebar-dock.mode-auto-hide.expanded .apple-sidebar,
+.dark .apple-sidebar-dock.mode-auto-hide:hover .apple-sidebar,
+.dark .apple-sidebar-dock.mode-auto-hide:focus-within .apple-sidebar,
+.dark .apple-sidebar-dock.mode-minimized.expanded .apple-sidebar,
+.dark .apple-sidebar-dock.mode-minimized:hover .apple-sidebar,
+.dark .apple-sidebar-dock.mode-minimized:focus-within .apple-sidebar {
   box-shadow: 16px 0 44px rgba(0, 0, 0, 0.65);
 }
 
@@ -126,6 +184,8 @@
   text-transform: uppercase;
   color: var(--apple-label-tertiary);
   padding: 14px 12px 4px;
+  white-space: nowrap;
+  transition: opacity 200ms var(--apple-ease);
 }
 
 .sidebar-item {
@@ -139,7 +199,8 @@
   color: var(--apple-label-primary);
   text-decoration: none;
   cursor: pointer;
-  transition: background 150ms var(--apple-ease), color 150ms var(--apple-ease);
+  transition: background 150ms var(--apple-ease), color 150ms var(--apple-ease), padding 200ms var(--apple-ease);
+  white-space: nowrap;
 }
 
 .sidebar-item:hover {
@@ -161,6 +222,25 @@
   height: 18px;
   color: var(--apple-label-secondary);
   flex-shrink: 0;
+}
+
+/* Mode Minimized (unexpanded) compact item centering */
+.apple-sidebar-dock.mode-minimized:not(.expanded):not(:hover):not(:focus-within) .sidebar-item {
+  padding: 8px 0;
+  justify-content: center;
+}
+
+.apple-sidebar-dock.mode-minimized:not(.expanded):not(:hover):not(:focus-within) .sidebar-label,
+.apple-sidebar-dock.mode-minimized:not(.expanded):not(:hover):not(:focus-within) .sidebar-badge,
+.apple-sidebar-dock.mode-minimized:not(.expanded):not(:hover):not(:focus-within) .sidebar-section-label {
+  display: none;
+}
+
+.apple-sidebar-dock.mode-minimized:not(.expanded):not(:hover):not(:focus-within) .sidebar-section-divider {
+  display: block;
+  height: 1px;
+  background: var(--apple-separator);
+  margin: 8px 6px;
 }
 
 /* Tab bar for mobile */

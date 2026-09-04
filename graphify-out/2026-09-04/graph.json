@@ -2929,7 +2929,7 @@
       "file_type": "code",
       "norm_label": "sidebaritemdata",
       "source_file": "procurement-portal-frontend/packages/ui/src/components/Sidebar.tsx",
-      "source_location": "L7"
+      "source_location": "L8"
     },
     {
       "id": "procurement_portal_frontend_packages_ui_src_components_sidebar_sidebarprops",
@@ -2942,7 +2942,7 @@
       "file_type": "code",
       "norm_label": "sidebarprops",
       "source_file": "procurement-portal-frontend/packages/ui/src/components/Sidebar.tsx",
-      "source_location": "L15"
+      "source_location": "L16"
     },
     {
       "id": "procurement_portal_frontend_packages_ui_src_components_skeleton_skeletonprops",
@@ -13541,7 +13541,7 @@
       "file_type": "code",
       "norm_label": "sidebar()",
       "source_file": "procurement-portal-frontend/packages/ui/src/components/Sidebar.tsx",
-      "source_location": "L21"
+      "source_location": "L22"
     },
     {
       "id": "procurement_portal_frontend_packages_ui_src_components_skeleton_skeleton",
@@ -109455,7 +109455,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "procurement-portal-frontend/packages/ui/src/components/Sidebar.tsx",
-      "source_location": "L15",
+      "source_location": "L16",
       "weight": 1.0
     },
     {
@@ -109466,7 +109466,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "procurement-portal-frontend/packages/ui/src/components/Sidebar.tsx",
-      "source_location": "L21",
+      "source_location": "L22",
       "weight": 1.0
     },
     {
@@ -109477,7 +109477,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "procurement-portal-frontend/packages/ui/src/components/Sidebar.tsx",
-      "source_location": "L7",
+      "source_location": "L8",
       "weight": 1.0
     },
     {
@@ -135970,5 +135970,5 @@
       "source_file": "specs/SPEC_04_AUTH_SECURITY.md"
     }
   ],
-  "built_at_commit": "81fbd6809a95d277c88f28d98590bb70208b3dac"
+  "built_at_commit": "783a7a791b6ebdde64176244d017154560d4c875"
 }

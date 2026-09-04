@@ -82,7 +82,7 @@ export { Navbar } from "./components/Navbar";
 export type { NavbarProps, NavItem } from "./components/Navbar";
 
 export { Sidebar } from "./components/Sidebar";
-export type { SidebarProps, SidebarItemData } from "./components/Sidebar";
+export type { SidebarProps, SidebarItemData, SidebarMode } from "./components/Sidebar";
 
 export { AppShell } from "./components/AppShell";
 export type { AppShellProps } from "./components/AppShell";

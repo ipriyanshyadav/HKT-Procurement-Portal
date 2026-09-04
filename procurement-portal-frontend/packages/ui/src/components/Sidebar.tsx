@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ChevronRight, PanelLeft } from 'lucide-react';
 
+export type SidebarMode = 'pinned' | 'minimized' | 'auto-hide';
+
 export interface SidebarItemData {
   label: string;
   href: string;
@@ -17,9 +19,17 @@ export interface SidebarProps {
   items: SidebarItemData[];
   className?: string;
   footerContent?: ReactNode;
+  mode?: SidebarMode;
+  onModeChange?: (mode: SidebarMode) => void;
 }
 
-export function Sidebar({ items, className = '', footerContent }: SidebarProps) {
+export function Sidebar({
+  items,
+  className = '',
+  footerContent,
+  mode = 'auto-hide',
+  onModeChange,
+}: SidebarProps) {
   const pathname = usePathname();
   const [isExpanded, setIsExpanded] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -36,6 +46,7 @@ export function Sidebar({ items, className = '', footerContent }: SidebarProps) 
   });
 
   const handleMouseEnter = () => {
+    if (mode === 'pinned') return;
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
       timeoutRef.current = null;
@@ -44,6 +55,7 @@ export function Sidebar({ items, className = '', footerContent }: SidebarProps) 
   };
 
   const handleMouseLeave = () => {
+    if (mode === 'pinned') return;
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
@@ -53,6 +65,7 @@ export function Sidebar({ items, className = '', footerContent }: SidebarProps) 
   };
 
   const handleFocus = () => {
+    if (mode === 'pinned') return;
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
       timeoutRef.current = null;
@@ -61,15 +74,18 @@ export function Sidebar({ items, className = '', footerContent }: SidebarProps) 
   };
 
   const handleBlur = (e: React.FocusEvent) => {
+    if (mode === 'pinned') return;
     if (!e.currentTarget.contains(e.relatedTarget as Node)) {
       setIsExpanded(false);
     }
   };
 
-  // Collapse sidebar on route change
+  // Collapse sidebar on route change when in auto-hide or minimized
   useEffect(() => {
-    setIsExpanded(false);
-  }, [pathname]);
+    if (mode !== 'pinned') {
+      setIsExpanded(false);
+    }
+  }, [pathname, mode]);
 
   // Clean up timer on unmount
   useEffect(() => {
@@ -80,59 +96,112 @@ export function Sidebar({ items, className = '', footerContent }: SidebarProps) 
     };
   }, []);
 
+  const effectivelyExpanded = mode === 'pinned' || isExpanded;
+  const modeClass = mode === 'pinned' ? 'mode-pinned' : mode === 'minimized' ? 'mode-minimized' : 'mode-auto-hide';
+
   return (
     <>
-      {/* Desktop Hover-Expandable Apple Sidebar Dock */}
+      {/* Desktop Mode-Aware Apple Sidebar Dock */}
       <div
-        className={`apple-sidebar-dock ${isExpanded ? 'expanded' : ''}`}
+        className={`apple-sidebar-dock ${modeClass} ${isExpanded ? 'expanded' : ''}`}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         onFocus={handleFocus}
         onBlur={handleBlur}
       >
-        {/* Invisible edge trigger zone spanning full screen height */}
-        <div
-          className="sidebar-edge-trigger"
-          aria-hidden="true"
-          title="Hover to expand navigation"
-        />
+        {/* Invisible edge trigger zone (only active in auto-hide mode) */}
+        {mode === 'auto-hide' && (
+          <div
+            className="sidebar-edge-trigger"
+            aria-hidden="true"
+            title="Hover to expand navigation"
+          />
+        )}
 
-        {/* Apple Peek Handle when minimized & hidden */}
-        <div
-          className={`sidebar-peek-tab ${isExpanded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
-          aria-label="Expand sidebar"
-          role="button"
-          tabIndex={0}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              setIsExpanded(true);
-            }
-          }}
-        >
-          <ChevronRight className="w-3.5 h-3.5 text-neutral-400 dark:text-neutral-500" />
-        </div>
+        {/* Apple Peek Handle when in auto-hide mode and collapsed */}
+        {mode === 'auto-hide' && (
+          <div
+            className={`sidebar-peek-tab ${isExpanded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
+            aria-label="Expand sidebar"
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                setIsExpanded(true);
+              }
+            }}
+          >
+            <ChevronRight className="w-3.5 h-3.5 text-neutral-400 dark:text-neutral-500" />
+          </div>
+        )}
 
         {/* Desktop Sliding Apple Sidebar Panel */}
         <aside
-          className={`apple-sidebar ${isExpanded ? 'expanded' : ''} ${className}`}
+          className={`apple-sidebar ${effectivelyExpanded ? 'expanded' : ''} ${className}`}
           aria-label="Main Navigation"
-          aria-expanded={isExpanded}
+          aria-expanded={effectivelyExpanded}
         >
-          <div className="flex items-center justify-between px-3 py-1.5 mb-2 border-b border-neutral-200/60 dark:border-neutral-800/60">
-            <span className="text-[11px] font-semibold tracking-wider text-neutral-400 dark:text-neutral-500 uppercase flex items-center gap-1.5">
-              <PanelLeft className="w-3.5 h-3.5" />
-              Navigation
-            </span>
-            <span className="text-[10px] text-neutral-400 dark:text-neutral-500 bg-neutral-100 dark:bg-neutral-800/80 px-1.5 py-0.5 rounded">
-              Auto-hide
-            </span>
+          {/* Header with Mode Options: Pinned / Minimized / Auto-hide */}
+          <div className="flex items-center justify-between px-2.5 py-1.5 mb-2 border-b border-neutral-200/60 dark:border-neutral-800/60 min-h-[36px]">
+            <div className="flex items-center gap-1.5 text-[11px] font-semibold tracking-wider text-neutral-400 dark:text-neutral-500 uppercase overflow-hidden">
+              <PanelLeft className="w-3.5 h-3.5 flex-shrink-0" />
+              {effectivelyExpanded && <span>Navigation</span>}
+            </div>
+
+            {effectivelyExpanded && onModeChange && (
+              <div
+                className="flex items-center bg-black/5 dark:bg-white/10 rounded-lg p-0.5 text-[10px]"
+                role="radiogroup"
+                aria-label="Sidebar Display Mode"
+              >
+                <button
+                  type="button"
+                  title="Pinned: Keep sidebar always open"
+                  onClick={() => onModeChange('pinned')}
+                  className={`px-1.5 py-0.5 rounded-md transition-all ${
+                    mode === 'pinned'
+                      ? 'bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white font-medium shadow-sm'
+                      : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
+                  }`}
+                >
+                  Pin
+                </button>
+                <button
+                  type="button"
+                  title="Minimized: Compact icon rail (hover to expand)"
+                  onClick={() => onModeChange('minimized')}
+                  className={`px-1.5 py-0.5 rounded-md transition-all ${
+                    mode === 'minimized'
+                      ? 'bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white font-medium shadow-sm'
+                      : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
+                  }`}
+                >
+                  Mini
+                </button>
+                <button
+                  type="button"
+                  title="Auto-hide: Completely hidden (hover edge to expand)"
+                  onClick={() => onModeChange('auto-hide')}
+                  className={`px-1.5 py-0.5 rounded-md transition-all ${
+                    mode === 'auto-hide'
+                      ? 'bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white font-medium shadow-sm'
+                      : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
+                  }`}
+                >
+                  Auto
+                </button>
+              </div>
+            )}
           </div>
 
-          <div className="flex-1 flex flex-col gap-1 overflow-y-auto">
+          <div className="flex-1 flex flex-col gap-1 overflow-y-auto overflow-x-hidden">
             {sections.map((section, sIdx) => (
-              <div key={sIdx} className="mb-3">
-                {section.title && (
+              <div key={sIdx} className="mb-2">
+                {section.title && effectivelyExpanded && (
                   <div className="sidebar-section-label">{section.title}</div>
+                )}
+                {section.title && !effectivelyExpanded && sIdx > 0 && (
+                  <div className="sidebar-section-divider" />
                 )}
                 <div className="flex flex-col gap-1">
                   {section.items.map((item) => {
@@ -143,6 +212,7 @@ export function Sidebar({ items, className = '', footerContent }: SidebarProps) 
                       <Link
                         key={item.href}
                         href={item.href}
+                        title={!effectivelyExpanded ? item.label : undefined}
                         className={`sidebar-item ${isActive ? 'active' : ''}`}
                       >
                         {item.icon && (
@@ -150,10 +220,12 @@ export function Sidebar({ items, className = '', footerContent }: SidebarProps) 
                             {item.icon}
                           </span>
                         )}
-                        <span className="flex-1 truncate">{item.label}</span>
-                        {item.badge !== undefined && (
+                        {effectivelyExpanded && (
+                          <span className="sidebar-label flex-1 truncate">{item.label}</span>
+                        )}
+                        {effectivelyExpanded && item.badge !== undefined && (
                           <span
-                            className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+                            className={`sidebar-badge text-[10px] font-semibold px-2 py-0.5 rounded-full ${
                               isActive
                                 ? 'bg-white/20 text-white'
                                 : 'bg-black/5 dark:bg-white/10 text-neutral-500 dark:text-neutral-400'
@@ -170,7 +242,7 @@ export function Sidebar({ items, className = '', footerContent }: SidebarProps) 
             ))}
           </div>
 
-          {footerContent && (
+          {footerContent && effectivelyExpanded && (
             <div className="pt-4 border-t border-neutral-200 dark:border-neutral-800">
               {footerContent}
             </div>

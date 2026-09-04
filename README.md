@@ -1,19 +1,18 @@
 # Procurement Portal — Enterprise S2C & P2P Platform
 
 ## Current Session State
-**Status:** Apple Design System & Minimized Hover-Expandable Sidebar Complete (100%)
+**Status:** Multi-Mode Sidebar (Pinned / Minimized / Auto-Hide) Complete (100%)
 **Completed:**
-- **Minimized & Hidden Auto-Expand Sidebar:** Implemented auto-hiding sidebar across all 3 portals (`admin-portal`, `buyer-portal`, `supplier-portal`) with smooth Apple spring hover expansion (`cubic-bezier(0.16, 1, 0.3, 1)`), 220ms forgiving mouse-leave debounce, edge trigger strip, and sleek Apple peek indicator tab.
-- **Full Canvas Desktop Layout:** Removed rigid static 264px desktop margin from `AppShell`, providing widescreen breathing space and zero layout shift (CLS = 0) with elevated frosted glass overlay on hover.
-- **Apple Light & Dark System:** Refined Apple design system tokens (`apple-tokens.css`) and global typography/surface styles (`apple-base.css`) with pure OLED black `#000000`, elevated cards `#1C1C1E`, and controls `#2C2C2E`.
-- **Tailwind Class Dark Mode:** Configured `darkMode: "class"` in all 3 portals' `tailwind.config.ts`, syncing DOM `dark` class with `ThemeProvider.tsx` and `data-theme`.
-- **Liquid Glass Removal:** Completely removed Liquid Glass theme, animated canvas background, SVG refraction filters, and related tokens per instructions.
-- **Apple Light/Dark Switcher:** Implemented a 2-way toggle with Sun (amber) and Moon (sky) icons and active pill indicator.
+- **Sidebar Mode Controls (Pinned / Minimized / Auto-Hide):** Added user-selectable options to minimize, auto-hide, or pin the sidebar across all portals (`admin-portal`, `buyer-portal`, `supplier-portal`).
+- **Sidebar Header Segmented Control:** Added Apple segmented pill selector (`[ Pin | Mini | Auto ]`) in the sidebar header with instant switching.
+- **Top Navbar Quick Cycle Toggle:** Added `PanelLeft` toggle button in `Navbar` cycling between modes with active mode indicator and tooltips.
+- **Persistent Preference:** User's preferred sidebar mode persists in `localStorage` under `procurement_sidebar_mode`.
+- **Dynamic Content Offsets:** Responsive desktop offsets (`md:pl-[264px]` for pinned, `md:pl-[76px]` for minimized rail, `md:pl-10 lg:pl-12` for auto-hide).
 - **Verification:** 331 pytest integration/unit tests passed; 7 Turborepo tasks passed cleanly; Graphify updated.
 **Migration Head:** 0028_fix_missing_model_columns
 **Test Commands:** `OTEL_SDK_DISABLED=true .venv/bin/pytest tests/ -q` & `pnpm build`
 **Next:** SPEC_10 RFQ Lifecycle
-**Graphify:** 3648 nodes, 7923 edges, 296 communities
+**Graphify:** 3649 nodes, 7930 edges, 298 communities
 
 ---
 

@@ -3,7 +3,9 @@
 import React, { ReactNode } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { PanelLeft } from 'lucide-react';
 import { ThemeSwitcher } from '../theme/ThemeSwitcher';
+import { SidebarMode } from './Sidebar';
 
 export interface NavItem {
   label: string;
@@ -25,6 +27,9 @@ export interface NavbarProps {
   onLogout?: () => void;
   actions?: ReactNode;
   showNavLinksInNavbar?: boolean;
+  sidebarMode?: SidebarMode;
+  onSidebarModeChange?: (mode: SidebarMode) => void;
+  showSidebarToggle?: boolean;
 }
 
 export function Navbar({
@@ -37,6 +42,9 @@ export function Navbar({
   onLogout,
   actions,
   showNavLinksInNavbar = true,
+  sidebarMode = 'auto-hide',
+  onSidebarModeChange,
+  showSidebarToggle = false,
 }: NavbarProps) {
   const pathname = usePathname();
 
@@ -51,7 +59,7 @@ export function Navbar({
 
   return (
     <header className="apple-navbar">
-      <div className="flex items-center gap-6">
+      <div className="flex items-center gap-4 sm:gap-6">
         <Link href={homeHref} className="apple-navbar__logo group">
           <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-sky-500 bg-clip-text text-transparent font-bold tracking-tight">
             {portalName}
@@ -64,6 +72,28 @@ export function Navbar({
             </span>
           )}
         </Link>
+
+        {showSidebarToggle && onSidebarModeChange && (
+          <button
+            type="button"
+            onClick={() => {
+              const nextMode: Record<SidebarMode, SidebarMode> = {
+                'auto-hide': 'minimized',
+                'minimized': 'pinned',
+                'pinned': 'auto-hide',
+              };
+              onSidebarModeChange(nextMode[sidebarMode]);
+            }}
+            className="hidden md:inline-flex items-center gap-1.5 px-2 py-1 text-xs rounded-lg text-neutral-600 dark:text-neutral-300 hover:bg-black/5 dark:hover:bg-white/10 transition-colors border border-neutral-200/80 dark:border-neutral-800"
+            title={`Sidebar mode: ${sidebarMode === 'auto-hide' ? 'Auto-Hide (Hover)' : sidebarMode === 'minimized' ? 'Minimized (Rail)' : 'Pinned (Fixed)'} — Click to switch`}
+            aria-label="Toggle sidebar display mode"
+          >
+            <PanelLeft className="w-3.5 h-3.5 text-neutral-500 dark:text-neutral-400" />
+            <span className="text-[11px] text-neutral-600 dark:text-neutral-300 font-medium hidden lg:inline">
+              {sidebarMode === 'auto-hide' ? 'Auto-Hide' : sidebarMode === 'minimized' ? 'Mini' : 'Pinned'}
+            </span>
+          </button>
+        )}
 
         {showNavLinksInNavbar && navItems.length > 0 && (
           <nav className="hidden lg:flex items-center space-x-1">
