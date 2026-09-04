@@ -2,11 +2,12 @@ _format_version: "3.0"
 
 services:
   - name: api
-    url: http://api:8000
+    url: http://host.docker.internal:8080
 
 routes:
   - name: auth-route
     service: api
+    strip_path: false
     paths:
       - /api/v1/auth
     plugins:
@@ -16,9 +17,12 @@ routes:
   
   - name: orgs-users-route
     service: api
+    strip_path: false
     paths:
       - /api/v1/organizations
       - /api/v1/users
+      - /api/v1/business-units
+      - /api/v1/cost-centers
     plugins:
       - name: rate-limiting
         config:
@@ -26,6 +30,7 @@ routes:
   
   - name: master-data-route
     service: api
+    strip_path: false
     paths:
       - /api/v1/master-data
     plugins:
@@ -35,6 +40,7 @@ routes:
   
   - name: vendors-route
     service: api
+    strip_path: false
     paths:
       - /api/v1/vendors
     plugins:
@@ -44,6 +50,7 @@ routes:
           
   - name: requisitions-route
     service: api
+    strip_path: false
     paths:
       - /api/v1/requisitions
     plugins:
@@ -53,6 +60,7 @@ routes:
           
   - name: unmapped-prs-route
     service: api
+    strip_path: false
     paths:
       - /api/v1/unmapped-prs
     plugins:
@@ -62,8 +70,10 @@ routes:
           
   - name: sourcing-route
     service: api
+    strip_path: false
     paths:
       - /api/v1/sourcing
+      - /api/v1/rfqs
     plugins:
       - name: rate-limiting
         config:
@@ -71,6 +81,7 @@ routes:
           
   - name: bids-route
     service: api
+    strip_path: false
     paths:
       - /api/v1/bids
     plugins:
@@ -80,6 +91,7 @@ routes:
           
   - name: evaluations-route
     service: api
+    strip_path: false
     paths:
       - /api/v1/evaluations
     plugins:
@@ -89,6 +101,7 @@ routes:
           
   - name: awards-route
     service: api
+    strip_path: false
     paths:
       - /api/v1/awards
     plugins:
@@ -98,6 +111,7 @@ routes:
           
   - name: contracts-route
     service: api
+    strip_path: false
     paths:
       - /api/v1/contracts
     plugins:
@@ -107,6 +121,7 @@ routes:
           
   - name: purchase-orders-route
     service: api
+    strip_path: false
     paths:
       - /api/v1/purchase-orders
     plugins:
@@ -116,6 +131,7 @@ routes:
           
   - name: grn-route
     service: api
+    strip_path: false
     paths:
       - /api/v1/grn
     plugins:
@@ -125,6 +141,7 @@ routes:
           
   - name: invoices-route
     service: api
+    strip_path: false
     paths:
       - /api/v1/invoices
     plugins:
@@ -134,6 +151,7 @@ routes:
           
   - name: payments-route
     service: api
+    strip_path: false
     paths:
       - /api/v1/payments
     plugins:
@@ -143,6 +161,7 @@ routes:
           
   - name: notifications-route
     service: api
+    strip_path: false
     paths:
       - /api/v1/notifications
     plugins:
@@ -152,6 +171,7 @@ routes:
           
   - name: documents-route
     service: api
+    strip_path: false
     paths:
       - /api/v1/documents
     plugins:
@@ -161,6 +181,7 @@ routes:
           
   - name: workflows-route
     service: api
+    strip_path: false
     paths:
       - /api/v1/workflows
     plugins:
@@ -170,6 +191,7 @@ routes:
           
   - name: approval-rules-route
     service: api
+    strip_path: false
     paths:
       - /api/v1/approval-rules
     plugins:
@@ -179,6 +201,7 @@ routes:
           
   - name: integrations-route
     service: api
+    strip_path: false
     paths:
       - /api/v1/integrations
     plugins:
@@ -188,6 +211,7 @@ routes:
           
   - name: analytics-route
     service: api
+    strip_path: false
     paths:
       - /api/v1/analytics
     plugins:
@@ -197,6 +221,7 @@ routes:
           
   - name: admin-route
     service: api
+    strip_path: false
     paths:
       - /api/v1/admin
     plugins:
@@ -206,26 +231,30 @@ routes:
           
   - name: health-route
     service: api
+    strip_path: false
     paths:
       - /health
       - /health/ready
       - /health/live
       
+  - name: docs-route
+    service: api
+    strip_path: false
+    paths:
+      - /docs
+      - /openapi.json
+      - /api/v1/openapi.json
+      
   - name: websocket-route
     service: api
+    strip_path: false
     paths:
       - /ws/notifications
     protocols:
       - http
       - https
-      - ws
-      - wss
 
 plugins:
-  - name: jwt
-    config:
-      key_claim_name: kid
-      secret_is_base64: false
   - name: correlation-id
     config:
       generator: uuid
@@ -239,6 +268,9 @@ plugins:
         - http://localhost:3000
         - http://localhost:3001
         - http://localhost:3002
+        - http://127.0.0.1:3000
+        - http://127.0.0.1:3001
+        - http://127.0.0.1:3002
       methods:
         - GET
         - POST
@@ -251,5 +283,11 @@ plugins:
         - Content-Type
         - X-Request-ID
         - X-Idempotency-Key
+        - Idempotency-Key
+        - X-Portal-Id
+        - Accept
+        - Origin
+      exposed_headers:
+        - X-Request-ID
       credentials: true
       max_age: 3600

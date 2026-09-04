@@ -1,16 +1,28 @@
 "use client";
 
 import React, { ReactNode } from "react";
-import { useCurrentUser, useLogout } from "@procurement/hooks";
+import { useAuthInit, useCurrentUser, useLogout } from "@procurement/hooks";
 import { useAuthStore } from "@procurement/stores";
 import { AppShell } from "@procurement/ui";
-import { ShoppingCart, CheckSquare, FileQuestion, Users, FileText } from "lucide-react";
+import { ShoppingCart, CheckSquare, FileQuestion, Users, FileText, Gavel } from "lucide-react";
 
 export default function BuyerMainLayout({ children }: { children: ReactNode }) {
+  const { isInitializing } = useAuthInit();
   const { data: currentUser } = useCurrentUser();
   const storeUser = useAuthStore((state) => state.user);
   const user = currentUser || storeUser;
   const logoutMutation = useLogout();
+
+  if (isInitializing) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-neutral-900">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+          <span className="text-xs text-neutral-500 font-medium">Authenticating session...</span>
+        </div>
+      </div>
+    );
+  }
 
   const navItems = [
     {
@@ -23,6 +35,12 @@ export default function BuyerMainLayout({ children }: { children: ReactNode }) {
       label: "RFQs & Tenders",
       href: "/rfqs",
       icon: <FileText className="w-4 h-4" />,
+      section: "Sourcing",
+    },
+    {
+      label: "Live Auctions",
+      href: "/auctions",
+      icon: <Gavel className="w-4 h-4" />,
       section: "Sourcing",
     },
     {

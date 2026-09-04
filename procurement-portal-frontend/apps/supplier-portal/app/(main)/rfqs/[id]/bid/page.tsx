@@ -137,18 +137,29 @@ export default function SupplierBidSubmissionPage() {
   return (
     <div className="max-w-4xl mx-auto space-y-8 pb-16">
       {/* Header */}
-      <div className="border-b pb-4">
-        <div className="flex items-center gap-2 text-xs text-gray-500 mb-1">
-          <Link href="/rfqs" className="hover:underline">Tenders</Link>
-          <span>/</span>
-          <span className="font-mono">{rfq.rfq_number}</span>
-          <span>/</span>
-          <span>Commercial Quotation</span>
+      <div className="border-b pb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2 text-xs text-gray-500 mb-1">
+            <Link href="/rfqs" className="hover:underline">Tenders</Link>
+            <span>/</span>
+            <span className="font-mono">{rfq.rfq_number}</span>
+            <span>/</span>
+            <span>Commercial Quotation</span>
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Bid Submission</h1>
+          <p className="text-sm text-gray-500 mt-1">
+            Provide your unit pricing and delivery lead times. All financial data is encrypted end-to-end.
+          </p>
         </div>
-        <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Bid Submission</h1>
-        <p className="text-sm text-gray-500 mt-1">
-          Provide your unit pricing and delivery lead times. All financial data is encrypted end-to-end.
-        </p>
+
+        <div>
+          <Link
+            href={`/rfqs/${rfqId}/auction`}
+            className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold rounded-lg bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-700 hover:to-amber-700 text-white shadow-sm transition"
+          >
+            <span>⚡ Enter Live Auction</span>
+          </Link>
+        </div>
       </div>
 
       {/* Sealed Encryption Notice */}

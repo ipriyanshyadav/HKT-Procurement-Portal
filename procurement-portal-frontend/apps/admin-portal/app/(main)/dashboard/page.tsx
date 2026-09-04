@@ -18,6 +18,7 @@ import {
   Building2,
   Layers,
   ArrowUpRight,
+  ArrowRight,
 } from "lucide-react";
 
 interface CategoryNode {
@@ -287,11 +288,13 @@ export default function AdminDashboardPage() {
                     <Badge variant="approved">{item.status}</Badge>
                   </td>
                   <td className="text-right">
-                    <Link href={item.href}>
-                      <Button variant="ghost" size="sm">
-                        {item.actionLabel} →
-                      </Button>
-                    </Link>
+                    <div className="flex items-center justify-end gap-2">
+                      <Link href={item.href}>
+                        <Button variant="secondary" size="sm" icon={<ArrowRight className="w-3.5 h-3.5" />}>
+                          {item.actionLabel}
+                        </Button>
+                      </Link>
+                    </div>
                   </td>
                 </tr>
               ))}

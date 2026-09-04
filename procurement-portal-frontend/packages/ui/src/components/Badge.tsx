@@ -32,13 +32,13 @@ export function Badge({
   const normVariant = variant.toLowerCase().replace(/[\s-]/g, '_');
 
   let variantClass = 'badge-draft';
-  if (['approved', 'active', 'completed', 'delivered', 'paid'].includes(normVariant)) {
+  if (['approved', 'active', 'completed', 'delivered', 'paid', 'verified', 'clean', 'ready', 'resolved', 'qualified', 'success'].includes(normVariant)) {
     variantClass = 'badge-approved';
-  } else if (['pending', 'in_approval', 'under_review', 'submitted', 'warning'].includes(normVariant)) {
+  } else if (['pending', 'in_approval', 'under_review', 'submitted', 'warning', 'scanning', 'pending_activation', 'pending_erp', 'resubmission_requested', 'bid_submission'].includes(normVariant)) {
     variantClass = 'badge-pending';
-  } else if (['rejected', 'cancelled', 'overdue', 'failed'].includes(normVariant)) {
+  } else if (['rejected', 'cancelled', 'overdue', 'failed', 'inactive', 'suspended', 'compliance_hold', 'blacklisted', 'infected', 'expired', 'danger', 'destructive'].includes(normVariant)) {
     variantClass = 'badge-rejected';
-  } else if (['review', 'rfq_issued', 'info'].includes(normVariant)) {
+  } else if (['review', 'rfq_issued', 'info', 'open', 'bid_open', 'invited', 'registration_in_progress', 'primary'].includes(normVariant)) {
     variantClass = 'badge-review';
   }
 

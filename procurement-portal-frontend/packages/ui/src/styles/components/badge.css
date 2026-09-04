@@ -24,7 +24,13 @@
 .badge-active,
 .badge-completed,
 .badge-delivered,
-.badge-paid {
+.badge-paid,
+.badge-verified,
+.badge-clean,
+.badge-ready,
+.badge-resolved,
+.badge-qualified,
+.badge-success {
   color: var(--status-approved);
   background: rgba(48, 209, 88, 0.12);
 }
@@ -33,7 +39,11 @@
 .badge-in_approval,
 .badge-under_review,
 .badge-submitted,
-.badge-warning {
+.badge-warning,
+.badge-scanning,
+.badge-pending_activation,
+.badge-pending_erp,
+.badge-resubmission_requested {
   color: var(--status-pending);
   background: rgba(255, 159, 10, 0.12);
 }
@@ -41,20 +51,37 @@
 .badge-rejected,
 .badge-cancelled,
 .badge-overdue,
-.badge-failed {
+.badge-failed,
+.badge-inactive,
+.badge-suspended,
+.badge-compliance_hold,
+.badge-blacklisted,
+.badge-infected,
+.badge-expired,
+.badge-danger,
+.badge-destructive {
   color: var(--status-rejected);
   background: rgba(255, 69, 58, 0.12);
 }
 
 .badge-draft,
-.badge-inactive {
+.badge-closed,
+.badge-deactivated,
+.badge-unverified,
+.badge-neutral,
+.badge-default {
   color: var(--status-draft);
   background: rgba(99, 99, 102, 0.12);
 }
 
 .badge-review,
 .badge-rfq_issued,
-.badge-info {
+.badge-info,
+.badge-open,
+.badge-bid_open,
+.badge-invited,
+.badge-registration_in_progress,
+.badge-primary {
   color: var(--status-review);
   background: rgba(10, 132, 255, 0.12);
 }

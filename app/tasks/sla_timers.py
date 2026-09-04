@@ -35,6 +35,15 @@ def check_workflow_sla_timers(self):
     asyncio.run(_async_check_sla())
 
 
+@celery_app.task(
+    name="app.tasks.critical.check_slas",
+    queue="critical",
+)
+def check_slas():
+    """Alias for check_workflow_sla_timers."""
+    asyncio.run(_async_check_sla())
+
+
 async def _async_check_sla() -> None:
     from app.db.session import async_session_factory
 

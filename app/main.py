@@ -63,6 +63,9 @@ from app.modules.integration.router import router as integration_router
 from app.modules.analytics.router import router as analytics_router
 from app.modules.admin.router import router as admin_router
 from app.auth.router import router as auth_router
+from app.modules.sourcing.auction import auction_router
+from app.modules.bid.auction_router import router as live_auction_router
+from app.modules.bid.auction_ws import auction_ws_endpoint
 # Note: audit has no router — it is a service-layer-only module
 
 @asynccontextmanager
@@ -212,8 +215,11 @@ def create_app() -> FastAPI:
     api_router.include_router(analytics_router, prefix="/analytics", tags=["Analytics"])
     api_router.include_router(admin_router, prefix="/admin", tags=["Admin"])
     api_router.include_router(auth_router, prefix="/auth", tags=["Auth"])
+    api_router.include_router(auction_router)
 
     app.include_router(api_router)
+    app.include_router(live_auction_router, prefix="/api/v1")
+    app.add_api_websocket_route("/ws/auction/{auction_id}", auction_ws_endpoint)
 
     return app
 

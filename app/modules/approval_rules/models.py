@@ -122,6 +122,10 @@ class ApprovalRule(BaseModel):
             return True
         if isinstance(self.conditions, dict) and self.conditions.get("is_catch_all"):
             return True
+        if isinstance(self.conditions, list):
+            for c in self.conditions:
+                if isinstance(c, dict) and c.get("is_catch_all"):
+                    return True
         return False
 
     @is_catch_all.setter
@@ -130,6 +134,14 @@ class ApprovalRule(BaseModel):
             self.conditions["is_catch_all"] = val
         elif isinstance(self.conditions, list) and not self.conditions and not val:
             self.conditions = [{"is_catch_all": False}]
+
+    @property
+    def effective_from(self) -> Optional[datetime]:
+        return self.created_at
+
+    @property
+    def effective_to(self) -> Optional[datetime]:
+        return None
 
 
 class ApprovalRuleVersion(BaseModel):

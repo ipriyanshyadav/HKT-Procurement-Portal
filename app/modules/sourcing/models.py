@@ -66,6 +66,8 @@ class Rfq(BaseModel):
     updated_by: Mapped[Optional[UUID]] = mapped_column(ForeignKey("users.id"), nullable=True)
     # Source PR for conversion tracking
     source_pr_id: Mapped[Optional[UUID]] = mapped_column(ForeignKey("requisitions.id"), nullable=True)
+    bidding_mode: Mapped[str] = mapped_column(String(32), default="SEALED", nullable=False)
+    auction_config: Mapped[Optional[dict]] = mapped_column(JSONB, nullable=True)
 
     # Relationships
     lots: Mapped[List["RfqLot"]] = relationship("RfqLot", back_populates="rfq", lazy="select")

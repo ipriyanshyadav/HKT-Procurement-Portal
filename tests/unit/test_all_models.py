@@ -264,11 +264,11 @@ def test_bid_models():
 
     blr = bid_models.BidLineResponse(
         org_id=uuid4(), bid_id=uuid4(), rfq_line_id=uuid4(),
-        unit_price=Decimal("50000.00"), delivery_lead_time_days=14
+        unit_price_encrypted="enc_price", delivery_days=14
     )
     assert blr.__tablename__ == "bid_line_responses"
 
-    bv = bid_models.BidVersion(org_id=uuid4(), bid_id=uuid4(), version_number=1, version_data={}, bid_hash="hash")
+    bv = bid_models.BidVersion(org_id=uuid4(), bid_id=uuid4(), version_number=1, snapshot_encrypted="enc_data", bid_hash="hash")
     assert bv.__tablename__ == "bid_versions"
 
     bd = bid_models.BidDocument(org_id=uuid4(), bid_id=uuid4(), document_id=uuid4(), document_type="TECH")

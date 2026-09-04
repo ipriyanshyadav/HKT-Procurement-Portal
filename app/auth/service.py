@@ -48,7 +48,12 @@ class LoginResult:
 class AuthService:
 
     async def login(
-        self, db: AsyncSession, email: str, password: str, org_id: Optional[UUID] = None
+        self,
+        db: AsyncSession,
+        email: str,
+        password: str,
+        org_id: Optional[UUID] = None,
+        portal_type: Optional[str] = None,
     ) -> LoginResult:
         redis = get_redis_client(settings.REDIS_SESSION_DB)
 
@@ -85,6 +90,11 @@ class AuthService:
         if user.status != UserStatusEnum.ACTIVE:
             raise AuthenticationError(f"Account status: {user.status.value}")
 
+        if portal_type == "supplier" and not user.is_supplier_user:
+            raise ForbiddenError("Internal user accounts cannot log in to the Supplier Portal. Please use the Buyer Portal.")
+        if portal_type in ("buyer", "admin") and user.is_supplier_user:
+            raise ForbiddenError("Supplier accounts cannot log in to the Buyer or Admin Portal. Please use the Supplier Portal.")
+
         # Password expiry check
         if user.password_changed_at:
             days = (datetime.now(timezone.utc) - user.password_changed_at.replace(tzinfo=timezone.utc)).days
@@ -110,7 +120,12 @@ class AuthService:
         )
         return result
 
-    async def refresh_token(self, db: AsyncSession, refresh_token_str: str) -> LoginResult:
+    async def refresh_token(
+        self,
+        db: AsyncSession,
+        refresh_token_str: str,
+        portal_type: Optional[str] = None,
+    ) -> LoginResult:
         redis = get_redis_client(settings.REDIS_SESSION_DB)
 
         payload = decode_jwt(refresh_token_str)
@@ -132,6 +147,11 @@ class AuthService:
         user = await user_repository.get_by_id(db, user_id, org_id)
         if not user:
             raise AuthenticationError("User not found")
+
+        if portal_type == "supplier" and not user.is_supplier_user:
+            raise ForbiddenError("Supplier portal cannot refresh session for a non-supplier account.")
+        if portal_type in ("buyer", "admin") and user.is_supplier_user:
+            raise ForbiddenError("Buyer portal cannot refresh session for a supplier account.")
 
         # Mark old token as revoked in Redis
         remaining_ttl = int(payload["exp"]) - int(datetime.now(timezone.utc).timestamp())

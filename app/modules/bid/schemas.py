@@ -1,7 +1,7 @@
 from __future__ import annotations
 from datetime import datetime, date
 from decimal import Decimal
-from typing import Optional, List, Any
+from typing import Optional, List, Any, Literal
 from uuid import UUID
 from pydantic import BaseModel, Field, ConfigDict
 
@@ -123,4 +123,47 @@ class BidCountResponse(BaseModel):
     bid_count: int
     bids_opened: bool
     bids_opened_at: Optional[datetime] = None
+
+
+# ─── Live Auction Schemas (SPEC_11B) ──────────────────────────────────────────
+
+class AuctionConfig(BaseModel):
+    """Stored in rfq.auction_config JSONB column."""
+    auction_start_at: datetime            # Scheduled start time (UTC)
+    auction_duration_minutes: int = Field(ge=5, le=480, default=60)
+    lot_ids: list[UUID] = Field(default_factory=list) # Which lots are in auction (all lots if empty)
+    reserve_price_inr: Optional[Decimal] = None   # Hidden from suppliers; bid rejected if above
+    min_decrement_type: Literal["PERCENTAGE", "ABSOLUTE"] = "PERCENTAGE"
+    min_decrement_value: Decimal = Field(gt=0, default=Decimal("0.5"))  # 0.5% or INR amount
+    rank_visibility: Literal["RANK_ONLY", "PRICE_AND_RANK", "NO_RANK"] = "RANK_ONLY"
+    auto_extend: bool = True
+    auto_extend_trigger_minutes: int = Field(ge=1, le=15, default=5)   # Bid in last N mins triggers extension
+    auto_extend_duration_minutes: int = Field(ge=1, le=30, default=10) # Extend by M mins
+    max_extensions: int = Field(ge=0, le=10, default=3)
+    allow_proxy_bid: bool = False         # Supplier sets floor; system auto-bids to maintain rank
+    require_all_lots: bool = True         # Supplier must bid on ALL lots to be ranked
+
+
+class AuctionCreateRequest(BaseModel):
+    rfq_id: UUID
+    config: AuctionConfig
+
+
+class LiveAuctionDetailResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    org_id: UUID
+    rfq_id: UUID
+    status: str
+    config: dict
+    scheduled_start_at: datetime
+    actual_start_at: Optional[datetime] = None
+    current_close_at: datetime
+    extension_count: int
+    winner_vendor_id: Optional[UUID] = None
+    winning_bid_id: Optional[UUID] = None
+    created_by: UUID
+    created_at: datetime
+    updated_at: datetime
 

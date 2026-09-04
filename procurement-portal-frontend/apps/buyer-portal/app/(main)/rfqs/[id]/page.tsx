@@ -94,6 +94,13 @@ export default function RfqDetailPage() {
             </PermissionGuard>
           )}
 
+          <Link
+            href={`/rfqs/${id}/auction`}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-700 hover:to-amber-700 text-white text-xs font-semibold rounded-lg shadow-sm transition"
+          >
+            <span>⚡ Live Auction Room</span>
+          </Link>
+
           {rfq.status === "BID_OPEN" && (
             <Link
               href={`/rfqs/${id}/open-bids`}

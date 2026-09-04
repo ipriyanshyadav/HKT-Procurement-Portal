@@ -10,7 +10,8 @@ import {
   useSuggestMapping,
   UnmappedPRException,
 } from "@procurement/hooks";
-import { CategoryTreeSelect } from "@procurement/ui";
+import { CategoryTreeSelect, Badge, Button } from "@procurement/ui";
+import { Sparkles, Sliders } from "lucide-react";
 
 export default function UnmappedPRsDashboardPage() {
   const [page, setPage] = useState(1);
@@ -186,27 +187,35 @@ export default function UnmappedPRsDashboardPage() {
                         </div>
                       </td>
                       <td className="px-4 py-3.5">
-                        <span className="text-xs font-semibold text-gray-600">{exc.status}</span>
+                        <Badge variant={exc.status === "RESOLVED" ? "approved" : exc.status === "PENDING_ERP" ? "review" : "pending"}>
+                          {exc.status}
+                        </Badge>
                       </td>
                       <td className="px-4 py-3.5 text-xs text-gray-500">{hoursElapsed}h ago</td>
-                      <td className="px-4 py-3.5 text-right space-x-2">
-                        {exc.status !== "RESOLVED" && (
-                          <>
-                            <button
-                              onClick={() => handleAutoMap(exc.id)}
-                              disabled={autoMapMutation.isPending}
-                              className="px-2.5 py-1 text-xs font-semibold bg-blue-50 text-blue-600 hover:bg-blue-100 rounded"
-                            >
-                              Auto-Map
-                            </button>
-                            <button
-                              onClick={() => setSelectedException(exc)}
-                              className="px-2.5 py-1 text-xs font-semibold bg-gray-900 text-white hover:bg-gray-800 rounded"
-                            >
-                              Manual Map
-                            </button>
-                          </>
-                        )}
+                      <td className="px-4 py-3.5 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          {exc.status !== "RESOLVED" && (
+                            <>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleAutoMap(exc.id)}
+                                disabled={autoMapMutation.isPending}
+                                icon={<Sparkles className="w-3.5 h-3.5" />}
+                              >
+                                Auto-Map
+                              </Button>
+                              <Button
+                                variant="secondary"
+                                size="sm"
+                                onClick={() => setSelectedException(exc)}
+                                icon={<Sliders className="w-3.5 h-3.5" />}
+                              >
+                                Manual Map
+                              </Button>
+                            </>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   );

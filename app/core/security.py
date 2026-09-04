@@ -1,11 +1,8 @@
 from __future__ import annotations
 import re
-from passlib.context import CryptContext
+import bcrypt
 from app.config import settings
 from loguru import logger
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto", bcrypt__rounds=12)
-
 PASSWORD_REGEX = re.compile(
     r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#^()_+=\-]).{12,}$'
 )
@@ -31,10 +28,22 @@ def validate_password_strength(password: str) -> tuple[bool, str]:
     return True, ""
 
 def hash_password(password: str) -> str:
-    return pwd_context.hash(password)
+    pw_bytes = password.encode("utf-8")[:72]
+    return bcrypt.hashpw(pw_bytes, bcrypt.gensalt(rounds=12)).decode("utf-8")
 
 def verify_password(plain: str, hashed: str) -> bool:
-    return pwd_context.verify(plain, hashed)
+    try:
+        return bcrypt.checkpw(plain.encode("utf-8")[:72], hashed.encode("utf-8"))
+    except Exception:
+        return False
+
+class _BCryptContext:
+    def hash(self, secret: str) -> str:
+        return hash_password(secret)
+    def verify(self, secret: str, hash: str) -> bool:
+        return verify_password(secret, hash)
+
+pwd_context = _BCryptContext()
 
 def mask_pii(value: str) -> str:
     """Returns masked value for logging. Never logs raw PII."""

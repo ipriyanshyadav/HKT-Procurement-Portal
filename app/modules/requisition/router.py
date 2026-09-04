@@ -45,6 +45,32 @@ async def create_requisition(
     return created_response(PRDetailResponse.model_validate(pr))
 
 
+from pydantic import BaseModel
+
+class PRBulkCreateRequest(BaseModel):
+    items: List[PRCreateRequest]
+
+
+@router.post("/bulk", response_model=APIResponse[List[PRDetailResponse]], status_code=status.HTTP_201_CREATED)
+async def bulk_create_requisitions(
+    data: PRBulkCreateRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """POST /api/v1/requisitions/bulk — create multiple requisitions in batch."""
+    created_prs = []
+    for item in data.items:
+        pr = await requisition_service.create(
+            db,
+            data=item,
+            actor_id=current_user.id,
+            org_id=current_user.org_id,
+        )
+        created_prs.append(pr)
+    await db.commit()
+    return created_response([PRDetailResponse.model_validate(p) for p in created_prs])
+
+
 @router.get("", response_model=APIResponse[List[PRListResponse]])
 async def list_requisitions(
     status: Optional[str] = Query(None),

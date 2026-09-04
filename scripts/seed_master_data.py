@@ -140,6 +140,8 @@ ROLE_PERMISSIONS: dict[str, list[str]] = {
         PermissionCode.USER_VIEW_ALL, PermissionCode.USER_CREATE, PermissionCode.USER_ASSIGN_ROLE,
         PermissionCode.MASTER_VIEW, PermissionCode.MASTER_CREATE,
         PermissionCode.ORG_VIEW, PermissionCode.ORG_VIEW_AUDIT,
+        PermissionCode.LIVE_AUCTION_CREATE, PermissionCode.LIVE_AUCTION_CANCEL,
+        PermissionCode.LIVE_AUCTION_MONITOR, PermissionCode.LIVE_AUCTION_RELEASE_RESULTS,
     ],
     "FINANCE_CONTROLLER": [
         PermissionCode.PR_VIEW_ALL, PermissionCode.PR_APPROVE,
@@ -199,6 +201,8 @@ ROLE_PERMISSIONS: dict[str, list[str]] = {
         PermissionCode.ANALYTICS_VIEW_DASHBOARD, PermissionCode.ANALYTICS_VIEW_REPORTS, PermissionCode.ANALYTICS_EXPORT,
         PermissionCode.DOCUMENT_UPLOAD, PermissionCode.DOCUMENT_VIEW_ALL,
         PermissionCode.ORG_VIEW, PermissionCode.ORG_UPDATE, PermissionCode.ORG_MANAGE_SETTINGS, PermissionCode.ORG_VIEW_AUDIT,
+        PermissionCode.LIVE_AUCTION_CREATE, PermissionCode.LIVE_AUCTION_CANCEL,
+        PermissionCode.LIVE_AUCTION_MONITOR, PermissionCode.LIVE_AUCTION_RELEASE_RESULTS,
     ],
     "SOURCING_MANAGER": [
         PermissionCode.RFQ_CREATE, PermissionCode.RFQ_VIEW_ALL, PermissionCode.RFQ_PUBLISH,
@@ -211,6 +215,8 @@ ROLE_PERMISSIONS: dict[str, list[str]] = {
         PermissionCode.DOCUMENT_UPLOAD, PermissionCode.DOCUMENT_VIEW_ALL,
         PermissionCode.ANALYTICS_VIEW_DASHBOARD, PermissionCode.ANALYTICS_VIEW_REPORTS,
         PermissionCode.USER_VIEW_OWN, PermissionCode.USER_UPDATE_OWN,
+        PermissionCode.LIVE_AUCTION_CREATE, PermissionCode.LIVE_AUCTION_MONITOR,
+        PermissionCode.LIVE_AUCTION_RELEASE_RESULTS,
     ],
     "CFO": [
         PermissionCode.PR_VIEW_ALL, PermissionCode.PR_APPROVE,

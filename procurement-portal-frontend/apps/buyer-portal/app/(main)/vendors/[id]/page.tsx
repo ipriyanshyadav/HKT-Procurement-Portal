@@ -13,6 +13,8 @@ import {
   useRequestResubmission,
   useSuspendVendor,
   useVendorDetail,
+  useInitiatePennyTest,
+  useConfirmPennyTest,
   VendorDocument,
 } from "@procurement/hooks";
 import { ComplianceExpiryAlert, VendorStatusBadge, PermissionGuard } from "@procurement/ui";
@@ -33,6 +35,13 @@ export default function VendorDetailPage() {
   const reinstateMutation = useReinstateVendor(vendorId);
   const initiateBlacklistMutation = useInitiateBlacklist(vendorId);
   const confirmBlacklistMutation = useConfirmBlacklist(vendorId);
+
+  // Penny-Drop Verification State
+  const initiatePennyTest = useInitiatePennyTest(vendorId);
+  const confirmPennyTest = useConfirmPennyTest(vendorId);
+  const [pennyBankId, setPennyBankId] = useState<string | null>(null);
+  const [pennyAmountInput, setPennyAmountInput] = useState<string>("");
+  const [pennyFeedback, setPennyFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
 
   // Modal dialog state
   const [modalAction, setModalAction] = useState<string | null>(null);
@@ -290,8 +299,37 @@ export default function VendorDetailPage() {
           </div>
 
           {/* Bank Accounts Card */}
-          <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
-            <h2 className="text-base font-bold text-gray-900 mb-4">Bank Accounts</h2>
+          <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200 space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-base font-bold text-gray-900">Bank Accounts & Verification</h2>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  Penny-drop automated verification for secure vendor disbursements.
+                </p>
+              </div>
+              <span className="text-xs font-semibold text-gray-500">
+                {vendor.bank_accounts.length} account{vendor.bank_accounts.length === 1 ? "" : "s"}
+              </span>
+            </div>
+
+            {pennyFeedback && (
+              <div
+                className={`p-3 rounded-lg text-xs font-medium flex items-center justify-between ${
+                  pennyFeedback.type === "success"
+                    ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
+                    : "bg-red-50 text-red-800 border border-red-200"
+                }`}
+              >
+                <span>{pennyFeedback.message}</span>
+                <button
+                  onClick={() => setPennyFeedback(null)}
+                  className="text-xs opacity-70 hover:opacity-100 font-bold ml-2"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+
             {vendor.bank_accounts.length === 0 ? (
               <p className="text-sm text-gray-400 italic">No bank accounts added.</p>
             ) : (
@@ -299,25 +337,118 @@ export default function VendorDetailPage() {
                 {vendor.bank_accounts.map((b) => (
                   <div
                     key={b.id}
-                    className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-lg border border-gray-100 bg-gray-50 gap-2"
+                    className="flex flex-col md:flex-row md:items-center justify-between p-4 rounded-xl border border-gray-100 bg-gray-50 gap-4"
                   >
-                    <div>
-                      <p className="font-semibold text-sm text-gray-900">{b.bank_name}</p>
-                      <p className="text-xs text-gray-500 font-mono">
-                        A/C: {b.account_number_masked} · IFSC: {b.ifsc_code} · Holder: {b.account_holder_name}
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <p className="font-semibold text-sm text-gray-900">{b.bank_name}</p>
+                        {b.is_primary && (
+                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-100 text-blue-700">
+                            PRIMARY
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-600 font-mono">
+                        A/C: {b.account_number_masked} · IFSC: {b.ifsc_code}
                       </p>
+                      <p className="text-xs text-gray-500">
+                        Holder: <span className="font-medium text-gray-700">{b.account_holder_name}</span>
+                        {b.penny_test_reference && (
+                          <span className="ml-2 font-mono text-[11px] text-gray-400">
+                            Ref: {b.penny_test_reference}
+                          </span>
+                        )}
+                      </p>
+                      {b.penny_test_validated_at && (
+                        <p className="text-[11px] text-emerald-600">
+                          Validated on {new Date(b.penny_test_validated_at).toLocaleDateString()}
+                        </p>
+                      )}
                     </div>
-                    <span
-                      className={`text-xs px-2.5 py-1 rounded-full font-semibold ${
-                        b.penny_test_status === "VALIDATED"
-                          ? "bg-emerald-100 text-emerald-800"
+
+                    <div className="flex items-center gap-2 self-start md:self-center">
+                      <span
+                        className={`text-xs px-2.5 py-1 rounded-full font-semibold ${
+                          b.penny_test_status === "VALIDATED"
+                            ? "bg-emerald-100 text-emerald-800"
+                            : b.penny_test_status === "PENNY_TEST_INITIATED"
+                            ? "bg-amber-100 text-amber-800"
+                            : "bg-gray-100 text-gray-700"
+                        }`}
+                      >
+                        {b.penny_test_status === "VALIDATED"
+                          ? "✓ VALIDATED"
                           : b.penny_test_status === "PENNY_TEST_INITIATED"
-                          ? "bg-amber-100 text-amber-800"
-                          : "bg-gray-100 text-gray-700"
-                      }`}
-                    >
-                      Penny Test: {b.penny_test_status}
-                    </span>
+                          ? "INITIATED"
+                          : b.penny_test_status || "UNVERIFIED"}
+                      </span>
+
+                      {b.penny_test_status === "PENNY_TEST_INITIATED" ? (
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            onClick={() => {
+                              setPennyBankId(b.id);
+                              setPennyAmountInput("");
+                              setPennyFeedback(null);
+                            }}
+                            className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold shadow-sm transition"
+                          >
+                            Verify Deposit
+                          </button>
+                          <button
+                            onClick={async () => {
+                              try {
+                                setPennyFeedback(null);
+                                await initiatePennyTest.mutateAsync(b.id);
+                                setPennyFeedback({
+                                  type: "success",
+                                  message: `Penny test re-dispatched for ${b.bank_name}.`,
+                                });
+                                refetch();
+                              } catch (e: any) {
+                                setPennyFeedback({
+                                  type: "error",
+                                  message:
+                                    e?.response?.data?.error?.message ||
+                                    e.message ||
+                                    "Failed to initiate penny test",
+                                });
+                              }
+                            }}
+                            disabled={initiatePennyTest.isPending}
+                            className="px-2 py-1 text-xs text-gray-500 hover:text-gray-800 underline disabled:opacity-50"
+                          >
+                            Re-send
+                          </button>
+                        </div>
+                      ) : b.penny_test_status !== "VALIDATED" ? (
+                        <button
+                          onClick={async () => {
+                            try {
+                              setPennyFeedback(null);
+                              await initiatePennyTest.mutateAsync(b.id);
+                              setPennyFeedback({
+                                type: "success",
+                                message: `Penny drop initiated for ${b.bank_name}. Test deposit sent.`,
+                              });
+                              refetch();
+                            } catch (e: any) {
+                              setPennyFeedback({
+                                type: "error",
+                                message:
+                                  e?.response?.data?.error?.message ||
+                                  e.message ||
+                                  "Failed to initiate penny test",
+                              });
+                            }
+                          }}
+                          disabled={initiatePennyTest.isPending}
+                          className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shadow-sm transition disabled:opacity-50"
+                        >
+                          {initiatePennyTest.isPending ? "Initiating..." : "Initiate Penny Test"}
+                        </button>
+                      ) : null}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -437,6 +568,107 @@ export default function VendorDetailPage() {
                 className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shadow-sm"
               >
                 Confirm Action
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Penny Test Verification Modal */}
+      {pennyBankId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 space-y-4">
+            <div>
+              <h3 className="text-lg font-bold text-gray-900">Confirm Penny-Drop Deposit</h3>
+              <p className="text-xs text-gray-500 mt-1">
+                Enter the exact micro-deposit amount that appeared in the vendor's bank account
+                statement for{" "}
+                <span className="font-semibold text-gray-700">
+                  {vendor.bank_accounts.find((b) => b.id === pennyBankId)?.bank_name}
+                </span>{" "}
+                (A/C:{" "}
+                {
+                  vendor.bank_accounts.find((b) => b.id === pennyBankId)
+                    ?.account_number_masked
+                }
+                ).
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1">
+                Amount Received (₹)
+              </label>
+              <input
+                type="number"
+                step="0.01"
+                min="0.01"
+                value={pennyAmountInput}
+                onChange={(e) => setPennyAmountInput(e.target.value)}
+                placeholder="e.g. 1.05"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"
+                autoFocus
+              />
+              <p className="text-[11px] text-gray-400 mt-1">
+                Amount must exactly match the micro-deposit generated during test initiation.
+              </p>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2">
+              <button
+                onClick={() => {
+                  setPennyBankId(null);
+                  setPennyAmountInput("");
+                }}
+                disabled={confirmPennyTest.isPending}
+                className="px-4 py-2 border border-gray-300 rounded-lg text-xs font-semibold text-gray-700 hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={async () => {
+                  const amt = parseFloat(pennyAmountInput);
+                  if (isNaN(amt) || amt <= 0) {
+                    setPennyFeedback({
+                      type: "error",
+                      message: "Please enter a valid amount (e.g. 1.05)",
+                    });
+                    return;
+                  }
+                  try {
+                    const res = await confirmPennyTest.mutateAsync({
+                      bankId: pennyBankId,
+                      amountReceived: amt,
+                    });
+                    if (res.is_valid) {
+                      setPennyFeedback({
+                        type: "success",
+                        message: "Penny-drop verified successfully! Bank account validated.",
+                      });
+                      setPennyBankId(null);
+                      setPennyAmountInput("");
+                      refetch();
+                    } else {
+                      setPennyFeedback({
+                        type: "error",
+                        message:
+                          "Amount verification mismatch. Account validation failed.",
+                      });
+                    }
+                  } catch (err: any) {
+                    setPennyFeedback({
+                      type: "error",
+                      message:
+                        err?.response?.data?.error?.message ||
+                        err.message ||
+                        "Failed to confirm penny test",
+                    });
+                  }
+                }}
+                disabled={confirmPennyTest.isPending || !pennyAmountInput}
+                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold shadow-sm disabled:opacity-50"
+              >
+                {confirmPennyTest.isPending ? "Validating..." : "Confirm & Validate"}
               </button>
             </div>
           </div>

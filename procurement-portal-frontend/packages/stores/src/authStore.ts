@@ -3,10 +3,14 @@ import { create } from "zustand";
 export interface CurrentUser {
   id: string;
   email: string;
+  first_name?: string;
+  last_name?: string;
   full_name: string;
   org_id: string;
   role_names: string[];
   is_active: boolean;
+  is_supplier_user?: boolean;
+  vendor_id?: string | null;
 }
 
 export interface AuthState {

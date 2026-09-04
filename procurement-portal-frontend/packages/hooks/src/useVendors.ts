@@ -530,3 +530,36 @@ export function useAddMyVendorDocument() {
   });
 }
 
+export function useInitiatePennyTest(vendorId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (bankId: string) => {
+      const res = await apiClient.post<APIEnvelope<{ status: string; reference?: string }>>(
+        `/vendors/${vendorId}/bank-accounts/${bankId}/initiate-penny-test`
+      );
+      return res.data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["vendor", vendorId] });
+      queryClient.invalidateQueries({ queryKey: ["myVendor"] });
+    },
+  });
+}
+
+export function useConfirmPennyTest(vendorId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ bankId, amountReceived }: { bankId: string; amountReceived: number }) => {
+      const res = await apiClient.post<APIEnvelope<{ status: string; is_valid: boolean }>>(
+        `/vendors/${vendorId}/bank-accounts/${bankId}/confirm-penny-test`,
+        { amount_received: amountReceived }
+      );
+      return res.data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["vendor", vendorId] });
+      queryClient.invalidateQueries({ queryKey: ["myVendor"] });
+    },
+  });
+}
+

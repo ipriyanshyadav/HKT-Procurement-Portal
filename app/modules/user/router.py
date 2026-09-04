@@ -39,6 +39,7 @@ class UserCreateRequest(BaseModel):
     last_name: str
     password: str
     employee_id: Optional[str] = None
+    roles: Optional[list[str]] = None
 
 
 class ChangePasswordRequest(BaseModel):
@@ -52,6 +53,11 @@ class UserUpdateRequest(BaseModel):
     phone: Optional[str] = None
     language: Optional[str] = None
     timezone: Optional[str] = None
+    roles: Optional[list[str]] = None
+
+
+class AssignRoleRequest(BaseModel):
+    role_code: str
 
 
 @router.get("/me")
@@ -135,16 +141,44 @@ async def list_users(
 ) -> dict:
     """GET /api/v1/users — list users (requires user.view_all permission)."""
     users = await user_repository.get_multi(db, current_user.org_id)
+    user_list = []
+    for u in users:
+        roles = await role_repository.get_user_role_codes(db, u.id, current_user.org_id)
+        user_list.append({
+            "id": str(u.id),
+            "email": u.email,
+            "first_name": u.first_name,
+            "last_name": u.last_name,
+            "status": u.status.value,
+            "roles": roles,
+        })
+    return {"data": user_list}
+
+
+@router.get("/roles")
+async def list_roles(
+    current_user: User = Depends(require_permission(PermissionCode.USER_VIEW_ALL)),
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    """GET /api/v1/users/roles — list available roles in the organization."""
+    from sqlalchemy import select
+    from app.modules.user.models import Role
+    stmt = select(Role).where(
+        Role.org_id == current_user.org_id,
+        Role.is_active.is_(True),
+        Role.deleted_at.is_(None),
+    )
+    res = await db.execute(stmt)
+    roles = res.scalars().all()
     return {
         "data": [
             {
-                "id": str(u.id),
-                "email": u.email,
-                "first_name": u.first_name,
-                "last_name": u.last_name,
-                "status": u.status.value,
+                "id": str(r.id),
+                "code": r.code,
+                "name": r.name,
+                "description": r.description,
             }
-            for u in users
+            for r in roles
         ]
     }
 
@@ -156,6 +190,9 @@ async def create_user(
     db: AsyncSession = Depends(get_db),
 ) -> dict:
     """POST /api/v1/users — create a new user."""
+    from sqlalchemy import select
+    from app.modules.user.models import Role, UserRoleAssignment
+
     valid, msg = validate_password_strength(data.password)
     if not valid:
         raise AppException(msg, "WEAK_PASSWORD")
@@ -171,11 +208,24 @@ async def create_user(
         last_name=data.last_name,
         password_hash=hash_password(data.password),
         employee_id=data.employee_id,
-        status=UserStatusEnum.PENDING_ACTIVATION,
+        status=UserStatusEnum.ACTIVE,
         created_by=current_user.id,
     )
     db.add(user)
     await db.flush()
+
+    if data.roles:
+        for r_code in data.roles:
+            r_stmt = select(Role).where(Role.code == r_code, Role.org_id == current_user.org_id)
+            role = (await db.execute(r_stmt)).scalar_one_or_none()
+            if role:
+                db.add(UserRoleAssignment(
+                    org_id=current_user.org_id,
+                    user_id=user.id,
+                    role_id=role.id,
+                    is_active=True,
+                ))
+        await db.flush()
 
     await audit_service.log(
         db,
@@ -186,7 +236,71 @@ async def create_user(
         org_id=current_user.org_id,
         metadata={"email": user.email},
     )
+    await db.commit()
     return {"data": {"id": str(user.id), "email": user.email}}
+
+
+@router.post("/{user_id}/roles")
+async def assign_user_role(
+    user_id: UUID,
+    data: AssignRoleRequest,
+    current_user: User = Depends(require_permission(PermissionCode.USER_UPDATE_ALL)),
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    """POST /api/v1/users/{user_id}/roles — assign a role to user."""
+    from sqlalchemy import select
+    from app.modules.user.models import Role, UserRoleAssignment
+
+    user = await user_repository.get_by_id(db, user_id, current_user.org_id)
+    if not user:
+        raise AppException("User not found", "NOT_FOUND")
+
+    stmt = select(Role).where(Role.code == data.role_code, Role.org_id == current_user.org_id)
+    res = await db.execute(stmt)
+    role = res.scalar_one_or_none()
+    if not role:
+        raise AppException(f"Role '{data.role_code}' not found", "NOT_FOUND")
+
+    check_stmt = select(UserRoleAssignment).where(
+        UserRoleAssignment.user_id == user_id,
+        UserRoleAssignment.role_id == role.id,
+    )
+    existing = (await db.execute(check_stmt)).scalar_one_or_none()
+    if not existing:
+        assignment = UserRoleAssignment(
+            org_id=current_user.org_id,
+            user_id=user_id,
+            role_id=role.id,
+            is_active=True,
+        )
+        db.add(assignment)
+        await db.commit()
+    return {"data": {"message": f"Role '{data.role_code}' assigned to user"}}
+
+
+@router.delete("/{user_id}/roles/{role_code}")
+async def remove_user_role(
+    user_id: UUID,
+    role_code: str,
+    current_user: User = Depends(require_permission(PermissionCode.USER_UPDATE_ALL)),
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    """DELETE /api/v1/users/{user_id}/roles/{role_code} — remove role from user."""
+    from sqlalchemy import select, delete
+    from app.modules.user.models import Role, UserRoleAssignment
+
+    stmt = select(Role).where(Role.code == role_code, Role.org_id == current_user.org_id)
+    role = (await db.execute(stmt)).scalar_one_or_none()
+    if not role:
+        raise AppException(f"Role '{role_code}' not found", "NOT_FOUND")
+
+    del_stmt = delete(UserRoleAssignment).where(
+        UserRoleAssignment.user_id == user_id,
+        UserRoleAssignment.role_id == role.id,
+    )
+    await db.execute(del_stmt)
+    await db.commit()
+    return {"data": {"message": f"Role '{role_code}' removed from user"}}
 
 
 @router.get("/{user_id}")

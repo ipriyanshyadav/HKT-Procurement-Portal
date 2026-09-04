@@ -2,7 +2,7 @@ import openapiTS, { astToString } from "openapi-typescript";
 import { writeFileSync, mkdirSync } from "fs";
 import { join, dirname } from "path";
 
-const API_URL = process.env.API_URL ?? "http://localhost:8000";
+const API_URL = process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 const OUTPUT_PATH = join(dirname(new URL(import.meta.url).pathname), "src", "api.ts");
 
 async function generateTypes(): Promise<void> {

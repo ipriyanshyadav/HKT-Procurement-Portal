@@ -57,3 +57,4 @@ keys/*.pem
 
 # Docker
 *.log
+celerybeat-schedule*

@@ -93,7 +93,13 @@ export default function SupplierRfqListPage() {
                   <span className="text-gray-500 italic">
                     🛡️ Cryptographically sealed submission active
                   </span>
-                  <div className="flex gap-3">
+                  <div className="flex gap-2">
+                    <Link
+                      href={`/rfqs/${rfq.id}/auction`}
+                      className="px-3.5 py-2 text-xs font-semibold rounded-lg bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-700 hover:to-amber-700 text-white shadow-sm transition flex items-center gap-1"
+                    >
+                      <span>⚡ Live Auction</span>
+                    </Link>
                     <Link
                       href={`/rfqs/${rfq.id}/bid`}
                       className={`px-4 py-2 text-xs font-semibold rounded-lg text-white shadow-sm ${

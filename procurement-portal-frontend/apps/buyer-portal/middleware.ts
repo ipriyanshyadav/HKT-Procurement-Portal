@@ -23,7 +23,9 @@ export function middleware(request: NextRequest) {
 
   // Check for refresh_token cookie (set by backend, httpOnly)
   // We cannot check the access_token since it's in memory only
-  const refreshToken = request.cookies.get("refresh_token");
+  const refreshToken =
+    request.cookies.get("refresh_token_buyer") ||
+    request.cookies.get("refresh_token");
 
   if (!refreshToken) {
     const loginUrl = new URL("/login", request.url);

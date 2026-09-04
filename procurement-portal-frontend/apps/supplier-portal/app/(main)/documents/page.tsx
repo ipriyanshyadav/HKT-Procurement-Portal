@@ -8,7 +8,8 @@ import {
   useAddMyVendorDocument,
   VendorDocument,
 } from "@procurement/hooks";
-import { ComplianceExpiryAlert } from "@procurement/ui";
+import { ComplianceExpiryAlert, Badge, Button } from "@procurement/ui";
+import { Eye } from "lucide-react";
 
 const DOCUMENT_TYPES = [
   { id: "10000000-0000-0000-0000-000000000001", name: "GSTIN Certificate", code: "GSTIN_CERTIFICATE" },
@@ -121,13 +122,13 @@ export default function SupplierDocumentsPage() {
   const renderVerificationBadge = (status: string) => {
     switch (status) {
       case "VERIFIED":
-        return <span className="px-2 py-0.5 rounded text-xs font-bold bg-green-100 text-green-800">Verified</span>;
+        return <Badge variant="approved">VERIFIED</Badge>;
       case "REJECTED":
-        return <span className="px-2 py-0.5 rounded text-xs font-bold bg-red-100 text-red-800">Rejected</span>;
+        return <Badge variant="rejected">REJECTED</Badge>;
       case "EXPIRED":
-        return <span className="px-2 py-0.5 rounded text-xs font-bold bg-rose-100 text-rose-800">Expired</span>;
+        return <Badge variant="rejected">EXPIRED</Badge>;
       default:
-        return <span className="px-2 py-0.5 rounded text-xs font-bold bg-amber-100 text-amber-800">Pending Review</span>;
+        return <Badge variant="pending">{status ? status.replace(/_/g, " ") : "PENDING"}</Badge>;
     }
   };
 
@@ -218,10 +219,11 @@ export default function SupplierDocumentsPage() {
                 <tr>
                   <th className="px-6 py-3">Document Type</th>
                   <th className="px-6 py-3">Scan Status</th>
-                  <th className="px-6 py-3">Verification</th>
+                  <th className="px-6 py-3">Status</th>
                   <th className="px-6 py-3">Expiry Date</th>
                   <th className="px-6 py-3">Uploaded On</th>
                   <th className="px-6 py-3">Notes</th>
+                  <th className="px-6 py-3 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -252,6 +254,20 @@ export default function SupplierDocumentsPage() {
                     </td>
                     <td className="px-6 py-4 text-xs text-gray-600 max-w-xs truncate">
                       {doc.verification_notes || "—"}
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => {
+                            alert(`Document Details:\nType: ${doc.document_type_name || getTypeName(doc.document_type_id)}\nScan: ${doc.clamav_status || 'CLEAN'}\nStatus: ${doc.verification_status || 'PENDING'}\nUploaded: ${new Date(doc.created_at).toLocaleDateString()}\nNotes: ${doc.verification_notes || 'None'}`);
+                          }}
+                          icon={<Eye className="w-3.5 h-3.5" />}
+                        >
+                          View
+                        </Button>
+                      </div>
                     </td>
                   </tr>
                 ))}

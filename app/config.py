@@ -57,6 +57,30 @@ class Settings(BaseSettings):
     # Field Encryption
     FIELD_ENCRYPTION_KEY: str = "default_key_needs_replacement"
 
+    # ClamAV Antivirus Scanner
+    CLAMAV_ENABLED: bool = False
+    CLAMAV_HOST: str = "clamav"
+    CLAMAV_PORT: int = 3310
+    CLAMAV_TIMEOUT_SECONDS: int = 10
+
+    # Enterprise SSO (SAML 2.0 & OIDC)
+    SAML_ENABLED: bool = False
+    SAML_IDP_METADATA_URL: str = ""
+    SAML_IDP_ENTITY_ID: str = ""
+    SAML_IDP_SSO_URL: str = ""
+    SAML_IDP_CERTIFICATE: str = ""
+    SAML_SP_ENTITY_ID: str = "https://procurement.portal/api/v1/auth/sso/saml"
+    SAML_SP_ACS_URL: str = "http://localhost:8000/api/v1/auth/sso/callback"
+
+    OIDC_ENABLED: bool = False
+    OIDC_DISCOVERY_URL: str = ""
+    OIDC_CLIENT_ID: str = ""
+    OIDC_CLIENT_SECRET: str = ""
+    OIDC_AUTHORIZATION_URL: str = ""
+    OIDC_TOKEN_URL: str = ""
+    OIDC_USERINFO_URL: str = ""
+    OIDC_REDIRECT_URI: str = "http://localhost:8000/api/v1/auth/sso/oidc/callback"
+
     # External Services
     GST_API_BASE_URL: str = ""
     GST_API_KEY: str = ""
@@ -79,7 +103,7 @@ class Settings(BaseSettings):
 
     # Observability
     JAEGER_HOST: str = "localhost"
-    JAEGER_PORT: int = 6831
+    JAEGER_PORT: int = 4317
     OTEL_SAMPLING_RATE: float = 1.0
     LOG_LEVEL: str = "INFO"
 

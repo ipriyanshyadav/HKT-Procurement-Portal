@@ -2,7 +2,13 @@ import axios, { type AxiosError, type AxiosInstance, type InternalAxiosRequestCo
 
 declare const process: { env: Record<string, string | undefined> };
 
-const API_URL = (typeof process !== "undefined" && process.env?.NEXT_PUBLIC_API_URL) || "http://localhost:8000";
+const isServer = typeof window === "undefined";
+export const API_URL =
+  (typeof process !== "undefined" &&
+    (isServer
+      ? (process.env?.INTERNAL_API_URL || process.env?.NEXT_PUBLIC_API_URL)
+      : process.env?.NEXT_PUBLIC_API_URL)) ||
+  "http://localhost:8000";
 
 let accessToken: string | null = null;
 let isRefreshing = false;
@@ -10,6 +16,29 @@ let failedQueue: Array<{
   resolve: (token: string) => void;
   reject: (error: Error) => void;
 }> = [];
+
+type TokenListener = (token: string | null) => void;
+const tokenListeners = new Set<TokenListener>();
+
+export function subscribeTokenChange(listener: TokenListener): () => void {
+  tokenListeners.add(listener);
+  return () => {
+    tokenListeners.delete(listener);
+  };
+}
+
+export function getPortalId(): string | null {
+  if (typeof window === "undefined") return null;
+  const port = window.location.port;
+  if (port === "3001") return "supplier";
+  if (port === "3002") return "admin";
+  if (port === "3000") return "buyer";
+  const hostname = window.location.hostname.toLowerCase();
+  if (hostname.includes("supplier")) return "supplier";
+  if (hostname.includes("admin")) return "admin";
+  if (hostname.includes("buyer")) return "buyer";
+  return null;
+}
 
 function processQueue(error: Error | null, token: string | null): void {
   failedQueue.forEach(({ resolve, reject }) => {
@@ -24,6 +53,13 @@ function processQueue(error: Error | null, token: string | null): void {
 
 export function setAccessToken(token: string | null): void {
   accessToken = token;
+  tokenListeners.forEach((fn) => {
+    try {
+      fn(token);
+    } catch {
+      // ignore
+    }
+  });
 }
 
 export function getAccessToken(): string | null {
@@ -42,6 +78,10 @@ apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
+    }
+    const portal = getPortalId();
+    if (portal && config.headers) {
+      config.headers["X-Portal-Id"] = portal;
     }
     return config;
   },
@@ -88,10 +128,15 @@ apiClient.interceptors.response.use(
     isRefreshing = true;
 
     try {
+      const portal = getPortalId();
+      const headers: Record<string, string> = {};
+      if (portal) {
+        headers["X-Portal-Id"] = portal;
+      }
       const { data } = await axios.post<{ data: { access_token: string } }>(
         `${API_URL}/api/v1/auth/refresh`,
         {},
-        { withCredentials: true },
+        { withCredentials: true, headers },
       );
       const newToken = data.data.access_token;
       setAccessToken(newToken);

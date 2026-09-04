@@ -3,7 +3,8 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useVendors, Vendor } from "@procurement/hooks";
-import { VendorStatusBadge, PermissionGuard } from "@procurement/ui";
+import { VendorStatusBadge, PermissionGuard, Button } from "@procurement/ui";
+import { ArrowRight } from "lucide-react";
 
 export default function VendorsListPage() {
   const [page, setPage] = useState(1);
@@ -169,12 +170,13 @@ export default function VendorsListPage() {
                       )}
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <Link
-                        href={`/vendors/${vendor.id}`}
-                        className="text-blue-600 hover:text-blue-800 font-medium text-xs"
-                      >
-                        View Details →
-                      </Link>
+                      <div className="flex items-center justify-end gap-2">
+                        <Link href={`/vendors/${vendor.id}`}>
+                          <Button variant="secondary" size="sm" icon={<ArrowRight className="w-3.5 h-3.5" />}>
+                            View
+                          </Button>
+                        </Link>
+                      </div>
                     </td>
                   </tr>
                 ))}

@@ -1,5 +1,9 @@
 "use client";
 
+import React from "react";
+import { Button } from "./components/Button";
+import { Trash2 } from "lucide-react";
+
 export interface RequisitionLineItem {
   id?: string;
   requisition_id?: string;
@@ -63,7 +67,7 @@ export const PRLineItemTable: React.FC<PRLineItemTableProps> = ({
               <th scope="col" className="px-4 py-3 text-right">Unit Price ({currency})</th>
               <th scope="col" className="px-4 py-3 text-right">Total ({currency})</th>
               <th scope="col" className="px-4 py-3">Required By</th>
-              {editable && <th scope="col" className="px-4 py-3 text-center w-16">Actions</th>}
+              {editable && <th scope="col" className="px-4 py-3 text-right">Actions</th>}
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100 text-gray-800">
@@ -168,15 +172,20 @@ export const PRLineItemTable: React.FC<PRLineItemTableProps> = ({
                     )}
                   </td>
                   {editable && (
-                    <td className="px-4 py-3 text-center">
-                      <button
-                        type="button"
-                        onClick={() => onRemoveLine ? onRemoveLine(line.line_number || idx + 1) : null}
-                        className="text-red-500 hover:text-red-700 font-bold p-1 transition-colors"
-                        title="Remove line item"
-                      >
-                        ✕
-                      </button>
+                    <td className="px-4 py-3 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          type="button"
+                          onClick={() => onRemoveLine ? onRemoveLine(line.line_number || idx + 1) : null}
+                          icon={<Trash2 className="w-3.5 h-3.5 text-red-500" />}
+                          className="text-red-500 hover:text-red-700 !px-2.5"
+                          title="Remove line item"
+                        >
+                          Remove
+                        </Button>
+                      </div>
                     </td>
                   )}
                 </tr>

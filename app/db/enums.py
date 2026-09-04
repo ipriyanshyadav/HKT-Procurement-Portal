@@ -263,6 +263,7 @@ class AuditEntityType(str, enum.Enum):
     NOTIFICATION = "NOTIFICATION"
     INTEGRATION = "INTEGRATION"
     FEATURE_FLAG = "FEATURE_FLAG"
+    AUCTION = "AUCTION"
     TENANT_SETTING = "TENANT_SETTING"
     SESSION = "SESSION"
 
@@ -350,3 +351,9 @@ WorkflowInstanceStatusEnum = WorkflowInstanceStatus
 TaskActionEnum = TaskAction
 AuditEntityTypeEnum = AuditEntityType
 
+class BiddingMode(str, enum.Enum):
+    SEALED = "SEALED"
+    LIVE_AUCTION = "LIVE_AUCTION"
+    HYBRID = "HYBRID"
+
+BiddingModeEnum = BiddingMode

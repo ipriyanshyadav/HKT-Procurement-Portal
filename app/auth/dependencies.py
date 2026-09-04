@@ -2,7 +2,7 @@ from __future__ import annotations
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 from uuid import UUID
-from fastapi import Depends, Request
+from fastapi import Depends, Request, WebSocket, Query, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
 from loguru import logger
@@ -133,3 +133,47 @@ def require_mfa_enabled():
             )
         return current_user
     return _check
+
+
+async def get_current_user_ws(
+    websocket: WebSocket,
+    token: Optional[str] = Query(None),
+    db: AsyncSession = Depends(get_db),
+) -> User:
+    if not token:
+        token = websocket.query_params.get("token")
+    if not token:
+        await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
+        raise AppException("UNAUTHORIZED", "Missing authentication token", 401)
+
+    try:
+        payload = decode_jwt(token)
+    except Exception:
+        await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
+        raise AppException("UNAUTHORIZED", "Invalid token", 401)
+
+    if payload.get("mfa_required"):
+        await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
+        raise AppException("UNAUTHORIZED", "Complete MFA verification first", 401)
+
+    user_id_str = payload.get("sub")
+    org_id_str = payload.get("org_id")
+    jti = payload.get("jti")
+    if not user_id_str or not org_id_str or not jti:
+        await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
+        raise AppException("UNAUTHORIZED", "Token missing required claims", 401)
+
+    user_id = UUID(user_id_str)
+    org_id = UUID(org_id_str)
+
+    user = await user_repository.get_by_id(db, user_id, org_id)
+    if not user or user.status != UserStatusEnum.ACTIVE:
+        await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
+        raise AppException("UNAUTHORIZED", "User inactive or not found", 401)
+
+    session = await session_repository.get_by_jti(db, jti)
+    if not session:
+        await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
+        raise AppException("UNAUTHORIZED", "Session has been revoked", 401)
+
+    return user

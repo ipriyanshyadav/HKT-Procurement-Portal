@@ -3,7 +3,8 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRfqs, Rfq } from "@procurement/hooks";
-import { PermissionGuard } from "@procurement/ui";
+import { PermissionGuard, Badge, Button } from "@procurement/ui";
+import { ArrowRight, Lock } from "lucide-react";
 
 export default function RfqListPage() {
   const [page, setPage] = useState(1);
@@ -21,26 +22,6 @@ export default function RfqListPage() {
   const rfqs = data?.rfqs ?? [];
   const meta = data?.meta;
   const totalPages = meta?.total_pages ?? 1;
-
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "PUBLISHED":
-        return "bg-blue-100 text-blue-800 border-blue-200";
-      case "BID_OPEN":
-        return "bg-amber-100 text-amber-800 border-amber-200";
-      case "BIDS_OPENED":
-      case "UNDER_EVALUATION":
-        return "bg-purple-100 text-purple-800 border-purple-200";
-      case "AWARDED":
-        return "bg-green-100 text-green-800 border-green-200";
-      case "CANCELLED":
-      case "NO_BIDS":
-        return "bg-red-100 text-red-800 border-red-200";
-      case "DRAFT":
-      default:
-        return "bg-gray-100 text-gray-700 border-gray-200";
-    }
-  };
 
   return (
     <div className="space-y-6">
@@ -135,9 +116,9 @@ export default function RfqListPage() {
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-semibold border ${getStatusBadge(rfq.status)}`}>
+                      <Badge variant={rfq.status}>
                         {rfq.status}
-                      </span>
+                      </Badge>
                     </td>
                     <td className="px-6 py-4 font-medium text-gray-900">
                       ₹{Number(rfq.estimated_value).toLocaleString("en-IN")}
@@ -145,21 +126,21 @@ export default function RfqListPage() {
                     <td className="px-6 py-4 text-xs text-gray-500">
                       {rfq.bid_close_at ? new Date(rfq.bid_close_at).toLocaleDateString() : "—"}
                     </td>
-                    <td className="px-6 py-4 text-right space-x-2">
-                      <Link
-                        href={`/rfqs/${rfq.id}`}
-                        className="text-xs text-blue-600 hover:underline font-medium"
-                      >
-                        View Details
-                      </Link>
-                      {rfq.status === "BID_OPEN" && (
-                        <Link
-                          href={`/rfqs/${rfq.id}/open-bids`}
-                          className="inline-flex px-2.5 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded text-xs font-semibold"
-                        >
-                          Authorize Opening
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        {rfq.status === "BID_OPEN" && (
+                          <Link href={`/rfqs/${rfq.id}/open-bids`}>
+                            <Button variant="primary" size="sm" icon={<Lock className="w-3.5 h-3.5" />}>
+                              Authorize Opening
+                            </Button>
+                          </Link>
+                        )}
+                        <Link href={`/rfqs/${rfq.id}`}>
+                          <Button variant="secondary" size="sm" icon={<ArrowRight className="w-3.5 h-3.5" />}>
+                            View
+                          </Button>
                         </Link>
-                      )}
+                      </div>
                     </td>
                   </tr>
                 ))}

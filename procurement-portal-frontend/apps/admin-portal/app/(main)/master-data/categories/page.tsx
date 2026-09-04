@@ -8,7 +8,8 @@ import {
   useDeleteCategory,
   type CategoryTreeNode,
 } from "@procurement/hooks";
-import { CategoryTreeSelect, PermissionGuard } from "@procurement/ui";
+import { CategoryTreeSelect, PermissionGuard, Badge, Button } from "@procurement/ui";
+import { ArrowRight, Trash2 } from "lucide-react";
 
 export default function CategoriesPage() {
   const { data: categories = [], isLoading, error, refetch } = useCategoryTree();
@@ -122,31 +123,31 @@ export default function CategoriesPage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <span
-              className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
-                node.is_active ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-600"
-              }`}
-            >
-              {node.is_active ? "Active" : "Inactive"}
-            </span>
+          <div className="flex items-center gap-3">
+            <Badge variant={node.is_active ? "approved" : "draft"}>
+              {node.is_active ? "ACTIVE" : "INACTIVE"}
+            </Badge>
 
-            <Link
-              href={`/master-data/categories/${node.id}`}
-              className="px-2.5 py-1 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50"
-            >
-              View
-            </Link>
+            <div className="flex items-center justify-end gap-2">
+              <Link href={`/master-data/categories/${node.id}`}>
+                <Button variant="secondary" size="sm" icon={<ArrowRight className="w-3.5 h-3.5" />}>
+                  View
+                </Button>
+              </Link>
 
-            <PermissionGuard permission="master.delete">
-              <button
-                type="button"
-                onClick={() => handleDelete(node.id, node.name)}
-                className="px-2.5 py-1 text-xs font-medium text-red-600 bg-white border border-red-200 rounded hover:bg-red-50"
-              >
-                Delete
-              </button>
-            </PermissionGuard>
+              <PermissionGuard permission="master.delete">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  type="button"
+                  onClick={() => handleDelete(node.id, node.name)}
+                  icon={<Trash2 className="w-3.5 h-3.5" />}
+                  className="text-red-600 hover:text-red-700"
+                >
+                  Delete
+                </Button>
+              </PermissionGuard>
+            </div>
           </div>
         </div>
 

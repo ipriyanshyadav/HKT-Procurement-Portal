@@ -490,18 +490,119 @@ WORKFLOW_TEMPLATES = [
     },
 ]
 
-# Default catch-all approval rule (SPEC_06 S06-05)
-CATCH_ALL_APPROVAL_RULE = {
-    "entity_type": "PR",
-    "rule_code": "PR_CATCH_ALL",
-    "rule_name": "PR Default Catch-All",
-    "priority": 1000,
-    "conditions": {},
-    "condition_expression": None,
-    "workflow_template_code": "PR_APPROVAL",
-    "is_active": True,
-    "is_catch_all": True,
-}
+# Default approval rules for all document types (SPEC_06 S06-05)
+DEFAULT_APPROVAL_RULES = [
+    {
+        "entity_type": "PR",
+        "rule_code": "PR_HIGH_VALUE_CAPEX",
+        "rule_name": "PR High-Value CapEx Approval",
+        "priority": 100,
+        "conditions": [{"field": "total_amount", "operator": ">=", "value": 50000}],
+        "condition_expression": "total_amount >= 50000",
+        "workflow_template_code": "PR_APPROVAL",
+        "is_active": True,
+        "is_catch_all": False,
+    },
+    {
+        "entity_type": "PR",
+        "rule_code": "PR_CATCH_ALL",
+        "rule_name": "PR Default Catch-All",
+        "priority": 1000,
+        "conditions": [{"is_catch_all": True}],
+        "condition_expression": None,
+        "workflow_template_code": "PR_APPROVAL",
+        "is_active": True,
+        "is_catch_all": True,
+    },
+    {
+        "entity_type": "RFQ",
+        "rule_code": "RFQ_STRATEGIC",
+        "rule_name": "RFQ Strategic Sourcing Approval",
+        "priority": 100,
+        "conditions": [{"field": "estimated_value", "operator": ">=", "value": 100000}],
+        "condition_expression": "estimated_value >= 100000",
+        "workflow_template_code": "RFQ_APPROVAL",
+        "is_active": True,
+        "is_catch_all": False,
+    },
+    {
+        "entity_type": "RFQ",
+        "rule_code": "RFQ_CATCH_ALL",
+        "rule_name": "RFQ Default Catch-All",
+        "priority": 1000,
+        "conditions": [{"is_catch_all": True}],
+        "condition_expression": None,
+        "workflow_template_code": "RFQ_APPROVAL",
+        "is_active": True,
+        "is_catch_all": True,
+    },
+    {
+        "entity_type": "PO",
+        "rule_code": "PO_HIGH_VALUE",
+        "rule_name": "PO High-Value Execution Approval",
+        "priority": 100,
+        "conditions": [{"field": "total_amount", "operator": ">=", "value": 50000}],
+        "condition_expression": "total_amount >= 50000",
+        "workflow_template_code": "PO_APPROVAL",
+        "is_active": True,
+        "is_catch_all": False,
+    },
+    {
+        "entity_type": "PO",
+        "rule_code": "PO_CATCH_ALL",
+        "rule_name": "PO Default Catch-All",
+        "priority": 1000,
+        "conditions": [{"is_catch_all": True}],
+        "condition_expression": None,
+        "workflow_template_code": "PO_APPROVAL",
+        "is_active": True,
+        "is_catch_all": True,
+    },
+    {
+        "entity_type": "VENDOR",
+        "rule_code": "VENDOR_STRATEGIC",
+        "rule_name": "Vendor Strategic Risk Qualification",
+        "priority": 100,
+        "conditions": [{"field": "risk_tier", "operator": "==", "value": "HIGH"}],
+        "condition_expression": "risk_tier == 'HIGH'",
+        "workflow_template_code": "VENDOR_ONBOARDING",
+        "is_active": True,
+        "is_catch_all": False,
+    },
+    {
+        "entity_type": "VENDOR",
+        "rule_code": "VENDOR_CATCH_ALL",
+        "rule_name": "Vendor Onboarding Default Catch-All",
+        "priority": 1000,
+        "conditions": [{"is_catch_all": True}],
+        "condition_expression": None,
+        "workflow_template_code": "VENDOR_ONBOARDING",
+        "is_active": True,
+        "is_catch_all": True,
+    },
+    {
+        "entity_type": "CONTRACT",
+        "rule_code": "CONTRACT_HIGH_VALUE",
+        "rule_name": "Contract Legal & Executive Review",
+        "priority": 100,
+        "conditions": [{"field": "contract_value", "operator": ">=", "value": 100000}],
+        "condition_expression": "contract_value >= 100000",
+        "workflow_template_code": "CONTRACT_APPROVAL",
+        "is_active": True,
+        "is_catch_all": False,
+    },
+    {
+        "entity_type": "CONTRACT",
+        "rule_code": "CONTRACT_CATCH_ALL",
+        "rule_name": "Contract Execution Default Catch-All",
+        "priority": 1000,
+        "conditions": [{"is_catch_all": True}],
+        "condition_expression": None,
+        "workflow_template_code": "CONTRACT_APPROVAL",
+        "is_active": True,
+        "is_catch_all": True,
+    },
+]
 
 
 async def seed_workflows(db: AsyncSession, org_id: UUID) -> None:
@@ -532,33 +633,36 @@ async def seed_workflows(db: AsyncSession, org_id: UUID) -> None:
     logger.info("All %d workflow templates seeded.", len(WORKFLOW_TEMPLATES))
 
 
-async def seed_catch_all_rule(db: AsyncSession, org_id: UUID) -> None:
-    """Insert catch-all PR approval rule. Idempotent via ORM query."""
+async def seed_approval_rules(db: AsyncSession, org_id: UUID) -> None:
+    """Insert default approval rules for all document types. Idempotent via ORM query."""
     from sqlalchemy import select
     from app.modules.approval_rules.models import ApprovalRule
 
-    stmt = select(ApprovalRule).where(
-        ApprovalRule.org_id == org_id,
-        ApprovalRule.name == CATCH_ALL_APPROVAL_RULE["rule_code"],
-    )
-    res = await db.execute(stmt)
-    existing = res.scalar_one_or_none()
-    if not existing:
-        rule = ApprovalRule(
-            org_id=org_id,
-            name=CATCH_ALL_APPROVAL_RULE["rule_code"],
-            transaction_type=CATCH_ALL_APPROVAL_RULE["entity_type"],
-            priority=CATCH_ALL_APPROVAL_RULE["priority"],
-            conditions=[{"is_catch_all": True}],
-            approval_steps=[{"template_code": CATCH_ALL_APPROVAL_RULE["workflow_template_code"]}],
-            is_active=CATCH_ALL_APPROVAL_RULE["is_active"],
-            created_by=org_id,
+    for item in DEFAULT_APPROVAL_RULES:
+        stmt = select(ApprovalRule).where(
+            ApprovalRule.org_id == org_id,
+            ApprovalRule.name == item["rule_code"],
         )
-        db.add(rule)
-        await db.commit()
-        logger.info("Seeded catch-all approval rule: %s", CATCH_ALL_APPROVAL_RULE["rule_code"])
-    else:
-        logger.info("Catch-all approval rule already exists: %s", CATCH_ALL_APPROVAL_RULE["rule_code"])
+        res = await db.execute(stmt)
+        existing = res.scalar_one_or_none()
+        if not existing:
+            rule = ApprovalRule(
+                org_id=org_id,
+                name=item["rule_code"],
+                transaction_type=item["entity_type"],
+                priority=item["priority"],
+                conditions=item["conditions"],
+                approval_steps=[{"template_code": item["workflow_template_code"]}],
+                is_active=item["is_active"],
+                created_by=org_id,
+            )
+            db.add(rule)
+            logger.info("Seeded approval rule: [%s] %s", item["entity_type"], item["rule_code"])
+        else:
+            logger.info("Approval rule already exists: [%s] %s", item["entity_type"], item["rule_code"])
+
+    await db.commit()
+    logger.info("All default approval rules seeded for org %s.", org_id)
 
 
 async def main() -> None:
@@ -570,7 +674,7 @@ async def main() -> None:
 
     async with session_factory() as db:
         await seed_workflows(db, org_id)
-        await seed_catch_all_rule(db, org_id)
+        await seed_approval_rules(db, org_id)
 
     await engine.dispose()
     logger.info("Workflow seed complete.")

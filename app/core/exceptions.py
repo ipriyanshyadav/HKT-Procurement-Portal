@@ -7,10 +7,25 @@ from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 
 class AppException(Exception):
-    def __init__(self, message: str, code: str, details: Optional[Dict[str, Any]] = None):
-        self.message = message
-        self.code = code
-        self.details = details or {}
+    def __init__(
+        self,
+        message: str,
+        code: Optional[str] = None,
+        details: Optional[Any] = None,
+        status_code: Optional[int] = None,
+    ):
+        if isinstance(details, int) and status_code is None:
+            status_code = details
+            details = {}
+        # Support calling as AppException(code, message) when first arg is an ERROR_CODE
+        if code is not None and message.isupper() and " " not in message and (" " in code or not code.isupper()):
+            self.code = message
+            self.message = code
+        else:
+            self.message = message
+            self.code = code or "APP_ERROR"
+        self.details = details if isinstance(details, dict) else {}
+        self.status_code = status_code
         super().__init__(self.message)
 
 def _resolve_exc_args(default_msg: str, default_code: str, message_or_code: str, details_or_message: Optional[Any], code: Optional[str]):

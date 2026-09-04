@@ -46,15 +46,15 @@ class ApprovalRuleResponse(BaseModel):
     rule_code: str
     rule_name: str
     priority: int
-    conditions: Dict[str, Any]
-    condition_expression: Optional[str]
-    workflow_template_code: str
-    is_active: bool
-    is_catch_all: bool
-    effective_from: datetime
-    effective_to: Optional[datetime]
-    created_by: UUID
-    created_at: datetime
+    conditions: Any = Field(default_factory=dict)
+    condition_expression: Optional[str] = None
+    workflow_template_code: str = ""
+    is_active: bool = True
+    is_catch_all: bool = False
+    effective_from: Optional[datetime] = None
+    effective_to: Optional[datetime] = None
+    created_by: Optional[UUID] = None
+    created_at: Optional[datetime] = None
 
     model_config = {"from_attributes": True}
 

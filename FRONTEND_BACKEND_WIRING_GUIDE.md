@@ -423,3 +423,48 @@ COPY --from=builder /app/apps/buyer-portal/public ./apps/buyer-portal/public
 EXPOSE 3000
 CMD ["node", "apps/buyer-portal/server.js"]
 ```
+
+---
+
+## RULE 13: EXECUTION MODES — DOCKER FULL STACK VS LOCAL HYBRID DEV
+
+### Mode A: Complete Docker Stack
+Use when running the entire platform containerized:
+```bash
+docker compose -f docker/docker-compose.yml up -d
+```
+- **Kong Gateway** binds to host port `8000` (`http://localhost:8000`).
+- The **API container** runs internally on `http://api:8000`.
+- All routes configured in `kong/kong.yml` (including `/api/v1/rfqs`, `/api/v1/auth`, `/api/v1/requisitions`, etc.) proxy traffic from `http://localhost:8000` to `http://api:8000`.
+- Frontend portals run at:
+  - Buyer Portal: `http://localhost:3000`
+  - Supplier Portal: `http://localhost:3001`
+  - Admin Portal: `http://localhost:3002`
+
+### Mode B: Local Development (Hybrid)
+Use when developing FastAPI, Celery, or Next.js locally on your machine:
+```bash
+# 1. Start ONLY backing storage/broker services in Docker (DO NOT START KONG OR API)
+docker compose -f docker/docker-compose.yml up -d postgres redis rabbitmq minio jaeger
+
+# 2. Run DB migrations & demo seeds
+.venv/bin/alembic upgrade head
+.venv/bin/python scripts/seed_master_data.py
+.venv/bin/python scripts/seed_demo_user.py
+
+# 3. Run FastAPI backend on port 8000
+.venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+# 4. Run Celery worker
+.venv/bin/celery -A app.tasks.celery_app worker -l info
+
+# 5. Run Next.js frontend apps locally
+cd procurement-portal-frontend && pnpm dev
+```
+
+> [!WARNING]
+> **Why NEVER run `kong` when developing backend locally:**
+> 1. Kong in Docker binds to port 8000 on `localhost`, preventing local FastAPI from using port 8000.
+> 2. Kong proxies to `http://api:8000` (the Docker container). If the API is running locally and not in Docker, Kong cannot resolve `api` in DNS and responds with **HTTP 503 Service Temporarily Unavailable** (`name resolution failed`).
+> 3. FastAPI natively handles CORS for `http://localhost:3000-3002` and all routing directly on port 8000. Kong is strictly for Docker/production deployment.
+

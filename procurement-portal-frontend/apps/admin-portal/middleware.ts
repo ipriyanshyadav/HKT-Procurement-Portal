@@ -18,7 +18,9 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const refreshToken = request.cookies.get("refresh_token");
+  const refreshToken =
+    request.cookies.get("refresh_token_admin") ||
+    request.cookies.get("refresh_token");
 
   if (!refreshToken) {
     const loginUrl = new URL("/login", request.url);

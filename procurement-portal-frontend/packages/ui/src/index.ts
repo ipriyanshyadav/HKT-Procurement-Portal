@@ -97,3 +97,11 @@ export type { AppShellProps } from "./components/AppShell";
 export { useAppleReveal } from "./hooks/useAppleReveal";
 export { useCountUp } from "./hooks/useCountUp";
 export { useParallaxTilt } from "./hooks/useParallaxTilt";
+
+// Live Auction Components (SPEC_11B)
+export { AuctionCountdownTimer } from "./AuctionCountdownTimer";
+export type { AuctionCountdownTimerProps } from "./AuctionCountdownTimer";
+export { BidEntryPanel } from "./BidEntryPanel";
+export type { BidEntryPanelProps } from "./BidEntryPanel";
+export { PriceLeaderboard } from "./PriceLeaderboard";
+export type { PriceLeaderboardProps, RankEntry } from "./PriceLeaderboard";

@@ -5,7 +5,7 @@ from typing import Optional, Dict, Any, List
 from uuid import UUID, uuid4
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import String, Boolean, Numeric, Integer, Date, DateTime, ForeignKey, Text, CHAR
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import JSONB, INET
 from sqlalchemy.sql import func
 from app.db.base import BaseModel, Base
 from app.db.enums import BidStatusEnum, BID_STATUS_PG
@@ -91,3 +91,73 @@ class BidDocument(Base):
     document_type: Mapped[str] = mapped_column(String(20), nullable=False)
     is_technical: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+
+class LiveAuction(BaseModel):
+    __tablename__ = "live_auctions"
+
+    rfq_id: Mapped[UUID] = mapped_column(ForeignKey("rfqs.id"), nullable=False)
+    status: Mapped[str] = mapped_column(String(32), nullable=False, default="SCHEDULED")
+    config: Mapped[dict] = mapped_column(JSONB, nullable=False)
+    scheduled_start_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    actual_start_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    current_close_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    extension_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    winner_vendor_id: Mapped[Optional[UUID]] = mapped_column(ForeignKey("vendors.id"), nullable=True)
+    winning_bid_id: Mapped[Optional[UUID]] = mapped_column(nullable=True)
+    created_by: Mapped[UUID] = mapped_column(ForeignKey("users.id"), nullable=False)
+
+    bids: Mapped[list["LiveBid"]] = relationship("LiveBid", back_populates="auction", lazy="selectin")
+    participants: Mapped[list["AuctionParticipant"]] = relationship("AuctionParticipant", back_populates="auction", lazy="selectin")
+
+
+class LiveBid(Base):
+    """Append-only. No updates after insert."""
+    __tablename__ = "live_bids"
+
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    org_id: Mapped[UUID] = mapped_column(nullable=False)
+    auction_id: Mapped[UUID] = mapped_column(ForeignKey("live_auctions.id"), nullable=False)
+    rfq_id: Mapped[UUID] = mapped_column(ForeignKey("rfqs.id"), nullable=False)
+    vendor_id: Mapped[UUID] = mapped_column(ForeignKey("vendors.id"), nullable=False)
+    lot_id: Mapped[Optional[UUID]] = mapped_column(ForeignKey("rfq_lots.id"), nullable=True)
+    bid_amount_inr: Mapped[Decimal] = mapped_column(Numeric(20, 4), nullable=False)
+    bid_sequence: Mapped[int] = mapped_column(Integer, nullable=False)
+    is_valid: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    invalidation_reason: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    submitted_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=func.now)
+    client_ip: Mapped[Optional[str]] = mapped_column(INET, nullable=True)
+    session_id: Mapped[Optional[str]] = mapped_column(String(128), nullable=True)
+
+    auction: Mapped["LiveAuction"] = relationship("LiveAuction", back_populates="bids")
+
+
+class AuctionParticipant(Base):
+    __tablename__ = "auction_participants"
+
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    org_id: Mapped[UUID] = mapped_column(nullable=False)
+    auction_id: Mapped[UUID] = mapped_column(ForeignKey("live_auctions.id"), nullable=False)
+    vendor_id: Mapped[UUID] = mapped_column(ForeignKey("vendors.id"), nullable=False)
+    joined_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    left_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    is_connected: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    proxy_floor_inr: Mapped[Optional[Decimal]] = mapped_column(Numeric(20, 4), nullable=True)
+
+    auction: Mapped["LiveAuction"] = relationship("LiveAuction", back_populates="participants")
+
+
+class AuctionRankSnapshot(Base):
+    __tablename__ = "auction_rank_snapshots"
+
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    org_id: Mapped[UUID] = mapped_column(nullable=False)
+    auction_id: Mapped[UUID] = mapped_column(ForeignKey("live_auctions.id"), nullable=False)
+    snapshot_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+        default=lambda: datetime.now(timezone.utc),
+    )
+    trigger_bid_id: Mapped[Optional[UUID]] = mapped_column(ForeignKey("live_bids.id"), nullable=True)
+    ranks: Mapped[dict] = mapped_column(JSONB, nullable=False)

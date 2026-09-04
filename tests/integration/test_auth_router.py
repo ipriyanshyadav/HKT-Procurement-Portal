@@ -218,3 +218,152 @@ class TestAuthSchemaValidation:
             "mfa_token": "tok", "totp_code": "12345"  # 5 digits — invalid
         })
         assert resp.status_code in (401, 422)
+
+
+class TestPortalSessionScoping:
+    """Test multi-portal cookie scoping and isolation."""
+
+    def test_portal_detection_helpers(self):
+        from app.auth.router import _get_portal, _get_cookie_key
+        from starlette.datastructures import Headers
+
+        class DummyRequest:
+            def __init__(self, headers=None):
+                self.headers = Headers(headers or {})
+
+        assert _get_portal(DummyRequest({"x-portal-id": "buyer"})) == "buyer"
+        assert _get_portal(DummyRequest({"x-portal-id": "supplier"})) == "supplier"
+        assert _get_portal(DummyRequest({"x-portal-id": "admin"})) == "admin"
+        assert _get_portal(DummyRequest({"origin": "http://localhost:3000"})) == "buyer"
+        assert _get_portal(DummyRequest({"origin": "http://localhost:3001"})) == "supplier"
+        assert _get_portal(DummyRequest({"origin": "http://localhost:3002"})) == "admin"
+        assert _get_portal(DummyRequest({})) is None
+
+        assert _get_cookie_key("buyer") == "refresh_token_buyer"
+        assert _get_cookie_key("supplier") == "refresh_token_supplier"
+        assert _get_cookie_key("admin") == "refresh_token_admin"
+        assert _get_cookie_key(None) == "refresh_token"
+
+    def test_refresh_token_cookie_key_selection(self):
+        from app.auth.router import _get_refresh_token_and_key
+        from starlette.datastructures import Headers
+
+        class DummyRequest:
+            def __init__(self, headers=None, cookies=None):
+                self.headers = Headers(headers or {})
+                self.cookies = cookies or {}
+
+        # Buyer portal finds refresh_token_buyer
+        req = DummyRequest(
+            headers={"x-portal-id": "buyer"},
+            cookies={"refresh_token_buyer": "buyer-tok", "refresh_token_supplier": "supp-tok"}
+        )
+        token, key, portal = _get_refresh_token_and_key(req)
+        assert token == "buyer-tok"
+        assert key == "refresh_token_buyer"
+        assert portal == "buyer"
+
+        # Supplier portal finds refresh_token_supplier
+        req = DummyRequest(
+            headers={"x-portal-id": "supplier"},
+            cookies={"refresh_token_buyer": "buyer-tok", "refresh_token_supplier": "supp-tok"}
+        )
+        token, key, portal = _get_refresh_token_and_key(req)
+        assert token == "supp-tok"
+        assert key == "refresh_token_supplier"
+        assert portal == "supplier"
+
+        # Fallback to legacy refresh_token if portal-specific not present
+        req = DummyRequest(
+            headers={"x-portal-id": "buyer"},
+            cookies={"refresh_token": "legacy-tok"}
+        )
+        token, key, portal = _get_refresh_token_and_key(req)
+        assert token == "legacy-tok"
+        assert key == "refresh_token"
+        assert portal == "buyer"
+
+    @pytest.mark.asyncio
+    async def test_portal_boundary_enforcement_in_auth_service(self):
+        from unittest.mock import AsyncMock, MagicMock, patch
+        from app.auth.service import AuthService
+        from app.core.exceptions import ForbiddenError
+        from app.db.enums import UserStatusEnum
+
+        service = AuthService()
+
+        # Mock user that is an internal buyer user
+        internal_user = MagicMock()
+        internal_user.status = UserStatusEnum.ACTIVE
+        internal_user.is_supplier_user = False
+        internal_user.password_hash = "$2b$12$e..."
+        internal_user.password_changed_at = None
+
+        # Mock user that is a supplier user
+        supplier_user = MagicMock()
+        supplier_user.status = UserStatusEnum.ACTIVE
+        supplier_user.is_supplier_user = True
+        supplier_user.password_hash = "$2b$12$e..."
+        supplier_user.password_changed_at = None
+
+        mock_db = AsyncMock()
+
+        with patch("app.auth.service.user_repository.find_by_email", new_callable=AsyncMock) as mock_find, \
+             patch.object(service, "_get_fail_count", new_callable=AsyncMock, return_value=0), \
+             patch("app.auth.service.verify_password", return_value=True):
+
+            # 1. Internal buyer trying to log in to Supplier Portal -> ForbiddenError
+            mock_find.return_value = internal_user
+            with pytest.raises(ForbiddenError, match="Internal user accounts cannot log in to the Supplier Portal"):
+                await service.login(mock_db, "buyer@test.com", "Secret123!", portal_type="supplier", org_id=uuid4())
+
+            # 2. Supplier user trying to log in to Buyer Portal -> ForbiddenError
+            mock_find.return_value = supplier_user
+            with pytest.raises(ForbiddenError, match="Supplier accounts cannot log in to the Buyer"):
+                await service.login(mock_db, "supplier@test.com", "Secret123!", portal_type="buyer", org_id=uuid4())
+
+            # 3. Supplier user trying to log in to Admin Portal -> ForbiddenError
+            with pytest.raises(ForbiddenError, match="Supplier accounts cannot log in to the Buyer or Admin Portal"):
+                await service.login(mock_db, "supplier@test.com", "Secret123!", portal_type="admin", org_id=uuid4())
+
+    def test_logout_isolated_to_portal_cookie(self):
+        from unittest.mock import AsyncMock, patch, MagicMock
+        from app.modules.user.models import User
+        from app.db.enums import UserStatusEnum
+
+        mock_user = MagicMock(spec=User)
+        mock_user.id = uuid4()
+        mock_user.org_id = uuid4()
+        mock_user.status = UserStatusEnum.ACTIVE
+
+        from app.auth.dependencies import get_current_user
+        from app.db.session import get_db
+
+        app.dependency_overrides[get_current_user] = lambda: mock_user
+        app.dependency_overrides[get_db] = lambda: AsyncMock()
+
+        try:
+            with patch("app.auth.router.auth_service.logout", AsyncMock()):
+                client = TestClient(app, raise_server_exceptions=False)
+                client.cookies.set("refresh_token_buyer", "buyer_tok")
+                client.cookies.set("refresh_token_supplier", "supplier_tok")
+
+                resp = client.post(
+                    "/api/v1/auth/logout",
+                    headers={
+                        "X-Portal-Id": "buyer",
+                        "Authorization": "Bearer mock-token",
+                    },
+                )
+                assert resp.status_code == 200
+                # Cookie refresh_token_buyer deleted
+                set_cookie_headers = resp.headers.get_list("set-cookie")
+                cookie_str = " ".join(set_cookie_headers)
+                assert "refresh_token_buyer" in cookie_str
+                assert "refresh_token_supplier" not in cookie_str
+        finally:
+            app.dependency_overrides.clear()
+
+
+
+

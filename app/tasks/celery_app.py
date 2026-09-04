@@ -1,11 +1,41 @@
 from __future__ import annotations
+from urllib.parse import urlparse, urlunparse
 from celery import Celery
 from kombu import Queue
 from app.config import settings
 
-celery_app = Celery('procurement')
+def _get_result_backend_url(redis_url: str | None, db_index: int) -> str | None:
+    if not redis_url:
+        return None
+    if "://" not in redis_url:
+        redis_url = f"redis://{redis_url}"
+    parsed = urlparse(redis_url)
+    return urlunparse((
+        parsed.scheme,
+        parsed.netloc,
+        f"/{db_index}",
+        parsed.params,
+        parsed.query,
+        parsed.fragment,
+    ))
+
+celery_app = Celery(
+    'procurement',
+    include=[
+        'app.tasks.exchange_rates',
+        'app.tasks.master_data_import',
+        'app.tasks.pr_aging',
+        'app.tasks.rfq_lifecycle',
+        'app.tasks.sla_timers',
+        'app.tasks.unmapped_pr_sla',
+        'app.tasks.vendor_compliance',
+        'app.tasks.auction',
+        'app.events.outbox_worker',
+    ],
+)
 celery_app.conf.broker_url = settings.RABBITMQ_URL
-celery_app.conf.result_backend = f"redis://{settings.REDIS_URL.split('://')[-1]}/{settings.REDIS_CELERY_BACKEND_DB}" if settings.REDIS_URL else None
+celery_app.conf.result_backend = _get_result_backend_url(settings.REDIS_URL, settings.REDIS_CELERY_BACKEND_DB)
+
 
 celery_app.conf.task_queues = (
     Queue('default', routing_key='task.default'),
@@ -89,6 +119,22 @@ celery_app.conf.beat_schedule = {
     'workflow-timeout-check': {
         'task': 'app.tasks.critical.check_workflow_timeouts',
         'schedule': settings.CELERY_WORKFLOW_TIMEOUT_CHECK_MINUTES * 60,
+    },
+    'open-scheduled-auctions': {
+        'task': 'tasks.open_scheduled_auctions',
+        'schedule': 30.0,
+    },
+    'close-due-auctions': {
+        'task': 'tasks.close_due_auctions',
+        'schedule': 10.0,
+    },
+    'auction-closing-warning': {
+        'task': 'tasks.send_auction_closing_warning',
+        'schedule': 10.0,
+    },
+    'auction-start-reminders': {
+        'task': 'tasks.notify_auction_start_reminders',
+        'schedule': 60.0,
     },
 }
 celery_app.conf.timezone = 'UTC'

@@ -59,3 +59,37 @@
 .apple-navbar__link.active {
   font-weight: 500;
 }
+
+/* Apple Profile Dropdown Animation & Layout */
+@keyframes appleDropdownIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.96) translateY(-8px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.apple-dropdown-menu {
+  animation: appleDropdownIn 180ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transform-origin: top right;
+}
+
+.apple-dropdown-menu::-webkit-scrollbar {
+  width: 5px;
+}
+
+.apple-dropdown-menu::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.apple-dropdown-menu::-webkit-scrollbar-thumb {
+  background: rgba(120, 120, 128, 0.2);
+  border-radius: 9999px;
+}
+
+.apple-dropdown-menu::-webkit-scrollbar-thumb:hover {
+  background: rgba(120, 120, 128, 0.35);
+}

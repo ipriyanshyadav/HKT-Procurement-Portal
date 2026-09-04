@@ -1,10 +1,8 @@
 from __future__ import annotations
 import pyotp
 import secrets
-from passlib.context import CryptContext
+import bcrypt
 from app.core.encryption import encrypt_field, decrypt_field
-
-_backup_ctx = CryptContext(schemes=["bcrypt"], deprecated="auto", bcrypt__rounds=10)
 
 def generate_totp_secret() -> str:
     """Generate a new TOTP secret (base32)."""
@@ -26,7 +24,10 @@ def generate_backup_codes(count: int = 10) -> tuple[list[str], list[str]]:
     Returns (plaintext_codes, hashed_codes) — store ONLY hashed_codes.
     """
     plain_codes = [secrets.token_hex(8).upper() for _ in range(count)]
-    hashed_codes = [_backup_ctx.hash(code) for code in plain_codes]
+    hashed_codes = [
+        bcrypt.hashpw(code.encode("utf-8")[:72], bcrypt.gensalt(rounds=10)).decode("utf-8")
+        for code in plain_codes
+    ]
     return plain_codes, hashed_codes
 
 def verify_backup_code(plain_code: str, hashed_codes: list[str]) -> tuple[bool, int]:
@@ -35,8 +36,11 @@ def verify_backup_code(plain_code: str, hashed_codes: list[str]) -> tuple[bool, 
     Returns (matched, index) — caller must remove the used code at index.
     """
     for i, hashed in enumerate(hashed_codes):
-        if _backup_ctx.verify(plain_code, hashed):
-            return True, i
+        try:
+            if bcrypt.checkpw(plain_code.encode("utf-8")[:72], hashed.encode("utf-8")):
+                return True, i
+        except Exception:
+            continue
     return False, -1
 
 def encrypt_totp_secret(secret: str) -> str:

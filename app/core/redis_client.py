@@ -1,4 +1,5 @@
 from __future__ import annotations
+from urllib.parse import urlparse, urlunparse
 from uuid import UUID
 import redis.asyncio as redis
 from app.config import settings
@@ -60,5 +61,38 @@ class RedisKeys:
     def bid_seal(rfq_id: str | UUID) -> str:
         return f"seal:bids:{rfq_id}"
 
+    @staticmethod
+    def auction_channel(auction_id: UUID) -> str:
+        return f"auction:{auction_id}:broadcast"
+
+    @staticmethod
+    def auction_vendor_channel(auction_id: UUID, vendor_id: UUID) -> str:
+        return f"auction:{auction_id}:vendor:{vendor_id}"
+
+    @staticmethod
+    def auction_sequence(auction_id: UUID) -> str:
+        """Redis counter for monotonic bid_sequence."""
+        return f"auction:{auction_id}:seq"
+
+    @staticmethod
+    def auction_best_bid(auction_id: UUID, lot_id: UUID | None = None) -> str:
+        """Cached current best (L1) bid amount per lot."""
+        lot_part = str(lot_id) if lot_id else "all"
+        return f"auction:{auction_id}:best:{lot_part}"
+
 def get_redis_client(db_index: int = 0) -> redis.Redis:
-    return redis.from_url(settings.REDIS_URL, db=db_index)
+    redis_url = settings.REDIS_URL
+    if "://" not in redis_url:
+        redis_url = f"redis://{redis_url}"
+    parsed = urlparse(redis_url)
+    target_url = urlunparse((
+        parsed.scheme,
+        parsed.netloc,
+        f"/{db_index}",
+        parsed.params,
+        parsed.query,
+        parsed.fragment,
+    ))
+    return redis.from_url(target_url)
+
+get_redis = get_redis_client

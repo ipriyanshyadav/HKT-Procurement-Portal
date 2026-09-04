@@ -224,6 +224,12 @@ class PermissionCode:
     BID_CO_AUTHORIZE_OPENING = "bid.co_authorize_opening"
     BID_EVALUATE = "bid.evaluate"
 
+    # Live Auction (4)
+    LIVE_AUCTION_CREATE = "live_auction.create"
+    LIVE_AUCTION_CANCEL = "live_auction.cancel"
+    LIVE_AUCTION_MONITOR = "live_auction.monitor"
+    LIVE_AUCTION_RELEASE_RESULTS = "live_auction.release_results"
+
     # Evaluation (5)
     EVAL_VIEW = "eval.view"
     EVAL_SCORE = "eval.score"

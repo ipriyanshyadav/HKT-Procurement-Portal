@@ -150,6 +150,17 @@ async def list_rules(
     return success_response([ApprovalRuleResponse.model_validate(r) for r in rules])
 
 
+@router.get("/{rule_id}")
+async def get_rule(
+    rule_id: UUID,
+    current_user: User = Depends(require_permission(PermissionCode.RULES_VIEW)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Get single approval rule detail."""
+    rule = await approval_rules_repository.get(db, rule_id, current_user.org_id)
+    return success_response(ApprovalRuleResponse.model_validate(rule))
+
+
 @router.get("/{rule_id}/versions")
 async def get_rule_versions(
     rule_id: UUID,
@@ -161,7 +172,7 @@ async def get_rule_versions(
     return success_response([ApprovalRuleVersionResponse.model_validate(v) for v in versions])
 
 
-@router.post("/simulate", response_model=ApprovalRuleSimulateResponse)
+@router.post("/simulate")
 async def simulate_rule_matching(
     data: ApprovalRuleSimulateRequest,
     current_user: User = Depends(require_permission(PermissionCode.RULES_TEST)),
@@ -187,17 +198,21 @@ async def simulate_rule_matching(
     )
 
     if matched_rule is None:
-        return ApprovalRuleSimulateResponse(
-            matched_rule=None,
-            workflow_template_code=None,
-            match_type="NONE",
-            evaluated_rules_count=evaluated_count,
+        return success_response(
+            ApprovalRuleSimulateResponse(
+                matched_rule=None,
+                workflow_template_code=None,
+                match_type="NONE",
+                evaluated_rules_count=evaluated_count,
+            )
         )
 
     match_type = "CATCH_ALL" if matched_rule.is_catch_all else "SPECIFIC"
-    return ApprovalRuleSimulateResponse(
-        matched_rule=ApprovalRuleResponse.model_validate(matched_rule),
-        workflow_template_code=matched_rule.workflow_template_code,
-        match_type=match_type,
-        evaluated_rules_count=evaluated_count,
+    return success_response(
+        ApprovalRuleSimulateResponse(
+            matched_rule=ApprovalRuleResponse.model_validate(matched_rule),
+            workflow_template_code=matched_rule.workflow_template_code,
+            match_type=match_type,
+            evaluated_rules_count=evaluated_count,
+        )
     )

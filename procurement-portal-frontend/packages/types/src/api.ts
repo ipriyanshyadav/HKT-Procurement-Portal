@@ -268,6 +268,66 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/users/roles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Roles
+         * @description GET /api/v1/users/roles — list available roles in the organization.
+         */
+        get: operations["list_roles_api_v1_users_roles_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/users/{user_id}/roles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Assign User Role
+         * @description POST /api/v1/users/{user_id}/roles — assign a role to user.
+         */
+        post: operations["assign_user_role_api_v1_users__user_id__roles_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/users/{user_id}/roles/{role_code}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Remove User Role
+         * @description DELETE /api/v1/users/{user_id}/roles/{role_code} — remove role from user.
+         */
+        delete: operations["remove_user_role_api_v1_users__user_id__roles__role_code__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/users/{user_id}": {
         parameters: {
             query?: never;
@@ -1133,6 +1193,26 @@ export interface paths {
         put?: never;
         /** Create Requisition */
         post: operations["create_requisition_api_v1_requisitions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/requisitions/bulk": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Bulk Create Requisitions
+         * @description POST /api/v1/requisitions/bulk — create multiple requisitions in batch.
+         */
+        post: operations["bulk_create_requisitions_api_v1_requisitions_bulk_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2158,6 +2238,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/documents/upload": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Upload Document
+         * @description Upload and virus-scan a document attachment, storing in MinIO.
+         */
+        post: operations["upload_document_api_v1_documents_upload_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/documents/{id}/presigned-url": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Document Presigned Url
+         * @description Generate a 15-minute presigned download URL for a document.
+         */
+        get: operations["get_document_presigned_url_api_v1_documents__id__presigned_url_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/workflows/instances/{instance_id}": {
         parameters: {
             query?: never;
@@ -2359,6 +2479,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/workflows/templates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Templates
+         * @description GET /api/v1/workflows/templates — list all workflow templates for the organization.
+         */
+        get: operations["list_templates_api_v1_workflows_templates_get"];
+        put?: never;
+        /**
+         * Create Template
+         * @description POST /api/v1/workflows/templates — author a new workflow template.
+         */
+        post: operations["create_template_api_v1_workflows_templates_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/workflows/templates/{template_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Template Detail
+         * @description GET /api/v1/workflows/templates/{id} — get detailed template configuration.
+         */
+        get: operations["get_template_detail_api_v1_workflows_templates__template_id__get"];
+        /**
+         * Update Template
+         * @description PUT /api/v1/workflows/templates/{id} — update template configuration.
+         */
+        put: operations["update_template_api_v1_workflows_templates__template_id__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/approval-rules": {
         parameters: {
             query?: never;
@@ -2390,7 +2558,11 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /**
+         * Get Rule
+         * @description Get single approval rule detail.
+         */
+        get: operations["get_rule_api_v1_approval_rules__rule_id__get"];
         /**
          * Update Rule
          * @description Update an approval rule (must be inactive to update).
@@ -2529,7 +2701,7 @@ export interface paths {
         put?: never;
         /**
          * Login
-         * @description POST /api/v1/auth/login — password login. Returns access_token; sets refresh_token cookie.
+         * @description POST /api/v1/auth/login — password login. Returns access_token; sets portal-scoped refresh_token cookie.
          */
         post: operations["login_api_v1_auth_login_post"];
         delete?: never;
@@ -2549,7 +2721,7 @@ export interface paths {
         put?: never;
         /**
          * Refresh
-         * @description POST /api/v1/auth/refresh — reads refresh_token from httpOnly cookie.
+         * @description POST /api/v1/auth/refresh — reads refresh_token from portal-scoped httpOnly cookie.
          */
         post: operations["refresh_api_v1_auth_refresh_post"];
         delete?: never;
@@ -2569,7 +2741,7 @@ export interface paths {
         put?: never;
         /**
          * Logout
-         * @description POST /api/v1/auth/logout — revokes session and clears refresh_token cookie.
+         * @description POST /api/v1/auth/logout — revokes session and clears portal-scoped refresh_token cookie.
          */
         post: operations["logout_api_v1_auth_logout_post"];
         delete?: never;
@@ -2698,6 +2870,206 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/rfqs/{rfq_id}/auction/state": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Auction State
+         * @description GET /api/v1/rfqs/{rfq_id}/auction/state — get live reverse auction room state.
+         */
+        get: operations["get_auction_state_api_v1_rfqs__rfq_id__auction_state_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/rfqs/{rfq_id}/auction/bid": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Place Auction Bid
+         * @description POST /api/v1/rfqs/{rfq_id}/auction/bid — place counter-bid in reverse auction.
+         */
+        post: operations["place_auction_bid_api_v1_rfqs__rfq_id__auction_bid_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auctions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Auctions */
+        get: operations["list_auctions_api_v1_auctions_get"];
+        put?: never;
+        /** Create Auction */
+        post: operations["create_auction_api_v1_auctions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auctions/{auction_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Auction */
+        get: operations["get_auction_api_v1_auctions__auction_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auctions/{auction_id}/open": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Open Auction */
+        post: operations["open_auction_api_v1_auctions__auction_id__open_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auctions/{auction_id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Cancel Auction */
+        post: operations["cancel_auction_api_v1_auctions__auction_id__cancel_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auctions/{auction_id}/release-results": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Release Results */
+        post: operations["release_results_api_v1_auctions__auction_id__release_results_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auctions/{auction_id}/leaderboard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Leaderboard
+         * @description Buyer-only: full leaderboard with prices and vendor names.
+         */
+        get: operations["get_leaderboard_api_v1_auctions__auction_id__leaderboard_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auctions/{auction_id}/my-rank": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get My Rank
+         * @description Vendor-only: own rank + L1 price (subject to rank_visibility config).
+         */
+        get: operations["get_my_rank_api_v1_auctions__auction_id__my_rank_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auctions/{auction_id}/bids": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Bid History */
+        get: operations["get_bid_history_api_v1_auctions__auction_id__bids_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auctions/{auction_id}/proxy-floor": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Set Proxy Floor */
+        post: operations["set_proxy_floor_api_v1_auctions__auction_id__proxy_floor_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -2710,7 +3082,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T12:49:59.269282
+             * @default 2026-09-04T21:20:38.708655
              */
             timestamp: string;
         };
@@ -2722,7 +3094,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T12:49:59.269282
+             * @default 2026-09-04T21:20:38.708655
              */
             timestamp: string;
         };
@@ -2735,7 +3107,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T12:49:59.269282
+             * @default 2026-09-04T21:20:38.708655
              */
             timestamp: string;
         };
@@ -2748,7 +3120,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T12:49:59.269282
+             * @default 2026-09-04T21:20:38.708655
              */
             timestamp: string;
         };
@@ -2761,7 +3133,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T12:49:59.269282
+             * @default 2026-09-04T21:20:38.708655
              */
             timestamp: string;
         };
@@ -2774,7 +3146,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T12:49:59.269282
+             * @default 2026-09-04T21:20:38.708655
              */
             timestamp: string;
         };
@@ -2787,7 +3159,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T12:49:59.269282
+             * @default 2026-09-04T21:20:38.708655
              */
             timestamp: string;
         };
@@ -2800,7 +3172,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T12:49:59.269282
+             * @default 2026-09-04T21:20:38.708655
              */
             timestamp: string;
         };
@@ -2815,7 +3187,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T12:49:59.269282
+             * @default 2026-09-04T21:20:38.708655
              */
             timestamp: string;
         };
@@ -2827,7 +3199,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T12:49:59.269282
+             * @default 2026-09-04T21:20:38.708655
              */
             timestamp: string;
         };
@@ -2839,7 +3211,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T12:49:59.269282
+             * @default 2026-09-04T21:20:38.708655
              */
             timestamp: string;
         };
@@ -2851,7 +3223,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T12:49:59.269282
+             * @default 2026-09-04T21:20:38.708655
              */
             timestamp: string;
         };
@@ -2863,7 +3235,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T12:49:59.269282
+             * @default 2026-09-04T21:20:38.708655
              */
             timestamp: string;
         };
@@ -2875,7 +3247,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T12:49:59.269282
+             * @default 2026-09-04T21:20:38.708655
              */
             timestamp: string;
         };
@@ -2887,7 +3259,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T12:49:59.269282
+             * @default 2026-09-04T21:20:38.708655
              */
             timestamp: string;
         };
@@ -2899,7 +3271,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T12:49:59.269282
+             * @default 2026-09-04T21:20:38.708655
              */
             timestamp: string;
         };
@@ -2950,51 +3322,6 @@ export interface components {
             /** Effective To */
             effective_to?: string | null;
         };
-        /** ApprovalRuleResponse */
-        ApprovalRuleResponse: {
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            /** Entity Type */
-            entity_type: string;
-            /** Rule Code */
-            rule_code: string;
-            /** Rule Name */
-            rule_name: string;
-            /** Priority */
-            priority: number;
-            /** Conditions */
-            conditions: {
-                [key: string]: unknown;
-            };
-            /** Condition Expression */
-            condition_expression: string | null;
-            /** Workflow Template Code */
-            workflow_template_code: string;
-            /** Is Active */
-            is_active: boolean;
-            /** Is Catch All */
-            is_catch_all: boolean;
-            /**
-             * Effective From
-             * Format: date-time
-             */
-            effective_from: string;
-            /** Effective To */
-            effective_to: string | null;
-            /**
-             * Created By
-             * Format: uuid
-             */
-            created_by: string;
-            /**
-             * Created At
-             * Format: date-time
-             */
-            created_at: string;
-        };
         /** ApprovalRuleSimulateRequest */
         ApprovalRuleSimulateRequest: {
             /** Entity Type */
@@ -3003,16 +3330,6 @@ export interface components {
             entity_context?: {
                 [key: string]: unknown;
             };
-        };
-        /** ApprovalRuleSimulateResponse */
-        ApprovalRuleSimulateResponse: {
-            matched_rule: components["schemas"]["ApprovalRuleResponse"] | null;
-            /** Workflow Template Code */
-            workflow_template_code: string | null;
-            /** Match Type */
-            match_type: string;
-            /** Evaluated Rules Count */
-            evaluated_rules_count: number;
         };
         /** ApprovalRuleUpdateRequest */
         ApprovalRuleUpdateRequest: {
@@ -3030,6 +3347,94 @@ export interface components {
             workflow_template_code?: string | null;
             /** Effective To */
             effective_to?: string | null;
+        };
+        /** AssignRoleRequest */
+        AssignRoleRequest: {
+            /** Role Code */
+            role_code: string;
+        };
+        /** AuctionBidRequest */
+        AuctionBidRequest: {
+            /** Amount */
+            amount: number;
+            /** Remarks */
+            remarks?: string | null;
+        };
+        /**
+         * AuctionConfig
+         * @description Stored in rfq.auction_config JSONB column.
+         */
+        AuctionConfig: {
+            /**
+             * Auction Start At
+             * Format: date-time
+             */
+            auction_start_at: string;
+            /**
+             * Auction Duration Minutes
+             * @default 60
+             */
+            auction_duration_minutes: number;
+            /** Lot Ids */
+            lot_ids?: string[];
+            /** Reserve Price Inr */
+            reserve_price_inr?: number | string | null;
+            /**
+             * Min Decrement Type
+             * @default PERCENTAGE
+             * @enum {string}
+             */
+            min_decrement_type: "PERCENTAGE" | "ABSOLUTE";
+            /**
+             * Min Decrement Value
+             * @default 0.5
+             */
+            min_decrement_value: number | string;
+            /**
+             * Rank Visibility
+             * @default RANK_ONLY
+             * @enum {string}
+             */
+            rank_visibility: "RANK_ONLY" | "PRICE_AND_RANK" | "NO_RANK";
+            /**
+             * Auto Extend
+             * @default true
+             */
+            auto_extend: boolean;
+            /**
+             * Auto Extend Trigger Minutes
+             * @default 5
+             */
+            auto_extend_trigger_minutes: number;
+            /**
+             * Auto Extend Duration Minutes
+             * @default 10
+             */
+            auto_extend_duration_minutes: number;
+            /**
+             * Max Extensions
+             * @default 3
+             */
+            max_extensions: number;
+            /**
+             * Allow Proxy Bid
+             * @default false
+             */
+            allow_proxy_bid: boolean;
+            /**
+             * Require All Lots
+             * @default true
+             */
+            require_all_lots: boolean;
+        };
+        /** AuctionCreateRequest */
+        AuctionCreateRequest: {
+            /**
+             * Rfq Id
+             * Format: uuid
+             */
+            rfq_id: string;
+            config: components["schemas"]["AuctionConfig"];
         };
         /** BidCountResponse */
         BidCountResponse: {
@@ -3247,6 +3652,24 @@ export interface components {
             /** File */
             file: string;
         };
+        /** Body_upload_document_api_v1_documents_upload_post */
+        Body_upload_document_api_v1_documents_upload_post: {
+            /** File */
+            file: string;
+            /** Entity Type */
+            entity_type: string;
+            /**
+             * Entity Id
+             * Format: uuid
+             */
+            entity_id: string;
+            category: components["schemas"]["DocumentCategory"];
+        };
+        /** CancelAuctionRequest */
+        CancelAuctionRequest: {
+            /** Reason */
+            reason: string;
+        };
         /** CategoryCreateRequest */
         CategoryCreateRequest: {
             /** Code */
@@ -3289,6 +3712,11 @@ export interface components {
              */
             broadcast: boolean;
         };
+        /**
+         * DocumentCategory
+         * @enum {string}
+         */
+        DocumentCategory: "TENDER" | "BID" | "COMPLIANCE" | "CONTRACT" | "PURCHASE_ORDER" | "GRN_SES" | "INVOICE" | "AUDIT";
         /** DuplicateCheckRequest */
         DuplicateCheckRequest: {
             /** Company Name */
@@ -3427,6 +3855,11 @@ export interface components {
             action: string;
             /** Comment */
             comment?: string | null;
+        };
+        /** PRBulkCreateRequest */
+        PRBulkCreateRequest: {
+            /** Items */
+            items: components["schemas"]["PRCreateRequest"][];
         };
         /** PRCreateRequest */
         PRCreateRequest: {
@@ -4308,6 +4741,13 @@ export interface components {
             /** Lines */
             lines?: components["schemas"]["RfqLineCreateRequest"][] | null;
         };
+        /** SetProxyFloorRequest */
+        SetProxyFloorRequest: {
+            /** Lot Id */
+            lot_id?: string | null;
+            /** Floor Amount Inr */
+            floor_amount_inr: number | string;
+        };
         /** SimulateRequest */
         SimulateRequest: {
             /** Template Code */
@@ -4465,6 +4905,8 @@ export interface components {
             password: string;
             /** Employee Id */
             employee_id?: string | null;
+            /** Roles */
+            roles?: string[] | null;
         };
         /** UserUpdateRequest */
         UserUpdateRequest: {
@@ -4478,6 +4920,8 @@ export interface components {
             language?: string | null;
             /** Timezone */
             timezone?: string | null;
+            /** Roles */
+            roles?: string[] | null;
         };
         /** ValidationError */
         ValidationError: {
@@ -4699,38 +5143,34 @@ export interface components {
             /** Onboarding Step */
             onboarding_step?: number | null;
         };
-        /** WorkflowSimulateResponse */
-        WorkflowSimulateResponse: {
-            /** Chain */
-            chain: components["schemas"]["WorkflowSimulateStepResponse"][];
-        };
-        /** WorkflowSimulateStepResponse */
-        WorkflowSimulateStepResponse: {
-            /** Step Number */
-            step_number: number;
-            /** Step Name */
-            step_name: string | null;
-            /** Step Type */
-            step_type?: string | null;
-            /** Approvers */
-            approvers?: components["schemas"]["WorkflowStepApprover"][] | null;
-            /** Sla Hours */
-            sla_hours?: number | null;
-            /** Convergence */
-            convergence?: string | null;
-            /** Condition Met */
-            condition_met: boolean;
-            /** Condition Expression */
-            condition_expression?: string | null;
-        };
-        /** WorkflowStepApprover */
-        WorkflowStepApprover: {
-            /** Id */
-            id: string;
+        /** WorkflowTemplateCreateRequest */
+        WorkflowTemplateCreateRequest: {
+            /** Code */
+            code: string;
             /** Name */
             name: string;
-            /** Role */
-            role: string | null;
+            /** Entity Type */
+            entity_type: string;
+            /** Steps */
+            steps: {
+                [key: string]: unknown;
+            }[];
+            /**
+             * Is Active
+             * @default true
+             */
+            is_active: boolean;
+        };
+        /** WorkflowTemplateUpdateRequest */
+        WorkflowTemplateUpdateRequest: {
+            /** Name */
+            name?: string | null;
+            /** Steps */
+            steps?: {
+                [key: string]: unknown;
+            }[] | null;
+            /** Is Active */
+            is_active?: boolean | null;
         };
         /** CancelRequest */
         app__modules__sourcing__schemas__CancelRequest: {
@@ -5110,6 +5550,99 @@ export interface operations {
                 "application/json": components["schemas"]["UserCreateRequest"];
             };
         };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_roles_api_v1_users_roles_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    assign_user_role_api_v1_users__user_id__roles_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AssignRoleRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    remove_user_role_api_v1_users__user_id__roles__role_code__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: string;
+                role_code: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description Successful Response */
             200: {
@@ -6804,6 +7337,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["APIResponse_PRDetailResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    bulk_create_requisitions_api_v1_requisitions_bulk_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PRBulkCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_List_PRDetailResponse__"];
                 };
             };
             /** @description Validation Error */
@@ -8911,6 +9477,70 @@ export interface operations {
             };
         };
     };
+    upload_document_api_v1_documents_upload_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_upload_document_api_v1_documents_upload_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_document_presigned_url_api_v1_documents__id__presigned_url_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_instance_api_v1_workflows_instances__instance_id__get: {
         parameters: {
             query?: never;
@@ -9233,7 +9863,137 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["WorkflowSimulateResponse"];
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_templates_api_v1_workflows_templates_get: {
+        parameters: {
+            query?: {
+                entity_type?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_template_api_v1_workflows_templates_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WorkflowTemplateCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_template_detail_api_v1_workflows_templates__template_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                template_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_template_api_v1_workflows_templates__template_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                template_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WorkflowTemplateUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
                 };
             };
             /** @description Validation Error */
@@ -9295,6 +10055,37 @@ export interface operations {
         responses: {
             /** @description Successful Response */
             201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_rule_api_v1_approval_rules__rule_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                rule_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -9460,7 +10251,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ApprovalRuleSimulateResponse"];
+                    "application/json": unknown;
                 };
             };
             /** @description Validation Error */
@@ -9682,6 +10473,7 @@ export interface operations {
             query: {
                 provider: string;
                 org_id: string;
+                portal?: string | null;
             };
             header?: never;
             path?: never;
@@ -9713,7 +10505,9 @@ export interface operations {
     };
     sso_callback_api_v1_auth_sso_callback_post: {
         parameters: {
-            query?: never;
+            query?: {
+                state?: string | null;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -9729,6 +10523,15 @@ export interface operations {
                     "application/json": unknown;
                 };
             };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
         };
     };
     oidc_callback_api_v1_auth_sso_oidc_callback_get: {
@@ -9742,6 +10545,395 @@ export interface operations {
             cookie?: never;
         };
         requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_auction_state_api_v1_rfqs__rfq_id__auction_state_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                rfq_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    place_auction_bid_api_v1_rfqs__rfq_id__auction_bid_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                rfq_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AuctionBidRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_auctions_api_v1_auctions_get: {
+        parameters: {
+            query?: {
+                rfq_id?: string | null;
+                status?: string | null;
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_auction_api_v1_auctions_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AuctionCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_auction_api_v1_auctions__auction_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                auction_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    open_auction_api_v1_auctions__auction_id__open_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                auction_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    cancel_auction_api_v1_auctions__auction_id__cancel_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                auction_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CancelAuctionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    release_results_api_v1_auctions__auction_id__release_results_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                auction_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_leaderboard_api_v1_auctions__auction_id__leaderboard_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                auction_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_my_rank_api_v1_auctions__auction_id__my_rank_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                auction_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_bid_history_api_v1_auctions__auction_id__bids_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                auction_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    set_proxy_floor_api_v1_auctions__auction_id__proxy_floor_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                auction_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetProxyFloorRequest"];
+            };
+        };
         responses: {
             /** @description Successful Response */
             200: {

@@ -105,11 +105,64 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={isPending}
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            {isPending ? "Signing in..." : "Sign in"}
+            {isPending ? "Signing in..." : "Sign in with Credentials"}
           </button>
         </form>
+
+        <div className="relative my-6">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-200" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-white px-2 text-gray-500 font-medium">Or Enterprise Single Sign-On</span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <button
+            type="button"
+            onClick={async () => {
+              try {
+                const orgId = process.env.NEXT_PUBLIC_DEFAULT_ORG_ID ?? "00000000-0000-0000-0000-000000000001";
+                const res = await (await import("@procurement/utils")).apiClient.get<{ data: { redirect_url: string } }>(
+                  `/auth/sso/initiate?provider=oidc&org_id=${orgId}&portal=buyer`
+                );
+                if (res.data?.data?.redirect_url) {
+                  window.location.href = res.data.data.redirect_url;
+                }
+              } catch (err: any) {
+                alert(err?.response?.data?.error?.message || "Failed to initiate OIDC login");
+              }
+            }}
+            className="w-full flex items-center justify-center gap-2 py-2.5 px-3 border border-gray-300 rounded-lg text-xs font-semibold text-gray-700 bg-white hover:bg-gray-50 shadow-sm transition-colors"
+          >
+            <span className="w-2 h-2 rounded-full bg-blue-500" />
+            Okta / OIDC
+          </button>
+
+          <button
+            type="button"
+            onClick={async () => {
+              try {
+                const orgId = process.env.NEXT_PUBLIC_DEFAULT_ORG_ID ?? "00000000-0000-0000-0000-000000000001";
+                const res = await (await import("@procurement/utils")).apiClient.get<{ data: { redirect_url: string } }>(
+                  `/auth/sso/initiate?provider=saml&org_id=${orgId}&portal=buyer`
+                );
+                if (res.data?.data?.redirect_url) {
+                  window.location.href = res.data.data.redirect_url;
+                }
+              } catch (err: any) {
+                alert(err?.response?.data?.error?.message || "Failed to initiate SAML login");
+              }
+            }}
+            className="w-full flex items-center justify-center gap-2 py-2.5 px-3 border border-gray-300 rounded-lg text-xs font-semibold text-gray-700 bg-white hover:bg-gray-50 shadow-sm transition-colors"
+          >
+            <span className="w-2 h-2 rounded-full bg-cyan-600" />
+            Azure AD / SAML
+          </button>
+        </div>
       </div>
     </div>
   );

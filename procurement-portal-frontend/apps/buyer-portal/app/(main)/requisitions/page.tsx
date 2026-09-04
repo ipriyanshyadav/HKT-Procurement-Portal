@@ -8,7 +8,8 @@ import {
   useMergeRequisitions,
   Requisition,
 } from "@procurement/hooks";
-import { PermissionGuard } from "@procurement/ui";
+import { PermissionGuard, Badge, Button } from "@procurement/ui";
+import { ArrowRight } from "lucide-react";
 
 export default function RequisitionsListPage() {
   const router = useRouter();
@@ -60,27 +61,6 @@ export default function RequisitionsListPage() {
     }
   };
 
-  const getStatusBadgeClass = (status: string) => {
-    switch (status) {
-      case "APPROVED":
-      case "CONVERTED":
-        return "bg-green-100 text-green-800 border-green-200";
-      case "PENDING_APPROVAL":
-      case "SUBMITTED":
-        return "bg-blue-100 text-blue-800 border-blue-200";
-      case "IN_SOURCING":
-        return "bg-purple-100 text-purple-800 border-purple-200";
-      case "DRAFT":
-        return "bg-gray-100 text-gray-700 border-gray-200";
-      case "REJECTED":
-      case "CANCELLED":
-      case "WITHDRAWN":
-        return "bg-red-100 text-red-800 border-red-200";
-      default:
-        return "bg-gray-100 text-gray-800 border-gray-200";
-    }
-  };
-
   return (
     <div className="w-full space-y-6">
       {/* Header */}
@@ -103,6 +83,14 @@ export default function RequisitionsListPage() {
               </button>
             </PermissionGuard>
           )}
+          <PermissionGuard permission="pr.create">
+            <Link
+              href="/requisitions/import"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 text-sm font-semibold rounded-lg shadow-sm transition-colors"
+            >
+              <span>📥 Import CSV</span>
+            </Link>
+          </PermissionGuard>
           <PermissionGuard permission="pr.create">
             <Link
               href="/requisitions/new"
@@ -244,20 +232,21 @@ export default function RequisitionsListPage() {
                       {pr.currency} {Number(pr.estimated_value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </td>
                     <td className="px-4 py-3.5">
-                      <span className={`inline-flex px-2 py-0.5 text-xs font-semibold rounded-full border ${getStatusBadgeClass(pr.status)}`}>
+                      <Badge variant={pr.status}>
                         {pr.status.replace(/_/g, " ")}
-                      </span>
+                      </Badge>
                     </td>
                     <td className="px-4 py-3.5 text-xs text-gray-500">
                       {pr.required_by_date ? new Date(pr.required_by_date).toLocaleDateString() : "—"}
                     </td>
                     <td className="px-4 py-3.5 text-right">
-                      <Link
-                        href={`/requisitions/${pr.id}`}
-                        className="text-xs font-semibold text-blue-600 hover:text-blue-800"
-                      >
-                        View Details →
-                      </Link>
+                      <div className="flex items-center justify-end gap-2">
+                        <Link href={`/requisitions/${pr.id}`}>
+                          <Button variant="secondary" size="sm" icon={<ArrowRight className="w-3.5 h-3.5" />}>
+                            View
+                          </Button>
+                        </Link>
+                      </div>
                     </td>
                   </tr>
                 ))

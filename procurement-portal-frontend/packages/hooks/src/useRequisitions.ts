@@ -388,3 +388,16 @@ export function useAutoMapPR() {
     },
   });
 }
+
+export function useBulkCreateRequisitions() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload: { items: CreateRequisitionPayload[] }) => {
+      const response = await apiClient.post("/requisitions/bulk", payload);
+      return response.data.data as RequisitionDetail[];
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["requisitions"] });
+    },
+  });
+}
