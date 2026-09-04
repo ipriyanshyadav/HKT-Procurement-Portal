@@ -326,6 +326,74 @@ async def seed_demo():
                 db.add(vendor)
                 logger.info("Created Vendor: %s", vdata["company_name"])
 
+        # 10.1 Supplier Demo User & Role Permissions
+        res = await db.execute(select(Vendor).where(and_(Vendor.org_id == DEFAULT_ORG_ID, Vendor.vendor_code == "V-10001")))
+        acme_vendor = res.scalar_one_or_none()
+        if acme_vendor:
+            supplier_email = "supplier@acme.com"
+            res = await db.execute(select(User).where(and_(User.org_id == DEFAULT_ORG_ID, User.email == supplier_email)))
+            supplier_user = res.scalar_one_or_none()
+            if not supplier_user:
+                supplier_user = User(
+                    org_id=DEFAULT_ORG_ID,
+                    email=supplier_email,
+                    password_hash=hash_password("Supplier123456!@#"),
+                    first_name="Acme",
+                    last_name="Supplier",
+                    employee_id="VEND-EMP-001",
+                    status=UserStatusEnum.ACTIVE,
+                    mfa_enabled=False,
+                    is_supplier_user=True,
+                    vendor_id=acme_vendor.id,
+                )
+                db.add(supplier_user)
+                await db.flush()
+                logger.info("Created Demo Supplier User: %s", supplier_email)
+
+            res = await db.execute(select(Role).where(and_(Role.org_id == DEFAULT_ORG_ID, Role.code == "SUPPLIER")))
+            sup_role = res.scalar_one_or_none()
+            if sup_role:
+                res = await db.execute(
+                    select(UserRoleAssignment).where(
+                        and_(
+                            UserRoleAssignment.user_id == supplier_user.id,
+                            UserRoleAssignment.role_id == sup_role.id,
+                        )
+                    )
+                )
+                if not res.scalar_one_or_none():
+                    assignment = UserRoleAssignment(
+                        org_id=DEFAULT_ORG_ID,
+                        user_id=supplier_user.id,
+                        role_id=sup_role.id,
+                        is_active=True,
+                    )
+                    db.add(assignment)
+                    logger.info("Assigned role SUPPLIER to %s", supplier_email)
+
+                # Ensure SUPPLIER role has supplier permissions
+                supplier_perms = [
+                    "vendor.view_own", "bid.submit", "bid.view_own", "bid.revise",
+                    "bid.withdraw", "invoice.submit", "invoice.view_own", "po.acknowledge",
+                    "po.view_own", "grn.view_own", "document.upload", "document.view_own",
+                    "notification.view_own", "user.view_own", "user.update_own", "contract.view_own"
+                ]
+                for pcode in supplier_perms:
+                    res = await db.execute(text("SELECT id FROM permissions WHERE code = :code"), {"code": pcode})
+                    perm_row = res.fetchone()
+                    if perm_row:
+                        perm_id = perm_row[0]
+                        await db.execute(text("""
+                            INSERT INTO role_permissions (id, org_id, role_id, permission_id)
+                            VALUES (:id, :org_id, :role_id, :permission_id)
+                            ON CONFLICT (org_id, role_id, permission_id) DO NOTHING
+                        """), {
+                            "id": uuid4(),
+                            "org_id": DEFAULT_ORG_ID,
+                            "role_id": sup_role.id,
+                            "permission_id": perm_id,
+                        })
+
         # 11. Sample Requisitions
         buyer_user = created_users["buyer@procurement.com"]
         pr_samples = [

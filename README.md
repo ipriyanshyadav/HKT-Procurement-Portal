@@ -1,15 +1,16 @@
 # Procurement Portal — Enterprise S2C & P2P Platform
 
 ## Current Session State
-**Status:** Local Development Setup & Portals Runtime COMPLETED (100%)
+**Status:** Portals End-to-End Bug Fixes Verified (100%)
 **Completed:**
-- **Backend Auth & Session Pipeline:** Fixed `UserSession` tracking by unifying `session_jti` across access/refresh tokens and importing all module models in `app/main.py` so SQLAlchemy foreign keys to `organizations` resolve during commit. Made `org_id` optional in `LoginRequest` with automatic tenant resolution. Verified `POST /auth/login`, `GET /users/me`, and `GET /users/me/permissions` for admin, buyer, and approver.
-- **Frontend Portals Wiring (3000, 3001, 3002):** Configured Tailwind CSS and PostCSS across all apps (`apps/buyer-portal`, `apps/admin-portal`, `apps/supplier-portal`); imported `globals.css` in all root layouts; created supplier login page (`apps/supplier-portal/app/(auth)/login/page.tsx`) resolving 404 on port 3001; redirected admin portal root to `/master-data/categories` on port 3002; updated buyer portal login to redirect to `/requisitions` on port 3000.
-- **Verification:** All 3 Next.js applications build with 0 errors (`turbo build`); dev servers healthy on ports 3000, 3001, 3002; Pytest suite passing (220 tests, 100% pass).
+- **Admin Portal (3002):** Created `apps/admin-portal/app/(auth)/login/page.tsx` resolving 404; fixed recursive CTE in `CategoryService.get_tree` to dynamically compute category paths without requiring non-existent columns.
+- **Supplier Portal (3001):** Seeded demo supplier user `supplier@acme.com` linked to vendor `V-10001` (Acme Tech Solutions) with role `SUPPLIER` and verified profile loading at `/profile`.
+- **Buyer Portal (3000):** Fixed `PaginationMeta` schema compatibility in `responses.py` for `/requisitions`; resolved cookie session churn in `auth/router.py` with `COOKIE_SECURE=False` for local dev; verified PR list loading.
+- **Verification:** Automated unit & integration tests passing (234 passing, 0 failed); `turbo build` passes across all 7 packages/apps; graphify updated (3,438 nodes, 7,539 edges).
 **Migration Head:** 0027_data_seed
 **Test Commands:** `OTEL_SDK_DISABLED=true .venv/bin/pytest tests/unit tests/integration/test_auth_router.py -v`
 **Next:** SPEC_10 RFQ Lifecycle
-**Graphify:** 3434 nodes, 7513 edges, 295 communities
+**Graphify:** 3438 nodes, 7539 edges, 284 communities
 
 ---
 

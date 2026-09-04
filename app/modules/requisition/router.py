@@ -74,10 +74,14 @@ async def list_requisitions(
     )
     total_pages = math.ceil(total / page_size) if total > 0 else 1
     meta = PaginationMeta(
+        page=page,
+        page_size=page_size,
+        total_count=total,
+        total_pages=total_pages,
+        has_next=page < total_pages,
+        has_prev=page > 1,
         total_records=total,
         page_number=page,
-        page_size=page_size,
-        total_pages=total_pages,
         has_next_page=page < total_pages,
         has_prev_page=page > 1,
     )

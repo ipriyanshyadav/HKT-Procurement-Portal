@@ -199,11 +199,11 @@ class CategoryService:
         if root_id:
             cte_sql = text("""
                 WITH RECURSIVE cat_tree AS (
-                    SELECT id, name, code, parent_id, level, path, is_active, unspsc_code, 0 as depth
+                    SELECT id, name, code, parent_id, level, CAST('/' || code AS text) as path, is_active, CAST(NULL AS text) as unspsc_code, 0 as depth
                     FROM categories
                     WHERE id = :root_id AND org_id = :org_id AND deleted_at IS NULL
                     UNION ALL
-                    SELECT c.id, c.name, c.code, c.parent_id, c.level, c.path, c.is_active, c.unspsc_code, ct.depth + 1
+                    SELECT c.id, c.name, c.code, c.parent_id, c.level, CAST(ct.path || '/' || c.code AS text) as path, c.is_active, CAST(NULL AS text) as unspsc_code, ct.depth + 1
                     FROM categories c
                     INNER JOIN cat_tree ct ON c.parent_id = ct.id
                     WHERE c.org_id = :org_id AND c.deleted_at IS NULL
@@ -216,11 +216,11 @@ class CategoryService:
         else:
             cte_sql = text("""
                 WITH RECURSIVE cat_tree AS (
-                    SELECT id, name, code, parent_id, level, path, is_active, unspsc_code, 0 as depth
+                    SELECT id, name, code, parent_id, level, CAST('/' || code AS text) as path, is_active, CAST(NULL AS text) as unspsc_code, 0 as depth
                     FROM categories
                     WHERE parent_id IS NULL AND org_id = :org_id AND deleted_at IS NULL
                     UNION ALL
-                    SELECT c.id, c.name, c.code, c.parent_id, c.level, c.path, c.is_active, c.unspsc_code, ct.depth + 1
+                    SELECT c.id, c.name, c.code, c.parent_id, c.level, CAST(ct.path || '/' || c.code AS text) as path, c.is_active, CAST(NULL AS text) as unspsc_code, ct.depth + 1
                     FROM categories c
                     INNER JOIN cat_tree ct ON c.parent_id = ct.id
                     WHERE c.org_id = :org_id AND c.deleted_at IS NULL
@@ -272,11 +272,11 @@ class CategoryService:
         """Traverse upwards to get the breadcrumb trail of ancestors."""
         sql = text("""
             WITH RECURSIVE ancestors AS (
-                SELECT id, name, code, parent_id, level, path
+                SELECT id, name, code, parent_id, level, CAST('/' || code AS text) as path
                 FROM categories
                 WHERE id = :cat_id AND org_id = :org_id AND deleted_at IS NULL
                 UNION ALL
-                SELECT c.id, c.name, c.code, c.parent_id, c.level, c.path
+                SELECT c.id, c.name, c.code, c.parent_id, c.level, CAST('/' || c.code AS text) as path
                 FROM categories c
                 INNER JOIN ancestors a ON c.id = a.parent_id
                 WHERE c.org_id = :org_id AND c.deleted_at IS NULL

@@ -55,7 +55,11 @@ async def get_current_user(
 
     # Step 6: Verify session exists and not revoked
     session = await session_repository.get_by_jti(db, jti)
-    if not session or session.is_revoked:
+    if not session:
+        logger.warning(f"get_current_user: session NOT FOUND for jti={jti}")
+        raise AuthenticationError("Session has been revoked")
+    if session.is_revoked:
+        logger.warning(f"get_current_user: session is_revoked=True for jti={jti}, reason={session.revoked_reason}")
         raise AuthenticationError("Session has been revoked")
 
     # Step 7: Inactivity timeout check

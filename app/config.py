@@ -50,6 +50,10 @@ class Settings(BaseSettings):
     MAX_FAILED_LOGIN_ATTEMPTS: int = 5
     LOGIN_LOCKOUT_MINUTES: int = 30
 
+    # Cookies
+    COOKIE_SECURE: bool = False
+    COOKIE_SAMESITE: Literal["lax", "strict", "none"] = "lax"
+
     # Field Encryption
     FIELD_ENCRYPTION_KEY: str = "default_key_needs_replacement"
 

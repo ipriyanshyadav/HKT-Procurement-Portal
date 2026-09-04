@@ -26,14 +26,16 @@ async def login(
 ) -> JSONResponse:
     """POST /api/v1/auth/login — password login. Returns access_token; sets refresh_token cookie."""
     result = await auth_service.login(db, data.email, data.password, data.org_id)
+    await db.commit()
     response = JSONResponse(content=result.to_response())
     if result.refresh_token:
         response.set_cookie(
             key="refresh_token",
             value=result.refresh_token,
             httponly=True,
-            secure=True,
-            samesite="strict",
+            secure=settings.COOKIE_SECURE,
+            samesite=settings.COOKIE_SAMESITE,
+            path="/",
             max_age=settings.JWT_REFRESH_TOKEN_EXPIRE_HOURS * 3600,
         )
     return response
@@ -49,13 +51,15 @@ async def refresh(
     if not refresh_token:
         raise AppException("Refresh token not found in cookie", "MISSING_REFRESH_TOKEN")
     result = await auth_service.refresh_token(db, refresh_token)
+    await db.commit()
     response = JSONResponse(content={"data": {"access_token": result.access_token}})
     response.set_cookie(
         key="refresh_token",
         value=result.refresh_token,
         httponly=True,
-        secure=True,
-        samesite="strict",
+        secure=settings.COOKIE_SECURE,
+        samesite=settings.COOKIE_SAMESITE,
+        path="/",
         max_age=settings.JWT_REFRESH_TOKEN_EXPIRE_HOURS * 3600,
     )
     return response
@@ -71,8 +75,14 @@ async def logout(
     refresh_token = request.cookies.get("refresh_token", "")
     if refresh_token:
         await auth_service.logout(db, current_user, refresh_token)
+        await db.commit()
     response = JSONResponse(content={"data": {"message": "Logged out successfully"}})
-    response.delete_cookie("refresh_token")
+    response.delete_cookie(
+        "refresh_token",
+        path="/",
+        secure=settings.COOKIE_SECURE,
+        samesite=settings.COOKIE_SAMESITE,
+    )
     return response
 
 
@@ -83,14 +93,16 @@ async def verify_mfa(
 ) -> JSONResponse:
     """POST /api/v1/auth/mfa/verify — exchanges mfa_token + TOTP code for access token."""
     result = await auth_service.verify_mfa(db, data.mfa_token, data.totp_code)
+    await db.commit()
     response = JSONResponse(content=result.to_response())
     if result.refresh_token:
         response.set_cookie(
             key="refresh_token",
             value=result.refresh_token,
             httponly=True,
-            secure=True,
-            samesite="strict",
+            secure=settings.COOKIE_SECURE,
+            samesite=settings.COOKIE_SAMESITE,
+            path="/",
             max_age=settings.JWT_REFRESH_TOKEN_EXPIRE_HOURS * 3600,
         )
     return response

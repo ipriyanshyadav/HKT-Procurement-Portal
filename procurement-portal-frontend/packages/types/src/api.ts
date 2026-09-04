@@ -2018,7 +2018,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T08:43:32.109179
+             * @default 2026-09-04T09:14:40.450787
              */
             timestamp: string;
         };
@@ -2031,7 +2031,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T08:43:32.109179
+             * @default 2026-09-04T09:14:40.450787
              */
             timestamp: string;
         };
@@ -2044,7 +2044,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T08:43:32.109179
+             * @default 2026-09-04T09:14:40.450787
              */
             timestamp: string;
         };
@@ -2059,7 +2059,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T08:43:32.109179
+             * @default 2026-09-04T09:14:40.450787
              */
             timestamp: string;
         };
@@ -2071,7 +2071,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T08:43:32.109179
+             * @default 2026-09-04T09:14:40.450787
              */
             timestamp: string;
         };
@@ -2083,7 +2083,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T08:43:32.109179
+             * @default 2026-09-04T09:14:40.450787
              */
             timestamp: string;
         };
@@ -2095,7 +2095,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T08:43:32.109179
+             * @default 2026-09-04T09:14:40.450787
              */
             timestamp: string;
         };
@@ -2722,18 +2722,44 @@ export interface components {
         };
         /** PaginationMeta */
         PaginationMeta: {
-            /** Page */
+            /**
+             * Page
+             * @default 1
+             */
             page: number;
-            /** Page Size */
+            /**
+             * Page Size
+             * @default 20
+             */
             page_size: number;
-            /** Total Count */
+            /**
+             * Total Count
+             * @default 0
+             */
             total_count: number;
-            /** Total Pages */
+            /**
+             * Total Pages
+             * @default 1
+             */
             total_pages: number;
-            /** Has Next */
+            /**
+             * Has Next
+             * @default false
+             */
             has_next: boolean;
-            /** Has Prev */
+            /**
+             * Has Prev
+             * @default false
+             */
             has_prev: boolean;
+            /** Page Number */
+            page_number?: number | null;
+            /** Total Records */
+            total_records?: number | null;
+            /** Has Next Page */
+            has_next_page?: boolean | null;
+            /** Has Prev Page */
+            has_prev_page?: boolean | null;
         };
         /** PennyTestConfirmRequest */
         PennyTestConfirmRequest: {
