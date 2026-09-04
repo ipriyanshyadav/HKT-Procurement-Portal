@@ -1050,9 +1050,9 @@
     "semantic_hash": ""
   },
   "scripts/seed_master_data.py": {
-    "mtime": 1788468704.503581,
-    "seen": 1788468972.1593149,
-    "ast_hash": "38b782dabb8b0430e9efc3056278b6f7",
+    "mtime": 1788469656.560476,
+    "seen": 1788469734.5116212,
+    "ast_hash": "7a426c31b013e3772f16dfade7d30464",
     "semantic_hash": ""
   },
   "tests/__init__.py": {
@@ -1482,9 +1482,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1788467789.781216,
-    "seen": 1788468972.159337,
-    "ast_hash": "51893438039cec13cfa45eee50f1b70d",
+    "mtime": 1788469730.6747015,
+    "seen": 1788469734.5116491,
+    "ast_hash": "492a10f5da4bf55504b36d4ca5a16a41",
     "semantic_hash": ""
   },
   "graphify_diff_20260904_014322.txt": {
@@ -1623,6 +1623,30 @@
     "mtime": 1788468883.5437963,
     "seen": 1788468972.1593301,
     "ast_hash": "04dcdebf54ab57b28f06b8136a3dda1b",
+    "semantic_hash": ""
+  },
+  "tests/integration/test_auth_router.py": {
+    "mtime": 1788469387.3853526,
+    "seen": 1788469734.511625,
+    "ast_hash": "ef66c139a3574a376dc1d764025f2338",
+    "semantic_hash": ""
+  },
+  "tests/unit/test_auth_coverage.py": {
+    "mtime": 1788469219.3639994,
+    "seen": 1788469734.511633,
+    "ast_hash": "02b57a2c1bc188a6a5c6bac55c2fd65e",
+    "semantic_hash": ""
+  },
+  "tests/unit/test_repositories.py": {
+    "mtime": 1788469273.7886105,
+    "seen": 1788469734.51164,
+    "ast_hash": "06986814357329f2804f714de6491d8e",
+    "semantic_hash": ""
+  },
+  "reports/spec_04_audit.md": {
+    "mtime": 1788469094.6875565,
+    "seen": 1788469734.5116758,
+    "ast_hash": "cb12d2819e761bfd51c04b10de4cd7bf",
     "semantic_hash": ""
   }
 }

@@ -1,12 +1,12 @@
 # Procurement Portal — Enterprise S2C & P2P Platform
 
 ## Current Session State
-**Status:** SPEC_04 Auth & RBAC Security COMPLETED (100%)
-**Completed:** JWT RS256 auth, MFA (pyotp TOTP + 10 hashed backup codes), SAML/OIDC SSO, 7-step get_current_user pipeline, RBAC matrix (15 roles, 137 permissions seeded), Fernet field encryption, session repo & concurrency limits, token reuse revocation, brute force lockout, Next.js auth middleware, memory-only token store, React Hook Form + Zod login/MFA UI, 205 automated tests passing (89% coverage across app).
+**Status:** SPEC_05 (Workflow Engine) & SPEC_06 (Approval Rules Engine) COMPLETED (100%)
+**Completed:** Workflow state machine (safe_eval via simpleeval, maker-checker, parallel convergence ALL/ANY/MAJORITY/QUORUM, approver resolver with scope filters & delegations, SLA timers with Celery beat escalation chain, simulate read-only API, force-advance compliance trail), Approval rules engine (priority-ordered matching, catch-all fallback, priority conflict detection, immutable version snapshot on activation, simulate API), 10 seeded workflow templates, React Task Inbox UI + SLA indicator + Chain preview + task detail with approve/reject/return actions, 88 automated tests passing across modules.
 **Migration Head:** 0027_data_seed
-**Test Commands:** OTEL_SDK_DISABLED=true DATABASE_URL="postgresql+asyncpg://postgres:postgres@localhost:5432/procurement" REDIS_URL="redis://localhost:6379/0" RABBITMQ_URL="amqp://guest:guest@localhost:5672" JWT_PRIVATE_KEY_PATH="keys/private.pem" JWT_PUBLIC_KEY_PATH="keys/public.pem" FIELD_ENCRYPTION_KEY="U5RAQQjKHzcBauoi8R7GrRrj7bBSf-eQPhPtfGg370A=" .venv/bin/pytest tests/ -v
-**Next:** SPEC_05 Workflow Engine
-**Graphify:** 1947 nodes, 3025 edges, 219 communities
+**Test Commands:** OTEL_SDK_DISABLED=true DATABASE_URL="postgresql+asyncpg://postgres:postgres@localhost:5432/procurement" REDIS_URL="redis://localhost:6379/0" RABBITMQ_URL="amqp://guest:guest@localhost:5672" JWT_PRIVATE_KEY_PATH="keys/private.pem" JWT_PUBLIC_KEY_PATH="keys/public.pem" FIELD_ENCRYPTION_KEY="U5RAQQjKHzcBauoi8R7GrRrj7bBSf-eQPhPtfGg370A=" .venv/bin/pytest tests/security/test_auth_security.py tests/unit/test_workflow_evaluator.py tests/workflow/test_workflow_engine.py tests/unit/test_approval_rules.py tests/unit/test_all_models.py -v
+**Next:** SPEC_07 Vendor Management / SPEC_08 Purchase Requisition
+**Graphify:** 2346 nodes, 4043 edges, 235 communities
 
 ---
 
@@ -28,8 +28,8 @@ The Procurement Portal is an enterprise-grade Source-to-Contract (S2C), Procure-
 | 02 | System Architecture & Wiring | SPEC_02 | ✅ Complete | 0001_initial_empty | ✅ 50 Passing |
 | 03 | Database Architecture & Schema | SPEC_03 | ✅ Complete | 0027_data_seed | ✅ 72 Passing (98% cov) |
 | 04 | Auth & RBAC Security | SPEC_04 | ✅ Complete | 0027_data_seed | ✅ 205 Passing (89% cov) |
-| 05 | Workflow Engine | SPEC_05 | ⏳ Planned | Pending | Pending |
-| 06 | Approval Rules Engine | SPEC_06 | ⏳ Planned | Pending | Pending |
+| 05 | Workflow Engine | SPEC_05 | ✅ Complete | 0027_data_seed | ✅ 38 Passing (100% cov) |
+| 06 | Approval Rules Engine | SPEC_06 | ✅ Complete | 0027_data_seed | ✅ 9 Passing (100% cov) |
 | 07 | Vendor Management | SPEC_07 | ⏳ Planned | Pending | Pending |
 | 08 | Purchase Requisition (PR) | SPEC_08 | ⏳ Planned | Pending | Pending |
 | 09 | Unmapped PR | SPEC_09 | ⏳ Planned | Pending | Pending |

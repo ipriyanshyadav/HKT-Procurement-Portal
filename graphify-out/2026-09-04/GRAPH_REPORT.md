@@ -1,12 +1,12 @@
 # Graph Report - procurement-portal  (2026-09-04)
 
 ## Corpus Check
-- 264 files · ~147,183 words
+- 268 files · ~150,964 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1837 nodes · 2789 edges · 221 communities (104 shown, 79 thin omitted)
-- Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 106 edges (avg confidence: 0.92)
+- 1947 nodes · 3025 edges · 219 communities (102 shown, 79 thin omitted)
+- Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 119 edges (avg confidence: 0.92)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
@@ -97,7 +97,7 @@
 - Frontend Backend Wiring Guide
 - SPEC AUDIT REPORT — SPEC_01 + SPEC_02
 - Plan Spec 07: Vendor Management
-- BaseRepository
+- SessionRepository
 - Request
 - Plan Spec 01: Project Overview & Governance
 - types/src/api.ts
@@ -120,7 +120,7 @@
 - requisition/router.py
 - sourcing/router.py
 - unmapped_pr/router.py
-- PermissionCode
+- auth/service.py
 - vendor/router.py
 - workflow/router.py
 - generate.ts
@@ -145,7 +145,7 @@
 - invoice/__init__.py
 - master_data/__init__.py
 - channels/__init__.py
-- jwt.py
+- decode_jwt
 - organization/__init__.py
 - payment/__init__.py
 - purchase_order/__init__.py
@@ -166,12 +166,12 @@
 - enums.py
 - BaseModel
 - test_all_models.py
-- auth/service.py
-- user/router.py
-- AuthService
+- test_auth_coverage.py
+- dependencies.py
+- test_auth_router.py
 - test_health.py
 - test_grn_and_invoice_models
-- workflow/models.py
+- create_access_token
 - Procurement Portal — Enterprise S2C & P2P Platform
 - 2. Requirement-by-Requirement Traceability
 - evaluation/models.py
@@ -184,15 +184,13 @@
 - 0002_create_enums.py
 - 0024_indexes.py
 - 0027_data_seed.py
-- decode_jwt
-- encrypt_field
-- hash_password
+- TestAccessToken
+- SPEC_04 Audit Report — Auth, Authorization & Security
+- jwt.py
 - TestPermanentlyDeniedPermissions
 - audit/service.py
 - .__init__
-- User
 - TestBruteForceProtection
-- bid/models.py
 - requisition/models.py
 - get_current_user
 - buyer-portal/middleware.ts
@@ -202,14 +200,14 @@
 ## God Nodes (most connected - your core abstractions)
 1. `BaseModel` - 119 edges
 2. `BaseEvent` - 49 edges
-3. `AppException` - 41 edges
-4. `decode_jwt()` - 38 edges
+3. `decode_jwt()` - 43 edges
+4. `AppException` - 43 edges
 5. `Base` - 38 edges
 6. `RedisKeys` - 37 edges
-7. `User` - 29 edges
-8. `AuthenticationError` - 20 edges
-9. `Implementation Prompts All Modules` - 18 edges
-10. `AuthService` - 17 edges
+7. `User` - 32 edges
+8. `AuthenticationError` - 22 edges
+9. `PermissionCode` - 21 edges
+10. `AuthService` - 19 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `seed_data()` --uses--> `PermissionCode`  [INFERRED]
@@ -237,7 +235,7 @@
 - **Cryptographic Sealing and Data Integrity Architecture** — specs_spec_10_rfq_lifecycle_bid_sealing_service, specs_spec_11_bid_management_bid_sha256_hash_integrity, specs_spec_17_document_management_clamav_virus_scanner, specs_spec_17_document_management_bid_document_sealing, specs_spec_23_testing_audit_validation_tests [INFERRED 0.95]
 - **Defense-in-Depth & Zero-Trust Security Architecture** — specs_spec_04_auth_security_auth_pipeline, specs_spec_04_auth_security_sod_enforcement, plans_plan_spec_20_integration_safehttpclient, plans_plan_spec_21_infrastructure_networkpolicies, plans_plan_spec_17_document_management_documentscanner [INFERRED 0.95]
 
-## Communities (221 total, 79 thin omitted)
+## Communities (219 total, 79 thin omitted)
 
 ### Community 0 - "Generic Finite State Machine Orchestrator"
 Cohesion: 0.20
@@ -316,8 +314,8 @@ Cohesion: 0.20
 Nodes (10): HRMS Employee Lifecycle Consumer, Elasticsearch Audit Search Service, Audit Logs Monthly Partitioning & Immutability, SPEC 03: Complete Database Specification, PostgreSQL Shared-Database Multi-Tenancy, Requisitions Database Schema, Vendors Database Schema, Workflow Database Tables (+2 more)
 
 ### Community 19 - "config.py"
-Cohesion: 0.06
-Nodes (32): get_settings(), Settings, AuditAction, AsyncSession, UUID, user_has_permission(), BaseSettings, Master data seed script. Seeds ALL permissions (100+), ALL 15 roles (REQUESTOR… (+24 more)
+Cohesion: 0.05
+Nodes (34): get_settings(), Settings, AuditAction, AsyncSession, UUID, user_has_permission(), BaseSettings, Master data seed script. Seeds ALL permissions (100+), ALL 15 roles (REQUESTOR… (+26 more)
 
 ### Community 20 - "GRN Linkage and Invoice Eligibility"
 Cohesion: 0.33
@@ -364,8 +362,8 @@ Cohesion: 0.05
 Nodes (39): dependencies, next, @procurement/hooks, @procurement/stores, @procurement/types, @procurement/ui, @procurement/utils, react (+31 more)
 
 ### Community 48 - "RedisKeys"
-Cohesion: 0.13
-Nodes (20): check_idempotency(), Any, Redis, store_idempotency(), UUID, RedisKeys, test_bid_seal(), test_exchange_rate_key() (+12 more)
+Cohesion: 0.05
+Nodes (36): AuthService, LoginResult, AsyncSession, UUID, Verify TOTP code and mark MFA as enabled., check_idempotency(), Any, Redis (+28 more)
 
 ### Community 49 - "ui/package.json"
 Cohesion: 0.06
@@ -376,8 +374,8 @@ Cohesion: 0.06
 Nodes (26): metadata, metadata, metadata, dependsOn, outputs, cache, cache, persistent (+18 more)
 
 ### Community 51 - "AppException"
-Cohesion: 0.22
-Nodes (21): Dependency: asserts user has MFA enabled (for privileged roles)., require_mfa_enabled(), AppException, AuthenticationError, BusinessRuleError, ConflictError, ForbiddenError, NotFoundError (+13 more)
+Cohesion: 0.26
+Nodes (18): AppException, AuthenticationError, BusinessRuleError, ConflictError, NotFoundError, OptimisticLockError, RateLimitError, ValidationError (+10 more)
 
 ### Community 52 - "compilerOptions"
 Cohesion: 0.09
@@ -499,61 +497,61 @@ Nodes (5): OVERALL, PARTIAL items (non-blocking for SPEC_01+02 scaffold), SPEC_0
 Cohesion: 0.40
 Nodes (5): Plan Spec 07: Vendor Management, Automated Compliance & KYC Verification, Bcrypt-Hashed Invitation Token Protocol, Vendor Lifecycle FSM, Dual-Provider E-Signature Adapter
 
-### Community 82 - "BaseRepository"
-Cohesion: 0.10
-Nodes (17): BaseRepository, AsyncSession, UUID, Generic repository providing base CRUD and soft delete abstractions., LegalEntity, AsyncSession, UUID, RoleRepository (+9 more)
+### Community 82 - "SessionRepository"
+Cohesion: 0.06
+Nodes (24): BaseRepository, AsyncSession, UUID, Generic repository providing base CRUD and soft delete abstractions., LegalEntity, AsyncSession, UUID, UserRepository (+16 more)
 
 ### Community 84 - "Plan Spec 01: Project Overview & Governance"
 Cohesion: 0.50
 Nodes (4): Plan Spec 01: Project Overview & Governance, Multi-Squad Governance Model, Procurement Portal Enterprise Scope, Superadmin Initialization Protocol
 
-### Community 106 - "PermissionCode"
-Cohesion: 0.13
-Nodes (24): PermissionCode, activate_user(), create_user(), deactivate_user(), get_me(), get_my_permissions(), get_user(), list_users() (+16 more)
+### Community 106 - "auth/service.py"
+Cohesion: 0.09
+Nodes (45): encrypt_totp_secret(), Generate TOTP secret and return URI for QR code. Not enabled until confirm_mfa., PermissionCode, verify_password(), DelegationRule, PasswordHistory, Permission, Role (+37 more)
 
 ### Community 112 - "auth/router.py"
-Cohesion: 0.09
-Nodes (35): confirm_mfa(), enroll_mfa(), login(), logout(), oidc_callback(), AsyncSession, get, post (+27 more)
+Cohesion: 0.08
+Nodes (38): confirm_mfa(), enroll_mfa(), login(), logout(), oidc_callback(), AsyncSession, get, post (+30 more)
 
 ### Community 127 - "validate_password_strength"
-Cohesion: 0.13
-Nodes (9): load_common_passwords(), mask_pii(), Returns masked value for logging. Never logs raw PII., validate_password_strength(), Unit tests for app.core.security — password hashing, validation, PII masking.…, Common passwords must be rejected if list is loaded., load_common_passwords should not raise even if file missing., TestMaskPII (+1 more)
+Cohesion: 0.10
+Nodes (12): hash_password(), load_common_passwords(), mask_pii(), Returns masked value for logging. Never logs raw PII., validate_password_strength(), Unit tests for app.core.security — password hashing, validation, PII masking.…, Common passwords must be rejected if list is loaded., load_common_passwords should not raise even if file missing. (+4 more)
 
-### Community 131 - "jwt.py"
-Cohesion: 0.15
-Nodes (13): create_access_token(), create_refresh_token(), _load_private_key(), _load_public_key(), UUID, Read PEM key from file path., _read_key(), SPEC_04 § 5 — Refresh token rotation: reuse of old token revokes all sessions. (+5 more)
+### Community 131 - "decode_jwt"
+Cohesion: 0.35
+Nodes (5): create_refresh_token(), decode_jwt(), Decode and verify a JWT. Raises AuthenticationError on failure., Unit tests for app.auth.jwt — RS256 token creation and decoding. SPEC_04 § 2…, TestRefreshToken
 
 ### Community 154 - "test_auth_security.py"
-Cohesion: 0.10
-Nodes (9): Security tests for SPEC_04 — auth security persona tests. CRITICAL: These tests…, SPEC_04 § 8.1 — Maker-Checker: creator cannot approve own PR., SPEC_04 § 6.3 — Max 5 concurrent sessions, 30-min inactivity timeout., SPEC_04 § 2 — JWT must contain all required claims., SPEC_04 § 4 — Password policy settings., TestJWTStructure, TestMakerCheckerSegregation, TestPasswordPolicy (+1 more)
+Cohesion: 0.12
+Nodes (7): Security tests for SPEC_04 — auth security persona tests. CRITICAL: These tests…, SPEC_04 § 8.1 — Maker-Checker: creator cannot approve own PR., SPEC_04 § 6.3 — Max 5 concurrent sessions, 30-min inactivity timeout., SPEC_04 § 4 — Password policy settings., TestMakerCheckerSegregation, TestPasswordPolicy, TestSessionManagement
 
 ### Community 161 - "Base"
-Cohesion: 0.23
-Nodes (14): Base, Database definitions., FeatureFlag, IntegrationJob, OutboxMessage, ScheduledJobRun, TenantSetting, CommunicationMessage (+6 more)
+Cohesion: 0.16
+Nodes (16): Base, Database definitions., FeatureFlag, IntegrationJob, OutboxMessage, ScheduledJobRun, TenantSetting, CommunicationMessage (+8 more)
 
 ### Community 162 - "enums.py"
 Cohesion: 0.15
 Nodes (25): ApprovalTaskStatus, AuditEntityType, BidStatus, ContractStatus, DocumentCategory, EvaluationType, IntegrationJobStatus, InvoiceStatus (+17 more)
 
 ### Community 163 - "BaseModel"
-Cohesion: 0.22
-Nodes (16): BaseModel, Category, CurrencyMaster, DeliveryLocation, DocumentType, ErpMaterialGroupMapping, HolidayMaster, Incoterm (+8 more)
+Cohesion: 0.21
+Nodes (22): BaseModel, Category, CurrencyMaster, DeliveryLocation, DocumentType, ErpMaterialGroupMapping, HolidayMaster, Incoterm (+14 more)
 
 ### Community 164 - "test_all_models.py"
-Cohesion: 0.22
-Nodes (12): Document, DocumentVersion, Dispute, DisputeMessage, PaymentRecord, PoAmendment, PoLine, PurchaseOrder (+4 more)
+Cohesion: 0.15
+Nodes (17): BidDocument, BidLineResponse, BidResponse, BidVersion, Document, DocumentVersion, Dispute, DisputeMessage (+9 more)
 
-### Community 165 - "auth/service.py"
-Cohesion: 0.18
-Nodes (15): decrypt_totp_secret(), encrypt_totp_secret(), generate_backup_codes(), generate_totp_secret(), get_totp_uri(), Generate a new TOTP secret (base32)., Return otpauth:// URI for QR code display., Verify TOTP code. Allows 1 step drift. (+7 more)
+### Community 165 - "test_auth_coverage.py"
+Cohesion: 0.07
+Nodes (29): decrypt_totp_secret(), generate_backup_codes(), generate_totp_secret(), get_totp_uri(), Generate a new TOTP secret (base32)., Return otpauth:// URI for QR code display., Verify TOTP code. Allows 1 step drift., Generate `count` backup codes. Returns (plaintext_codes, hashed_codes) — store… (+21 more)
 
-### Community 166 - "user/router.py"
-Cohesion: 0.22
-Nodes (15): get_db(), get_db_with_rls(), AsyncSession, UUID, DelegationRule, PasswordHistory, Permission, Role (+7 more)
+### Community 166 - "dependencies.py"
+Cohesion: 0.21
+Nodes (9): Dependency factory: ensures user has a specific permission., Dependency: asserts user has MFA enabled (for privileged roles)., require_mfa_enabled(), require_permission(), ForbiddenError, Test the logic within auth dependencies without FastAPI plumbing., require_permission checks PERMANENTLY_DENIED before any DB query., MFA_REQUIRED_ROLES should contain critical roles. (+1 more)
 
-### Community 167 - "AuthService"
-Cohesion: 0.22
-Nodes (7): AuthService, LoginResult, AsyncSession, UUID, Verify TOTP code and mark MFA as enabled., get_redis_client(), Redis
+### Community 167 - "test_auth_router.py"
+Cohesion: 0.12
+Nodes (9): _fake_db(), _make_token(), Auth router integration tests using FastAPI TestClient. Tests the HTTP layer of…, Test user router HTTP layer — endpoints must exist and return correct status., Verify all 8 user endpoints are mounted (not 404/405 on method)., Test Pydantic schema validation via HTTP., Override get_db with a mock async generator., TestAuthSchemaValidation (+1 more)
 
 ### Community 168 - "test_health.py"
 Cohesion: 0.60
@@ -563,9 +561,9 @@ Nodes (4): asyncio, test_health_endpoint(), test_health_live_endpoint(), test_he
 Cohesion: 0.29
 Nodes (9): GoodsReceiptNote, GrnLine, QualityInspection, ServiceEntrySheet, SesLine, Invoice, InvoiceLine, InvoiceMatchResult (+1 more)
 
-### Community 170 - "workflow/models.py"
-Cohesion: 0.36
-Nodes (9): ApprovalGroup, ApprovalGroupMember, ApprovalRule, ApprovalRuleVersion, WorkflowEvent, WorkflowInstance, WorkflowTask, WorkflowTemplate (+1 more)
+### Community 170 - "create_access_token"
+Cohesion: 0.23
+Nodes (5): create_access_token(), Access token cannot be used as refresh token (token_type check)., SPEC_04 § 2 — JWT must contain all required claims., TestJWTStructure, TestJWTEdgeCases
 
 ### Community 171 - "Procurement Portal — Enterprise S2C & P2P Platform"
 Cohesion: 0.20
@@ -600,40 +598,32 @@ Cohesion: 0.48
 Nodes (6): BusinessUnit, CostCenter, Department, Organization, Plant, test_organization_models()
 
 ### Community 179 - "create_mfa_token"
-Cohesion: 0.15
-Nodes (10): create_mfa_token(), Short-lived token for MFA challenge. Contains NO roles/permissions., SPEC_04 § 5.3 — MFA token cannot authenticate regular endpoints., MFA token has no org_id — cannot pass org-scoped auth., get_current_user dependency raises AuthenticationError for mfa tokens., TestMFATokenRejection, MFA token MUST NOT contain roles — cannot be used as access token., MFA token expires quickly. (+2 more)
+Cohesion: 0.14
+Nodes (11): create_mfa_token(), UUID, Short-lived token for MFA challenge. Contains NO roles/permissions., SPEC_04 § 5.3 — MFA token cannot authenticate regular endpoints., MFA token has no org_id — cannot pass org-scoped auth., get_current_user dependency raises AuthenticationError for mfa tokens., TestMFATokenRejection, MFA token MUST NOT contain roles — cannot be used as access token. (+3 more)
 
-### Community 206 - "decode_jwt"
-Cohesion: 0.27
-Nodes (6): decode_jwt(), Decode and verify a JWT. Raises AuthenticationError on failure., _make_access_token(), Access token must NOT have mfa_required — guard against MFA token reuse., Token should only be decodable with RSA public key (RS256)., TestAccessToken
+### Community 206 - "TestAccessToken"
+Cohesion: 0.23
+Nodes (4): _make_access_token(), Access token must NOT have mfa_required — guard against MFA token reuse., Token should only be decodable with RSA public key (RS256)., TestAccessToken
 
-### Community 207 - "encrypt_field"
-Cohesion: 0.22
-Nodes (9): decrypt_field(), encrypt_field(), get_fernet(), Encrypt a string field. Returns base64-encoded ciphertext string., Decrypt a previously encrypted field., Fernet, SPEC_04 § 13.1 — PAN, GSTIN, bank account, TOTP secret must be encrypted at…, TestFieldEncryptionSecurity (+1 more)
+### Community 207 - "SPEC_04 Audit Report — Auth, Authorization & Security"
+Cohesion: 0.33
+Nodes (5): ASSUMPTIONS LOGGED, COVERAGE MAP, COVERAGE SUMMARY, CRITICAL SECURITY CHECKS, SPEC_04 Audit Report — Auth, Authorization & Security
 
-### Community 208 - "hash_password"
-Cohesion: 0.24
-Nodes (7): hash_password(), verify_password(), change_my_password(), ChangePasswordRequest, PUT /api/v1/users/me/password — change own password., bcrypt is salted — same password produces different hashes., TestPasswordHashing
+### Community 208 - "jwt.py"
+Cohesion: 0.60
+Nodes (4): _load_private_key(), _load_public_key(), Read PEM key from file path., _read_key()
 
 ### Community 209 - "TestPermanentlyDeniedPermissions"
-Cohesion: 0.18
-Nodes (8): Dependency factory: ensures user has a specific permission., require_permission(), SPEC_04 § 10.1 — rfq.view_bids_before_opening is PERMANENTLY denied., This permission must be in PERMANENTLY_DENIED_PERMISSIONS regardless of role., The denied set should contain the critical permission., require_permission raises ForbiddenError for permanently denied permissions., Even PROCUREMENT_ADMIN cannot have rfq.view_bids_before_opening., TestPermanentlyDeniedPermissions
+Cohesion: 0.20
+Nodes (6): SPEC_04 § 10.1 — rfq.view_bids_before_opening is PERMANENTLY denied., This permission must be in PERMANENTLY_DENIED_PERMISSIONS regardless of role., The denied set should contain the critical permission., require_permission raises ForbiddenError for permanently denied permissions., Even PROCUREMENT_ADMIN cannot have rfq.view_bids_before_opening., TestPermanentlyDeniedPermissions
 
 ### Community 210 - "audit/service.py"
 Cohesion: 0.23
 Nodes (10): FastAPI, register_exception_handlers(), get_current_trace_id(), AuditLog, AuditService, Any, AsyncSession, UUID (+2 more)
 
-### Community 212 - "User"
-Cohesion: 0.47
-Nodes (4): User, AsyncSession, UUID, UserRepository
-
 ### Community 213 - "TestBruteForceProtection"
-Cohesion: 0.28
-Nodes (6): asyncio, SPEC_04 § 6 — brute-force lockout after 5 failed attempts., Incrementing fail count and checking against limit., Locked account raises AppException with ACCOUNT_LOCKED code., Simulates 5 failure increments then lockout check., TestBruteForceProtection
-
-### Community 214 - "bid/models.py"
-Cohesion: 0.53
-Nodes (5): BidDocument, BidLineResponse, BidResponse, BidVersion, test_bid_models()
+Cohesion: 0.18
+Nodes (9): asyncio, SPEC_04 § 6 — brute-force lockout after 5 failed attempts., Incrementing fail count and checking against limit., Locked account raises AppException with ACCOUNT_LOCKED code., Simulates 5 failure increments then lockout check., SPEC_04 § 5 — Refresh token rotation: reuse of old token revokes all sessions., When a revoked token is reused, all sessions must be revoked., TestBruteForceProtection (+1 more)
 
 ### Community 215 - "requisition/models.py"
 Cohesion: 0.53
@@ -656,23 +646,23 @@ Cohesion: 0.50
 Nodes (3): Idempotent RabbitMQ topology setup. Run once per environment. Safe to re-run.…, Create all exchanges, queues, DLQs, and bindings idempotently., setup_rabbitmq()
 
 ## Knowledge Gaps
-- **474 isolated node(s):** `entrypoint.sh script`, `metadata`, `nextConfig`, `name`, `version` (+469 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 810 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **478 isolated node(s):** `entrypoint.sh script`, `metadata`, `nextConfig`, `name`, `version` (+473 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 846 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
 - **79 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `BaseModel` connect `BaseModel` to `schemas.py`, `Base`, `test_all_models.py`, `auth/service.py`, `user/router.py`, `test_grn_and_invoice_models`, `workflow/models.py`, `test_responses.py`, `evaluation/models.py`, `vendor/models.py`, `contract/models.py`, `sourcing/models.py`, `organization/models.py`, `hash_password`, `BaseRepository`, `User`, `bid/models.py`, `requisition/models.py`, `PermissionCode`, `auth/router.py`?**
-  _High betweenness centrality (0.032) - this node is a cross-community bridge._
-- **Why does `RedisKeys` connect `RedisKeys` to `auth/service.py`, `AuthService`, `BaseRepository`, `TestBruteForceProtection`, `test_auth_security.py`?**
-  _High betweenness centrality (0.019) - this node is a cross-community bridge._
-- **Why does `AppException` connect `AppException` to `auth/service.py`, `user/router.py`, `AuthService`, `PermissionCode`, `auth/router.py`, `hash_password`, `.__init__`, `TestBruteForceProtection`, `test_auth_security.py`?**
-  _High betweenness centrality (0.015) - this node is a cross-community bridge._
-- **Are the 19 inferred relationships involving `AppException` (e.g. with `refresh()` and `sso_callback()`) actually correct?**
-  _`AppException` has 19 INFERRED edges - model-reasoned connections that need verification._
+- **Why does `BaseModel` connect `BaseModel` to `Base`, `test_all_models.py`, `schemas.py`, `test_grn_and_invoice_models`, `auth/service.py`, `test_responses.py`, `evaluation/models.py`, `vendor/models.py`, `contract/models.py`, `auth/router.py`, `sourcing/models.py`, `organization/models.py`, `SessionRepository`, `requisition/models.py`?**
+  _High betweenness centrality (0.042) - this node is a cross-community bridge._
+- **Why does `decode_jwt()` connect `decode_jwt` to `test_auth_coverage.py`, `dependencies.py`, `auth/service.py`, `create_access_token`, `TestAccessToken`, `jwt.py`, `RedisKeys`, `AppException`, `create_mfa_token`, `get_current_user`, `test_auth_security.py`?**
+  _High betweenness centrality (0.022) - this node is a cross-community bridge._
+- **Why does `AppException` connect `AppException` to `test_auth_coverage.py`, `dependencies.py`, `auth/service.py`, `auth/router.py`, `RedisKeys`, `.__init__`, `TestBruteForceProtection`, `test_auth_security.py`?**
+  _High betweenness centrality (0.020) - this node is a cross-community bridge._
+- **Are the 20 inferred relationships involving `AppException` (e.g. with `refresh()` and `sso_callback()`) actually correct?**
+  _`AppException` has 20 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `entrypoint.sh script`, `metadata`, `nextConfig` to the rest of the system?**
-  _474 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _478 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Master Data Twelve Entities Registry` be split into smaller, more focused modules?**
   _Cohesion score 0.08 - nodes in this community are weakly interconnected._
 - **Should `K3s Kubernetes Cluster Topology` be split into smaller, more focused modules?**

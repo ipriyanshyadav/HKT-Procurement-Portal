@@ -11,6 +11,7 @@
     "clean": "turbo clean"
   },
   "devDependencies": {
+    "tsx": "^4.0.0",
     "turbo": "^2.0.0",
     "typescript": "^5.5.0"
   },

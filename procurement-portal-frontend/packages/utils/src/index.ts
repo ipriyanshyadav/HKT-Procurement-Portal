@@ -1,1 +1,1 @@
-export { apiClient } from "./api";
+export { apiClient, setAccessToken, getAccessToken } from "./api";

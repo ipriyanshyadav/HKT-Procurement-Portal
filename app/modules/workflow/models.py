@@ -13,31 +13,7 @@ from app.db.enums import (
     TaskActionEnum, TASK_ACTION_PG,
 )
 
-class ApprovalRule(BaseModel):
-    __tablename__ = "approval_rules"
-
-    name: Mapped[str] = mapped_column(String(200), nullable=False)
-    transaction_type: Mapped[str] = mapped_column(String(50), nullable=False)
-    priority: Mapped[int] = mapped_column(Integer, nullable=False)
-    conditions: Mapped[List[Any]] = mapped_column(JSONB, default=list, nullable=False)
-    approval_steps: Mapped[List[Any]] = mapped_column(JSONB, default=list, nullable=False)
-    is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
-    current_version_id: Mapped[Optional[UUID]] = mapped_column(nullable=True)
-    created_by: Mapped[Optional[UUID]] = mapped_column(nullable=True)
-    updated_by: Mapped[Optional[UUID]] = mapped_column(nullable=True)
-
-class ApprovalRuleVersion(BaseModel):
-    __tablename__ = "approval_rule_versions"
-
-    approval_rule_id: Mapped[UUID] = mapped_column(ForeignKey("approval_rules.id"), nullable=False)
-    version_number: Mapped[int] = mapped_column(Integer, nullable=False)
-    conditions: Mapped[List[Any]] = mapped_column(JSONB, nullable=False)
-    approval_steps: Mapped[List[Any]] = mapped_column(JSONB, nullable=False)
-    effective_from: Mapped[datetime] = mapped_column(nullable=False)
-    effective_to: Mapped[Optional[datetime]] = mapped_column(nullable=True)
-    change_reason: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
-    impact_assessment: Mapped[Optional[Dict[str, Any]]] = mapped_column(JSONB, nullable=True)
-    created_by: Mapped[Optional[UUID]] = mapped_column(nullable=True)
+from app.modules.approval_rules.models import ApprovalRule, ApprovalRuleVersion
 
 class ApprovalGroup(BaseModel):
     __tablename__ = "approval_groups"

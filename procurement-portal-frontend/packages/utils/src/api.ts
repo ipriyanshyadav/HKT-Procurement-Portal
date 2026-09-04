@@ -1,6 +1,8 @@
 import axios, { type AxiosError, type AxiosInstance, type InternalAxiosRequestConfig } from "axios";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+declare const process: { env: Record<string, string | undefined> };
+
+const API_URL = (typeof process !== "undefined" && process.env?.NEXT_PUBLIC_API_URL) || "http://localhost:8000";
 
 let accessToken: string | null = null;
 let isRefreshing = false;

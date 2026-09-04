@@ -19,7 +19,10 @@
     "@procurement/hooks": "workspace:*",
     "@procurement/stores": "workspace:*",
     "@procurement/utils": "workspace:*",
-    "@procurement/types": "workspace:*"
+    "@procurement/types": "workspace:*",
+    "react-hook-form": "^7.52.0",
+    "@hookform/resolvers": "^3.9.0",
+    "zod": "^3.23.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
