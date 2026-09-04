@@ -214,13 +214,14 @@ class PermissionCode:
     RFQ_MANAGE_COMMITTEE = "rfq.manage_committee"
     RFQ_VIEW_BIDS_BEFORE_OPENING = "rfq.view_bids_before_opening"
 
-    # Bid (7)
+    # Bid (8)
     BID_SUBMIT = "bid.submit"
     BID_VIEW_OWN = "bid.view_own"
     BID_VIEW_ALL = "bid.view_all"
     BID_REVISE = "bid.revise"
     BID_WITHDRAW = "bid.withdraw"
     BID_OPEN = "bid.open"
+    BID_CO_AUTHORIZE_OPENING = "bid.co_authorize_opening"
     BID_EVALUATE = "bid.evaluate"
 
     # Evaluation (5)

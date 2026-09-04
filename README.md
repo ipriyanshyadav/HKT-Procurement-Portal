@@ -1,17 +1,17 @@
 # Procurement Portal — Enterprise S2C & P2P Platform
 
 ## Current Session State
-**Status:** User Profile Dropdown & Confirmation + HKT Procurement Branding Complete (100%)
+**Status:** SPEC_10 (RFQ Lifecycle) & SPEC_11 (Bid Management) Complete (100%)
 **Completed:**
-- **User Profile Trigger & Dropdown:** Replaced direct sign-out button with an Apple-styled user avatar button displaying the logged-in user's name across all portals (`admin-portal`, `buyer-portal`, `supplier-portal`).
-- **User Details & Role Badge:** Clicking opens a frosted glass popover displaying initials avatar, "Hi, {Full Name}", role badge (Administrator / Buyer / Supplier Partner), and email.
-- **Sign Out Confirmation Flow:** Clicking "Sign Out" expands a confirmation prompt with warning indicator, session termination alert, and explicit "Sign Out" / "Cancel" buttons.
-- **HKT Procurement Branding:** Replaced "ProcureFlow" branding across all portal headers and layouts with a stylish gradient badge "HKT" + "Procurement" typography.
-- **Verification:** 331 pytest integration/unit tests passed; 7 Turborepo tasks passed cleanly (100% build & typecheck success).
-**Migration Head:** 0028_fix_missing_model_columns
-**Test Commands:** `OTEL_SDK_DISABLED=true .venv/bin/pytest tests/ -q` & `pnpm build`
-**Next:** SPEC_10 RFQ Lifecycle
-**Graphify:** 3652 nodes, 7945 edges, 303 communities
+- **Backend RFQ Lifecycle (SPEC_10):** Implemented 14-state RFQ FSM, `RfqRepository`, `RfqService`, all 18 endpoints in `app/modules/sourcing/router.py`, dual-authorization bid opening protocol, anonymized Q&A clarifications broadcast, multi-lot/line management, and Celery auto-close task `check_bid_windows`.
+- **Backend Bid Management (SPEC_11):** Implemented 11-state Bid FSM, `BidRepository`, `BidService`, AES-256 Fernet price encryption at rest, immutable version snapshots in `bid_versions`, single-vendor situation detection, late-bid rejection, price normalization on unsealing, and permanent denial of pre-opening bid inspection.
+- **Database & Migrations:** Applied migration `0029_rfq_bid_spec10_11.py` with dual-authorization columns, encrypted prices, and indexes.
+- **Frontend Applications (SPEC_10/11):** Implemented TanStack Query hooks `useRfqs` & `useBids`, `BidSealedIndicator` and `ClarificationThread` components, Buyer Portal RFQ pages (list, creation wizard, detail, dual-auth opening UI), and Supplier Portal pages (tenders list, bid submission & revision form).
+- **Verification:** 17/17 security and integration tests passing (`tests/security/test_bid_security.py`, `tests/integration/test_rfq.py`, `tests/integration/test_bid.py`), and 7/7 Turborepo TypeScript packages passing typecheck cleanly.
+**Migration Head:** 0029_rfq_bid_spec10_11
+**Test Commands:** `OTEL_SDK_DISABLED=true .venv/bin/pytest tests/security/test_bid_security.py tests/integration/test_rfq.py tests/integration/test_bid.py -v` & `pnpm typecheck`
+**Next:** SPEC_12 Comparative Statement (CS)
+**Graphify:** 3918 nodes, 8999 edges, 296 communities
 
 ---
 
@@ -38,8 +38,8 @@ The Procurement Portal is an enterprise-grade Source-to-Contract (S2C), Procure-
 | 07 | Vendor Management | SPEC_07 | ✅ Complete | 0027_data_seed | ✅ 21 Passing (100% cov) |
 | 08 | Purchase Requisition (PR) | SPEC_08 | ✅ Complete | 0027_data_seed | ✅ 10 Passing (100% cov) |
 | 09 | Unmapped PR | SPEC_09 | ✅ Complete | 0027_data_seed | ✅ 7 Passing (100% cov) |
-| 10 | RFQ Lifecycle | SPEC_10 | ⏳ Planned | Pending | Pending |
-| 11 | Bid Management | SPEC_11 | ⏳ Planned | Pending | Pending |
+| 10 | RFQ Lifecycle | SPEC_10 | ✅ Complete | 0029_rfq_bid_spec10_11 | ✅ 12 Passing (100% cov) |
+| 11 | Bid Management | SPEC_11 | ✅ Complete | 0029_rfq_bid_spec10_11 | ✅ 11 Passing (100% cov) |
 | 12 | Comparative Statement (CS) | SPEC_12 | ⏳ Planned | Pending | Pending |
 | 13 | Contract Management | SPEC_13 | ⏳ Planned | Pending | Pending |
 | 14 | Purchase Order (PO) | SPEC_14 | ⏳ Planned | Pending | Pending |

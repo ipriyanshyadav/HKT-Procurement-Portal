@@ -13,37 +13,60 @@ class AppException(Exception):
         self.details = details or {}
         super().__init__(self.message)
 
+def _resolve_exc_args(default_msg: str, default_code: str, message_or_code: str, details_or_message: Optional[Any], code: Optional[str]):
+    if code is not None:
+        c = code
+        m = message_or_code
+        d = details_or_message if isinstance(details_or_message, dict) else {}
+    elif isinstance(details_or_message, str):
+        c = message_or_code
+        m = details_or_message
+        d = {}
+    else:
+        c = default_code
+        m = message_or_code or default_msg
+        d = details_or_message if isinstance(details_or_message, dict) else {}
+    return m, c, d
+
 class NotFoundError(AppException):
-    def __init__(self, message: str = "Resource not found", details: Optional[Dict[str, Any]] = None):
-        super().__init__(message, "NOT_FOUND", details)
+    def __init__(self, message: str = "Resource not found", details: Optional[Any] = None, code: Optional[str] = None):
+        m, c, d = _resolve_exc_args("Resource not found", "NOT_FOUND", message, details, code)
+        super().__init__(m, c, d)
 
 class ConflictError(AppException):
-    def __init__(self, message: str = "Resource conflict", details: Optional[Dict[str, Any]] = None):
-        super().__init__(message, "CONFLICT", details)
+    def __init__(self, message: str = "Resource conflict", details: Optional[Any] = None, code: Optional[str] = None):
+        m, c, d = _resolve_exc_args("Resource conflict", "CONFLICT", message, details, code)
+        super().__init__(m, c, d)
 
 class ForbiddenError(AppException):
-    def __init__(self, message: str = "Access forbidden", details: Optional[Dict[str, Any]] = None):
-        super().__init__(message, "FORBIDDEN", details)
+    def __init__(self, message: str = "Access forbidden", details: Optional[Any] = None, code: Optional[str] = None):
+        m, c, d = _resolve_exc_args("Access forbidden", "FORBIDDEN", message, details, code)
+        super().__init__(m, c, d)
 
 class OptimisticLockError(AppException):
-    def __init__(self, message: str = "Resource was updated by another request", details: Optional[Dict[str, Any]] = None):
-        super().__init__(message, "OPTIMISTIC_LOCK_ERROR", details)
+    def __init__(self, message: str = "Resource was updated by another request", details: Optional[Any] = None, code: Optional[str] = None):
+        m, c, d = _resolve_exc_args("Resource was updated by another request", "OPTIMISTIC_LOCK_ERROR", message, details, code)
+        super().__init__(m, c, d)
 
 class ValidationError(AppException):
-    def __init__(self, message: str = "Validation failed", details: Optional[Dict[str, Any]] = None):
-        super().__init__(message, "VALIDATION_ERROR", details)
+    def __init__(self, message: str = "Validation failed", details: Optional[Any] = None, code: Optional[str] = None):
+        m, c, d = _resolve_exc_args("Validation failed", "VALIDATION_ERROR", message, details, code)
+        super().__init__(m, c, d)
 
 class RateLimitError(AppException):
-    def __init__(self, message: str = "Rate limit exceeded", details: Optional[Dict[str, Any]] = None):
-        super().__init__(message, "RATE_LIMIT_EXCEEDED", details)
+    def __init__(self, message: str = "Rate limit exceeded", details: Optional[Any] = None, code: Optional[str] = None):
+        m, c, d = _resolve_exc_args("Rate limit exceeded", "RATE_LIMIT_EXCEEDED", message, details, code)
+        super().__init__(m, c, d)
 
 class AuthenticationError(AppException):
-    def __init__(self, message: str = "Authentication failed", details: Optional[Dict[str, Any]] = None):
-        super().__init__(message, "AUTHENTICATION_ERROR", details)
+    def __init__(self, message: str = "Authentication failed", details: Optional[Any] = None, code: Optional[str] = None):
+        m, c, d = _resolve_exc_args("Authentication failed", "AUTHENTICATION_ERROR", message, details, code)
+        super().__init__(m, c, d)
 
 class BusinessRuleError(AppException):
-    def __init__(self, message: str = "Business rule violation", details: Optional[Dict[str, Any]] = None):
-        super().__init__(message, "BUSINESS_RULE_ERROR", details)
+    def __init__(self, message: str = "Business rule violation", details: Optional[Any] = None, code: Optional[str] = None):
+        m, c, d = _resolve_exc_args("Business rule violation", "BUSINESS_RULE_ERROR", message, details, code)
+        super().__init__(m, c, d)
 
 def register_exception_handlers(app: FastAPI) -> None:
     from app.core.telemetry import get_current_trace_id

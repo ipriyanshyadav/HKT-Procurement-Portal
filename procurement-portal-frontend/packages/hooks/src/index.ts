@@ -84,5 +84,7 @@ export type {
 
 export { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 export * from "./useRequisitions";
+export * from "./useRfqs";
+export * from "./useBids";
 export { useBusinessUnits, useCostCenters } from "./useOrganization";
 export type { BusinessUnit, CostCenter } from "./useOrganization";

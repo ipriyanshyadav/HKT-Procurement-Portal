@@ -117,6 +117,9 @@ class Settings(BaseSettings):
     PRICE_TOLERANCE_DEFAULT: float = 0.005
     BID_VALIDITY_MIN_DAYS: int = 30
     BID_VALIDITY_MAX_DAYS: int = 180
+    STANDARD_BID_WINDOW_MIN_HOURS: int = 72
+    EMERGENCY_BID_WINDOW_MIN_HOURS: int = 24
+    MIN_CLOSED_RFQ_PARTICIPANTS: int = 3
     PR_AGING_ALERT_DAYS: list[int] = [7, 14, 30]
     UNMAPPED_PR_SLA_HOURS: list[int] = [4, 8, 24, 48]
     OUTBOX_RETRY_MAX: int = 10

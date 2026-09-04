@@ -1412,15 +1412,247 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/sourcing/health": {
+    "/api/v1/rfqs": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Health */
-        get: operations["health_api_v1_sourcing_health_get"];
+        /** List Rfqs */
+        get: operations["list_rfqs_api_v1_rfqs_get"];
+        put?: never;
+        /** Create Rfq */
+        post: operations["create_rfq_api_v1_rfqs_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/rfqs/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Rfq */
+        get: operations["get_rfq_api_v1_rfqs__id__get"];
+        /** Update Rfq */
+        put: operations["update_rfq_api_v1_rfqs__id__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/rfqs/{id}/submit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Submit Rfq */
+        post: operations["submit_rfq_api_v1_rfqs__id__submit_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/rfqs/{id}/publish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Publish Rfq */
+        post: operations["publish_rfq_api_v1_rfqs__id__publish_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/rfqs/{id}/amend": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Amend Rfq */
+        post: operations["amend_rfq_api_v1_rfqs__id__amend_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/rfqs/{id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Cancel Rfq */
+        post: operations["cancel_rfq_api_v1_rfqs__id__cancel_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/rfqs/{id}/extend-deadline": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Extend Deadline */
+        post: operations["extend_deadline_api_v1_rfqs__id__extend_deadline_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/rfqs/{id}/add-participants": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Add Participants */
+        post: operations["add_participants_api_v1_rfqs__id__add_participants_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/rfqs/{id}/participants/{vendor_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove Participant */
+        delete: operations["remove_participant_api_v1_rfqs__id__participants__vendor_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/rfqs/{id}/initiate-bid-opening": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Initiate Bid Opening
+         * @description Step 1 of dual-authorization bid opening.
+         *     Initiator must NOT be the RFQ creator.
+         */
+        post: operations["initiate_bid_opening_api_v1_rfqs__id__initiate_bid_opening_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/rfqs/{id}/co-authorize-opening": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Co Authorize Bid Opening
+         * @description Step 2 of dual-authorization bid opening.
+         *     Co-authorizer must be a different user than the initiator.
+         */
+        post: operations["co_authorize_bid_opening_api_v1_rfqs__id__co_authorize_opening_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/rfqs/{id}/clarifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Clarifications */
+        get: operations["get_clarifications_api_v1_rfqs__id__clarifications_get"];
+        put?: never;
+        /** Add Clarification */
+        post: operations["add_clarification_api_v1_rfqs__id__clarifications_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/rfqs/{id}/clarifications/{cid}/respond": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Respond To Clarification */
+        put: operations["respond_to_clarification_api_v1_rfqs__id__clarifications__cid__respond_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/rfqs/{id}/audit-trail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Rfq Audit Trail */
+        get: operations["get_rfq_audit_trail_api_v1_rfqs__id__audit_trail_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1429,15 +1661,359 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/bids/health": {
+    "/api/v1/rfqs/{id}/dashboard": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Health */
-        get: operations["health_api_v1_bids_health_get"];
+        /** Get Rfq Dashboard */
+        get: operations["get_rfq_dashboard_api_v1_rfqs__id__dashboard_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sourcing": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Rfqs */
+        get: operations["list_rfqs_api_v1_sourcing_get"];
+        put?: never;
+        /** Create Rfq */
+        post: operations["create_rfq_api_v1_sourcing_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sourcing/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Rfq */
+        get: operations["get_rfq_api_v1_sourcing__id__get"];
+        /** Update Rfq */
+        put: operations["update_rfq_api_v1_sourcing__id__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sourcing/{id}/submit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Submit Rfq */
+        post: operations["submit_rfq_api_v1_sourcing__id__submit_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sourcing/{id}/publish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Publish Rfq */
+        post: operations["publish_rfq_api_v1_sourcing__id__publish_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sourcing/{id}/amend": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Amend Rfq */
+        post: operations["amend_rfq_api_v1_sourcing__id__amend_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sourcing/{id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Cancel Rfq */
+        post: operations["cancel_rfq_api_v1_sourcing__id__cancel_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sourcing/{id}/extend-deadline": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Extend Deadline */
+        post: operations["extend_deadline_api_v1_sourcing__id__extend_deadline_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sourcing/{id}/add-participants": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Add Participants */
+        post: operations["add_participants_api_v1_sourcing__id__add_participants_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sourcing/{id}/participants/{vendor_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove Participant */
+        delete: operations["remove_participant_api_v1_sourcing__id__participants__vendor_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sourcing/{id}/initiate-bid-opening": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Initiate Bid Opening
+         * @description Step 1 of dual-authorization bid opening.
+         *     Initiator must NOT be the RFQ creator.
+         */
+        post: operations["initiate_bid_opening_api_v1_sourcing__id__initiate_bid_opening_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sourcing/{id}/co-authorize-opening": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Co Authorize Bid Opening
+         * @description Step 2 of dual-authorization bid opening.
+         *     Co-authorizer must be a different user than the initiator.
+         */
+        post: operations["co_authorize_bid_opening_api_v1_sourcing__id__co_authorize_opening_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sourcing/{id}/clarifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Clarifications */
+        get: operations["get_clarifications_api_v1_sourcing__id__clarifications_get"];
+        put?: never;
+        /** Add Clarification */
+        post: operations["add_clarification_api_v1_sourcing__id__clarifications_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sourcing/{id}/clarifications/{cid}/respond": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Respond To Clarification */
+        put: operations["respond_to_clarification_api_v1_sourcing__id__clarifications__cid__respond_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sourcing/{id}/audit-trail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Rfq Audit Trail */
+        get: operations["get_rfq_audit_trail_api_v1_sourcing__id__audit_trail_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sourcing/{id}/dashboard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Rfq Dashboard */
+        get: operations["get_rfq_dashboard_api_v1_sourcing__id__dashboard_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/rfqs/{rfq_id}/bid-count": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Bid Count
+         * @description Returns only the count of submitted bids.
+         *     NEVER returns bid content before bids are officially opened.
+         */
+        get: operations["get_bid_count_api_v1_rfqs__rfq_id__bid_count_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/rfqs/{rfq_id}/bids": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Revise Bid */
+        put: operations["revise_bid_api_v1_rfqs__rfq_id__bids_put"];
+        /** Submit Bid */
+        post: operations["submit_bid_api_v1_rfqs__rfq_id__bids_post"];
+        /** Withdraw Bid */
+        delete: operations["withdraw_bid_api_v1_rfqs__rfq_id__bids_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/bids/{bid_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Bid Details
+         * @description Returns bid details. Prices are masked until RFQ.bids_opened_at IS NOT NULL.
+         *     Vendors can only see their own bids before opening.
+         */
+        get: operations["get_bid_details_api_v1_bids__bid_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/rfqs/{rfq_id}/single-vendor-check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Single Vendor Check */
+        get: operations["single_vendor_check_api_v1_rfqs__rfq_id__single_vendor_check_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2126,6 +2702,30 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** APIResponse[BidCountResponse] */
+        APIResponse_BidCountResponse_: {
+            data: components["schemas"]["BidCountResponse"];
+            meta?: components["schemas"]["PaginationMeta"] | null;
+            links?: components["schemas"]["Links"] | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             * @default 2026-09-04T12:24:14.560020
+             */
+            timestamp: string;
+        };
+        /** APIResponse[BidDetailResponse] */
+        APIResponse_BidDetailResponse_: {
+            data: components["schemas"]["BidDetailResponse"];
+            meta?: components["schemas"]["PaginationMeta"] | null;
+            links?: components["schemas"]["Links"] | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             * @default 2026-09-04T12:24:14.560020
+             */
+            timestamp: string;
+        };
         /** APIResponse[List[PRDetailResponse]] */
         APIResponse_List_PRDetailResponse__: {
             /** Data */
@@ -2135,7 +2735,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T10:59:02.275170
+             * @default 2026-09-04T12:24:14.560020
              */
             timestamp: string;
         };
@@ -2148,7 +2748,46 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T10:59:02.275170
+             * @default 2026-09-04T12:24:14.560020
+             */
+            timestamp: string;
+        };
+        /** APIResponse[List[RfqClarificationResponse]] */
+        APIResponse_List_RfqClarificationResponse__: {
+            /** Data */
+            data: components["schemas"]["RfqClarificationResponse"][];
+            meta?: components["schemas"]["PaginationMeta"] | null;
+            links?: components["schemas"]["Links"] | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             * @default 2026-09-04T12:24:14.560020
+             */
+            timestamp: string;
+        };
+        /** APIResponse[List[RfqListResponse]] */
+        APIResponse_List_RfqListResponse__: {
+            /** Data */
+            data: components["schemas"]["RfqListResponse"][];
+            meta?: components["schemas"]["PaginationMeta"] | null;
+            links?: components["schemas"]["Links"] | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             * @default 2026-09-04T12:24:14.560020
+             */
+            timestamp: string;
+        };
+        /** APIResponse[List[RfqParticipantResponse]] */
+        APIResponse_List_RfqParticipantResponse__: {
+            /** Data */
+            data: components["schemas"]["RfqParticipantResponse"][];
+            meta?: components["schemas"]["PaginationMeta"] | null;
+            links?: components["schemas"]["Links"] | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             * @default 2026-09-04T12:24:14.560020
              */
             timestamp: string;
         };
@@ -2161,7 +2800,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T10:59:02.275170
+             * @default 2026-09-04T12:24:14.560020
              */
             timestamp: string;
         };
@@ -2176,7 +2815,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T10:59:02.275170
+             * @default 2026-09-04T12:24:14.560020
              */
             timestamp: string;
         };
@@ -2188,7 +2827,55 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T10:59:02.275170
+             * @default 2026-09-04T12:24:14.560020
+             */
+            timestamp: string;
+        };
+        /** APIResponse[RfqClarificationResponse] */
+        APIResponse_RfqClarificationResponse_: {
+            data: components["schemas"]["RfqClarificationResponse"];
+            meta?: components["schemas"]["PaginationMeta"] | null;
+            links?: components["schemas"]["Links"] | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             * @default 2026-09-04T12:24:14.560020
+             */
+            timestamp: string;
+        };
+        /** APIResponse[RfqDashboardResponse] */
+        APIResponse_RfqDashboardResponse_: {
+            data: components["schemas"]["RfqDashboardResponse"];
+            meta?: components["schemas"]["PaginationMeta"] | null;
+            links?: components["schemas"]["Links"] | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             * @default 2026-09-04T12:24:14.560020
+             */
+            timestamp: string;
+        };
+        /** APIResponse[RfqDetailResponse] */
+        APIResponse_RfqDetailResponse_: {
+            data: components["schemas"]["RfqDetailResponse"];
+            meta?: components["schemas"]["PaginationMeta"] | null;
+            links?: components["schemas"]["Links"] | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             * @default 2026-09-04T12:24:14.560020
+             */
+            timestamp: string;
+        };
+        /** APIResponse[SingleVendorCheckResponse] */
+        APIResponse_SingleVendorCheckResponse_: {
+            data: components["schemas"]["SingleVendorCheckResponse"];
+            meta?: components["schemas"]["PaginationMeta"] | null;
+            links?: components["schemas"]["Links"] | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             * @default 2026-09-04T12:24:14.560020
              */
             timestamp: string;
         };
@@ -2200,7 +2887,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T10:59:02.275170
+             * @default 2026-09-04T12:24:14.560020
              */
             timestamp: string;
         };
@@ -2212,9 +2899,25 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T10:59:02.275170
+             * @default 2026-09-04T12:24:14.560020
              */
             timestamp: string;
+        };
+        /** AddParticipantsRequest */
+        AddParticipantsRequest: {
+            /** Vendor Ids */
+            vendor_ids: string[];
+        };
+        /** AmendRequest */
+        AmendRequest: {
+            /** Changes Summary */
+            changes_summary: string;
+            /** New Bid Close At */
+            new_bid_close_at?: string | null;
+            /** Field Changes */
+            field_changes?: {
+                [key: string]: unknown;
+            };
         };
         /** ApprovalRuleCreateRequest */
         ApprovalRuleCreateRequest: {
@@ -2328,15 +3031,221 @@ export interface components {
             /** Effective To */
             effective_to?: string | null;
         };
+        /** BidCountResponse */
+        BidCountResponse: {
+            /**
+             * Rfq Id
+             * Format: uuid
+             */
+            rfq_id: string;
+            /** Bid Count */
+            bid_count: number;
+            /** Bids Opened */
+            bids_opened: boolean;
+            /** Bids Opened At */
+            bids_opened_at?: string | null;
+        };
+        /** BidDetailResponse */
+        BidDetailResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Org Id
+             * Format: uuid
+             */
+            org_id: string;
+            /**
+             * Rfq Id
+             * Format: uuid
+             */
+            rfq_id: string;
+            /**
+             * Vendor Id
+             * Format: uuid
+             */
+            vendor_id: string;
+            /** Status */
+            status: string;
+            /** Current Version */
+            current_version: number;
+            /** Submitted At */
+            submitted_at?: string | null;
+            /** Has Deviations */
+            has_deviations: boolean;
+            /** Deviation Details */
+            deviation_details?: string | null;
+            /** Technical Offer Compliant */
+            technical_offer_compliant: boolean;
+            /** Payment Terms Code */
+            payment_terms_code?: string | null;
+            /** Delivery Terms Incoterm */
+            delivery_terms_incoterm?: string | null;
+            /** Bid Validity Days */
+            bid_validity_days: number;
+            /** Covering Letter */
+            covering_letter?: string | null;
+            /** Is Single Vendor Situation */
+            is_single_vendor_situation: boolean;
+            /** Bid Opened At */
+            bid_opened_at?: string | null;
+            /** Is Technically Qualified */
+            is_technically_qualified?: boolean | null;
+            /** Technical Score */
+            technical_score?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Lines */
+            lines?: components["schemas"]["BidLineDetailResponse"][];
+        };
+        /** BidLineDetailResponse */
+        BidLineDetailResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Bid Id
+             * Format: uuid
+             */
+            bid_id: string;
+            /**
+             * Rfq Line Id
+             * Format: uuid
+             */
+            rfq_line_id: string;
+            /** Lot Id */
+            lot_id?: string | null;
+            /** Currency */
+            currency: string;
+            /** Quantity */
+            quantity: string;
+            /** Delivery Days */
+            delivery_days: number;
+            /** Unit Price */
+            unit_price?: string | null;
+            /** Total Price */
+            total_price?: string | null;
+            /** Normalized Price Inr */
+            normalized_price_inr?: string | null;
+            /** Exchange Rate Used */
+            exchange_rate_used?: string | null;
+            /** Tax Rate Declared */
+            tax_rate_declared: string;
+            /** Freight Quoted */
+            freight_quoted: string;
+            /** Country Of Origin */
+            country_of_origin: string;
+            /** Remarks */
+            remarks?: string | null;
+        };
+        /** BidLineSubmitRequest */
+        BidLineSubmitRequest: {
+            /** Lot Id */
+            lot_id?: string | null;
+            /**
+             * Rfq Line Id
+             * Format: uuid
+             */
+            rfq_line_id: string;
+            /** Unit Price */
+            unit_price: number | string;
+            /** Total Price */
+            total_price: number | string;
+            /**
+             * Currency
+             * @default INR
+             */
+            currency: string;
+            /** Quantity */
+            quantity: number | string;
+            /** Delivery Days */
+            delivery_days: number;
+            /**
+             * Tax Rate Declared
+             * @default 0.0
+             */
+            tax_rate_declared: number | string;
+            /**
+             * Freight Quoted
+             * @default 0.0
+             */
+            freight_quoted: number | string;
+            /**
+             * Country Of Origin
+             * @default IN
+             */
+            country_of_origin: string;
+            /** Remarks */
+            remarks?: string | null;
+        };
+        /** BidReviseRequest */
+        BidReviseRequest: {
+            /** Has Deviations */
+            has_deviations?: boolean | null;
+            /** Deviation Details */
+            deviation_details?: string | null;
+            /** Technical Offer Compliant */
+            technical_offer_compliant?: boolean | null;
+            /** Payment Terms Code */
+            payment_terms_code?: string | null;
+            /** Delivery Terms Incoterm */
+            delivery_terms_incoterm?: string | null;
+            /** Bid Validity Days */
+            bid_validity_days?: number | null;
+            /** Covering Letter */
+            covering_letter?: string | null;
+            /** Lines */
+            lines: components["schemas"]["BidLineSubmitRequest"][];
+        };
+        /** BidSubmitRequest */
+        BidSubmitRequest: {
+            /**
+             * Has Deviations
+             * @default false
+             */
+            has_deviations: boolean;
+            /** Deviation Details */
+            deviation_details?: string | null;
+            /**
+             * Technical Offer Compliant
+             * @default true
+             */
+            technical_offer_compliant: boolean;
+            /** Payment Terms Code */
+            payment_terms_code?: string | null;
+            /** Delivery Terms Incoterm */
+            delivery_terms_incoterm?: string | null;
+            /**
+             * Bid Validity Days
+             * @default 90
+             */
+            bid_validity_days: number;
+            /** Covering Letter */
+            covering_letter?: string | null;
+            /** Lines */
+            lines: components["schemas"]["BidLineSubmitRequest"][];
+        };
+        /** BidWithdrawRequest */
+        BidWithdrawRequest: {
+            /** Reason */
+            reason: string;
+        };
         /** Body_import_categories_api_v1_master_data_import_categories_post */
         Body_import_categories_api_v1_master_data_import_categories_post: {
             /** File */
             file: string;
-        };
-        /** CancelRequest */
-        CancelRequest: {
-            /** Reason */
-            reason: string;
         };
         /** CategoryCreateRequest */
         CategoryCreateRequest: {
@@ -2365,6 +3274,21 @@ export interface components {
             /** New Password */
             new_password: string;
         };
+        /** ClarificationCreateRequest */
+        ClarificationCreateRequest: {
+            /** Question */
+            question: string;
+        };
+        /** ClarificationRespondRequest */
+        ClarificationRespondRequest: {
+            /** Answer */
+            answer: string;
+            /**
+             * Broadcast
+             * @default true
+             */
+            broadcast: boolean;
+        };
         /** DuplicateCheckRequest */
         DuplicateCheckRequest: {
             /** Company Name */
@@ -2379,6 +3303,16 @@ export interface components {
             bank_account?: string | null;
             /** Ifsc */
             ifsc?: string | null;
+        };
+        /** ExtendDeadlineRequest */
+        ExtendDeadlineRequest: {
+            /**
+             * New Bid Close At
+             * Format: date-time
+             */
+            new_bid_close_at: string;
+            /** Reason */
+            reason: string;
         };
         /** ForceAdvanceRequest */
         ForceAdvanceRequest: {
@@ -2888,6 +3822,488 @@ export interface components {
          * @enum {string}
          */
         ProcurementType: "CAPEX" | "OPEX" | "PROJECT" | "MRO" | "SERVICES";
+        /** RfqClarificationResponse */
+        RfqClarificationResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Rfq Id
+             * Format: uuid
+             */
+            rfq_id: string;
+            /** Question */
+            question: string;
+            /** Answer */
+            answer?: string | null;
+            /**
+             * Asked By
+             * Format: uuid
+             */
+            asked_by: string;
+            /** Asked By Vendor Id */
+            asked_by_vendor_id?: string | null;
+            /** Answered By */
+            answered_by?: string | null;
+            /** Answered At */
+            answered_at?: string | null;
+            /** Is Published */
+            is_published: boolean;
+            /** Published At */
+            published_at?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** RfqCreateRequest */
+        RfqCreateRequest: {
+            /** Title */
+            title: string;
+            /** Description */
+            description?: string | null;
+            /**
+             * Rfq Type
+             * @default LIMITED_TENDER
+             */
+            rfq_type: string;
+            /**
+             * Sourcing Type
+             * @default GOODS
+             */
+            sourcing_type: string;
+            /**
+             * Evaluation Type
+             * @default L1_PRICE_ONLY
+             */
+            evaluation_type: string;
+            /**
+             * Procurement Type
+             * @default OPEX
+             */
+            procurement_type: string;
+            /**
+             * Business Unit Id
+             * Format: uuid
+             */
+            business_unit_id: string;
+            /**
+             * Category Id
+             * Format: uuid
+             */
+            category_id: string;
+            /**
+             * Currency
+             * @default INR
+             */
+            currency: string;
+            /**
+             * Estimated Value
+             * @default 0.0
+             */
+            estimated_value: number | string;
+            /** Payment Term Id */
+            payment_term_id?: string | null;
+            /** Incoterm Id */
+            incoterm_id?: string | null;
+            /** Delivery Location Id */
+            delivery_location_id?: string | null;
+            /**
+             * Bid Close At
+             * Format: date-time
+             */
+            bid_close_at: string;
+            /** Bid Open At */
+            bid_open_at?: string | null;
+            /**
+             * Bid Validity Days
+             * @default 90
+             */
+            bid_validity_days: number;
+            /**
+             * Is Multi Lot
+             * @default false
+             */
+            is_multi_lot: boolean;
+            /**
+             * Lot Participation Mode
+             * @default MANDATORY_ALL
+             */
+            lot_participation_mode: string;
+            /** Source Pr Id */
+            source_pr_id?: string | null;
+            /** Lots */
+            lots?: components["schemas"]["RfqLotCreateRequest"][];
+            /** Lines */
+            lines?: components["schemas"]["RfqLineCreateRequest"][];
+        };
+        /** RfqDashboardResponse */
+        RfqDashboardResponse: {
+            /**
+             * Rfq Id
+             * Format: uuid
+             */
+            rfq_id: string;
+            /** Status */
+            status: string;
+            /** Bid Count */
+            bid_count: number;
+            /** Bids Opened */
+            bids_opened: boolean;
+            /** Participant Count */
+            participant_count: number;
+            /** Clarification Count */
+            clarification_count: number;
+            /** Unanswered Clarifications */
+            unanswered_clarifications: number;
+            /** Bid Opening Step */
+            bid_opening_step: number;
+            /** Days To Deadline */
+            days_to_deadline?: number | null;
+        };
+        /** RfqDetailResponse */
+        RfqDetailResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Org Id
+             * Format: uuid
+             */
+            org_id: string;
+            /** Rfq Number */
+            rfq_number: string;
+            /** Title */
+            title: string;
+            /** Description */
+            description?: string | null;
+            /** Rfq Type */
+            rfq_type: string;
+            /** Sourcing Type */
+            sourcing_type: string;
+            /** Evaluation Type */
+            evaluation_type: string;
+            /** Procurement Type */
+            procurement_type: string;
+            /** Status */
+            status: string;
+            /**
+             * Buyer Id
+             * Format: uuid
+             */
+            buyer_id: string;
+            /**
+             * Business Unit Id
+             * Format: uuid
+             */
+            business_unit_id: string;
+            /**
+             * Category Id
+             * Format: uuid
+             */
+            category_id: string;
+            /** Currency */
+            currency: string;
+            /** Estimated Value */
+            estimated_value: string;
+            /** Bid Close At */
+            bid_close_at?: string | null;
+            /** Bid Open At */
+            bid_open_at?: string | null;
+            /** Bid Validity Days */
+            bid_validity_days: number;
+            /** Is Multi Lot */
+            is_multi_lot: boolean;
+            /** Is Emergency */
+            is_emergency: boolean;
+            /** Is Single Vendor */
+            is_single_vendor: boolean;
+            /** Amendment Count */
+            amendment_count: number;
+            /** Published At */
+            published_at?: string | null;
+            /** Bids Opened At */
+            bids_opened_at?: string | null;
+            /** Bid Opening Initiated By */
+            bid_opening_initiated_by?: string | null;
+            /** Bid Opening Initiated At */
+            bid_opening_initiated_at?: string | null;
+            /** Cancelled At */
+            cancelled_at?: string | null;
+            /** Cancel Reason */
+            cancel_reason?: string | null;
+            /** Source Pr Id */
+            source_pr_id?: string | null;
+            /** Created By */
+            created_by?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Lots */
+            lots?: components["schemas"]["RfqLotResponse"][];
+            /** Lines */
+            lines?: components["schemas"]["RfqLineResponse"][];
+        };
+        /** RfqLineCreateRequest */
+        RfqLineCreateRequest: {
+            /** Lot Id */
+            lot_id?: string | null;
+            /** Line Number */
+            line_number: number;
+            /** Item Description */
+            item_description: string;
+            /** Item Code */
+            item_code?: string | null;
+            /**
+             * Category Id
+             * Format: uuid
+             */
+            category_id: string;
+            /**
+             * Uom Id
+             * Format: uuid
+             */
+            uom_id: string;
+            /** Quantity */
+            quantity: number | string;
+            /**
+             * Estimated Unit Price
+             * @default 0.0
+             */
+            estimated_unit_price: number | string;
+            /** Hsn Code */
+            hsn_code?: string | null;
+            /** Specifications */
+            specifications?: string | null;
+            /** Required By Date */
+            required_by_date?: string | null;
+            /** Delivery Location Id */
+            delivery_location_id?: string | null;
+        };
+        /** RfqLineResponse */
+        RfqLineResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Rfq Id
+             * Format: uuid
+             */
+            rfq_id: string;
+            /** Lot Id */
+            lot_id?: string | null;
+            /** Line Number */
+            line_number: number;
+            /** Item Description */
+            item_description: string;
+            /** Item Code */
+            item_code?: string | null;
+            /**
+             * Category Id
+             * Format: uuid
+             */
+            category_id: string;
+            /**
+             * Uom Id
+             * Format: uuid
+             */
+            uom_id: string;
+            /** Quantity */
+            quantity: string;
+            /** Estimated Unit Price */
+            estimated_unit_price: string;
+            /** Hsn Code */
+            hsn_code?: string | null;
+            /** Specifications */
+            specifications?: string | null;
+            /** Required By Date */
+            required_by_date?: string | null;
+            /** Delivery Location Id */
+            delivery_location_id?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /** RfqListResponse */
+        RfqListResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Org Id
+             * Format: uuid
+             */
+            org_id: string;
+            /** Rfq Number */
+            rfq_number: string;
+            /** Title */
+            title: string;
+            /** Rfq Type */
+            rfq_type: string;
+            /** Status */
+            status: string;
+            /**
+             * Buyer Id
+             * Format: uuid
+             */
+            buyer_id: string;
+            /**
+             * Business Unit Id
+             * Format: uuid
+             */
+            business_unit_id: string;
+            /**
+             * Category Id
+             * Format: uuid
+             */
+            category_id: string;
+            /** Currency */
+            currency: string;
+            /** Estimated Value */
+            estimated_value: string;
+            /** Bid Close At */
+            bid_close_at?: string | null;
+            /** Published At */
+            published_at?: string | null;
+            /** Bids Opened At */
+            bids_opened_at?: string | null;
+            /** Amendment Count */
+            amendment_count: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /** RfqLotCreateRequest */
+        RfqLotCreateRequest: {
+            /** Title */
+            title: string;
+            /** Description */
+            description?: string | null;
+            /**
+             * Estimated Value
+             * @default 0.0
+             */
+            estimated_value: number | string;
+            /** Payment Term Override Id */
+            payment_term_override_id?: string | null;
+            /** Incoterm Override Id */
+            incoterm_override_id?: string | null;
+        };
+        /** RfqLotResponse */
+        RfqLotResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Rfq Id
+             * Format: uuid
+             */
+            rfq_id: string;
+            /** Lot Number */
+            lot_number: number;
+            /** Title */
+            title: string;
+            /** Description */
+            description?: string | null;
+            /** Estimated Value */
+            estimated_value: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /** RfqParticipantResponse */
+        RfqParticipantResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Rfq Id
+             * Format: uuid
+             */
+            rfq_id: string;
+            /**
+             * Vendor Id
+             * Format: uuid
+             */
+            vendor_id: string;
+            /**
+             * Invited At
+             * Format: date-time
+             */
+            invited_at: string;
+            /** Invitation Status */
+            invitation_status: string;
+            /** Accepted At */
+            accepted_at?: string | null;
+            /** Regretted At */
+            regretted_at?: string | null;
+        };
+        /** RfqUpdateRequest */
+        RfqUpdateRequest: {
+            /** Title */
+            title?: string | null;
+            /** Description */
+            description?: string | null;
+            /** Rfq Type */
+            rfq_type?: string | null;
+            /** Sourcing Type */
+            sourcing_type?: string | null;
+            /** Evaluation Type */
+            evaluation_type?: string | null;
+            /** Estimated Value */
+            estimated_value?: number | string | null;
+            /** Bid Close At */
+            bid_close_at?: string | null;
+            /** Bid Open At */
+            bid_open_at?: string | null;
+            /** Bid Validity Days */
+            bid_validity_days?: number | null;
+            /** Lots */
+            lots?: components["schemas"]["RfqLotCreateRequest"][] | null;
+            /** Lines */
+            lines?: components["schemas"]["RfqLineCreateRequest"][] | null;
+        };
         /** SimulateRequest */
         SimulateRequest: {
             /** Template Code */
@@ -2896,6 +4312,20 @@ export interface components {
             entity_context?: {
                 [key: string]: unknown;
             };
+        };
+        /** SingleVendorCheckResponse */
+        SingleVendorCheckResponse: {
+            /**
+             * Rfq Id
+             * Format: uuid
+             */
+            rfq_id: string;
+            /** Is Single Vendor */
+            is_single_vendor: boolean;
+            /** Bid Count */
+            bid_count: number;
+            /** Requires Override */
+            requires_override: boolean;
         };
         /** TaskActionRequest */
         TaskActionRequest: {
@@ -3297,6 +4727,16 @@ export interface components {
             name: string;
             /** Role */
             role: string | null;
+        };
+        /** CancelRequest */
+        app__modules__sourcing__schemas__CancelRequest: {
+            /** Reason */
+            reason: string;
+        };
+        /** CancelRequest */
+        app__modules__workflow__schemas__CancelRequest: {
+            /** Reason */
+            reason: string;
         };
     };
     responses: never;
@@ -5921,11 +7361,381 @@ export interface operations {
             };
         };
     };
-    health_api_v1_sourcing_health_get: {
+    list_rfqs_api_v1_rfqs_get: {
+        parameters: {
+            query?: {
+                status?: string | null;
+                rfq_type?: string | null;
+                business_unit_id?: string | null;
+                category_id?: string | null;
+                search?: string | null;
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_List_RfqListResponse__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_rfq_api_v1_rfqs_post: {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RfqCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_RfqDetailResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_rfq_api_v1_rfqs__id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_RfqDetailResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_rfq_api_v1_rfqs__id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RfqUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_RfqDetailResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    submit_rfq_api_v1_rfqs__id__submit_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_RfqDetailResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    publish_rfq_api_v1_rfqs__id__publish_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_RfqDetailResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    amend_rfq_api_v1_rfqs__id__amend_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AmendRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_RfqDetailResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    cancel_rfq_api_v1_rfqs__id__cancel_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["app__modules__sourcing__schemas__CancelRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_RfqDetailResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    extend_deadline_api_v1_rfqs__id__extend_deadline_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExtendDeadlineRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_RfqDetailResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    add_participants_api_v1_rfqs__id__add_participants_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AddParticipantsRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_List_RfqParticipantResponse__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    remove_participant_api_v1_rfqs__id__participants__vendor_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                vendor_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    initiate_bid_opening_api_v1_rfqs__id__initiate_bid_opening_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
             cookie?: never;
         };
         requestBody?: never;
@@ -5939,11 +7749,223 @@ export interface operations {
                     "application/json": unknown;
                 };
             };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
         };
     };
-    health_api_v1_bids_health_get: {
+    co_authorize_bid_opening_api_v1_rfqs__id__co_authorize_opening_post: {
         parameters: {
             query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_RfqDetailResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_clarifications_api_v1_rfqs__id__clarifications_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_List_RfqClarificationResponse__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    add_clarification_api_v1_rfqs__id__clarifications_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ClarificationCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_RfqClarificationResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    respond_to_clarification_api_v1_rfqs__id__clarifications__cid__respond_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                cid: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ClarificationRespondRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_RfqClarificationResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_rfq_audit_trail_api_v1_rfqs__id__audit_trail_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_List_dict__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_rfq_dashboard_api_v1_rfqs__id__dashboard_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_RfqDashboardResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_rfqs_api_v1_sourcing_get: {
+        parameters: {
+            query?: {
+                status?: string | null;
+                rfq_type?: string | null;
+                business_unit_id?: string | null;
+                category_id?: string | null;
+                search?: string | null;
+                page?: number;
+                page_size?: number;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -5956,7 +7978,771 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    "application/json": components["schemas"]["APIResponse_List_RfqListResponse__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_rfq_api_v1_sourcing_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RfqCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_RfqDetailResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_rfq_api_v1_sourcing__id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_RfqDetailResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_rfq_api_v1_sourcing__id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RfqUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_RfqDetailResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    submit_rfq_api_v1_sourcing__id__submit_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_RfqDetailResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    publish_rfq_api_v1_sourcing__id__publish_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_RfqDetailResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    amend_rfq_api_v1_sourcing__id__amend_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AmendRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_RfqDetailResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    cancel_rfq_api_v1_sourcing__id__cancel_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["app__modules__sourcing__schemas__CancelRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_RfqDetailResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    extend_deadline_api_v1_sourcing__id__extend_deadline_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExtendDeadlineRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_RfqDetailResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    add_participants_api_v1_sourcing__id__add_participants_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AddParticipantsRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_List_RfqParticipantResponse__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    remove_participant_api_v1_sourcing__id__participants__vendor_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                vendor_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    initiate_bid_opening_api_v1_sourcing__id__initiate_bid_opening_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
                     "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    co_authorize_bid_opening_api_v1_sourcing__id__co_authorize_opening_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_RfqDetailResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_clarifications_api_v1_sourcing__id__clarifications_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_List_RfqClarificationResponse__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    add_clarification_api_v1_sourcing__id__clarifications_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ClarificationCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_RfqClarificationResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    respond_to_clarification_api_v1_sourcing__id__clarifications__cid__respond_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                cid: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ClarificationRespondRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_RfqClarificationResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_rfq_audit_trail_api_v1_sourcing__id__audit_trail_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_List_dict__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_rfq_dashboard_api_v1_sourcing__id__dashboard_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_RfqDashboardResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_bid_count_api_v1_rfqs__rfq_id__bid_count_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                rfq_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_BidCountResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    revise_bid_api_v1_rfqs__rfq_id__bids_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                rfq_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BidReviseRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_BidDetailResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    submit_bid_api_v1_rfqs__rfq_id__bids_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                rfq_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BidSubmitRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_BidDetailResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    withdraw_bid_api_v1_rfqs__rfq_id__bids_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                rfq_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BidWithdrawRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_BidDetailResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_bid_details_api_v1_bids__bid_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                bid_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_BidDetailResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    single_vendor_check_api_v1_rfqs__rfq_id__single_vendor_check_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                rfq_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_SingleVendorCheckResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -6303,7 +9089,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["CancelRequest"];
+                "application/json": components["schemas"]["app__modules__workflow__schemas__CancelRequest"];
             };
         };
         responses: {

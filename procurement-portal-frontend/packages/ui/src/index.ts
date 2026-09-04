@@ -34,6 +34,12 @@ export type { BudgetIndicatorProps } from "./BudgetIndicator";
 export { PermissionGuard, useHasPermission } from "./PermissionGuard";
 export type { PermissionGuardProps } from "./PermissionGuard";
 
+export { BidSealedIndicator } from "./BidSealedIndicator";
+export type { BidSealedIndicatorProps } from "./BidSealedIndicator";
+
+export { ClarificationThread } from "./ClarificationThread";
+export type { ClarificationThreadProps, ClarificationItem } from "./ClarificationThread";
+
 // === Apple Design System Exports (Light & Dark) ===
 // Theme
 export { ThemeProvider, useTheme, ThemeContext } from "./theme/ThemeProvider";
