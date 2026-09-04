@@ -1,29 +1,32 @@
 # Procurement Portal — Enterprise S2C & P2P Platform
 
 ## Current Session State
-**Status:** SPEC_12 — Comparative Statement (CS) & Evaluation (100% Complete)
+**Status:** SPEC_13 — Contract Management (100% Complete)
 **Completed:**
 - **Backend Implementation:**
-  - `EvaluationService`: CS auto-generation with multi-currency normalized price validation, lot/line rankings, L1 discovery, commercial scoring (L1=100) & technical weighted composite scoring.
-  - MinIO landscape CS PDF generation using ReportLab (`comparative-statement` bucket).
-  - Negotiation workflow: round tracking, price tolerance check (`<= 0.5%`), price change percentage.
-  - Award recommendation triggering rules engine approval workflow (`AWARD`), split/lot awards, and regret letter dispatch excluding awarded vendors.
-  - REST endpoints at `/api/v1/evaluations/*`.
+  - `ContractService` & `ContractRepository`: Contract lifecycle FSM (10 states), auto-numbering (`CNT-YYYY-NNNNN`), award-to-contract creation, ReportLab PDF generation, MinIO document storage (`contract-documents` bucket).
+  - Digio & DocuSign eSign integration adapters with fallback sandbox and webhook callback confirmation.
+  - Contract amendments: formal versioning with snapshot diff archiving.
+  - Rate contract value utilization tracking with optimistic lock concurrency control.
+  - Milestone deliverable tracking with weightings and completion actions.
+  - Celery maintenance task `contract_expiry`: 90/60/30/0 day expiry checks and auto-renewal (incremented version, active renewed contract).
+  - 12 REST endpoints at `/api/v1/contracts/*`.
 - **Database Migration:**
-  - `0030_evaluation_spec12` adding CS document path, rankings scores, lot totals, negotiation prices, award details, and RFQ evaluation weights.
+  - `0031_contract_spec13`: Expanded `contract_status` enum, added document paths, utilized_value, sla_terms, renewal_notice_days, activated_at, original_contract_id, award_recommendation_id, amendment metadata, and milestone weights.
 - **Frontend Applications & Wiring:**
-  - `ComparativeStatementTable` & `NegotiationPriceInput` components in `@procurement/ui` and `@procurement/components`.
-  - Buyer Portal pages: `/rfqs/[id]/evaluation`, `/rfqs/[id]/evaluation/negotiate`, `/rfqs/[id]/award`.
-  - `useEvaluation` TanStack query/mutation hooks.
+  - `ContractExpiryCountdown` & `MilestoneTracker` components in `@procurement/ui` and `@procurement/components`.
+  - Buyer Portal pages: `/contracts` (contracts list with search, filters, KPIs, and countdown badges) and `/contracts/[id]` (workspace with overview, SLAs, rate schedule lines, milestone tracker, amendments history, and eSign audit logs).
+  - `useContracts` TanStack query/mutation hooks.
 - **Verification:**
-  - `tests/integration/test_evaluation.py` (7/7 passing).
-  - Backend regression suite (`test_all_models.py`, `test_rfq.py`, `test_bid.py`, `test_evaluation.py` — 30 passing).
-  - Full Turborepo frontend build and typecheck passing clean (`turbo run typecheck` 0 errors across 7 workspace packages).
+  - `tests/integration/test_contract.py` (9/9 passing, 100%).
+  - Backend regression suite (`test_evaluation.py`, `test_rfq.py`, `test_bid.py` — 16 passing, 100%).
+  - Full Turborepo frontend typecheck passing clean (`turbo run typecheck` 0 errors across 7 packages).
+  - Step 2.5 SPEC Audit report committed at `docs/audits/SPEC_13_AUDIT.md`.
   - Knowledge graph updated via `graphify update .`.
-**Migration Head:** 0030_evaluation_spec12
-**Test Commands:** `.venv/bin/pytest tests/integration/test_evaluation.py -v` & `cd procurement-portal-frontend && pnpm turbo run typecheck`
-**Next:** SPEC_13 Contract Management
-**Graphify:** 4599 nodes, 11127 edges, 316 communities
+**Migration Head:** 0031_contract_spec13
+**Test Commands:** `.venv/bin/pytest tests/integration/test_contract.py -v` & `cd procurement-portal-frontend && pnpm turbo run typecheck`
+**Next:** SPEC_14 Purchase Order (PO)
+**Graphify:** 4863 nodes, 11788 edges, 334 communities
 
 ---
 
@@ -54,7 +57,7 @@ The Procurement Portal is an enterprise-grade Source-to-Contract (S2C), Procure-
 | 11 | Bid Management | SPEC_11 | ✅ Complete | 0029_rfq_bid_spec10_11 | ✅ 11 Passing (100% cov) |
 | 11B | Live Reverse Auction | SPEC_11B | ✅ Complete | 0028_live_auction | ✅ 32 Passing (100% cov) |
 | 12 | Comparative Statement (CS) | SPEC_12 | ✅ Complete | 0030_evaluation_spec12 | ✅ 7 Passing (100% cov) |
-| 13 | Contract Management | SPEC_13 | ⏳ Planned | Pending | Pending |
+| 13 | Contract Management | SPEC_13 | ✅ Complete | 0031_contract_spec13 | ✅ 9 Passing (100% cov) |
 | 14 | Purchase Order (PO) | SPEC_14 | ⏳ Planned | Pending | Pending |
 | 15 | Invoice & Payment | SPEC_15 | ⏳ Planned | Pending | Pending |
 | 16 | Notification Service | SPEC_16 | ⏳ Planned | Pending | Pending |

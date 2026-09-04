@@ -156,6 +156,17 @@ class Settings(BaseSettings):
     EXCHANGE_RATE_CACHE_TTL_SECONDS: int = 86400
     DLQ_TTL_MS: int = 604800000
     PRESIGNED_URL_EXPIRY_SECONDS: int = 900
+    CONTRACT_DOCUMENTS_BUCKET: str = "contract-documents"
+    CONTRACT_EXPIRY_ALERT_DAYS: list[int] = [90, 60, 30, 0]
+    DEFAULT_ESIGN_PROVIDER: str = "digio"
+    DIGIO_API_URL: str = "https://api.digio.in"
+    DIGIO_CLIENT_ID: str = ""
+    DIGIO_CLIENT_SECRET: str = ""
+    DOCUSIGN_API_URL: str = "https://demo.docusign.net/restapi"
+    DOCUSIGN_ACCOUNT_ID: str = ""
+    DOCUSIGN_INTEGRATION_KEY: str = ""
+    CONTRACT_NUMBER_PREFIX: str = "CNT"
+    CELERY_CONTRACT_EXPIRY_CHECK_HOURS: int = 24
 
 
 @lru_cache

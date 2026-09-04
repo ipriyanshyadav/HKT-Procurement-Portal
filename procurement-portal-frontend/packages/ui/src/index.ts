@@ -111,3 +111,10 @@ export { ComparativeStatementTable } from "./ComparativeStatementTable";
 export type { ComparativeStatementTableProps } from "./ComparativeStatementTable";
 export { NegotiationPriceInput } from "./NegotiationPriceInput";
 export type { NegotiationPriceInputProps } from "./NegotiationPriceInput";
+
+// Contract Management Components (SPEC_13)
+export { ContractExpiryCountdown } from "./ContractExpiryCountdown";
+export type { ContractExpiryCountdownProps } from "./ContractExpiryCountdown";
+export { MilestoneTracker } from "./MilestoneTracker";
+export type { MilestoneTrackerProps, MilestoneItem } from "./MilestoneTracker";
+

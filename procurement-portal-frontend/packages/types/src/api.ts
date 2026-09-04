@@ -2341,6 +2341,230 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/contracts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Contracts
+         * @description List contracts with filters and pagination.
+         */
+        get: operations["list_contracts_api_v1_contracts_get"];
+        put?: never;
+        /**
+         * Create Contract
+         * @description Create a new contract manually.
+         */
+        post: operations["create_contract_api_v1_contracts_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/contracts/from-award/{arn_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create Contract From Award
+         * @description Create contract from an approved award recommendation (S13-04).
+         */
+        post: operations["create_contract_from_award_api_v1_contracts_from_award__arn_id__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/contracts/templates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Templates
+         * @description List available contract templates.
+         */
+        get: operations["list_templates_api_v1_contracts_templates_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/contracts/{contract_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Contract Detail
+         * @description Get single contract details including lines, milestones, amendments, countdown.
+         */
+        get: operations["get_contract_detail_api_v1_contracts__contract_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/contracts/{contract_id}/esign/initiate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Initiate Esign
+         * @description Initiate eSignature workflow via Digio (primary) or DocuSign (fallback).
+         */
+        post: operations["initiate_esign_api_v1_contracts__contract_id__esign_initiate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/contracts/{contract_id}/esign/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Confirm Esign
+         * @description Confirm signature completion and activate contract.
+         */
+        post: operations["confirm_esign_api_v1_contracts__contract_id__esign_confirm_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/contracts/esign/callback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Esign Webhook
+         * @description Receive eSign webhook events from Digio / DocuSign.
+         */
+        post: operations["esign_webhook_api_v1_contracts_esign_callback_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/contracts/{contract_id}/amend": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Amend Contract
+         * @description Create a formal versioned amendment with before/after snapshot (S13-07).
+         */
+        post: operations["amend_contract_api_v1_contracts__contract_id__amend_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/contracts/{contract_id}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Update Contract Status
+         * @description Transition contract status validated against FSM rules.
+         */
+        put: operations["update_contract_status_api_v1_contracts__contract_id__status_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/contracts/{contract_id}/milestones/{milestone_id}/complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Complete Milestone
+         * @description Mark a contract milestone as completed.
+         */
+        post: operations["complete_milestone_api_v1_contracts__contract_id__milestones__milestone_id__complete_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/contracts/{contract_id}/utilization": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Update Utilization
+         * @description Update utilized value for RATE_CONTRACT with optimistic locking check (S13-17).
+         */
+        post: operations["update_utilization_api_v1_contracts__contract_id__utilization_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/purchase-orders/health": {
         parameters: {
             query?: never;
@@ -3270,7 +3494,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T22:47:52.636005
+             * @default 2026-09-04T23:02:49.056356
              */
             timestamp: string;
         };
@@ -3282,7 +3506,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T22:47:52.636005
+             * @default 2026-09-04T23:02:49.056356
              */
             timestamp: string;
         };
@@ -3294,7 +3518,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T22:47:52.636005
+             * @default 2026-09-04T23:02:49.056356
              */
             timestamp: string;
         };
@@ -3306,7 +3530,43 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T22:47:52.636005
+             * @default 2026-09-04T23:02:49.056356
+             */
+            timestamp: string;
+        };
+        /** APIResponse[ContractMilestoneResponse] */
+        APIResponse_ContractMilestoneResponse_: {
+            data: components["schemas"]["ContractMilestoneResponse"];
+            meta?: components["schemas"]["PaginationMeta"] | null;
+            links?: components["schemas"]["Links"] | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             * @default 2026-09-04T23:02:49.056356
+             */
+            timestamp: string;
+        };
+        /** APIResponse[ContractResponse] */
+        APIResponse_ContractResponse_: {
+            data: components["schemas"]["ContractResponse"];
+            meta?: components["schemas"]["PaginationMeta"] | null;
+            links?: components["schemas"]["Links"] | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             * @default 2026-09-04T23:02:49.056356
+             */
+            timestamp: string;
+        };
+        /** APIResponse[EsignInitiateResponse] */
+        APIResponse_EsignInitiateResponse_: {
+            data: components["schemas"]["EsignInitiateResponse"];
+            meta?: components["schemas"]["PaginationMeta"] | null;
+            links?: components["schemas"]["Links"] | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             * @default 2026-09-04T23:02:49.056356
              */
             timestamp: string;
         };
@@ -3319,7 +3579,33 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T22:47:52.636005
+             * @default 2026-09-04T23:02:49.056356
+             */
+            timestamp: string;
+        };
+        /** APIResponse[List[ContractListResponse]] */
+        APIResponse_List_ContractListResponse__: {
+            /** Data */
+            data: components["schemas"]["ContractListResponse"][];
+            meta?: components["schemas"]["PaginationMeta"] | null;
+            links?: components["schemas"]["Links"] | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             * @default 2026-09-04T23:02:49.056356
+             */
+            timestamp: string;
+        };
+        /** APIResponse[List[ContractTemplateResponse]] */
+        APIResponse_List_ContractTemplateResponse__: {
+            /** Data */
+            data: components["schemas"]["ContractTemplateResponse"][];
+            meta?: components["schemas"]["PaginationMeta"] | null;
+            links?: components["schemas"]["Links"] | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             * @default 2026-09-04T23:02:49.056356
              */
             timestamp: string;
         };
@@ -3332,7 +3618,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T22:47:52.636005
+             * @default 2026-09-04T23:02:49.056356
              */
             timestamp: string;
         };
@@ -3345,7 +3631,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T22:47:52.636005
+             * @default 2026-09-04T23:02:49.056356
              */
             timestamp: string;
         };
@@ -3358,7 +3644,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T22:47:52.636005
+             * @default 2026-09-04T23:02:49.056356
              */
             timestamp: string;
         };
@@ -3371,7 +3657,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T22:47:52.636005
+             * @default 2026-09-04T23:02:49.056356
              */
             timestamp: string;
         };
@@ -3384,7 +3670,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T22:47:52.636005
+             * @default 2026-09-04T23:02:49.056356
              */
             timestamp: string;
         };
@@ -3397,7 +3683,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T22:47:52.636005
+             * @default 2026-09-04T23:02:49.056356
              */
             timestamp: string;
         };
@@ -3410,7 +3696,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T22:47:52.636005
+             * @default 2026-09-04T23:02:49.056356
              */
             timestamp: string;
         };
@@ -3425,7 +3711,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T22:47:52.636005
+             * @default 2026-09-04T23:02:49.056356
              */
             timestamp: string;
         };
@@ -3437,7 +3723,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T22:47:52.636005
+             * @default 2026-09-04T23:02:49.056356
              */
             timestamp: string;
         };
@@ -3449,7 +3735,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T22:47:52.636005
+             * @default 2026-09-04T23:02:49.056356
              */
             timestamp: string;
         };
@@ -3461,7 +3747,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T22:47:52.636005
+             * @default 2026-09-04T23:02:49.056356
              */
             timestamp: string;
         };
@@ -3473,7 +3759,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T22:47:52.636005
+             * @default 2026-09-04T23:02:49.056356
              */
             timestamp: string;
         };
@@ -3485,7 +3771,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T22:47:52.636005
+             * @default 2026-09-04T23:02:49.056356
              */
             timestamp: string;
         };
@@ -3497,7 +3783,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T22:47:52.636005
+             * @default 2026-09-04T23:02:49.056356
              */
             timestamp: string;
         };
@@ -3509,7 +3795,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T22:47:52.636005
+             * @default 2026-09-04T23:02:49.056356
              */
             timestamp: string;
         };
@@ -3521,7 +3807,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T22:47:52.636005
+             * @default 2026-09-04T23:02:49.056356
              */
             timestamp: string;
         };
@@ -3533,7 +3819,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T22:47:52.636005
+             * @default 2026-09-04T23:02:49.056356
              */
             timestamp: string;
         };
@@ -3545,7 +3831,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T22:47:52.636005
+             * @default 2026-09-04T23:02:49.056356
              */
             timestamp: string;
         };
@@ -3557,7 +3843,22 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T22:47:52.636005
+             * @default 2026-09-04T23:02:49.056356
+             */
+            timestamp: string;
+        };
+        /** APIResponse[dict] */
+        APIResponse_dict_: {
+            /** Data */
+            data: {
+                [key: string]: unknown;
+            };
+            meta?: components["schemas"]["PaginationMeta"] | null;
+            links?: components["schemas"]["Links"] | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             * @default 2026-09-04T23:02:49.056356
              */
             timestamp: string;
         };
@@ -3570,7 +3871,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T22:47:52.636005
+             * @default 2026-09-04T23:02:49.056356
              */
             timestamp: string;
         };
@@ -4307,6 +4608,535 @@ export interface components {
              */
             rankings: components["schemas"]["CSLineRankingResponse"][];
         };
+        /** ContractAmendRequest */
+        ContractAmendRequest: {
+            /**
+             * Amendment Type
+             * @default VALUE_CHANGE
+             */
+            amendment_type: string;
+            /** Change Description */
+            change_description: string;
+            /** New Total Value */
+            new_total_value?: number | string | null;
+            /** New End Date */
+            new_end_date?: string | null;
+            /** Field Changes */
+            field_changes?: {
+                [key: string]: unknown;
+            } | null;
+        };
+        /** ContractAmendmentResponse */
+        ContractAmendmentResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Contract Id
+             * Format: uuid
+             */
+            contract_id: string;
+            /** Amendment Number */
+            amendment_number: number;
+            /** Amendment Type */
+            amendment_type: string;
+            /** Changes Summary */
+            changes_summary?: string | null;
+            /** Change Description */
+            change_description?: string | null;
+            /** Field Changes */
+            field_changes?: {
+                [key: string]: unknown;
+            } | null;
+            /** Original Snapshot */
+            original_snapshot?: {
+                [key: string]: unknown;
+            };
+            /** New Document Id */
+            new_document_id?: string | null;
+            /**
+             * Amended By
+             * Format: uuid
+             */
+            amended_by: string;
+            /** Approved By */
+            approved_by?: string | null;
+            /** Approved At */
+            approved_at?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** ContractCreateRequest */
+        ContractCreateRequest: {
+            /** Title */
+            title: string;
+            /**
+             * Vendor Id
+             * Format: uuid
+             */
+            vendor_id: string;
+            /**
+             * Contract Type
+             * @default RATE_CONTRACT
+             */
+            contract_type: string;
+            /**
+             * Currency
+             * @default INR
+             */
+            currency: string;
+            /** Total Value */
+            total_value: number | string;
+            /**
+             * Start Date
+             * Format: date
+             */
+            start_date: string;
+            /**
+             * End Date
+             * Format: date
+             */
+            end_date: string;
+            /**
+             * Business Unit Id
+             * Format: uuid
+             */
+            business_unit_id: string;
+            /**
+             * Category Id
+             * Format: uuid
+             */
+            category_id: string;
+            /** Payment Term Id */
+            payment_term_id?: string | null;
+            /** Incoterm Id */
+            incoterm_id?: string | null;
+            /** Template Id */
+            template_id?: string | null;
+            /** Rfq Id */
+            rfq_id?: string | null;
+            /** Award Recommendation Id */
+            award_recommendation_id?: string | null;
+            /**
+             * Auto Renew
+             * @default false
+             */
+            auto_renew: boolean;
+            /**
+             * Renewal Notice Days
+             * @default 30
+             */
+            renewal_notice_days: number;
+            /** Sla Terms */
+            sla_terms?: {
+                [key: string]: unknown;
+            } | null;
+            /** Lines */
+            lines?: components["schemas"]["ContractLineCreate"][];
+            /** Milestones */
+            milestones?: components["schemas"]["ContractMilestoneCreate"][] | null;
+        };
+        /** ContractFromAwardRequest */
+        ContractFromAwardRequest: {
+            /**
+             * Award Recommendation Id
+             * Format: uuid
+             */
+            award_recommendation_id: string;
+            /** Title */
+            title?: string | null;
+            /** Start Date */
+            start_date?: string | null;
+            /** End Date */
+            end_date?: string | null;
+            /**
+             * Auto Renew
+             * @default false
+             */
+            auto_renew: boolean;
+            /**
+             * Renewal Notice Days
+             * @default 30
+             */
+            renewal_notice_days: number;
+            /** Sla Terms */
+            sla_terms?: {
+                [key: string]: unknown;
+            } | null;
+            /** Template Id */
+            template_id?: string | null;
+            /** Payment Term Id */
+            payment_term_id?: string | null;
+            /** Incoterm Id */
+            incoterm_id?: string | null;
+            /** Milestones */
+            milestones?: components["schemas"]["ContractMilestoneCreate"][] | null;
+        };
+        /** ContractLineCreate */
+        ContractLineCreate: {
+            /** Line Number */
+            line_number: number;
+            /** Item Description */
+            item_description: string;
+            /**
+             * Uom Id
+             * Format: uuid
+             */
+            uom_id: string;
+            /** Contracted Quantity */
+            contracted_quantity?: number | string | null;
+            /** Unit Rate */
+            unit_rate: number | string;
+            /** Hsn Code */
+            hsn_code?: string | null;
+        };
+        /** ContractLineResponse */
+        ContractLineResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Contract Id
+             * Format: uuid
+             */
+            contract_id: string;
+            /** Line Number */
+            line_number: number;
+            /** Item Description */
+            item_description: string;
+            /**
+             * Uom Id
+             * Format: uuid
+             */
+            uom_id: string;
+            /** Contracted Quantity */
+            contracted_quantity?: string | null;
+            /** Unit Rate */
+            unit_rate: string;
+            /** Utilized Quantity */
+            utilized_quantity: string;
+            /** Hsn Code */
+            hsn_code?: string | null;
+        };
+        /** ContractListResponse */
+        ContractListResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Org Id
+             * Format: uuid
+             */
+            org_id: string;
+            /** Contract Number */
+            contract_number: string;
+            /** Title */
+            title: string;
+            /**
+             * Vendor Id
+             * Format: uuid
+             */
+            vendor_id: string;
+            /** Vendor Name */
+            vendor_name?: string | null;
+            /** Status */
+            status: string;
+            /** Contract Type */
+            contract_type: string;
+            /** Currency */
+            currency: string;
+            /** Total Value */
+            total_value: string;
+            /**
+             * Utilized Value
+             * @default 0.0
+             */
+            utilized_value: string;
+            /**
+             * Start Date
+             * Format: date
+             */
+            start_date: string;
+            /**
+             * End Date
+             * Format: date
+             */
+            end_date: string;
+            /** Days Remaining */
+            days_remaining: number;
+            /** Expiry Warning Level */
+            expiry_warning_level: string;
+            /**
+             * Auto Renew
+             * @default false
+             */
+            auto_renew: boolean;
+            /**
+             * Amendment Count
+             * @default 0
+             */
+            amendment_count: number;
+            /** Esign Provider */
+            esign_provider?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** ContractMilestoneCreate */
+        ContractMilestoneCreate: {
+            /** Title */
+            title: string;
+            /** Description */
+            description?: string | null;
+            /**
+             * Due Date
+             * Format: date
+             */
+            due_date: string;
+            /**
+             * Responsible Party
+             * @default BUYER
+             */
+            responsible_party: string;
+            /** Responsible User Id */
+            responsible_user_id?: string | null;
+            /** Milestone Weight */
+            milestone_weight?: number | string | null;
+        };
+        /** ContractMilestoneResponse */
+        ContractMilestoneResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Contract Id
+             * Format: uuid
+             */
+            contract_id: string;
+            /** Title */
+            title: string;
+            /** Description */
+            description?: string | null;
+            /**
+             * Due Date
+             * Format: date
+             */
+            due_date: string;
+            /** Responsible Party */
+            responsible_party: string;
+            /** Responsible User Id */
+            responsible_user_id?: string | null;
+            /** Status */
+            status: string;
+            /** Completed At */
+            completed_at?: string | null;
+            /** Completion Notes */
+            completion_notes?: string | null;
+            /** Milestone Weight */
+            milestone_weight?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** ContractMilestoneUpdate */
+        ContractMilestoneUpdate: {
+            /** Status */
+            status: string;
+            /** Completion Notes */
+            completion_notes?: string | null;
+        };
+        /** ContractResponse */
+        ContractResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Org Id
+             * Format: uuid
+             */
+            org_id: string;
+            /** Contract Number */
+            contract_number: string;
+            /** Title */
+            title: string;
+            /**
+             * Vendor Id
+             * Format: uuid
+             */
+            vendor_id: string;
+            /** Rfq Id */
+            rfq_id?: string | null;
+            /** Arn Id */
+            arn_id?: string | null;
+            /** Award Recommendation Id */
+            award_recommendation_id?: string | null;
+            /** Status */
+            status: string;
+            /** Contract Type */
+            contract_type: string;
+            /** Currency */
+            currency: string;
+            /** Total Value */
+            total_value: string;
+            /**
+             * Utilized Value
+             * @default 0.0
+             */
+            utilized_value: string;
+            /**
+             * Start Date
+             * Format: date
+             */
+            start_date: string;
+            /**
+             * End Date
+             * Format: date
+             */
+            end_date: string;
+            /** Payment Term Id */
+            payment_term_id?: string | null;
+            /** Incoterm Id */
+            incoterm_id?: string | null;
+            /**
+             * Business Unit Id
+             * Format: uuid
+             */
+            business_unit_id: string;
+            /**
+             * Category Id
+             * Format: uuid
+             */
+            category_id: string;
+            /** Template Id */
+            template_id?: string | null;
+            /** Signing Log */
+            signing_log?: unknown[];
+            /** Signed Document Id */
+            signed_document_id?: string | null;
+            /** Contract Document Path */
+            contract_document_path?: string | null;
+            /** Signed Document Path */
+            signed_document_path?: string | null;
+            /** Esign Request Id */
+            esign_request_id?: string | null;
+            /** Esign Provider */
+            esign_provider?: string | null;
+            /**
+             * Amendment Count
+             * @default 0
+             */
+            amendment_count: number;
+            /**
+             * Renewal Alert Sent
+             * @default false
+             */
+            renewal_alert_sent: boolean;
+            /**
+             * Auto Renew
+             * @default false
+             */
+            auto_renew: boolean;
+            /**
+             * Renewal Notice Days
+             * @default 30
+             */
+            renewal_notice_days: number;
+            /** Sla Terms */
+            sla_terms?: {
+                [key: string]: unknown;
+            };
+            /** Erp Contract Number */
+            erp_contract_number?: string | null;
+            /** Activated At */
+            activated_at?: string | null;
+            /** Original Contract Id */
+            original_contract_id?: string | null;
+            /** Version */
+            version: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Created By */
+            created_by?: string | null;
+            /** Updated By */
+            updated_by?: string | null;
+            /** Days Remaining */
+            days_remaining?: number | null;
+            /** Expiry Warning Level */
+            expiry_warning_level?: string | null;
+            /** Lines */
+            lines?: components["schemas"]["ContractLineResponse"][];
+            /** Milestones */
+            milestones?: components["schemas"]["ContractMilestoneResponse"][];
+            /** Amendments */
+            amendments?: components["schemas"]["ContractAmendmentResponse"][];
+        };
+        /** ContractStatusUpdateRequest */
+        ContractStatusUpdateRequest: {
+            /** Status */
+            status: string;
+            /** Notes */
+            notes?: string | null;
+        };
+        /** ContractTemplateResponse */
+        ContractTemplateResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Org Id
+             * Format: uuid
+             */
+            org_id: string;
+            /** Name */
+            name: string;
+            /** Contract Type */
+            contract_type: string;
+            /** Template Content */
+            template_content: {
+                [key: string]: unknown;
+            };
+            /** Is Active */
+            is_active: boolean;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** ContractUtilizationUpdateRequest */
+        ContractUtilizationUpdateRequest: {
+            /** Po Value */
+            po_value: number | string;
+            /** Po Number */
+            po_number?: string | null;
+        };
         /**
          * DocumentCategory
          * @enum {string}
@@ -4326,6 +5156,48 @@ export interface components {
             bank_account?: string | null;
             /** Ifsc */
             ifsc?: string | null;
+        };
+        /** EsignConfirmRequest */
+        EsignConfirmRequest: {
+            /** Signed Doc Path */
+            signed_doc_path?: string | null;
+            /** Request Id */
+            request_id?: string | null;
+        };
+        /** EsignInitiateRequest */
+        EsignInitiateRequest: {
+            /** Provider */
+            provider?: string | null;
+            /** Signatories */
+            signatories?: {
+                [key: string]: unknown;
+            }[] | null;
+        };
+        /** EsignInitiateResponse */
+        EsignInitiateResponse: {
+            /** Request Id */
+            request_id: string;
+            /** Provider */
+            provider: string;
+            /** Signing Url */
+            signing_url?: string | null;
+            /** Status */
+            status: string;
+        };
+        /** EsignWebhookPayload */
+        EsignWebhookPayload: {
+            /** Request Id */
+            request_id: string;
+            /** Event */
+            event: string;
+            /** Status */
+            status?: string | null;
+            /** Signed Pdf Base64 */
+            signed_pdf_base64?: string | null;
+            /** Metadata */
+            metadata?: {
+                [key: string]: unknown;
+            } | null;
         };
         /** ExtendDeadlineRequest */
         ExtendDeadlineRequest: {
@@ -10529,6 +11401,416 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+        };
+    };
+    list_contracts_api_v1_contracts_get: {
+        parameters: {
+            query?: {
+                status?: string | null;
+                vendor_id?: string | null;
+                category_id?: string | null;
+                search?: string | null;
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_List_ContractListResponse__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_contract_api_v1_contracts_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ContractCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_ContractResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_contract_from_award_api_v1_contracts_from_award__arn_id__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                arn_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["ContractFromAwardRequest"] | null;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_ContractResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_templates_api_v1_contracts_templates_get: {
+        parameters: {
+            query?: {
+                contract_type?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_List_ContractTemplateResponse__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_contract_detail_api_v1_contracts__contract_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                contract_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_ContractResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    initiate_esign_api_v1_contracts__contract_id__esign_initiate_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                contract_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["EsignInitiateRequest"] | null;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_EsignInitiateResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    confirm_esign_api_v1_contracts__contract_id__esign_confirm_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                contract_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["EsignConfirmRequest"] | null;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_ContractResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    esign_webhook_api_v1_contracts_esign_callback_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EsignWebhookPayload"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_dict_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    amend_contract_api_v1_contracts__contract_id__amend_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                contract_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ContractAmendRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_ContractResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_contract_status_api_v1_contracts__contract_id__status_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                contract_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ContractStatusUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_ContractResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    complete_milestone_api_v1_contracts__contract_id__milestones__milestone_id__complete_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                contract_id: string;
+                milestone_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["ContractMilestoneUpdate"] | null;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_ContractMilestoneResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_utilization_api_v1_contracts__contract_id__utilization_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                contract_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ContractUtilizationUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_ContractResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
