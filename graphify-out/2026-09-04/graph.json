@@ -24802,7 +24802,7 @@
       "node_kind": "heading",
       "norm_label": "module status",
       "source_file": "README.md",
-      "source_location": "L31"
+      "source_location": "L30"
     },
     {
       "id": "readme_procurement_portal_enterprise_s2c_p2p_platform",
@@ -24826,7 +24826,7 @@
       "node_kind": "heading",
       "norm_label": "quickstart & verification",
       "source_file": "README.md",
-      "source_location": "L62"
+      "source_location": "L61"
     },
     {
       "id": "readme_run_backend_tests",
@@ -24838,7 +24838,7 @@
       "node_kind": "heading",
       "norm_label": "run backend tests",
       "source_file": "README.md",
-      "source_location": "L64"
+      "source_location": "L63"
     },
     {
       "id": "readme_seed_master_data",
@@ -24850,7 +24850,7 @@
       "node_kind": "heading",
       "norm_label": "seed master data",
       "source_file": "README.md",
-      "source_location": "L69"
+      "source_location": "L68"
     },
     {
       "id": "readme_squad_decomposition",
@@ -24862,7 +24862,7 @@
       "node_kind": "heading",
       "norm_label": "squad decomposition",
       "source_file": "README.md",
-      "source_location": "L24"
+      "source_location": "L23"
     },
     {
       "id": "readme_start_docker_stack",
@@ -24874,7 +24874,7 @@
       "node_kind": "heading",
       "norm_label": "start docker stack",
       "source_file": "README.md",
-      "source_location": "L75"
+      "source_location": "L74"
     },
     {
       "id": "readme_system_overview",
@@ -24886,7 +24886,7 @@
       "node_kind": "heading",
       "norm_label": "system overview",
       "source_file": "README.md",
-      "source_location": "L20"
+      "source_location": "L19"
     },
     {
       "id": "reports_spec_03_audit",
@@ -110861,7 +110861,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L20",
+      "source_location": "L19",
       "weight": 1.0
     },
     {
@@ -110883,7 +110883,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L62",
+      "source_location": "L61",
       "weight": 1.0
     },
     {
@@ -110894,7 +110894,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L64",
+      "source_location": "L63",
       "weight": 1.0
     },
     {
@@ -110905,7 +110905,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L69",
+      "source_location": "L68",
       "weight": 1.0
     },
     {
@@ -110916,7 +110916,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L75",
+      "source_location": "L74",
       "weight": 1.0
     },
     {
@@ -110927,7 +110927,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L24",
+      "source_location": "L23",
       "weight": 1.0
     },
     {
@@ -110938,7 +110938,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L31",
+      "source_location": "L30",
       "weight": 1.0
     },
     {
@@ -136067,5 +136067,5 @@
       "source_file": "specs/SPEC_04_AUTH_SECURITY.md"
     }
   ],
-  "built_at_commit": "a7315380e514f5fc4d46b8ecc21cf042ead0592c"
+  "built_at_commit": "fffe62a9f9d5d388e78395a511c27bc80f7deed9"
 }

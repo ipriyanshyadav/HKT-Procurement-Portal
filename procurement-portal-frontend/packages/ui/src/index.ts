@@ -79,7 +79,7 @@ export { PageHeader } from "./components/PageHeader";
 export type { PageHeaderProps, BreadcrumbItem } from "./components/PageHeader";
 
 export { Navbar } from "./components/Navbar";
-export type { NavbarProps, NavItem } from "./components/Navbar";
+export type { NavbarProps, NavItem, UserProfile } from "./components/Navbar";
 
 export { Sidebar } from "./components/Sidebar";
 export type { SidebarProps, SidebarItemData, SidebarMode } from "./components/Sidebar";

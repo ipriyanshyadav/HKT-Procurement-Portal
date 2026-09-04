@@ -2,11 +2,14 @@
 
 import React, { ReactNode } from "react";
 import { useCurrentUser, useLogout } from "@procurement/hooks";
+import { useAuthStore } from "@procurement/stores";
 import { AppShell } from "@procurement/ui";
 import { LayoutDashboard, FolderTree, FileUp } from "lucide-react";
 
 export default function AdminMainLayout({ children }: { children: ReactNode }) {
-  const { data: user } = useCurrentUser();
+  const { data: currentUser } = useCurrentUser();
+  const storeUser = useAuthStore((state) => state.user);
+  const user = currentUser || storeUser;
   const logoutMutation = useLogout();
 
   const navItems = [
@@ -32,7 +35,7 @@ export default function AdminMainLayout({ children }: { children: ReactNode }) {
 
   return (
     <AppShell
-      portalName="ProcureFlow"
+      portalName="HKT Procurement"
       portalBadge="Admin Portal"
       badgeColor="blue"
       homeHref="/dashboard"

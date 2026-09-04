@@ -1,16 +1,17 @@
 # Procurement Portal — Enterprise S2C & P2P Platform
 
 ## Current Session State
-**Status:** Responsive Symmetrical Canvas Layout & Multi-Mode Sidebar Complete (100%)
+**Status:** User Profile Dropdown & Confirmation + HKT Procurement Branding Complete (100%)
 **Completed:**
-- **Symmetrical Balanced Layout in Mini Mode:** Adjusted `<main>` desktop margins (`md:ml-[60px]`) and symmetrical horizontal padding (`px-4 sm:px-6 md:px-8 lg:px-10`), eliminating the left-side squish and empty right void.
-- **Expansive Widescreen Width:** Replaced nested restrictive `max-w-7xl` containers across requisition, vendor, category, and compliance pages with full-width responsive layouts (`w-full space-y-6`) so tables utilize the full available canvas.
-- **Sidebar Mode Controls (Pinned / Minimized / Auto-Hide):** Added user-selectable options to minimize, auto-hide, or pin the sidebar across all portals with persistent `localStorage` preference.
-- **Verification:** 331 pytest integration/unit tests passed; 7 Turborepo tasks passed cleanly; Graphify updated.
+- **User Profile Trigger & Dropdown:** Replaced direct sign-out button with an Apple-styled user avatar button displaying the logged-in user's name across all portals (`admin-portal`, `buyer-portal`, `supplier-portal`).
+- **User Details & Role Badge:** Clicking opens a frosted glass popover displaying initials avatar, "Hi, {Full Name}", role badge (Administrator / Buyer / Supplier Partner), and email.
+- **Sign Out Confirmation Flow:** Clicking "Sign Out" expands a confirmation prompt with warning indicator, session termination alert, and explicit "Sign Out" / "Cancel" buttons.
+- **HKT Procurement Branding:** Replaced "ProcureFlow" branding across all portal headers and layouts with a stylish gradient badge "HKT" + "Procurement" typography.
+- **Verification:** 331 pytest integration/unit tests passed; 7 Turborepo tasks passed cleanly (100% build & typecheck success).
 **Migration Head:** 0028_fix_missing_model_columns
 **Test Commands:** `OTEL_SDK_DISABLED=true .venv/bin/pytest tests/ -q` & `pnpm build`
 **Next:** SPEC_10 RFQ Lifecycle
-**Graphify:** 3649 nodes, 7930 edges, 298 communities
+**Graphify:** 3652 nodes, 7945 edges, 303 communities
 
 ---
 

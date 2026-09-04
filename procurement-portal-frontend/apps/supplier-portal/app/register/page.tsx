@@ -41,10 +41,15 @@ export default function SupplierRegisterLandingPage() {
       <header className="bg-white border-b border-gray-200 py-4 px-6 shadow-sm">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <Link href="/profile" className="flex items-center gap-2 hover:opacity-90 transition-opacity">
-            <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-              ProcureFlow
+            <span className="flex items-center gap-2 font-bold tracking-tight">
+              <span className="px-2.5 py-1 text-xs font-black tracking-wider bg-gradient-to-r from-blue-600 via-indigo-600 to-sky-500 text-white rounded-lg shadow-sm ring-1 ring-blue-500/20">
+                HKT
+              </span>
+              <span className="bg-gradient-to-r from-neutral-900 via-neutral-800 to-neutral-600 dark:from-white dark:via-neutral-100 dark:to-neutral-300 bg-clip-text text-transparent font-semibold tracking-tight text-[17px]">
+                Procurement
+              </span>
             </span>
-            <span className="text-xs font-semibold px-2 py-0.5 bg-blue-50 text-blue-700 border border-blue-200 rounded">
+            <span className="text-xs font-semibold px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full">
               Supplier Portal
             </span>
           </Link>
@@ -67,7 +72,7 @@ export default function SupplierRegisterLandingPage() {
             Supplier Self-Service Onboarding
           </h1>
           <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto">
-            Welcome to the ProcureFlow vendor network. Complete your registration to participate in competitive sourcing events, submit tenders, and execute purchase orders.
+            Welcome to the HKT Procurement vendor network. Complete your registration to participate in competitive sourcing events, submit tenders, and execute purchase orders.
           </p>
         </div>
 

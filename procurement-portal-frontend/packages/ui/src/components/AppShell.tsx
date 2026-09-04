@@ -1,7 +1,7 @@
 "use client";
 
 import React, { ReactNode, useState, useEffect } from 'react';
-import { Navbar, NavItem } from './Navbar';
+import { Navbar, NavItem, UserProfile } from './Navbar';
 import { Sidebar, SidebarItemData, SidebarMode } from './Sidebar';
 
 export interface AppShellProps {
@@ -10,11 +10,7 @@ export interface AppShellProps {
   badgeColor?: 'blue' | 'green' | 'orange' | 'purple';
   homeHref: string;
   navItems: SidebarItemData[];
-  user?: {
-    first_name?: string;
-    last_name?: string;
-    email?: string;
-  } | null;
+  user?: UserProfile | null;
   onLogout?: () => void;
   children: ReactNode;
   actions?: ReactNode;
@@ -23,7 +19,7 @@ export interface AppShellProps {
 }
 
 export function AppShell({
-  portalName = 'ProcureFlow',
+  portalName = 'HKT Procurement',
   portalBadge,
   badgeColor = 'blue',
   homeHref,
