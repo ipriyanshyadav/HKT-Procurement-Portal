@@ -70,6 +70,8 @@ class Settings(BaseSettings):
     DIGIO_CLIENT_SECRET: str = ""
     DOCUSIGN_ACCOUNT_ID: str = ""
     DOCUSIGN_INTEGRATION_KEY: str = ""
+    EXCHANGE_RATE_API_URL: str = "https://api.exchangerate-api.com/v4"
+    EXCHANGE_RATE_API_KEY: str = ""
 
     # Observability
     JAEGER_HOST: str = "localhost"
@@ -99,6 +101,7 @@ class Settings(BaseSettings):
     CELERY_WORKFLOW_TIMEOUT_CHECK_MINUTES: int = 10
 
     # Business Rules
+    CSV_IMPORT_MAX_ROWS: int = 5000
     INVITATION_TOKEN_TTL_DAYS: int = 7
     VENDOR_GST_CACHE_TTL_DAYS: int = 90
     PAN_CACHE_TTL_DAYS: int = 90
@@ -119,6 +122,7 @@ class Settings(BaseSettings):
     VENDOR_COMPLIANCE_HOLD_EXPIRY_DAYS: int = 0
     OUTBOX_BATCH_SIZE: int = 100
     IDEMPOTENCY_KEY_TTL_SECONDS: int = 86400
+    EXCHANGE_RATE_CACHE_TTL_SECONDS: int = 86400
     DLQ_TTL_MS: int = 604800000
     PRESIGNED_URL_EXPIRY_SECONDS: int = 900
 

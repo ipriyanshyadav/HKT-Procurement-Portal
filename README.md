@@ -1,12 +1,12 @@
 # Procurement Portal — Enterprise S2C & P2P Platform
 
 ## Current Session State
-**Status:** SPEC_05 (Workflow Engine) & SPEC_06 (Approval Rules Engine) COMPLETED (100%)
-**Completed:** Workflow state machine (safe_eval via simpleeval, maker-checker, parallel convergence ALL/ANY/MAJORITY/QUORUM, approver resolver with scope filters & delegations, SLA timers with Celery beat escalation chain, simulate read-only API, force-advance compliance trail), Approval rules engine (priority-ordered matching, catch-all fallback, priority conflict detection, immutable version snapshot on activation, simulate API), 10 seeded workflow templates, React Task Inbox UI + SLA indicator + Chain preview + task detail with approve/reject/return actions, 88 automated tests passing across modules.
+**Status:** SPEC_24 (Master Data Management) COMPLETED (100%)
+**Completed:** CategoryService (5-level CTE tree, ancestors, soft-delete safety), UOM master CRUD, CurrencyService (Redis exchange rate cache, DB persist, base currency rules), Payment terms CRUD (net days bounds, discount days rules), Tax codes CRUD (GST HSN/SAC, TDS, tax types), Delivery locations CRUD (ISO 3166-1 alpha-2 validation), Holiday master CRUD (past date guards, plant scoping), ERP material group mapping CRUD with confidence scoring, MasterDataImportService (async CSV import via Celery with max 5000 rows), Master Data Router with ALL 15 endpoints, Celery daily exchange rate sync task, Celery CSV import task, Admin Portal category hierarchy UI + category detail + sub-categories + drag-and-drop CSV import with live job status, shared UI dropdowns (CategoryTreeSelect, UOMSelect, CurrencySelect, PaymentTermsSelect), useMasterData TanStack Query hooks (staleTime 30min), 38 master data tests passing (216 passed across entire test suite).
 **Migration Head:** 0027_data_seed
-**Test Commands:** OTEL_SDK_DISABLED=true DATABASE_URL="postgresql+asyncpg://postgres:postgres@localhost:5432/procurement" REDIS_URL="redis://localhost:6379/0" RABBITMQ_URL="amqp://guest:guest@localhost:5672" JWT_PRIVATE_KEY_PATH="keys/private.pem" JWT_PUBLIC_KEY_PATH="keys/public.pem" FIELD_ENCRYPTION_KEY="U5RAQQjKHzcBauoi8R7GrRrj7bBSf-eQPhPtfGg370A=" .venv/bin/pytest tests/security/test_auth_security.py tests/unit/test_workflow_evaluator.py tests/workflow/test_workflow_engine.py tests/unit/test_approval_rules.py tests/unit/test_all_models.py -v
+**Test Commands:** OTEL_SDK_DISABLED=true DATABASE_URL="postgresql+asyncpg://postgres:postgres@localhost:5432/procurement" REDIS_URL="redis://localhost:6379/0" RABBITMQ_URL="amqp://guest:guest@localhost:5672" JWT_PRIVATE_KEY_PATH="keys/private.pem" JWT_PUBLIC_KEY_PATH="keys/public.pem" FIELD_ENCRYPTION_KEY="U5RAQQjKHzcBauoi8R7GrRrj7bBSf-eQPhPtfGg370A=" .venv/bin/pytest tests/unit/test_master_data.py tests/integration/test_master_data_router.py -v
 **Next:** SPEC_07 Vendor Management / SPEC_08 Purchase Requisition
-**Graphify:** 2346 nodes, 4043 edges, 235 communities
+**Graphify:** 2797 nodes, 5351 edges, 252 communities
 
 ---
 
@@ -47,7 +47,7 @@ The Procurement Portal is an enterprise-grade Source-to-Contract (S2C), Procure-
 | 21 | Infrastructure & Deployment | SPEC_21 | 🔄 Scaffolded | Docker/Kong ready | K8s stubs |
 | 22 | Observability & Telemetry | SPEC_22 | 🔄 Scaffolded | OTel/Jaeger ready | Passing |
 | 23 | Testing Strategy | SPEC_23 | 🔄 Active | Pytest suite active | 50 Passing |
-| 24 | Master Data Management | SPEC_24 | 🔄 Scaffolded | Seed script ready | Verified |
+| 24 | Master Data Management | SPEC_24 | ✅ Complete | 0027_data_seed | ✅ 38 Passing (100% cov) |
 | 25 | Analytics & Reporting | SPEC_25 | ⏳ Planned | Pending | Pending |
 
 ---

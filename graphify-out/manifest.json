@@ -366,9 +366,9 @@
     "semantic_hash": ""
   },
   "app/config.py": {
-    "mtime": 1788465889.6515946,
-    "seen": 1788466385.863049,
-    "ast_hash": "b32765ae147f5ced468c5dc2695f4878",
+    "mtime": 1788503408.8509371,
+    "seen": 1788503849.524204,
+    "ast_hash": "68a66fbe4513d1582d38021f467f035e",
     "semantic_hash": ""
   },
   "app/core/__init__.py": {
@@ -624,15 +624,15 @@
     "semantic_hash": ""
   },
   "app/modules/master_data/__init__.py": {
-    "mtime": 1788465648.4570456,
-    "seen": 1788466385.8630772,
-    "ast_hash": "bf97d561c68de98f13e7c635aea153fb",
+    "mtime": 1788503594.157186,
+    "seen": 1788503849.524252,
+    "ast_hash": "14459b725bf8f91606d3fcb978face8b",
     "semantic_hash": ""
   },
   "app/modules/master_data/router.py": {
-    "mtime": 1788465648.457108,
-    "seen": 1788466385.8630772,
-    "ast_hash": "2eb3bcbe7098f2aad47a3ce0ffe5c6a9",
+    "mtime": 1788503446.6781697,
+    "seen": 1788503849.524266,
+    "ast_hash": "f9ea197e2b23453bf5a916913478c8ee",
     "semantic_hash": ""
   },
   "app/modules/notification/channels/__init__.py": {
@@ -900,9 +900,9 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/hooks/src/index.ts": {
-    "mtime": 1788501475.1699405,
-    "seen": 1788502105.2869818,
-    "ast_hash": "9e003466f833ad9e66e5a65b00f084b7",
+    "mtime": 1788503649.4738472,
+    "seen": 1788503849.52433,
+    "ast_hash": "f0128296337b698b17cf7653736c25ed",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/hooks/tsconfig.json": {
@@ -972,9 +972,9 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/ui/src/index.ts": {
-    "mtime": 1788501403.7942252,
-    "seen": 1788502105.286994,
-    "ast_hash": "bd134eafa670112ff612ee519cf9f0e9",
+    "mtime": 1788503527.626459,
+    "seen": 1788503849.5243468,
+    "ast_hash": "eaf783cfe612e97e233a96de4bd82652",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/ui/src/utils.ts": {
@@ -1482,9 +1482,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1788469736.453371,
-    "seen": 1788502105.287031,
-    "ast_hash": "c4f4c7d5c46207f1bf3c714972991b15",
+    "mtime": 1788502118.7223532,
+    "seen": 1788503849.524388,
+    "ast_hash": "fbc8c1042bb9f8f989df782266095e99",
     "semantic_hash": ""
   },
   "graphify_diff_20260904_014322.txt": {
@@ -1779,6 +1779,222 @@
     "mtime": 1788501727.4703794,
     "seen": 1788502105.287025,
     "ast_hash": "a90d945706e3e50aa7e0a81bd711692c",
+    "semantic_hash": ""
+  },
+  "app/modules/master_data/category/__init__.py": {
+    "mtime": 1788503367.4357846,
+    "seen": 1788503849.524253,
+    "ast_hash": "4a190ed00f3c108d77f7ad68f3678887",
+    "semantic_hash": ""
+  },
+  "app/modules/master_data/category/service.py": {
+    "mtime": 1788503362.1704102,
+    "seen": 1788503849.5242538,
+    "ast_hash": "0ba78d479edea8466625213837efe9a7",
+    "semantic_hash": ""
+  },
+  "app/modules/master_data/currency/__init__.py": {
+    "mtime": 1788503382.3653638,
+    "seen": 1788503849.5242538,
+    "ast_hash": "f26883382b4d3a8da8b13e9c236cc909",
+    "semantic_hash": ""
+  },
+  "app/modules/master_data/currency/service.py": {
+    "mtime": 1788503379.0699062,
+    "seen": 1788503849.524255,
+    "ast_hash": "1bd5d498900d3c4f22bf9469f69f1d81",
+    "semantic_hash": ""
+  },
+  "app/modules/master_data/erp_mapping/__init__.py": {
+    "mtime": 1788503395.7896276,
+    "seen": 1788503849.524256,
+    "ast_hash": "3481a227a84522156a6450e00b4edcbc",
+    "semantic_hash": ""
+  },
+  "app/modules/master_data/erp_mapping/service.py": {
+    "mtime": 1788503392.306818,
+    "seen": 1788503849.524257,
+    "ast_hash": "eedf9c04f8b9c0b8e0d1e6df85a35357",
+    "semantic_hash": ""
+  },
+  "app/modules/master_data/holiday/__init__.py": {
+    "mtime": 1788503307.825696,
+    "seen": 1788503849.524257,
+    "ast_hash": "3d70f277a1453a74174d55e22c6d2f84",
+    "semantic_hash": ""
+  },
+  "app/modules/master_data/holiday/repository.py": {
+    "mtime": 1788503304.0784645,
+    "seen": 1788503849.5242581,
+    "ast_hash": "c1c165d5c2b3032301873170fd202308",
+    "semantic_hash": ""
+  },
+  "app/modules/master_data/holiday/schemas.py": {
+    "mtime": 1788503299.1683533,
+    "seen": 1788503849.524259,
+    "ast_hash": "bc1164ec6655689e91e659038501e18a",
+    "semantic_hash": ""
+  },
+  "app/modules/master_data/holiday/service.py": {
+    "mtime": 1788503186.75323,
+    "seen": 1788503849.524259,
+    "ast_hash": "85e9315507242296ce4e8613391e1337",
+    "semantic_hash": ""
+  },
+  "app/modules/master_data/import_service.py": {
+    "mtime": 1788503417.700478,
+    "seen": 1788503849.52426,
+    "ast_hash": "69fac53a501583d0dda37a820be958b6",
+    "semantic_hash": ""
+  },
+  "app/modules/master_data/location/__init__.py": {
+    "mtime": 1788503346.2650406,
+    "seen": 1788503849.5242612,
+    "ast_hash": "ff244df8e3f2c3dd3b48f55e9088c7c1",
+    "semantic_hash": ""
+  },
+  "app/modules/master_data/location/service.py": {
+    "mtime": 1788503252.9877622,
+    "seen": 1788503849.5242612,
+    "ast_hash": "ce394c89c70229eee66bbf4bdd3c3bdf",
+    "semantic_hash": ""
+  },
+  "app/modules/master_data/payment_terms/__init__.py": {
+    "mtime": 1788503174.5297856,
+    "seen": 1788503849.524263,
+    "ast_hash": "ba6b7eac07a9f7aca393692af836eb58",
+    "semantic_hash": ""
+  },
+  "app/modules/master_data/payment_terms/repository.py": {
+    "mtime": 1788503184.6584873,
+    "seen": 1788503849.5242639,
+    "ast_hash": "98b3332c678a5ea36356c2521fa60893",
+    "semantic_hash": ""
+  },
+  "app/modules/master_data/payment_terms/schemas.py": {
+    "mtime": 1788503191.7608483,
+    "seen": 1788503849.5242639,
+    "ast_hash": "cbf9724303cc217d0c9216843aaa4740",
+    "semantic_hash": ""
+  },
+  "app/modules/master_data/payment_terms/service.py": {
+    "mtime": 1788503229.5648263,
+    "seen": 1788503849.524265,
+    "ast_hash": "0c7db7c0d07dd5be954a85ca0d1955af",
+    "semantic_hash": ""
+  },
+  "app/modules/master_data/tax/__init__.py": {
+    "mtime": 1788503341.2581801,
+    "seen": 1788503849.524266,
+    "ast_hash": "90aa9fd52f0517e894a0add7d5245eea",
+    "semantic_hash": ""
+  },
+  "app/modules/master_data/tax/service.py": {
+    "mtime": 1788503246.6825788,
+    "seen": 1788503849.524267,
+    "ast_hash": "ec30cd5ddf37a05d9b87c501dabd52d6",
+    "semantic_hash": ""
+  },
+  "app/modules/master_data/uom/__init__.py": {
+    "mtime": 1788503326.1079175,
+    "seen": 1788503849.524267,
+    "ast_hash": "c3471a40aa597e3f3ca702235b74e76e",
+    "semantic_hash": ""
+  },
+  "app/modules/master_data/uom/service.py": {
+    "mtime": 1788503228.7566965,
+    "seen": 1788503849.5242682,
+    "ast_hash": "955e97585df3e96ea254c3315b1a713d",
+    "semantic_hash": ""
+  },
+  "app/tasks/exchange_rates.py": {
+    "mtime": 1788503422.430276,
+    "seen": 1788503849.5243032,
+    "ast_hash": "8e29534797e7265c15e7a8d9e045d97a",
+    "semantic_hash": ""
+  },
+  "app/tasks/master_data_import.py": {
+    "mtime": 1788503431.4790905,
+    "seen": 1788503849.5243032,
+    "ast_hash": "05b155e9577628909d33e53171854a14",
+    "semantic_hash": ""
+  },
+  "procurement-portal-frontend/apps/admin-portal/app/(main)/layout.tsx": {
+    "mtime": 1788503550.2074409,
+    "seen": 1788503849.5243058,
+    "ast_hash": "beb884c869a0b64a853f93120269f49d",
+    "semantic_hash": ""
+  },
+  "procurement-portal-frontend/apps/admin-portal/app/(main)/master-data/categories/[id]/page.tsx": {
+    "mtime": 1788503573.1805959,
+    "seen": 1788503849.5243058,
+    "ast_hash": "033567538edca98c91d34596cd07b49e",
+    "semantic_hash": ""
+  },
+  "procurement-portal-frontend/apps/admin-portal/app/(main)/master-data/categories/page.tsx": {
+    "mtime": 1788503560.0663133,
+    "seen": 1788503849.524307,
+    "ast_hash": "b6f35c6eb5bd50ca62fef421b2729832",
+    "semantic_hash": ""
+  },
+  "procurement-portal-frontend/apps/admin-portal/app/(main)/master-data/import/page.tsx": {
+    "mtime": 1788503583.4760711,
+    "seen": 1788503849.524308,
+    "ast_hash": "9f3db0703d070d3011aca429debf7b0a",
+    "semantic_hash": ""
+  },
+  "procurement-portal-frontend/apps/admin-portal/app/providers.tsx": {
+    "mtime": 1788503640.287876,
+    "seen": 1788503849.52431,
+    "ast_hash": "1f508dfc2f0b2db2511c2cf00eb5b95b",
+    "semantic_hash": ""
+  },
+  "procurement-portal-frontend/packages/hooks/src/useMasterData.ts": {
+    "mtime": 1788503477.4241295,
+    "seen": 1788503849.524332,
+    "ast_hash": "9654e274db3763453c37989762bf5cea",
+    "semantic_hash": ""
+  },
+  "procurement-portal-frontend/packages/ui/src/CategoryTreeSelect.tsx": {
+    "mtime": 1788503505.7109609,
+    "seen": 1788503849.524342,
+    "ast_hash": "e21cd9087c65118b3f25b0e0509e3ff6",
+    "semantic_hash": ""
+  },
+  "procurement-portal-frontend/packages/ui/src/CurrencySelect.tsx": {
+    "mtime": 1788503516.562845,
+    "seen": 1788503849.524343,
+    "ast_hash": "205b9a7383a37dfd1b4a97af90d54d6b",
+    "semantic_hash": ""
+  },
+  "procurement-portal-frontend/packages/ui/src/PaymentTermsSelect.tsx": {
+    "mtime": 1788503520.9357605,
+    "seen": 1788503849.524344,
+    "ast_hash": "c39c012f13723bd06299de68f7720c78",
+    "semantic_hash": ""
+  },
+  "procurement-portal-frontend/packages/ui/src/UOMSelect.tsx": {
+    "mtime": 1788503511.1345897,
+    "seen": 1788503849.5243452,
+    "ast_hash": "58a2ab9729db5e4941d38af975def68d",
+    "semantic_hash": ""
+  },
+  "tests/integration/test_master_data_router.py": {
+    "mtime": 1788503810.812532,
+    "seen": 1788503849.524362,
+    "ast_hash": "465d6acc1d4d9afc3c0c132b62152c4b",
+    "semantic_hash": ""
+  },
+  "tests/unit/test_master_data.py": {
+    "mtime": 1788503737.687404,
+    "seen": 1788503849.524375,
+    "ast_hash": "28db3028936d470d5a385993dbaa12bb",
+    "semantic_hash": ""
+  },
+  "plans/spec_05_06_audit.md": {
+    "mtime": 1788502303.0809689,
+    "seen": 1788503849.524412,
+    "ast_hash": "d1271650e22aa8e18316c127824bedc9",
     "semantic_hash": ""
   }
 }
