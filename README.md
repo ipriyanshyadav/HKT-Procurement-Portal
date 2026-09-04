@@ -1,13 +1,14 @@
 # Procurement Portal — Enterprise S2C & P2P Platform
 
 ## Current Session State
-**Status:** Apple Design System (Light & Dark) Complete (100%)
+**Status:** Apple Design System & Minimized Hover-Expandable Sidebar Complete (100%)
 **Completed:**
+- **Minimized & Hidden Auto-Expand Sidebar:** Implemented auto-hiding sidebar across all 3 portals (`admin-portal`, `buyer-portal`, `supplier-portal`) with smooth Apple spring hover expansion (`cubic-bezier(0.16, 1, 0.3, 1)`), 220ms forgiving mouse-leave debounce, edge trigger strip, and sleek Apple peek indicator tab.
+- **Full Canvas Desktop Layout:** Removed rigid static 264px desktop margin from `AppShell`, providing widescreen breathing space and zero layout shift (CLS = 0) with elevated frosted glass overlay on hover.
 - **Apple Light & Dark System:** Refined Apple design system tokens (`apple-tokens.css`) and global typography/surface styles (`apple-base.css`) with pure OLED black `#000000`, elevated cards `#1C1C1E`, and controls `#2C2C2E`.
 - **Tailwind Class Dark Mode:** Configured `darkMode: "class"` in all 3 portals' `tailwind.config.ts`, syncing DOM `dark` class with `ThemeProvider.tsx` and `data-theme`.
 - **Liquid Glass Removal:** Completely removed Liquid Glass theme, animated canvas background, SVG refraction filters, and related tokens per instructions.
 - **Apple Light/Dark Switcher:** Implemented a 2-way toggle with Sun (amber) and Moon (sky) icons and active pill indicator.
-- **Component & Layout Polish:** Navbar, Sidebar, Cards, Tables, Modals, Badges, and Form elements automatically adapt with high contrast and smooth Apple transitions.
 - **Verification:** 331 pytest integration/unit tests passed; 7 Turborepo tasks passed cleanly; Graphify updated.
 **Migration Head:** 0028_fix_missing_model_columns
 **Test Commands:** `OTEL_SDK_DISABLED=true .venv/bin/pytest tests/ -q` & `pnpm build`

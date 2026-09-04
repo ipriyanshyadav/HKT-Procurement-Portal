@@ -54,14 +54,14 @@ export function AppShell({
         showNavLinksInNavbar={!showSidebar}
       />
 
-      <div className="flex-1 flex w-full">
-        {/* Apple Sidebar (desktop left, fixed) */}
+      <div className="flex-1 flex w-full relative">
+        {/* Apple Sidebar (desktop left, hover-expandable overlay) */}
         {showSidebar && <Sidebar items={navItems} />}
 
         {/* Main Content Area */}
         <main
           className={`flex-1 transition-all duration-250 p-4 sm:p-6 lg:p-8 pb-20 md:pb-8 w-full max-w-7xl mx-auto ${
-            showSidebar ? 'md:pl-[264px]' : ''
+            showSidebar ? 'md:pl-10 lg:pl-12' : ''
           }`}
         >
           {children}
