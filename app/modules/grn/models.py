@@ -1,12 +1,13 @@
 from __future__ import annotations
 from datetime import datetime, date
 from decimal import Decimal
-from typing import Optional
+from typing import Optional, List
 from uuid import UUID
-from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import String, Boolean, Numeric, Date, ForeignKey, Text
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import String, Boolean, Numeric, Date, ForeignKey, Text, DateTime
 from sqlalchemy.sql import func
 from app.db.base import BaseModel
+
 
 class GoodsReceiptNote(BaseModel):
     __tablename__ = "goods_receipt_notes"
@@ -23,8 +24,14 @@ class GoodsReceiptNote(BaseModel):
     status: Mapped[str] = mapped_column(String(20), default="DRAFT", nullable=False)
     erp_grn_number: Mapped[Optional[str]] = mapped_column(String(30), nullable=True)
     notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    grn_document_path: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
+    confirmed_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    confirmed_by: Mapped[Optional[UUID]] = mapped_column(ForeignKey("users.id"), nullable=True)
     created_by: Mapped[Optional[UUID]] = mapped_column(ForeignKey("users.id"), nullable=True)
     updated_by: Mapped[Optional[UUID]] = mapped_column(ForeignKey("users.id"), nullable=True)
+
+    lines: Mapped[List[GrnLine]] = relationship("GrnLine", back_populates="grn", cascade="all, delete-orphan")
+
 
 class GrnLine(BaseModel):
     __tablename__ = "grn_lines"
@@ -37,6 +44,12 @@ class GrnLine(BaseModel):
     rejection_reason: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     qc_required: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     qc_status: Mapped[str] = mapped_column(String(20), default="NOT_REQUIRED", nullable=False)
+    inspected_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    inspected_by: Mapped[Optional[UUID]] = mapped_column(ForeignKey("users.id"), nullable=True)
+
+    grn: Mapped[GoodsReceiptNote] = relationship("GoodsReceiptNote", back_populates="lines")
+    inspections: Mapped[List[QualityInspection]] = relationship("QualityInspection", back_populates="grn_line", cascade="all, delete-orphan")
+
 
 class ServiceEntrySheet(BaseModel):
     __tablename__ = "service_entry_sheets"
@@ -53,6 +66,9 @@ class ServiceEntrySheet(BaseModel):
     created_by: Mapped[Optional[UUID]] = mapped_column(ForeignKey("users.id"), nullable=True)
     updated_by: Mapped[Optional[UUID]] = mapped_column(ForeignKey("users.id"), nullable=True)
 
+    lines: Mapped[List[SesLine]] = relationship("SesLine", back_populates="ses", cascade="all, delete-orphan")
+
+
 class SesLine(BaseModel):
     __tablename__ = "ses_lines"
 
@@ -61,6 +77,9 @@ class SesLine(BaseModel):
     service_description: Mapped[str] = mapped_column(String(500), nullable=False)
     completed_quantity: Mapped[Decimal] = mapped_column(Numeric(18, 4), nullable=False)
     completion_percentage: Mapped[Decimal] = mapped_column(Numeric(5, 2), default=Decimal("100.00"), nullable=False)
+
+    ses: Mapped[ServiceEntrySheet] = relationship("ServiceEntrySheet", back_populates="lines")
+
 
 class QualityInspection(BaseModel):
     __tablename__ = "quality_inspections"
@@ -72,3 +91,5 @@ class QualityInspection(BaseModel):
     accepted_quantity: Mapped[Decimal] = mapped_column(Numeric(18, 4), nullable=False)
     rejected_quantity: Mapped[Decimal] = mapped_column(Numeric(18, 4), default=Decimal("0.0"), nullable=False)
     remarks: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+
+    grn_line: Mapped[GrnLine] = relationship("GrnLine", back_populates="inspections")

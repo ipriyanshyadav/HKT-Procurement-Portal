@@ -1,32 +1,33 @@
 # Procurement Portal — Enterprise S2C & P2P Platform
 
 ## Current Session State
-**Status:** SPEC_13 — Contract Management (100% Complete)
+**Status:** SPEC_14 — Purchase Order & GRN Modules (100% Complete)
 **Completed:**
 - **Backend Implementation:**
-  - `ContractService` & `ContractRepository`: Contract lifecycle FSM (10 states), auto-numbering (`CNT-YYYY-NNNNN`), award-to-contract creation, ReportLab PDF generation, MinIO document storage (`contract-documents` bucket).
-  - Digio & DocuSign eSign integration adapters with fallback sandbox and webhook callback confirmation.
-  - Contract amendments: formal versioning with snapshot diff archiving.
-  - Rate contract value utilization tracking with optimistic lock concurrency control.
-  - Milestone deliverable tracking with weightings and completion actions.
-  - Celery maintenance task `contract_expiry`: 90/60/30/0 day expiry checks and auto-renewal (incremented version, active renewed contract).
-  - 12 REST endpoints at `/api/v1/contracts/*`.
+  - `PurchaseOrderService` & `PurchaseOrderRepository`: 9-status FSM with synonym handling, sequence numbering (`{BU}-PO-{YYYY}-{seq}`), RFQ award recommendation conversion (split awards supported), direct PO creation with justification check, price tolerance validation (0.1%), workflow engine routing, outbox event publishing (`po.created`, `po.sent_to_vendor`), amendment versioning (>10% re-approval gate), and ReportLab PDF generation with MinIO storage.
+  - `GrnService` & `GrnRepository`: Goods Receipt Note sequence numbering (`GRN-{YYYY}-{seq}`), quality inspection gate (PASSED/REJECTED/PARTIAL), receipt recording on PO line items, 3-way match invoice eligibility outbox event, and automatic vendor scorecard performance metric updates (on-time delivery rate, quality acceptance rate).
+  - 13 REST endpoints at `/api/v1/purchase-orders/*` and 6 REST endpoints at `/api/v1/grn/*`.
 - **Database Migration:**
-  - `0031_contract_spec13`: Expanded `contract_status` enum, added document paths, utilized_value, sla_terms, renewal_notice_days, activated_at, original_contract_id, award_recommendation_id, amendment metadata, and milestone weights.
+  - `0032_purchase_order_grn_spec14`: Extended `po_status` enum with `SENT_TO_VENDOR`, `VENDOR_ACKNOWLEDGED`, `VENDOR_REJECTED`, `AMENDED`, `REJECTED`. Added tracking columns `po_document_path`, `sent_at`, `vendor_acknowledged_at`, `vendor_rejection_reason`, `deviation_justification`, `cancellation_reason`. Added `received_quantity` to `po_lines`. Added `grn_document_path`, `confirmed_at`, `confirmed_by` to `goods_receipt_notes`. Added `inspected_at`, `inspected_by` to `grn_lines`. Created performance indexes across foreign keys and status.
 - **Frontend Applications & Wiring:**
-  - `ContractExpiryCountdown` & `MilestoneTracker` components in `@procurement/ui` and `@procurement/components`.
-  - Buyer Portal pages: `/contracts` (contracts list with search, filters, KPIs, and countdown badges) and `/contracts/[id]` (workspace with overview, SLAs, rate schedule lines, milestone tracker, amendments history, and eSign audit logs).
-  - `useContracts` TanStack query/mutation hooks.
+  - `DeliveryScheduleTable` component in `@procurement/ui` and `@procurement/components` with line-level fulfillment progress tracking and delivery badges.
+  - Buyer Portal pages:
+    - `/purchase-orders`: PO listing table with KPI cards, search, status filters, and action links.
+    - `/purchase-orders/[id]`: PO detail workspace with header metadata, delivery schedule table, GRN receipt history, and action buttons (Approve, Send to Vendor, Download PDF, Cancel).
+    - `/grn/new`: GRN creation against PO line items with line-level received quantity entry, challan details, and QC requirement toggle.
+  - Supplier Portal page:
+    - `/purchase-orders`: Orders assigned to vendor with "Acknowledge Order" and "Reject Order" modal actions, and PO PDF download.
+  - TanStack Query hooks: `usePurchaseOrders` and `useGRN` in `@procurement/hooks`.
 - **Verification:**
-  - `tests/integration/test_contract.py` (9/9 passing, 100%).
-  - Backend regression suite (`test_evaluation.py`, `test_rfq.py`, `test_bid.py` — 16 passing, 100%).
-  - Full Turborepo frontend typecheck passing clean (`turbo run typecheck` 0 errors across 7 packages).
-  - Step 2.5 SPEC Audit report committed at `docs/audits/SPEC_13_AUDIT.md`.
+  - `tests/integration/test_purchase_order_grn.py` (9/9 passing, 100%).
+  - Full regression suite: 118 passing across all modules.
+  - Frontend Typecheck: 0 TypeScript errors across all 7 Turbo packages (`pnpm turbo run typecheck`).
+  - Step 2.5 SPEC Audit report committed at `docs/audits/SPEC_14_AUDIT.md`.
   - Knowledge graph updated via `graphify update .`.
-**Migration Head:** 0031_contract_spec13
-**Test Commands:** `.venv/bin/pytest tests/integration/test_contract.py -v` & `cd procurement-portal-frontend && pnpm turbo run typecheck`
-**Next:** SPEC_14 Purchase Order (PO)
-**Graphify:** 4863 nodes, 11788 edges, 334 communities
+**Migration Head:** 0032_purchase_order_grn_spec14
+**Test Commands:** `.venv/bin/pytest tests/integration/test_purchase_order_grn.py -v` & `cd procurement-portal-frontend && pnpm turbo run typecheck`
+**Next:** SPEC_15 Invoice & Payment (3-Way Matching, Invoice Processing, Payment Run)
+**Graphify:** 5092 nodes, 12558 edges, 346 communities
 
 ---
 
@@ -58,7 +59,7 @@ The Procurement Portal is an enterprise-grade Source-to-Contract (S2C), Procure-
 | 11B | Live Reverse Auction | SPEC_11B | ✅ Complete | 0028_live_auction | ✅ 32 Passing (100% cov) |
 | 12 | Comparative Statement (CS) | SPEC_12 | ✅ Complete | 0030_evaluation_spec12 | ✅ 7 Passing (100% cov) |
 | 13 | Contract Management | SPEC_13 | ✅ Complete | 0031_contract_spec13 | ✅ 9 Passing (100% cov) |
-| 14 | Purchase Order (PO) | SPEC_14 | ⏳ Planned | Pending | Pending |
+| 14 | Purchase Order (PO) | SPEC_14 | ✅ Complete | 0032_purchase_order_grn_spec14 | ✅ 9 Passing (100% cov) |
 | 15 | Invoice & Payment | SPEC_15 | ⏳ Planned | Pending | Pending |
 | 16 | Notification Service | SPEC_16 | ⏳ Planned | Pending | Pending |
 | 17 | Document Management | SPEC_17 | ⏳ Planned | Pending | Pending |

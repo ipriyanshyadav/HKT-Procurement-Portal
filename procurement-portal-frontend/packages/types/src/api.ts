@@ -2582,6 +2582,194 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/purchase-orders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Purchase Orders */
+        get: operations["list_purchase_orders_api_v1_purchase_orders_get"];
+        put?: never;
+        /** Create Purchase Order */
+        post: operations["create_purchase_order_api_v1_purchase_orders_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/purchase-orders/from-award": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create From Award */
+        post: operations["create_from_award_api_v1_purchase_orders_from_award_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/purchase-orders/{po_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Purchase Order */
+        get: operations["get_purchase_order_api_v1_purchase_orders__po_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/purchase-orders/{po_id}/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Approve Purchase Order */
+        post: operations["approve_purchase_order_api_v1_purchase_orders__po_id__approve_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/purchase-orders/{po_id}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reject Purchase Order */
+        post: operations["reject_purchase_order_api_v1_purchase_orders__po_id__reject_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/purchase-orders/{po_id}/send-to-vendor": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Send To Vendor */
+        post: operations["send_to_vendor_api_v1_purchase_orders__po_id__send_to_vendor_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/purchase-orders/{po_id}/acknowledge": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Acknowledge Purchase Order */
+        post: operations["acknowledge_purchase_order_api_v1_purchase_orders__po_id__acknowledge_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/purchase-orders/{po_id}/amend": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Amend Purchase Order */
+        post: operations["amend_purchase_order_api_v1_purchase_orders__po_id__amend_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/purchase-orders/{po_id}/close": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Close Purchase Order */
+        post: operations["close_purchase_order_api_v1_purchase_orders__po_id__close_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/purchase-orders/{po_id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Cancel Purchase Order */
+        post: operations["cancel_purchase_order_api_v1_purchase_orders__po_id__cancel_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/purchase-orders/{po_id}/pdf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Download Po Pdf */
+        get: operations["download_po_pdf_api_v1_purchase_orders__po_id__pdf_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/grn/health": {
         parameters: {
             query?: never;
@@ -2593,6 +2781,92 @@ export interface paths {
         get: operations["health_api_v1_grn_health_get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/grn": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Grns */
+        get: operations["list_grns_api_v1_grn_get"];
+        put?: never;
+        /** Create Grn */
+        post: operations["create_grn_api_v1_grn_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/grn/{grn_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Grn */
+        get: operations["get_grn_api_v1_grn__grn_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/grn/inspections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Record Quality Inspection */
+        post: operations["record_quality_inspection_api_v1_grn_inspections_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/grn/{grn_id}/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Confirm Grn */
+        post: operations["confirm_grn_api_v1_grn__grn_id__confirm_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/grn/{grn_id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Cancel Grn */
+        post: operations["cancel_grn_api_v1_grn__grn_id__cancel_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -3494,7 +3768,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:02:49.056356
+             * @default 2026-09-04T23:22:08.465339
              */
             timestamp: string;
         };
@@ -3506,7 +3780,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:02:49.056356
+             * @default 2026-09-04T23:22:08.465339
              */
             timestamp: string;
         };
@@ -3518,7 +3792,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:02:49.056356
+             * @default 2026-09-04T23:22:08.465339
              */
             timestamp: string;
         };
@@ -3530,7 +3804,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:02:49.056356
+             * @default 2026-09-04T23:22:08.465339
              */
             timestamp: string;
         };
@@ -3542,7 +3816,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:02:49.056356
+             * @default 2026-09-04T23:22:08.465339
              */
             timestamp: string;
         };
@@ -3554,7 +3828,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:02:49.056356
+             * @default 2026-09-04T23:22:08.465339
              */
             timestamp: string;
         };
@@ -3566,7 +3840,19 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:02:49.056356
+             * @default 2026-09-04T23:22:08.465339
+             */
+            timestamp: string;
+        };
+        /** APIResponse[GrnResponse] */
+        APIResponse_GrnResponse_: {
+            data: components["schemas"]["GrnResponse"];
+            meta?: components["schemas"]["PaginationMeta"] | null;
+            links?: components["schemas"]["Links"] | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             * @default 2026-09-04T23:22:08.465339
              */
             timestamp: string;
         };
@@ -3579,7 +3865,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:02:49.056356
+             * @default 2026-09-04T23:22:08.465339
              */
             timestamp: string;
         };
@@ -3592,7 +3878,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:02:49.056356
+             * @default 2026-09-04T23:22:08.465339
              */
             timestamp: string;
         };
@@ -3605,7 +3891,20 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:02:49.056356
+             * @default 2026-09-04T23:22:08.465339
+             */
+            timestamp: string;
+        };
+        /** APIResponse[List[GrnResponse]] */
+        APIResponse_List_GrnResponse__: {
+            /** Data */
+            data: components["schemas"]["GrnResponse"][];
+            meta?: components["schemas"]["PaginationMeta"] | null;
+            links?: components["schemas"]["Links"] | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             * @default 2026-09-04T23:22:08.465339
              */
             timestamp: string;
         };
@@ -3618,7 +3917,20 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:02:49.056356
+             * @default 2026-09-04T23:22:08.465339
+             */
+            timestamp: string;
+        };
+        /** APIResponse[List[POResponse]] */
+        APIResponse_List_POResponse__: {
+            /** Data */
+            data: components["schemas"]["POResponse"][];
+            meta?: components["schemas"]["PaginationMeta"] | null;
+            links?: components["schemas"]["Links"] | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             * @default 2026-09-04T23:22:08.465339
              */
             timestamp: string;
         };
@@ -3631,7 +3943,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:02:49.056356
+             * @default 2026-09-04T23:22:08.465339
              */
             timestamp: string;
         };
@@ -3644,7 +3956,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:02:49.056356
+             * @default 2026-09-04T23:22:08.465339
              */
             timestamp: string;
         };
@@ -3657,7 +3969,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:02:49.056356
+             * @default 2026-09-04T23:22:08.465339
              */
             timestamp: string;
         };
@@ -3670,7 +3982,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:02:49.056356
+             * @default 2026-09-04T23:22:08.465339
              */
             timestamp: string;
         };
@@ -3683,7 +3995,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:02:49.056356
+             * @default 2026-09-04T23:22:08.465339
              */
             timestamp: string;
         };
@@ -3696,7 +4008,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:02:49.056356
+             * @default 2026-09-04T23:22:08.465339
              */
             timestamp: string;
         };
@@ -3711,7 +4023,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:02:49.056356
+             * @default 2026-09-04T23:22:08.465339
              */
             timestamp: string;
         };
@@ -3723,7 +4035,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:02:49.056356
+             * @default 2026-09-04T23:22:08.465339
              */
             timestamp: string;
         };
@@ -3735,7 +4047,19 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:02:49.056356
+             * @default 2026-09-04T23:22:08.465339
+             */
+            timestamp: string;
+        };
+        /** APIResponse[POResponse] */
+        APIResponse_POResponse_: {
+            data: components["schemas"]["POResponse"];
+            meta?: components["schemas"]["PaginationMeta"] | null;
+            links?: components["schemas"]["Links"] | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             * @default 2026-09-04T23:22:08.465339
              */
             timestamp: string;
         };
@@ -3747,7 +4071,19 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:02:49.056356
+             * @default 2026-09-04T23:22:08.465339
+             */
+            timestamp: string;
+        };
+        /** APIResponse[QualityInspectionResponse] */
+        APIResponse_QualityInspectionResponse_: {
+            data: components["schemas"]["QualityInspectionResponse"];
+            meta?: components["schemas"]["PaginationMeta"] | null;
+            links?: components["schemas"]["Links"] | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             * @default 2026-09-04T23:22:08.465339
              */
             timestamp: string;
         };
@@ -3759,7 +4095,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:02:49.056356
+             * @default 2026-09-04T23:22:08.465339
              */
             timestamp: string;
         };
@@ -3771,7 +4107,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:02:49.056356
+             * @default 2026-09-04T23:22:08.465339
              */
             timestamp: string;
         };
@@ -3783,7 +4119,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:02:49.056356
+             * @default 2026-09-04T23:22:08.465339
              */
             timestamp: string;
         };
@@ -3795,7 +4131,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:02:49.056356
+             * @default 2026-09-04T23:22:08.465339
              */
             timestamp: string;
         };
@@ -3807,7 +4143,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:02:49.056356
+             * @default 2026-09-04T23:22:08.465339
              */
             timestamp: string;
         };
@@ -3819,7 +4155,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:02:49.056356
+             * @default 2026-09-04T23:22:08.465339
              */
             timestamp: string;
         };
@@ -3831,7 +4167,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:02:49.056356
+             * @default 2026-09-04T23:22:08.465339
              */
             timestamp: string;
         };
@@ -3843,7 +4179,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:02:49.056356
+             * @default 2026-09-04T23:22:08.465339
              */
             timestamp: string;
         };
@@ -3858,7 +4194,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:02:49.056356
+             * @default 2026-09-04T23:22:08.465339
              */
             timestamp: string;
         };
@@ -3871,7 +4207,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:02:49.056356
+             * @default 2026-09-04T23:22:08.465339
              */
             timestamp: string;
         };
@@ -5214,6 +5550,150 @@ export interface components {
             /** Reason */
             reason: string;
         };
+        /** GrnCreateRequest */
+        GrnCreateRequest: {
+            /**
+             * Po Id
+             * Format: uuid
+             */
+            po_id: string;
+            /** Receipt Date */
+            receipt_date?: string | null;
+            /** Challan Number */
+            challan_number?: string | null;
+            /** Challan Date */
+            challan_date?: string | null;
+            /** Transporter Name */
+            transporter_name?: string | null;
+            /** Lr Number */
+            lr_number?: string | null;
+            /** Notes */
+            notes?: string | null;
+            /** Lines */
+            lines: components["schemas"]["GrnLineCreate"][];
+        };
+        /** GrnLineCreate */
+        GrnLineCreate: {
+            /**
+             * Po Line Id
+             * Format: uuid
+             */
+            po_line_id: string;
+            /** Received Quantity */
+            received_quantity: number | string;
+            /**
+             * Qc Required
+             * @default false
+             */
+            qc_required: boolean;
+            /** Rejection Reason */
+            rejection_reason?: string | null;
+        };
+        /** GrnLineResponse */
+        GrnLineResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Grn Id
+             * Format: uuid
+             */
+            grn_id: string;
+            /**
+             * Po Line Id
+             * Format: uuid
+             */
+            po_line_id: string;
+            /** Received Quantity */
+            received_quantity: string;
+            /** Accepted Quantity */
+            accepted_quantity: string;
+            /**
+             * Rejected Quantity
+             * @default 0
+             */
+            rejected_quantity: string;
+            /** Rejection Reason */
+            rejection_reason?: string | null;
+            /**
+             * Qc Required
+             * @default false
+             */
+            qc_required: boolean;
+            /** Qc Status */
+            qc_status: string;
+            /** Inspections */
+            inspections?: components["schemas"]["QualityInspectionResponse"][];
+        };
+        /** GrnResponse */
+        GrnResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Org Id
+             * Format: uuid
+             */
+            org_id: string;
+            /** Grn Number */
+            grn_number: string;
+            /**
+             * Po Id
+             * Format: uuid
+             */
+            po_id: string;
+            /**
+             * Vendor Id
+             * Format: uuid
+             */
+            vendor_id: string;
+            /**
+             * Receipt Date
+             * Format: date
+             */
+            receipt_date: string;
+            /**
+             * Received By
+             * Format: uuid
+             */
+            received_by: string;
+            /** Challan Number */
+            challan_number?: string | null;
+            /** Challan Date */
+            challan_date?: string | null;
+            /** Transporter Name */
+            transporter_name?: string | null;
+            /** Lr Number */
+            lr_number?: string | null;
+            /** Status */
+            status: string;
+            /** Erp Grn Number */
+            erp_grn_number?: string | null;
+            /** Notes */
+            notes?: string | null;
+            /** Grn Document Path */
+            grn_document_path?: string | null;
+            /** Confirmed At */
+            confirmed_at?: string | null;
+            /** Confirmed By */
+            confirmed_by?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Lines */
+            lines?: components["schemas"]["GrnLineResponse"][];
+        };
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
@@ -5446,6 +5926,319 @@ export interface components {
             vendor_ids: string[];
             /** Notes */
             notes?: string | null;
+        };
+        /** POAcknowledgeRequest */
+        POAcknowledgeRequest: {
+            /**
+             * Accepted
+             * @default true
+             */
+            accepted: boolean;
+            /** Rejection Reason */
+            rejection_reason?: string | null;
+        };
+        /** POAmendRequest */
+        POAmendRequest: {
+            /** Reason */
+            reason: string;
+            /**
+             * Value Change
+             * @default 0.0
+             */
+            value_change: number | string | null;
+            /** Field Changes */
+            field_changes?: {
+                [key: string]: unknown;
+            };
+            /** Line Updates */
+            line_updates?: {
+                [key: string]: unknown;
+            }[] | null;
+        };
+        /** POAmendmentResponse */
+        POAmendmentResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Po Id
+             * Format: uuid
+             */
+            po_id: string;
+            /** Amendment Number */
+            amendment_number: number;
+            /** Reason */
+            reason: string;
+            /** Field Changes */
+            field_changes: {
+                [key: string]: unknown;
+            };
+            /** Value Change */
+            value_change: string;
+            /** Re Approval Required */
+            re_approval_required: boolean;
+            /**
+             * Amended By
+             * Format: uuid
+             */
+            amended_by: string;
+            /** Approved By */
+            approved_by?: string | null;
+            /** Approved At */
+            approved_at?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** POCancelRequest */
+        POCancelRequest: {
+            /** Cancellation Reason */
+            cancellation_reason: string;
+        };
+        /** POCreateRequest */
+        POCreateRequest: {
+            /** Title */
+            title: string;
+            /**
+             * Vendor Id
+             * Format: uuid
+             */
+            vendor_id: string;
+            /**
+             * Business Unit Id
+             * Format: uuid
+             */
+            business_unit_id: string;
+            /**
+             * Category Id
+             * Format: uuid
+             */
+            category_id: string;
+            /**
+             * Currency
+             * @default INR
+             */
+            currency: string;
+            /** Lines */
+            lines: components["schemas"]["POLineCreate"][];
+            /** Rfq Id */
+            rfq_id?: string | null;
+            /** Arn Id */
+            arn_id?: string | null;
+            /** Contract Id */
+            contract_id?: string | null;
+            /** Plant Id */
+            plant_id?: string | null;
+            /** Payment Term Id */
+            payment_term_id?: string | null;
+            /** Incoterm Id */
+            incoterm_id?: string | null;
+            /** Delivery Location Id */
+            delivery_location_id?: string | null;
+            /** Expected Delivery Date */
+            expected_delivery_date?: string | null;
+            /** Deviation Justification */
+            deviation_justification?: string | null;
+            /**
+             * Po Type
+             * @default STANDARD
+             */
+            po_type: string | null;
+        };
+        /** POFromAwardRequest */
+        POFromAwardRequest: {
+            /**
+             * Arn Id
+             * Format: uuid
+             */
+            arn_id: string;
+            /** Deviation Justification */
+            deviation_justification?: string | null;
+        };
+        /** POLineCreate */
+        POLineCreate: {
+            /** Item Description */
+            item_description: string;
+            /** Item Code */
+            item_code?: string | null;
+            /**
+             * Uom Id
+             * Format: uuid
+             */
+            uom_id: string;
+            /** Ordered Quantity */
+            ordered_quantity: number | string;
+            /** Unit Price */
+            unit_price: number | string;
+            /** Awarded Unit Price */
+            awarded_unit_price?: number | string | null;
+            /** Hsn Code */
+            hsn_code?: string | null;
+            /**
+             * Tax Rate
+             * @default 0.0
+             */
+            tax_rate: number | string;
+            /** Delivery Date */
+            delivery_date?: string | null;
+        };
+        /** POLineResponse */
+        POLineResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Org Id
+             * Format: uuid
+             */
+            org_id: string;
+            /**
+             * Po Id
+             * Format: uuid
+             */
+            po_id: string;
+            /** Line Number */
+            line_number: number;
+            /** Item Description */
+            item_description: string;
+            /** Item Code */
+            item_code?: string | null;
+            /**
+             * Uom Id
+             * Format: uuid
+             */
+            uom_id: string;
+            /** Ordered Quantity */
+            ordered_quantity: string;
+            /** Unit Price */
+            unit_price: string;
+            /** Total Price */
+            total_price?: string | null;
+            /** Awarded Unit Price */
+            awarded_unit_price?: string | null;
+            /** Hsn Code */
+            hsn_code?: string | null;
+            /** Tax Rate */
+            tax_rate: string;
+            /** Open Quantity */
+            open_quantity: string;
+            /**
+             * Received Quantity
+             * @default 0
+             */
+            received_quantity: string;
+            /**
+             * Invoiced Quantity
+             * @default 0
+             */
+            invoiced_quantity: string;
+            /** Delivery Date */
+            delivery_date?: string | null;
+            /** Created At */
+            created_at?: string | null;
+        };
+        /** POResponse */
+        POResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Org Id
+             * Format: uuid
+             */
+            org_id: string;
+            /** Po Number */
+            po_number: string;
+            /** Title */
+            title: string;
+            /**
+             * Vendor Id
+             * Format: uuid
+             */
+            vendor_id: string;
+            /** Vendor Name */
+            vendor_name?: string | null;
+            /** Rfq Id */
+            rfq_id?: string | null;
+            /** Arn Id */
+            arn_id?: string | null;
+            /** Contract Id */
+            contract_id?: string | null;
+            /** Status */
+            status: string;
+            /**
+             * Business Unit Id
+             * Format: uuid
+             */
+            business_unit_id: string;
+            /** Plant Id */
+            plant_id?: string | null;
+            /**
+             * Category Id
+             * Format: uuid
+             */
+            category_id: string;
+            /** Currency */
+            currency: string;
+            /** Total Value */
+            total_value: string;
+            /** Payment Term Id */
+            payment_term_id?: string | null;
+            /** Incoterm Id */
+            incoterm_id?: string | null;
+            /** Delivery Location Id */
+            delivery_location_id?: string | null;
+            /** Expected Delivery Date */
+            expected_delivery_date?: string | null;
+            /**
+             * Buyer Id
+             * Format: uuid
+             */
+            buyer_id: string;
+            /** Erp Po Number */
+            erp_po_number?: string | null;
+            /** Erp Sync Status */
+            erp_sync_status: string;
+            /** Po Document Path */
+            po_document_path?: string | null;
+            /** Sent At */
+            sent_at?: string | null;
+            /** Acknowledged At */
+            acknowledged_at?: string | null;
+            /** Vendor Acknowledged At */
+            vendor_acknowledged_at?: string | null;
+            /** Rejected Reason */
+            rejected_reason?: string | null;
+            /** Vendor Rejection Reason */
+            vendor_rejection_reason?: string | null;
+            /** Deviation Justification */
+            deviation_justification?: string | null;
+            /** Cancellation Reason */
+            cancellation_reason?: string | null;
+            /** Amendment Count */
+            amendment_count: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Lines */
+            lines?: components["schemas"]["POLineResponse"][];
+            /** Amendments */
+            amendments?: components["schemas"]["POAmendmentResponse"][];
         };
         /** PRApprovalAction */
         PRApprovalAction: {
@@ -5853,6 +6646,63 @@ export interface components {
          * @enum {string}
          */
         ProcurementType: "CAPEX" | "OPEX" | "PROJECT" | "MRO" | "SERVICES";
+        /** QualityInspectionCreate */
+        QualityInspectionCreate: {
+            /**
+             * Grn Line Id
+             * Format: uuid
+             */
+            grn_line_id: string;
+            /** Result */
+            result: string;
+            /** Accepted Quantity */
+            accepted_quantity: number | string;
+            /**
+             * Rejected Quantity
+             * @default 0.0
+             */
+            rejected_quantity: number | string;
+            /** Remarks */
+            remarks?: string | null;
+            /** Inspection Date */
+            inspection_date?: string | null;
+        };
+        /** QualityInspectionResponse */
+        QualityInspectionResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Grn Line Id
+             * Format: uuid
+             */
+            grn_line_id: string;
+            /**
+             * Inspector Id
+             * Format: uuid
+             */
+            inspector_id: string;
+            /**
+             * Inspection Date
+             * Format: date
+             */
+            inspection_date: string;
+            /** Result */
+            result: string;
+            /** Accepted Quantity */
+            accepted_quantity: string;
+            /** Rejected Quantity */
+            rejected_quantity: string;
+            /** Remarks */
+            remarks?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
         /** RegretLettersResponse */
         RegretLettersResponse: {
             /** Sent To Vendors */
@@ -11835,6 +12685,403 @@ export interface operations {
             };
         };
     };
+    list_purchase_orders_api_v1_purchase_orders_get: {
+        parameters: {
+            query?: {
+                status?: string | null;
+                vendor_id?: string | null;
+                business_unit_id?: string | null;
+                rfq_id?: string | null;
+                contract_id?: string | null;
+                search?: string | null;
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_List_POResponse__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_purchase_order_api_v1_purchase_orders_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["POCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_POResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_from_award_api_v1_purchase_orders_from_award_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["POFromAwardRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_List_POResponse__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_purchase_order_api_v1_purchase_orders__po_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                po_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_POResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    approve_purchase_order_api_v1_purchase_orders__po_id__approve_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                po_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_POResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reject_purchase_order_api_v1_purchase_orders__po_id__reject_post: {
+        parameters: {
+            query: {
+                rejection_reason: string;
+            };
+            header?: never;
+            path: {
+                po_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_POResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    send_to_vendor_api_v1_purchase_orders__po_id__send_to_vendor_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                po_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_POResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    acknowledge_purchase_order_api_v1_purchase_orders__po_id__acknowledge_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                po_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["POAcknowledgeRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_POResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    amend_purchase_order_api_v1_purchase_orders__po_id__amend_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                po_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["POAmendRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_POResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    close_purchase_order_api_v1_purchase_orders__po_id__close_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                po_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_POResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    cancel_purchase_order_api_v1_purchase_orders__po_id__cancel_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                po_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["POCancelRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_POResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    download_po_pdf_api_v1_purchase_orders__po_id__pdf_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                po_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     health_api_v1_grn_health_get: {
         parameters: {
             query?: never;
@@ -11851,6 +13098,203 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+        };
+    };
+    list_grns_api_v1_grn_get: {
+        parameters: {
+            query?: {
+                po_id?: string | null;
+                vendor_id?: string | null;
+                status?: string | null;
+                search?: string | null;
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_List_GrnResponse__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_grn_api_v1_grn_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GrnCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_GrnResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_grn_api_v1_grn__grn_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                grn_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_GrnResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    record_quality_inspection_api_v1_grn_inspections_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["QualityInspectionCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_QualityInspectionResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    confirm_grn_api_v1_grn__grn_id__confirm_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                grn_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_GrnResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    cancel_grn_api_v1_grn__grn_id__cancel_post: {
+        parameters: {
+            query: {
+                reason: string;
+            };
+            header?: never;
+            path: {
+                grn_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_GrnResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

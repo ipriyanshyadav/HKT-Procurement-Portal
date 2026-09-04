@@ -118,3 +118,6 @@ export type { ContractExpiryCountdownProps } from "./ContractExpiryCountdown";
 export { MilestoneTracker } from "./MilestoneTracker";
 export type { MilestoneTrackerProps, MilestoneItem } from "./MilestoneTracker";
 
+// Purchase Order & GRN Components (SPEC_14)
+export { DeliveryScheduleTable } from "./DeliveryScheduleTable";
+export type { DeliveryScheduleTableProps } from "./DeliveryScheduleTable";

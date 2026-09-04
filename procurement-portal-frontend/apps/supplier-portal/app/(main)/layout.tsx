@@ -4,7 +4,7 @@ import React, { ReactNode } from "react";
 import { useAuthInit, useCurrentUser, useLogout } from "@procurement/hooks";
 import { useAuthStore } from "@procurement/stores";
 import { AppShell } from "@procurement/ui";
-import { Building2, FileCheck, UserPlus, Gavel } from "lucide-react";
+import { Building2, FileCheck, UserPlus, Gavel, Package } from "lucide-react";
 
 export default function SupplierMainLayout({ children }: { children: ReactNode }) {
   const { isInitializing } = useAuthInit();
@@ -25,6 +25,12 @@ export default function SupplierMainLayout({ children }: { children: ReactNode }
   }
 
   const navItems = [
+    {
+      label: "Purchase Orders",
+      href: "/purchase-orders",
+      icon: <Package className="w-4 h-4" />,
+      section: "Orders",
+    },
     {
       label: "Tenders & Bids",
       href: "/rfqs",
