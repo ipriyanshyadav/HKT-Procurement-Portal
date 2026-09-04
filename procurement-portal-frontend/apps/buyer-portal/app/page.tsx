@@ -1,10 +1,6 @@
-import type { ReactNode } from "react";
+import { redirect } from "next/navigation";
 
-export default function HomePage(): ReactNode {
-  return (
-    <main>
-      <h1>Buyer Portal</h1>
-      <p>Procurement Portal</p>
-    </main>
-  );
+export default function HomePage() {
+  redirect("/requisitions");
 }
+
