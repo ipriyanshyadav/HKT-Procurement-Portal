@@ -168,11 +168,17 @@ class PRDetailResponse(BaseModel):
     split_from: Optional[UUID] = None
     approved_at: Optional[datetime] = None
     aging_alert_level: int
+    po_id: Optional[UUID] = None
+    po_number: Optional[str] = None
     created_at: datetime
     updated_at: datetime
     created_by: Optional[UUID] = None
     updated_by: Optional[UUID] = None
     lines: list[PRLineItemResponse] = Field(default_factory=list)
+
+
+class PRConvertToPORequest(BaseModel):
+    vendor_id: Optional[UUID] = None
 
 
 class PRListResponse(BaseModel):

@@ -244,6 +244,50 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/users/me/delegations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List My Delegations
+         * @description GET /api/v1/users/me/delegations — list delegation rules created by current user.
+         */
+        get: operations["list_my_delegations_api_v1_users_me_delegations_get"];
+        put?: never;
+        /**
+         * Create My Delegation
+         * @description POST /api/v1/users/me/delegations — create a new delegation / out-of-office rule.
+         */
+        post: operations["create_my_delegation_api_v1_users_me_delegations_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/users/me/delegations/{rule_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete My Delegation
+         * @description DELETE /api/v1/users/me/delegations/{rule_id} — revoke an active delegation rule.
+         */
+        delete: operations["delete_my_delegation_api_v1_users_me_delegations__rule_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/users/": {
         parameters: {
             query?: never;
@@ -820,7 +864,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/master-data/import/categories/{job_id}": {
+    "/api/v1/master-data/import/{entity_type}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Import Entity Master Data
+         * @description Bulk import master data (categories, uom, tax-codes, payment-terms, locations) from CSV.
+         */
+        post: operations["import_entity_master_data_api_v1_master_data_import__entity_type__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/master-data/import/jobs/{job_id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -828,12 +892,104 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Get Import Status
-         * @description Check the status of a category import job.
+         * Get Any Import Job Status
+         * @description Check the status of any master data bulk import job.
          */
-        get: operations["get_import_status_api_v1_master_data_import_categories__job_id__get"];
+        get: operations["get_any_import_job_status_api_v1_master_data_import_jobs__job_id__get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/master-data/items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Items
+         * @description Search and list catalog item master records.
+         */
+        get: operations["list_items_api_v1_master_data_items_get"];
+        put?: never;
+        /**
+         * Create Item
+         * @description Create a new catalog item.
+         */
+        post: operations["create_item_api_v1_master_data_items_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/master-data/items/{item_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Item
+         * @description Retrieve catalog item by ID.
+         */
+        get: operations["get_item_api_v1_master_data_items__item_id__get"];
+        /**
+         * Update Item
+         * @description Update a catalog item.
+         */
+        put: operations["update_item_api_v1_master_data_items__item_id__put"];
+        post?: never;
+        /**
+         * Delete Item
+         * @description Soft-delete a catalog item.
+         */
+        delete: operations["delete_item_api_v1_master_data_items__item_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/master-data/punchout/session": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create Punchout Session
+         * @description Initiate an OCI/cXML PunchOut session for external catalog shopping.
+         */
+        post: operations["create_punchout_session_api_v1_master_data_punchout_session_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/master-data/punchout/cart": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Receive Punchout Cart
+         * @description Receive transferred cart items from PunchOut vendor and format into PR lines.
+         */
+        post: operations["receive_punchout_cart_api_v1_master_data_punchout_cart_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -4584,6 +4740,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/auth/verify-turnstile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Verify Turnstile Endpoint */
+        post: operations["verify_turnstile_endpoint_api_v1_auth_verify_turnstile_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/login": {
         parameters: {
             query?: never;
@@ -5026,6 +5199,17 @@ export interface components {
         /** APIResponse[ContractResponse] */
         APIResponse_ContractResponse_: {
             data: components["schemas"]["ContractResponse"];
+            meta?: components["schemas"]["PaginationMeta"] | null;
+            links?: components["schemas"]["Links"] | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             */
+            timestamp?: string;
+        };
+        /** APIResponse[DelegationRuleResponse] */
+        APIResponse_DelegationRuleResponse_: {
+            data: components["schemas"]["DelegationRuleResponse"];
             meta?: components["schemas"]["PaginationMeta"] | null;
             links?: components["schemas"]["Links"] | null;
             /**
@@ -5547,6 +5731,18 @@ export interface components {
             data: {
                 [key: string]: unknown;
             };
+            meta?: components["schemas"]["PaginationMeta"] | null;
+            links?: components["schemas"]["Links"] | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             */
+            timestamp?: string;
+        };
+        /** APIResponse[list[DelegationRuleResponse]] */
+        APIResponse_list_DelegationRuleResponse__: {
+            /** Data */
+            data: components["schemas"]["DelegationRuleResponse"][];
             meta?: components["schemas"]["PaginationMeta"] | null;
             links?: components["schemas"]["Links"] | null;
             /**
@@ -6098,6 +6294,11 @@ export interface components {
         };
         /** Body_import_categories_api_v1_master_data_import_categories_post */
         Body_import_categories_api_v1_master_data_import_categories_post: {
+            /** File */
+            file: string;
+        };
+        /** Body_import_entity_master_data_api_v1_master_data_import__entity_type__post */
+        Body_import_entity_master_data_api_v1_master_data_import__entity_type__post: {
             /** File */
             file: string;
         };
@@ -6985,6 +7186,76 @@ export interface components {
             /** Is Active */
             is_active?: boolean | null;
         };
+        /** DelegationRuleCreateRequest */
+        DelegationRuleCreateRequest: {
+            /**
+             * Delegate Id
+             * Format: uuid
+             */
+            delegate_id: string;
+            /** Reason */
+            reason: string;
+            /**
+             * Valid From
+             * Format: date-time
+             */
+            valid_from: string;
+            /**
+             * Valid Until
+             * Format: date-time
+             */
+            valid_until: string;
+            /** Entity Types */
+            entity_types?: string[] | null;
+        };
+        /** DelegationRuleResponse */
+        DelegationRuleResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Org Id
+             * Format: uuid
+             */
+            org_id: string;
+            /**
+             * Delegator Id
+             * Format: uuid
+             */
+            delegator_id: string;
+            /**
+             * Delegate Id
+             * Format: uuid
+             */
+            delegate_id: string;
+            /** Delegate Name */
+            delegate_name?: string | null;
+            /** Delegate Email */
+            delegate_email?: string | null;
+            /** Reason */
+            reason: string;
+            /**
+             * Valid From
+             * Format: date-time
+             */
+            valid_from: string;
+            /**
+             * Valid Until
+             * Format: date-time
+             */
+            valid_until: string;
+            /**
+             * Entity Types
+             * @default []
+             */
+            entity_types: string[];
+            /** Is Active */
+            is_active: boolean;
+            /** Created At */
+            created_at?: string | null;
+        };
         /** DisputeCreateRequest */
         DisputeCreateRequest: {
             /**
@@ -7784,6 +8055,71 @@ export interface components {
             /** Lines */
             lines: components["schemas"]["InvoiceLineCreate"][];
         };
+        /** ItemCreateRequest */
+        ItemCreateRequest: {
+            /** Code */
+            code: string;
+            /** Name */
+            name: string;
+            /** Description */
+            description?: string | null;
+            /**
+             * Category Id
+             * Format: uuid
+             */
+            category_id: string;
+            /**
+             * Uom Id
+             * Format: uuid
+             */
+            uom_id: string;
+            /**
+             * Standard Price
+             * @default 0.0
+             */
+            standard_price: number | string;
+            /**
+             * Currency
+             * @default INR
+             */
+            currency: string;
+            /** Hsn Code */
+            hsn_code?: string | null;
+            /** Image Url */
+            image_url?: string | null;
+            /**
+             * Is Punchout
+             * @default false
+             */
+            is_punchout: boolean;
+            /** Punchout Vendor Id */
+            punchout_vendor_id?: string | null;
+        };
+        /** ItemUpdateRequest */
+        ItemUpdateRequest: {
+            /** Name */
+            name?: string | null;
+            /** Description */
+            description?: string | null;
+            /** Category Id */
+            category_id?: string | null;
+            /** Uom Id */
+            uom_id?: string | null;
+            /** Standard Price */
+            standard_price?: number | string | null;
+            /** Currency */
+            currency?: string | null;
+            /** Hsn Code */
+            hsn_code?: string | null;
+            /** Image Url */
+            image_url?: string | null;
+            /** Is Punchout */
+            is_punchout?: boolean | null;
+            /** Punchout Vendor Id */
+            punchout_vendor_id?: string | null;
+            /** Is Active */
+            is_active?: boolean | null;
+        };
         /** Links */
         Links: {
             /** Self */
@@ -7933,6 +8269,8 @@ export interface components {
             password: string;
             /** Org Id */
             org_id?: string | null;
+            /** Turnstile Token */
+            turnstile_token?: string | null;
         };
         /** MFAConfirmRequest */
         MFAConfirmRequest: {
@@ -8389,6 +8727,11 @@ export interface components {
             /** Items */
             items: components["schemas"]["PRCreateRequest"][];
         };
+        /** PRConvertToPORequest */
+        PRConvertToPORequest: {
+            /** Vendor Id */
+            vendor_id?: string | null;
+        };
         /** PRCreateRequest */
         PRCreateRequest: {
             /** Title */
@@ -8516,6 +8859,10 @@ export interface components {
             approved_at?: string | null;
             /** Aging Alert Level */
             aging_alert_level: number;
+            /** Po Id */
+            po_id?: string | null;
+            /** Po Number */
+            po_number?: string | null;
             /**
              * Created At
              * Format: date-time
@@ -8918,6 +9265,38 @@ export interface components {
          * @enum {string}
          */
         ProcurementType: "CAPEX" | "OPEX" | "PROJECT" | "MRO" | "SERVICES";
+        /** PunchOutCartItem */
+        PunchOutCartItem: {
+            /** Item Code */
+            item_code: string;
+            /** Item Description */
+            item_description: string;
+            /** Category Id */
+            category_id?: string | null;
+            /** Uom Id */
+            uom_id?: string | null;
+            /**
+             * Quantity
+             * @default 1
+             */
+            quantity: number;
+            /** Unit Price */
+            unit_price: number | string;
+            /**
+             * Currency
+             * @default INR
+             */
+            currency: string;
+            /** Hsn Code */
+            hsn_code?: string | null;
+        };
+        /** PunchOutSessionRequest */
+        PunchOutSessionRequest: {
+            /** Vendor Id */
+            vendor_id?: string | null;
+            /** Return Url */
+            return_url?: string | null;
+        };
         /** QualityInspectionCreate */
         QualityInspectionCreate: {
             /**
@@ -9621,6 +10000,13 @@ export interface components {
             /** Hsn Chapter */
             hsn_chapter?: string | null;
         };
+        /** TurnstileVerifyRequest */
+        TurnstileVerifyRequest: {
+            /** Token */
+            token: string;
+            /** Remote Ip */
+            remote_ip?: string | null;
+        };
         /** UnmappedPRDashboardResponse */
         UnmappedPRDashboardResponse: {
             /** Total Pending */
@@ -9946,6 +10332,8 @@ export interface components {
             contacts?: components["schemas"]["VendorContactCreateRequest"][];
             /** Bank Accounts */
             bank_accounts?: components["schemas"]["VendorBankAccountCreateRequest"][];
+            /** Turnstile Token */
+            turnstile_token?: string | null;
         };
         /** VendorReinstateRequest */
         VendorReinstateRequest: {
@@ -10380,6 +10768,90 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_my_delegations_api_v1_users_me_delegations_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_list_DelegationRuleResponse__"];
+                };
+            };
+        };
+    };
+    create_my_delegation_api_v1_users_me_delegations_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DelegationRuleCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_DelegationRuleResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_my_delegation_api_v1_users_me_delegations__rule_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                rule_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
                 };
             };
             /** @description Validation Error */
@@ -11676,7 +12148,42 @@ export interface operations {
             };
         };
     };
-    get_import_status_api_v1_master_data_import_categories__job_id__get: {
+    import_entity_master_data_api_v1_master_data_import__entity_type__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                entity_type: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_import_entity_master_data_api_v1_master_data_import__entity_type__post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_any_import_job_status_api_v1_master_data_import_jobs__job_id__get: {
         parameters: {
             query?: never;
             header?: never;
@@ -11686,6 +12193,237 @@ export interface operations {
             cookie?: never;
         };
         requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_items_api_v1_master_data_items_get: {
+        parameters: {
+            query?: {
+                search?: string | null;
+                category_id?: string | null;
+                active_only?: boolean;
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_item_api_v1_master_data_items_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ItemCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_item_api_v1_master_data_items__item_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_item_api_v1_master_data_items__item_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ItemUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_item_api_v1_master_data_items__item_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_punchout_session_api_v1_master_data_punchout_session_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PunchOutSessionRequest"] | null;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    receive_punchout_cart_api_v1_master_data_punchout_cart_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PunchOutCartItem"][];
+            };
+        };
         responses: {
             /** @description Successful Response */
             200: {
@@ -13195,7 +13933,11 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PRConvertToPORequest"] | null;
+            };
+        };
         responses: {
             /** @description Successful Response */
             200: {
@@ -19015,6 +19757,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["APIResponse_list_dict__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    verify_turnstile_endpoint_api_v1_auth_verify_turnstile_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TurnstileVerifyRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
                 };
             };
             /** @description Validation Error */

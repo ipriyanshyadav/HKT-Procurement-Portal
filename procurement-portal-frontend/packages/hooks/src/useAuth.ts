@@ -22,7 +22,8 @@ if (typeof window !== "undefined") {
 interface LoginPayload {
   email: string;
   password: string;
-  org_id: string;
+  org_id?: string;
+  turnstile_token?: string;
 }
 
 interface LoginResponse {

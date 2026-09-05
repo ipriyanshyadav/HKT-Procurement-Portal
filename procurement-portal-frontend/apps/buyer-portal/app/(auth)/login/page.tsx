@@ -21,6 +21,7 @@ export default function LoginPage() {
   const [mfaToken, setMfaToken] = useState<string | null>(null);
   const [failedAttempts, setFailedAttempts] = useState(0);
   const [captchaVerified, setCaptchaVerified] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
 
   const requireCaptcha = failedAttempts >= 2;
 
@@ -40,7 +41,7 @@ export default function LoginPage() {
       return;
     }
 
-    login(data as any, {
+    login({ ...data, turnstile_token: captchaToken || undefined } as any, {
       onSuccess: (response) => {
         if (response.data.mfa_required && response.data.mfa_token) {
           setMfaToken(response.data.mfa_token);
@@ -128,7 +129,10 @@ export default function LoginPage() {
           {requireCaptcha && (
             <CaptchaChallenge
               required={requireCaptcha}
-              onVerify={setCaptchaVerified}
+              onVerify={(isValid, token) => {
+                setCaptchaVerified(isValid);
+                setCaptchaToken(token || null);
+              }}
             />
           )}
 

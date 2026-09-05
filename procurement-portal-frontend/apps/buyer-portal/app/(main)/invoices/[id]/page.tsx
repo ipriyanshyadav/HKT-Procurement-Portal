@@ -11,7 +11,7 @@ import {
   useMatchInvoice,
   usePayments,
 } from "@procurement/hooks";
-import { ThreeWayMatchResult, PaymentSchedule, DocumentList, PermissionGuard } from "@procurement/ui";
+import { ThreeWayMatchResult, PaymentSchedule, DocumentList, PermissionGuard, SplitScreenViewer } from "@procurement/ui";
 import {
   ArrowLeft,
   Receipt,
@@ -26,6 +26,7 @@ import {
   DollarSign,
   AlertCircle,
   RefreshCw,
+  Columns,
 } from "lucide-react";
 
 export default function InvoiceDetailPage() {
@@ -49,6 +50,7 @@ export default function InvoiceDetailPage() {
   const [disputeModalOpen, setDisputeModalOpen] = useState(false);
   const [disputeReasonCode, setDisputeReasonCode] = useState("PRICE_MISMATCH");
   const [disputeDescription, setDisputeDescription] = useState("");
+  const [splitScreenActive, setSplitScreenActive] = useState(false);
 
   if (isLoading) {
     return (
@@ -187,6 +189,19 @@ export default function InvoiceDetailPage() {
 
           {/* Action Buttons */}
           <div className="flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setSplitScreenActive((prev) => !prev)}
+              className={`inline-flex items-center gap-2 px-3.5 py-2 text-sm font-semibold rounded-xl border transition-all ${
+                splitScreenActive
+                  ? "bg-blue-600 border-blue-600 text-white shadow-xs"
+                  : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-blue-300"
+              }`}
+            >
+              <Columns className="h-4 w-4" />
+              <span>{splitScreenActive ? "Exit Split View" : "Split Screen Viewer"}</span>
+            </button>
+
             {isPendingApproval && (
               <>
                 <PermissionGuard permission="invoice.approve">
@@ -238,76 +253,94 @@ export default function InvoiceDetailPage() {
         </div>
       )}
 
-      {/* 3-Way Match Verification Component */}
-      <ThreeWayMatchResult
-        invoice={invoice}
-        onRematch={handleRematch}
-        isMatching={matchMutation.isPending}
-      />
+      {/* Main Content Layout (Responsive Split-Screen Mode) */}
+      <div className={splitScreenActive ? "grid grid-cols-1 lg:grid-cols-2 gap-6 items-start" : "space-y-6"}>
+        <div className="space-y-6">
+          {/* 3-Way Match Verification Component */}
+          <ThreeWayMatchResult
+            invoice={invoice}
+            onRematch={handleRematch}
+            isMatching={matchMutation.isPending}
+          />
 
-      {/* Payment Schedule & Statutory TDS Component */}
-      <PaymentSchedule invoice={invoice} paymentRecord={paymentRecord} />
+          {/* Payment Schedule & Statutory TDS Component */}
+          <PaymentSchedule invoice={invoice} paymentRecord={paymentRecord} />
 
-      {/* Line Items Table */}
-      <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md rounded-2xl border border-slate-200/80 dark:border-slate-800 overflow-hidden shadow-xs">
-        <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Invoiced Line Items</h3>
-          <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-            Subtotal: {invoice.currency} {Number(invoice.subtotal).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
-          </span>
+          {/* Line Items Table */}
+          <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md rounded-2xl border border-slate-200/80 dark:border-slate-800 overflow-hidden shadow-xs">
+            <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Invoiced Line Items</h3>
+              <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                Subtotal: {invoice.currency} {Number(invoice.subtotal).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+              </span>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-800 text-xs">
+                <thead className="bg-slate-50/80 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 font-semibold uppercase tracking-wider">
+                  <tr>
+                    <th className="py-3 pl-4 pr-3 text-left">Line #</th>
+                    <th className="px-3 py-3 text-left">Description</th>
+                    <th className="px-3 py-3 text-right">Quantity</th>
+                    <th className="px-3 py-3 text-right">Unit Price</th>
+                    <th className="px-3 py-3 text-right">Tax Rate (%)</th>
+                    <th className="px-3 py-3 text-right">Tax Amount</th>
+                    <th className="py-3 pl-3 pr-4 text-right">Line Total</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800 bg-white dark:bg-slate-900">
+                  {(invoice.lines || []).map((line) => (
+                    <tr key={line.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
+                      <td className="py-3 pl-4 pr-3 text-slate-500 dark:text-slate-400 font-mono">
+                        {line.line_number}
+                      </td>
+                      <td className="px-3 py-3 font-medium text-slate-900 dark:text-white">
+                        {line.item_description}
+                      </td>
+                      <td className="px-3 py-3 text-right font-mono text-slate-900 dark:text-white">
+                        {Number(line.quantity).toFixed(2)}
+                      </td>
+                      <td className="px-3 py-3 text-right font-mono text-slate-900 dark:text-white">
+                        {invoice.currency} {Number(line.unit_price).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                      </td>
+                      <td className="px-3 py-3 text-right font-mono text-slate-600 dark:text-slate-300">
+                        {Number(line.tax_rate).toFixed(2)}%
+                      </td>
+                      <td className="px-3 py-3 text-right font-mono text-slate-600 dark:text-slate-300">
+                        {invoice.currency} {Number(line.tax_amount).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                      </td>
+                      <td className="py-3 pl-3 pr-4 text-right font-mono font-bold text-slate-900 dark:text-white">
+                        {invoice.currency} {Number(line.line_total).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Invoice Documents (SPEC_17) */}
+          <DocumentList
+            entityType="INVOICE"
+            entityId={invoice.id}
+            title="Invoice Attachments & Supporting Documents"
+            defaultDocumentType="TAX_INVOICE"
+          />
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-800 text-xs">
-            <thead className="bg-slate-50/80 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 font-semibold uppercase tracking-wider">
-              <tr>
-                <th className="py-3 pl-4 pr-3 text-left">Line #</th>
-                <th className="px-3 py-3 text-left">Description</th>
-                <th className="px-3 py-3 text-right">Quantity</th>
-                <th className="px-3 py-3 text-right">Unit Price</th>
-                <th className="px-3 py-3 text-right">Tax Rate (%)</th>
-                <th className="px-3 py-3 text-right">Tax Amount</th>
-                <th className="py-3 pl-3 pr-4 text-right">Line Total</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800 bg-white dark:bg-slate-900">
-              {(invoice.lines || []).map((line) => (
-                <tr key={line.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
-                  <td className="py-3 pl-4 pr-3 text-slate-500 dark:text-slate-400 font-mono">
-                    {line.line_number}
-                  </td>
-                  <td className="px-3 py-3 font-medium text-slate-900 dark:text-white">
-                    {line.item_description}
-                  </td>
-                  <td className="px-3 py-3 text-right font-mono text-slate-900 dark:text-white">
-                    {Number(line.quantity).toFixed(2)}
-                  </td>
-                  <td className="px-3 py-3 text-right font-mono text-slate-900 dark:text-white">
-                    {invoice.currency} {Number(line.unit_price).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
-                  </td>
-                  <td className="px-3 py-3 text-right font-mono text-slate-600 dark:text-slate-300">
-                    {Number(line.tax_rate).toFixed(2)}%
-                  </td>
-                  <td className="px-3 py-3 text-right font-mono text-slate-600 dark:text-slate-300">
-                    {invoice.currency} {Number(line.tax_amount).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
-                  </td>
-                  <td className="py-3 pl-3 pr-4 text-right font-mono font-bold text-slate-900 dark:text-white">
-                    {invoice.currency} {Number(line.line_total).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        {/* Right Column: SplitScreen Document Viewer */}
+        {splitScreenActive && (
+          <div className="sticky top-6 h-[calc(100vh-100px)] min-h-[640px]">
+            <SplitScreenViewer
+              isOpen={true}
+              onClose={() => setSplitScreenActive(false)}
+              invoiceNumber={invoice.invoice_number}
+              poNumber={invoice.po_id || undefined}
+              title="3-Way Match Document Viewer"
+            />
+          </div>
+        )}
       </div>
-
-      {/* Invoice Documents (SPEC_17) */}
-      <DocumentList
-        entityType="INVOICE"
-        entityId={invoice.id}
-        title="Invoice Attachments & Supporting Documents"
-        defaultDocumentType="TAX_INVOICE"
-      />
 
       {/* Reject Modal */}
       {rejectModalOpen && (

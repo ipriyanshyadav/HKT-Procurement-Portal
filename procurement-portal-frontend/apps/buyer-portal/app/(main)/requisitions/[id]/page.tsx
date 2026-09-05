@@ -88,8 +88,11 @@ export default function RequisitionDetailPage() {
 
   const handleConvertToPO = async () => {
     try {
-      await poMutation.mutateAsync(pr.id);
+      const res = await poMutation.mutateAsync(pr.id);
       refetch();
+      if (res?.po_id) {
+        router.push(`/purchase-orders/${res.po_id}`);
+      }
     } catch (err: any) {
       alert(err?.response?.data?.error?.message || "Failed to convert to PO");
     }

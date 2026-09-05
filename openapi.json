@@ -445,6 +445,125 @@
         ]
       }
     },
+    "/api/v1/users/me/delegations": {
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "summary": "List My Delegations",
+        "description": "GET /api/v1/users/me/delegations \u2014 list delegation rules created by current user.",
+        "operationId": "list_my_delegations_api_v1_users_me_delegations_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIResponse_list_DelegationRuleResponse__"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Create My Delegation",
+        "description": "POST /api/v1/users/me/delegations \u2014 create a new delegation / out-of-office rule.",
+        "operationId": "create_my_delegation_api_v1_users_me_delegations_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DelegationRuleCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIResponse_DelegationRuleResponse_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/users/me/delegations/{rule_id}": {
+      "delete": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Delete My Delegation",
+        "description": "DELETE /api/v1/users/me/delegations/{rule_id} \u2014 revoke an active delegation rule.",
+        "operationId": "delete_my_delegation_api_v1_users_me_delegations__rule_id__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "rule_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Rule Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/users/": {
       "get": {
         "tags": [
@@ -2402,14 +2521,70 @@
         ]
       }
     },
-    "/api/v1/master-data/import/categories/{job_id}": {
+    "/api/v1/master-data/import/{entity_type}": {
+      "post": {
+        "tags": [
+          "Master Data"
+        ],
+        "summary": "Import Entity Master Data",
+        "description": "Bulk import master data (categories, uom, tax-codes, payment-terms, locations) from CSV.",
+        "operationId": "import_entity_master_data_api_v1_master_data_import__entity_type__post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "entity_type",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Entity Type"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_import_entity_master_data_api_v1_master_data_import__entity_type__post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/master-data/import/jobs/{job_id}": {
       "get": {
         "tags": [
           "Master Data"
         ],
-        "summary": "Get Import Status",
-        "description": "Check the status of a category import job.",
-        "operationId": "get_import_status_api_v1_master_data_import_categories__job_id__get",
+        "summary": "Get Any Import Job Status",
+        "description": "Check the status of any master data bulk import job.",
+        "operationId": "get_any_import_job_status_api_v1_master_data_import_jobs__job_id__get",
         "security": [
           {
             "HTTPBearer": []
@@ -2447,6 +2622,400 @@
             }
           }
         }
+      }
+    },
+    "/api/v1/master-data/items": {
+      "get": {
+        "tags": [
+          "Master Data"
+        ],
+        "summary": "List Items",
+        "description": "Search and list catalog item master records.",
+        "operationId": "list_items_api_v1_master_data_items_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Search"
+            }
+          },
+          {
+            "name": "category_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Category Id"
+            }
+          },
+          {
+            "name": "active_only",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": true,
+              "title": "Active Only"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "default": 50,
+              "title": "Page Size"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Master Data"
+        ],
+        "summary": "Create Item",
+        "description": "Create a new catalog item.",
+        "operationId": "create_item_api_v1_master_data_items_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ItemCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/master-data/items/{item_id}": {
+      "get": {
+        "tags": [
+          "Master Data"
+        ],
+        "summary": "Get Item",
+        "description": "Retrieve catalog item by ID.",
+        "operationId": "get_item_api_v1_master_data_items__item_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Item Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Master Data"
+        ],
+        "summary": "Update Item",
+        "description": "Update a catalog item.",
+        "operationId": "update_item_api_v1_master_data_items__item_id__put",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Item Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ItemUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Master Data"
+        ],
+        "summary": "Delete Item",
+        "description": "Soft-delete a catalog item.",
+        "operationId": "delete_item_api_v1_master_data_items__item_id__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Item Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/master-data/punchout/session": {
+      "post": {
+        "tags": [
+          "Master Data"
+        ],
+        "summary": "Create Punchout Session",
+        "description": "Initiate an OCI/cXML PunchOut session for external catalog shopping.",
+        "operationId": "create_punchout_session_api_v1_master_data_punchout_session_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/PunchOutSessionRequest"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Data"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/master-data/punchout/cart": {
+      "post": {
+        "tags": [
+          "Master Data"
+        ],
+        "summary": "Receive Punchout Cart",
+        "description": "Receive transferred cart items from PunchOut vendor and format into PR lines.",
+        "operationId": "receive_punchout_cart_api_v1_master_data_punchout_cart_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "items": {
+                  "$ref": "#/components/schemas/PunchOutCartItem"
+                },
+                "type": "array",
+                "title": "Items"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
       }
     },
     "/api/v1/master-data/health": {
@@ -5156,6 +5725,23 @@
             }
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/PRConvertToPORequest"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Payload"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -10767,23 +11353,6 @@
             }
           },
           {
-            "name": "vendor_id",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string",
-                  "format": "uuid"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Vendor Id"
-            }
-          },
-          {
             "name": "status",
             "in": "query",
             "required": false,
@@ -10797,22 +11366,6 @@
                 }
               ],
               "title": "Status"
-            }
-          },
-          {
-            "name": "search",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Search"
             }
           },
           {
@@ -15809,6 +16362,45 @@
         }
       }
     },
+    "/api/v1/auth/verify-turnstile": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Verify Turnstile Endpoint",
+        "operationId": "verify_turnstile_endpoint_api_v1_auth_verify_turnstile_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TurnstileVerifyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/auth/login": {
       "post": {
         "tags": [
@@ -17039,6 +17631,43 @@
           "data"
         ],
         "title": "APIResponse[ContractResponse]"
+      },
+      "APIResponse_DelegationRuleResponse_": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/DelegationRuleResponse"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PaginationMeta"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "links": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Links"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Timestamp"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "APIResponse[DelegationRuleResponse]"
       },
       "APIResponse_DisputeMessageResponse_": {
         "properties": {
@@ -18792,6 +19421,47 @@
         ],
         "title": "APIResponse[dict]"
       },
+      "APIResponse_list_DelegationRuleResponse__": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/DelegationRuleResponse"
+            },
+            "type": "array",
+            "title": "Data"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PaginationMeta"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "links": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Links"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Timestamp"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "APIResponse[list[DelegationRuleResponse]]"
+      },
       "APIResponse_list_LiveAuctionDetailResponse__": {
         "properties": {
           "data": {
@@ -20322,6 +20992,20 @@
           "file"
         ],
         "title": "Body_import_categories_api_v1_master_data_import_categories_post"
+      },
+      "Body_import_entity_master_data_api_v1_master_data_import__entity_type__post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "File"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "Body_import_entity_master_data_api_v1_master_data_import__entity_type__post"
       },
       "Body_upload_document_api_v1_documents_upload_post": {
         "properties": {
@@ -22739,6 +23423,147 @@
         "type": "object",
         "title": "CurrencyUpdateRequest"
       },
+      "DelegationRuleCreateRequest": {
+        "properties": {
+          "delegate_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Delegate Id"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          },
+          "valid_from": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Valid From"
+          },
+          "valid_until": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Valid Until"
+          },
+          "entity_types": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Entity Types"
+          }
+        },
+        "type": "object",
+        "required": [
+          "delegate_id",
+          "reason",
+          "valid_from",
+          "valid_until"
+        ],
+        "title": "DelegationRuleCreateRequest"
+      },
+      "DelegationRuleResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "org_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Org Id"
+          },
+          "delegator_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Delegator Id"
+          },
+          "delegate_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Delegate Id"
+          },
+          "delegate_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Delegate Name"
+          },
+          "delegate_email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Delegate Email"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          },
+          "valid_from": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Valid From"
+          },
+          "valid_until": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Valid Until"
+          },
+          "entity_types": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Entity Types",
+            "default": []
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "org_id",
+          "delegator_id",
+          "delegate_id",
+          "reason",
+          "valid_from",
+          "valid_until",
+          "is_active"
+        ],
+        "title": "DelegationRuleResponse"
+      },
       "DisputeCreateRequest": {
         "properties": {
           "invoice_id": {
@@ -24887,6 +25712,254 @@
         ],
         "title": "InvoiceSubmitRequest"
       },
+      "ItemCreateRequest": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "maxLength": 50,
+            "minLength": 1,
+            "title": "Code"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "category_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Category Id"
+          },
+          "uom_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Uom Id"
+          },
+          "standard_price": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              }
+            ],
+            "title": "Standard Price",
+            "default": "0.0"
+          },
+          "currency": {
+            "type": "string",
+            "maxLength": 3,
+            "title": "Currency",
+            "default": "INR"
+          },
+          "hsn_code": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 20
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hsn Code"
+          },
+          "image_url": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image Url"
+          },
+          "is_punchout": {
+            "type": "boolean",
+            "title": "Is Punchout",
+            "default": false
+          },
+          "punchout_vendor_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Punchout Vendor Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "name",
+          "category_id",
+          "uom_id"
+        ],
+        "title": "ItemCreateRequest"
+      },
+      "ItemUpdateRequest": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "category_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category Id"
+          },
+          "uom_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Uom Id"
+          },
+          "standard_price": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Standard Price"
+          },
+          "currency": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 3
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currency"
+          },
+          "hsn_code": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 20
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hsn Code"
+          },
+          "image_url": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image Url"
+          },
+          "is_punchout": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Punchout"
+          },
+          "punchout_vendor_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Punchout Vendor Id"
+          },
+          "is_active": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Active"
+          }
+        },
+        "type": "object",
+        "title": "ItemUpdateRequest"
+      },
       "Links": {
         "properties": {
           "self": {
@@ -25295,6 +26368,17 @@
               }
             ],
             "title": "Org Id"
+          },
+          "turnstile_token": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Turnstile Token"
           }
         },
         "type": "object",
@@ -26639,6 +27723,24 @@
         ],
         "title": "PRBulkCreateRequest"
       },
+      "PRConvertToPORequest": {
+        "properties": {
+          "vendor_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vendor Id"
+          }
+        },
+        "type": "object",
+        "title": "PRConvertToPORequest"
+      },
       "PRCreateRequest": {
         "properties": {
           "title": {
@@ -26969,6 +28071,29 @@
           "aging_alert_level": {
             "type": "integer",
             "title": "Aging Alert Level"
+          },
+          "po_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Po Id"
+          },
+          "po_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Po Number"
           },
           "created_at": {
             "type": "string",
@@ -28189,6 +29314,109 @@
           "SERVICES"
         ],
         "title": "ProcurementType"
+      },
+      "PunchOutCartItem": {
+        "properties": {
+          "item_code": {
+            "type": "string",
+            "title": "Item Code"
+          },
+          "item_description": {
+            "type": "string",
+            "title": "Item Description"
+          },
+          "category_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category Id"
+          },
+          "uom_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Uom Id"
+          },
+          "quantity": {
+            "type": "integer",
+            "title": "Quantity",
+            "default": 1
+          },
+          "unit_price": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              }
+            ],
+            "title": "Unit Price"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency",
+            "default": "INR"
+          },
+          "hsn_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hsn Code"
+          }
+        },
+        "type": "object",
+        "required": [
+          "item_code",
+          "item_description",
+          "unit_price"
+        ],
+        "title": "PunchOutCartItem"
+      },
+      "PunchOutSessionRequest": {
+        "properties": {
+          "vendor_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vendor Id"
+          },
+          "return_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Return Url"
+          }
+        },
+        "type": "object",
+        "title": "PunchOutSessionRequest"
       },
       "QualityInspectionCreate": {
         "properties": {
@@ -30085,6 +31313,30 @@
         "title": "TaxUpdateRequest",
         "description": "Validated payload for updating an existing TaxCode. All fields optional."
       },
+      "TurnstileVerifyRequest": {
+        "properties": {
+          "token": {
+            "type": "string",
+            "title": "Token"
+          },
+          "remote_ip": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Remote Ip"
+          }
+        },
+        "type": "object",
+        "required": [
+          "token"
+        ],
+        "title": "TurnstileVerifyRequest"
+      },
       "UnmappedPRDashboardResponse": {
         "properties": {
           "total_pending": {
@@ -31139,6 +32391,17 @@
             },
             "type": "array",
             "title": "Bank Accounts"
+          },
+          "turnstile_token": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Turnstile Token"
           }
         },
         "type": "object",

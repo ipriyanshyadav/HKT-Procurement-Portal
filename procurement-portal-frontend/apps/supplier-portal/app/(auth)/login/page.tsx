@@ -22,6 +22,7 @@ export default function SupplierLoginPage() {
   const { mutate: login, isPending, error } = useLogin();
   const [failedAttempts, setFailedAttempts] = useState(0);
   const [captchaVerified, setCaptchaVerified] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
 
   const requireCaptcha = failedAttempts >= 2;
 
@@ -41,7 +42,7 @@ export default function SupplierLoginPage() {
       return;
     }
 
-    login(data as any, {
+    login({ ...data, turnstile_token: captchaToken || undefined } as any, {
       onSuccess: (response) => {
         if (response.data.access_token) {
           router.push("/profile");
@@ -126,7 +127,10 @@ export default function SupplierLoginPage() {
           {requireCaptcha && (
             <CaptchaChallenge
               required={requireCaptcha}
-              onVerify={setCaptchaVerified}
+              onVerify={(isValid, token) => {
+                setCaptchaVerified(isValid);
+                setCaptchaToken(token || null);
+              }}
             />
           )}
 

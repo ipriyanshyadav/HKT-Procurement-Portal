@@ -130,3 +130,25 @@ export function useReturnTask(instanceId: string, taskId: string) {
     },
   });
 }
+
+export function useBatchApproveTasks() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (tasks: Array<{ instanceId: string; taskId: string; comment?: string }>) => {
+      const results = [];
+      for (const t of tasks) {
+        const res = await apiClient.post<{ data: WorkflowInstance }>(
+          `/workflows/instances/${t.instanceId}/tasks/${t.taskId}/approve`,
+          { comment: t.comment || "Batch approved" }
+        );
+        results.push(res.data.data);
+      }
+      return results;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["workflowTasks"] });
+      queryClient.invalidateQueries({ queryKey: ["workflowInstance"] });
+    },
+  });
+}

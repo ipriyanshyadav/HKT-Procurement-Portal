@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any, Optional
-from uuid import UUID
+from typing import Any, List, Optional
+from uuid import UUID, uuid4
 
-from fastapi import APIRouter, Depends, File, Query, UploadFile, status
+from fastapi import APIRouter, Body, Depends, File, Query, UploadFile, status
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -31,6 +31,13 @@ from app.modules.master_data.holiday.schemas import (
 )
 from app.modules.master_data.holiday.service import holiday_service
 from app.modules.master_data.import_service import master_data_import_service
+from app.modules.master_data.item.service import (
+    ItemCreateRequest,
+    ItemResponse,
+    ItemUpdateRequest,
+    PunchOutCartItem,
+    item_service,
+)
 from app.modules.master_data.location.service import (
     LocationCreateRequest,
     LocationResponse,
@@ -519,13 +526,35 @@ async def import_categories(
     )
 
 
-@router.get("/import/categories/{job_id}")
-async def get_import_status(
+@router.post("/import/{entity_type}", status_code=status.HTTP_202_ACCEPTED)
+async def import_entity_master_data(
+    entity_type: str,
+    file: UploadFile = File(...),
+    current_user: User = Depends(require_permission(PermissionCode.MASTER_IMPORT)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Bulk import master data (categories, uom, tax-codes, payment-terms, locations) from CSV."""
+    file_bytes = await file.read()
+    job = await master_data_import_service.import_entity_csv(
+        db, entity_type, file_bytes, current_user.id, current_user.org_id
+    )
+    return success_response(
+        {
+            "job_id": str(job.id),
+            "status": job.status.value,
+            "entity_type": entity_type,
+            "message": f"{entity_type} import job queued",
+        }
+    )
+
+
+@router.get("/import/jobs/{job_id}")
+async def get_any_import_job_status(
     job_id: UUID,
     current_user: User = Depends(require_permission(PermissionCode.MASTER_VIEW)),
     db: AsyncSession = Depends(get_db),
 ):
-    """Check the status of a category import job."""
+    """Check the status of any master data bulk import job."""
     job = await master_data_import_service.get_import_job(db, job_id, current_user.org_id)
     return success_response(
         {
@@ -537,6 +566,122 @@ async def get_import_status(
             "completed_at": job.completed_at.isoformat() if job.completed_at else None,
         }
     )
+
+
+# -----------------------------------------------------------------------------
+# 16: Item Master & Catalog Search
+# -----------------------------------------------------------------------------
+
+
+@router.get("/items")
+async def list_items(
+    search: Optional[str] = Query(default=None),
+    category_id: Optional[UUID] = Query(default=None),
+    active_only: bool = Query(default=True),
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=50, ge=1, le=200),
+    current_user: Optional[User] = Depends(get_optional_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Search and list catalog item master records."""
+    org_id = current_user.org_id if current_user else DEFAULT_ORG_ID
+    items, total = await item_service.list_items(
+        db, org_id, search=search, category_id=category_id, active_only=active_only, page=page, page_size=page_size
+    )
+    return success_response(
+        [ItemResponse.model_validate(i) for i in items],
+        meta=PaginationMeta(total=total, page=page, page_size=page_size),
+    )
+
+
+@router.post("/items", status_code=status.HTTP_201_CREATED)
+async def create_item(
+    data: ItemCreateRequest,
+    current_user: User = Depends(require_permission(PermissionCode.MASTER_CREATE)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Create a new catalog item."""
+    item = await item_service.create(db, data, current_user.id, current_user.org_id)
+    await db.commit()
+    return created_response(ItemResponse.model_validate(item))
+
+
+@router.get("/items/{item_id}")
+async def get_item(
+    item_id: UUID,
+    current_user: Optional[User] = Depends(get_optional_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Retrieve catalog item by ID."""
+    org_id = current_user.org_id if current_user else DEFAULT_ORG_ID
+    item = await item_service.get_by_id(db, item_id, org_id)
+    return success_response(ItemResponse.model_validate(item))
+
+
+@router.put("/items/{item_id}")
+async def update_item(
+    item_id: UUID,
+    data: ItemUpdateRequest,
+    current_user: User = Depends(require_permission(PermissionCode.MASTER_UPDATE)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Update a catalog item."""
+    item = await item_service.update(db, item_id, data, current_user.id, current_user.org_id)
+    await db.commit()
+    return success_response(ItemResponse.model_validate(item))
+
+
+@router.delete("/items/{item_id}", status_code=status.HTTP_200_OK)
+async def delete_item(
+    item_id: UUID,
+    current_user: User = Depends(require_permission(PermissionCode.MASTER_DELETE)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Soft-delete a catalog item."""
+    await item_service.delete(db, item_id, current_user.id, current_user.org_id)
+    await db.commit()
+    return success_response({"message": "Catalog item deleted successfully"})
+
+
+# -----------------------------------------------------------------------------
+# 17: OCI / cXML PunchOut Catalog Session Simulator
+# -----------------------------------------------------------------------------
+
+
+class PunchOutSessionRequest(BaseModel):
+    vendor_id: Optional[UUID] = None
+    return_url: Optional[str] = None
+
+
+@router.post("/punchout/session")
+async def create_punchout_session(
+    data: Optional[PunchOutSessionRequest] = None,
+    current_user: User = Depends(get_current_user),
+):
+    """Initiate an OCI/cXML PunchOut session for external catalog shopping."""
+    session_id = f"pos-{uuid4().hex[:12]}"
+    ret_url = (data.return_url if data and data.return_url else None) or "http://localhost:3000/requisitions/new"
+    punchout_url = f"http://localhost:3001/punchout?session_id={session_id}&return_url={ret_url}"
+    return success_response({
+        "session_id": session_id,
+        "vendor_id": str(data.vendor_id) if data and data.vendor_id else None,
+        "punchout_url": punchout_url,
+        "return_url": ret_url,
+        "status": "ACTIVE",
+    })
+
+
+@router.post("/punchout/cart")
+async def receive_punchout_cart(
+    items: List[PunchOutCartItem] = Body(...),
+    current_user: User = Depends(get_current_user),
+):
+    """Receive transferred cart items from PunchOut vendor and format into PR lines."""
+    return success_response({
+        "received_count": len(items),
+        "items": [item.model_dump() for item in items],
+        "message": "PunchOut cart processed successfully",
+    })
 
 
 # -----------------------------------------------------------------------------

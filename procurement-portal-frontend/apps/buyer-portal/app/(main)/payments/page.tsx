@@ -52,6 +52,71 @@ export default function BuyerPaymentsPage() {
     }
   };
 
+  const [downloadingBatch, setDownloadingBatch] = useState(false);
+
+  const handleDownloadBankBatch = () => {
+    try {
+      setDownloadingBatch(true);
+      const pendingPayments = payments.filter((p) =>
+        ["SCHEDULED", "PENDING", "PROCESSING"].includes(p.status?.toUpperCase() || "")
+      );
+      const paymentsToExport = pendingPayments.length > 0 ? pendingPayments : filteredPayments;
+
+      if (paymentsToExport.length === 0) {
+        alert("No payments available for bank batch export.");
+        return;
+      }
+
+      const headers = [
+        "Payment_ID",
+        "Value_Date",
+        "Beneficiary_Name",
+        "Vendor_ID",
+        "Net_Amount",
+        "Gross_Amount",
+        "TDS_Deduction",
+        "Currency",
+        "Payment_Mode",
+        "Customer_Reference",
+        "Invoice_Number",
+        "Status",
+        "Remarks",
+      ];
+
+      const rows = paymentsToExport.map((p) => [
+        p.id,
+        p.payment_due_date || p.payment_date || new Date().toISOString().split("T")[0],
+        `"${(p.vendor_name || "Vendor").replace(/"/g, '""')}"`,
+        p.vendor_id,
+        Number(p.net_amount || p.amount || 0).toFixed(2),
+        Number(p.gross_amount || p.amount || 0).toFixed(2),
+        Number(p.tds_amount || 0).toFixed(2),
+        p.currency || "INR",
+        p.payment_method || "NEFT",
+        p.erp_payment_reference || p.id.slice(0, 12),
+        p.invoice_number || "",
+        p.status,
+        `"Payment for Invoice ${p.invoice_number || p.id.slice(0, 8)}"`,
+      ]);
+
+      const csvContent = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      const dateStr = new Date().toISOString().split("T")[0].replace(/-/g, "");
+      link.setAttribute("href", url);
+      link.setAttribute("download", `Bank_Payment_Batch_${dateStr}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (err: any) {
+      alert("Failed to export bank payment batch file.");
+    } finally {
+      setDownloadingBatch(false);
+    }
+  };
+
   // Filter payments by search and method
   const filteredPayments = useMemo(() => {
     return payments.filter((p) => {
@@ -212,6 +277,17 @@ export default function BuyerPaymentsPage() {
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
             Bank remittance tracking, statutory TDS withholding (Sec 194C/J), and UTR settlement records.
           </p>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleDownloadBankBatch}
+            disabled={downloadingBatch}
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-semibold shadow-xs transition-colors disabled:opacity-50"
+          >
+            <Download className="w-4 h-4" />
+            Download Bank Payment File (.csv)
+          </button>
         </div>
       </div>
 

@@ -134,3 +134,20 @@ class ErpMaterialGroupMapping(BaseModel):
     category_id: Mapped[UUID] = mapped_column(ForeignKey("categories.id"), nullable=False)
     confidence: Mapped[Decimal] = mapped_column(Numeric(3, 2), default=Decimal("1.0"), nullable=False)
     is_verified: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+
+
+class ItemMaster(BaseModel):
+    __tablename__ = "item_master"
+
+    code: Mapped[str] = mapped_column(String(50), nullable=False)
+    name: Mapped[str] = mapped_column(String(200), nullable=False)
+    description: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
+    category_id: Mapped[UUID] = mapped_column(ForeignKey("categories.id"), nullable=False)
+    uom_id: Mapped[UUID] = mapped_column(ForeignKey("uom_master.id"), nullable=False)
+    standard_price: Mapped[Decimal] = mapped_column(Numeric(18, 4), default=Decimal("0.0"), nullable=False)
+    currency: Mapped[str] = mapped_column(String(3), default="INR", nullable=False)
+    hsn_code: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
+    image_url: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
+    is_punchout: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    punchout_vendor_id: Mapped[Optional[UUID]] = mapped_column(nullable=True)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)

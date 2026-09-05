@@ -15,6 +15,7 @@ function AdminLoginForm() {
   const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({});
   const [failedAttempts, setFailedAttempts] = useState(0);
   const [captchaVerified, setCaptchaVerified] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
 
   const requireCaptcha = failedAttempts >= 2;
 
@@ -48,6 +49,7 @@ function AdminLoginForm() {
         email: email.trim(),
         password,
         org_id: process.env.NEXT_PUBLIC_DEFAULT_ORG_ID ?? "00000000-0000-0000-0000-000000000001",
+        turnstile_token: captchaToken || undefined,
       },
       {
         onSuccess: (response) => {
@@ -135,7 +137,10 @@ function AdminLoginForm() {
           {requireCaptcha && (
             <CaptchaChallenge
               required={requireCaptcha}
-              onVerify={setCaptchaVerified}
+              onVerify={(isValid, token) => {
+                setCaptchaVerified(isValid);
+                setCaptchaToken(token || null);
+              }}
             />
           )}
 

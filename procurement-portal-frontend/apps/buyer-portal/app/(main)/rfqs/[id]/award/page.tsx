@@ -11,9 +11,10 @@ import {
   useApproveAward,
   useVendors,
   useSendRegretLetters,
+  useCreatePOFromAward,
 } from "@procurement/hooks";
 import { Button, Badge, Input, Textarea, PermissionGuard } from "@procurement/ui";
-import { Mail, CheckCircle2, AlertCircle } from "lucide-react";
+import { Mail, CheckCircle2, AlertCircle, Package } from "lucide-react";
 
 interface AwardDraftItem {
   lot_id?: string | null;
@@ -40,6 +41,7 @@ export default function AwardRecommendationPage() {
   const recommendMutation = useRecommendAward();
   const approveMutation = useApproveAward();
   const sendRegretLettersMutation = useSendRegretLetters();
+  const createPOMutation = useCreatePOFromAward();
 
   const [awardItems, setAwardItems] = useState<AwardDraftItem[]>([]);
   const [overallJustification, setOverallJustification] = useState<string>("");
@@ -145,6 +147,24 @@ export default function AwardRecommendationPage() {
       setFeedback("Regret letters dispatched successfully to all unawarded suppliers!");
     } catch (err: any) {
       alert(err?.response?.data?.error?.message || "Failed to dispatch regret letters");
+    }
+  };
+
+  const handleGeneratePurchaseOrders = async () => {
+    if (!existingAward) return;
+    if (!confirm(`Generate official Purchase Order(s) for Award Notice ${existingAward.arn_number}?`)) return;
+    try {
+      const pos = await createPOMutation.mutateAsync({
+        arn_id: existingAward.id,
+      });
+      setFeedback(`Successfully generated ${pos.length} Purchase Order(s)!`);
+      if (pos && pos.length === 1) {
+        router.push(`/purchase-orders/${pos[0].id}`);
+      } else {
+        router.push("/purchase-orders");
+      }
+    } catch (err: any) {
+      alert(err?.response?.data?.error?.message || "Failed to generate Purchase Order(s)");
     }
   };
 
@@ -315,6 +335,18 @@ export default function AwardRecommendationPage() {
                   <Mail className="w-3.5 h-3.5" />
                   {sendRegretLettersMutation.isPending ? "Dispatching Letters..." : "Dispatch Regret Letters"}
                 </button>
+                <PermissionGuard permission="po.create">
+                  <button
+                    type="button"
+                    disabled={createPOMutation.isPending}
+                    onClick={handleGeneratePurchaseOrders}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-xl shadow-2xs transition-colors disabled:opacity-50"
+                    title="Generate Purchase Order(s) directly from this approved award"
+                  >
+                    <Package className="w-3.5 h-3.5" />
+                    {createPOMutation.isPending ? "Generating PO..." : "Generate Purchase Order(s)"}
+                  </button>
+                </PermissionGuard>
                 <Link
                   href={`/contracts/new?rfq_id=${rfqId}&vendor_id=${existingAward.details[0]?.vendor_id || ""}`}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl shadow-2xs transition-colors"

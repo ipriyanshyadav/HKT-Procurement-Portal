@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { ShieldCheck, RefreshCw, AlertCircle } from "lucide-react";
 
 export interface CaptchaChallengeProps {
-  onVerify: (isValid: boolean) => void;
+  onVerify: (isValid: boolean, token?: string) => void;
   required?: boolean;
 }
 
@@ -22,7 +22,7 @@ export function CaptchaChallenge({ onVerify, required = true }: CaptchaChallenge
     setCode(result);
     setUserInput("");
     setStatus("idle");
-    onVerify(false);
+    onVerify(false, undefined);
   }, [onVerify]);
 
   useEffect(() => {
@@ -35,14 +35,14 @@ export function CaptchaChallenge({ onVerify, required = true }: CaptchaChallenge
     if (val.length === 6) {
       if (val === code) {
         setStatus("valid");
-        onVerify(true);
+        onVerify(true, "mock-turnstile-pass-token");
       } else {
         setStatus("invalid");
-        onVerify(false);
+        onVerify(false, undefined);
       }
     } else {
       setStatus("idle");
-      onVerify(false);
+      onVerify(false, undefined);
     }
   };
 

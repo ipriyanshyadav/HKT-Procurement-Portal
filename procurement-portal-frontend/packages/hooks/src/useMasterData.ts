@@ -231,6 +231,78 @@ export interface HolidayCreatePayload {
   plant_id?: string | null;
 }
 
+export interface ItemMaster {
+  id: string;
+  org_id: string;
+  code: string;
+  name: string;
+  description: string | null;
+  category_id: string;
+  uom_id: string;
+  standard_price: number | string;
+  currency: string;
+  hsn_code: string | null;
+  image_url: string | null;
+  is_punchout: boolean;
+  punchout_vendor_id: string | null;
+  is_active: boolean;
+  version: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ItemCreatePayload {
+  code: string;
+  name: string;
+  description?: string | null;
+  category_id: string;
+  uom_id: string;
+  standard_price?: number | string;
+  currency?: string;
+  hsn_code?: string | null;
+  image_url?: string | null;
+  is_punchout?: boolean;
+  punchout_vendor_id?: string | null;
+}
+
+export interface ItemUpdatePayload {
+  name?: string | null;
+  description?: string | null;
+  category_id?: string | null;
+  uom_id?: string | null;
+  standard_price?: number | string | null;
+  currency?: string | null;
+  hsn_code?: string | null;
+  image_url?: string | null;
+  is_punchout?: boolean | null;
+  punchout_vendor_id?: string | null;
+  is_active?: boolean | null;
+}
+
+export interface PunchOutSessionRequest {
+  vendor_id?: string | null;
+  return_url?: string | null;
+}
+
+export interface PunchOutSessionResponse {
+  session_id: string;
+  punchout_url: string;
+  vendor_id?: string | null;
+  expires_at: string;
+  status: string;
+}
+
+export interface PunchOutCartItem {
+  item_code: string;
+  item_description: string;
+  quantity: number;
+  unit_price: number;
+  currency: string;
+  uom?: string;
+  category_code?: string;
+  vendor_part_number?: string;
+}
+
 export interface ImportJobStatus {
   job_id: string;
   status: "PENDING" | "RUNNING" | "COMPLETED" | "PARTIAL" | "FAILED";
@@ -715,13 +787,33 @@ export function useImportCategories() {
   });
 }
 
+export function useImportMasterDataEntity(entityType: string) {
+  return useMutation({
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await apiClient.post<APIResponse<{ job_id: string; status: string; message: string }>>(
+        `/master-data/import/${entityType}`,
+        formData,
+        { headers: { "Content-Type": "multipart/form-data" } }
+      );
+      return res.data.data;
+    },
+  });
+}
+
 export function useImportJobStatus(jobId: string | null) {
   return useQuery({
     queryKey: ["master-data", "import-job", jobId],
     queryFn: async () => {
       if (!jobId) return null;
-      const res = await apiClient.get<APIResponse<ImportJobStatus>>(`/master-data/import/categories/${jobId}`);
-      return res.data.data;
+      try {
+        const res = await apiClient.get<APIResponse<ImportJobStatus>>(`/master-data/import/jobs/${jobId}`);
+        return res.data.data;
+      } catch {
+        const res = await apiClient.get<APIResponse<ImportJobStatus>>(`/master-data/import/categories/${jobId}`);
+        return res.data.data;
+      }
     },
     enabled: !!jobId,
     refetchInterval: (query) => {
@@ -733,3 +825,80 @@ export function useImportJobStatus(jobId: string | null) {
     },
   });
 }
+
+// -----------------------------------------------------------------------------
+// Catalog Item & PunchOut Hooks
+// -----------------------------------------------------------------------------
+
+export function useCatalogItems(params?: {
+  search?: string;
+  category_id?: string;
+  active_only?: boolean;
+  page?: number;
+  page_size?: number;
+}) {
+  return useQuery({
+    queryKey: ["master-data", "items", params],
+    queryFn: async () => {
+      const res = await apiClient.get<APIResponse<ItemMaster[]>>("/master-data/items", {
+        params: {
+          search: params?.search || undefined,
+          category_id: params?.category_id || undefined,
+          active_only: params?.active_only ?? true,
+          page: params?.page ?? 1,
+          page_size: params?.page_size ?? 50,
+        },
+      });
+      return res.data.data;
+    },
+    staleTime: MASTER_DATA_STALE_TIME,
+  });
+}
+
+export function useCatalogItem(id: string | null) {
+  return useQuery({
+    queryKey: ["master-data", "items", id],
+    queryFn: async () => {
+      if (!id) return null;
+      const res = await apiClient.get<APIResponse<ItemMaster>>(`/master-data/items/${id}`);
+      return res.data.data;
+    },
+    enabled: !!id,
+    staleTime: MASTER_DATA_STALE_TIME,
+  });
+}
+
+export function useCreateCatalogItem() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload: ItemCreatePayload) => {
+      const res = await apiClient.post<APIResponse<ItemMaster>>("/master-data/items", payload);
+      return res.data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["master-data", "items"] });
+    },
+  });
+}
+
+export function usePunchOutSession() {
+  return useMutation({
+    mutationFn: async (payload: PunchOutSessionRequest) => {
+      const res = await apiClient.post<APIResponse<PunchOutSessionResponse>>("/master-data/punchout/session", payload);
+      return res.data.data;
+    },
+  });
+}
+
+export function usePunchOutCart() {
+  return useMutation({
+    mutationFn: async (items: PunchOutCartItem[]) => {
+      const res = await apiClient.post<APIResponse<{ received_count: number; items: PunchOutCartItem[]; message: string }>>(
+        "/master-data/punchout/cart",
+        items
+      );
+      return res.data.data;
+    },
+  });
+}
+

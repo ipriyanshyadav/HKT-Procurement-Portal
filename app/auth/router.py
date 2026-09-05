@@ -9,6 +9,7 @@ from app.auth.schemas import (
     LoginRequest,
     MFAVerifyRequest,
     MFAConfirmRequest,
+    TurnstileVerifyRequest,
 )
 from app.auth.service import auth_service
 from app.auth.dependencies import get_current_user
@@ -49,6 +50,16 @@ def _get_refresh_token_and_key(request: Request) -> tuple[str, str, Optional[str
     return token or "", cookie_key, portal
 
 
+@router.post("/verify-turnstile")
+async def verify_turnstile_endpoint(
+    data: TurnstileVerifyRequest,
+    request: Request,
+) -> JSONResponse:
+    remote_ip = request.client.host if request.client else None
+    success = await auth_service.verify_turnstile(data.token, data.remote_ip or remote_ip)
+    return JSONResponse(content={"data": {"success": success}})
+
+
 @router.post("/login")
 async def login(
     data: LoginRequest,
@@ -56,6 +67,11 @@ async def login(
     db: AsyncSession = Depends(get_db),
 ) -> JSONResponse:
     """POST /api/v1/auth/login — password login. Returns access_token; sets portal-scoped refresh_token cookie."""
+    if data.turnstile_token:
+        remote_ip = request.client.host if request.client else None
+        valid_bot = await auth_service.verify_turnstile(data.turnstile_token, remote_ip)
+        if not valid_bot:
+            raise AppException("Anti-bot verification failed", "BOT_VERIFICATION_FAILED")
     portal = _get_portal(request)
     cookie_key = _get_cookie_key(portal)
     result = await auth_service.login(db, data.email, data.password, data.org_id, portal_type=portal)

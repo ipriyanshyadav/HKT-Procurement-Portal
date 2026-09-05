@@ -5,6 +5,7 @@ export {
   useApproveTask,
   useRejectTask,
   useReturnTask,
+  useBatchApproveTasks,
 } from "./useWorkflowTasks";
 export type { WorkflowTask, WorkflowInstance, TaskListResponse, TaskActionPayload } from "./useWorkflowTasks";
 export { useApprovalSimulate } from "./useApprovalSimulate";
@@ -41,7 +42,13 @@ export {
   useCreateHoliday,
   useDeleteHoliday,
   useImportCategories,
+  useImportMasterDataEntity,
   useImportJobStatus,
+  useCatalogItems,
+  useCatalogItem,
+  useCreateCatalogItem,
+  usePunchOutSession,
+  usePunchOutCart,
 } from "./useMasterData";
 
 export type {
@@ -68,6 +75,12 @@ export type {
   HolidayMaster,
   HolidayCreatePayload,
   ImportJobStatus,
+  ItemMaster,
+  ItemCreatePayload,
+  ItemUpdatePayload,
+  PunchOutSessionRequest,
+  PunchOutSessionResponse,
+  PunchOutCartItem,
 } from "./useMasterData";
 
 export {

@@ -1,10 +1,10 @@
 from __future__ import annotations
-from typing import Optional
+from typing import Optional, Any
 from uuid import UUID
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_
 from app.db.repository_base import BaseRepository
-from app.modules.user.models import User
+from app.modules.user.models import User, DelegationRule
 from app.db.enums import UserStatusEnum
 
 
@@ -68,4 +68,46 @@ class UserRepository(BaseRepository[User]):
         return result.scalar_one_or_none()
 
 
+class DelegationRepository(BaseRepository[DelegationRule]):
+    def __init__(self) -> None:
+        from app.modules.user.models import DelegationRule
+        super().__init__(DelegationRule)
+
+    async def list_by_delegator(
+        self, db: AsyncSession, delegator_id: UUID, org_id: UUID
+    ) -> list[tuple[Any, User]]:
+        from app.modules.user.models import DelegationRule
+        stmt = (
+            select(DelegationRule, User)
+            .join(User, User.id == DelegationRule.delegate_id)
+            .where(
+                and_(
+                    DelegationRule.delegator_id == delegator_id,
+                    DelegationRule.org_id == org_id,
+                    DelegationRule.deleted_at.is_(None),
+                )
+            )
+            .order_by(DelegationRule.created_at.desc())
+        )
+        result = await db.execute(stmt)
+        return list(result.all())
+
+    async def get_by_id_and_delegator(
+        self, db: AsyncSession, rule_id: UUID, delegator_id: UUID, org_id: UUID
+    ) -> Optional[Any]:
+        from app.modules.user.models import DelegationRule
+        stmt = select(DelegationRule).where(
+            and_(
+                DelegationRule.id == rule_id,
+                DelegationRule.delegator_id == delegator_id,
+                DelegationRule.org_id == org_id,
+                DelegationRule.deleted_at.is_(None),
+            )
+        )
+        res = await db.execute(stmt)
+        return res.scalar_one_or_none()
+
+
 user_repository = UserRepository()
+delegation_repository = DelegationRepository()
+

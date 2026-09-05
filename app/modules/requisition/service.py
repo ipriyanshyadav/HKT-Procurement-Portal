@@ -13,14 +13,17 @@ from app.core.constants import AuditAction
 from app.core.metrics import pr_created_total, pr_approval_duration_hours
 from app.core.exceptions import AppException, ConflictError, ForbiddenError, NotFoundError, ValidationError
 from app.core.redis_client import RedisKeys, get_redis_client
-from app.db.enums import PRStatus, PRSource, ProcurementType
+from app.db.enums import PRStatus, PRSource, ProcurementType, POStatus, VendorStatus
 from app.events.publisher import OutboxPublisher
 from app.modules.approval_rules.service import rules_engine
 from app.modules.audit.service import audit_service
 from app.modules.organization.models import BusinessUnit, CostCenter, Organization
+from app.modules.purchase_order.models import PurchaseOrder, PoLine
+from app.modules.purchase_order.repository import purchase_order_repository
 from app.modules.requisition.fsm import validate_pr_transition
 from app.modules.requisition.models import Requisition, RequisitionLine
 from app.modules.requisition.repository import RequisitionRepository, requisition_repository
+from app.modules.vendor.models import Vendor
 from app.modules.requisition.schemas import (
     BudgetCheckResult,
     PRCreateRequest,
@@ -801,24 +804,96 @@ class RequisitionService:
         pr_id: UUID,
         actor_id: UUID,
         org_id: UUID,
+        vendor_id: Optional[UUID] = None,
     ) -> Requisition:
         pr = await self.get_by_id(db, pr_id, org_id)
         if pr.status not in (PRStatus.APPROVED, PRStatus.IN_SOURCING):
             raise AppException("PR must be APPROVED or IN_SOURCING to convert to PO", "INVALID_STATE")
 
         validate_pr_transition(pr.status, PRStatus.CONVERTED)
+
+        # Resolve vendor
+        target_vendor_id = vendor_id
+        if not target_vendor_id:
+            stmt = select(Vendor.id).where(Vendor.org_id == org_id).limit(1)
+            res = await db.execute(stmt)
+            target_vendor_id = res.scalar_one_or_none()
+            if not target_vendor_id:
+                new_vendor = Vendor(
+                    org_id=org_id,
+                    company_name="Standard Vendor",
+                    primary_email=f"vendor_{org_id.hex[:6]}@example.com",
+                    status=VendorStatus.ACTIVE,
+                    created_by=actor_id,
+                )
+                db.add(new_vendor)
+                await db.flush()
+                target_vendor_id = new_vendor.id
+
+        po_number = await purchase_order_repository.generate_po_number(db, pr.business_unit_id, org_id)
+
+        po_lines = []
+        total_val = Decimal("0.0")
+        for idx, line in enumerate(pr.lines, 1):
+            line_total = line.quantity * line.estimated_unit_price
+            total_val += line_total
+            po_lines.append(
+                PoLine(
+                    org_id=org_id,
+                    line_number=idx,
+                    item_description=line.item_description,
+                    item_code=line.item_code,
+                    uom_id=line.uom_id,
+                    ordered_quantity=line.quantity,
+                    unit_price=line.estimated_unit_price,
+                    awarded_unit_price=line.estimated_unit_price,
+                    hsn_code=line.hsn_code,
+                    tax_rate=Decimal("0.0"),
+                    open_quantity=line.quantity,
+                    received_quantity=Decimal("0.0"),
+                    invoiced_quantity=Decimal("0.0"),
+                    delivery_date=line.required_by_date or pr.required_by_date,
+                )
+            )
+
+        po = PurchaseOrder(
+            org_id=org_id,
+            po_number=po_number,
+            title=f"PO from {pr.pr_number}: {pr.title}",
+            vendor_id=target_vendor_id,
+            source_pr_id=pr.id,
+            status=POStatus.DRAFT,
+            business_unit_id=pr.business_unit_id,
+            plant_id=pr.plant_id,
+            category_id=pr.category_id,
+            currency=pr.currency,
+            total_value=total_val if total_val > 0 else pr.estimated_value,
+            delivery_location_id=pr.delivery_location_id,
+            expected_delivery_date=pr.required_by_date,
+            buyer_id=actor_id,
+            created_by=actor_id,
+            updated_by=actor_id,
+            lines=po_lines,
+        )
+        await purchase_order_repository.create(db, po)
+        await db.flush()
+
         # Budget is transferred to PO
         pr.budget_reserved_amount = Decimal("0.0")
         pr.status = PRStatus.CONVERTED
         pr.updated_by = actor_id
         await self.repo.update(db, pr)
 
+        # Attach po details for response
+        pr.po_id = po.id
+        pr.po_number = po.po_number
+
         await self._invalidate_pr_cache(org_id)
         await OutboxPublisher.publish(
             db,
             "procurement.pr",
             "pr.converted_to_po",
-            {"pr_id": str(pr.id), "pr_number": pr.pr_number},
+            {"pr_id": str(pr.id), "pr_number": pr.pr_number, "po_id": str(po.id), "po_number": po.po_number},
             org_id,
         )
         await audit_service.log(
@@ -828,7 +903,7 @@ class RequisitionService:
             "PR_CONVERTED_TO_PO",
             actor_id,
             org_id,
-            new_values={"status": PRStatus.CONVERTED.value},
+            new_values={"status": PRStatus.CONVERTED.value, "po_id": str(po.id), "po_number": po.po_number},
         )
         return pr
 

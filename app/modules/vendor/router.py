@@ -3,12 +3,13 @@ import math
 from typing import Optional, List
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, Query, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.dependencies import get_current_user, require_permission
+from app.auth.service import auth_service
 from app.core.constants import PermissionCode
-from app.core.exceptions import ForbiddenError, NotFoundError
+from app.core.exceptions import AppException, ForbiddenError, NotFoundError
 from app.core.responses import APIResponse, PaginationMeta, created_response, success_response
 from app.db.session import get_db
 from app.modules.user.models import User
@@ -74,9 +75,15 @@ async def validate_invitation_token(
 async def register_vendor_with_token(
     token: str,
     data: VendorRegistrationRequest,
+    request: Request,
     db: AsyncSession = Depends(get_db),
 ):
     """Complete vendor registration wizard step via invitation token."""
+    if data.turnstile_token:
+        remote_ip = request.client.host if request.client else None
+        valid_bot = await auth_service.verify_turnstile(data.turnstile_token, remote_ip)
+        if not valid_bot:
+            raise AppException("Anti-bot verification failed", "BOT_VERIFICATION_FAILED")
     vendor = await vendor_service.register_with_token(db, token, data)
     await db.commit()
     return success_response(VendorResponse.model_validate(vendor).model_dump())

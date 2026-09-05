@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
   useCreateContract,
@@ -11,6 +11,9 @@ import {
   useUoms,
   usePaymentTerms,
   useIncoterms,
+  useRfq,
+  useComparativeStatement,
+  useAwardRecommendation,
 } from "@procurement/hooks";
 import {
   FileCheck,
@@ -45,6 +48,15 @@ export default function NewContractPage() {
   const router = useRouter();
   const createContractMutation = useCreateContract();
 
+  // URL query params for award conversion
+  const searchParams = useSearchParams();
+  const rfqIdParam = searchParams.get("rfq_id") || "";
+  const vendorIdParam = searchParams.get("vendor_id") || "";
+
+  const { data: rfq } = useRfq(rfqIdParam);
+  const { data: cs } = useComparativeStatement(rfqIdParam);
+  const { data: award } = useAwardRecommendation(cs?.id || "");
+
   // Reference data
   const { data: vendorsData } = useVendors({ page_size: 100 });
   const vendors = vendorsData?.vendors ?? [];
@@ -56,7 +68,7 @@ export default function NewContractPage() {
 
   // Basic Details
   const [title, setTitle] = useState("");
-  const [vendorId, setVendorId] = useState("");
+  const [vendorId, setVendorId] = useState(vendorIdParam);
   const [contractType, setContractType] = useState("RATE_CONTRACT");
   const [currency, setCurrency] = useState("INR");
   const [totalValue, setTotalValue] = useState("");
@@ -87,6 +99,53 @@ export default function NewContractPage() {
   // Milestones
   const [milestones, setMilestones] = useState<MilestoneRow[]>([]);
   const [errorMsg, setErrorMsg] = useState("");
+
+  useEffect(() => {
+    if (vendorIdParam) {
+      setVendorId(vendorIdParam);
+    }
+  }, [vendorIdParam]);
+
+  useEffect(() => {
+    if (rfq) {
+      setTitle((prev) => prev || `Contract for ${rfq.title} (${rfq.rfq_number})`);
+      if (rfq.category_id) setCategoryId((prev) => prev || rfq.category_id);
+      if (rfq.business_unit_id) setBusinessUnitId((prev) => prev || rfq.business_unit_id);
+      if (rfq.estimated_value && !totalValue) {
+        setTotalValue(String(rfq.estimated_value));
+      }
+    }
+  }, [rfq]);
+
+  useEffect(() => {
+    if (award && award.details && award.details.length > 0) {
+      const matchingDetails = vendorIdParam
+        ? award.details.filter((d) => d.vendor_id === vendorIdParam)
+        : award.details;
+      const detailsToUse = matchingDetails.length > 0 ? matchingDetails : award.details;
+
+      const sumValue = detailsToUse.reduce((acc, d) => acc + (Number(d.awarded_total) || 0), 0);
+      if (sumValue > 0) {
+        setTotalValue(String(sumValue));
+      }
+
+      if (detailsToUse.length > 0) {
+        const prefilledLines: LineRow[] = detailsToUse.map((d, idx) => {
+          const item = rfq?.lines?.find((line) => line.id === d.rfq_line_id) || rfq?.lines?.[idx];
+          return {
+            item_description: item?.item_description || `Awarded Line Item ${idx + 1}`,
+            uom_id: item?.uom_id || uoms[0]?.id || "",
+            contracted_quantity: Number(d.awarded_quantity) || Number(item?.quantity) || 1,
+            unit_rate: Number(d.awarded_unit_price) || (Number(d.awarded_total) / (Number(d.awarded_quantity) || 1)) || 0,
+            hsn_code: item?.hsn_code || "",
+          };
+        });
+        if (prefilledLines.length > 0) {
+          setLines(prefilledLines);
+        }
+      }
+    }
+  }, [award, vendorIdParam, rfq, uoms]);
 
   const addLine = () => {
     setLines([

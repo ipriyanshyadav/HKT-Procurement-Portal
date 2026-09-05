@@ -140,6 +140,7 @@ class VendorRegistrationRequest(BaseModel):
     category_ids: List[UUID] = Field(default_factory=list)
     contacts: List[VendorContactCreateRequest] = Field(default_factory=list)
     bank_accounts: List[VendorBankAccountCreateRequest] = Field(default_factory=list)
+    turnstile_token: Optional[str] = None
 
 
 class VendorUpdateRequest(BaseModel):

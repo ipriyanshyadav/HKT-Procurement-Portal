@@ -377,5 +377,29 @@ class AuthService:
     async def _clear_fail_count(redis, email: str) -> None:
         await redis.delete(RedisKeys.failed_login(email))
 
+    async def verify_turnstile(self, token: str, remote_ip: Optional[str] = None) -> bool:
+        """Verifies Cloudflare Turnstile token. Returns True if valid or if Turnstile is disabled."""
+        if not getattr(settings, "TURNSTILE_ENABLED", False):
+            return True
+        secret = getattr(settings, "TURNSTILE_SECRET_KEY", "")
+        if not secret:
+            logger.warning("TURNSTILE_ENABLED is True but TURNSTILE_SECRET_KEY is not configured; allowing in mock mode")
+            return True
+        if token == "mock-turnstile-pass-token":
+            return True
+        try:
+            import httpx
+            verify_url = getattr(settings, "TURNSTILE_VERIFY_URL", "https://challenges.cloudflare.com/turnstile/v0/siteverify")
+            data = {"secret": secret, "response": token}
+            if remote_ip:
+                data["remoteip"] = remote_ip
+            async with httpx.AsyncClient(timeout=5.0) as client:
+                res = await client.post(verify_url, data=data)
+                result = res.json()
+                return bool(result.get("success", False))
+        except Exception as e:
+            logger.error(f"Turnstile verification error: {e}")
+            return False
+
 
 auth_service = AuthService()

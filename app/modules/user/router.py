@@ -1,7 +1,8 @@
 from __future__ import annotations
-from typing import Optional
-from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException
+from datetime import datetime, timezone
+from typing import Optional, List
+from uuid import UUID, uuid4
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from pydantic import BaseModel, EmailStr
 
@@ -10,14 +11,39 @@ from app.core.exceptions import AppException, ForbiddenError
 from app.core.responses import APIResponse, PaginationMeta, created_response, success_response
 from app.core.security import hash_password, verify_password, validate_password_strength
 from app.db.session import get_db
-from app.modules.user.models import User
-from app.modules.user.repository import user_repository
+from app.modules.user.models import User, DelegationRule
+from app.modules.user.repository import user_repository, delegation_repository
 from app.modules.user.role_repository import role_repository
 from app.modules.audit.service import audit_service
 from app.core.constants import PermissionCode
 from app.db.enums import UserStatusEnum
 
 router = APIRouter(tags=["User"])
+
+
+class DelegationRuleCreateRequest(BaseModel):
+    delegate_id: UUID
+    reason: str
+    valid_from: datetime
+    valid_until: datetime
+    entity_types: Optional[list[str]] = None
+
+
+class DelegationRuleResponse(BaseModel):
+    id: UUID
+    org_id: UUID
+    delegator_id: UUID
+    delegate_id: UUID
+    delegate_name: Optional[str] = None
+    delegate_email: Optional[str] = None
+    reason: str
+    valid_from: datetime
+    valid_until: datetime
+    entity_types: list[str] = []
+    is_active: bool
+    created_at: Optional[datetime] = None
+
+    model_config = {"from_attributes": True}
 
 
 class UserResponse(BaseModel):
@@ -131,6 +157,130 @@ async def change_my_password(
         metadata={},
     )
     return success_response({"message": "Password changed successfully"})
+
+
+@router.get("/me/delegations", response_model=APIResponse[list[DelegationRuleResponse]])
+async def list_my_delegations(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """GET /api/v1/users/me/delegations — list delegation rules created by current user."""
+    items = await delegation_repository.list_by_delegator(db, current_user.id, current_user.org_id)
+    response_items = []
+    for rule, delegate in items:
+        response_items.append(
+            DelegationRuleResponse(
+                id=rule.id,
+                org_id=rule.org_id,
+                delegator_id=rule.delegator_id,
+                delegate_id=rule.delegate_id,
+                delegate_name=f"{delegate.first_name} {delegate.last_name}".strip() or delegate.email,
+                delegate_email=delegate.email,
+                reason=rule.reason,
+                valid_from=rule.valid_from,
+                valid_until=rule.valid_until,
+                entity_types=rule.entity_types or [],
+                is_active=rule.is_active,
+                created_at=rule.created_at or datetime.now(timezone.utc),
+            )
+        )
+    return success_response(response_items)
+
+
+@router.post("/me/delegations", response_model=APIResponse[DelegationRuleResponse])
+async def create_my_delegation(
+    data: DelegationRuleCreateRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """POST /api/v1/users/me/delegations — create a new delegation / out-of-office rule."""
+    if data.delegate_id == current_user.id:
+        raise AppException("Cannot delegate approvals to yourself", "INVALID_DELEGATE")
+
+    delegate = await user_repository.get_by_id(db, data.delegate_id, current_user.org_id)
+    if not delegate or delegate.status != UserStatusEnum.ACTIVE:
+        raise AppException("Delegate user not found or inactive", "INVALID_DELEGATE")
+
+    if data.valid_until <= data.valid_from:
+        raise AppException("valid_until must be after valid_from", "INVALID_DATE_RANGE")
+
+    rule = DelegationRule(
+        id=uuid4(),
+        org_id=current_user.org_id,
+        delegator_id=current_user.id,
+        delegate_id=data.delegate_id,
+        reason=data.reason,
+        valid_from=data.valid_from,
+        valid_until=data.valid_until,
+        entity_types=data.entity_types or ["PR", "PO", "INVOICE", "RFQ", "ARN"],
+        is_active=True,
+        created_by=current_user.id,
+    )
+    db.add(rule)
+    await db.commit()
+    await db.refresh(rule)
+
+    await audit_service.log(
+        db,
+        entity_type="USER",
+        entity_id=current_user.id,
+        action="DELEGATION_CREATED",
+        actor_id=current_user.id,
+        org_id=current_user.org_id,
+        new_values={
+            "rule_id": str(rule.id),
+            "delegate_id": str(delegate.id),
+            "reason": rule.reason,
+            "valid_from": rule.valid_from.isoformat(),
+            "valid_until": rule.valid_until.isoformat(),
+        },
+    )
+
+    return success_response(
+        DelegationRuleResponse(
+            id=rule.id,
+            org_id=rule.org_id,
+            delegator_id=rule.delegator_id,
+            delegate_id=rule.delegate_id,
+            delegate_name=f"{delegate.first_name} {delegate.last_name}".strip() or delegate.email,
+            delegate_email=delegate.email,
+            reason=rule.reason,
+            valid_from=rule.valid_from,
+            valid_until=rule.valid_until,
+            entity_types=rule.entity_types or [],
+            is_active=rule.is_active,
+            created_at=rule.created_at or datetime.now(timezone.utc),
+        )
+    )
+
+
+@router.delete("/me/delegations/{rule_id}")
+async def delete_my_delegation(
+    rule_id: UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """DELETE /api/v1/users/me/delegations/{rule_id} — revoke an active delegation rule."""
+    rule = await delegation_repository.get_by_id_and_delegator(
+        db, rule_id, current_user.id, current_user.org_id
+    )
+    if not rule:
+        raise AppException("Delegation rule not found", "NOT_FOUND")
+
+    rule.is_active = False
+    rule.deleted_at = datetime.now(timezone.utc)
+    await db.commit()
+
+    await audit_service.log(
+        db,
+        entity_type="USER",
+        entity_id=current_user.id,
+        action="DELEGATION_REVOKED",
+        actor_id=current_user.id,
+        org_id=current_user.org_id,
+        new_values={"rule_id": str(rule.id)},
+    )
+    return success_response({"message": "Delegation revoked successfully"})
 
 
 @router.get("/")

@@ -233,3 +233,59 @@ class TestUserRouter:
 
             res_deact = client.post(f"/api/v1/users/{mock_user.id}/deactivate")
             assert res_deact.status_code == 200
+
+    def test_delegations_flow(self, client, mock_user):
+        from datetime import datetime, timezone, timedelta
+        from app.modules.user.models import DelegationRule
+
+        delegate = MagicMock(spec=User)
+        delegate.id = uuid4()
+        delegate.first_name = "Jane"
+        delegate.last_name = "Delegate"
+        delegate.email = "jane@example.com"
+        delegate.status = UserStatusEnum.ACTIVE
+
+        rule = DelegationRule(
+            id=uuid4(),
+            org_id=mock_user.org_id,
+            delegator_id=mock_user.id,
+            delegate_id=delegate.id,
+            reason="Vacation leave",
+            valid_from=datetime.now(timezone.utc),
+            valid_until=datetime.now(timezone.utc) + timedelta(days=7),
+            entity_types=["PR", "PO"],
+            is_active=True,
+            created_by=mock_user.id,
+        )
+
+        with patch("app.modules.user.router.delegation_repository.list_by_delegator", new_callable=AsyncMock, return_value=[(rule, delegate)]):
+            res = client.get("/api/v1/users/me/delegations")
+            assert res.status_code == 200
+            data = res.json()["data"]
+            assert len(data) == 1
+            assert data[0]["reason"] == "Vacation leave"
+            assert data[0]["delegate_email"] == "jane@example.com"
+
+        with patch("app.modules.user.router.user_repository.get_by_id", new_callable=AsyncMock, return_value=delegate), \
+             patch("app.modules.user.router.audit_service.log", new_callable=AsyncMock):
+            res_create = client.post(
+                "/api/v1/users/me/delegations",
+                json={
+                    "delegate_id": str(delegate.id),
+                    "reason": "Business trip",
+                    "valid_from": datetime.now(timezone.utc).isoformat(),
+                    "valid_until": (datetime.now(timezone.utc) + timedelta(days=5)).isoformat(),
+                    "entity_types": ["PR", "PO", "INVOICE"],
+                },
+            )
+            assert res_create.status_code == 200
+            created_data = res_create.json()["data"]
+            assert created_data["reason"] == "Business trip"
+            assert created_data["delegate_name"] == "Jane Delegate"
+
+        with patch("app.modules.user.router.delegation_repository.get_by_id_and_delegator", new_callable=AsyncMock, return_value=rule), \
+             patch("app.modules.user.router.audit_service.log", new_callable=AsyncMock):
+            res_del = client.delete(f"/api/v1/users/me/delegations/{rule.id}")
+            assert res_del.status_code == 200
+            assert rule.is_active is False
+

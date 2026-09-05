@@ -53,6 +53,8 @@ export interface RequisitionDetail extends Requisition {
   split_from?: string | null;
   approved_at?: string | null;
   aging_alert_level: number;
+  po_id?: string | null;
+  po_number?: string | null;
   lines: RequisitionLineItem[];
 }
 
@@ -305,13 +307,17 @@ export function useConvertToRFQ() {
 export function useConvertToPO() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (id: string) => {
-      const response = await apiClient.post(`/requisitions/${id}/convert-to-po`);
+    mutationFn: async (args: string | { id: string; vendor_id?: string }) => {
+      const id = typeof args === "string" ? args : args.id;
+      const payload = typeof args === "object" && args.vendor_id ? { vendor_id: args.vendor_id } : undefined;
+      const response = await apiClient.post(`/requisitions/${id}/convert-to-po`, payload);
       return response.data.data as RequisitionDetail;
     },
-    onSuccess: (_, id) => {
+    onSuccess: (_, args) => {
+      const id = typeof args === "string" ? args : args.id;
       queryClient.invalidateQueries({ queryKey: ["requisitions"] });
       queryClient.invalidateQueries({ queryKey: ["requisitions", id] });
+      queryClient.invalidateQueries({ queryKey: ["purchase-orders"] });
     },
   });
 }

@@ -2,7 +2,7 @@ from __future__ import annotations
 import math
 from typing import Optional, List
 from uuid import UUID
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, Query, status, Body
 from sqlalchemy import select, and_, desc
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -16,6 +16,7 @@ from app.modules.audit.models import AuditLog
 from app.modules.requisition.models import Requisition
 from app.modules.requisition.schemas import (
     PRApprovalAction,
+    PRConvertToPORequest,
     PRCreateRequest,
     PRDetailResponse,
     PRListResponse,
@@ -331,6 +332,7 @@ async def convert_to_rfq(
 @router.post("/{id}/convert-to-po", response_model=APIResponse[PRDetailResponse])
 async def convert_to_po(
     id: UUID,
+    payload: Optional[PRConvertToPORequest] = Body(None),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -339,6 +341,7 @@ async def convert_to_po(
         pr_id=id,
         actor_id=current_user.id,
         org_id=current_user.org_id,
+        vendor_id=payload.vendor_id if payload else None,
     )
     await db.commit()
     return success_response(PRDetailResponse.model_validate(pr))

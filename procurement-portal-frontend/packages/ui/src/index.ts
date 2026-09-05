@@ -179,5 +179,10 @@ export type { I18nProviderProps } from "./i18n";
 export { NotificationBell } from "./components/NotificationBell";
 export { NotificationCenter } from "./components/NotificationCenter";
 
-
-
+// Enterprise Nuances & Real-World Modules
+export { ItemCatalogModal } from "./ItemCatalogModal";
+export type { ItemCatalogModalProps, SelectedCatalogItem } from "./ItemCatalogModal";
+export { PunchOutModal } from "./PunchOutModal";
+export type { PunchOutModalProps } from "./PunchOutModal";
+export { SplitScreenViewer } from "./SplitScreenViewer";
+export type { SplitScreenViewerProps, DocumentItem } from "./SplitScreenViewer";

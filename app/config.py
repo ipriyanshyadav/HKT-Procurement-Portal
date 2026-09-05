@@ -98,6 +98,15 @@ class Settings(BaseSettings):
     MSG91_API_URL: str = "https://control.msg91.com/api/v5/flow"
     TWILIO_ACCOUNT_SID: str = ""
     TWILIO_AUTH_TOKEN: str = ""
+    WHATSAPP_ENABLED: bool = False
+    WHATSAPP_PROVIDER: Literal["meta", "twilio", "mock"] = "mock"
+    WHATSAPP_PHONE_NUMBER_ID: str = ""
+    WHATSAPP_ACCESS_TOKEN: str = ""
+    WHATSAPP_API_URL: str = "https://graph.facebook.com/v19.0"
+    WHATSAPP_FROM_PHONE: str = ""
+    TURNSTILE_ENABLED: bool = False
+    TURNSTILE_SECRET_KEY: str = ""
+    TURNSTILE_VERIFY_URL: str = "https://challenges.cloudflare.com/turnstile/v0/siteverify"
     DIGIO_CLIENT_ID: str = ""
     DIGIO_CLIENT_SECRET: str = ""
     DOCUSIGN_ACCOUNT_ID: str = ""

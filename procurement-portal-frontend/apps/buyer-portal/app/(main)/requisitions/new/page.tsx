@@ -10,12 +10,15 @@ import {
   useCostCenters,
   useUoms,
   RequisitionLineItem,
+  PunchOutCartItem,
 } from "@procurement/hooks";
 import {
   CategoryTreeSelect,
   PRLineItemTable,
   BudgetIndicator,
   PermissionGuard,
+  ItemCatalogModal,
+  PunchOutModal,
 } from "@procurement/ui";
 
 export default function NewRequisitionPage() {
@@ -54,6 +57,63 @@ export default function NewRequisitionPage() {
   ]);
 
   const [error, setError] = useState<string | null>(null);
+  const [catalogModalOpen, setCatalogModalOpen] = useState(false);
+  const [punchoutModalOpen, setPunchoutModalOpen] = useState(false);
+
+  const handleCatalogItemsSelected = (
+    selectedItems: Array<{
+      code: string;
+      name: string;
+      description: string;
+      category_id: string;
+      uom_id: string;
+      price: number;
+      currency: string;
+      quantity: number;
+    }>
+  ) => {
+    setLines((prev) => {
+      const filtered =
+        prev.length === 1 && !prev[0].item_description && !prev[0].item_code
+          ? []
+          : prev;
+
+      const newLines: RequisitionLineItem[] = selectedItems.map((item, idx) => ({
+        line_number: filtered.length + idx + 1,
+        item_code: item.code,
+        item_description: item.name,
+        category_id: item.category_id || categoryId || "",
+        uom_id: item.uom_id || uoms[0]?.id || "",
+        quantity: item.quantity,
+        estimated_unit_price: item.price,
+        estimated_total: item.price * item.quantity,
+      }));
+
+      return [...filtered, ...newLines];
+    });
+  };
+
+  const handlePunchOutCartTransferred = (cartItems: PunchOutCartItem[]) => {
+    setLines((prev) => {
+      const filtered =
+        prev.length === 1 && !prev[0].item_description && !prev[0].item_code
+          ? []
+          : prev;
+
+      const newLines: RequisitionLineItem[] = cartItems.map((item, idx) => ({
+        line_number: filtered.length + idx + 1,
+        item_code: item.item_code,
+        item_description: item.item_description,
+        category_id: categoryId || "",
+        uom_id: uoms[0]?.id || "",
+        quantity: item.quantity,
+        estimated_unit_price: item.unit_price,
+        estimated_total: item.unit_price * item.quantity,
+      }));
+
+      return [...filtered, ...newLines];
+    });
+  };
 
   // Auto-select first Business Unit if not set
   React.useEffect(() => {
@@ -357,17 +417,33 @@ export default function NewRequisitionPage() {
 
           {/* Line Items Section */}
           <div className="space-y-3">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-2">
               <h2 className="text-base font-semibold text-gray-900 dark:text-white">Line Items ({lines.length})</h2>
-              <PermissionGuard permission="pr.create">
+              <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  onClick={handleAddLine}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 text-xs font-semibold rounded-lg transition-colors"
+                  onClick={() => setCatalogModalOpen(true)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/40 dark:hover:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 text-xs font-semibold rounded-lg transition-colors shadow-xs"
                 >
-                  <span>+ Add Item</span>
+                  <span>🔍 Browse Item Catalog</span>
                 </button>
-              </PermissionGuard>
+                <button
+                  type="button"
+                  onClick={() => setPunchoutModalOpen(true)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/40 dark:hover:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800 text-xs font-semibold rounded-lg transition-colors shadow-xs"
+                >
+                  <span>🌐 PunchOut Store</span>
+                </button>
+                <PermissionGuard permission="pr.create">
+                  <button
+                    type="button"
+                    onClick={handleAddLine}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 text-xs font-semibold rounded-lg transition-colors"
+                  >
+                    <span>+ Add Item</span>
+                  </button>
+                </PermissionGuard>
+              </div>
             </div>
 
             <PRLineItemTable
@@ -422,6 +498,22 @@ export default function NewRequisitionPage() {
           </div>
         </div>
       </div>
+
+      {/* Item Catalog Modal */}
+      <ItemCatalogModal
+        isOpen={catalogModalOpen}
+        onClose={() => setCatalogModalOpen(false)}
+        onSelectItems={handleCatalogItemsSelected}
+        preferredCurrency={currency}
+      />
+
+      {/* PunchOut Simulator Modal */}
+      <PunchOutModal
+        isOpen={punchoutModalOpen}
+        onClose={() => setPunchoutModalOpen(false)}
+        onTransferCart={handlePunchOutCartTransferred}
+        preferredCurrency={currency}
+      />
     </div>
   );
 }

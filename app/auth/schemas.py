@@ -8,6 +8,12 @@ class LoginRequest(BaseModel):
     email: EmailStr
     password: str
     org_id: Optional[UUID] = None
+    turnstile_token: Optional[str] = None
+
+
+class TurnstileVerifyRequest(BaseModel):
+    token: str
+    remote_ip: Optional[str] = None
 
 
 class LoginResponse(BaseModel):
