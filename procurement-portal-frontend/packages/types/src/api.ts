@@ -4119,6 +4119,210 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/analytics/dashboard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Dashboard */
+        get: operations["get_dashboard_api_v1_analytics_dashboard_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analytics/spend": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Spend */
+        get: operations["get_spend_api_v1_analytics_spend_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analytics/savings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Savings */
+        get: operations["get_savings_api_v1_analytics_savings_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analytics/cycle-times": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Cycle Times */
+        get: operations["get_cycle_times_api_v1_analytics_cycle_times_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analytics/vendor-performance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get All Vendor Performance */
+        get: operations["get_all_vendor_performance_api_v1_analytics_vendor_performance_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analytics/vendor-performance/{vendor_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Single Vendor Performance */
+        get: operations["get_single_vendor_performance_api_v1_analytics_vendor_performance__vendor_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analytics/sla-compliance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Sla Compliance */
+        get: operations["get_sla_compliance_api_v1_analytics_sla_compliance_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analytics/compliance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Compliance */
+        get: operations["get_compliance_api_v1_analytics_compliance_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analytics/unmapped-prs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Unmapped Prs */
+        get: operations["get_unmapped_prs_api_v1_analytics_unmapped_prs_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analytics/invoices": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Invoices */
+        get: operations["get_invoices_api_v1_analytics_invoices_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analytics/export/csv": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Export Csv */
+        post: operations["export_csv_api_v1_analytics_export_csv_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analytics/export/excel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Export Excel */
+        post: operations["export_excel_api_v1_analytics_export_excel_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/health": {
         parameters: {
             query?: never;
@@ -4528,7 +4732,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:51:11.702918
+             * @default 2026-09-05T13:35:34.531866
              */
             timestamp: string;
         };
@@ -4540,7 +4744,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:51:11.702918
+             * @default 2026-09-05T13:35:34.531866
              */
             timestamp: string;
         };
@@ -4552,7 +4756,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:51:11.702918
+             * @default 2026-09-05T13:35:34.531866
              */
             timestamp: string;
         };
@@ -4564,7 +4768,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:51:11.702918
+             * @default 2026-09-05T13:35:34.531866
              */
             timestamp: string;
         };
@@ -4576,7 +4780,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:51:11.702918
+             * @default 2026-09-05T13:35:34.531866
              */
             timestamp: string;
         };
@@ -4588,7 +4792,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:51:11.702918
+             * @default 2026-09-05T13:35:34.531866
              */
             timestamp: string;
         };
@@ -4600,7 +4804,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:51:11.702918
+             * @default 2026-09-05T13:35:34.531866
              */
             timestamp: string;
         };
@@ -4612,7 +4816,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:51:11.702918
+             * @default 2026-09-05T13:35:34.531866
              */
             timestamp: string;
         };
@@ -4624,7 +4828,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:51:11.702918
+             * @default 2026-09-05T13:35:34.531866
              */
             timestamp: string;
         };
@@ -4636,7 +4840,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:51:11.702918
+             * @default 2026-09-05T13:35:34.531866
              */
             timestamp: string;
         };
@@ -4648,7 +4852,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:51:11.702918
+             * @default 2026-09-05T13:35:34.531866
              */
             timestamp: string;
         };
@@ -4660,7 +4864,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:51:11.702918
+             * @default 2026-09-05T13:35:34.531866
              */
             timestamp: string;
         };
@@ -4672,7 +4876,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:51:11.702918
+             * @default 2026-09-05T13:35:34.531866
              */
             timestamp: string;
         };
@@ -4684,7 +4888,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:51:11.702918
+             * @default 2026-09-05T13:35:34.531866
              */
             timestamp: string;
         };
@@ -4697,7 +4901,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:51:11.702918
+             * @default 2026-09-05T13:35:34.531866
              */
             timestamp: string;
         };
@@ -4710,7 +4914,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:51:11.702918
+             * @default 2026-09-05T13:35:34.531866
              */
             timestamp: string;
         };
@@ -4723,7 +4927,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:51:11.702918
+             * @default 2026-09-05T13:35:34.531866
              */
             timestamp: string;
         };
@@ -4736,7 +4940,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:51:11.702918
+             * @default 2026-09-05T13:35:34.531866
              */
             timestamp: string;
         };
@@ -4749,7 +4953,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:51:11.702918
+             * @default 2026-09-05T13:35:34.531866
              */
             timestamp: string;
         };
@@ -4762,7 +4966,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:51:11.702918
+             * @default 2026-09-05T13:35:34.531866
              */
             timestamp: string;
         };
@@ -4775,7 +4979,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:51:11.702918
+             * @default 2026-09-05T13:35:34.531866
              */
             timestamp: string;
         };
@@ -4788,7 +4992,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:51:11.702918
+             * @default 2026-09-05T13:35:34.531866
              */
             timestamp: string;
         };
@@ -4801,7 +5005,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:51:11.702918
+             * @default 2026-09-05T13:35:34.531866
              */
             timestamp: string;
         };
@@ -4814,7 +5018,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:51:11.702918
+             * @default 2026-09-05T13:35:34.531866
              */
             timestamp: string;
         };
@@ -4827,7 +5031,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:51:11.702918
+             * @default 2026-09-05T13:35:34.531866
              */
             timestamp: string;
         };
@@ -4840,7 +5044,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:51:11.702918
+             * @default 2026-09-05T13:35:34.531866
              */
             timestamp: string;
         };
@@ -4853,7 +5057,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:51:11.702918
+             * @default 2026-09-05T13:35:34.531866
              */
             timestamp: string;
         };
@@ -4866,7 +5070,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:51:11.702918
+             * @default 2026-09-05T13:35:34.531866
              */
             timestamp: string;
         };
@@ -4879,7 +5083,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:51:11.702918
+             * @default 2026-09-05T13:35:34.531866
              */
             timestamp: string;
         };
@@ -4892,7 +5096,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:51:11.702918
+             * @default 2026-09-05T13:35:34.531866
              */
             timestamp: string;
         };
@@ -4905,7 +5109,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:51:11.702918
+             * @default 2026-09-05T13:35:34.531866
              */
             timestamp: string;
         };
@@ -4918,7 +5122,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:51:11.702918
+             * @default 2026-09-05T13:35:34.531866
              */
             timestamp: string;
         };
@@ -4933,7 +5137,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:51:11.702918
+             * @default 2026-09-05T13:35:34.531866
              */
             timestamp: string;
         };
@@ -4945,7 +5149,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:51:11.702918
+             * @default 2026-09-05T13:35:34.531866
              */
             timestamp: string;
         };
@@ -4957,7 +5161,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:51:11.702918
+             * @default 2026-09-05T13:35:34.531866
              */
             timestamp: string;
         };
@@ -4969,7 +5173,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:51:11.702918
+             * @default 2026-09-05T13:35:34.531866
              */
             timestamp: string;
         };
@@ -4981,7 +5185,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:51:11.702918
+             * @default 2026-09-05T13:35:34.531866
              */
             timestamp: string;
         };
@@ -4993,7 +5197,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:51:11.702918
+             * @default 2026-09-05T13:35:34.531866
              */
             timestamp: string;
         };
@@ -5005,7 +5209,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:51:11.702918
+             * @default 2026-09-05T13:35:34.531866
              */
             timestamp: string;
         };
@@ -5017,7 +5221,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:51:11.702918
+             * @default 2026-09-05T13:35:34.531866
              */
             timestamp: string;
         };
@@ -5029,7 +5233,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:51:11.702918
+             * @default 2026-09-05T13:35:34.531866
              */
             timestamp: string;
         };
@@ -5041,7 +5245,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:51:11.702918
+             * @default 2026-09-05T13:35:34.531866
              */
             timestamp: string;
         };
@@ -5053,7 +5257,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:51:11.702918
+             * @default 2026-09-05T13:35:34.531866
              */
             timestamp: string;
         };
@@ -5065,7 +5269,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:51:11.702918
+             * @default 2026-09-05T13:35:34.531866
              */
             timestamp: string;
         };
@@ -5077,7 +5281,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:51:11.702918
+             * @default 2026-09-05T13:35:34.531866
              */
             timestamp: string;
         };
@@ -5089,7 +5293,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:51:11.702918
+             * @default 2026-09-05T13:35:34.531866
              */
             timestamp: string;
         };
@@ -5101,7 +5305,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:51:11.702918
+             * @default 2026-09-05T13:35:34.531866
              */
             timestamp: string;
         };
@@ -5113,7 +5317,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:51:11.702918
+             * @default 2026-09-05T13:35:34.531866
              */
             timestamp: string;
         };
@@ -5128,7 +5332,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:51:11.702918
+             * @default 2026-09-05T13:35:34.531866
              */
             timestamp: string;
         };
@@ -5141,7 +5345,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:51:11.702918
+             * @default 2026-09-05T13:35:34.531866
              */
             timestamp: string;
         };
@@ -6744,6 +6948,28 @@ export interface components {
             metadata?: {
                 [key: string]: unknown;
             } | null;
+        };
+        /** ExportRequest */
+        ExportRequest: {
+            /** Data */
+            data?: {
+                [key: string]: unknown;
+            }[] | null;
+            /** Columns */
+            columns?: string[] | null;
+            /** Filename */
+            filename?: string | null;
+            /**
+             * Sheet Name
+             * @default Analytics
+             */
+            sheet_name: string | null;
+            /** Report Type */
+            report_type?: string | null;
+            /** Fiscal Year */
+            fiscal_year?: string | null;
+            /** Group By */
+            group_by?: string | null;
         };
         /** ExtendDeadlineRequest */
         ExtendDeadlineRequest: {
@@ -17593,6 +17819,382 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+        };
+    };
+    get_dashboard_api_v1_analytics_dashboard_get: {
+        parameters: {
+            query?: {
+                fiscal_year?: string | null;
+                /** @description Optional Business Unit filter */
+                business_unit_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_spend_api_v1_analytics_spend_get: {
+        parameters: {
+            query?: {
+                /** @description category, vendor, bu, or all */
+                group_by?: string | null;
+                fiscal_year?: string | null;
+                /** @description Optional Business Unit filter */
+                business_unit_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_savings_api_v1_analytics_savings_get: {
+        parameters: {
+            query?: {
+                fiscal_year?: string | null;
+                /** @description Optional Business Unit filter */
+                business_unit_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_cycle_times_api_v1_analytics_cycle_times_get: {
+        parameters: {
+            query?: {
+                fiscal_year?: string | null;
+                /** @description Optional Business Unit filter */
+                business_unit_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_all_vendor_performance_api_v1_analytics_vendor_performance_get: {
+        parameters: {
+            query?: {
+                /** @description Optional Business Unit filter */
+                business_unit_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_single_vendor_performance_api_v1_analytics_vendor_performance__vendor_id__get: {
+        parameters: {
+            query?: {
+                /** @description Optional Business Unit filter */
+                business_unit_id?: string | null;
+            };
+            header?: never;
+            path: {
+                vendor_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_sla_compliance_api_v1_analytics_sla_compliance_get: {
+        parameters: {
+            query?: {
+                /** @description Optional Business Unit filter */
+                business_unit_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_compliance_api_v1_analytics_compliance_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    get_unmapped_prs_api_v1_analytics_unmapped_prs_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    get_invoices_api_v1_analytics_invoices_get: {
+        parameters: {
+            query?: {
+                /** @description Optional Business Unit filter */
+                business_unit_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    export_csv_api_v1_analytics_export_csv_post: {
+        parameters: {
+            query?: {
+                /** @description Optional Business Unit filter */
+                business_unit_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExportRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    export_excel_api_v1_analytics_export_excel_post: {
+        parameters: {
+            query?: {
+                /** @description Optional Business Unit filter */
+                business_unit_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExportRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

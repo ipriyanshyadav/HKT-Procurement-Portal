@@ -131,4 +131,5 @@ export * from "./usePayments";
 export * from "./useDocuments";
 export * from "./useIntegrations";
 export * from "./useNotifications";
+export * from "./useAnalytics";
 

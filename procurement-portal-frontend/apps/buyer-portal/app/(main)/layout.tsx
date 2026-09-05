@@ -4,7 +4,7 @@ import React, { ReactNode } from "react";
 import { useAuthInit, useCurrentUser, useLogout } from "@procurement/hooks";
 import { useAuthStore } from "@procurement/stores";
 import { AppShell, NotificationBell } from "@procurement/ui";
-import { ShoppingCart, CheckSquare, FileQuestion, Users, FileText, FileCheck, Package, Receipt, CreditCard, Truck, AlertCircle } from "lucide-react";
+import { ShoppingCart, CheckSquare, FileQuestion, Users, FileText, FileCheck, Package, Receipt, CreditCard, Truck, AlertCircle, BarChart2, PieChart, Award } from "lucide-react";
 
 export default function BuyerMainLayout({ children }: { children: ReactNode }) {
   const { isInitializing } = useAuthInit();
@@ -90,6 +90,24 @@ export default function BuyerMainLayout({ children }: { children: ReactNode }) {
       href: "/vendors",
       icon: <Users className="w-4 h-4" />,
       section: "Sourcing",
+    },
+    {
+      label: "KPI Dashboard",
+      href: "/analytics",
+      icon: <BarChart2 className="w-4 h-4" />,
+      section: "Analytics",
+    },
+    {
+      label: "Spend Breakdown",
+      href: "/analytics/spend",
+      icon: <PieChart className="w-4 h-4" />,
+      section: "Analytics",
+    },
+    {
+      label: "Vendor Scorecards",
+      href: "/analytics/vendors",
+      icon: <Award className="w-4 h-4" />,
+      section: "Analytics",
     },
   ];
 

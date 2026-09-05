@@ -61,5 +61,24 @@ class CostCenterRepository(BaseRepository[CostCenter]):
         return list(result.scalars().all())
 
 
+from app.modules.organization.models import BusinessUnit, CostCenter, Organization
+
+
+class OrganizationRepository(BaseRepository[Organization]):
+    def __init__(self) -> None:
+        super().__init__(Organization)
+
+    async def get_all_active(self, db: AsyncSession) -> List[Organization]:
+        stmt = select(Organization).where(Organization.deleted_at.is_(None))
+        result = await db.execute(stmt)
+        return list(result.scalars().all())
+
+    async def get(self, db: AsyncSession, org_id: UUID) -> Optional[Organization]:
+        stmt = select(Organization).where(Organization.id == org_id, Organization.deleted_at.is_(None))
+        result = await db.execute(stmt)
+        return result.scalar_one_or_none()
+
+
 business_unit_repository = BusinessUnitRepository()
 cost_center_repository = CostCenterRepository()
+organization_repository = OrganizationRepository()

@@ -16,6 +16,7 @@ class Settings(BaseSettings):
 
     # Database
     DATABASE_URL: str
+    ANALYTICS_DATABASE_URL: str = ""
     DATABASE_POOL_SIZE: int = 20
     DATABASE_MAX_OVERFLOW: int = 10
     DATABASE_POOL_RECYCLE: int = 3600

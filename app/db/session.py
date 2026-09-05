@@ -34,10 +34,21 @@ engine = create_async_engine(
     echo=settings.SQL_ECHO
 )
 
+analytics_engine = create_async_engine(
+    settings.ANALYTICS_DATABASE_URL or settings.DATABASE_URL,
+    pool_size=settings.DATABASE_POOL_SIZE,
+    max_overflow=settings.DATABASE_MAX_OVERFLOW,
+    pool_recycle=settings.DATABASE_POOL_RECYCLE,
+    echo=settings.SQL_ECHO
+)
+
 from contextlib import asynccontextmanager
 
 async_session = async_sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
 async_session_factory = async_session
+
+analytics_session = async_sessionmaker(analytics_engine, expire_on_commit=False, class_=AsyncSession)
+analytics_session_factory = analytics_session
 
 @asynccontextmanager
 async def get_db_ctx() -> AsyncGenerator[AsyncSession, None]:

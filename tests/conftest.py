@@ -9,6 +9,7 @@ from uuid import uuid4
 def pytest_configure(config):
     """Set required env vars before any imports."""
     os.environ.setdefault("DATABASE_URL", "postgresql+asyncpg://postgres:postgres@localhost:5432/procurement")
+    os.environ.setdefault("ANALYTICS_DATABASE_URL", "postgresql+asyncpg://postgres:postgres@localhost:5432/procurement")
     os.environ.setdefault("REDIS_URL", "redis://localhost:6379/0")
     os.environ.setdefault("RABBITMQ_URL", "amqp://guest:guest@localhost:5672/test")
     os.environ.setdefault("MINIO_ENDPOINT", "localhost:9000")

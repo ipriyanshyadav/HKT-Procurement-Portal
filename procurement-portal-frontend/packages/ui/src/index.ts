@@ -75,8 +75,11 @@ export type { ToastProps, ToastType } from "./components/Toast";
 export { Table } from "./components/Table";
 export type { TableProps, TableColumn } from "./components/Table";
 
-export { KPIItem, HeroKPIStrip } from "./components/KPICard";
-export type { KPIItemProps, HeroKPIStripProps } from "./components/KPICard";
+export { KPIItem, HeroKPIStrip, KPICard } from "./components/KPICard";
+export type { KPIItemProps, HeroKPIStripProps, KPICardProps } from "./components/KPICard";
+
+export { SpendChart } from "./components/SpendChart";
+export type { SpendChartProps, SpendItem, BreakdownType } from "./components/SpendChart";
 
 export { Tabs } from "./components/Tabs";
 export type { TabsProps, TabOption } from "./components/Tabs";

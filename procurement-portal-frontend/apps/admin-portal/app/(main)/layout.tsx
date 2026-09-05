@@ -19,6 +19,7 @@ import {
   MapPin,
   Calendar,
   Cpu,
+  BarChart3,
 } from "lucide-react";
 
 export default function AdminMainLayout({ children }: { children: ReactNode }) {
@@ -44,6 +45,12 @@ export default function AdminMainLayout({ children }: { children: ReactNode }) {
       label: "Dashboard",
       href: "/dashboard",
       icon: <LayoutDashboard className="w-4 h-4" />,
+      section: "Overview",
+    },
+    {
+      label: "Org Analytics",
+      href: "/analytics",
+      icon: <BarChart3 className="w-4 h-4" />,
       section: "Overview",
     },
     {

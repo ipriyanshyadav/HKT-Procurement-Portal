@@ -17,6 +17,7 @@ class PurchaseOrder(BaseModel):
     po_number: Mapped[str] = mapped_column(String(30), nullable=False)
     title: Mapped[str] = mapped_column(String(300), nullable=False)
     vendor_id: Mapped[UUID] = mapped_column(ForeignKey("vendors.id"), nullable=False)
+    source_pr_id: Mapped[Optional[UUID]] = mapped_column(ForeignKey("requisitions.id"), nullable=True)
     rfq_id: Mapped[Optional[UUID]] = mapped_column(ForeignKey("rfqs.id"), nullable=True)
     arn_id: Mapped[Optional[UUID]] = mapped_column(ForeignKey("award_recommendations.id"), nullable=True)
     contract_id: Mapped[Optional[UUID]] = mapped_column(ForeignKey("contracts.id"), nullable=True)

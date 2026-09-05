@@ -80,6 +80,10 @@ class RedisKeys:
         lot_part = str(lot_id) if lot_id else "all"
         return f"auction:{auction_id}:best:{lot_part}"
 
+    @staticmethod
+    def analytics_cache(prefix: str, org_id: str | UUID, fiscal_year: str, bu_scope: str = "") -> str:
+        return f"analytics:{prefix}:{org_id}:{fiscal_year}:{bu_scope}"
+
 def get_redis_client(db_index: int = 0) -> redis.Redis:
     redis_url = settings.REDIS_URL
     if "://" not in redis_url:

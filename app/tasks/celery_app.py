@@ -37,6 +37,8 @@ celery_app = Celery(
         'app.events.outbox_worker',
         'app.tasks.notification_digest',
         'app.tasks.integration_jobs',
+        'app.tasks.analytics_refresh',
+        'app.tasks.scheduled_reports',
     ],
 )
 celery_app.conf.broker_url = settings.RABBITMQ_URL
@@ -121,6 +123,14 @@ celery_app.conf.beat_schedule = {
     'process-due-integration-jobs': {
         'task': 'app.tasks.integration.process_due_jobs',
         'schedule': 60.0,
+    },
+    'refresh-analytics-cache': {
+        'task': 'app.tasks.analytics.refresh_analytics_cache',
+        'schedule': 900.0,
+    },
+    'generate-daily-analytics-report': {
+        'task': 'app.tasks.analytics.generate_daily_report',
+        'schedule': 86400.0,
     },
 }
 celery_app.conf.timezone = 'UTC'

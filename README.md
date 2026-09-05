@@ -1,24 +1,28 @@
 # Procurement Portal — Enterprise S2C & P2P Platform
 
 ## Current Session State
-**Status:** SPEC_20 Integration Layer & Hub Implementation Complete
+**Status:** SPEC_25 Analytics & Reporting Implementation Complete
 **Completed:**
-- **ERP Integration Adapters:** `ERPAdapterBase` ABC and `ERPAdapterFactory` supporting `SAPAdapter` (IDoc/RFC transforms), `OracleAdapter` (Fusion REST), and `CustomERPAdapter` (Generic REST).
-- **Domain Entity Adapters:** Modular serializers and idempotency hashing for Vendors (`ERPVendorAdapter`), Purchase Orders (`ERPPOAdapter`), Invoices (`ERPInvoiceAdapter`), Payments (`ERPPaymentAdapter`), and Materials (`ERPMaterialAdapter`).
-- **HRMS Consumer:** Automated termination event handler revoking active user sessions, reassigning open approval tasks, and recording immutable audit entries.
-- **Tax & Government Gateways:** Finalized `GSTAdapter` with Redis caching and fallback; added `GEMAdapter` for async Government e-Marketplace bid, tender, and seller sync.
-- **SSRF Prevention Engine:** `SafeHTTPClient` enforcing per-tenant domain allowlists and blocking cloud metadata (`169.254.169.254`), loopback, and RFC 1918 private subnets.
-- **Webhook Delivery:** `WebhookDeliveryService` with HMAC-SHA256 signature verification in `X-Procurement-Signature`.
-- **Job Processor & Scheduling:** `IntegrationJobProcessor` with 7-step exponential backoff (`[60, 300, 900, 1800, 3600, 14400, 86400]`), DLQ alerts to `procurement.alert`, and Celery task `process_due_jobs` scheduled every 60s.
-- **Admin Portal UI:**
-  - `/integrations` — Job monitor with status badges, retry counts, last error display, and manual retry.
-  - `/integrations/[id]` — Single job inspector with JSON request/response viewers and manual retry.
-  - `/integrations/settings` — ERP provider setup form and SSRF domain allowlist manager.
-- **Verification:** 15/15 unit & integration tests passing (`tests/unit/test_ssrf_prevention.py`, `tests/integration/test_integration_jobs.py`); 7/7 Turbo packages passing typecheck; AST Graphify updated.
-**Migration Head:** 0034_fix_tax_codes_tax_type
-**Test Commands:** `.venv/bin/pytest tests/unit/test_ssrf_prevention.py tests/integration/test_integration_jobs.py -v` & `cd procurement-portal-frontend && pnpm typecheck`
-**Next:** SPEC_18 API Standards & Resilience or SPEC_25 Analytics & Reporting
-**Graphify:** 6221 nodes, 15714 edges, 411 communities
+- **Analytics Database & Infrastructure:** Configured read replica with `ANALYTICS_DATABASE_URL` across config, environment, docker-compose, and db session factory. Migration `0035_analytics_spec25` adds `source_pr_id` on `purchase_orders`.
+- **Backend Analytics Engine:** `AnalyticsService` covering 12 analytical methods (Spend summaries, 8 Procurement KPIs, Vendor scorecards, Savings analysis with cost of capital rate, Cycle times, SLA compliance, Unmapped PR analytics, Invoice processing) with Redis 15-minute caching and BU claims access control.
+- **Export Engine:** `ExportService` supporting streaming CSV and openpyxl Excel workbooks (capped at 100k rows) with dynamic column mapping and styling.
+- **Analytics Router:** 12 REST endpoints scoped by `get_user_bu_scope` dependency (unscoped for `PROCUREMENT_HEAD`, `SUPERADMIN`, `CFO`, `PROCUREMENT_ADMIN`).
+- **Celery Tasks:** `analytics_refresh.py` 15-minute cache warmer and `scheduled_reports.py` daily/weekly/monthly report generator publishing outbox notification events.
+- **Frontend Components & Hooks:**
+  - `@procurement/hooks`: `useAnalyticsDashboard`, `useProcurementKPIs`, `useAllSpend`, `useSpendSummary`, `useSavingsAnalysis`, `useCycleTimeAnalysis`, `useVendorPerformance`, `useSLACompliance`, `useComplianceDashboard`, `useUnmappedPRAnalytics`, `useInvoiceAnalytics`, and `downloadAnalyticsExport`.
+  - `KPICard.tsx`: Metric value, trend direction/color badge, and dynamic SVG sparkline curve.
+  - `SpendChart.tsx`: Recharts responsive bar chart with breakdown switching (Category, BU, Vendor) and drill-down support.
+- **Frontend Portals:**
+  - Buyer Portal `/analytics`: Executive KPI cards (cycle time, savings, compliance, on-time delivery), process health, and CSV/Excel exports.
+  - Buyer Portal `/analytics/spend`: Category/BU/Vendor bar chart, BU pie chart distribution, top 5 suppliers table, and CSV/Excel exports.
+  - Buyer Portal `/analytics/vendors`: Comparative vendor scorecards, rating tiers (Preferred, Acceptable, At Risk), search/filters, and CSV/Excel exports.
+  - Admin Portal `/analytics`: Enterprise org-wide analytics dashboard with Business Unit filter dropdown, spend breakdown, and contract/supplier risk radar.
+  - Portal navigation links updated in Buyer and Admin portal layouts.
+- **Verification:** 8/8 tests pass in `tests/integration/test_analytics.py`; zero regression in `test_purchase_order_grn.py` and `test_invoice_payment.py` (19/19 passing); 7/7 Turbo packages pass `pnpm typecheck`.
+**Migration Head:** 0035_analytics_spec25
+**Test Commands:** `.venv/bin/pytest tests/integration/test_analytics.py -v` & `cd procurement-portal-frontend && pnpm typecheck`
+**Next:** SPEC_18 API Standards & Resilience
+**Graphify:** 6361 nodes, 16073 edges, 409 communities
 
 ---
 
@@ -38,7 +42,7 @@ The Procurement Portal is an enterprise-grade Source-to-Contract (S2C), Procure-
 |---|---|---|---|---|---|
 | 01 | Project Overview & Scaffolding | SPEC_01 | ✅ Complete | 0001_initial_empty | ✅ 50 Passing |
 | 02 | System Architecture & Wiring | SPEC_02 | ✅ Complete | 0001_initial_empty | ✅ 50 Passing |
-| 03 | Database Architecture & Schema | SPEC_03 | ✅ Complete | 0034_fix_tax_codes_tax_type | ✅ 17 Passing (100% cov) |
+| 03 | Database Architecture & Schema | SPEC_03 | ✅ Complete | 0035_analytics_spec25 | ✅ 17 Passing (100% cov) |
 | 04 | Auth & RBAC Security | SPEC_04 | ✅ Complete | 0027_data_seed | ✅ 205 Passing (89% cov) |
 | 05 | Workflow Engine | SPEC_05 | ✅ Complete | 0027_data_seed | ✅ 38 Passing (100% cov) |
 | 06 | Approval Rules Engine | SPEC_06 | ✅ Complete | 0027_data_seed | ✅ 9 Passing (100% cov) |
@@ -50,7 +54,7 @@ The Procurement Portal is an enterprise-grade Source-to-Contract (S2C), Procure-
 | 11B | Live Reverse Auction | SPEC_11B | ✅ Complete | 0028_live_auction | ✅ 32 Passing (100% cov) |
 | 12 | Comparative Statement (CS) | SPEC_12 | ✅ Complete | 0030_evaluation_spec12 | ✅ 7 Passing (100% cov) |
 | 13 | Contract Management | SPEC_13 | ✅ Complete | 0031_contract_spec13 | ✅ 9 Passing (100% cov) |
-| 14 | Purchase Order (PO) | SPEC_14 | ✅ Complete | 0032_purchase_order_grn_spec14 | ✅ 9 Passing (100% cov) |
+| 14 | Purchase Order (PO) | SPEC_14 | ✅ Complete | 0035_analytics_spec25 | ✅ 9 Passing (100% cov) |
 | 15 | Invoice & Payment | SPEC_15 | ✅ Complete | 0033_invoice_payment_spec15 | ✅ 10 Passing (100% cov) |
 | 16 | Notification Service | SPEC_16 | ✅ Complete | 0020_notification | ✅ 12 Passing (100% cov) |
 | 17 | Document Management | SPEC_17 | ✅ Complete | 0027_data_seed | ✅ 39 Passing (100% cov) |
@@ -61,7 +65,7 @@ The Procurement Portal is an enterprise-grade Source-to-Contract (S2C), Procure-
 | 22 | Observability & Telemetry | SPEC_22 | 🔄 Scaffolded | OTel/Jaeger ready | Passing |
 | 23 | Testing Strategy | SPEC_23 | 🔄 Active | Pytest suite active | 50 Passing |
 | 24 | Master Data Management | SPEC_24 | ✅ Complete | 0034_fix_tax_codes_tax_type | ✅ 43 Passing (100% cov) |
-| 25 | Analytics & Reporting | SPEC_25 | ⏳ Planned | Pending | Pending |
+| 25 | Analytics & Reporting | SPEC_25 | ✅ Complete | 0035_analytics_spec25 | ✅ 8 Passing (100% cov) |
 
 ---
 
