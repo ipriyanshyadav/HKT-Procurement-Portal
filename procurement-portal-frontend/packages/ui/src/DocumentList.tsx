@@ -24,6 +24,28 @@ import { Badge } from "./components/Badge";
 import { Modal } from "./components/Modal";
 import { DocumentUpload } from "./DocumentUpload";
 
+export interface StandardDocType {
+  code: string;
+  label: string;
+  allowed: string;
+}
+
+export const STANDARD_DOCUMENT_TYPES: StandardDocType[] = [
+  { code: "GSTIN_CERTIFICATE", label: "GSTIN Registration Certificate", allowed: "PDF, JPG, PNG" },
+  { code: "PAN_CARD", label: "Permanent Account Number (PAN) Card", allowed: "PDF, JPG, PNG" },
+  { code: "BANK_DETAILS", label: "Bank Cancelled Cheque / Mandate", allowed: "PDF, JPG, PNG" },
+  { code: "INCORPORATION_CERTIFICATE", label: "Certificate of Incorporation", allowed: "PDF" },
+  { code: "NDA", label: "Non-Disclosure Agreement (NDA)", allowed: "PDF, DOCX" },
+  { code: "CODE_OF_CONDUCT", label: "Supplier Code of Conduct", allowed: "PDF" },
+  { code: "MSME_CERTIFICATE", label: "MSME / Udyam Certificate", allowed: "PDF" },
+  { code: "QUALITY_CERTIFICATE", label: "ISO / Quality Certificate", allowed: "PDF, JPG, PNG" },
+  { code: "CONTRACT_DOCUMENT", label: "Contract / Agreement Document", allowed: "PDF" },
+  { code: "PURCHASE_ORDER", label: "Purchase Order Document", allowed: "PDF" },
+  { code: "INVOICE", label: "Tax Invoice / Delivery Challan", allowed: "PDF, JPG, PNG" },
+  { code: "TENDER_DOCUMENT", label: "Tender / RFQ Document", allowed: "PDF, DOCX" },
+  { code: "BID_DOCUMENT", label: "Bid Response Document", allowed: "PDF, ZIP" },
+];
+
 export interface DocumentListProps {
   entityType: string;
   entityId: string;
@@ -44,6 +66,7 @@ export function DocumentList({
   const { data: documents, isLoading, refetch } = useEntityDocuments(entityType, entityId);
   const deleteMutation = useDeleteDocument();
   const [showUploadModal, setShowUploadModal] = useState(false);
+  const [selectedDocType, setSelectedDocType] = useState(defaultDocumentType);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
   const docList = documents || [];
@@ -288,10 +311,26 @@ export function DocumentList({
           title={`Upload to ${title}`}
         >
           <div className="p-2 space-y-4">
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
+                Document Type *
+              </label>
+              <select
+                value={selectedDocType}
+                onChange={(e) => setSelectedDocType(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              >
+                {STANDARD_DOCUMENT_TYPES.map((dt) => (
+                  <option key={dt.code} value={dt.code}>
+                    {dt.label} ({dt.allowed})
+                  </option>
+                ))}
+              </select>
+            </div>
             <DocumentUpload
               entityType={entityType}
               entityId={entityId}
-              documentType={defaultDocumentType}
+              documentType={selectedDocType}
               onUploadSuccess={() => {
                 setShowUploadModal(false);
                 refetch();
