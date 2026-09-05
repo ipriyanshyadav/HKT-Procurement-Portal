@@ -13,6 +13,8 @@ echo "Seeding demo users..."
 python scripts/seed_demo_user.py
 echo "Seeding notification templates..."
 python scripts/seed_notification_templates.py
+echo "Seeding demo notifications..."
+python scripts/seed_demo_notifications.py
 echo "Starting API server..."
 exec uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers ${UVICORN_WORKERS:-4}
 
