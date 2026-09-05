@@ -3240,6 +3240,66 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/documents/{id}/versions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Document Versions
+         * @description Retrieve version history for a document.
+         */
+        get: operations["get_document_versions_api_v1_documents__id__versions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/documents/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete Document
+         * @description Soft delete a document.
+         */
+        delete: operations["delete_document_api_v1_documents__id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/documents/entity/{entity_type}/{entity_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Entity Documents
+         * @description List active documents associated with a specific entity (e.g. Vendor, PO, Invoice).
+         */
+        get: operations["list_entity_documents_api_v1_documents_entity__entity_type___entity_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/workflows/instances/{instance_id}": {
         parameters: {
             query?: never;
@@ -4044,7 +4104,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T05:08:04.207503
+             * @default 2026-09-05T06:08:53.616611
              */
             timestamp: string;
         };
@@ -4056,7 +4116,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T05:08:04.207503
+             * @default 2026-09-05T06:08:53.616611
              */
             timestamp: string;
         };
@@ -4068,7 +4128,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T05:08:04.207503
+             * @default 2026-09-05T06:08:53.616611
              */
             timestamp: string;
         };
@@ -4080,7 +4140,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T05:08:04.207503
+             * @default 2026-09-05T06:08:53.616611
              */
             timestamp: string;
         };
@@ -4092,7 +4152,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T05:08:04.207503
+             * @default 2026-09-05T06:08:53.616611
              */
             timestamp: string;
         };
@@ -4104,7 +4164,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T05:08:04.207503
+             * @default 2026-09-05T06:08:53.616611
              */
             timestamp: string;
         };
@@ -4116,7 +4176,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T05:08:04.207503
+             * @default 2026-09-05T06:08:53.616611
              */
             timestamp: string;
         };
@@ -4128,7 +4188,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T05:08:04.207503
+             * @default 2026-09-05T06:08:53.616611
              */
             timestamp: string;
         };
@@ -4140,7 +4200,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T05:08:04.207503
+             * @default 2026-09-05T06:08:53.616611
              */
             timestamp: string;
         };
@@ -4152,7 +4212,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T05:08:04.207503
+             * @default 2026-09-05T06:08:53.616611
              */
             timestamp: string;
         };
@@ -4164,7 +4224,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T05:08:04.207503
+             * @default 2026-09-05T06:08:53.616611
              */
             timestamp: string;
         };
@@ -4177,7 +4237,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T05:08:04.207503
+             * @default 2026-09-05T06:08:53.616611
              */
             timestamp: string;
         };
@@ -4190,7 +4250,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T05:08:04.207503
+             * @default 2026-09-05T06:08:53.616611
              */
             timestamp: string;
         };
@@ -4203,7 +4263,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T05:08:04.207503
+             * @default 2026-09-05T06:08:53.616611
              */
             timestamp: string;
         };
@@ -4216,7 +4276,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T05:08:04.207503
+             * @default 2026-09-05T06:08:53.616611
              */
             timestamp: string;
         };
@@ -4229,7 +4289,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T05:08:04.207503
+             * @default 2026-09-05T06:08:53.616611
              */
             timestamp: string;
         };
@@ -4242,7 +4302,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T05:08:04.207503
+             * @default 2026-09-05T06:08:53.616611
              */
             timestamp: string;
         };
@@ -4255,7 +4315,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T05:08:04.207503
+             * @default 2026-09-05T06:08:53.616611
              */
             timestamp: string;
         };
@@ -4268,7 +4328,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T05:08:04.207503
+             * @default 2026-09-05T06:08:53.616611
              */
             timestamp: string;
         };
@@ -4281,7 +4341,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T05:08:04.207503
+             * @default 2026-09-05T06:08:53.616611
              */
             timestamp: string;
         };
@@ -4294,7 +4354,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T05:08:04.207503
+             * @default 2026-09-05T06:08:53.616611
              */
             timestamp: string;
         };
@@ -4307,7 +4367,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T05:08:04.207503
+             * @default 2026-09-05T06:08:53.616611
              */
             timestamp: string;
         };
@@ -4320,7 +4380,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T05:08:04.207503
+             * @default 2026-09-05T06:08:53.616611
              */
             timestamp: string;
         };
@@ -4333,7 +4393,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T05:08:04.207503
+             * @default 2026-09-05T06:08:53.616611
              */
             timestamp: string;
         };
@@ -4346,7 +4406,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T05:08:04.207503
+             * @default 2026-09-05T06:08:53.616611
              */
             timestamp: string;
         };
@@ -4359,7 +4419,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T05:08:04.207503
+             * @default 2026-09-05T06:08:53.616611
              */
             timestamp: string;
         };
@@ -4372,7 +4432,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T05:08:04.207503
+             * @default 2026-09-05T06:08:53.616611
              */
             timestamp: string;
         };
@@ -4387,7 +4447,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T05:08:04.207503
+             * @default 2026-09-05T06:08:53.616611
              */
             timestamp: string;
         };
@@ -4399,7 +4459,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T05:08:04.207503
+             * @default 2026-09-05T06:08:53.616611
              */
             timestamp: string;
         };
@@ -4411,7 +4471,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T05:08:04.207503
+             * @default 2026-09-05T06:08:53.616611
              */
             timestamp: string;
         };
@@ -4423,7 +4483,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T05:08:04.207503
+             * @default 2026-09-05T06:08:53.616611
              */
             timestamp: string;
         };
@@ -4435,7 +4495,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T05:08:04.207503
+             * @default 2026-09-05T06:08:53.616611
              */
             timestamp: string;
         };
@@ -4447,7 +4507,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T05:08:04.207503
+             * @default 2026-09-05T06:08:53.616611
              */
             timestamp: string;
         };
@@ -4459,7 +4519,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T05:08:04.207503
+             * @default 2026-09-05T06:08:53.616611
              */
             timestamp: string;
         };
@@ -4471,7 +4531,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T05:08:04.207503
+             * @default 2026-09-05T06:08:53.616611
              */
             timestamp: string;
         };
@@ -4483,7 +4543,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T05:08:04.207503
+             * @default 2026-09-05T06:08:53.616611
              */
             timestamp: string;
         };
@@ -4495,7 +4555,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T05:08:04.207503
+             * @default 2026-09-05T06:08:53.616611
              */
             timestamp: string;
         };
@@ -4507,7 +4567,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T05:08:04.207503
+             * @default 2026-09-05T06:08:53.616611
              */
             timestamp: string;
         };
@@ -4519,7 +4579,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T05:08:04.207503
+             * @default 2026-09-05T06:08:53.616611
              */
             timestamp: string;
         };
@@ -4531,7 +4591,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T05:08:04.207503
+             * @default 2026-09-05T06:08:53.616611
              */
             timestamp: string;
         };
@@ -4543,7 +4603,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T05:08:04.207503
+             * @default 2026-09-05T06:08:53.616611
              */
             timestamp: string;
         };
@@ -4555,7 +4615,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T05:08:04.207503
+             * @default 2026-09-05T06:08:53.616611
              */
             timestamp: string;
         };
@@ -4570,7 +4630,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T05:08:04.207503
+             * @default 2026-09-05T06:08:53.616611
              */
             timestamp: string;
         };
@@ -4583,7 +4643,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T05:08:04.207503
+             * @default 2026-09-05T06:08:53.616611
              */
             timestamp: string;
         };
@@ -5118,7 +5178,12 @@ export interface components {
              * Format: uuid
              */
             entity_id: string;
-            category: components["schemas"]["DocumentCategory"];
+            /** Document Type */
+            document_type?: string | null;
+            /** Category */
+            category?: string | null;
+            /** Compliance Expiry */
+            compliance_expiry?: string | null;
         };
         /** CSGenerateRequest */
         CSGenerateRequest: {
@@ -5967,11 +6032,6 @@ export interface components {
             /** Messages */
             messages?: components["schemas"]["DisputeMessageResponse"][];
         };
-        /**
-         * DocumentCategory
-         * @enum {string}
-         */
-        DocumentCategory: "TENDER" | "BID" | "COMPLIANCE" | "CONTRACT" | "PURCHASE_ORDER" | "GRN_SES" | "INVOICE" | "AUDIT";
         /** DuplicateCheckRequest */
         DuplicateCheckRequest: {
             /** Company Name */
@@ -14849,6 +14909,100 @@ export interface operations {
             header?: never;
             path: {
                 id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_document_versions_api_v1_documents__id__versions_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_document_api_v1_documents__id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_entity_documents_api_v1_documents_entity__entity_type___entity_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                entity_type: string;
+                entity_id: string;
             };
             cookie?: never;
         };

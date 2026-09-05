@@ -1,4 +1,6 @@
 from __future__ import annotations
+from datetime import date
+from typing import Optional, List
 from uuid import UUID
 from fastapi import APIRouter, Depends, File, Form, UploadFile, status
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -7,7 +9,11 @@ from app.auth.dependencies import get_current_user
 from app.config import settings
 from app.db.enums import DocumentCategory
 from app.db.session import get_db
-from app.modules.document.schemas import DocumentResponse, PresignedUrlResponse
+from app.modules.document.schemas import (
+    DocumentResponse,
+    DocumentVersionResponse,
+    PresignedUrlResponse,
+)
 from app.modules.document.service import document_service
 from app.modules.user.models import User
 
@@ -24,22 +30,26 @@ async def upload_document(
     file: UploadFile = File(...),
     entity_type: str = Form(...),
     entity_id: UUID = Form(...),
-    category: DocumentCategory = Form(...),
+    document_type: Optional[str] = Form(None),
+    category: Optional[str] = Form(None),
+    compliance_expiry: Optional[date] = Form(None),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     """Upload and virus-scan a document attachment, storing in MinIO."""
     file_bytes = await file.read()
-    doc = await document_service.upload_document(
+    resolved_type = document_type or category or "TENDER_DOCUMENT"
+    doc = await document_service.upload(
         db=db,
         file_bytes=file_bytes,
         original_filename=file.filename or "document",
-        content_type=file.content_type or "application/octet-stream",
+        document_type=resolved_type,
         entity_type=entity_type,
         entity_id=entity_id,
-        category=category,
-        org_id=current_user.org_id,
         actor_id=current_user.id,
+        org_id=current_user.org_id,
+        compliance_expiry=compliance_expiry,
+        content_type=file.content_type,
     )
     await db.commit()
     return {"data": DocumentResponse.model_validate(doc).model_dump()}
@@ -56,5 +66,55 @@ async def get_document_presigned_url(
         db=db,
         document_id=id,
         org_id=current_user.org_id,
+        actor_id=current_user.id,
     )
     return {"data": PresignedUrlResponse(url=url, expires_in=settings.PRESIGNED_URL_EXPIRY_SECONDS).model_dump()}
+
+
+@router.get("/{id}/versions", status_code=status.HTTP_200_OK)
+async def get_document_versions(
+    id: UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Retrieve version history for a document."""
+    versions = await document_service.get_version_history(
+        db=db,
+        document_id=id,
+        org_id=current_user.org_id,
+    )
+    return {"data": [DocumentVersionResponse.model_validate(v).model_dump() for v in versions]}
+
+
+@router.delete("/{id}", status_code=status.HTTP_200_OK)
+async def delete_document(
+    id: UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Soft delete a document."""
+    await document_service.soft_delete(
+        db=db,
+        document_id=id,
+        org_id=current_user.org_id,
+        actor_id=current_user.id,
+    )
+    await db.commit()
+    return {"data": {"message": "Document deleted successfully", "id": str(id)}}
+
+
+@router.get("/entity/{entity_type}/{entity_id}", status_code=status.HTTP_200_OK)
+async def list_entity_documents(
+    entity_type: str,
+    entity_id: UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """List active documents associated with a specific entity (e.g. Vendor, PO, Invoice)."""
+    docs = await document_service.list_documents_for_entity(
+        db=db,
+        entity_type=entity_type,
+        entity_id=entity_id,
+        org_id=current_user.org_id,
+    )
+    return {"data": [DocumentResponse.model_validate(doc).model_dump() for doc in docs]}

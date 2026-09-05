@@ -32,6 +32,7 @@ celery_app = Celery(
         'app.tasks.auction',
         'app.tasks.contract_expiry',
         'app.tasks.invoice_aging',
+        'app.tasks.document_scan',
         'app.events.outbox_worker',
     ],
 )

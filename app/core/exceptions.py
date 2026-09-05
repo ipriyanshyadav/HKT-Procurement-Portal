@@ -88,7 +88,7 @@ def register_exception_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(AppException)
     async def app_exception_handler(request: Request, exc: AppException) -> JSONResponse:
-        status_code = 400
+        status_code = exc.status_code or 400
         if isinstance(exc, NotFoundError):
             status_code = 404
         elif isinstance(exc, ConflictError) or isinstance(exc, OptimisticLockError):

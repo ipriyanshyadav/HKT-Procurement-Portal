@@ -1,34 +1,31 @@
 # Procurement Portal — Enterprise S2C & P2P Platform
 
 ## Current Session State
-**Status:** SPEC_15 — Invoice & Payment Modules (100% Complete)
+**Status:** SPEC_17 — Document Management & ClamAV Integration (100% Complete)
 **Completed:**
 - **Backend Implementation:**
-  - `InvoiceService` & `InvoiceRepository`: 3-way match engine (2% hardcoded physical quantity tolerance, configurable price tolerance from settings, 1% tax tolerance), Indian financial year detection (`FY{YYYY}-{YY}`), duplicate invoice check per vendor per financial year, business-day due date calculation with `holiday_master` calendar, invoice approval/rejection/dispute workflow.
-  - `PaymentService` & `PaymentRepository`: TDS deduction computation (2% on subtotal per Indian tax code), scheduled payment creation on approval, UTR recording and payment completion, dispute lifecycle with threaded conversation (`dispute_messages`) and credit note resolution (`invoices.total_amount` reduction).
-  - Celery task `app/tasks/invoice_aging.py`: periodic scan emitting `invoice.aging.warning` alerts at 15, 30, 45, 60 days.
-  - 14 REST endpoints at `/api/v1/invoices/*` and 10 REST endpoints at `/api/v1/payments/*`.
-- **Database Migration:**
-  - `0033_invoice_payment_spec15`: Added `financial_year`, `tds_amount`, `payment_terms_code`, `notes` to `invoices`; `gross_amount`, `tds_amount`, `net_amount`, `payment_due_date` to `payment_records`; `tds_applicable`, `tds_percentage` to `vendors`; and 15 performance indexes across foreign keys and status.
+  - `DocumentScanner`: MIME type validation against 11 allowed formats via libmagic/extensions, `sanitize_filename` (path traversal prevention, length limit 255), ClamAV daemon scan with `scan_with_clamav()`, bucket mapping router.
+  - `DocumentService` & `DocumentRepository`: Upload with size limit validation (`MINIO_MAX_FILE_SIZE_MB`), MinIO storage, SHA-256 checksumming, version history incrementing with `DocumentVersion`, asynchronous Celery scan dispatching, presigned URL retrieval (blocking `INFECTED` with 403 Forbidden and `PENDING` with 202 Accepted), soft deletion with audit logging.
+  - Celery task `app/tasks/document_scan.py`: background virus scan (`scan_document_task`), quarantine relocation (`quarantine/infected/{id}/{filename}`) upon infection detection, deletion from original bucket, and `alert.document.infected` event publishing to the transactional outbox.
+  - REST endpoints at `/api/v1/documents/*`: `/health`, `/upload`, `/{id}/presigned-url`, `/{id}/versions`, `DELETE /{id}`, and `/entity/{entity_type}/{entity_id}`.
 - **Frontend Applications & Wiring:**
-  - Shared `ThreeWayMatchResult` and `PaymentSchedule` components in `@procurement/ui` and `@procurement/components`.
-  - Buyer Portal pages:
-    - `/invoices`: Invoice listing with 3-way match badges, filter tabs, KPI summary cards.
-    - `/invoices/[id]`: Invoice detail workspace with line-by-line 3-way match breakdown, discrepancy alerts, Approve/Dispute/Reject actions.
-  - Supplier Portal pages:
-    - `/invoices`: Invoices assigned to vendor with payment status tracking.
-    - `/invoices/new`: Invoice submission form linked to PO lines with tax calculation and draft validation.
-  - TanStack Query hooks: `useInvoices` and `usePayments` in `@procurement/hooks`.
+  - Shared `DocumentUpload` component in `@procurement/ui` and `@procurement/components` with drag-and-drop, scan status badges (pending spinner, clean checkmark, infected alert), presigned URL download, and collapsible version history accordion.
+  - Shared `DocumentList` component with document category badge, scan status, compliance expiry alert, presigned URL download, soft delete, and inline upload modal.
+  - Specialized wrappers for all modules: `VendorDocuments`, `BidDocuments`, `ContractDocuments`, `PODocuments`, `InvoiceDocuments`.
+  - TanStack Query hooks: `useEntityDocuments`, `useDocumentPresignedUrl`, `useDocumentVersions`, `useUploadDocument`, `useDeleteDocument` in `@procurement/hooks`.
 - **Verification:**
-  - `tests/integration/test_invoice_payment.py` (10/10 passing, 100%).
-  - Full regression suite: 370/370 passing across all modules.
+  - `tests/unit/test_document_scanner.py` (25/25 passing, 100%).
+  - `tests/unit/test_document_service.py` (10/10 passing, 100%).
+  - `tests/unit/test_document_scan_task.py` (2/2 passing, 100%).
+  - `tests/integration/test_document.py` (2/2 passing, 100%).
+  - Full regression suite: 394/394 passing across all modules.
   - Frontend Typecheck: 0 TypeScript errors across all 7 Turbo packages (`pnpm turbo run typecheck`).
-  - Step 2.5 SPEC Audit report committed at `docs/audits/SPEC_15_AUDIT.md`.
+  - Step 2.5 SPEC Audit report committed at `docs/audits/SPEC_17_AUDIT.md`.
   - Knowledge graph updated via `graphify update .`.
 **Migration Head:** 0033_invoice_payment_spec15
-**Test Commands:** `.venv/bin/pytest tests/integration/test_invoice_payment.py -v` & `cd procurement-portal-frontend && pnpm turbo run typecheck`
-**Next:** SPEC_16 Notification Service
-**Graphify:** 5326 nodes, 13348 edges, 368 communities
+**Test Commands:** `.venv/bin/pytest tests/unit/test_document_scanner.py tests/unit/test_document_service.py tests/unit/test_document_scan_task.py tests/integration/test_document.py -v` & `cd procurement-portal-frontend && pnpm turbo run typecheck`
+**Next:** SPEC_16 Notification Service or SPEC_18 API Standards & Resilience
+**Graphify:** 5440 nodes, 13668 edges, 366 communities
 
 ---
 
@@ -63,7 +60,7 @@ The Procurement Portal is an enterprise-grade Source-to-Contract (S2C), Procure-
 | 14 | Purchase Order (PO) | SPEC_14 | ✅ Complete | 0032_purchase_order_grn_spec14 | ✅ 9 Passing (100% cov) |
 | 15 | Invoice & Payment | SPEC_15 | ✅ Complete | 0033_invoice_payment_spec15 | ✅ 10 Passing (100% cov) |
 | 16 | Notification Service | SPEC_16 | ⏳ Planned | Pending | Pending |
-| 17 | Document Management | SPEC_17 | ⏳ Planned | Pending | Pending |
+| 17 | Document Management | SPEC_17 | ✅ Complete | 0027_data_seed | ✅ 39 Passing (100% cov) |
 | 18 | API Standards & Resilience | SPEC_18 | ⏳ Planned | Pending | Pending |
 | 19 | Frontend Applications | SPEC_19 | ✅ Complete | Apple & Glass active | ✅ Turborepo passing |
 | 20 | Integration Hub | SPEC_20 | ⏳ Planned | Pending | Pending |

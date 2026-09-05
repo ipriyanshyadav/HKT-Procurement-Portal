@@ -15,6 +15,48 @@ except (ImportError, OSError):
 from app.config import settings
 from app.core.exceptions import ValidationError
 
+import re
+import subprocess
+import unicodedata
+
+ALLOWED_MIME_TYPES: dict[str, list[str]] = {
+    "GSTIN_CERTIFICATE": ["application/pdf", "image/jpeg", "image/png"],
+    "PAN_CARD": ["application/pdf", "image/jpeg", "image/png"],
+    "BANK_DETAILS": ["application/pdf", "image/jpeg", "image/png"],
+    "INCORPORATION_CERTIFICATE": ["application/pdf"],
+    "TENDER_DOCUMENT": [
+        "application/pdf",
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ],
+    "BID_DOCUMENT": ["application/pdf", "application/zip"],
+    "CONTRACT_DOCUMENT": ["application/pdf"],
+    "PURCHASE_ORDER": ["application/pdf"],
+    "INVOICE": ["application/pdf", "image/jpeg", "image/png"],
+    "GRN_DOCUMENT": ["application/pdf"],
+    "QUALITY_CERTIFICATE": ["application/pdf", "image/jpeg", "image/png"],
+}
+
+BUCKET_MAPPING: dict[str, str] = {
+    "GSTIN_CERTIFICATE": "compliance-documents",
+    "PAN_CARD": "compliance-documents",
+    "BANK_DETAILS": "compliance-documents",
+    "INCORPORATION_CERTIFICATE": "compliance-documents",
+    "TENDER_DOCUMENT": "tender-documents",
+    "BID_DOCUMENT": "bid-documents",
+    "CONTRACT_DOCUMENT": "contract-documents",
+    "PURCHASE_ORDER": "po-documents",
+    "INVOICE": "invoice-documents",
+    "GRN_DOCUMENT": "grn-ses-documents",
+    "QUALITY_CERTIFICATE": "compliance-documents",
+    "COMPLIANCE": "compliance-documents",
+    "TENDER": "tender-documents",
+    "BID": "bid-documents",
+    "CONTRACT": "contract-documents",
+    "GRN_SES": "grn-ses-documents",
+    "AUDIT": "audit-documents",
+}
+
 DISALLOWED_MIME_TYPES = {
     "application/x-executable",
     "application/x-dosexec",
@@ -39,6 +81,116 @@ ALLOWED_DOCUMENT_MIME_TYPES = {
     "text/csv",
     "application/zip",
 }
+
+
+def validate_mime_type(
+    file_bytes: bytes,
+    document_type: str,
+    declared_extension: str = "",
+) -> str:
+    """
+    Validates detected mime type against ALLOWED_MIME_TYPES for a given document_type.
+    Raises ValidationError if mime type is disallowed or not allowed for the document_type.
+    """
+    detected_mime = None
+    try:
+        if magic is not None and hasattr(magic, "from_buffer"):
+            detected_mime = magic.from_buffer(file_bytes[:2048], mime=True)
+    except Exception as exc:
+        logger.warning(f"magic.from_buffer inspection failed: {exc}")
+        detected_mime = None
+
+    if not detected_mime or detected_mime == "application/octet-stream":
+        ext = declared_extension.lower().lstrip(".")
+        ext_map = {
+            "pdf": "application/pdf",
+            "jpg": "image/jpeg",
+            "jpeg": "image/jpeg",
+            "png": "image/png",
+            "doc": "application/msword",
+            "docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            "zip": "application/zip",
+        }
+        if ext in ext_map:
+            detected_mime = ext_map[ext]
+        else:
+            detected_mime = detected_mime or "application/octet-stream"
+
+    if detected_mime in DISALLOWED_MIME_TYPES:
+        raise ValidationError(
+            "DISALLOWED_FILE_TYPE",
+            f"File type '{detected_mime}' is not permitted for security reasons.",
+        )
+
+    allowed = ALLOWED_MIME_TYPES.get(document_type)
+    if not allowed:
+        if document_type in ("COMPLIANCE", "INVOICE", "QUALITY_CERTIFICATE"):
+            allowed = ["application/pdf", "image/jpeg", "image/png"]
+        elif document_type in ("CONTRACT", "PURCHASE_ORDER", "GRN_DOCUMENT", "GRN_SES", "INCORPORATION_CERTIFICATE"):
+            allowed = ["application/pdf"]
+        elif document_type in ("BID", "BID_DOCUMENT"):
+            allowed = ["application/pdf", "application/zip"]
+        elif document_type in ("TENDER", "TENDER_DOCUMENT"):
+            allowed = [
+                "application/pdf",
+                "application/msword",
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            ]
+        else:
+            allowed = list(ALLOWED_DOCUMENT_MIME_TYPES)
+
+    if detected_mime not in allowed:
+        raise ValidationError(
+            "INVALID_FILE_TYPE",
+            f"File type {detected_mime} not allowed for {document_type}. Allowed: {allowed}",
+        )
+    return detected_mime
+
+
+def sanitize_filename(filename: str) -> str:
+    """
+    Sanitizes filename by stripping path traversal characters, null bytes,
+    normalizing unicode to ASCII, replacing spaces and non-word characters with underscores,
+    and truncating to 255 characters.
+    """
+    # 1. Strip path separators and null bytes to prevent path traversal
+    filename = filename.replace("/", "").replace("\\", "").replace("\x00", "")
+    # 2. Normalize to ASCII
+    filename = unicodedata.normalize("NFKD", filename).encode("ascii", "ignore").decode()
+    # 3. Replace spaces with underscores
+    filename = re.sub(r"\s+", "_", filename)
+    # 4. Remove/replace unsafe characters
+    filename = re.sub(r"[^\w.\-]", "_", filename)
+    # 5. Empty or dot-only fallback
+    if not filename or filename == "." * len(filename):
+        filename = "unnamed_file"
+    return filename[:255]
+
+
+async def scan_with_clamav(file_path: str) -> tuple[bool, str]:
+    """
+    Scans a file using the clamscan CLI utility.
+    Returns (is_clean: bool, virus_name: str).
+    """
+    try:
+        def _run():
+            return subprocess.run(
+                ["clamscan", "--no-summary", file_path],
+                capture_output=True,
+                timeout=30,
+            )
+        result = await asyncio.to_thread(_run)
+        if result.returncode == 0:
+            return True, ""
+        stdout = result.stdout.decode("utf-8", errors="replace")
+        virus_name = stdout.split(":")[1].strip() if ":" in stdout else "UNKNOWN"
+        return False, virus_name
+    except (FileNotFoundError, subprocess.SubprocessError) as exc:
+        logger.warning(f"clamscan execution issue: {exc}")
+        if settings.ENVIRONMENT in ("local", "dev"):
+            return True, ""
+        return False, "SCAN_UNAVAILABLE"
+
 
 
 class ClamAVScanner:

@@ -128,3 +128,10 @@ export type { ThreeWayMatchResultProps } from "./ThreeWayMatchResult";
 export { PaymentSchedule } from "./PaymentSchedule";
 export type { PaymentScheduleProps } from "./PaymentSchedule";
 
+// Document Management Components (SPEC_17)
+export { DocumentUpload } from "./DocumentUpload";
+export type { DocumentUploadProps } from "./DocumentUpload";
+export { DocumentList } from "./DocumentList";
+export type { DocumentListProps } from "./DocumentList";
+
+
