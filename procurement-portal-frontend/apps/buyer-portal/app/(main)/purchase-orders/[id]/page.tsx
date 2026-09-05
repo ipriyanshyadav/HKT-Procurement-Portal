@@ -34,6 +34,12 @@ export default function PurchaseOrderDetailPage() {
   const router = useRouter();
   const id = params.id as string;
 
+  React.useEffect(() => {
+    if (id === "new") {
+      router.replace("/purchase-orders/new");
+    }
+  }, [id, router]);
+
   const { data: po, isLoading, isError, refetch } = usePurchaseOrder(id);
   const { data: grns = [], isLoading: isLoadingGRNs } = useGRNs({ po_id: id });
 

@@ -58,7 +58,7 @@ export function usePurchaseOrder(id: string) {
       const res = await apiClient.get(`/purchase-orders/${id}`);
       return res.data.data as POResponse;
     },
-    enabled: Boolean(id),
+    enabled: Boolean(id) && id !== "new",
   });
 }
 
