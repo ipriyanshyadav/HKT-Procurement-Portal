@@ -42,7 +42,7 @@ Enterprise Source-to-Pay procurement platform built on FastAPI (backend) + Next.
 | Comparative Statement (SPEC_12) | ✅ Complete | `0014`, `0030_evaluation_spec12`                                 | ✅ 6 passing                                |
 | Contract Management (SPEC_13)   | ✅ Complete | `0015`, `0031_contract_spec13`                                   | ✅ 6 passing                                |
 | Purchase Order (SPEC_14)        | ✅ Complete | `0016`, `0017`, `0032_purchase_order_grn_spec14`                 | ✅ 6 passing                                |
-| Invoice / Payment (SPEC_15)     | ✅ Complete | `0018`, `0033_invoice_payment_spec15`, `0034_fix_tax_codes`      | ✅ 6 passing                                |
+| Invoice / Payment (SPEC_15)     | ✅ Complete | `0018`, `0033_invoice_payment_spec15`, `0034_fix_tax_codes_tax_type` | ✅ 6 passing                                |
 | Notifications (SPEC_16)         | ✅ Complete | `0020`                                                           | ✅ 9 passing                                |
 | Document Management (SPEC_17)   | ✅ Complete | `0019`                                                           | ✅ 9 passing                                |
 | API Design Standards (SPEC_18)  | ✅ Complete | `0022` - `0026`                                                  | ✅ 138 passing                              |
@@ -65,7 +65,7 @@ Enterprise Source-to-Pay procurement platform built on FastAPI (backend) + Next.
 | Cache / Sessions | Redis 7 via redis-py async                                            |
 | Object Storage   | MinIO                                                                 |
 | Task Queue       | Celery 5.4 + Beat                                                     |
-| Gateway          | Kong 3.6 (DB-less declarative)                                        |
+| Gateway          | Kong 3.7 (DB-less declarative)                                        |
 | Tracing          | OpenTelemetry + Jaeger                                                |
 | Metrics          | Prometheus + Grafana                                                  |
 | Auth             | JWT RS256, TOTP MFA, SAML 2.0, OIDC                                   |
@@ -244,7 +244,7 @@ Open `.env` in your editor. Every value marked `<REPLACE_ME>` **must** be filled
 | `# Celery schedule intervals`   | Background task frequency                              | ✅ Leave as-is                                             |
 | `# Business rules`              | Thresholds, limits, SLAs                               | ✅ Leave as-is                                             |
 | `# Grafana`                     | Dashboard admin password                               | ✅ Set any password                                        |
-| `# Frontend portals`            | API URL that the Next.js apps call                     | ✅ Leave as-is (Kong on port 8080)                         |
+| `# Frontend portals`            | API URL that the Next.js apps call                     | ✅ Leave as-is (Kong on port 8000)                         |
 | `# SSRF Prevention`             | Allowed external HTTP domains                          | ✅ Leave as-is                                             |
 | `# SSO / SAML 2.0`              | SAML identity provider                                 | ⬜ Leave blank unless you have a SAML IdP                  |
 | `# OIDC / Azure AD`             | OAuth2/OIDC client credentials                         | ⬜ Leave blank unless you have Azure AD / OIDC             |
@@ -272,10 +272,10 @@ REDIS_URL=redis://localhost:6379/0
 
 # --- RabbitMQ ---
 # Again: RABBITMQ_USER/RABBITMQ_PASS must match the URL embedded credentials
-RABBITMQ_URL=amqp://app_user:dev_password_123@localhost:5672/
+RABBITMQ_URL=amqp://app_user:dev_password_123@localhost:5672/procurement
 RABBITMQ_USER=app_user
 RABBITMQ_PASS=dev_password_123
-RABBITMQ_VHOST=/
+RABBITMQ_VHOST=/procurement
 
 # --- MinIO ---
 # These are the default MinIO dev credentials — fine for local use
@@ -294,9 +294,9 @@ SUPERADMIN_ORG_NAME=Acme Corp
 # --- Grafana ---
 GRAFANA_PASSWORD=admin
 
-# --- Frontend portals ---
-NEXT_PUBLIC_API_URL=http://localhost:8080
-NEXT_PUBLIC_WS_URL=ws://localhost:8080
+# --- Frontend portals (proxied via Kong API Gateway on port 8000) ---
+NEXT_PUBLIC_API_URL=http://localhost:8000
+NEXT_PUBLIC_WS_URL=ws://localhost:8000
 INTERNAL_API_URL=http://api:8000
 ```
 
@@ -322,9 +322,9 @@ FIELD_ENCRYPTION_KEY=abc123XYZ...==
 
 ---
 
-#### 3d — JWT Key Paths (Step 6 handles this)
+#### 3d — JWT Key Paths (Step 4 handles this)
 
-Leave `JWT_PRIVATE_KEY_PATH` and `JWT_PUBLIC_KEY_PATH` at their defaults (`keys/private.pem` and `keys/public.pem`). **Step 6** runs the key-generation script that creates these `.pem` files in the `keys/` directory.
+Leave `JWT_PRIVATE_KEY_PATH` and `JWT_PUBLIC_KEY_PATH` at their defaults (`keys/private.pem` and `keys/public.pem`). **Step 4** runs the key-generation script that creates these `.pem` files in the `keys/` directory.
 
 ```dotenv
 # Generated by scripts/generate_rsa_keys.py
@@ -382,11 +382,11 @@ The API uses RS256 asymmetric keys for JWT tokens. Generate them once:
 python3 scripts/generate_rsa_keys.py
 ```
 
-This creates `jwt_private.pem` and `jwt_public.pem` in the project root. Update `.env` if your paths differ:
+This creates `keys/private.pem` and `keys/public.pem` in the `keys/` directory. If they already exist, the script safely skips generation.
 
 ```dotenv
-JWT_PRIVATE_KEY_PATH=jwt_private.pem
-JWT_PUBLIC_KEY_PATH=jwt_public.pem
+JWT_PRIVATE_KEY_PATH=keys/private.pem
+JWT_PUBLIC_KEY_PATH=keys/public.pem
 ```
 
 ---
@@ -644,18 +644,17 @@ curl http://localhost:8000/health
 curl http://localhost:8080/health
 # → {"status":"ok","version":"1.0.0"}
 
-# 3. Login as superadmin (get a JWT token)
-# First fetch your organization ID:
-# ORG_ID=$(docker compose -f docker/docker-compose.yml exec -T postgres psql -U app_user -d procurement -t -A -c "SELECT org_id FROM users WHERE email='admin@yourcompany.com';")
+# 3. Login as demo admin (get a JWT token)
+# Uses the seeded organization ID: 00000000-0000-0000-0000-000000000001
 curl -s -X POST http://localhost:8000/api/v1/auth/login \
   -H "Content-Type: application/json" \
-  -d "{\"email\":\"admin@yourcompany.com\",\"password\":\"SecurePass123!\",\"org_id\":\"${ORG_ID:-14a30ee4-aa19-4137-871c-e511c65f9067}\"}" | python3 -m json.tool
+  -d '{"email":"admin@procurement.com","password":"Admin123456!@#","org_id":"00000000-0000-0000-0000-000000000001"}' | python3 -m json.tool
 # → {"access_token":"eyJ...","token_type":"bearer"}
 
 # 4. PostgreSQL connectivity
 docker compose -f docker/docker-compose.yml exec postgres \
   psql -U app_user -d procurement -c "\dt" | head -20
-# → lists all ~30+ tables
+# → lists all ~36 tables
 
 # 5. Redis connectivity
 docker compose -f docker/docker-compose.yml exec redis redis-cli ping
@@ -679,6 +678,16 @@ open http://localhost:9090
 open http://localhost:3003
 # Login: admin / (your GRAFANA_PASSWORD from .env)
 ```
+
+#### Demo User Credentials
+
+| Role | Portal | URL | Demo Email | Demo Password |
+| ---- | ------ | --- | ---------- | ------------- |
+| **Buyer** | Buyer Portal | [http://localhost:3000](http://localhost:3000) | `buyer@procurement.com` | `Buyer123456!@#` |
+| **Supplier** | Supplier Portal | [http://localhost:3001](http://localhost:3001) | `supplier@acme.com` | `Supplier123456!@#` |
+| **Admin** | Admin Portal | [http://localhost:3002](http://localhost:3002) | `admin@procurement.com` | `Admin123456!@#` |
+| **Approver** | Buyer Portal | [http://localhost:3000](http://localhost:3000) | `approver@procurement.com` | `Approver123!@#` |
+| **Superadmin** | Admin Portal | [http://localhost:3002](http://localhost:3002) | `admin@yourcompany.com` | `SecurePass123!` |
 
 ---
 
