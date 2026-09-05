@@ -296,3 +296,51 @@ def test_audit_log_timezone_and_asyncpg_compilation():
     compiled_str = str(compiled)
     assert "TIMESTAMP WITH TIME ZONE" in compiled_str
     assert "TIMESTAMP WITHOUT TIME ZONE" not in compiled_str
+
+
+@pytest.mark.asyncio
+async def test_audit_search_service_circuit_breaker_and_disabled():
+    """Verify that AuditSearchService gracefully handles disabled state, connection errors, and cooldown."""
+    # 1. Disabled state
+    service_disabled = AuditSearchService(enabled=False)
+    assert not service_disabled.is_enabled
+    assert not service_disabled.is_available
+    assert service_disabled.es is None
+    res = await service_disabled.search(org_id=uuid4(), query=AuditSearchQuery())
+    assert res["source"] == "empty"
+    assert res["total"] == 0
+
+    # 2. Connection failure trips circuit breaker
+    service = AuditSearchService(es_url="http://invalid-host-for-test:9200", enabled=True)
+    mock_failing_client = AsyncMock()
+    mock_failing_client.index.side_effect = Exception("Connection refused")
+    service._es = mock_failing_client
+
+    log = AuditLog(
+        id=uuid4(),
+        org_id=uuid4(),
+        entity_type="ORGANIZATION",
+        entity_id=uuid4(),
+        action="TEST_BREAKER",
+        created_at=datetime.now(timezone.utc),
+    )
+    await service.index_audit_log(log)
+    assert not service.is_available
+    assert service.es is None
+
+    # Subsequent call does not call mock_failing_client because circuit is open
+    mock_failing_client.index.reset_mock()
+    await service.index_audit_log(log)
+    mock_failing_client.index.assert_not_called()
+
+    # Search with open circuit falls back
+    fallback_res = await service.search(org_id=uuid4(), query=AuditSearchQuery())
+    assert fallback_res["source"] == "empty"
+
+    # 3. Clean close
+    mock_close_client = AsyncMock()
+    service._es = mock_close_client
+    await service.close()
+    mock_close_client.close.assert_awaited_once()
+    assert service._es is None
+

@@ -111,6 +111,7 @@ class Settings(BaseSettings):
     JAEGER_PORT: int = 4317
     OTEL_SAMPLING_RATE: float = 1.0
     LOG_LEVEL: str = "INFO"
+    ELASTICSEARCH_ENABLED: bool = True
     ELASTICSEARCH_URL: str = "http://localhost:9200"
     ELASTICSEARCH_INDEX_PREFIX: str = "audit-logs"
 

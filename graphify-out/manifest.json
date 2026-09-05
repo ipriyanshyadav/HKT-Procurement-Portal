@@ -12,9 +12,9 @@
     "semantic_hash": "6d73634a678cf1e1c71930adf80bd1f0"
   },
   "FRONTEND_BACKEND_WIRING_GUIDE.md": {
-    "mtime": 1788535369.2197711,
-    "seen": 1788535397.557387,
-    "ast_hash": "1cf864e43fd11d8dc6eefa59590902e3",
+    "mtime": 1788620798.5426497,
+    "seen": 1788620963.577187,
+    "ast_hash": "378c28b6e65161928d1650e27ab05c79",
     "semantic_hash": ""
   },
   "GEMINI.md": {
@@ -366,9 +366,9 @@
     "semantic_hash": ""
   },
   "app/config.py": {
-    "mtime": 1788618117.765715,
-    "seen": 1788618737.2783391,
-    "ast_hash": "d58978e60467e4eb7381107fb93bad4b",
+    "mtime": 1788620748.268612,
+    "seen": 1788620963.576771,
+    "ast_hash": "7b76609b0abb6de5180272340d310532",
     "semantic_hash": ""
   },
   "app/core/__init__.py": {
@@ -474,9 +474,9 @@
     "semantic_hash": ""
   },
   "app/main.py": {
-    "mtime": 1788609041.1274085,
-    "seen": 1788609539.9015412,
-    "ast_hash": "340160c5aa194eb6a2919455c04a9190",
+    "mtime": 1788620789.199849,
+    "seen": 1788620963.576788,
+    "ast_hash": "33a223715f40dd480363bb15c12e6066",
     "semantic_hash": ""
   },
   "app/modules/admin/__init__.py": {
@@ -948,9 +948,9 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/types/src/api.ts": {
-    "mtime": 1788619676.1196563,
-    "seen": 1788619803.364484,
-    "ast_hash": "6440bed9a320cf24c02ad4b23ce6c6a4",
+    "mtime": 1788620947.1088736,
+    "seen": 1788620963.577086,
+    "ast_hash": "eb5f067beda9b5865f222dca1d9cb9d9",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/types/src/index.ts": {
@@ -1020,9 +1020,9 @@
     "semantic_hash": ""
   },
   "pyproject.toml": {
-    "mtime": 1788614861.7946968,
-    "seen": 1788615628.413343,
-    "ast_hash": "a04618332c0028cf33a9e97785098d62",
+    "mtime": 1788620753.5604978,
+    "seen": 1788620963.577131,
+    "ast_hash": "a01e8a3987b7cdcf17485d1a1a5d7f86",
     "semantic_hash": ""
   },
   "scripts/create_superadmin.py": {
@@ -1482,9 +1482,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1788618740.9786265,
-    "seen": 1788619803.364628,
-    "ast_hash": "b29c659c5babcd2965a15e28db37dbd0",
+    "mtime": 1788620804.1695995,
+    "seen": 1788620963.57719,
+    "ast_hash": "f4faf61c92a51bf3fdca5b681209afc2",
     "semantic_hash": ""
   },
   "graphify_diff_20260904_014322.txt": {
@@ -4368,9 +4368,9 @@
     "semantic_hash": ""
   },
   "app/modules/audit/search_service.py": {
-    "mtime": 1788618314.6961355,
-    "seen": 1788618737.278371,
-    "ast_hash": "551ba511736b675762978241ac36e50e",
+    "mtime": 1788620864.1244714,
+    "seen": 1788620963.5768,
+    "ast_hash": "00553cc946bff99c6005ddefc84a893f",
     "semantic_hash": ""
   },
   "k8s/monitoring/grafana/dashboards/app-overview.json": {
@@ -4440,9 +4440,9 @@
     "semantic_hash": ""
   },
   "tests/unit/test_observability.py": {
-    "mtime": 1788619780.3592439,
-    "seen": 1788619803.364605,
-    "ast_hash": "32f076fa807200f8384438aebf1ca99a",
+    "mtime": 1788620890.962066,
+    "seen": 1788620963.577174,
+    "ast_hash": "2c63569cf8e04a83b61ee2dec78a7c3a",
     "semantic_hash": ""
   },
   "docs/audits/SPEC_22_AUDIT.md": {

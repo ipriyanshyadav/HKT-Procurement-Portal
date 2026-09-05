@@ -1,16 +1,16 @@
 # Procurement Portal — Enterprise S2C & P2P Platform
 
 ## Current Session State
-**Status:** Bugfix: Login asyncpg timezone-aware datetime mismatch resolved
+**Status:** Bugfix: Elasticsearch client compatibility, circuit breaker & clean shutdown resolved
 **Completed:**
-- **SQLAlchemy Timezone Mapping:** Configured `type_annotation_map = {datetime: DateTime(timezone=True)}` on `Base` in `app/db/base.py` and explicit `DateTime(timezone=True)` on `AuditLog.created_at` in `app/modules/audit/models.py`. Resolves asyncpg offset-naive vs offset-aware datetime TypeError on `INSERT INTO audit_logs`.
-- **Integration Caching Fix:** Aligned `GSTAdapter` cache writes with `redis.setex` in `app/modules/integration/adapters/gst.py`.
-- **Regression Tests:** Added `test_audit_log_timezone_and_asyncpg_compilation` in `tests/unit/test_observability.py`.
-**Verification:** 10/10 tests pass in `test_observability.py`; 299/299 unit tests pass; 173 integration tests pass; Turborepo `pnpm typecheck` passing (0 errors).
+- **Elasticsearch Client Pinning:** Pinned `elasticsearch[async]>=8.14.0,<9.0.0` in `pyproject.toml` ensuring compatibility with server 8.14.0 (avoiding v9 media-type header incompatibility).
+- **Circuit Breaker & Fallback:** Added `ELASTICSEARCH_ENABLED` in `app/config.py` and implemented failure cooldown circuit breaker in `AuditSearchService` to prevent connection log spam during hybrid dev when ES is offline.
+- **Query Flexibility & Lifespan Close:** Implemented `_exact_term` for keyword/.keyword mapping resilience and added `audit_search_service.close()` to `lifespan` shutdown in `app/main.py`. Updated Mode B backing services docs.
+**Verification:** 11/11 tests pass in `test_observability.py`; 301/301 unit tests pass; 163/163 integration tests pass; Turborepo `pnpm typecheck` passing (0 errors).
 **Migration Head:** 0035_analytics_spec25
 **Test Commands:** `.venv/bin/pytest tests/unit/test_observability.py -v` & `cd procurement-portal-frontend && pnpm typecheck`
 **Next:** SPEC_18 API Standards & Resilience
-**Graphify:** 6451 nodes, 16243 edges, 412 communities
+**Graphify:** 6462 nodes, 16264 edges, 417 communities
 
 ---
 
@@ -73,7 +73,7 @@ Portals:
 ### Mode 2: Local Development (Hybrid)
 ```bash
 # 1. Start backing services only in Docker (do NOT start kong or api)
-docker compose -f docker/docker-compose.yml up -d postgres redis rabbitmq minio jaeger
+docker compose -f docker/docker-compose.yml up -d postgres redis rabbitmq minio jaeger elasticsearch
 
 # 2. Seed data
 .venv/bin/python scripts/generate_rsa_keys.py

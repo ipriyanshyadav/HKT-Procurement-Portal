@@ -445,7 +445,7 @@ docker compose -f docker/docker-compose.yml up -d
 Use when developing FastAPI, Celery, or Next.js locally on your machine:
 ```bash
 # 1. Start ONLY backing storage/broker services in Docker (DO NOT START KONG OR API)
-docker compose -f docker/docker-compose.yml up -d postgres redis rabbitmq minio jaeger
+docker compose -f docker/docker-compose.yml up -d postgres redis rabbitmq minio jaeger elasticsearch
 
 # 2. Run DB migrations & demo seeds
 .venv/bin/alembic upgrade head

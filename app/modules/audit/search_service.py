@@ -39,20 +39,62 @@ class AuditSearchQuery(BaseModel):
 class AuditSearchService:
     """Elasticsearch-backed audit log indexing and search service with SQL fallback."""
 
-    def __init__(self, es_url: Optional[str] = None) -> None:
+    def __init__(self, es_url: Optional[str] = None, enabled: Optional[bool] = None) -> None:
         self.url = es_url or getattr(settings, "ELASTICSEARCH_URL", "http://localhost:9200")
         self.index_prefix = getattr(settings, "ELASTICSEARCH_INDEX_PREFIX", "audit-logs")
+        self._enabled: Optional[bool] = enabled
         self._es: Optional[Any] = None
+        self._last_failure_time: float = 0.0
+        self._failure_cooldown: float = 60.0
+
+    @property
+    def is_enabled(self) -> bool:
+        if self._enabled is not None:
+            return self._enabled
+        return bool(getattr(settings, "ELASTICSEARCH_ENABLED", True))
+
+    @is_enabled.setter
+    def is_enabled(self, value: bool) -> None:
+        self._enabled = value
+
+    @property
+    def is_available(self) -> bool:
+        if not self.is_enabled:
+            return False
+        import time
+        if time.time() - self._last_failure_time < self._failure_cooldown:
+            return False
+        return True
+
+    def _mark_failure(self, exc: Exception, context: str) -> None:
+        import time
+        self._last_failure_time = time.time()
+        logger.warning(
+            f"Elasticsearch {context} failed (entering {self._failure_cooldown:.0f}s cooldown, falling back to SQL): {exc}"
+        )
+
+    def _mark_success(self) -> None:
+        self._last_failure_time = 0.0
 
     @property
     def es(self) -> Optional[Any]:
+        if not self.is_available:
+            return None
         if self._es is None and AsyncElasticsearch is not None:
             try:
                 self._es = AsyncElasticsearch(hosts=[self.url])
             except Exception as e:
-                logger.warning(f"Failed to initialize AsyncElasticsearch client: {e}")
+                self._mark_failure(e, "client initialization")
                 self._es = None
         return self._es
+
+    async def close(self) -> None:
+        if self._es is not None:
+            try:
+                await self._es.close()
+            except Exception:
+                pass
+            self._es = None
 
     async def index_audit_log(self, log: AuditLog) -> None:
         """Index an audit log into the monthly rotated Elasticsearch index."""
@@ -87,9 +129,23 @@ class AuditSearchService:
 
         try:
             await client.index(index=index_name, id=str(log.id), document=doc)
+            self._mark_success()
             logger.debug(f"Audit log {log.id} indexed into {index_name}")
         except Exception as exc:
-            logger.warning(f"Failed to index audit log into Elasticsearch: {exc}")
+            self._mark_failure(exc, "indexing")
+
+    @staticmethod
+    def _exact_term(field: str, value: str) -> Dict[str, Any]:
+        """Match either direct keyword or .keyword subfield for robust ES querying."""
+        return {
+            "bool": {
+                "should": [
+                    {"term": {field: value}},
+                    {"term": {f"{field}.keyword": value}},
+                ],
+                "minimum_should_match": 1,
+            }
+        }
 
     async def search(
         self,
@@ -101,18 +157,18 @@ class AuditSearchService:
         client = self.es
         if client is not None:
             try:
-                must: List[Dict[str, Any]] = [{"term": {"org_id": str(org_id)}}]
+                must: List[Dict[str, Any]] = [self._exact_term("org_id", str(org_id))]
 
                 if query.entity_type:
-                    must.append({"term": {"entity_type": query.entity_type.upper()}})
+                    must.append(self._exact_term("entity_type", query.entity_type.upper()))
                 if query.action:
-                    must.append({"term": {"action": query.action.upper()}})
+                    must.append(self._exact_term("action", query.action.upper()))
                 if query.actor_id:
-                    must.append({"term": {"actor_id": str(query.actor_id)}})
+                    must.append(self._exact_term("actor_id", str(query.actor_id)))
                 if query.entity_id:
-                    must.append({"term": {"entity_id": str(query.entity_id)}})
+                    must.append(self._exact_term("entity_id", str(query.entity_id)))
                 if query.actor_email:
-                    must.append({"term": {"actor_email": query.actor_email.lower()}})
+                    must.append(self._exact_term("actor_email", query.actor_email.lower()))
 
                 if query.date_from or query.date_to:
                     range_filter: Dict[str, str] = {}
@@ -138,6 +194,7 @@ class AuditSearchService:
                 }
 
                 result = await client.search(index=f"{self.index_prefix}-*", body=body)
+                self._mark_success()
                 total = result["hits"]["total"]["value"] if isinstance(result["hits"]["total"], dict) else result["hits"]["total"]
                 items = [hit["_source"] for hit in result["hits"]["hits"]]
 
@@ -149,7 +206,7 @@ class AuditSearchService:
                     "source": "elasticsearch",
                 }
             except Exception as es_err:
-                logger.warning(f"Elasticsearch query failed, falling back to database: {es_err}")
+                self._mark_failure(es_err, "query")
 
         # Fallback to PostgreSQL via db_fallback
         if db_fallback is not None:

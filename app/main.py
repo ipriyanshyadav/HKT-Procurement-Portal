@@ -88,6 +88,12 @@ async def lifespan(app: FastAPI):
     if connection:
         await connection.close()
         logger.info("Closed RabbitMQ connection")
+    try:
+        from app.modules.audit.search_service import audit_search_service
+        await audit_search_service.close()
+        logger.info("Closed Elasticsearch audit search connection")
+    except Exception:
+        pass
 
 def create_app() -> FastAPI:
     app = FastAPI(
