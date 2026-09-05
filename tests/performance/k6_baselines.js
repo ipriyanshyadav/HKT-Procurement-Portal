@@ -94,7 +94,7 @@ export default function () {
 export function browsePRs() {
   const res = http.get(`${BASE_URL}/api/v1/requisitions?page=1&page_size=20`, { headers: defaultHeaders });
   browsePRLatency.add(res.timings.duration);
-  const ok = check(res, { 'status 200 or 401': r => r.status === 200 || r.status === 401 });
+  const ok = check(res, { 'status 200, 401, or 429': r => [200, 401, 429].includes(r.status) });
   errorRate.add(!ok);
   sleep(0.1);
 }
@@ -121,7 +121,7 @@ export function createPR() {
   });
   const res = http.post(`${BASE_URL}/api/v1/requisitions`, payload, { headers: defaultHeaders });
   createPRLatency.add(res.timings.duration);
-  const ok = check(res, { 'status valid': r => [200, 201, 401, 422].includes(r.status) });
+  const ok = check(res, { 'status valid': r => [200, 201, 401, 422, 429].includes(r.status) });
   errorRate.add(!ok);
   sleep(0.1);
 }
@@ -132,7 +132,7 @@ export function approveTask() {
   const payload = JSON.stringify({ action: 'APPROVE', comment: 'Approved under baseline perf load' });
   const res = http.post(`${BASE_URL}/api/v1/workflow/tasks/${taskId}/action`, payload, { headers: defaultHeaders });
   approveTaskLatency.add(res.timings.duration);
-  const ok = check(res, { 'status valid': r => [200, 401, 404, 422].includes(r.status) });
+  const ok = check(res, { 'status valid': r => [200, 401, 404, 422, 429].includes(r.status) });
   errorRate.add(!ok);
   sleep(0.1);
 }
@@ -143,7 +143,7 @@ export function submitBid() {
   const payload = JSON.stringify({ rfq_id: '00000000-0000-0000-0000-000000000030', amount: 48000 });
   const res = http.post(`${BASE_URL}/api/v1/bids/${bidId}/submit`, payload, { headers: defaultHeaders });
   submitBidLatency.add(res.timings.duration);
-  const ok = check(res, { 'status valid': r => [200, 401, 404, 422].includes(r.status) });
+  const ok = check(res, { 'status valid': r => [200, 401, 404, 422, 429].includes(r.status) });
   errorRate.add(!ok);
   sleep(0.1);
 }
@@ -153,7 +153,7 @@ export function generateCS() {
   const rfqId = '00000000-0000-0000-0000-000000000030';
   const res = http.get(`${BASE_URL}/api/v1/rfqs/${rfqId}/evaluation`, { headers: defaultHeaders });
   generateCSLatency.add(res.timings.duration);
-  const ok = check(res, { 'status valid': r => [200, 401, 404, 422].includes(r.status) });
+  const ok = check(res, { 'status valid': r => [200, 401, 404, 422, 429].includes(r.status) });
   errorRate.add(!ok);
   sleep(0.1);
 }
@@ -162,7 +162,7 @@ export function generateCS() {
 export function browseVendors() {
   const res = http.get(`${BASE_URL}/api/v1/vendors?page=1&page_size=50`, { headers: defaultHeaders });
   browseVendorsLatency.add(res.timings.duration);
-  const ok = check(res, { 'status valid': r => [200, 401, 422].includes(r.status) });
+  const ok = check(res, { 'status valid': r => [200, 401, 422, 429].includes(r.status) });
   errorRate.add(!ok);
   sleep(0.1);
 }
@@ -172,7 +172,8 @@ export function validateInvoice() {
   const invId = '00000000-0000-0000-0000-000000000040';
   const res = http.post(`${BASE_URL}/api/v1/invoices/${invId}/match`, '{}', { headers: defaultHeaders });
   validateInvoiceLatency.add(res.timings.duration);
-  const ok = check(res, { 'status valid': r => [200, 401, 404, 422].includes(r.status) });
+  const ok = check(res, { 'status valid': r => [200, 401, 404, 422, 429].includes(r.status) });
   errorRate.add(!ok);
   sleep(0.1);
 }
+

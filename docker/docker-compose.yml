@@ -196,6 +196,8 @@ services:
       CLAMAV_PORT: 3310
     ports:
       - "8080:8000"
+    volumes:
+      - ../keys:/app/keys
     networks:
       - procurement_net
     depends_on:
@@ -223,6 +225,8 @@ services:
       RABBITMQ_URL: amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASSWORD:-guest}@rabbitmq:5672/%2Fprocurement
       MINIO_ENDPOINT: minio:9000
       JAEGER_HOST: jaeger
+    volumes:
+      - ../keys:/app/keys
     networks:
       - procurement_net
     depends_on:
@@ -243,6 +247,8 @@ services:
       RABBITMQ_URL: amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASSWORD:-guest}@rabbitmq:5672/%2Fprocurement
       MINIO_ENDPOINT: minio:9000
       JAEGER_HOST: jaeger
+    volumes:
+      - ../keys:/app/keys
     networks:
       - procurement_net
     depends_on:

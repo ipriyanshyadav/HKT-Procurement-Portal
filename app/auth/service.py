@@ -133,6 +133,23 @@ class AuthService:
             raise AuthenticationError("Not a refresh token")
 
         old_jti = payload["jti"]
+
+        # Check rotation grace period (concurrent requests within 10s grace window)
+        grace_key = f"refresh_grace:{old_jti}"
+        try:
+            grace_val = await redis.get(grace_key)
+            if grace_val:
+                import json
+                grace_data = json.loads(grace_val)
+                if isinstance(grace_data, dict) and "access_token" in grace_data:
+                    return LoginResult(
+                        access_token=grace_data["access_token"],
+                        refresh_token=grace_data["refresh_token"],
+                        access_expires_in=grace_data.get("access_expires_in", settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES * 60),
+                    )
+        except Exception:
+            pass
+
         # Token reuse detection
         if await redis.get(RedisKeys.revoked_token(old_jti)):
             user_id = UUID(payload["sub"])
@@ -163,6 +180,21 @@ class AuthService:
             await session_repository.revoke(db, old_session.id, "TOKEN_ROTATED")
 
         result = await self._issue_tokens(db, user, org_id)
+
+        # Store in rotation grace period cache (10 seconds)
+        try:
+            import json
+            await redis.setex(
+                grace_key,
+                10,
+                json.dumps({
+                    "access_token": result.access_token,
+                    "refresh_token": result.refresh_token,
+                    "access_expires_in": result.access_expires_in,
+                }),
+            )
+        except Exception as e:
+            logger.warning("Failed to store refresh grace token: {}", e)
         await audit_service.log(
             db,
             entity_type="USER",

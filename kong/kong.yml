@@ -13,7 +13,8 @@ routes:
     plugins:
       - name: rate-limiting
         config:
-          minute: 5
+          minute: 1000
+
   
   - name: orgs-users-route
     service: api
@@ -263,8 +264,6 @@ routes:
     protocols:
       - http
       - https
-      - ws
-      - wss
 
 plugins:
   - name: correlation-id

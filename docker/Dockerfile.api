@@ -4,7 +4,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends libmagic1 && rm
 
 FROM base AS deps
 COPY pyproject.toml .
-RUN pip install --no-cache-dir .
+RUN pip install --no-cache-dir --upgrade pip "setuptools>=83.0.0" "msgpack>=1.2.1" && pip install --no-cache-dir .
+
 
 FROM deps AS app
 COPY . .

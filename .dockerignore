@@ -1,0 +1,16 @@
+.git
+.venv
+node_modules
+keys/*.pem
+*.pem
+__pycache__
+*.pyc
+.pytest_cache
+.coverage
+htmlcov
+reports
+test-results
+playwright-report
+procurement-portal-frontend/node_modules
+procurement-portal-frontend/.turbo
+procurement-portal-frontend/.next

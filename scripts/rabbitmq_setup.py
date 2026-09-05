@@ -58,12 +58,18 @@ QUEUES = [
 DLQ_TTL_MS = int(os.environ.get("DLQ_TTL_MS", "604800000"))
 
 
+from dotenv import load_dotenv
+load_dotenv()
+
 async def setup_rabbitmq() -> None:
     """Create all exchanges, queues, DLQs, and bindings idempotently."""
     url = os.environ.get(
-        "RABBITMQ_URL", "amqp://guest:guest@localhost:5672/procurement"
+        "RABBITMQ_URL", "amqp://guest:guest@localhost:5672/%2Fprocurement"
     )
+    if "/procurement" in url and "%2Fprocurement" not in url:
+        url = url.replace("/procurement", "/%2Fprocurement")
     connection = await aio_pika.connect_robust(url)
+
 
     async with connection:
         channel = await connection.channel()

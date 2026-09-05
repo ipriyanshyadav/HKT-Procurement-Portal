@@ -18,8 +18,9 @@ test.describe("Critical Supplier Flows", () => {
     // 3. Confirm redirection to Supplier Dashboard / Portal
     await page.waitForURL(/.*(profile|dashboard|purchase-orders)/, { timeout: 15_000 });
 
-    // 4. Navigate to Purchase Orders
-    await page.goto(`${SUPPLIER_URL}/purchase-orders`);
+    // 4. Navigate to Purchase Orders via sidebar/nav
+    await page.getByRole("link", { name: /Purchase Orders/i }).first().click();
+    await page.waitForURL("**/purchase-orders", { timeout: 15_000 });
     await expect(page.locator("body")).toContainText("Purchase Order");
   });
 });

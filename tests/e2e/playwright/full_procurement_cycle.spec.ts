@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 
 const BUYER_URL = "http://localhost:3000";
 const SUPPLIER_URL = "http://localhost:3001";
-const API_URL = "http://localhost:8000";
+const API_URL = process.env.API_URL || "http://localhost:8080";
 
 test.describe("Full Procurement Cycle (PR → PO → GRN → Invoice → Payment)", () => {
   test.setTimeout(180_000);
@@ -83,11 +83,23 @@ test.describe("Full Procurement Cycle (PR → PO → GRN → Invoice → Payment
       "x-portal-id": "supplier",
     };
 
-    const vendorId = "a6f83ade-0525-4536-bbe6-6b047c731d4e";
-    const buId = "c7ece6ea-6786-479e-82f8-159b0b95f07d";
-    const ccId = "1628e2bd-4cbe-4245-aaf4-7c8d22bfc169";
-    const catId = "7e22b2c3-cb3c-4c37-b8a5-80fed72d8b85";
-    const uomId = "f64caf4a-09bb-4fe1-9a7b-22d29bc1175a";
+    const vendorsRes = await (await fetch(`${API_URL}/api/v1/vendors`, { headers: buyerHeaders })).json();
+    const vendorList = Array.isArray(vendorsRes.data) ? vendorsRes.data : vendorsRes.data?.items || [];
+    const acmeVendor = vendorList.find((v: any) => v.company_name?.toLowerCase().includes("acme") || v.vendor_code === "V-10001");
+    const vendorId = acmeVendor?.id || "22797445-edaa-45ee-8e48-a341447c56b7";
+
+    const buRes = await (await fetch(`${API_URL}/api/v1/business-units`, { headers: buyerHeaders })).json();
+    const buId = buRes.data?.items?.[0]?.id || buRes.data?.[0]?.id || "44082a38-c1a3-4c61-8fcc-59f51354af8c";
+
+    const ccRes = await (await fetch(`${API_URL}/api/v1/cost-centers`, { headers: buyerHeaders })).json();
+    const ccId = ccRes.data?.items?.[0]?.id || ccRes.data?.[0]?.id || "c8ba7850-8e1d-4659-bef8-caabada43a11";
+
+    const catRes = await (await fetch(`${API_URL}/api/v1/master-data/categories`, { headers: buyerHeaders })).json();
+    const catId = catRes.data?.items?.[0]?.id || catRes.data?.[0]?.id || "ba0772f3-b4f7-4119-b8f2-041d12ed531f";
+
+    const uomRes = await (await fetch(`${API_URL}/api/v1/master-data/uoms`, { headers: buyerHeaders })).json();
+    const uomId = uomRes.data?.[0]?.id || uomRes.data?.items?.[0]?.id || "8b02f118-a247-40f6-8e31-15011c06d369";
+
 
     const uniqueTag = Math.random().toString(36).substring(2, 8).toUpperCase();
 
@@ -163,15 +175,15 @@ test.describe("Full Procurement Cycle (PR → PO → GRN → Invoice → Payment
     // ==========================================
     // 4. SUPPLIER PO ACKNOWLEDGEMENT IN BROWSER
     // ==========================================
-    await supplierPage.goto(`${SUPPLIER_URL}/purchase-orders/${poId}`);
-    await supplierPage.waitForLoadState("networkidle");
+    await supplierPage.getByRole("link", { name: /Purchase Orders/i }).first().click();
+    await supplierPage.waitForURL("**/purchase-orders", { timeout: 15_000 });
 
     // Verify PO details are rendered on supplier portal
     await expect(supplierPage.locator("body")).toContainText(poNumber);
-    await expect(supplierPage.locator("body")).toContainText(`Enterprise Cloud Compute Node ${uniqueTag}`);
+    await expect(supplierPage.locator("body")).toContainText(`PO for Compute Nodes ${uniqueTag}`);
 
-    // Click "Acknowledge PO" button
-    const ackButton = supplierPage.getByRole("button", { name: /Acknowledge PO/i });
+    // Click "Acknowledge Order" button
+    const ackButton = supplierPage.getByRole("button", { name: /Acknowledge Order/i }).first();
     await expect(ackButton).toBeVisible();
     await ackButton.click();
 
@@ -211,8 +223,11 @@ test.describe("Full Procurement Cycle (PR → PO → GRN → Invoice → Payment
     // ==========================================
     // 6. SUPPLIER INVOICE SUBMISSION IN BROWSER
     // ==========================================
-    await supplierPage.goto(`${SUPPLIER_URL}/invoices/new`);
-    await supplierPage.waitForLoadState("networkidle");
+    await supplierPage.getByRole("link", { name: /Invoices/i }).first().click();
+    await supplierPage.waitForURL("**/invoices", { timeout: 15_000 });
+
+    await supplierPage.getByRole("link", { name: /Submit New Invoice/i }).first().click();
+    await supplierPage.waitForURL("**/invoices/new", { timeout: 15_000 });
 
     // Wait for PO select to be available
     const poSelect = supplierPage.locator("select#po-select, select").first();
@@ -248,8 +263,12 @@ test.describe("Full Procurement Cycle (PR → PO → GRN → Invoice → Payment
     // ==========================================
     // 7. BUYER INVOICE 3-WAY MATCH & APPROVAL IN BROWSER
     // ==========================================
-    await buyerPage.goto(`${BUYER_URL}/invoices/${invoiceId}`);
-    await buyerPage.waitForLoadState("networkidle");
+    await buyerPage.getByRole("link", { name: /Invoices/i }).first().click();
+    await buyerPage.waitForURL("**/invoices", { timeout: 15_000 });
+
+    // Click on the newly submitted invoice
+    await buyerPage.locator(`a[href*="/invoices/${invoiceId}"]`).first().click();
+    await buyerPage.waitForURL(`**/invoices/${invoiceId}`, { timeout: 15_000 });
 
     // Verify 3-way match status on screen
     await expect(buyerPage.locator("body")).toContainText(/MATCHED/i);
@@ -266,8 +285,8 @@ test.describe("Full Procurement Cycle (PR → PO → GRN → Invoice → Payment
     // ==========================================
     // 8. BUYER PAYMENT RECORD VERIFICATION
     // ==========================================
-    await buyerPage.goto(`${BUYER_URL}/payments`);
-    await buyerPage.waitForLoadState("networkidle");
+    await buyerPage.getByRole("link", { name: /Payments/i }).first().click();
+    await buyerPage.waitForURL("**/payments", { timeout: 15_000 });
 
     // Verify payment record exists for the invoice
     await expect(buyerPage.locator("body")).toContainText("Payments");

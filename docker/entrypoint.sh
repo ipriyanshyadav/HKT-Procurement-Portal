@@ -5,6 +5,8 @@ if [ "$#" -gt 0 ]; then
   exec "$@"
 fi
 
+echo "Generating RSA keys if needed..."
+python scripts/generate_rsa_keys.py
 echo "Running database migrations..."
 alembic upgrade head
 echo "Seeding master data..."
