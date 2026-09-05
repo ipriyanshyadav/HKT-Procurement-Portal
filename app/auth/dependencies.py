@@ -97,13 +97,20 @@ def require_permission(permission_code: str):
     return _check
 
 
-def require_any_permission(*permission_codes: str):
+def require_any_permission(*permission_codes: str | list[str] | tuple[str, ...]):
     """Dependency factory: ensures user has AT LEAST ONE of the specified permissions."""
+    flat_codes: list[str] = []
+    for code in permission_codes:
+        if isinstance(code, (list, tuple, set)):
+            flat_codes.extend(str(c) for c in code)
+        else:
+            flat_codes.append(str(code))
+
     async def _check(
         current_user: User = Depends(get_current_user),
         db: AsyncSession = Depends(get_db),
     ) -> User:
-        for pcode in permission_codes:
+        for pcode in flat_codes:
             if pcode in PERMANENTLY_DENIED_PERMISSIONS:
                 continue
             has_perm = await role_repository.user_has_permission(
@@ -111,8 +118,9 @@ def require_any_permission(*permission_codes: str):
             )
             if has_perm:
                 return current_user
-        raise ForbiddenError(f"Missing required permission: one of {list(permission_codes)}")
+        raise ForbiddenError(f"Missing required permission: one of {flat_codes}")
     return _check
+
 
 
 def require_mfa_enabled():

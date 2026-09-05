@@ -33,17 +33,21 @@ from app.db.enums import (
     UserStatusEnum, VendorStatusEnum, PrStatusEnum, PrSourceEnum,
     ProcurementTypeEnum, UnmappedPrStatusEnum,
     RfqStatusEnum, RfqTypeEnum, SourcingTypeEnum, EvaluationTypeEnum,
-    BidStatusEnum,
+    BidStatusEnum, PoStatusEnum, InvoiceStatusEnum, PaymentStatusEnum,
 )
 from app.modules.organization.models import (
     Organization, LegalEntity, BusinessUnit, Plant, Department, CostCenter
 )
-from app.modules.master_data.models import Category, DeliveryLocation, UomMaster
+from app.modules.master_data.models import Category, DeliveryLocation, UomMaster, PaymentTerm
 from app.modules.user.models import User, Role, UserRoleAssignment
 from app.modules.vendor.models import Vendor
 from app.modules.requisition.models import Requisition, RequisitionLine, UnmappedPrException
 from app.modules.sourcing.models import Rfq, RfqLot, RfqLine, RfqParticipant, RfqClarification
 from app.modules.bid.models import BidResponse, BidLineResponse, LiveAuction, AuctionParticipant
+from app.modules.purchase_order.models import PurchaseOrder, PoLine
+from app.modules.grn.models import GoodsReceiptNote, GrnLine
+from app.modules.invoice.models import Invoice, InvoiceLine, InvoiceMatchResult
+from app.modules.payment.models import PaymentRecord
 from app.core.encryption import encrypt_field
 
 logging.basicConfig(level=logging.INFO)
@@ -859,6 +863,220 @@ async def seed_demo():
                         )
                     )
                 logger.info(f"Created Demo Live Auction: {auction.id} (OPEN)")
+
+        # 14. Seed Demo Purchase Orders, GRN, and Invoices
+        res_po = await db.execute(select(PurchaseOrder).where(and_(PurchaseOrder.org_id == DEFAULT_ORG_ID, PurchaseOrder.po_number == "PO-2026-000001")))
+        existing_po = res_po.scalar_one_or_none()
+        if not existing_po:
+            res_uom = await db.execute(select(UomMaster).where(UomMaster.code == "EA"))
+            uom = res_uom.scalars().first()
+            uom_id = uom.id if uom else uuid4()
+
+            res_pt = await db.execute(select(PaymentTerm).where(PaymentTerm.code == "NET30"))
+            pterm = res_pt.scalars().first()
+            pterm_id = pterm.id if pterm else None
+
+            today = date.today()
+            now_utc = datetime.now(timezone.utc)
+
+            # PO-1: High-Performance Developer Laptops
+            po1 = PurchaseOrder(
+                id=uuid4(),
+                org_id=DEFAULT_ORG_ID,
+                po_number="PO-2026-000001",
+                title="High-Performance Developer Laptops & Workstations",
+                vendor_id=acme_vendor.id,
+                status=PoStatusEnum.ACKNOWLEDGED,
+                business_unit_id=bu.id,
+                plant_id=plant.id,
+                category_id=categories["CAT-HW"].id,
+                currency="INR",
+                total_value=Decimal("1416000.00"),
+                payment_term_id=pterm_id,
+                delivery_location_id=loc.id,
+                expected_delivery_date=today + timedelta(days=14),
+                buyer_id=buyer_user.id,
+                created_by=buyer_user.id,
+                sent_at=now_utc - timedelta(days=5),
+                acknowledged_at=now_utc - timedelta(days=4),
+            )
+            db.add(po1)
+            await db.flush()
+
+            po1_line = PoLine(
+                id=uuid4(),
+                org_id=DEFAULT_ORG_ID,
+                po_id=po1.id,
+                line_number=1,
+                item_description="Apple MacBook Pro 16-inch M3 Pro / 36GB / 1TB SSD",
+                item_code="HW-MBP-16",
+                uom_id=uom_id,
+                ordered_quantity=Decimal("5.0000"),
+                unit_price=Decimal("240000.0000"),
+                tax_rate=Decimal("18.00"),
+                open_quantity=Decimal("0.0000"),
+                received_quantity=Decimal("5.0000"),
+                invoiced_quantity=Decimal("5.0000"),
+                delivery_date=today + timedelta(days=14),
+            )
+            db.add(po1_line)
+            await db.flush()
+            logger.info("Created Demo Purchase Order: PO-2026-000001")
+
+            # GRN-1: Goods Receipt Note
+            grn1 = GoodsReceiptNote(
+                id=uuid4(),
+                org_id=DEFAULT_ORG_ID,
+                grn_number="GRN-2026-000001",
+                po_id=po1.id,
+                vendor_id=acme_vendor.id,
+                receipt_date=today - timedelta(days=2),
+                received_by=buyer_user.id,
+                challan_number="CH-ACME-8891",
+                challan_date=today - timedelta(days=3),
+                status="APPROVED",
+                confirmed_at=now_utc - timedelta(days=2),
+                confirmed_by=buyer_user.id,
+                created_by=buyer_user.id,
+            )
+            db.add(grn1)
+            await db.flush()
+
+            grn1_line = GrnLine(
+                id=uuid4(),
+                org_id=DEFAULT_ORG_ID,
+                grn_id=grn1.id,
+                po_line_id=po1_line.id,
+                received_quantity=Decimal("5.0000"),
+                accepted_quantity=Decimal("5.0000"),
+                rejected_quantity=Decimal("0.0000"),
+                qc_required=False,
+                qc_status="NOT_REQUIRED",
+            )
+            db.add(grn1_line)
+            await db.flush()
+            logger.info("Created Demo GRN: GRN-2026-000001")
+
+            # Invoice-1: Matched Invoice with 2% TDS
+            inv1 = Invoice(
+                id=uuid4(),
+                org_id=DEFAULT_ORG_ID,
+                invoice_number="INV-2026-000001",
+                vendor_invoice_number="ACME/2026/0441",
+                vendor_id=acme_vendor.id,
+                po_id=po1.id,
+                status=InvoiceStatusEnum.PENDING_APPROVAL,
+                invoice_date=today - timedelta(days=1),
+                due_date=today + timedelta(days=29),
+                currency="INR",
+                subtotal=Decimal("1200000.00"),
+                tax_amount=Decimal("216000.00"),
+                total_amount=Decimal("1416000.00"),
+                tds_amount=Decimal("24000.00"),
+                financial_year="FY2026-27",
+                payment_terms_code="NET30",
+                match_status="MATCHED",
+                payment_status=PaymentStatusEnum.PENDING,
+                paid_amount=Decimal("0.0"),
+                created_by=supplier_user.id if 'supplier_user' in locals() and supplier_user else buyer_user.id,
+            )
+            db.add(inv1)
+            await db.flush()
+
+            inv1_line = InvoiceLine(
+                id=uuid4(),
+                org_id=DEFAULT_ORG_ID,
+                invoice_id=inv1.id,
+                po_line_id=po1_line.id,
+                grn_line_id=grn1_line.id,
+                line_number=1,
+                item_description="Apple MacBook Pro 16-inch M3 Pro / 36GB / 1TB SSD",
+                quantity=Decimal("5.0000"),
+                unit_price=Decimal("240000.0000"),
+                tax_rate=Decimal("18.00"),
+                tax_amount=Decimal("216000.00"),
+                line_total=Decimal("1416000.00"),
+            )
+            db.add(inv1_line)
+
+            match1 = InvoiceMatchResult(
+                id=uuid4(),
+                org_id=DEFAULT_ORG_ID,
+                invoice_id=inv1.id,
+                invoice_line_id=inv1_line.id,
+                po_line_id=po1_line.id,
+                price_match=True,
+                price_deviation=Decimal("0.0"),
+                quantity_match=True,
+                quantity_deviation=Decimal("0.0"),
+                po_reference_valid=True,
+                tax_match=True,
+                tax_deviation=Decimal("0.0"),
+                overall_match=True,
+                mismatch_reasons=[],
+            )
+            db.add(match1)
+
+            # Scheduled payment for Invoice-1
+            pmt1 = PaymentRecord(
+                id=uuid4(),
+                org_id=DEFAULT_ORG_ID,
+                invoice_id=inv1.id,
+                vendor_id=acme_vendor.id,
+                payment_date=today + timedelta(days=29),
+                amount=Decimal("1392000.00"),
+                gross_amount=Decimal("1416000.00"),
+                tds_amount=Decimal("24000.00"),
+                net_amount=Decimal("1392000.00"),
+                payment_due_date=today + timedelta(days=29),
+                currency="INR",
+                status=PaymentStatusEnum.SCHEDULED,
+            )
+            db.add(pmt1)
+            logger.info("Created Demo Invoice: INV-2026-000001 (MATCHED)")
+
+            # PO-2: Cloud Network Security Appliances
+            po2 = PurchaseOrder(
+                id=uuid4(),
+                org_id=DEFAULT_ORG_ID,
+                po_number="PO-2026-000002",
+                title="Cloud Network Security Firewalls & Gateway Appliances",
+                vendor_id=acme_vendor.id,
+                status=PoStatusEnum.ACKNOWLEDGED,
+                business_unit_id=bu.id,
+                plant_id=plant.id,
+                category_id=categories["CAT-HW"].id,
+                currency="INR",
+                total_value=Decimal("590000.00"),
+                payment_term_id=pterm_id,
+                delivery_location_id=loc.id,
+                expected_delivery_date=today + timedelta(days=21),
+                buyer_id=buyer_user.id,
+                created_by=buyer_user.id,
+                sent_at=now_utc - timedelta(days=2),
+                acknowledged_at=now_utc - timedelta(days=1),
+            )
+            db.add(po2)
+            await db.flush()
+
+            po2_line = PoLine(
+                id=uuid4(),
+                org_id=DEFAULT_ORG_ID,
+                po_id=po2.id,
+                line_number=1,
+                item_description="Enterprise Threat Defense Gateway Rack 1U",
+                item_code="HW-GW-1U",
+                uom_id=uom_id,
+                ordered_quantity=Decimal("2.0000"),
+                unit_price=Decimal("250000.0000"),
+                tax_rate=Decimal("18.00"),
+                open_quantity=Decimal("2.0000"),
+                received_quantity=Decimal("0.0000"),
+                invoiced_quantity=Decimal("0.0000"),
+                delivery_date=today + timedelta(days=21),
+            )
+            db.add(po2_line)
+            logger.info("Created Demo Purchase Order: PO-2026-000002")
 
         await db.commit()
         logger.info("Demo data seeding completed successfully!")
