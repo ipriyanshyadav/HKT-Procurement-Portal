@@ -31,6 +31,7 @@ celery_app = Celery(
         'app.tasks.vendor_compliance',
         'app.tasks.auction',
         'app.tasks.contract_expiry',
+        'app.tasks.invoice_aging',
         'app.events.outbox_worker',
     ],
 )
@@ -140,6 +141,10 @@ celery_app.conf.beat_schedule = {
     'contract-expiry-check': {
         'task': 'app.tasks.maintenance.check_contract_expiry',
         'schedule': settings.CELERY_CONTRACT_EXPIRY_CHECK_HOURS * 3600,
+    },
+    'invoice-aging-check': {
+        'task': 'app.tasks.default.check_invoice_aging',
+        'schedule': 14400.0,
     },
 }
 celery_app.conf.timezone = 'UTC'

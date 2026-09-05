@@ -52,6 +52,8 @@ class Vendor(BaseModel):
     compliance_score: Mapped[Optional[Decimal]] = mapped_column(Numeric(5, 2), nullable=True)
     performance_score: Mapped[Optional[Decimal]] = mapped_column(Numeric(5, 2), nullable=True)
     last_scorecard_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    tds_applicable: Mapped[bool] = mapped_column(Boolean, default=False, nullable=True)
+    tds_percentage: Mapped[Decimal] = mapped_column(Numeric(5, 2), default=Decimal("0.0"), nullable=True)
     invited_by: Mapped[Optional[UUID]] = mapped_column(ForeignKey("users.id"), nullable=True)
     created_by: Mapped[Optional[UUID]] = mapped_column(nullable=True)
     updated_by: Mapped[Optional[UUID]] = mapped_column(nullable=True)

@@ -60,6 +60,7 @@ class PaymentTerm(BaseModel):
 
     code: Mapped[str] = mapped_column(String(50), nullable=False)
     name: Mapped[str] = mapped_column(String(200), nullable=False)
+    payment_days: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     net_days: Mapped[int] = mapped_column(Integer, nullable=False)
     discount_percentage: Mapped[Decimal] = mapped_column(Numeric(5, 2), default=Decimal("0.0"), nullable=False)
     discount_days: Mapped[int] = mapped_column(Integer, default=0, nullable=False)

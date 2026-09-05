@@ -9554,7 +9554,8 @@
     "/api/v1/invoices/health": {
       "get": {
         "tags": [
-          "Invoice"
+          "Invoice",
+          "Invoices"
         ],
         "summary": "Health",
         "operationId": "health_api_v1_invoices_health_get",
@@ -9570,10 +9571,572 @@
         }
       }
     },
+    "/api/v1/invoices": {
+      "get": {
+        "tags": [
+          "Invoice",
+          "Invoices"
+        ],
+        "summary": "List Invoices",
+        "operationId": "list_invoices_api_v1_invoices_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "po_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Po Id"
+            }
+          },
+          {
+            "name": "vendor_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Vendor Id"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "name": "match_status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Match Status"
+            }
+          },
+          {
+            "name": "payment_status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Payment Status"
+            }
+          },
+          {
+            "name": "financial_year",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Financial Year"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Search"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Page Size"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIResponse_List_InvoiceResponse__"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Invoice",
+          "Invoices"
+        ],
+        "summary": "Submit Invoice",
+        "operationId": "submit_invoice_api_v1_invoices_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "vendor_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Vendor Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InvoiceSubmitRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIResponse_InvoiceResponse_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/invoices/eligible-lines": {
+      "get": {
+        "tags": [
+          "Invoice",
+          "Invoices"
+        ],
+        "summary": "Get Eligible Lines",
+        "operationId": "get_eligible_lines_api_v1_invoices_eligible_lines_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "vendor_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Vendor Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIResponse_List_EligibleLineResponse__"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/invoices/{invoice_id}": {
+      "get": {
+        "tags": [
+          "Invoice",
+          "Invoices"
+        ],
+        "summary": "Get Invoice",
+        "operationId": "get_invoice_api_v1_invoices__invoice_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "invoice_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Invoice Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIResponse_InvoiceResponse_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/invoices/{invoice_id}/match": {
+      "post": {
+        "tags": [
+          "Invoice",
+          "Invoices"
+        ],
+        "summary": "Match Invoice",
+        "operationId": "match_invoice_api_v1_invoices__invoice_id__match_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "invoice_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Invoice Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIResponse_InvoiceResponse_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/invoices/{invoice_id}/approve": {
+      "post": {
+        "tags": [
+          "Invoice",
+          "Invoices"
+        ],
+        "summary": "Approve Invoice",
+        "operationId": "approve_invoice_api_v1_invoices__invoice_id__approve_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "invoice_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Invoice Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIResponse_InvoiceResponse_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/invoices/{invoice_id}/reject": {
+      "post": {
+        "tags": [
+          "Invoice",
+          "Invoices"
+        ],
+        "summary": "Reject Invoice",
+        "operationId": "reject_invoice_api_v1_invoices__invoice_id__reject_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "invoice_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Invoice Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InvoiceRejectRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIResponse_InvoiceResponse_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/invoices/{invoice_id}/dispute": {
+      "post": {
+        "tags": [
+          "Invoice",
+          "Invoices"
+        ],
+        "summary": "Dispute Invoice",
+        "operationId": "dispute_invoice_api_v1_invoices__invoice_id__dispute_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "invoice_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Invoice Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InvoiceDisputeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIResponse_InvoiceResponse_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/payments/health": {
       "get": {
         "tags": [
-          "Payment"
+          "Payment",
+          "Payments"
         ],
         "summary": "Health",
         "operationId": "health_api_v1_payments_health_get",
@@ -9583,6 +10146,551 @@
             "content": {
               "application/json": {
                 "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/payments": {
+      "get": {
+        "tags": [
+          "Payment",
+          "Payments"
+        ],
+        "summary": "List Payments",
+        "operationId": "list_payments_api_v1_payments_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "invoice_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Invoice Id"
+            }
+          },
+          {
+            "name": "vendor_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Vendor Id"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Page Size"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIResponse_List_PaymentRecordResponse__"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/payments/schedule": {
+      "post": {
+        "tags": [
+          "Payment",
+          "Payments"
+        ],
+        "summary": "Schedule Payment",
+        "operationId": "schedule_payment_api_v1_payments_schedule_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PaymentScheduleRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIResponse_PaymentRecordResponse_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/payments/{payment_id}": {
+      "get": {
+        "tags": [
+          "Payment",
+          "Payments"
+        ],
+        "summary": "Get Payment",
+        "operationId": "get_payment_api_v1_payments__payment_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "payment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Payment Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIResponse_PaymentRecordResponse_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/payments/{payment_id}/process": {
+      "post": {
+        "tags": [
+          "Payment",
+          "Payments"
+        ],
+        "summary": "Process Payment",
+        "operationId": "process_payment_api_v1_payments__payment_id__process_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "payment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Payment Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PaymentProcessRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIResponse_PaymentRecordResponse_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/payments/webhook": {
+      "post": {
+        "tags": [
+          "Payment",
+          "Payments"
+        ],
+        "summary": "Erp Payment Webhook",
+        "description": "Inbound webhook from external ERP system recording payment settlement.",
+        "operationId": "erp_payment_webhook_api_v1_payments_webhook_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ErpPaymentWebhookRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/payments/disputes/all": {
+      "get": {
+        "tags": [
+          "Payment",
+          "Payments"
+        ],
+        "summary": "List Disputes",
+        "operationId": "list_disputes_api_v1_payments_disputes_all_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "invoice_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Invoice Id"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIResponse_List_DisputeResponse__"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/payments/disputes": {
+      "post": {
+        "tags": [
+          "Payment",
+          "Payments"
+        ],
+        "summary": "Create Dispute",
+        "operationId": "create_dispute_api_v1_payments_disputes_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DisputeCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIResponse_DisputeResponse_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/payments/disputes/{dispute_id}/messages": {
+      "post": {
+        "tags": [
+          "Payment",
+          "Payments"
+        ],
+        "summary": "Add Dispute Message",
+        "operationId": "add_dispute_message_api_v1_payments_disputes__dispute_id__messages_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dispute_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Dispute Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DisputeMessageCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIResponse_DisputeMessageResponse_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/payments/disputes/{dispute_id}/resolve": {
+      "post": {
+        "tags": [
+          "Payment",
+          "Payments"
+        ],
+        "summary": "Resolve Dispute",
+        "operationId": "resolve_dispute_api_v1_payments_disputes__dispute_id__resolve_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dispute_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Dispute Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DisputeResolveRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIResponse_DisputeResponse_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
               }
             }
           }
@@ -11936,7 +13044,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-04T23:23:02.232335"
+            "default": "2026-09-05T04:53:36.640363"
           }
         },
         "type": "object",
@@ -11974,7 +13082,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-04T23:23:02.232335"
+            "default": "2026-09-05T04:53:36.640363"
           }
         },
         "type": "object",
@@ -12012,7 +13120,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-04T23:23:02.232335"
+            "default": "2026-09-05T04:53:36.640363"
           }
         },
         "type": "object",
@@ -12050,7 +13158,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-04T23:23:02.232335"
+            "default": "2026-09-05T04:53:36.640363"
           }
         },
         "type": "object",
@@ -12088,7 +13196,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-04T23:23:02.232335"
+            "default": "2026-09-05T04:53:36.640363"
           }
         },
         "type": "object",
@@ -12126,7 +13234,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-04T23:23:02.232335"
+            "default": "2026-09-05T04:53:36.640363"
           }
         },
         "type": "object",
@@ -12134,6 +13242,82 @@
           "data"
         ],
         "title": "APIResponse[ContractResponse]"
+      },
+      "APIResponse_DisputeMessageResponse_": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/DisputeMessageResponse"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PaginationMeta"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "links": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Links"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Timestamp",
+            "default": "2026-09-05T04:53:36.640363"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "APIResponse[DisputeMessageResponse]"
+      },
+      "APIResponse_DisputeResponse_": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/DisputeResponse"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PaginationMeta"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "links": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Links"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Timestamp",
+            "default": "2026-09-05T04:53:36.640363"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "APIResponse[DisputeResponse]"
       },
       "APIResponse_EsignInitiateResponse_": {
         "properties": {
@@ -12164,7 +13348,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-04T23:23:02.232335"
+            "default": "2026-09-05T04:53:36.640363"
           }
         },
         "type": "object",
@@ -12202,7 +13386,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-04T23:23:02.232335"
+            "default": "2026-09-05T04:53:36.640363"
           }
         },
         "type": "object",
@@ -12210,6 +13394,44 @@
           "data"
         ],
         "title": "APIResponse[GrnResponse]"
+      },
+      "APIResponse_InvoiceResponse_": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/InvoiceResponse"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PaginationMeta"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "links": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Links"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Timestamp",
+            "default": "2026-09-05T04:53:36.640363"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "APIResponse[InvoiceResponse]"
       },
       "APIResponse_List_CSVersionSummaryResponse__": {
         "properties": {
@@ -12244,7 +13466,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-04T23:23:02.232335"
+            "default": "2026-09-05T04:53:36.640363"
           }
         },
         "type": "object",
@@ -12286,7 +13508,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-04T23:23:02.232335"
+            "default": "2026-09-05T04:53:36.640363"
           }
         },
         "type": "object",
@@ -12328,7 +13550,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-04T23:23:02.232335"
+            "default": "2026-09-05T04:53:36.640363"
           }
         },
         "type": "object",
@@ -12336,6 +13558,90 @@
           "data"
         ],
         "title": "APIResponse[List[ContractTemplateResponse]]"
+      },
+      "APIResponse_List_DisputeResponse__": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/DisputeResponse"
+            },
+            "type": "array",
+            "title": "Data"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PaginationMeta"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "links": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Links"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Timestamp",
+            "default": "2026-09-05T04:53:36.640363"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "APIResponse[List[DisputeResponse]]"
+      },
+      "APIResponse_List_EligibleLineResponse__": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/EligibleLineResponse"
+            },
+            "type": "array",
+            "title": "Data"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PaginationMeta"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "links": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Links"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Timestamp",
+            "default": "2026-09-05T04:53:36.640363"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "APIResponse[List[EligibleLineResponse]]"
       },
       "APIResponse_List_GrnResponse__": {
         "properties": {
@@ -12370,7 +13676,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-04T23:23:02.232335"
+            "default": "2026-09-05T04:53:36.640363"
           }
         },
         "type": "object",
@@ -12378,6 +13684,48 @@
           "data"
         ],
         "title": "APIResponse[List[GrnResponse]]"
+      },
+      "APIResponse_List_InvoiceResponse__": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/InvoiceResponse"
+            },
+            "type": "array",
+            "title": "Data"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PaginationMeta"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "links": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Links"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Timestamp",
+            "default": "2026-09-05T04:53:36.640363"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "APIResponse[List[InvoiceResponse]]"
       },
       "APIResponse_List_NegotiationResponse__": {
         "properties": {
@@ -12412,7 +13760,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-04T23:23:02.232335"
+            "default": "2026-09-05T04:53:36.640363"
           }
         },
         "type": "object",
@@ -12454,7 +13802,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-04T23:23:02.232335"
+            "default": "2026-09-05T04:53:36.640363"
           }
         },
         "type": "object",
@@ -12496,7 +13844,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-04T23:23:02.232335"
+            "default": "2026-09-05T04:53:36.640363"
           }
         },
         "type": "object",
@@ -12538,7 +13886,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-04T23:23:02.232335"
+            "default": "2026-09-05T04:53:36.640363"
           }
         },
         "type": "object",
@@ -12546,6 +13894,48 @@
           "data"
         ],
         "title": "APIResponse[List[PRListResponse]]"
+      },
+      "APIResponse_List_PaymentRecordResponse__": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/PaymentRecordResponse"
+            },
+            "type": "array",
+            "title": "Data"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PaginationMeta"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "links": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Links"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Timestamp",
+            "default": "2026-09-05T04:53:36.640363"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "APIResponse[List[PaymentRecordResponse]]"
       },
       "APIResponse_List_RfqClarificationResponse__": {
         "properties": {
@@ -12580,7 +13970,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-04T23:23:02.232335"
+            "default": "2026-09-05T04:53:36.640363"
           }
         },
         "type": "object",
@@ -12622,7 +14012,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-04T23:23:02.232335"
+            "default": "2026-09-05T04:53:36.640363"
           }
         },
         "type": "object",
@@ -12664,7 +14054,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-04T23:23:02.232335"
+            "default": "2026-09-05T04:53:36.640363"
           }
         },
         "type": "object",
@@ -12706,7 +14096,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-04T23:23:02.232335"
+            "default": "2026-09-05T04:53:36.640363"
           }
         },
         "type": "object",
@@ -12749,7 +14139,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-04T23:23:02.232335"
+            "default": "2026-09-05T04:53:36.640363"
           }
         },
         "type": "object",
@@ -12787,7 +14177,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-04T23:23:02.232335"
+            "default": "2026-09-05T04:53:36.640363"
           }
         },
         "type": "object",
@@ -12825,7 +14215,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-04T23:23:02.232335"
+            "default": "2026-09-05T04:53:36.640363"
           }
         },
         "type": "object",
@@ -12863,7 +14253,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-04T23:23:02.232335"
+            "default": "2026-09-05T04:53:36.640363"
           }
         },
         "type": "object",
@@ -12901,7 +14291,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-04T23:23:02.232335"
+            "default": "2026-09-05T04:53:36.640363"
           }
         },
         "type": "object",
@@ -12909,6 +14299,44 @@
           "data"
         ],
         "title": "APIResponse[PRDetailResponse]"
+      },
+      "APIResponse_PaymentRecordResponse_": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/PaymentRecordResponse"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PaginationMeta"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "links": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Links"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Timestamp",
+            "default": "2026-09-05T04:53:36.640363"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "APIResponse[PaymentRecordResponse]"
       },
       "APIResponse_QualityInspectionResponse_": {
         "properties": {
@@ -12939,7 +14367,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-04T23:23:02.232335"
+            "default": "2026-09-05T04:53:36.640363"
           }
         },
         "type": "object",
@@ -12977,7 +14405,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-04T23:23:02.232335"
+            "default": "2026-09-05T04:53:36.640363"
           }
         },
         "type": "object",
@@ -13015,7 +14443,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-04T23:23:02.232335"
+            "default": "2026-09-05T04:53:36.640363"
           }
         },
         "type": "object",
@@ -13053,7 +14481,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-04T23:23:02.232335"
+            "default": "2026-09-05T04:53:36.640363"
           }
         },
         "type": "object",
@@ -13091,7 +14519,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-04T23:23:02.232335"
+            "default": "2026-09-05T04:53:36.640363"
           }
         },
         "type": "object",
@@ -13129,7 +14557,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-04T23:23:02.232335"
+            "default": "2026-09-05T04:53:36.640363"
           }
         },
         "type": "object",
@@ -13167,7 +14595,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-04T23:23:02.232335"
+            "default": "2026-09-05T04:53:36.640363"
           }
         },
         "type": "object",
@@ -13205,7 +14633,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-04T23:23:02.232335"
+            "default": "2026-09-05T04:53:36.640363"
           }
         },
         "type": "object",
@@ -13243,7 +14671,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-04T23:23:02.232335"
+            "default": "2026-09-05T04:53:36.640363"
           }
         },
         "type": "object",
@@ -13283,7 +14711,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-04T23:23:02.232335"
+            "default": "2026-09-05T04:53:36.640363"
           }
         },
         "type": "object",
@@ -13325,7 +14753,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-04T23:23:02.232335"
+            "default": "2026-09-05T04:53:36.640363"
           }
         },
         "type": "object",
@@ -16805,6 +18233,296 @@
         ],
         "title": "ContractUtilizationUpdateRequest"
       },
+      "DisputeCreateRequest": {
+        "properties": {
+          "invoice_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Invoice Id"
+          },
+          "reason_code": {
+            "type": "string",
+            "maxLength": 30,
+            "minLength": 2,
+            "title": "Reason Code"
+          },
+          "description": {
+            "type": "string",
+            "minLength": 5,
+            "title": "Description"
+          }
+        },
+        "type": "object",
+        "required": [
+          "invoice_id",
+          "reason_code",
+          "description"
+        ],
+        "title": "DisputeCreateRequest"
+      },
+      "DisputeMessageCreateRequest": {
+        "properties": {
+          "message": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Message"
+          },
+          "attachments": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Attachments"
+          }
+        },
+        "type": "object",
+        "required": [
+          "message"
+        ],
+        "title": "DisputeMessageCreateRequest"
+      },
+      "DisputeMessageResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "org_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Org Id"
+          },
+          "dispute_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Dispute Id"
+          },
+          "sender_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Sender Id"
+          },
+          "sender_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sender Name"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "attachments": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Attachments"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "org_id",
+          "dispute_id",
+          "sender_id",
+          "message",
+          "created_at"
+        ],
+        "title": "DisputeMessageResponse"
+      },
+      "DisputeResolveRequest": {
+        "properties": {
+          "resolution_notes": {
+            "type": "string",
+            "minLength": 3,
+            "title": "Resolution Notes"
+          },
+          "resolution_action": {
+            "type": "string",
+            "pattern": "^(RESOLVED_ACCEPTED|RESOLVED_REJECTED|RESOLVED_CREDIT_NOTE)$",
+            "title": "Resolution Action"
+          },
+          "credit_note_amount": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Credit Note Amount"
+          }
+        },
+        "type": "object",
+        "required": [
+          "resolution_notes",
+          "resolution_action"
+        ],
+        "title": "DisputeResolveRequest"
+      },
+      "DisputeResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "org_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Org Id"
+          },
+          "invoice_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Invoice Id"
+          },
+          "vendor_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Vendor Id"
+          },
+          "reason_code": {
+            "type": "string",
+            "title": "Reason Code"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "raised_by": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Raised By"
+          },
+          "resolved_by": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolved By"
+          },
+          "resolution_notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolution Notes"
+          },
+          "resolution_action": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolution Action"
+          },
+          "credit_note_amount": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Credit Note Amount"
+          },
+          "resolved_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolved At"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          },
+          "messages": {
+            "items": {
+              "$ref": "#/components/schemas/DisputeMessageResponse"
+            },
+            "type": "array",
+            "title": "Messages"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "org_id",
+          "invoice_id",
+          "vendor_id",
+          "reason_code",
+          "description",
+          "status",
+          "raised_by",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "DisputeResponse"
+      },
       "DocumentCategory": {
         "type": "string",
         "enum": [
@@ -16890,6 +18608,137 @@
         },
         "type": "object",
         "title": "DuplicateCheckRequest"
+      },
+      "EligibleLineResponse": {
+        "properties": {
+          "po_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Po Id"
+          },
+          "po_number": {
+            "type": "string",
+            "title": "Po Number"
+          },
+          "po_line_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Po Line Id"
+          },
+          "line_number": {
+            "type": "integer",
+            "title": "Line Number"
+          },
+          "item_description": {
+            "type": "string",
+            "title": "Item Description"
+          },
+          "ordered_quantity": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Ordered Quantity"
+          },
+          "unit_price": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Unit Price"
+          },
+          "tax_rate": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Tax Rate"
+          },
+          "received_quantity": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Received Quantity"
+          },
+          "already_invoiced_quantity": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Already Invoiced Quantity"
+          },
+          "eligible_quantity": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Eligible Quantity"
+          }
+        },
+        "type": "object",
+        "required": [
+          "po_id",
+          "po_number",
+          "po_line_id",
+          "line_number",
+          "item_description",
+          "ordered_quantity",
+          "unit_price",
+          "tax_rate",
+          "received_quantity",
+          "already_invoiced_quantity",
+          "eligible_quantity"
+        ],
+        "title": "EligibleLineResponse"
+      },
+      "ErpPaymentWebhookRequest": {
+        "properties": {
+          "invoice_number": {
+            "type": "string",
+            "title": "Invoice Number"
+          },
+          "utr_number": {
+            "type": "string",
+            "title": "Utr Number"
+          },
+          "amount": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              }
+            ],
+            "title": "Amount"
+          },
+          "payment_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Payment Date"
+          },
+          "payment_method": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Payment Method",
+            "default": "NEFT"
+          },
+          "erp_reference": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Erp Reference"
+          }
+        },
+        "type": "object",
+        "required": [
+          "invoice_number",
+          "utr_number",
+          "amount",
+          "payment_date"
+        ],
+        "title": "ErpPaymentWebhookRequest"
       },
       "EsignConfirmRequest": {
         "properties": {
@@ -17503,6 +19352,662 @@
           "holiday_date"
         ],
         "title": "HolidayCreateRequest"
+      },
+      "InvoiceDisputeRequest": {
+        "properties": {
+          "reason_code": {
+            "type": "string",
+            "maxLength": 30,
+            "minLength": 2,
+            "title": "Reason Code"
+          },
+          "description": {
+            "type": "string",
+            "minLength": 3,
+            "title": "Description"
+          }
+        },
+        "type": "object",
+        "required": [
+          "reason_code",
+          "description"
+        ],
+        "title": "InvoiceDisputeRequest"
+      },
+      "InvoiceLineCreate": {
+        "properties": {
+          "po_line_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Po Line Id"
+          },
+          "grn_line_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Grn Line Id"
+          },
+          "line_number": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Line Number"
+          },
+          "item_description": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Item Description"
+          },
+          "quantity": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              }
+            ],
+            "title": "Quantity"
+          },
+          "unit_price": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              }
+            ],
+            "title": "Unit Price"
+          },
+          "tax_rate": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              }
+            ],
+            "title": "Tax Rate",
+            "default": "0.0"
+          },
+          "tax_amount": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              }
+            ],
+            "title": "Tax Amount",
+            "default": "0.0"
+          },
+          "line_total": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Line Total"
+          }
+        },
+        "type": "object",
+        "required": [
+          "po_line_id",
+          "line_number",
+          "item_description",
+          "quantity",
+          "unit_price"
+        ],
+        "title": "InvoiceLineCreate"
+      },
+      "InvoiceLineResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "invoice_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Invoice Id"
+          },
+          "po_line_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Po Line Id"
+          },
+          "grn_line_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Grn Line Id"
+          },
+          "line_number": {
+            "type": "integer",
+            "title": "Line Number"
+          },
+          "item_description": {
+            "type": "string",
+            "title": "Item Description"
+          },
+          "quantity": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Quantity"
+          },
+          "unit_price": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Unit Price"
+          },
+          "tax_rate": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Tax Rate"
+          },
+          "tax_amount": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Tax Amount"
+          },
+          "line_total": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Line Total"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "invoice_id",
+          "po_line_id",
+          "line_number",
+          "item_description",
+          "quantity",
+          "unit_price",
+          "tax_rate",
+          "tax_amount",
+          "line_total"
+        ],
+        "title": "InvoiceLineResponse"
+      },
+      "InvoiceMatchLineResultResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "invoice_line_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Invoice Line Id"
+          },
+          "po_line_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Po Line Id"
+          },
+          "price_match": {
+            "type": "boolean",
+            "title": "Price Match"
+          },
+          "price_deviation": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price Deviation"
+          },
+          "quantity_match": {
+            "type": "boolean",
+            "title": "Quantity Match"
+          },
+          "quantity_deviation": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quantity Deviation"
+          },
+          "po_reference_valid": {
+            "type": "boolean",
+            "title": "Po Reference Valid"
+          },
+          "tax_match": {
+            "type": "boolean",
+            "title": "Tax Match"
+          },
+          "tax_deviation": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Tax Deviation"
+          },
+          "overall_match": {
+            "type": "boolean",
+            "title": "Overall Match"
+          },
+          "mismatch_reasons": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mismatch Reasons"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "invoice_line_id",
+          "po_line_id",
+          "price_match",
+          "quantity_match",
+          "po_reference_valid",
+          "tax_match",
+          "tax_deviation",
+          "overall_match",
+          "created_at"
+        ],
+        "title": "InvoiceMatchLineResultResponse"
+      },
+      "InvoiceRejectRequest": {
+        "properties": {
+          "rejection_reason": {
+            "type": "string",
+            "minLength": 3,
+            "title": "Rejection Reason"
+          }
+        },
+        "type": "object",
+        "required": [
+          "rejection_reason"
+        ],
+        "title": "InvoiceRejectRequest"
+      },
+      "InvoiceResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "org_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Org Id"
+          },
+          "invoice_number": {
+            "type": "string",
+            "title": "Invoice Number"
+          },
+          "vendor_invoice_number": {
+            "type": "string",
+            "title": "Vendor Invoice Number"
+          },
+          "vendor_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Vendor Id"
+          },
+          "vendor_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vendor Name"
+          },
+          "po_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Po Id"
+          },
+          "po_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Po Number"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "invoice_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Invoice Date"
+          },
+          "due_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Due Date"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency"
+          },
+          "subtotal": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Subtotal"
+          },
+          "tax_amount": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Tax Amount"
+          },
+          "total_amount": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Total Amount"
+          },
+          "tds_amount": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tds Amount",
+            "default": "0.0"
+          },
+          "financial_year": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Financial Year"
+          },
+          "payment_terms_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Payment Terms Code"
+          },
+          "match_status": {
+            "type": "string",
+            "title": "Match Status"
+          },
+          "price_tolerance": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Price Tolerance"
+          },
+          "erp_invoice_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Erp Invoice Number"
+          },
+          "erp_sync_status": {
+            "type": "string",
+            "title": "Erp Sync Status"
+          },
+          "payment_status": {
+            "type": "string",
+            "title": "Payment Status"
+          },
+          "paid_amount": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Paid Amount"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          },
+          "lines": {
+            "items": {
+              "$ref": "#/components/schemas/InvoiceLineResponse"
+            },
+            "type": "array",
+            "title": "Lines"
+          },
+          "match_results": {
+            "items": {
+              "$ref": "#/components/schemas/InvoiceMatchLineResultResponse"
+            },
+            "type": "array",
+            "title": "Match Results"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "org_id",
+          "invoice_number",
+          "vendor_invoice_number",
+          "vendor_id",
+          "po_id",
+          "status",
+          "invoice_date",
+          "due_date",
+          "currency",
+          "subtotal",
+          "tax_amount",
+          "total_amount",
+          "match_status",
+          "price_tolerance",
+          "erp_sync_status",
+          "payment_status",
+          "paid_amount",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "InvoiceResponse"
+      },
+      "InvoiceSubmitRequest": {
+        "properties": {
+          "po_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Po Id"
+          },
+          "vendor_invoice_number": {
+            "type": "string",
+            "maxLength": 50,
+            "minLength": 1,
+            "title": "Vendor Invoice Number"
+          },
+          "invoice_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Invoice Date"
+          },
+          "due_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Due Date"
+          },
+          "currency": {
+            "type": "string",
+            "maxLength": 3,
+            "title": "Currency",
+            "default": "INR"
+          },
+          "subtotal": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              }
+            ],
+            "title": "Subtotal"
+          },
+          "tax_amount": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              }
+            ],
+            "title": "Tax Amount",
+            "default": "0.0"
+          },
+          "total_amount": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              }
+            ],
+            "title": "Total Amount"
+          },
+          "payment_terms_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Payment Terms Code"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "lines": {
+            "items": {
+              "$ref": "#/components/schemas/InvoiceLineCreate"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Lines"
+          }
+        },
+        "type": "object",
+        "required": [
+          "po_id",
+          "vendor_invoice_number",
+          "invoice_date",
+          "subtotal",
+          "total_amount",
+          "lines"
+        ],
+        "title": "InvoiceSubmitRequest"
       },
       "Links": {
         "properties": {
@@ -20144,6 +22649,236 @@
         },
         "type": "object",
         "title": "PaginationMeta"
+      },
+      "PaymentProcessRequest": {
+        "properties": {
+          "utr_number": {
+            "type": "string",
+            "maxLength": 50,
+            "minLength": 3,
+            "title": "Utr Number"
+          },
+          "payment_method": {
+            "type": "string",
+            "maxLength": 30,
+            "title": "Payment Method",
+            "default": "NEFT"
+          },
+          "payment_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Payment Date"
+          },
+          "erp_payment_reference": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Erp Payment Reference"
+          }
+        },
+        "type": "object",
+        "required": [
+          "utr_number"
+        ],
+        "title": "PaymentProcessRequest"
+      },
+      "PaymentRecordResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "org_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Org Id"
+          },
+          "invoice_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Invoice Id"
+          },
+          "invoice_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Invoice Number"
+          },
+          "vendor_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Vendor Id"
+          },
+          "vendor_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vendor Name"
+          },
+          "payment_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Payment Date"
+          },
+          "amount": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Amount"
+          },
+          "gross_amount": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gross Amount",
+            "default": "0.0"
+          },
+          "tds_amount": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tds Amount",
+            "default": "0.0"
+          },
+          "net_amount": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Net Amount",
+            "default": "0.0"
+          },
+          "payment_due_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Payment Due Date"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency"
+          },
+          "utr_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Utr Number"
+          },
+          "payment_method": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Payment Method"
+          },
+          "erp_payment_reference": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Erp Payment Reference"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "org_id",
+          "invoice_id",
+          "vendor_id",
+          "payment_date",
+          "amount",
+          "currency",
+          "status",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "PaymentRecordResponse"
+      },
+      "PaymentScheduleRequest": {
+        "properties": {
+          "invoice_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Invoice Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "invoice_id"
+        ],
+        "title": "PaymentScheduleRequest"
       },
       "PennyTestConfirmRequest": {
         "properties": {

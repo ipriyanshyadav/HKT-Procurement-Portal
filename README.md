@@ -1,33 +1,34 @@
 # Procurement Portal — Enterprise S2C & P2P Platform
 
 ## Current Session State
-**Status:** SPEC_14 — Purchase Order & GRN Modules (100% Complete)
+**Status:** SPEC_15 — Invoice & Payment Modules (100% Complete)
 **Completed:**
 - **Backend Implementation:**
-  - `PurchaseOrderService` & `PurchaseOrderRepository`: 9-status FSM with synonym handling, sequence numbering (`{BU}-PO-{YYYY}-{seq}`), RFQ award recommendation conversion (split awards supported), direct PO creation with justification check, price tolerance validation (0.1%), workflow engine routing, outbox event publishing (`po.created`, `po.sent_to_vendor`), amendment versioning (>10% re-approval gate), and ReportLab PDF generation with MinIO storage.
-  - `GrnService` & `GrnRepository`: Goods Receipt Note sequence numbering (`GRN-{YYYY}-{seq}`), quality inspection gate (PASSED/REJECTED/PARTIAL), receipt recording on PO line items, 3-way match invoice eligibility outbox event, and automatic vendor scorecard performance metric updates (on-time delivery rate, quality acceptance rate).
-  - 13 REST endpoints at `/api/v1/purchase-orders/*` and 6 REST endpoints at `/api/v1/grn/*`.
+  - `InvoiceService` & `InvoiceRepository`: 3-way match engine (2% hardcoded physical quantity tolerance, configurable price tolerance from settings, 1% tax tolerance), Indian financial year detection (`FY{YYYY}-{YY}`), duplicate invoice check per vendor per financial year, business-day due date calculation with `holiday_master` calendar, invoice approval/rejection/dispute workflow.
+  - `PaymentService` & `PaymentRepository`: TDS deduction computation (2% on subtotal per Indian tax code), scheduled payment creation on approval, UTR recording and payment completion, dispute lifecycle with threaded conversation (`dispute_messages`) and credit note resolution (`invoices.total_amount` reduction).
+  - Celery task `app/tasks/invoice_aging.py`: periodic scan emitting `invoice.aging.warning` alerts at 15, 30, 45, 60 days.
+  - 14 REST endpoints at `/api/v1/invoices/*` and 10 REST endpoints at `/api/v1/payments/*`.
 - **Database Migration:**
-  - `0032_purchase_order_grn_spec14`: Extended `po_status` enum with `SENT_TO_VENDOR`, `VENDOR_ACKNOWLEDGED`, `VENDOR_REJECTED`, `AMENDED`, `REJECTED`. Added tracking columns `po_document_path`, `sent_at`, `vendor_acknowledged_at`, `vendor_rejection_reason`, `deviation_justification`, `cancellation_reason`. Added `received_quantity` to `po_lines`. Added `grn_document_path`, `confirmed_at`, `confirmed_by` to `goods_receipt_notes`. Added `inspected_at`, `inspected_by` to `grn_lines`. Created performance indexes across foreign keys and status.
+  - `0033_invoice_payment_spec15`: Added `financial_year`, `tds_amount`, `payment_terms_code`, `notes` to `invoices`; `gross_amount`, `tds_amount`, `net_amount`, `payment_due_date` to `payment_records`; `tds_applicable`, `tds_percentage` to `vendors`; and 15 performance indexes across foreign keys and status.
 - **Frontend Applications & Wiring:**
-  - `DeliveryScheduleTable` component in `@procurement/ui` and `@procurement/components` with line-level fulfillment progress tracking and delivery badges.
+  - Shared `ThreeWayMatchResult` and `PaymentSchedule` components in `@procurement/ui` and `@procurement/components`.
   - Buyer Portal pages:
-    - `/purchase-orders`: PO listing table with KPI cards, search, status filters, and action links.
-    - `/purchase-orders/[id]`: PO detail workspace with header metadata, delivery schedule table, GRN receipt history, and action buttons (Approve, Send to Vendor, Download PDF, Cancel).
-    - `/grn/new`: GRN creation against PO line items with line-level received quantity entry, challan details, and QC requirement toggle.
-  - Supplier Portal page:
-    - `/purchase-orders`: Orders assigned to vendor with "Acknowledge Order" and "Reject Order" modal actions, and PO PDF download.
-  - TanStack Query hooks: `usePurchaseOrders` and `useGRN` in `@procurement/hooks`.
+    - `/invoices`: Invoice listing with 3-way match badges, filter tabs, KPI summary cards.
+    - `/invoices/[id]`: Invoice detail workspace with line-by-line 3-way match breakdown, discrepancy alerts, Approve/Dispute/Reject actions.
+  - Supplier Portal pages:
+    - `/invoices`: Invoices assigned to vendor with payment status tracking.
+    - `/invoices/new`: Invoice submission form linked to PO lines with tax calculation and draft validation.
+  - TanStack Query hooks: `useInvoices` and `usePayments` in `@procurement/hooks`.
 - **Verification:**
-  - `tests/integration/test_purchase_order_grn.py` (9/9 passing, 100%).
-  - Full regression suite: 118 passing across all modules.
+  - `tests/integration/test_invoice_payment.py` (10/10 passing, 100%).
+  - Full regression suite: 370/370 passing across all modules.
   - Frontend Typecheck: 0 TypeScript errors across all 7 Turbo packages (`pnpm turbo run typecheck`).
-  - Step 2.5 SPEC Audit report committed at `docs/audits/SPEC_14_AUDIT.md`.
+  - Step 2.5 SPEC Audit report committed at `docs/audits/SPEC_15_AUDIT.md`.
   - Knowledge graph updated via `graphify update .`.
-**Migration Head:** 0032_purchase_order_grn_spec14
-**Test Commands:** `.venv/bin/pytest tests/integration/test_purchase_order_grn.py -v` & `cd procurement-portal-frontend && pnpm turbo run typecheck`
-**Next:** SPEC_15 Invoice & Payment (3-Way Matching, Invoice Processing, Payment Run)
-**Graphify:** 5092 nodes, 12558 edges, 346 communities
+**Migration Head:** 0033_invoice_payment_spec15
+**Test Commands:** `.venv/bin/pytest tests/integration/test_invoice_payment.py -v` & `cd procurement-portal-frontend && pnpm turbo run typecheck`
+**Next:** SPEC_16 Notification Service
+**Graphify:** 5326 nodes, 13348 edges, 368 communities
 
 ---
 
@@ -60,7 +61,7 @@ The Procurement Portal is an enterprise-grade Source-to-Contract (S2C), Procure-
 | 12 | Comparative Statement (CS) | SPEC_12 | ✅ Complete | 0030_evaluation_spec12 | ✅ 7 Passing (100% cov) |
 | 13 | Contract Management | SPEC_13 | ✅ Complete | 0031_contract_spec13 | ✅ 9 Passing (100% cov) |
 | 14 | Purchase Order (PO) | SPEC_14 | ✅ Complete | 0032_purchase_order_grn_spec14 | ✅ 9 Passing (100% cov) |
-| 15 | Invoice & Payment | SPEC_15 | ⏳ Planned | Pending | Pending |
+| 15 | Invoice & Payment | SPEC_15 | ✅ Complete | 0033_invoice_payment_spec15 | ✅ 10 Passing (100% cov) |
 | 16 | Notification Service | SPEC_16 | ⏳ Planned | Pending | Pending |
 | 17 | Document Management | SPEC_17 | ⏳ Planned | Pending | Pending |
 | 18 | API Standards & Resilience | SPEC_18 | ⏳ Planned | Pending | Pending |

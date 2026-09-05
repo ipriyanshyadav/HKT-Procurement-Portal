@@ -2890,6 +2890,126 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/invoices": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Invoices */
+        get: operations["list_invoices_api_v1_invoices_get"];
+        put?: never;
+        /** Submit Invoice */
+        post: operations["submit_invoice_api_v1_invoices_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/invoices/eligible-lines": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Eligible Lines */
+        get: operations["get_eligible_lines_api_v1_invoices_eligible_lines_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/invoices/{invoice_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Invoice */
+        get: operations["get_invoice_api_v1_invoices__invoice_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/invoices/{invoice_id}/match": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Match Invoice */
+        post: operations["match_invoice_api_v1_invoices__invoice_id__match_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/invoices/{invoice_id}/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Approve Invoice */
+        post: operations["approve_invoice_api_v1_invoices__invoice_id__approve_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/invoices/{invoice_id}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reject Invoice */
+        post: operations["reject_invoice_api_v1_invoices__invoice_id__reject_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/invoices/{invoice_id}/dispute": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Dispute Invoice */
+        post: operations["dispute_invoice_api_v1_invoices__invoice_id__dispute_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/payments/health": {
         parameters: {
             query?: never;
@@ -2901,6 +3021,162 @@ export interface paths {
         get: operations["health_api_v1_payments_health_get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/payments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Payments */
+        get: operations["list_payments_api_v1_payments_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/payments/schedule": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Schedule Payment */
+        post: operations["schedule_payment_api_v1_payments_schedule_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/payments/{payment_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Payment */
+        get: operations["get_payment_api_v1_payments__payment_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/payments/{payment_id}/process": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Process Payment */
+        post: operations["process_payment_api_v1_payments__payment_id__process_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/payments/webhook": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Erp Payment Webhook
+         * @description Inbound webhook from external ERP system recording payment settlement.
+         */
+        post: operations["erp_payment_webhook_api_v1_payments_webhook_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/payments/disputes/all": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Disputes */
+        get: operations["list_disputes_api_v1_payments_disputes_all_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/payments/disputes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create Dispute */
+        post: operations["create_dispute_api_v1_payments_disputes_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/payments/disputes/{dispute_id}/messages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Add Dispute Message */
+        post: operations["add_dispute_message_api_v1_payments_disputes__dispute_id__messages_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/payments/disputes/{dispute_id}/resolve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Resolve Dispute */
+        post: operations["resolve_dispute_api_v1_payments_disputes__dispute_id__resolve_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -3768,7 +4044,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:22:08.465339
+             * @default 2026-09-05T05:08:04.207503
              */
             timestamp: string;
         };
@@ -3780,7 +4056,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:22:08.465339
+             * @default 2026-09-05T05:08:04.207503
              */
             timestamp: string;
         };
@@ -3792,7 +4068,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:22:08.465339
+             * @default 2026-09-05T05:08:04.207503
              */
             timestamp: string;
         };
@@ -3804,7 +4080,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:22:08.465339
+             * @default 2026-09-05T05:08:04.207503
              */
             timestamp: string;
         };
@@ -3816,7 +4092,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:22:08.465339
+             * @default 2026-09-05T05:08:04.207503
              */
             timestamp: string;
         };
@@ -3828,7 +4104,31 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:22:08.465339
+             * @default 2026-09-05T05:08:04.207503
+             */
+            timestamp: string;
+        };
+        /** APIResponse[DisputeMessageResponse] */
+        APIResponse_DisputeMessageResponse_: {
+            data: components["schemas"]["DisputeMessageResponse"];
+            meta?: components["schemas"]["PaginationMeta"] | null;
+            links?: components["schemas"]["Links"] | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             * @default 2026-09-05T05:08:04.207503
+             */
+            timestamp: string;
+        };
+        /** APIResponse[DisputeResponse] */
+        APIResponse_DisputeResponse_: {
+            data: components["schemas"]["DisputeResponse"];
+            meta?: components["schemas"]["PaginationMeta"] | null;
+            links?: components["schemas"]["Links"] | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             * @default 2026-09-05T05:08:04.207503
              */
             timestamp: string;
         };
@@ -3840,7 +4140,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:22:08.465339
+             * @default 2026-09-05T05:08:04.207503
              */
             timestamp: string;
         };
@@ -3852,7 +4152,19 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:22:08.465339
+             * @default 2026-09-05T05:08:04.207503
+             */
+            timestamp: string;
+        };
+        /** APIResponse[InvoiceResponse] */
+        APIResponse_InvoiceResponse_: {
+            data: components["schemas"]["InvoiceResponse"];
+            meta?: components["schemas"]["PaginationMeta"] | null;
+            links?: components["schemas"]["Links"] | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             * @default 2026-09-05T05:08:04.207503
              */
             timestamp: string;
         };
@@ -3865,7 +4177,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:22:08.465339
+             * @default 2026-09-05T05:08:04.207503
              */
             timestamp: string;
         };
@@ -3878,7 +4190,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:22:08.465339
+             * @default 2026-09-05T05:08:04.207503
              */
             timestamp: string;
         };
@@ -3891,7 +4203,33 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:22:08.465339
+             * @default 2026-09-05T05:08:04.207503
+             */
+            timestamp: string;
+        };
+        /** APIResponse[List[DisputeResponse]] */
+        APIResponse_List_DisputeResponse__: {
+            /** Data */
+            data: components["schemas"]["DisputeResponse"][];
+            meta?: components["schemas"]["PaginationMeta"] | null;
+            links?: components["schemas"]["Links"] | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             * @default 2026-09-05T05:08:04.207503
+             */
+            timestamp: string;
+        };
+        /** APIResponse[List[EligibleLineResponse]] */
+        APIResponse_List_EligibleLineResponse__: {
+            /** Data */
+            data: components["schemas"]["EligibleLineResponse"][];
+            meta?: components["schemas"]["PaginationMeta"] | null;
+            links?: components["schemas"]["Links"] | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             * @default 2026-09-05T05:08:04.207503
              */
             timestamp: string;
         };
@@ -3904,7 +4242,20 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:22:08.465339
+             * @default 2026-09-05T05:08:04.207503
+             */
+            timestamp: string;
+        };
+        /** APIResponse[List[InvoiceResponse]] */
+        APIResponse_List_InvoiceResponse__: {
+            /** Data */
+            data: components["schemas"]["InvoiceResponse"][];
+            meta?: components["schemas"]["PaginationMeta"] | null;
+            links?: components["schemas"]["Links"] | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             * @default 2026-09-05T05:08:04.207503
              */
             timestamp: string;
         };
@@ -3917,7 +4268,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:22:08.465339
+             * @default 2026-09-05T05:08:04.207503
              */
             timestamp: string;
         };
@@ -3930,7 +4281,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:22:08.465339
+             * @default 2026-09-05T05:08:04.207503
              */
             timestamp: string;
         };
@@ -3943,7 +4294,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:22:08.465339
+             * @default 2026-09-05T05:08:04.207503
              */
             timestamp: string;
         };
@@ -3956,7 +4307,20 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:22:08.465339
+             * @default 2026-09-05T05:08:04.207503
+             */
+            timestamp: string;
+        };
+        /** APIResponse[List[PaymentRecordResponse]] */
+        APIResponse_List_PaymentRecordResponse__: {
+            /** Data */
+            data: components["schemas"]["PaymentRecordResponse"][];
+            meta?: components["schemas"]["PaginationMeta"] | null;
+            links?: components["schemas"]["Links"] | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             * @default 2026-09-05T05:08:04.207503
              */
             timestamp: string;
         };
@@ -3969,7 +4333,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:22:08.465339
+             * @default 2026-09-05T05:08:04.207503
              */
             timestamp: string;
         };
@@ -3982,7 +4346,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:22:08.465339
+             * @default 2026-09-05T05:08:04.207503
              */
             timestamp: string;
         };
@@ -3995,7 +4359,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:22:08.465339
+             * @default 2026-09-05T05:08:04.207503
              */
             timestamp: string;
         };
@@ -4008,7 +4372,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:22:08.465339
+             * @default 2026-09-05T05:08:04.207503
              */
             timestamp: string;
         };
@@ -4023,7 +4387,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:22:08.465339
+             * @default 2026-09-05T05:08:04.207503
              */
             timestamp: string;
         };
@@ -4035,7 +4399,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:22:08.465339
+             * @default 2026-09-05T05:08:04.207503
              */
             timestamp: string;
         };
@@ -4047,7 +4411,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:22:08.465339
+             * @default 2026-09-05T05:08:04.207503
              */
             timestamp: string;
         };
@@ -4059,7 +4423,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:22:08.465339
+             * @default 2026-09-05T05:08:04.207503
              */
             timestamp: string;
         };
@@ -4071,7 +4435,19 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:22:08.465339
+             * @default 2026-09-05T05:08:04.207503
+             */
+            timestamp: string;
+        };
+        /** APIResponse[PaymentRecordResponse] */
+        APIResponse_PaymentRecordResponse_: {
+            data: components["schemas"]["PaymentRecordResponse"];
+            meta?: components["schemas"]["PaginationMeta"] | null;
+            links?: components["schemas"]["Links"] | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             * @default 2026-09-05T05:08:04.207503
              */
             timestamp: string;
         };
@@ -4083,7 +4459,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:22:08.465339
+             * @default 2026-09-05T05:08:04.207503
              */
             timestamp: string;
         };
@@ -4095,7 +4471,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:22:08.465339
+             * @default 2026-09-05T05:08:04.207503
              */
             timestamp: string;
         };
@@ -4107,7 +4483,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:22:08.465339
+             * @default 2026-09-05T05:08:04.207503
              */
             timestamp: string;
         };
@@ -4119,7 +4495,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:22:08.465339
+             * @default 2026-09-05T05:08:04.207503
              */
             timestamp: string;
         };
@@ -4131,7 +4507,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:22:08.465339
+             * @default 2026-09-05T05:08:04.207503
              */
             timestamp: string;
         };
@@ -4143,7 +4519,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:22:08.465339
+             * @default 2026-09-05T05:08:04.207503
              */
             timestamp: string;
         };
@@ -4155,7 +4531,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:22:08.465339
+             * @default 2026-09-05T05:08:04.207503
              */
             timestamp: string;
         };
@@ -4167,7 +4543,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:22:08.465339
+             * @default 2026-09-05T05:08:04.207503
              */
             timestamp: string;
         };
@@ -4179,7 +4555,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:22:08.465339
+             * @default 2026-09-05T05:08:04.207503
              */
             timestamp: string;
         };
@@ -4194,7 +4570,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:22:08.465339
+             * @default 2026-09-05T05:08:04.207503
              */
             timestamp: string;
         };
@@ -4207,7 +4583,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-04T23:22:08.465339
+             * @default 2026-09-05T05:08:04.207503
              */
             timestamp: string;
         };
@@ -5473,6 +5849,124 @@ export interface components {
             /** Po Number */
             po_number?: string | null;
         };
+        /** DisputeCreateRequest */
+        DisputeCreateRequest: {
+            /**
+             * Invoice Id
+             * Format: uuid
+             */
+            invoice_id: string;
+            /** Reason Code */
+            reason_code: string;
+            /** Description */
+            description: string;
+        };
+        /** DisputeMessageCreateRequest */
+        DisputeMessageCreateRequest: {
+            /** Message */
+            message: string;
+            /** Attachments */
+            attachments?: string[] | null;
+        };
+        /** DisputeMessageResponse */
+        DisputeMessageResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Org Id
+             * Format: uuid
+             */
+            org_id: string;
+            /**
+             * Dispute Id
+             * Format: uuid
+             */
+            dispute_id: string;
+            /**
+             * Sender Id
+             * Format: uuid
+             */
+            sender_id: string;
+            /** Sender Name */
+            sender_name?: string | null;
+            /** Message */
+            message: string;
+            /** Attachments */
+            attachments?: string[] | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** DisputeResolveRequest */
+        DisputeResolveRequest: {
+            /** Resolution Notes */
+            resolution_notes: string;
+            /** Resolution Action */
+            resolution_action: string;
+            /** Credit Note Amount */
+            credit_note_amount?: number | string | null;
+        };
+        /** DisputeResponse */
+        DisputeResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Org Id
+             * Format: uuid
+             */
+            org_id: string;
+            /**
+             * Invoice Id
+             * Format: uuid
+             */
+            invoice_id: string;
+            /**
+             * Vendor Id
+             * Format: uuid
+             */
+            vendor_id: string;
+            /** Reason Code */
+            reason_code: string;
+            /** Description */
+            description: string;
+            /** Status */
+            status: string;
+            /**
+             * Raised By
+             * Format: uuid
+             */
+            raised_by: string;
+            /** Resolved By */
+            resolved_by?: string | null;
+            /** Resolution Notes */
+            resolution_notes?: string | null;
+            /** Resolution Action */
+            resolution_action?: string | null;
+            /** Credit Note Amount */
+            credit_note_amount?: string | null;
+            /** Resolved At */
+            resolved_at?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Messages */
+            messages?: components["schemas"]["DisputeMessageResponse"][];
+        };
         /**
          * DocumentCategory
          * @enum {string}
@@ -5492,6 +5986,58 @@ export interface components {
             bank_account?: string | null;
             /** Ifsc */
             ifsc?: string | null;
+        };
+        /** EligibleLineResponse */
+        EligibleLineResponse: {
+            /**
+             * Po Id
+             * Format: uuid
+             */
+            po_id: string;
+            /** Po Number */
+            po_number: string;
+            /**
+             * Po Line Id
+             * Format: uuid
+             */
+            po_line_id: string;
+            /** Line Number */
+            line_number: number;
+            /** Item Description */
+            item_description: string;
+            /** Ordered Quantity */
+            ordered_quantity: string;
+            /** Unit Price */
+            unit_price: string;
+            /** Tax Rate */
+            tax_rate: string;
+            /** Received Quantity */
+            received_quantity: string;
+            /** Already Invoiced Quantity */
+            already_invoiced_quantity: string;
+            /** Eligible Quantity */
+            eligible_quantity: string;
+        };
+        /** ErpPaymentWebhookRequest */
+        ErpPaymentWebhookRequest: {
+            /** Invoice Number */
+            invoice_number: string;
+            /** Utr Number */
+            utr_number: string;
+            /** Amount */
+            amount: number | string;
+            /**
+             * Payment Date
+             * Format: date
+             */
+            payment_date: string;
+            /**
+             * Payment Method
+             * @default NEFT
+             */
+            payment_method: string | null;
+            /** Erp Reference */
+            erp_reference?: string | null;
         };
         /** EsignConfirmRequest */
         EsignConfirmRequest: {
@@ -5710,6 +6256,248 @@ export interface components {
             holiday_date: string;
             /** Plant Id */
             plant_id?: string | null;
+        };
+        /** InvoiceDisputeRequest */
+        InvoiceDisputeRequest: {
+            /** Reason Code */
+            reason_code: string;
+            /** Description */
+            description: string;
+        };
+        /** InvoiceLineCreate */
+        InvoiceLineCreate: {
+            /**
+             * Po Line Id
+             * Format: uuid
+             */
+            po_line_id: string;
+            /** Grn Line Id */
+            grn_line_id?: string | null;
+            /** Line Number */
+            line_number: number;
+            /** Item Description */
+            item_description: string;
+            /** Quantity */
+            quantity: number | string;
+            /** Unit Price */
+            unit_price: number | string;
+            /**
+             * Tax Rate
+             * @default 0.0
+             */
+            tax_rate: number | string;
+            /**
+             * Tax Amount
+             * @default 0.0
+             */
+            tax_amount: number | string;
+            /** Line Total */
+            line_total?: number | string | null;
+        };
+        /** InvoiceLineResponse */
+        InvoiceLineResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Invoice Id
+             * Format: uuid
+             */
+            invoice_id: string;
+            /**
+             * Po Line Id
+             * Format: uuid
+             */
+            po_line_id: string;
+            /** Grn Line Id */
+            grn_line_id?: string | null;
+            /** Line Number */
+            line_number: number;
+            /** Item Description */
+            item_description: string;
+            /** Quantity */
+            quantity: string;
+            /** Unit Price */
+            unit_price: string;
+            /** Tax Rate */
+            tax_rate: string;
+            /** Tax Amount */
+            tax_amount: string;
+            /** Line Total */
+            line_total: string;
+        };
+        /** InvoiceMatchLineResultResponse */
+        InvoiceMatchLineResultResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Invoice Line Id
+             * Format: uuid
+             */
+            invoice_line_id: string;
+            /**
+             * Po Line Id
+             * Format: uuid
+             */
+            po_line_id: string;
+            /** Price Match */
+            price_match: boolean;
+            /** Price Deviation */
+            price_deviation?: string | null;
+            /** Quantity Match */
+            quantity_match: boolean;
+            /** Quantity Deviation */
+            quantity_deviation?: string | null;
+            /** Po Reference Valid */
+            po_reference_valid: boolean;
+            /** Tax Match */
+            tax_match: boolean;
+            /** Tax Deviation */
+            tax_deviation: string;
+            /** Overall Match */
+            overall_match: boolean;
+            /** Mismatch Reasons */
+            mismatch_reasons?: string[] | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** InvoiceRejectRequest */
+        InvoiceRejectRequest: {
+            /** Rejection Reason */
+            rejection_reason: string;
+        };
+        /** InvoiceResponse */
+        InvoiceResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Org Id
+             * Format: uuid
+             */
+            org_id: string;
+            /** Invoice Number */
+            invoice_number: string;
+            /** Vendor Invoice Number */
+            vendor_invoice_number: string;
+            /**
+             * Vendor Id
+             * Format: uuid
+             */
+            vendor_id: string;
+            /** Vendor Name */
+            vendor_name?: string | null;
+            /**
+             * Po Id
+             * Format: uuid
+             */
+            po_id: string;
+            /** Po Number */
+            po_number?: string | null;
+            /** Status */
+            status: string;
+            /**
+             * Invoice Date
+             * Format: date
+             */
+            invoice_date: string;
+            /**
+             * Due Date
+             * Format: date
+             */
+            due_date: string;
+            /** Currency */
+            currency: string;
+            /** Subtotal */
+            subtotal: string;
+            /** Tax Amount */
+            tax_amount: string;
+            /** Total Amount */
+            total_amount: string;
+            /**
+             * Tds Amount
+             * @default 0.0
+             */
+            tds_amount: string | null;
+            /** Financial Year */
+            financial_year?: string | null;
+            /** Payment Terms Code */
+            payment_terms_code?: string | null;
+            /** Match Status */
+            match_status: string;
+            /** Price Tolerance */
+            price_tolerance: string;
+            /** Erp Invoice Number */
+            erp_invoice_number?: string | null;
+            /** Erp Sync Status */
+            erp_sync_status: string;
+            /** Payment Status */
+            payment_status: string;
+            /** Paid Amount */
+            paid_amount: string;
+            /** Notes */
+            notes?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Lines */
+            lines?: components["schemas"]["InvoiceLineResponse"][];
+            /** Match Results */
+            match_results?: components["schemas"]["InvoiceMatchLineResultResponse"][];
+        };
+        /** InvoiceSubmitRequest */
+        InvoiceSubmitRequest: {
+            /**
+             * Po Id
+             * Format: uuid
+             */
+            po_id: string;
+            /** Vendor Invoice Number */
+            vendor_invoice_number: string;
+            /**
+             * Invoice Date
+             * Format: date
+             */
+            invoice_date: string;
+            /** Due Date */
+            due_date?: string | null;
+            /**
+             * Currency
+             * @default INR
+             */
+            currency: string;
+            /** Subtotal */
+            subtotal: number | string;
+            /**
+             * Tax Amount
+             * @default 0.0
+             */
+            tax_amount: number | string;
+            /** Total Amount */
+            total_amount: number | string;
+            /** Payment Terms Code */
+            payment_terms_code?: string | null;
+            /** Notes */
+            notes?: string | null;
+            /** Lines */
+            lines: components["schemas"]["InvoiceLineCreate"][];
         };
         /** Links */
         Links: {
@@ -6635,6 +7423,99 @@ export interface components {
             has_next_page?: boolean | null;
             /** Has Prev Page */
             has_prev_page?: boolean | null;
+        };
+        /** PaymentProcessRequest */
+        PaymentProcessRequest: {
+            /** Utr Number */
+            utr_number: string;
+            /**
+             * Payment Method
+             * @default NEFT
+             */
+            payment_method: string;
+            /** Payment Date */
+            payment_date?: string | null;
+            /** Erp Payment Reference */
+            erp_payment_reference?: string | null;
+        };
+        /** PaymentRecordResponse */
+        PaymentRecordResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Org Id
+             * Format: uuid
+             */
+            org_id: string;
+            /**
+             * Invoice Id
+             * Format: uuid
+             */
+            invoice_id: string;
+            /** Invoice Number */
+            invoice_number?: string | null;
+            /**
+             * Vendor Id
+             * Format: uuid
+             */
+            vendor_id: string;
+            /** Vendor Name */
+            vendor_name?: string | null;
+            /**
+             * Payment Date
+             * Format: date
+             */
+            payment_date: string;
+            /** Amount */
+            amount: string;
+            /**
+             * Gross Amount
+             * @default 0.0
+             */
+            gross_amount: string | null;
+            /**
+             * Tds Amount
+             * @default 0.0
+             */
+            tds_amount: string | null;
+            /**
+             * Net Amount
+             * @default 0.0
+             */
+            net_amount: string | null;
+            /** Payment Due Date */
+            payment_due_date?: string | null;
+            /** Currency */
+            currency: string;
+            /** Utr Number */
+            utr_number?: string | null;
+            /** Payment Method */
+            payment_method?: string | null;
+            /** Erp Payment Reference */
+            erp_payment_reference?: string | null;
+            /** Status */
+            status: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /** PaymentScheduleRequest */
+        PaymentScheduleRequest: {
+            /**
+             * Invoice Id
+             * Format: uuid
+             */
+            invoice_id: string;
         };
         /** PennyTestConfirmRequest */
         PennyTestConfirmRequest: {
@@ -13319,6 +14200,274 @@ export interface operations {
             };
         };
     };
+    list_invoices_api_v1_invoices_get: {
+        parameters: {
+            query?: {
+                po_id?: string | null;
+                vendor_id?: string | null;
+                status?: string | null;
+                match_status?: string | null;
+                payment_status?: string | null;
+                financial_year?: string | null;
+                search?: string | null;
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_List_InvoiceResponse__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    submit_invoice_api_v1_invoices_post: {
+        parameters: {
+            query?: {
+                vendor_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InvoiceSubmitRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_InvoiceResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_eligible_lines_api_v1_invoices_eligible_lines_get: {
+        parameters: {
+            query?: {
+                vendor_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_List_EligibleLineResponse__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_invoice_api_v1_invoices__invoice_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                invoice_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_InvoiceResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    match_invoice_api_v1_invoices__invoice_id__match_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                invoice_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_InvoiceResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    approve_invoice_api_v1_invoices__invoice_id__approve_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                invoice_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_InvoiceResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reject_invoice_api_v1_invoices__invoice_id__reject_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                invoice_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InvoiceRejectRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_InvoiceResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    dispute_invoice_api_v1_invoices__invoice_id__dispute_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                invoice_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InvoiceDisputeRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_InvoiceResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     health_api_v1_payments_health_get: {
         parameters: {
             query?: never;
@@ -13335,6 +14484,308 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+        };
+    };
+    list_payments_api_v1_payments_get: {
+        parameters: {
+            query?: {
+                invoice_id?: string | null;
+                vendor_id?: string | null;
+                status?: string | null;
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_List_PaymentRecordResponse__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    schedule_payment_api_v1_payments_schedule_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PaymentScheduleRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_PaymentRecordResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_payment_api_v1_payments__payment_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                payment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_PaymentRecordResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    process_payment_api_v1_payments__payment_id__process_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                payment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PaymentProcessRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_PaymentRecordResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    erp_payment_webhook_api_v1_payments_webhook_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ErpPaymentWebhookRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_disputes_api_v1_payments_disputes_all_get: {
+        parameters: {
+            query?: {
+                invoice_id?: string | null;
+                status?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_List_DisputeResponse__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_dispute_api_v1_payments_disputes_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DisputeCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_DisputeResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    add_dispute_message_api_v1_payments_disputes__dispute_id__messages_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                dispute_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DisputeMessageCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_DisputeMessageResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    resolve_dispute_api_v1_payments_disputes__dispute_id__resolve_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                dispute_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DisputeResolveRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_DisputeResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

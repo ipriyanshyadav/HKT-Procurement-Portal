@@ -145,6 +145,8 @@ class Settings(BaseSettings):
     EMERGENCY_BID_WINDOW_MIN_HOURS: int = 24
     MIN_CLOSED_RFQ_PARTICIPANTS: int = 3
     PR_AGING_ALERT_DAYS: list[int] = [7, 14, 30]
+    INVOICE_AGING_ALERT_DAYS: list[int] = [15, 30, 45, 60]
+    INVOICE_TAX_TOLERANCE_PCT: float = 0.01
     UNMAPPED_PR_SLA_HOURS: list[int] = [4, 8, 24, 48]
     OUTBOX_RETRY_MAX: int = 10
     INTEGRATION_JOB_MAX_RETRIES: int = 7

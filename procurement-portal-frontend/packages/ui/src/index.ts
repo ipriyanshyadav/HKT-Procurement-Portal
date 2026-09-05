@@ -121,3 +121,10 @@ export type { MilestoneTrackerProps, MilestoneItem } from "./MilestoneTracker";
 // Purchase Order & GRN Components (SPEC_14)
 export { DeliveryScheduleTable } from "./DeliveryScheduleTable";
 export type { DeliveryScheduleTableProps } from "./DeliveryScheduleTable";
+
+// Invoice & Payment Components (SPEC_15)
+export { ThreeWayMatchResult } from "./ThreeWayMatchResult";
+export type { ThreeWayMatchResultProps } from "./ThreeWayMatchResult";
+export { PaymentSchedule } from "./PaymentSchedule";
+export type { PaymentScheduleProps } from "./PaymentSchedule";
+
