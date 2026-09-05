@@ -1,0 +1,108 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: celery-worker
+  namespace: procurement
+  labels:
+    app: celery-worker
+    app.kubernetes.io/name: celery-worker
+    app.kubernetes.io/part-of: procurement-portal
+spec:
+  replicas: 2
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      app: celery-worker
+  template:
+    metadata:
+      labels:
+        app: celery-worker
+        app.kubernetes.io/name: celery-worker
+        app.kubernetes.io/part-of: procurement-portal
+    spec:
+      containers:
+        - name: worker
+          image: procurement-api:latest
+          imagePullPolicy: IfNotPresent
+          command:
+            - celery
+            - -A
+            - app.tasks.celery_app
+            - worker
+            - -l
+            - info
+            - -Q
+            - celery.notification,celery.integration,celery.sla_timers,celery.outbox,celery.analytics,celery.document
+            - -c
+            - "4"
+          resources:
+            requests:
+              cpu: 500m
+              memory: 512Mi
+            limits:
+              cpu: 2000m
+              memory: 2Gi
+          envFrom:
+            - secretRef:
+                name: procurement-secrets
+            - configMapRef:
+                name: procurement-config
+          livenessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - celery -A app.tasks.celery_app inspect ping -d celery@$HOSTNAME --timeout 5
+            initialDelaySeconds: 45
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 3
+      terminationGracePeriodSeconds: 60
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: celery-beat
+  namespace: procurement
+  labels:
+    app: celery-beat
+    app.kubernetes.io/name: celery-beat
+    app.kubernetes.io/part-of: procurement-portal
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: celery-beat
+  template:
+    metadata:
+      labels:
+        app: celery-beat
+        app.kubernetes.io/name: celery-beat
+        app.kubernetes.io/part-of: procurement-portal
+    spec:
+      containers:
+        - name: beat
+          image: procurement-api:latest
+          imagePullPolicy: IfNotPresent
+          command:
+            - celery
+            - -A
+            - app.tasks.celery_app
+            - beat
+            - -l
+            - info
+          resources:
+            requests:
+              cpu: 200m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          envFrom:
+            - secretRef:
+                name: procurement-secrets
+            - configMapRef:
+                name: procurement-config
+      terminationGracePeriodSeconds: 30

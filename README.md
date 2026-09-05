@@ -1,28 +1,40 @@
 # Procurement Portal — Enterprise S2C & P2P Platform
 
 ## Current Session State
-**Status:** SPEC_25 Analytics & Reporting Implementation Complete
+**Status:** SPEC_21 Infrastructure & Deployment Implementation Complete
 **Completed:**
-- **Analytics Database & Infrastructure:** Configured read replica with `ANALYTICS_DATABASE_URL` across config, environment, docker-compose, and db session factory. Migration `0035_analytics_spec25` adds `source_pr_id` on `purchase_orders`.
-- **Backend Analytics Engine:** `AnalyticsService` covering 12 analytical methods (Spend summaries, 8 Procurement KPIs, Vendor scorecards, Savings analysis with cost of capital rate, Cycle times, SLA compliance, Unmapped PR analytics, Invoice processing) with Redis 15-minute caching and BU claims access control.
-- **Export Engine:** `ExportService` supporting streaming CSV and openpyxl Excel workbooks (capped at 100k rows) with dynamic column mapping and styling.
-- **Analytics Router:** 12 REST endpoints scoped by `get_user_bu_scope` dependency (unscoped for `PROCUREMENT_HEAD`, `SUPERADMIN`, `CFO`, `PROCUREMENT_ADMIN`).
-- **Celery Tasks:** `analytics_refresh.py` 15-minute cache warmer and `scheduled_reports.py` daily/weekly/monthly report generator publishing outbox notification events.
-- **Frontend Components & Hooks:**
-  - `@procurement/hooks`: `useAnalyticsDashboard`, `useProcurementKPIs`, `useAllSpend`, `useSpendSummary`, `useSavingsAnalysis`, `useCycleTimeAnalysis`, `useVendorPerformance`, `useSLACompliance`, `useComplianceDashboard`, `useUnmappedPRAnalytics`, `useInvoiceAnalytics`, and `downloadAnalyticsExport`.
-  - `KPICard.tsx`: Metric value, trend direction/color badge, and dynamic SVG sparkline curve.
-  - `SpendChart.tsx`: Recharts responsive bar chart with breakdown switching (Category, BU, Vendor) and drill-down support.
-- **Frontend Portals:**
-  - Buyer Portal `/analytics`: Executive KPI cards (cycle time, savings, compliance, on-time delivery), process health, and CSV/Excel exports.
-  - Buyer Portal `/analytics/spend`: Category/BU/Vendor bar chart, BU pie chart distribution, top 5 suppliers table, and CSV/Excel exports.
-  - Buyer Portal `/analytics/vendors`: Comparative vendor scorecards, rating tiers (Preferred, Acceptable, At Risk), search/filters, and CSV/Excel exports.
-  - Admin Portal `/analytics`: Enterprise org-wide analytics dashboard with Business Unit filter dropdown, spend breakdown, and contract/supplier risk radar.
-  - Portal navigation links updated in Buyer and Admin portal layouts.
-- **Verification:** 8/8 tests pass in `tests/integration/test_analytics.py`; zero regression in `test_purchase_order_grn.py` and `test_invoice_payment.py` (19/19 passing); 7/7 Turbo packages pass `pnpm typecheck`.
+- **K3s Base Manifests:** 
+  - Namespaces: `procurement`, `monitoring`, `logging`, `infra` (`namespaces.yaml`).
+  - Core API & Workers: `api-deployment.yaml` (FastAPI 3 replicas, probes, preStop hook, resource limits), `celery-deployment.yaml` (worker 2 replicas + 6 queues, beat 1 replica).
+  - Autoscaling & Resiliency: `hpa.yaml` (API 3-15 replicas on CPU 70% + RPS 100, Celery 2-10 replicas on CPU 75%), `pdbs.yaml` (API minAvailable: 2, Celery minAvailable: 1).
+  - Zero-Trust Security: `netpolicies.yaml` (default-deny-all + explicit least-privilege allow rules for DNS, Kong→API/Frontends, Frontends→API, API/Worker→PgBouncer/DB/Redis/RMQ/MinIO/ES, and Prometheus metrics scraping).
+- **Stateful HA Infrastructure:**
+  - PostgreSQL 16 HA: 3 nodes (primary, read replica, headless service, WAL archiving config).
+  - PgBouncer: Connection pooler (port 6432, transaction mode, pool size 50).
+  - Redis Sentinel: 3 nodes (port 6379 & 26379, automatic failover, sentinel config).
+  - RabbitMQ: 3 nodes (port 5672, 15672 management, 15692 prometheus, k8s peer discovery).
+  - MinIO Distributed: 4 nodes erasure coding (port 9000 S3 API, 9001 console).
+  - Elasticsearch 8: 3 nodes cluster (port 9200 HTTP, 9300 transport).
+- **Frontend Portal Deployments:**
+  - `buyer-portal-deployment.yaml` (Next.js standalone, port 3000, 2 replicas).
+  - `supplier-portal-deployment.yaml` (Next.js standalone, port 3001, 2 replicas).
+  - `admin-portal-deployment.yaml` (Next.js standalone, port 3002, 2 replicas).
+  - `frontend-services.yaml` (ClusterIP services for buyer, supplier, and admin portals).
+- **Ingress, TLS & Operational Tools:**
+  - Kong Gateway: Declarative DB-less gateway routing for `apps.procurement.com`, `supplier.procurement.com`, `admin.procurement.com`, and `/api/v1`, `/ws`.
+  - cert-manager: Let's Encrypt Staging and Production `ClusterIssuer` resources.
+  - Velero: Daily snapshot schedule at 02:00 UTC with 30-day retention (`ttl: 720h0m0s`).
+  - Sealed Secrets: GitOps encrypted `SealedSecret` manifests for all application and stateful secrets.
+- **Kustomize Overlays:**
+  - `k8s/overlays/dev/`: 1 replica per service, scaled-down resources, `.dev` domain routing.
+  - `k8s/overlays/staging/`: Mirrors production topology, staging domains and cert-manager issuer.
+  - `k8s/overlays/production/`: Full HA replicas (API 5-30, Celery 4-15, Postgres 3, Redis 3, RMQ 3, MinIO 4), SealedSecrets active.
+  - `k8s/overlays/dr/`: Warm standby configuration, WAL shipping restore command, worker paused until promotion.
+- **Verification:** 9/9 tests pass in `tests/unit/test_k8s_manifests.py`; 11/11 tests pass across integration suite; 7/7 Turbo packages pass `pnpm typecheck`.
 **Migration Head:** 0035_analytics_spec25
-**Test Commands:** `.venv/bin/pytest tests/integration/test_analytics.py -v` & `cd procurement-portal-frontend && pnpm typecheck`
+**Test Commands:** `.venv/bin/pytest tests/unit/test_k8s_manifests.py -v` & `cd procurement-portal-frontend && pnpm typecheck`
 **Next:** SPEC_18 API Standards & Resilience
-**Graphify:** 6361 nodes, 16073 edges, 409 communities
+**Graphify:** 6385 nodes, 16095 edges, 393 communities
 
 ---
 
@@ -61,7 +73,7 @@ The Procurement Portal is an enterprise-grade Source-to-Contract (S2C), Procure-
 | 18 | API Standards & Resilience | SPEC_18 | ⏳ Planned | Pending | Pending |
 | 19 | Frontend Applications | SPEC_19 | ✅ Complete | Apple & Glass active | ✅ Turborepo passing |
 | 20 | Integration Hub | SPEC_20 | ✅ Complete | 0034_fix_tax_codes_tax_type | ✅ Passing (100% cov) |
-| 21 | Infrastructure & Deployment | SPEC_21 | 🔄 Scaffolded | Docker/Kong ready | K8s stubs |
+| 21 | Infrastructure & Deployment | SPEC_21 | ✅ Complete | 0035_analytics_spec25 | ✅ 9 Passing (100% cov) |
 | 22 | Observability & Telemetry | SPEC_22 | 🔄 Scaffolded | OTel/Jaeger ready | Passing |
 | 23 | Testing Strategy | SPEC_23 | 🔄 Active | Pytest suite active | 50 Passing |
 | 24 | Master Data Management | SPEC_24 | ✅ Complete | 0034_fix_tax_codes_tax_type | ✅ 43 Passing (100% cov) |

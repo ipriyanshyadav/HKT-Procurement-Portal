@@ -6,26 +6,26 @@
 ## SPEC COVERAGE MAP
 | Req# | Section | Target | Status |
 |---|---|---|---|
-| S21-01 | K3s cluster: 1 control plane + 3 worker nodes | k8s/base/ manifests | PLANNED |
-| S21-02 | Namespaces: procurement, monitoring, logging, infra | k8s/base/namespaces.yaml | PLANNED |
-| S21-03 | PostgreSQL 16 HA (Bitnami chart, primary+replica) | k8s/base/postgresql/ | PLANNED |
-| S21-04 | PgBouncer sidecar | k8s/base/pgbouncer/ | PLANNED |
-| S21-05 | Redis Sentinel (3 nodes) | k8s/base/redis/ | PLANNED |
-| S21-06 | RabbitMQ cluster (3 nodes) | k8s/base/rabbitmq/ | PLANNED |
-| S21-07 | MinIO distributed (4 nodes) | k8s/base/minio/ | PLANNED |
-| S21-08 | Elasticsearch 8 cluster | k8s/base/elasticsearch/ | PLANNED |
-| S21-09 | FastAPI HPA (3-15 replicas, CPU 70% + RPS) | k8s/base/api-deployment.yaml | PLANNED |
-| S21-10 | Celery HPA (worker: 2-10, beat: 1) | k8s/base/celery-deployment.yaml | PLANNED |
-| S21-11 | Kong Ingress | k8s/base/kong/ | PLANNED |
-| S21-12 | cert-manager (Let's Encrypt) | k8s/base/cert-manager/ | PLANNED |
-| S21-13 | Kustomize overlays (dev/staging/prod/dr) | k8s/overlays/ | PLANNED |
-| S21-14 | DR: WAL shipping, 4h RTO, 1h RPO | k8s/overlays/dr/ + pg config | PLANNED |
-| S21-15 | Secrets management (K3s Secrets + Sealed Secrets) | k8s/base/sealed-secrets/ | PLANNED |
-| S21-16 | Backup: Velero daily snapshots | k8s/base/velero/ | PLANNED |
-| S21-17 | Resource limits: CPU/memory per pod | All deployments | PLANNED |
-| S21-18 | Liveness + readiness probes on all pods | All deployments | PLANNED |
-| S21-19 | Pod disruption budgets | k8s/base/pdbs.yaml | PLANNED |
-| S21-20 | Network policies (deny all + selective allow) | k8s/base/netpolicies.yaml | PLANNED |
+| S21-01 | K3s cluster: 1 control plane + 3 worker nodes | k8s/base/ manifests | DONE |
+| S21-02 | Namespaces: procurement, monitoring, logging, infra | k8s/base/namespaces.yaml | DONE |
+| S21-03 | PostgreSQL 16 HA (Bitnami chart, primary+replica) | k8s/base/postgresql/ | DONE |
+| S21-04 | PgBouncer sidecar | k8s/base/pgbouncer/ | DONE |
+| S21-05 | Redis Sentinel (3 nodes) | k8s/base/redis/ | DONE |
+| S21-06 | RabbitMQ cluster (3 nodes) | k8s/base/rabbitmq/ | DONE |
+| S21-07 | MinIO distributed (4 nodes) | k8s/base/minio/ | DONE |
+| S21-08 | Elasticsearch 8 cluster | k8s/base/elasticsearch/ | DONE |
+| S21-09 | FastAPI HPA (3-15 replicas, CPU 70% + RPS) | k8s/base/api-deployment.yaml | DONE |
+| S21-10 | Celery HPA (worker: 2-10, beat: 1) | k8s/base/celery-deployment.yaml | DONE |
+| S21-11 | Kong Ingress | k8s/base/kong/ | DONE |
+| S21-12 | cert-manager (Let's Encrypt) | k8s/base/cert-manager/ | DONE |
+| S21-13 | Kustomize overlays (dev/staging/prod/dr) | k8s/overlays/ | DONE |
+| S21-14 | DR: WAL shipping, 4h RTO, 1h RPO | k8s/overlays/dr/ + pg config | DONE |
+| S21-15 | Secrets management (K3s Secrets + Sealed Secrets) | k8s/base/sealed-secrets/ | DONE |
+| S21-16 | Backup: Velero daily snapshots | k8s/base/velero/ | DONE |
+| S21-17 | Resource limits: CPU/memory per pod | All deployments | DONE |
+| S21-18 | Liveness + readiness probes on all pods | All deployments | DONE |
+| S21-19 | Pod disruption budgets | k8s/base/pdbs.yaml | DONE |
+| S21-20 | Network policies (deny all + selective allow) | k8s/base/netpolicies.yaml | DONE |
 
 ---
 ## ASSUMPTIONS LOG
@@ -36,6 +36,9 @@
 | A-21-3 | Sealed Secrets controller encrypts K8s secrets at rest in Git; kubeseal used for encryption | GitOps-compatible secret management | LOW | DevOps |
 | A-21-4 | HPA custom metric: `requests_per_second_per_pod` via Prometheus adapter; CPU 70% trigger for initial baseline | SPEC requires RPS-based scaling | MEDIUM | DevOps |
 | A-21-5 | `procurement` namespace: network policy denies ALL ingress by default; only Kong→API and API→DB/Redis/RabbitMQ allowed | SPEC_04 network isolation | HIGH | DevOps |
+| A-21-6 | Frontend portals (Buyer, Supplier, Admin) run Next.js standalone server on ports 3000, 3001, 3002 exposed via ClusterIP services | Standard Next.js production packaging | LOW | Frontend/DevOps |
+| A-21-7 | Kong Ingress & routes proxy `apps.procurement.com`, `supplier.procurement.com`, `admin.procurement.com` to frontend services, and `/api/v1`, `/ws` to API | Unified gateway ingress routing | MEDIUM | DevOps |
+| A-21-8 | Dev overlay scales replicas to 1 for statefulsets and deployments with reduced resource constraints for local cluster feasibility | Developer workstation resource efficiency | LOW | DevOps |
 
 ---
 ## STEP 2 — IMPLEMENT

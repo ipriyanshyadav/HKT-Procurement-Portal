@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgresql-configuration
+  namespace: procurement
+data:
+  postgresql.conf: |
+    max_connections = 250
+    shared_buffers = 2GB
+    hot_standby = on
+    restore_command = 'mc cp minio/procurement-wal/%f %p'
+    archive_cleanup_command = 'pg_archivecleanup /var/lib/postgresql/data/pgdata/pg_wal %r'

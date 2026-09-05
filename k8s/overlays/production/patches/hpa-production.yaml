@@ -1,0 +1,17 @@
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: procurement-api-hpa
+  namespace: procurement
+spec:
+  minReplicas: 5
+  maxReplicas: 30
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: celery-worker-hpa
+  namespace: procurement
+spec:
+  minReplicas: 4
+  maxReplicas: 15

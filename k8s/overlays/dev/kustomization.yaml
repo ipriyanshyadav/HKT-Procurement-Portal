@@ -1,0 +1,34 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../base
+
+patches:
+  - path: patches/replicas.yaml
+  - path: patches/resources.yaml
+  - path: patches/ingress.yaml
+
+images:
+  - name: procurement-api
+    newName: procurement-api
+    newTag: dev
+  - name: procurement-buyer-portal
+    newName: procurement-buyer-portal
+    newTag: dev
+  - name: procurement-supplier-portal
+    newName: procurement-supplier-portal
+    newTag: dev
+  - name: procurement-admin-portal
+    newName: procurement-admin-portal
+    newTag: dev
+
+configMapGenerator:
+  - name: procurement-config
+    namespace: procurement
+    behavior: merge
+    literals:
+      - ENVIRONMENT=development
+      - LOG_LEVEL=DEBUG
+      - NEXT_PUBLIC_API_URL=https://api.procurement.dev
+      - NEXT_PUBLIC_WS_URL=wss://api.procurement.dev

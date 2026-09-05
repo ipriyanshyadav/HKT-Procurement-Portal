@@ -1,0 +1,121 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kong-declarative-config
+  namespace: infra
+  labels:
+    app.kubernetes.io/name: kong
+    app.kubernetes.io/part-of: procurement-portal
+data:
+  kong.yml: |
+    _format_version: "3.0"
+
+    services:
+      - name: procurement-api
+        url: http://procurement-api.procurement.svc.cluster.local:8000
+        routes:
+          - name: api-v1
+            paths:
+              - /api/v1
+            strip_path: false
+          - name: websocket
+            paths:
+              - /ws
+            protocols:
+              - http
+              - https
+              - ws
+              - wss
+            strip_path: false
+          - name: health
+            paths:
+              - /health
+            strip_path: false
+          - name: api-docs
+            paths:
+              - /docs
+              - /openapi.json
+            strip_path: false
+        plugins:
+          - name: correlation-id
+            config:
+              header_name: X-Request-ID
+              generator: uuid
+              echo_downstream: true
+          - name: request-size-limiting
+            config:
+              allowed_payload_size: 50
+              size_unit: megabytes
+          - name: rate-limiting
+            config:
+              minute: 100
+              policy: redis
+              redis_host: redis-master.procurement.svc.cluster.local
+              redis_port: 6379
+              redis_database: 1
+              fault_tolerant: true
+              hide_client_headers: false
+          - name: cors
+            config:
+              origins:
+                - https://apps.procurement.com
+                - https://supplier.procurement.com
+                - https://admin.procurement.com
+                - https://apps.procurement.dev
+                - https://supplier.procurement.dev
+                - https://admin.procurement.dev
+              methods:
+                - GET
+                - POST
+                - PUT
+                - PATCH
+                - DELETE
+                - OPTIONS
+              headers:
+                - Authorization
+                - Content-Type
+                - X-Request-ID
+                - Idempotency-Key
+                - X-Portal-Id
+                - Accept
+                - Origin
+              exposed_headers:
+                - X-Request-ID
+              credentials: true
+              max_age: 3600
+
+      - name: buyer-portal
+        url: http://buyer-portal.procurement.svc.cluster.local:3000
+        routes:
+          - name: buyer-portal-route
+            hosts:
+              - apps.procurement.com
+              - apps.procurement.dev
+              - apps-staging.procurement.com
+            paths:
+              - /
+            strip_path: false
+
+      - name: supplier-portal
+        url: http://supplier-portal.procurement.svc.cluster.local:3001
+        routes:
+          - name: supplier-portal-route
+            hosts:
+              - supplier.procurement.com
+              - supplier.procurement.dev
+              - supplier-staging.procurement.com
+            paths:
+              - /
+            strip_path: false
+
+      - name: admin-portal
+        url: http://admin-portal.procurement.svc.cluster.local:3002
+        routes:
+          - name: admin-portal-route
+            hosts:
+              - admin.procurement.com
+              - admin.procurement.dev
+              - admin-staging.procurement.com
+            paths:
+              - /
+            strip_path: false

@@ -1,0 +1,29 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: procurement-api-pdb
+  namespace: procurement
+  labels:
+    app: procurement-api
+    app.kubernetes.io/name: procurement-api-pdb
+    app.kubernetes.io/part-of: procurement-portal
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: procurement-api
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: celery-worker-pdb
+  namespace: procurement
+  labels:
+    app: celery-worker
+    app.kubernetes.io/name: celery-worker-pdb
+    app.kubernetes.io/part-of: procurement-portal
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: celery-worker

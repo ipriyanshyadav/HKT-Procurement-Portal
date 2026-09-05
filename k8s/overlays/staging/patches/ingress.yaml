@@ -1,0 +1,56 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: procurement-ingress
+  namespace: procurement
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-staging
+spec:
+  tls:
+    - hosts:
+        - apps-staging.procurement.com
+        - supplier-staging.procurement.com
+        - admin-staging.procurement.com
+        - api-staging.procurement.com
+      secretName: procurement-staging-tls
+  rules:
+    - host: apps-staging.procurement.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: buyer-portal
+                port:
+                  number: 3000
+    - host: supplier-staging.procurement.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: supplier-portal
+                port:
+                  number: 3001
+    - host: admin-staging.procurement.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: admin-portal
+                port:
+                  number: 3002
+    - host: api-staging.procurement.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: procurement-api
+                port:
+                  number: 8000

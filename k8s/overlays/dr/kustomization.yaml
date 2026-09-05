@@ -1,0 +1,34 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../base
+  - ../../base/sealed-secrets
+
+patches:
+  - path: patches/standby.yaml
+  - path: patches/postgresql-dr.yaml
+
+images:
+  - name: procurement-api
+    newName: registry.procurement.com/procurement-api
+    newTag: v1.0.0
+  - name: procurement-buyer-portal
+    newName: registry.procurement.com/procurement-buyer-portal
+    newTag: v1.0.0
+  - name: procurement-supplier-portal
+    newName: registry.procurement.com/procurement-supplier-portal
+    newTag: v1.0.0
+  - name: procurement-admin-portal
+    newName: registry.procurement.com/procurement-admin-portal
+    newTag: v1.0.0
+
+configMapGenerator:
+  - name: procurement-config
+    namespace: procurement
+    behavior: merge
+    literals:
+      - ENVIRONMENT=dr
+      - LOG_LEVEL=INFO
+      - NEXT_PUBLIC_API_URL=https://api-dr.procurement.com
+      - NEXT_PUBLIC_WS_URL=wss://api-dr.procurement.com

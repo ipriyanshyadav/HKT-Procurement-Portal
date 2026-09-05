@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pgbouncer-config
+  namespace: procurement
+  labels:
+    app: pgbouncer
+    app.kubernetes.io/name: pgbouncer
+    app.kubernetes.io/part-of: procurement-portal
+data:
+  pgbouncer.ini: |
+    [databases]
+    procurement = host=postgresql-primary port=5432 dbname=procurement
+    [pgbouncer]
+    listen_addr = 0.0.0.0
+    listen_port = 6432
+    auth_type = any
+    auth_file = /etc/pgbouncer/userlist.txt
+    pool_mode = transaction
+    default_pool_size = 50
+    max_client_conn = 200
+    min_pool_size = 10
+    reserve_pool_size = 5
+    reserve_pool_timeout = 3
+    max_db_connections = 100
+    idle_transaction_timeout = 30
+    server_idle_timeout = 600
+    log_connections = 0
+    log_disconnections = 0
+    stats_period = 60
+  userlist.txt: |
+    "app_user" "dev_password"
+    "postgres" "dev_password"
