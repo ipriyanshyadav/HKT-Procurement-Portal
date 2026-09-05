@@ -95,7 +95,7 @@ export default function UnmappedPRsDashboardPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Unmapped PR Exceptions</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Unmapped PR Exceptions</h1>
           <p className="text-sm text-gray-500 mt-1">
             Resolve unmapped material groups, missing plant codes, and SLA breaches from ERP imports.
           </p>
@@ -106,7 +106,7 @@ export default function UnmappedPRsDashboardPage() {
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
         <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm text-center">
           <span className="text-xs text-gray-500 block">Total Pending</span>
-          <span className="text-2xl font-bold text-gray-900">{dashboard?.total_pending ?? 0}</span>
+          <span className="text-2xl font-bold text-gray-900 dark:text-white">{dashboard?.total_pending ?? 0}</span>
         </div>
         <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-xl shadow-sm text-center">
           <span className="text-xs text-emerald-700 font-semibold block">Tier 1 (&lt;4h)</span>
@@ -126,17 +126,17 @@ export default function UnmappedPRsDashboardPage() {
         </div>
         <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm text-center">
           <span className="text-xs text-gray-500 block">Blocked Value</span>
-          <span className="text-xl font-bold text-gray-900">
+          <span className="text-xl font-bold text-gray-900 dark:text-white">
             ₹{Number(dashboard?.total_blocked_value || 0).toLocaleString()}
           </span>
         </div>
       </div>
 
       {/* Exception List Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200 text-sm text-left">
-            <thead className="bg-gray-50 text-gray-600 uppercase text-xs tracking-wider">
+          <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-800 text-sm text-left">
+            <thead className="bg-gray-50 dark:bg-slate-800/60 text-gray-600 dark:text-slate-400 uppercase text-xs tracking-wider">
               <tr>
                 <th className="px-4 py-3.5 font-semibold">SLA Status</th>
                 <th className="px-4 py-3.5 font-semibold">PR Number</th>
@@ -146,7 +146,7 @@ export default function UnmappedPRsDashboardPage() {
                 <th className="px-4 py-3.5 font-semibold text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100 text-gray-800">
+            <tbody className="divide-y divide-gray-100 dark:divide-slate-800 text-gray-800">
               {isLoading ? (
                 <tr>
                   <td colSpan={6} className="text-center py-12 text-gray-500">
@@ -169,7 +169,7 @@ export default function UnmappedPRsDashboardPage() {
                     : Object.keys(exc.failed_fields || {});
 
                   return (
-                    <tr key={exc.id} className="hover:bg-gray-50/75 transition-colors">
+                    <tr key={exc.id} className="hover:bg-gray-50 dark:hover:bg-slate-800/50/75 dark:hover:bg-slate-800/50 transition-colors">
                       <td className="px-4 py-3.5">{getSlaBadge(exc.sla_breach_level)}</td>
                       <td className="px-4 py-3.5 font-mono text-xs font-semibold text-blue-600">
                         {exc.requisition?.pr_number || "PR-ERP-TEMP"}
@@ -230,7 +230,7 @@ export default function UnmappedPRsDashboardPage() {
       {selectedException && (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
           <div className="bg-white rounded-xl max-w-lg w-full p-6 space-y-4 shadow-xl">
-            <h3 className="text-lg font-bold text-gray-900">Map Unmapped Exception</h3>
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white">Map Unmapped Exception</h3>
             <p className="text-sm text-gray-500">
               Assign procurement category and business unit mapping for exception ID:{" "}
               <span className="font-mono text-xs text-gray-700">{selectedException.id}</span>

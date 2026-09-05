@@ -4,7 +4,22 @@ import React, { ReactNode } from "react";
 import { useAuthInit, useCurrentUser, useLogout } from "@procurement/hooks";
 import { useAuthStore } from "@procurement/stores";
 import { AppShell } from "@procurement/ui";
-import { LayoutDashboard, FolderTree, FileUp, Sliders, Users, GitFork } from "lucide-react";
+import {
+  LayoutDashboard,
+  FolderTree,
+  FileUp,
+  Sliders,
+  Users,
+  GitFork,
+  Database,
+  Scale,
+  Coins,
+  CreditCard,
+  Percent,
+  MapPin,
+  Calendar,
+  Cpu,
+} from "lucide-react";
 
 export default function AdminMainLayout({ children }: { children: ReactNode }) {
   const { isInitializing } = useAuthInit();
@@ -50,9 +65,51 @@ export default function AdminMainLayout({ children }: { children: ReactNode }) {
       section: "Governance",
     },
     {
+      label: "Master Data Hub",
+      href: "/master-data",
+      icon: <Database className="w-4 h-4" />,
+      section: "Master Data",
+    },
+    {
       label: "Categories",
       href: "/master-data/categories",
       icon: <FolderTree className="w-4 h-4" />,
+      section: "Master Data",
+    },
+    {
+      label: "Units of Measure",
+      href: "/master-data/uom",
+      icon: <Scale className="w-4 h-4" />,
+      section: "Master Data",
+    },
+    {
+      label: "Currencies & FX",
+      href: "/master-data/currencies",
+      icon: <Coins className="w-4 h-4" />,
+      section: "Master Data",
+    },
+    {
+      label: "Payment Terms",
+      href: "/master-data/payment-terms",
+      icon: <CreditCard className="w-4 h-4" />,
+      section: "Master Data",
+    },
+    {
+      label: "Tax Codes",
+      href: "/master-data/tax-codes",
+      icon: <Percent className="w-4 h-4" />,
+      section: "Master Data",
+    },
+    {
+      label: "Delivery Locations",
+      href: "/master-data/locations",
+      icon: <MapPin className="w-4 h-4" />,
+      section: "Master Data",
+    },
+    {
+      label: "Holiday Calendar",
+      href: "/master-data/holidays",
+      icon: <Calendar className="w-4 h-4" />,
       section: "Master Data",
     },
     {
@@ -60,6 +117,12 @@ export default function AdminMainLayout({ children }: { children: ReactNode }) {
       href: "/master-data/import",
       icon: <FileUp className="w-4 h-4" />,
       section: "Master Data",
+    },
+    {
+      label: "ERP Integrations",
+      href: "/integrations",
+      icon: <Cpu className="w-4 h-4" />,
+      section: "System Operations",
     },
   ];
 

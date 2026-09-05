@@ -68,7 +68,7 @@ export default function DualAuthBidOpeningPage() {
           <span>/</span>
           <span>Bid Opening Authorization</span>
         </div>
-        <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
           Dual-Authorization Bid Opening
         </h1>
         <p className="text-sm text-gray-500 mt-1">
@@ -83,8 +83,8 @@ export default function DualAuthBidOpeningPage() {
       )}
 
       {/* Summary Card */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm space-y-4">
-        <h2 className="text-sm font-semibold text-gray-900 uppercase tracking-wider">Tender Parameters</h2>
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 p-6 shadow-sm space-y-4">
+        <h2 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider">Tender Parameters</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-xs">
           <div>
             <span className="text-gray-500 block">RFQ Number</span>
@@ -108,8 +108,8 @@ export default function DualAuthBidOpeningPage() {
       </div>
 
       {/* Two-Step Protocol Stepper */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm space-y-6">
-        <h2 className="text-sm font-semibold text-gray-900 uppercase tracking-wider">
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 p-6 shadow-sm space-y-6">
+        <h2 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider">
           Authorization Protocol
         </h2>
 
@@ -121,7 +121,7 @@ export default function DualAuthBidOpeningPage() {
                 {isInitiated ? "✓" : "1"}
               </span>
               <div>
-                <h3 className="text-sm font-semibold text-gray-900">Step 1: Committee Member Initiation</h3>
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Step 1: Committee Member Initiation</h3>
                 <p className="text-xs text-gray-500">
                   Must be initiated by an authorized officer (cannot be the RFQ creator).
                 </p>
@@ -157,7 +157,7 @@ export default function DualAuthBidOpeningPage() {
                 {isCompleted ? "✓" : "2"}
               </span>
               <div>
-                <h3 className="text-sm font-semibold text-gray-900">Step 2: Second Committee Co-Authorization</h3>
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Step 2: Second Committee Co-Authorization</h3>
                 <p className="text-xs text-gray-500">
                   Must be authorized by a different officer than the initiator. Triggers cryptographic price decryption.
                 </p>

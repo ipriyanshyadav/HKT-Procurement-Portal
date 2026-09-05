@@ -1,5 +1,5 @@
 import openapiTS, { astToString } from "openapi-typescript";
-import { writeFileSync, mkdirSync, existsSync } from "fs";
+import { writeFileSync, mkdirSync, existsSync, readFileSync } from "fs";
 import { join, dirname } from "path";
 
 const API_URL = process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
@@ -8,19 +8,25 @@ const LOCAL_SPEC = join(dirname(new URL(import.meta.url).pathname), "..", "..", 
 
 async function generateTypes(): Promise<void> {
   try {
-    const ast = await openapiTS(new URL(`${API_URL}/api/v1/openapi.json`)).catch(async (err) => {
+    let ast;
+    try {
+      ast = await openapiTS(new URL(`${API_URL}/api/v1/openapi.json`));
+    } catch (netErr) {
       if (existsSync(LOCAL_SPEC)) {
-        return await openapiTS(LOCAL_SPEC);
+        const spec = JSON.parse(readFileSync(LOCAL_SPEC, "utf-8"));
+        ast = await openapiTS(spec);
+      } else {
+        throw netErr;
       }
-      throw err;
-    });
+    }
     const output = astToString(ast);
     mkdirSync(dirname(OUTPUT_PATH), { recursive: true });
     writeFileSync(OUTPUT_PATH, output, "utf-8");
   } catch (error: unknown) {
     if (existsSync(LOCAL_SPEC)) {
       try {
-        const ast = await openapiTS(LOCAL_SPEC);
+        const spec = JSON.parse(readFileSync(LOCAL_SPEC, "utf-8"));
+        const ast = await openapiTS(spec);
         const output = astToString(ast);
         mkdirSync(dirname(OUTPUT_PATH), { recursive: true });
         writeFileSync(OUTPUT_PATH, output, "utf-8");

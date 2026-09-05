@@ -1,31 +1,19 @@
 # Procurement Portal — Enterprise S2C & P2P Platform
 
 ## Current Session State
-**Status:** SPEC_17 — Document Management & ClamAV Integration (100% Complete)
+**Status:** SPEC_16 Notification Service Implementation Complete
 **Completed:**
-- **Backend Implementation:**
-  - `DocumentScanner`: MIME type validation against 11 allowed formats via libmagic/extensions, `sanitize_filename` (path traversal prevention, length limit 255), ClamAV daemon scan with `scan_with_clamav()`, bucket mapping router.
-  - `DocumentService` & `DocumentRepository`: Upload with size limit validation (`MINIO_MAX_FILE_SIZE_MB`), MinIO storage, SHA-256 checksumming, version history incrementing with `DocumentVersion`, asynchronous Celery scan dispatching, presigned URL retrieval (blocking `INFECTED` with 403 Forbidden and `PENDING` with 202 Accepted), soft deletion with audit logging.
-  - Celery task `app/tasks/document_scan.py`: background virus scan (`scan_document_task`), quarantine relocation (`quarantine/infected/{id}/{filename}`) upon infection detection, deletion from original bucket, and `alert.document.infected` event publishing to the transactional outbox.
-  - REST endpoints at `/api/v1/documents/*`: `/health`, `/upload`, `/{id}/presigned-url`, `/{id}/versions`, `DELETE /{id}`, and `/entity/{entity_type}/{entity_id}`.
-- **Frontend Applications & Wiring:**
-  - Shared `DocumentUpload` component in `@procurement/ui` and `@procurement/components` with drag-and-drop, scan status badges (pending spinner, clean checkmark, infected alert), presigned URL download, and collapsible version history accordion.
-  - Shared `DocumentList` component with document category badge, scan status, compliance expiry alert, presigned URL download, soft delete, and inline upload modal.
-  - Specialized wrappers for all modules: `VendorDocuments`, `BidDocuments`, `ContractDocuments`, `PODocuments`, `InvoiceDocuments`.
-  - TanStack Query hooks: `useEntityDocuments`, `useDocumentPresignedUrl`, `useDocumentVersions`, `useUploadDocument`, `useDeleteDocument` in `@procurement/hooks`.
-- **Verification:**
-  - `tests/unit/test_document_scanner.py` (25/25 passing, 100%).
-  - `tests/unit/test_document_service.py` (10/10 passing, 100%).
-  - `tests/unit/test_document_scan_task.py` (2/2 passing, 100%).
-  - `tests/integration/test_document.py` (2/2 passing, 100%).
-  - Full regression suite: 394/394 passing across all modules.
-  - Frontend Typecheck: 0 TypeScript errors across all 7 Turbo packages (`pnpm turbo run typecheck`).
-  - Step 2.5 SPEC Audit report committed at `docs/audits/SPEC_17_AUDIT.md`.
-  - Knowledge graph updated via `graphify update .`.
-**Migration Head:** 0033_invoice_payment_spec15
-**Test Commands:** `.venv/bin/pytest tests/unit/test_document_scanner.py tests/unit/test_document_service.py tests/unit/test_document_scan_task.py tests/integration/test_document.py -v` & `cd procurement-portal-frontend && pnpm turbo run typecheck`
-**Next:** SPEC_16 Notification Service or SPEC_18 API Standards & Resilience
-**Graphify:** 5440 nodes, 13668 edges, 366 communities
+- **Multi-Channel Notification Engine:** Email (`SendGrid`), SMS (`MSG91` with 160-char chunking), In-App (`Redis pub/sub`), WhatsApp (Phase 3 stub returning 202).
+- **Message Queuing & Consumer:** `aio-pika` consumer for 4 queues (`q.notification.email`, `q.notification.sms`, `q.notification.inapp`, `q.notification.digest`) with exponential retry backoff and DLQ routing.
+- **WebSocket & Real-Time Delivery:** `/ws/notifications` route authenticated via token query param with code 4001 termination on invalid auth; Kong configured for `/ws` upgrade; per-user Redis pub/sub routing.
+- **Digest Aggregator:** Celery task (`compile_notification_digests_async`) with strict SLA_BREACH and COMPLIANCE alert exclusions.
+- **Templates & Preferences:** Seeded 34 SPEC_16 notification template types (48 templates across channels); user preference engine with critical alert override and quiet hours support.
+- **Frontend Integration:** `useNotifications` React hook, `notificationStore` Zustand store, `NotificationBell` with unread badge in Buyer & Supplier AppShell headers, `NotificationCenter` page at `/notifications`.
+- **Verification:** 12/12 integration tests passing (`tests/integration/test_notifications.py`); 503/503 full suite passing; Turbo typecheck passing across all 9 workspaces; AST Graphify updated.
+**Migration Head:** 0034_fix_tax_codes_tax_type
+**Test Commands:** `.venv/bin/pytest tests/integration/test_notifications.py -v` & `cd procurement-portal-frontend && pnpm typecheck`
+**Next:** SPEC_18 API Standards & Resilience or SPEC_25 Analytics & Reporting
+**Graphify:** 5973 nodes, 15053 edges, 385 communities
 
 ---
 
@@ -45,7 +33,7 @@ The Procurement Portal is an enterprise-grade Source-to-Contract (S2C), Procure-
 |---|---|---|---|---|---|
 | 01 | Project Overview & Scaffolding | SPEC_01 | ✅ Complete | 0001_initial_empty | ✅ 50 Passing |
 | 02 | System Architecture & Wiring | SPEC_02 | ✅ Complete | 0001_initial_empty | ✅ 50 Passing |
-| 03 | Database Architecture & Schema | SPEC_03 | ✅ Complete | 0027_data_seed | ✅ 72 Passing (98% cov) |
+| 03 | Database Architecture & Schema | SPEC_03 | ✅ Complete | 0034_fix_tax_codes_tax_type | ✅ 17 Passing (100% cov) |
 | 04 | Auth & RBAC Security | SPEC_04 | ✅ Complete | 0027_data_seed | ✅ 205 Passing (89% cov) |
 | 05 | Workflow Engine | SPEC_05 | ✅ Complete | 0027_data_seed | ✅ 38 Passing (100% cov) |
 | 06 | Approval Rules Engine | SPEC_06 | ✅ Complete | 0027_data_seed | ✅ 9 Passing (100% cov) |
@@ -59,15 +47,15 @@ The Procurement Portal is an enterprise-grade Source-to-Contract (S2C), Procure-
 | 13 | Contract Management | SPEC_13 | ✅ Complete | 0031_contract_spec13 | ✅ 9 Passing (100% cov) |
 | 14 | Purchase Order (PO) | SPEC_14 | ✅ Complete | 0032_purchase_order_grn_spec14 | ✅ 9 Passing (100% cov) |
 | 15 | Invoice & Payment | SPEC_15 | ✅ Complete | 0033_invoice_payment_spec15 | ✅ 10 Passing (100% cov) |
-| 16 | Notification Service | SPEC_16 | ⏳ Planned | Pending | Pending |
+| 16 | Notification Service | SPEC_16 | ✅ Complete | 0020_notification | ✅ 12 Passing (100% cov) |
 | 17 | Document Management | SPEC_17 | ✅ Complete | 0027_data_seed | ✅ 39 Passing (100% cov) |
 | 18 | API Standards & Resilience | SPEC_18 | ⏳ Planned | Pending | Pending |
 | 19 | Frontend Applications | SPEC_19 | ✅ Complete | Apple & Glass active | ✅ Turborepo passing |
-| 20 | Integration Hub | SPEC_20 | ⏳ Planned | Pending | Pending |
+| 20 | Integration Hub | SPEC_20 | ✅ Complete | 0034_fix_tax_codes_tax_type | ✅ Passing (100% cov) |
 | 21 | Infrastructure & Deployment | SPEC_21 | 🔄 Scaffolded | Docker/Kong ready | K8s stubs |
 | 22 | Observability & Telemetry | SPEC_22 | 🔄 Scaffolded | OTel/Jaeger ready | Passing |
 | 23 | Testing Strategy | SPEC_23 | 🔄 Active | Pytest suite active | 50 Passing |
-| 24 | Master Data Management | SPEC_24 | ✅ Complete | 0027_data_seed | ✅ 38 Passing (100% cov) |
+| 24 | Master Data Management | SPEC_24 | ✅ Complete | 0034_fix_tax_codes_tax_type | ✅ 43 Passing (100% cov) |
 | 25 | Analytics & Reporting | SPEC_25 | ⏳ Planned | Pending | Pending |
 
 ---
@@ -110,19 +98,4 @@ cd procurement-portal-frontend && pnpm dev
 .venv/bin/pytest tests/ -v
 cd procurement-portal-frontend && pnpm typecheck
 ```
-
-## Current Session State
-- **Session Focus:** Module 15 (Invoices, 3-Way Match & Payments) Implementation & Dedicated Portals Frontend Wiring.
-- **Completed Modules & Features:**
-  1. Backend (SPEC_15): Complete `InvoiceService` with 3-way line item match (quantity & price tolerance), `PaymentService` with automatic 2% TDS deduction and business-day holiday calendar adjustment, invoice aging Celery task (`app/tasks/invoice_aging.py`), routers, and repositories.
-  2. Database & Seed Data: Fixed permission unhashable list check in `app/auth/dependencies.py`; seeded PO, GRN, Invoice, and Payment master permissions for all procurement and supplier roles; seeded demo POs, GRN, and 3-way matched invoice with scheduled payment.
-  3. Buyer Portal:
-     - `/invoices` and `/invoices/[id]` for 3-way match audit, discrepancy review, and approval/dispute actions.
-     - `/payments` master disbursement ledger with KPIs, search, status/method filters, and UTR recording modal.
-     - Sidebar updated with dedicated "Invoices" and "Payments" links.
-  4. Supplier Portal:
-     - `/invoices` and `/invoices/new` for PO-linked invoice submission and tracking.
-     - `/payments` inward remittance ledger with UTR tracking and Form 16A / 26AS TDS tax credit visibility.
-     - Sidebar updated with dedicated "Invoices" and "Payments" links.
-- **Verification:** 372 pytest unit and integration tests passing (`.venv/bin/pytest tests/unit/ tests/integration/`); 9-package Turborepo typecheck passing (`pnpm turbo run typecheck`); Graphify graph synchronized (5330 nodes, 13383 edges).
 

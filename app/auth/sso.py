@@ -21,7 +21,7 @@ try:
     SAML_AVAILABLE = True
 except ImportError:
     SAML_AVAILABLE = False
-    logger.warning("python3-saml not installed — SAML SSO unavailable")
+    logger.info("python3-saml not installed — SAML SSO unavailable")
 
 
 class SSOResult:

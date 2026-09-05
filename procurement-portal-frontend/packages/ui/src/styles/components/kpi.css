@@ -33,6 +33,7 @@
   font-weight: 500;
 }
 
+.dark .kpi-item,
 .theme-apple-dark .kpi-item,
 [data-theme='apple-dark'] .kpi-item {
   background: var(--apple-bg-secondary);

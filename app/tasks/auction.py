@@ -20,12 +20,13 @@ def open_scheduled_auctions(self):
         async with get_db_ctx() as db:
             svc = LiveBidService()
             auctions = await svc.live_bid_repo.get_due_to_open(db)
-            for auction in auctions:
+            targets = [(a.id, a.org_id) for a in auctions]
+            for a_id, org_id in targets:
                 try:
-                    await svc.open_auction(db, auction.id, auction.org_id)
+                    await svc.open_auction(db, a_id, org_id)
                     await db.commit()
                 except Exception as exc:
-                    logger.warning(f"Failed to open auction {auction.id}: {exc}")
+                    logger.warning(f"Failed to open auction {a_id}: {exc}")
                     await db.rollback()
     asyncio.run(_run())
 
@@ -37,12 +38,13 @@ def close_due_auctions(self):
         async with get_db_ctx() as db:
             svc = LiveBidService()
             auctions = await svc.live_bid_repo.get_due_to_close(db)
-            for auction in auctions:
+            targets = [(a.id, a.org_id) for a in auctions]
+            for a_id, org_id in targets:
                 try:
-                    await svc.close_auction(db, auction.id, auction.org_id)
+                    await svc.close_auction(db, a_id, org_id)
                     await db.commit()
                 except Exception as exc:
-                    logger.warning(f"Failed to close auction {auction.id}: {exc}")
+                    logger.warning(f"Failed to close auction {a_id}: {exc}")
                     await db.rollback()
     asyncio.run(_run())
 
@@ -55,11 +57,13 @@ def send_auction_closing_warning():
             svc = LiveBidService()
             auctions = await svc.live_bid_repo.get_closing_soon(db, seconds=30)
             for auction in auctions:
+                a_id = auction.id
+                org_id = auction.org_id
                 try:
-                    await svc.send_closing_warning(db, auction, auction.org_id)
+                    await svc.send_closing_warning(db, auction, org_id)
                     await db.commit()
                 except Exception as exc:
-                    logger.warning(f"Failed to send closing warning for {auction.id}: {exc}")
+                    logger.warning(f"Failed to send closing warning for {a_id}: {exc}")
                     await db.rollback()
     asyncio.run(_run())
 

@@ -196,6 +196,32 @@ async def get_payment(
     )
 
 
+@router.get("/{payment_id}/remittance-pdf")
+async def download_remittance_pdf(
+    payment_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_any_permission([PermissionCode.PAYMENT_VIEW_OWN, PermissionCode.PAYMENT_VIEW_ALL])),
+):
+    """Download official payment remittance advice as a generated PDF."""
+    payment = await payment_service.get_payment(db, payment_id, current_user.org_id)
+    if current_user.vendor_id and payment.vendor_id != current_user.vendor_id:
+        raise ValidationError("Access denied to another vendor's payment record")
+
+    inv = await invoice_repository.get_with_relations(db, payment.invoice_id, current_user.org_id)
+    v = await vendor_repository.find_by_id(db, payment.vendor_id, current_user.org_id)
+    pdf_bytes = payment_service.generate_remittance_pdf(payment, inv, v)
+
+    from fastapi import Response
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f"attachment; filename=remittance_advice_{payment_id}.pdf"
+        },
+    )
+
+
+
 @router.post("/{payment_id}/process", response_model=APIResponse[PaymentRecordResponse])
 async def process_payment(
     payment_id: UUID,

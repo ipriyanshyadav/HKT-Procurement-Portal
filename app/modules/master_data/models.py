@@ -82,8 +82,10 @@ class TaxCode(BaseModel):
     code: Mapped[str] = mapped_column(String(50), nullable=False)
     name: Mapped[str] = mapped_column(String(200), nullable=False)
     rate: Mapped[Decimal] = mapped_column(Numeric(5, 2), nullable=False)
-    tax_type: Mapped[str] = mapped_column(String(20), nullable=False)
+    tax_type: Mapped[str] = mapped_column(String(50), nullable=False)
     hsn_chapter: Mapped[Optional[str]] = mapped_column(String(10), nullable=True)
+    effective_from: Mapped[Optional[date]] = mapped_column(Date, default=date.today, nullable=True)
+    effective_to: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
 class DeliveryLocation(BaseModel):

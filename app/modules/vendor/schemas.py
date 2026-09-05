@@ -271,3 +271,20 @@ class VendorDetailResponse(VendorResponse):
     bank_accounts: List[VendorBankAccountResponse] = Field(default_factory=list)
     documents: List[VendorDocumentResponse] = Field(default_factory=list)
     scorecard: Optional[VendorScorecardResponse] = None
+
+
+class BulkVendorCategoryMappingItem(BaseModel):
+    vendor_id: Optional[UUID] = None
+    vendor_code: Optional[str] = None
+    category_ids: List[UUID] = Field(default_factory=list)
+
+
+class BulkVendorCategoryMappingRequest(BaseModel):
+    mappings: List[BulkVendorCategoryMappingItem]
+
+
+class BulkVendorCategoryMappingResponse(BaseModel):
+    total_processed: int
+    updated_vendors: int
+    errors: List[str] = Field(default_factory=list)
+

@@ -4,8 +4,15 @@ import "./globals.css";
 import { Providers } from "./providers";
 
 export const metadata: Metadata = {
-  title: "Buyer Portal",
-  description: "Procurement Portal - Buyer Interface",
+  title: "Buyer Portal - HKT Procurement",
+  description: "Procurement Portal - Enterprise Buyer Workspace",
+  manifest: "/manifest.json",
+  themeColor: "#4f46e5",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "HKT Buyer",
+  },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }): ReactNode {

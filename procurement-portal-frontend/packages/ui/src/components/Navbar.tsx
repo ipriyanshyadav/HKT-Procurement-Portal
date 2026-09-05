@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { useAuthStore } from '@procurement/stores';
 import { ThemeSwitcher } from '../theme/ThemeSwitcher';
+import { LocaleSwitcher } from './LocaleSwitcher';
 import { SidebarMode } from './Sidebar';
 
 export interface UserProfile {
@@ -245,6 +246,9 @@ export function Navbar({
 
       <div className="flex items-center gap-3">
         {actions}
+
+        {/* Multi-language Locale Switcher (SPEC_19) */}
+        <LocaleSwitcher />
 
         {/* Apple Light/Dark Switcher */}
         <ThemeSwitcher />

@@ -132,12 +132,12 @@ export default function NewRfqPage() {
             <span>/</span>
             <span>New RFQ</span>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Create Request for Quotation</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Create Request for Quotation</h1>
         </div>
         <div className="flex gap-3">
           <Link
             href="/rfqs"
-            className="px-4 py-2 text-sm border rounded-lg hover:bg-gray-50 text-gray-700"
+            className="px-4 py-2 text-sm border rounded-lg hover:bg-gray-50 dark:hover:bg-slate-800/50 text-gray-700"
           >
             Cancel
           </Link>
@@ -152,8 +152,8 @@ export default function NewRfqPage() {
       </div>
 
       {/* Basic Info */}
-      <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-5">
-        <h2 className="text-base font-semibold text-gray-900 border-b pb-3">1. General Information</h2>
+      <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm space-y-5">
+        <h2 className="text-base font-semibold text-gray-900 dark:text-white border-b pb-3">1. General Information</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="sm:col-span-2">
             <label className="block text-xs font-semibold text-gray-700 mb-1">RFQ Title *</label>
@@ -233,8 +233,8 @@ export default function NewRfqPage() {
       </div>
 
       {/* Sourcing Timeline */}
-      <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-5">
-        <h2 className="text-base font-semibold text-gray-900 border-b pb-3">2. Bidding Timeline & Validity</h2>
+      <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm space-y-5">
+        <h2 className="text-base font-semibold text-gray-900 dark:text-white border-b pb-3">2. Bidding Timeline & Validity</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-xs font-semibold text-gray-700 mb-1">
@@ -267,10 +267,10 @@ export default function NewRfqPage() {
       </div>
 
       {/* Line Items */}
-      <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-5">
+      <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm space-y-5">
         <div className="flex items-center justify-between border-b pb-3">
           <div>
-            <h2 className="text-base font-semibold text-gray-900">3. Items & Deliverables</h2>
+            <h2 className="text-base font-semibold text-gray-900 dark:text-white">3. Items & Deliverables</h2>
             <p className="text-xs text-gray-500 mt-0.5">Define specifications and quantities for supplier bidding.</p>
           </div>
           <button
@@ -357,7 +357,7 @@ export default function NewRfqPage() {
           ))}
         </div>
 
-        <div className="flex justify-end pt-2 text-sm font-semibold text-gray-900">
+        <div className="flex justify-end pt-2 text-sm font-semibold text-gray-900 dark:text-white">
           Total Estimated Value: ₹{estimatedValue.toLocaleString("en-IN")}
         </div>
       </div>

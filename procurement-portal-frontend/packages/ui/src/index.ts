@@ -40,6 +40,10 @@ export type { BidSealedIndicatorProps } from "./BidSealedIndicator";
 export { ClarificationThread } from "./ClarificationThread";
 export type { ClarificationThreadProps, ClarificationItem } from "./ClarificationThread";
 
+export { CaptchaChallenge } from "./CaptchaChallenge";
+export type { CaptchaChallengeProps } from "./CaptchaChallenge";
+
+
 // === Apple Design System Exports (Light & Dark) ===
 // Theme
 export { ThemeProvider, useTheme, ThemeContext } from "./theme/ThemeProvider";
@@ -133,5 +137,14 @@ export { DocumentUpload } from "./DocumentUpload";
 export type { DocumentUploadProps } from "./DocumentUpload";
 export { DocumentList } from "./DocumentList";
 export type { DocumentListProps } from "./DocumentList";
+
+// Internationalization & Locale (SPEC_19)
+export { LocaleSwitcher, SUPPORTED_LOCALES } from "./components/LocaleSwitcher";
+export type { LocaleOption } from "./components/LocaleSwitcher";
+
+// Notification Components (SPEC_16)
+export { NotificationBell } from "./components/NotificationBell";
+export { NotificationCenter } from "./components/NotificationCenter";
+
 
 

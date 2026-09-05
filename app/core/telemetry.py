@@ -13,6 +13,9 @@ from opentelemetry.instrumentation.celery import CeleryInstrumentor
 from app.config import settings
 
 def setup_telemetry(app) -> None:
+    if not settings.OTEL_ENABLED:
+        return
+
     resource = Resource.create({"service.name": "procurement-portal"})
     
     sampler = TraceIdRatioBased(settings.OTEL_SAMPLING_RATE)
@@ -20,7 +23,10 @@ def setup_telemetry(app) -> None:
     
     provider = TracerProvider(resource=resource, sampler=sampler)
     
-    exporter = OTLPSpanExporter(endpoint=f"http://{settings.JAEGER_HOST}:{settings.JAEGER_PORT}")
+    exporter = OTLPSpanExporter(
+        endpoint=f"{settings.JAEGER_HOST}:{settings.JAEGER_PORT}",
+        insecure=True,
+    )
     processor = BatchSpanProcessor(exporter)
     provider.add_span_processor(processor)
     

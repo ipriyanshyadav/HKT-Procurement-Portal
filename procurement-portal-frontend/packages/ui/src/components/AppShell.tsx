@@ -29,15 +29,17 @@ export function AppShell({
   children,
   actions,
   showSidebar = true,
-  defaultSidebarMode = 'auto-hide',
+  defaultSidebarMode = 'pinned',
 }: AppShellProps) {
   const [sidebarMode, setSidebarMode] = useState<SidebarMode>(defaultSidebarMode);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('procurement_sidebar_mode') as SidebarMode | null;
-      if (saved && (saved === 'pinned' || saved === 'minimized' || saved === 'auto-hide')) {
+      const saved = localStorage.getItem('procurement_sidebar_mode_v2') as SidebarMode | null;
+      if (saved === 'pinned' || saved === 'minimized' || saved === 'auto-hide') {
         setSidebarMode(saved);
+      } else {
+        setSidebarMode('pinned');
       }
     }
   }, []);
@@ -45,7 +47,7 @@ export function AppShell({
   const handleSidebarModeChange = (mode: SidebarMode) => {
     setSidebarMode(mode);
     if (typeof window !== 'undefined') {
-      localStorage.setItem('procurement_sidebar_mode', mode);
+      localStorage.setItem('procurement_sidebar_mode_v2', mode);
     }
   };
 

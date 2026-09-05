@@ -57,6 +57,18 @@ export interface UomMaster {
   updated_at: string;
 }
 
+export interface UomCreatePayload {
+  code: string;
+  name: string;
+  iso_code?: string | null;
+}
+
+export interface UomUpdatePayload {
+  name?: string;
+  iso_code?: string | null;
+  is_active?: boolean;
+}
+
 export interface CurrencyMaster {
   id: string;
   org_id: string;
@@ -69,6 +81,21 @@ export interface CurrencyMaster {
   version: number;
   created_at: string;
   updated_at: string;
+}
+
+export interface CurrencyCreatePayload {
+  code: string;
+  name: string;
+  symbol?: string;
+  exchange_rate_to_base?: number | string;
+  is_base_currency?: boolean;
+}
+
+export interface CurrencyUpdatePayload {
+  name?: string;
+  symbol?: string;
+  exchange_rate_to_base?: number | string;
+  is_active?: boolean;
 }
 
 export interface PaymentTerm {
@@ -84,6 +111,24 @@ export interface PaymentTerm {
   version: number;
   created_at: string;
   updated_at: string;
+}
+
+export interface PaymentTermCreatePayload {
+  code: string;
+  name: string;
+  net_days: number;
+  discount_percentage?: number | string;
+  discount_days?: number;
+  description?: string | null;
+}
+
+export interface PaymentTermUpdatePayload {
+  name?: string;
+  net_days?: number;
+  discount_percentage?: number | string;
+  discount_days?: number;
+  description?: string | null;
+  is_active?: boolean;
 }
 
 export interface Incoterm {
@@ -113,6 +158,22 @@ export interface TaxCode {
   updated_at: string;
 }
 
+export interface TaxCodeCreatePayload {
+  code: string;
+  name: string;
+  rate: number | string;
+  tax_type: string;
+  hsn_chapter?: string | null;
+}
+
+export interface TaxCodeUpdatePayload {
+  name?: string;
+  rate?: number | string;
+  tax_type?: string;
+  hsn_chapter?: string | null;
+  is_active?: boolean;
+}
+
 export interface DeliveryLocation {
   id: string;
   org_id: string;
@@ -139,6 +200,17 @@ export interface LocationCreatePayload {
   postal_code: string;
   country_code?: string;
   plant_id?: string | null;
+}
+
+export interface LocationUpdatePayload {
+  name?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  postal_code?: string;
+  country_code?: string;
+  plant_id?: string | null;
+  is_active?: boolean;
 }
 
 export interface HolidayMaster {
@@ -275,6 +347,48 @@ export function useUoms(params?: { active_only?: boolean }) {
   });
 }
 
+export function useCreateUom() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload: UomCreatePayload) => {
+      const res = await apiClient.post<APIResponse<UomMaster>>("/master-data/uoms", payload);
+      return res.data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["master-data", "uom"] });
+    },
+  });
+}
+
+export function useUpdateUom(defaultId?: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (vars: UomUpdatePayload | { id: string; payload: UomUpdatePayload }) => {
+      const targetId = "id" in vars ? vars.id : defaultId;
+      const payload = "payload" in vars ? vars.payload : vars;
+      if (!targetId) throw new Error("UOM ID is required");
+      const res = await apiClient.put<APIResponse<UomMaster>>(`/master-data/uoms/${targetId}`, payload);
+      return res.data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["master-data", "uom"] });
+    },
+  });
+}
+
+export function useDeleteUom() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const res = await apiClient.delete<APIResponse<{ message: string }>>(`/master-data/uoms/${id}`);
+      return res.data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["master-data", "uom"] });
+    },
+  });
+}
+
 // -----------------------------------------------------------------------------
 // Currency Hooks
 // -----------------------------------------------------------------------------
@@ -296,6 +410,48 @@ export function useCurrencies(params?: { include_rates?: boolean; active_only?: 
   });
 }
 
+export function useCreateCurrency() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload: CurrencyCreatePayload) => {
+      const res = await apiClient.post<APIResponse<CurrencyMaster>>("/master-data/currencies", payload);
+      return res.data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["master-data", "currencies"] });
+    },
+  });
+}
+
+export function useUpdateCurrency(defaultId?: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (vars: CurrencyUpdatePayload | { id: string; payload: CurrencyUpdatePayload }) => {
+      const targetId = "id" in vars ? vars.id : defaultId;
+      const payload = "payload" in vars ? vars.payload : vars;
+      if (!targetId) throw new Error("Currency ID is required");
+      const res = await apiClient.put<APIResponse<CurrencyMaster>>(`/master-data/currencies/${targetId}`, payload);
+      return res.data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["master-data", "currencies"] });
+    },
+  });
+}
+
+export function useDeleteCurrency() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const res = await apiClient.delete<APIResponse<{ message: string }>>(`/master-data/currencies/${id}`);
+      return res.data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["master-data", "currencies"] });
+    },
+  });
+}
+
 // -----------------------------------------------------------------------------
 // Payment Terms Hooks
 // -----------------------------------------------------------------------------
@@ -311,6 +467,48 @@ export function usePaymentTerms(params?: { active_only?: boolean }) {
     },
     select: (res) => res.data,
     staleTime: MASTER_DATA_STALE_TIME,
+  });
+}
+
+export function useCreatePaymentTerm() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload: PaymentTermCreatePayload) => {
+      const res = await apiClient.post<APIResponse<PaymentTerm>>("/master-data/payment-terms", payload);
+      return res.data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["master-data", "payment-terms"] });
+    },
+  });
+}
+
+export function useUpdatePaymentTerm(defaultId?: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (vars: PaymentTermUpdatePayload | { id: string; payload: PaymentTermUpdatePayload }) => {
+      const targetId = "id" in vars ? vars.id : defaultId;
+      const payload = "payload" in vars ? vars.payload : vars;
+      if (!targetId) throw new Error("Payment Term ID is required");
+      const res = await apiClient.put<APIResponse<PaymentTerm>>(`/master-data/payment-terms/${targetId}`, payload);
+      return res.data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["master-data", "payment-terms"] });
+    },
+  });
+}
+
+export function useDeletePaymentTerm() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const res = await apiClient.delete<APIResponse<{ message: string }>>(`/master-data/payment-terms/${id}`);
+      return res.data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["master-data", "payment-terms"] });
+    },
   });
 }
 
@@ -351,6 +549,48 @@ export function useTaxCodes(params?: { tax_type?: string; active_only?: boolean 
   });
 }
 
+export function useCreateTaxCode() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload: TaxCodeCreatePayload) => {
+      const res = await apiClient.post<APIResponse<TaxCode>>("/master-data/tax-codes", payload);
+      return res.data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["master-data", "tax-codes"] });
+    },
+  });
+}
+
+export function useUpdateTaxCode(defaultId?: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (vars: TaxCodeUpdatePayload | { id: string; payload: TaxCodeUpdatePayload }) => {
+      const targetId = "id" in vars ? vars.id : defaultId;
+      const payload = "payload" in vars ? vars.payload : vars;
+      if (!targetId) throw new Error("Tax Code ID is required");
+      const res = await apiClient.put<APIResponse<TaxCode>>(`/master-data/tax-codes/${targetId}`, payload);
+      return res.data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["master-data", "tax-codes"] });
+    },
+  });
+}
+
+export function useDeleteTaxCode() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const res = await apiClient.delete<APIResponse<{ message: string }>>(`/master-data/tax-codes/${id}`);
+      return res.data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["master-data", "tax-codes"] });
+    },
+  });
+}
+
 // -----------------------------------------------------------------------------
 // Delivery Location Hooks
 // -----------------------------------------------------------------------------
@@ -385,6 +625,35 @@ export function useCreateLocation() {
   });
 }
 
+export function useUpdateLocation(defaultId?: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (vars: LocationUpdatePayload | { id: string; payload: LocationUpdatePayload }) => {
+      const targetId = "id" in vars ? vars.id : defaultId;
+      const payload = "payload" in vars ? vars.payload : vars;
+      if (!targetId) throw new Error("Location ID is required");
+      const res = await apiClient.put<APIResponse<DeliveryLocation>>(`/master-data/delivery-locations/${targetId}`, payload);
+      return res.data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["master-data", "delivery-locations"] });
+    },
+  });
+}
+
+export function useDeleteLocation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const res = await apiClient.delete<APIResponse<{ message: string }>>(`/master-data/delivery-locations/${id}`);
+      return res.data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["master-data", "delivery-locations"] });
+    },
+  });
+}
+
 // -----------------------------------------------------------------------------
 // Holiday Hooks
 // -----------------------------------------------------------------------------
@@ -406,6 +675,19 @@ export function useCreateHoliday() {
   return useMutation({
     mutationFn: async (payload: HolidayCreatePayload) => {
       const res = await apiClient.post<APIResponse<HolidayMaster>>("/master-data/holidays", payload);
+      return res.data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["master-data", "holidays"] });
+    },
+  });
+}
+
+export function useDeleteHoliday() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const res = await apiClient.delete<APIResponse<{ message: string }>>(`/master-data/holidays/${id}`);
       return res.data.data;
     },
     onSuccess: () => {

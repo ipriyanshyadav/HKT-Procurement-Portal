@@ -47,8 +47,10 @@
   border-bottom: none;
 }
 
+.dark .apple-table-container,
 .theme-apple-dark .apple-table-container,
 [data-theme='apple-dark'] .apple-table-container {
   background: var(--apple-bg-secondary);
   border-color: rgba(255, 255, 255, 0.08);
 }
+

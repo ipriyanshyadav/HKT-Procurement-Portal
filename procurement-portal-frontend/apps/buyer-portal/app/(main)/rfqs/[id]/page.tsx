@@ -73,7 +73,7 @@ export default function RfqDetailPage() {
             <span className="font-mono">{rfq.rfq_number}</span>
           </div>
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold text-gray-900 tracking-tight">{rfq.title}</h1>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">{rfq.title}</h1>
             <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 border border-blue-200">
               {rfq.status}
             </span>
@@ -133,8 +133,8 @@ export default function RfqDetailPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2 space-y-6">
           {/* Details Card */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm space-y-4">
-            <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider">Event Overview</h3>
+          <div className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 p-6 shadow-sm space-y-4">
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider">Event Overview</h3>
             <p className="text-sm text-gray-700 whitespace-pre-wrap">{rfq.description || "No scope description provided."}</p>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-4 border-t text-xs">
@@ -168,8 +168,8 @@ export default function RfqDetailPage() {
           </div>
 
           {/* Line Items Table */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm space-y-4">
-            <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider">Line Items ({rfq.lines.length})</h3>
+          <div className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 p-6 shadow-sm space-y-4">
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider">Line Items ({rfq.lines.length})</h3>
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs text-gray-600">
                 <thead className="bg-gray-50 font-semibold text-gray-500 border-b">
@@ -181,7 +181,7 @@ export default function RfqDetailPage() {
                     <th className="py-2.5 px-3">Est. Total</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100">
+                <tbody className="divide-y divide-gray-100 dark:divide-slate-800">
                   {rfq.lines.map((line) => (
                     <tr key={line.id || line.line_number}>
                       <td className="py-3 px-3 font-mono font-medium">{line.line_number}</td>
@@ -221,9 +221,9 @@ export default function RfqDetailPage() {
 
         {/* Sidebar: Participants */}
         <div className="space-y-6">
-          <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm space-y-4">
+          <div className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 p-5 shadow-sm space-y-4">
             <div className="flex items-center justify-between border-b pb-3">
-              <h3 className="text-sm font-semibold text-gray-900">Invited Suppliers</h3>
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Invited Suppliers</h3>
               <button
                 type="button"
                 onClick={() => setIsInviteModalOpen(true)}
@@ -263,7 +263,7 @@ export default function RfqDetailPage() {
 
             <div className="max-h-60 overflow-y-auto space-y-2 border rounded-lg p-3">
               {vendors.map((v: any) => (
-                <label key={v.id} className="flex items-center gap-2.5 text-xs p-1.5 hover:bg-gray-50 rounded cursor-pointer">
+                <label key={v.id} className="flex items-center gap-2.5 text-xs p-1.5 hover:bg-gray-50 dark:hover:bg-slate-800/50 rounded cursor-pointer">
                   <input
                     type="checkbox"
                     checked={selectedVendors.includes(v.id)}

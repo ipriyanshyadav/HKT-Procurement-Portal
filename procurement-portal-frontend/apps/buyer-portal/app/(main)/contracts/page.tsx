@@ -78,11 +78,17 @@ export default function ContractsListPage() {
 
         <div className="flex items-center gap-3">
           <Link
-            href="/rfqs"
+            href="/contracts/new"
             className="inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-xl shadow-sm transition-all"
           >
             <Plus className="w-4 h-4" />
-            Award to Contract
+            New Contract
+          </Link>
+          <Link
+            href="/rfqs"
+            className="inline-flex items-center gap-1.5 px-4 py-2 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-sm font-semibold rounded-xl shadow-sm transition-all"
+          >
+            Award from RFQ
           </Link>
         </div>
       </div>

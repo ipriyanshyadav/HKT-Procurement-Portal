@@ -48,6 +48,8 @@ from app.modules.purchase_order.models import PurchaseOrder, PoLine
 from app.modules.grn.models import GoodsReceiptNote, GrnLine
 from app.modules.invoice.models import Invoice, InvoiceLine, InvoiceMatchResult
 from app.modules.payment.models import PaymentRecord
+from app.modules.integration.models import IntegrationJob, ScheduledJobRun
+from app.db.enums import IntegrationJobStatusEnum
 from app.core.encryption import encrypt_field
 
 logging.basicConfig(level=logging.INFO)
@@ -385,7 +387,8 @@ async def seed_demo():
                     "vendor.view_own", "rfq.view_own", "bid.submit", "bid.view_own", "bid.revise",
                     "bid.withdraw", "invoice.submit", "invoice.view_own", "po.acknowledge",
                     "po.view_own", "grn.view_own", "document.upload", "document.view_own",
-                    "notification.view_own", "user.view_own", "user.update_own", "contract.view_own"
+                    "notification.view_own", "user.view_own", "user.update_own", "contract.view_own",
+                    "master.view",
                 ]
                 for pcode in supplier_perms:
                     res = await db.execute(text("SELECT id FROM permissions WHERE code = :code"), {"code": pcode})
@@ -1077,6 +1080,234 @@ async def seed_demo():
             )
             db.add(po2_line)
             logger.info("Created Demo Purchase Order: PO-2026-000002")
+
+        # 15. Seed Demo Integration Jobs & Scheduled Runs (idempotent)
+        if 'po1' not in locals() or not po1:
+            res_po1 = await db.execute(select(PurchaseOrder).where(and_(PurchaseOrder.org_id == DEFAULT_ORG_ID, PurchaseOrder.po_number == "PO-2026-000001")))
+            po1 = res_po1.scalars().first()
+        if 'po2' not in locals() or not po2:
+            res_po2 = await db.execute(select(PurchaseOrder).where(and_(PurchaseOrder.org_id == DEFAULT_ORG_ID, PurchaseOrder.po_number == "PO-2026-000002")))
+            po2 = res_po2.scalars().first()
+        if 'grn1' not in locals() or not grn1:
+            res_grn = await db.execute(select(GoodsReceiptNote).where(and_(GoodsReceiptNote.org_id == DEFAULT_ORG_ID, GoodsReceiptNote.grn_number == "GRN-2026-000001")))
+            grn1 = res_grn.scalars().first()
+        if 'inv1' not in locals() or not inv1:
+            res_inv = await db.execute(select(Invoice).where(and_(Invoice.org_id == DEFAULT_ORG_ID, Invoice.invoice_number == "INV-2026-000001")))
+            inv1 = res_inv.scalars().first()
+
+        now_utc = datetime.now(timezone.utc)
+        today = date.today()
+        res_int = await db.execute(select(IntegrationJob).where(IntegrationJob.org_id == DEFAULT_ORG_ID))
+        existing_jobs = res_int.scalars().all()
+        existing_job_keys = {(j.job_type, j.adapter_type) for j in existing_jobs}
+
+        # 15.1 Vendor Master Push to SAP S/4HANA
+        if ("PUSH_VENDOR", "SAP") not in existing_job_keys:
+            job_vendor = IntegrationJob(
+                id=uuid4(),
+                org_id=DEFAULT_ORG_ID,
+                job_type="PUSH_VENDOR",
+                entity_type="VENDOR",
+                entity_id=acme_vendor.id,
+                direction="OUTBOUND",
+                adapter_type="SAP",
+                status=IntegrationJobStatusEnum.COMPLETED,
+                request_payload={
+                    "vendor_code": acme_vendor.vendor_code,
+                    "company_name": acme_vendor.company_name,
+                    "pan": "AABCA1234A",
+                    "gstin": "27AABCA1234A1Z5",
+                    "bank_account_verified": True,
+                    "account_group": "LIEF",
+                },
+                response_payload={
+                    "erp_vendor_code": "SAP-V-10001",
+                    "bapi_status": "SUCCESS",
+                    "bapi_code": "BAPI_VENDOR_CREATE",
+                    "company_code": "1000",
+                    "synced_at": (now_utc - timedelta(days=6)).isoformat(),
+                },
+                retry_count=0,
+                max_retries=7,
+                completed_at=now_utc - timedelta(days=6),
+            )
+            db.add(job_vendor)
+
+        # 15.2 PO-1 Push to SAP MM
+        if ("PUSH_PURCHASE_ORDER", "SAP") not in existing_job_keys and po1:
+            job_po1 = IntegrationJob(
+                id=uuid4(),
+                org_id=DEFAULT_ORG_ID,
+                job_type="PUSH_PURCHASE_ORDER",
+                entity_type="PURCHASE_ORDER",
+                entity_id=po1.id,
+                direction="OUTBOUND",
+                adapter_type="SAP",
+                status=IntegrationJobStatusEnum.COMPLETED,
+                request_payload={
+                    "po_number": po1.po_number,
+                    "vendor_code": acme_vendor.vendor_code,
+                    "total_value": str(po1.total_value),
+                    "currency": po1.currency,
+                    "lines_count": 1,
+                },
+                response_payload={
+                    "sap_document_number": "4500019283",
+                    "document_type": "NB",
+                    "status": "RELEASED",
+                    "synced_at": (now_utc - timedelta(days=4)).isoformat(),
+                },
+                retry_count=0,
+                max_retries=7,
+                completed_at=now_utc - timedelta(days=4),
+            )
+            db.add(job_po1)
+
+        # 15.3 GRN-1 Push to SAP MIGO
+        if ("PUSH_GRN", "SAP") not in existing_job_keys and grn1:
+            job_grn = IntegrationJob(
+                id=uuid4(),
+                org_id=DEFAULT_ORG_ID,
+                job_type="PUSH_GRN",
+                entity_type="GRN",
+                entity_id=grn1.id,
+                direction="OUTBOUND",
+                adapter_type="SAP",
+                status=IntegrationJobStatusEnum.COMPLETED,
+                request_payload={
+                    "grn_number": grn1.grn_number,
+                    "challan_number": grn1.challan_number,
+                    "movement_type": "101",
+                },
+                response_payload={
+                    "material_document": "5000039120",
+                    "fiscal_year": "2026",
+                    "posting_date": (today - timedelta(days=2)).isoformat(),
+                    "synced_at": (now_utc - timedelta(days=2)).isoformat(),
+                },
+                retry_count=0,
+                max_retries=7,
+                completed_at=now_utc - timedelta(days=2),
+            )
+            db.add(job_grn)
+
+        # 15.4 Invoice-1 Push to NetSuite FI
+        if ("PUSH_INVOICE", "NETSUITE") not in existing_job_keys and inv1:
+            job_inv = IntegrationJob(
+                id=uuid4(),
+                org_id=DEFAULT_ORG_ID,
+                job_type="PUSH_INVOICE",
+                entity_type="INVOICE",
+                entity_id=inv1.id,
+                direction="OUTBOUND",
+                adapter_type="NETSUITE",
+                status=IntegrationJobStatusEnum.COMPLETED,
+                request_payload={
+                    "invoice_number": inv1.invoice_number,
+                    "vendor_invoice_number": inv1.vendor_invoice_number,
+                    "amount": str(inv1.total_amount),
+                    "match_status": inv1.match_status,
+                },
+                response_payload={
+                    "internal_id": "NS-INV-89102",
+                    "status": "PARKED_FOR_PAYMENT",
+                    "period": "FY2026-Q1",
+                    "synced_at": (now_utc - timedelta(days=1)).isoformat(),
+                },
+                retry_count=0,
+                max_retries=7,
+                completed_at=now_utc - timedelta(days=1),
+            )
+            db.add(job_inv)
+
+        # 15.5 Tally Prime GL Sync (Retry Scheduled)
+        if ("SYNC_GL_POSTING", "TALLY") not in existing_job_keys:
+            job_tally = IntegrationJob(
+                id=uuid4(),
+                org_id=DEFAULT_ORG_ID,
+                job_type="SYNC_GL_POSTING",
+                entity_type="PAYMENT",
+                entity_id=uuid4(),
+                direction="OUTBOUND",
+                adapter_type="TALLY",
+                status=IntegrationJobStatusEnum.RETRY_SCHEDULED,
+                request_payload={
+                    "voucher_type": "Payment",
+                    "narration": "Settlement scheduled for INV-2026-000001",
+                    "amount": "1392000.00",
+                },
+                error_message="TallyPrime XML Gateway timeout: host 192.168.1.105:9000 uncontactable during ledger sync",
+                retry_count=1,
+                max_retries=7,
+                next_retry_at=now_utc + timedelta(minutes=15),
+            )
+            db.add(job_tally)
+
+        # 15.6 PO-2 Push to Dynamics 365 (In Progress)
+        if ("PUSH_PURCHASE_ORDER", "DYNAMICS") not in existing_job_keys and po2:
+            job_d365 = IntegrationJob(
+                id=uuid4(),
+                org_id=DEFAULT_ORG_ID,
+                job_type="PUSH_PURCHASE_ORDER",
+                entity_type="PURCHASE_ORDER",
+                entity_id=po2.id,
+                direction="OUTBOUND",
+                adapter_type="DYNAMICS",
+                status=IntegrationJobStatusEnum.IN_PROGRESS,
+                request_payload={
+                    "po_number": po2.po_number,
+                    "amount": str(po2.total_value),
+                    "currency": po2.currency,
+                },
+                retry_count=0,
+                max_retries=7,
+            )
+            db.add(job_d365)
+
+
+            # 15.7 Scheduled Job Runs (Cron telemetry)
+            runs = [
+                ScheduledJobRun(
+                    id=uuid4(),
+                    org_id=DEFAULT_ORG_ID,
+                    job_name="sap_vendor_master_nightly_sync",
+                    started_at=now_utc - timedelta(hours=8, minutes=12),
+                    completed_at=now_utc - timedelta(hours=8, minutes=8),
+                    status="COMPLETED",
+                    records_processed=48,
+                ),
+                ScheduledJobRun(
+                    id=uuid4(),
+                    org_id=DEFAULT_ORG_ID,
+                    job_name="netsuite_gl_reconciliation",
+                    started_at=now_utc - timedelta(hours=14, minutes=30),
+                    completed_at=now_utc - timedelta(hours=14, minutes=22),
+                    status="COMPLETED",
+                    records_processed=124,
+                ),
+                ScheduledJobRun(
+                    id=uuid4(),
+                    org_id=DEFAULT_ORG_ID,
+                    job_name="exchange_rate_daily_feed",
+                    started_at=now_utc - timedelta(hours=20),
+                    completed_at=now_utc - timedelta(hours=19, minutes=59),
+                    status="COMPLETED",
+                    records_processed=14,
+                ),
+                ScheduledJobRun(
+                    id=uuid4(),
+                    org_id=DEFAULT_ORG_ID,
+                    job_name="bank_penny_test_batch",
+                    started_at=now_utc - timedelta(hours=3, minutes=10),
+                    completed_at=now_utc - timedelta(hours=3, minutes=8),
+                    status="COMPLETED",
+                    records_processed=6,
+                ),
+            ]
+            for r in runs:
+                db.add(r)
+
+            logger.info("Created Demo ERP Integration Jobs & Scheduled Runs")
 
         await db.commit()
         logger.info("Demo data seeding completed successfully!")

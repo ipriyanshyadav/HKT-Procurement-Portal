@@ -3,8 +3,8 @@
 import React, { ReactNode } from "react";
 import { useAuthInit, useCurrentUser, useLogout } from "@procurement/hooks";
 import { useAuthStore } from "@procurement/stores";
-import { AppShell } from "@procurement/ui";
-import { Building2, FileCheck, UserPlus, Gavel, Package, Receipt, CreditCard } from "lucide-react";
+import { AppShell, NotificationBell } from "@procurement/ui";
+import { Building2, FileCheck, UserPlus, Gavel, Package, Receipt, CreditCard, AlertCircle } from "lucide-react";
 
 export default function SupplierMainLayout({ children }: { children: ReactNode }) {
   const { isInitializing } = useAuthInit();
@@ -35,6 +35,12 @@ export default function SupplierMainLayout({ children }: { children: ReactNode }
       label: "Invoices",
       href: "/invoices",
       icon: <Receipt className="w-4 h-4" />,
+      section: "Finance",
+    },
+    {
+      label: "Dispute Inbox",
+      href: "/invoices/disputes",
+      icon: <AlertCircle className="w-4 h-4" />,
       section: "Finance",
     },
     {
@@ -78,6 +84,7 @@ export default function SupplierMainLayout({ children }: { children: ReactNode }
       navItems={navItems}
       user={user}
       onLogout={() => logoutMutation.mutate()}
+      actions={<NotificationBell />}
     >
       {children}
     </AppShell>

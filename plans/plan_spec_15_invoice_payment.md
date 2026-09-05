@@ -6,22 +6,28 @@
 ## SPEC COVERAGE MAP
 | Req# | Section | Target | Status |
 |---|---|---|---|
-| S15-01 | Invoice submission by supplier | invoice/service.py | PLANNED |
-| S15-02 | 3-way match (PO + GRN + Invoice) | invoice/service.py + matching | PLANNED |
-| S15-03 | Match result types (FULL/PARTIAL/DISCREPANCY) | invoice/service.py | PLANNED |
-| S15-04 | Invoice approval workflow | invoice/service.py + rules_engine | PLANNED |
-| S15-05 | Payment scheduling (payment_terms + holidays) | invoice/service.py | PLANNED |
-| S15-06 | Payment record creation | payment/service.py | PLANNED |
-| S15-07 | ERP payment sync | integration/adapters/erp_payment.py | PLANNED |
-| S15-08 | Dispute management (vendor-raised) | invoice/service.py | PLANNED |
-| S15-09 | Dispute resolution (buyer-side) | invoice/service.py | PLANNED |
-| S15-10 | TDS deduction on payment | payment/service.py | PLANNED |
-| S15-11 | GST reverse charge handling | invoice/service.py | PLANNED |
-| S15-12 | Invoice number uniqueness per vendor per FY | invoice/service.py | PLANNED |
-| S15-13 | Advance payment handling | payment/service.py | PLANNED |
-| S15-14 | Invoice aging alerts | tasks/invoice_aging.py | PLANNED |
-| S15-15 | 16 audit events | invoice/service.py + payment/service.py | PLANNED |
-| S15-16 | Payment terms calendar integration | invoice/service.py + holiday_master | PLANNED |
+| S15-01 | Invoice submission by supplier | invoice/service.py | DONE |
+| S15-02 | 3-way match (PO + GRN + Invoice) | invoice/service.py + matching | DONE |
+| S15-03 | Match result types (FULL/PARTIAL/DISCREPANCY) | invoice/service.py | DONE |
+| S15-04 | Invoice approval workflow | invoice/service.py + rules_engine | DONE |
+| S15-05 | Payment scheduling (payment_terms + holidays) | invoice/service.py | DONE |
+| S15-06 | Payment record creation | payment/service.py | DONE |
+| S15-07 | ERP payment sync | integration/adapters/erp_payment.py | DONE |
+| S15-08 | Dispute management (vendor-raised) | invoice/service.py | DONE |
+| S15-09 | Dispute resolution (buyer-side) | invoice/service.py | DONE |
+| S15-10 | TDS deduction on payment | payment/service.py | DONE |
+| S15-11 | GST reverse charge handling | invoice/service.py | DONE |
+| S15-12 | Invoice number uniqueness per vendor per FY | invoice/service.py | DONE |
+| S15-13 | Advance payment handling | payment/service.py | DONE |
+| S15-14 | Invoice aging alerts | tasks/invoice_aging.py | DONE |
+| S15-15 | 16 audit events | invoice/service.py + payment/service.py | DONE |
+| S15-16 | Payment terms calendar integration | invoice/service.py + holiday_master | DONE |
+
+```
+MODULE | SPEC | DATE
+SPEC_15 | Invoice & Payment | 2026-09-05
+OVERALL: 16/16 (100%) | BACKEND 100% | FRONTEND 100% | TESTS 100%
+```
 
 ---
 ## ASSUMPTIONS LOG

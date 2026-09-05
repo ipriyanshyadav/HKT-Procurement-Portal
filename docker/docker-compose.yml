@@ -18,6 +18,34 @@ services:
       timeout: 5s
       retries: 5
 
+  pgbouncer:
+    image: edoburu/pgbouncer:v1.22.1
+    container_name: procurement_pgbouncer
+    environment:
+      DB_USER: ${POSTGRES_USER:-postgres}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${POSTGRES_DB:-procurement}
+      POOL_MODE: transaction
+      DEFAULT_POOL_SIZE: 50
+      MAX_CLIENT_CONN: 200
+      MIN_POOL_SIZE: 10
+      RESERVE_POOL_SIZE: 5
+      RESERVE_POOL_TIMEOUT: 3
+      MAX_DB_CONNECTIONS: 100
+      AUTH_TYPE: any
+      ADMIN_USERS: postgres
+    ports:
+      - "6432:6432"
+    volumes:
+      - ./pgbouncer/pgbouncer.ini:/etc/pgbouncer/pgbouncer.ini:ro
+    networks:
+      - procurement_net
+    depends_on:
+      postgres:
+        condition: service_healthy
+
   redis:
     image: redis:7-alpine
     container_name: procurement_redis
@@ -146,6 +174,7 @@ services:
       REDIS_URL: redis://redis:6379/0
       RABBITMQ_URL: amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASSWORD:-guest}@rabbitmq:5672/%2Fprocurement
       MINIO_ENDPOINT: minio:9000
+      OTEL_ENABLED: ${OTEL_ENABLED:-true}
       JAEGER_HOST: jaeger
       CLAMAV_HOST: clamav
       CLAMAV_PORT: 3310

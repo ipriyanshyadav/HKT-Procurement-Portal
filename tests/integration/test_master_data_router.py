@@ -329,3 +329,104 @@ def test_import_categories_csv_endpoint(client, mock_user):
     assert response.status_code == 202
     assert response.json()["data"]["job_id"] == str(job_id)
     assert response.json()["data"]["status"] == "PENDING"
+
+
+def test_create_uom_endpoint(client, mock_user):
+    uom = UomMaster(
+        id=uuid4(),
+        org_id=mock_user.org_id,
+        code="BOX",
+        name="Box of 10",
+        iso_code="BX",
+        is_active=True,
+        version=1,
+        created_at=datetime.now(timezone.utc),
+        updated_at=datetime.now(timezone.utc),
+    )
+    with patch("app.modules.master_data.uom.service.uom_service.create", AsyncMock(return_value=uom)):
+        response = client.post(
+            "/api/v1/master-data/uoms",
+            json={"code": "BOX", "name": "Box of 10", "iso_code": "BX"},
+        )
+    assert response.status_code == 201
+    assert response.json()["data"]["code"] == "BOX"
+
+
+def test_create_currency_endpoint(client, mock_user):
+    curr = CurrencyMaster(
+        id=uuid4(),
+        org_id=mock_user.org_id,
+        code="EUR",
+        name="Euro",
+        symbol="€",
+        exchange_rate_to_base=Decimal("90.5"),
+        is_base_currency=False,
+        is_active=True,
+        version=1,
+        created_at=datetime.now(timezone.utc),
+        updated_at=datetime.now(timezone.utc),
+    )
+    with patch("app.modules.master_data.currency.service.currency_service.create", AsyncMock(return_value=curr)):
+        response = client.post(
+            "/api/v1/master-data/currencies",
+            json={"code": "EUR", "name": "Euro", "symbol": "€", "exchange_rate_to_base": "90.5"},
+        )
+    assert response.status_code == 201
+    assert response.json()["data"]["code"] == "EUR"
+
+
+def test_create_payment_term_endpoint(client, mock_user):
+    term = PaymentTerm(
+        id=uuid4(),
+        org_id=mock_user.org_id,
+        code="NET45",
+        name="Net 45 Days",
+        net_days=45,
+        discount_percentage=Decimal("0.00"),
+        discount_days=0,
+        description="Payment due within 45 days",
+        is_active=True,
+        version=1,
+        created_at=datetime.now(timezone.utc),
+        updated_at=datetime.now(timezone.utc),
+    )
+    with patch("app.modules.master_data.payment_terms.service.payment_terms_service.create", AsyncMock(return_value=term)):
+        response = client.post(
+            "/api/v1/master-data/payment-terms",
+            json={"code": "NET45", "name": "Net 45 Days", "net_days": 45},
+        )
+    assert response.status_code == 201
+    assert response.json()["data"]["code"] == "NET45"
+
+
+def test_create_tax_code_endpoint(client, mock_user):
+    tax = TaxCode(
+        id=uuid4(),
+        org_id=mock_user.org_id,
+        code="GST28",
+        name="GST 28%",
+        rate=Decimal("28.00"),
+        tax_type="GST",
+        hsn_chapter="87",
+        is_active=True,
+        version=1,
+        created_at=datetime.now(timezone.utc),
+        updated_at=datetime.now(timezone.utc),
+    )
+    with patch("app.modules.master_data.tax.service.tax_service.create", AsyncMock(return_value=tax)):
+        response = client.post(
+            "/api/v1/master-data/tax-codes",
+            json={"code": "GST28", "name": "GST 28%", "rate": "28.00", "tax_type": "GST", "hsn_chapter": "87"},
+        )
+    assert response.status_code == 201
+    assert response.json()["data"]["code"] == "GST28"
+
+
+def test_delete_holiday_endpoint(client, mock_user):
+    hol_id = uuid4()
+    with patch("app.modules.master_data.holiday.service.holiday_service.delete", AsyncMock(return_value=None)):
+        response = client.delete(f"/api/v1/master-data/holidays/{hol_id}")
+    assert response.status_code == 200
+    assert response.json()["data"]["message"] == "Holiday deleted successfully"
+
+

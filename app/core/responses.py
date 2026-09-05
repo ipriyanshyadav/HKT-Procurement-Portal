@@ -67,6 +67,9 @@ def success_response(data: Any, meta: Optional[PaginationMeta | dict] = None, li
                 "has_next": meta.get("has_next", page < total_pages),
                 "has_prev": meta.get("has_prev", page > 1),
             }
+            for k, v in meta.items():
+                if k not in serialized_meta:
+                    serialized_meta[k] = v
         elif hasattr(meta, "model_dump"):
             dumped = meta.model_dump()
             if "total" not in dumped:

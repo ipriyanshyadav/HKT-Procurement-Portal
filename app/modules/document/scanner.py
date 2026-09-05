@@ -10,7 +10,7 @@ try:
 except (ImportError, OSError):
     magic = None
     MAGIC_AVAILABLE = False
-    logger.warning("python-magic or libmagic not found on host — using content-type header fallback")
+    logger.info("python-magic or libmagic not found on host — using content-type header fallback")
 
 from app.config import settings
 from app.core.exceptions import ValidationError

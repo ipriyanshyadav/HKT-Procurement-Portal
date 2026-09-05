@@ -83,6 +83,25 @@ class BusinessRuleError(AppException):
         m, c, d = _resolve_exc_args("Business rule violation", "BUSINESS_RULE_ERROR", message, details, code)
         super().__init__(m, c, d)
 
+class ExternalServiceError(AppException):
+    def __init__(self, code_or_message: str = "External service error", message_or_code: Optional[str] = None, details: Optional[Any] = None):
+        if message_or_code:
+            # Called as ExternalServiceError("SENDGRID_FAILED", "SendGrid API error: 500")
+            c = code_or_message
+            m = message_or_code
+            d = details if isinstance(details, dict) else {}
+        else:
+            c = "EXTERNAL_SERVICE_ERROR"
+            m = code_or_message
+            d = details if isinstance(details, dict) else {}
+        super().__init__(message=m, code=c, details=d, status_code=502)
+
+class NotificationDeliveryError(AppException):
+    def __init__(self, message: str = "Notification delivery failed", details: Optional[Any] = None, code: Optional[str] = None):
+        m, c, d = _resolve_exc_args("Notification delivery failed", "NOTIFICATION_DELIVERY_ERROR", message, details, code)
+        super().__init__(m, c, d, status_code=502)
+
+
 def register_exception_handlers(app: FastAPI) -> None:
     from app.core.telemetry import get_current_trace_id
 

@@ -100,13 +100,13 @@ export default function VendorDetailPage() {
   return (
     <div className="w-full space-y-6">
       {/* Back button & Title */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-gray-200 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-gray-200 dark:border-slate-800 pb-4">
         <div>
           <Link href="/vendors" className="text-xs text-blue-600 hover:underline mb-1 inline-block">
             ← Back to Vendors List
           </Link>
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold text-gray-900">{vendor.company_name}</h1>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{vendor.company_name}</h1>
             <VendorStatusBadge status={vendor.status} />
           </div>
           <p className="text-xs text-gray-400 mt-0.5 font-mono">
@@ -510,7 +510,7 @@ export default function VendorDetailPage() {
       {modalAction && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 space-y-4">
-            <h3 className="text-lg font-bold text-gray-900">
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white">
               {modalAction.replace(/_/g, " ")} Confirmation
             </h3>
             <p className="text-xs text-gray-500">
@@ -531,7 +531,7 @@ export default function VendorDetailPage() {
                   setModalAction(null);
                   setModalInput("");
                 }}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-xs font-semibold text-gray-700 hover:bg-gray-50"
+                className="px-4 py-2 border border-gray-300 rounded-lg text-xs font-semibold text-gray-700 hover:bg-gray-50 dark:hover:bg-slate-800/50"
               >
                 Cancel
               </button>
@@ -551,7 +551,7 @@ export default function VendorDetailPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 space-y-4">
             <div>
-              <h3 className="text-lg font-bold text-gray-900">Confirm Penny-Drop Deposit</h3>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white">Confirm Penny-Drop Deposit</h3>
               <p className="text-xs text-gray-500 mt-1">
                 Enter the exact micro-deposit amount that appeared in the vendor's bank account
                 statement for{" "}
@@ -593,7 +593,7 @@ export default function VendorDetailPage() {
                   setPennyAmountInput("");
                 }}
                 disabled={confirmPennyTest.isPending}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-xs font-semibold text-gray-700 hover:bg-gray-50"
+                className="px-4 py-2 border border-gray-300 rounded-lg text-xs font-semibold text-gray-700 hover:bg-gray-50 dark:hover:bg-slate-800/50"
               >
                 Cancel
               </button>

@@ -6,23 +6,29 @@
 ## SPEC COVERAGE MAP
 | Req# | Section | Target | Status |
 |---|---|---|---|
-| S13-01 | Contract types (FIXED_PRICE, RATE_CONTRACT, FRAMEWORK, SERVICE_LEVEL, AMC) | contract/models.py | PLANNED |
-| S13-02 | 10-status lifecycle FSM | contract/fsm.py | PLANNED |
-| S13-03 | Contract number auto-generation | contract/service.py | PLANNED |
-| S13-04 | Contract creation from award recommendation | contract/service.py | PLANNED |
-| S13-05 | Milestone tracking | contract/models.py | PLANNED |
-| S13-06 | eSign integration (Digio / DocuSign) | contract/service.py + integration | PLANNED |
-| S13-07 | Contract amendment (formal, versioned) | contract/service.py | PLANNED |
-| S13-08 | Auto-renewal logic | contract/service.py + tasks | PLANNED |
-| S13-09 | Contract expiry alerts (90/60/30/0 days) | tasks/contract_expiry.py | PLANNED |
-| S13-10 | SLA monitoring (contract_milestones) | contract/service.py | PLANNED |
-| S13-11 | Contract templates (standard + custom) | contract/service.py | PLANNED |
-| S13-12 | Contract approval workflow | contract/service.py + rules_engine | PLANNED |
-| S13-13 | Contract storage in MinIO (contract-documents) | contract/service.py | PLANNED |
-| S13-14 | PO generation from contract | contract/service.py | PLANNED |
-| S13-15 | 14 audit events | contract/service.py | PLANNED |
-| S13-16 | Contract performance scoring | contract/service.py | PLANNED |
-| S13-17 | Value utilization tracking (for rate contracts) | contract/service.py | PLANNED |
+| S13-01 | Contract types (FIXED_PRICE, RATE_CONTRACT, FRAMEWORK, SERVICE_LEVEL, AMC) | contract/models.py | DONE |
+| S13-02 | 10-status lifecycle FSM | contract/fsm.py | DONE |
+| S13-03 | Contract number auto-generation | contract/service.py | DONE |
+| S13-04 | Contract creation from award recommendation | contract/service.py | DONE |
+| S13-05 | Milestone tracking | contract/models.py | DONE |
+| S13-06 | eSign integration (Digio / DocuSign) | contract/service.py + integration | DONE |
+| S13-07 | Contract amendment (formal, versioned) | contract/service.py | DONE |
+| S13-08 | Auto-renewal logic | contract/service.py + tasks | DONE |
+| S13-09 | Contract expiry alerts (90/60/30/0 days) | tasks/contract_expiry.py | DONE |
+| S13-10 | SLA monitoring (contract_milestones) | contract/service.py | DONE |
+| S13-11 | Contract templates (standard + custom) | contract/service.py | DONE |
+| S13-12 | Contract approval workflow | contract/service.py + rules_engine | DONE |
+| S13-13 | Contract storage in MinIO (contract-documents) | contract/service.py | DONE |
+| S13-14 | PO generation from contract | contract/service.py | DONE |
+| S13-15 | 14 audit events | contract/service.py | DONE |
+| S13-16 | Contract performance scoring | contract/service.py | DONE |
+| S13-17 | Value utilization tracking (for rate contracts) | contract/service.py | DONE |
+
+```
+MODULE | SPEC | DATE
+SPEC_13 | Contract Management | 2026-09-05
+OVERALL: 17/17 (100%) | BACKEND 100% | FRONTEND 100% | TESTS 100%
+```
 
 ---
 ## ASSUMPTIONS LOG

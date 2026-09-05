@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useLogin } from "@procurement/hooks";
 import { useState } from "react";
+import { CaptchaChallenge } from "@procurement/ui";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -18,6 +19,10 @@ export default function LoginPage() {
   const router = useRouter();
   const { mutate: login, isPending, error } = useLogin();
   const [mfaToken, setMfaToken] = useState<string | null>(null);
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  const [captchaVerified, setCaptchaVerified] = useState(false);
+
+  const requireCaptcha = failedAttempts >= 2;
 
   const {
     register,
@@ -31,6 +36,10 @@ export default function LoginPage() {
   });
 
   const onSubmit = (data: LoginForm) => {
+    if (requireCaptcha && !captchaVerified) {
+      return;
+    }
+
     login(data as any, {
       onSuccess: (response) => {
         if (response.data.mfa_required && response.data.mfa_token) {
@@ -40,21 +49,35 @@ export default function LoginPage() {
           router.push("/requisitions");
         }
       },
+      onError: () => {
+        setFailedAttempts((prev) => prev + 1);
+        setCaptchaVerified(false);
+      },
     });
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-black p-4 transition-colors">
+      <div className="max-w-md w-full space-y-8 p-8 bg-white dark:bg-slate-900/80 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-800">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 text-center">Procurement Portal</h1>
-          <h2 className="mt-2 text-center text-lg text-gray-600">Sign in to your account</h2>
+          <div className="flex justify-center mb-4">
+            <span className="flex items-center gap-2 font-bold tracking-tight">
+              <span className="px-2.5 py-1 text-xs font-black tracking-wider bg-gradient-to-r from-blue-600 via-indigo-600 to-sky-500 text-white rounded-lg shadow-sm ring-1 ring-blue-500/20">
+                HKT
+              </span>
+              <span className="bg-gradient-to-r from-neutral-900 via-neutral-800 to-neutral-600 dark:from-white dark:via-neutral-100 dark:to-neutral-300 bg-clip-text text-transparent font-semibold tracking-tight text-[19px]">
+                Procurement
+              </span>
+            </span>
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white text-center">Buyer Portal</h1>
+          <h2 className="mt-1 text-center text-sm text-gray-600 dark:text-slate-400">Sign in to your account</h2>
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)} noValidate>
           <div className="space-y-4">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="email" className="block text-xs font-semibold text-gray-700 dark:text-slate-300 uppercase tracking-wider mb-1">
                 Email address
               </label>
               <input
@@ -62,18 +85,18 @@ export default function LoginPage() {
                 type="email"
                 autoComplete="email"
                 {...register("email")}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="mt-1 block w-full px-3.5 py-2.5 border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800/90 text-gray-900 dark:text-white rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm placeholder:text-gray-400 dark:placeholder:text-slate-500"
                 aria-describedby={errors.email ? "email-error" : undefined}
               />
               {errors.email && (
-                <p id="email-error" className="mt-1 text-sm text-red-600" role="alert">
+                <p id="email-error" className="mt-1 text-xs text-red-600 dark:text-red-400" role="alert">
                   {errors.email.message}
                 </p>
               )}
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="password" className="block text-xs font-semibold text-gray-700 dark:text-slate-300 uppercase tracking-wider mb-1">
                 Password
               </label>
               <input
@@ -81,11 +104,11 @@ export default function LoginPage() {
                 type="password"
                 autoComplete="current-password"
                 {...register("password")}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="mt-1 block w-full px-3.5 py-2.5 border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800/90 text-gray-900 dark:text-white rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm placeholder:text-gray-400 dark:placeholder:text-slate-500"
                 aria-describedby={errors.password ? "password-error" : undefined}
               />
               {errors.password && (
-                <p id="password-error" className="mt-1 text-sm text-red-600" role="alert">
+                <p id="password-error" className="mt-1 text-xs text-red-600 dark:text-red-400" role="alert">
                   {errors.password.message}
                 </p>
               )}
@@ -95,17 +118,24 @@ export default function LoginPage() {
           </div>
 
           {error && (
-            <div className="rounded-md bg-red-50 p-4" role="alert">
-              <p className="text-sm text-red-800">
+            <div className="rounded-xl bg-red-50 dark:bg-rose-950/50 border border-red-200 dark:border-rose-900/50 p-4" role="alert">
+              <p className="text-xs text-red-800 dark:text-red-300">
                 {(error as Error).message || "Login failed. Please check your credentials."}
               </p>
             </div>
           )}
 
+          {requireCaptcha && (
+            <CaptchaChallenge
+              required={requireCaptcha}
+              onVerify={setCaptchaVerified}
+            />
+          )}
+
           <button
             type="submit"
-            disabled={isPending}
-            className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            disabled={isPending || (requireCaptcha && !captchaVerified)}
+            className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-xl shadow-sm text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {isPending ? "Signing in..." : "Sign in with Credentials"}
           </button>
@@ -113,10 +143,10 @@ export default function LoginPage() {
 
         <div className="relative my-6">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-200" />
+            <div className="w-full border-t border-gray-200 dark:border-slate-800" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-white px-2 text-gray-500 font-medium">Or Enterprise Single Sign-On</span>
+            <span className="bg-white dark:bg-slate-900 px-2 text-gray-500 dark:text-slate-400 font-medium">Or Enterprise Single Sign-On</span>
           </div>
         </div>
 
@@ -136,7 +166,7 @@ export default function LoginPage() {
                 alert(err?.response?.data?.error?.message || "Failed to initiate OIDC login");
               }
             }}
-            className="w-full flex items-center justify-center gap-2 py-2.5 px-3 border border-gray-300 rounded-lg text-xs font-semibold text-gray-700 bg-white hover:bg-gray-50 shadow-sm transition-colors"
+            className="w-full flex items-center justify-center gap-2 py-2.5 px-3 border border-gray-300 dark:border-slate-700 rounded-xl text-xs font-semibold text-gray-700 dark:text-slate-200 bg-white dark:bg-slate-800/80 hover:bg-gray-50 dark:hover:bg-slate-700/80 shadow-sm transition-colors"
           >
             <span className="w-2 h-2 rounded-full bg-blue-500" />
             Okta / OIDC
@@ -157,7 +187,7 @@ export default function LoginPage() {
                 alert(err?.response?.data?.error?.message || "Failed to initiate SAML login");
               }
             }}
-            className="w-full flex items-center justify-center gap-2 py-2.5 px-3 border border-gray-300 rounded-lg text-xs font-semibold text-gray-700 bg-white hover:bg-gray-50 shadow-sm transition-colors"
+            className="w-full flex items-center justify-center gap-2 py-2.5 px-3 border border-gray-300 dark:border-slate-700 rounded-xl text-xs font-semibold text-gray-700 dark:text-slate-200 bg-white dark:bg-slate-800/80 hover:bg-gray-50 dark:hover:bg-slate-700/80 shadow-sm transition-colors"
           >
             <span className="w-2 h-2 rounded-full bg-cyan-600" />
             Azure AD / SAML

@@ -39,6 +39,8 @@ from app.modules.vendor.schemas import (
     VendorSubmitRequest,
     VendorSuspendRequest,
     VendorUpdateRequest,
+    BulkVendorCategoryMappingRequest,
+    BulkVendorCategoryMappingResponse,
 )
 from app.modules.vendor.service import vendor_service
 
@@ -161,6 +163,23 @@ async def check_duplicates(
         bank_account=data.bank_account,
         ifsc=data.ifsc,
     )
+    return success_response(result.model_dump())
+
+
+@router.post("/bulk-category-mapping", status_code=status.HTTP_200_OK)
+async def bulk_category_mapping(
+    data: BulkVendorCategoryMappingRequest,
+    current_user: User = Depends(require_permission(PermissionCode.VENDOR_MANAGE_CATEGORIES)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Bulk map categories to multiple vendors via imported CSV / JSON entries."""
+    result = await vendor_service.bulk_map_categories(
+        db,
+        mappings=data.mappings,
+        actor_id=current_user.id,
+        org_id=current_user.org_id,
+    )
+    await db.commit()
     return success_response(result.model_dump())
 
 

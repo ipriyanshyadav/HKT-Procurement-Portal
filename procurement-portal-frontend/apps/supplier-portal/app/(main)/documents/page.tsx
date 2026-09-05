@@ -216,17 +216,17 @@ export default function SupplierDocumentsPage() {
   return (
     <div className="w-full space-y-6">
       {/* Header */}
-      <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-white dark:bg-slate-900/80 rounded-2xl border border-gray-200 dark:border-slate-800 p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Documents & Compliance</h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Documents & Compliance</h1>
+          <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">
             Maintain regulatory, tax, and statutory documents required for compliance.
           </p>
         </div>
         <div className="flex items-center gap-3">
           <Link
             href="/profile"
-            className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-lg transition-colors"
+            className="px-4 py-2 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 text-gray-700 dark:text-slate-200 text-sm font-medium rounded-lg transition-colors"
           >
             ← Back to Profile
           </Link>
@@ -234,11 +234,11 @@ export default function SupplierDocumentsPage() {
       </div>
 
       {/* Security & ClamAV Notice */}
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-2xl p-4 flex items-center gap-3 text-sm text-blue-900">
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border border-blue-100 dark:border-blue-900/50 rounded-2xl p-4 flex items-center gap-3 text-sm text-blue-900 dark:text-blue-200">
         <span className="text-xl">🛡️</span>
         <div>
-          <p className="font-semibold">Automated Malware & Anti-Virus Protection Active</p>
-          <p className="text-xs text-blue-700">
+          <p className="font-semibold text-blue-950 dark:text-blue-200">Automated Malware & Anti-Virus Protection Active</p>
+          <p className="text-xs text-blue-700 dark:text-blue-300">
             All uploaded vendor compliance documents are scanned through ClamAV anti-virus protection before being made available for download.
           </p>
         </div>
@@ -246,25 +246,25 @@ export default function SupplierDocumentsPage() {
 
       {/* Template Download Notification */}
       {downloadSuccessMsg && (
-        <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-xs font-semibold flex items-center gap-2">
-          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+        <div className="p-3.5 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl text-emerald-800 dark:text-emerald-300 text-xs font-semibold flex items-center gap-2">
+          <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
           <span>{downloadSuccessMsg}</span>
         </div>
       )}
 
       {/* Required Compliance Documents & Templates Grid */}
-      <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-100 pb-3">
+      <div className="bg-white dark:bg-slate-900/80 rounded-2xl border border-gray-200 dark:border-slate-800 p-6 shadow-sm space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-100 dark:border-slate-800 pb-3">
           <div>
-            <h2 className="text-base font-bold text-gray-900 flex items-center gap-2">
-              <FileText className="w-5 h-5 text-blue-600" />
+            <h2 className="text-base font-bold text-gray-900 dark:text-white flex items-center gap-2">
+              <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400" />
               Document Requirements & Standard Templates
             </h2>
-            <p className="text-xs text-gray-500 mt-0.5">
+            <p className="text-xs text-gray-500 dark:text-slate-400 mt-0.5">
               Review required documents and download official templates for execution before uploading.
             </p>
           </div>
-          <span className="text-xs font-medium text-gray-400">
+          <span className="text-xs font-medium text-gray-400 dark:text-slate-500">
             {COMPLIANCE_REQUIREMENTS.filter((r) => r.mandatory).length} Mandatory Requirements
           </span>
         </div>
@@ -273,36 +273,36 @@ export default function SupplierDocumentsPage() {
           {COMPLIANCE_REQUIREMENTS.map((req) => (
             <div
               key={req.code}
-              className="p-4 rounded-xl border border-gray-100 bg-gray-50/70 hover:bg-white hover:border-blue-200 transition-all shadow-xs flex flex-col justify-between gap-3"
+              className="p-4 rounded-xl border border-gray-100 dark:border-slate-800 bg-gray-50/70 dark:bg-slate-800/40 hover:bg-white dark:hover:bg-slate-800/80 hover:border-blue-200 dark:hover:border-slate-700 transition-all shadow-xs flex flex-col justify-between gap-3"
             >
               <div>
                 <div className="flex items-center justify-between gap-2 mb-1.5">
-                  <h3 className="text-sm font-bold text-gray-900">{req.name}</h3>
+                  <h3 className="text-sm font-bold text-gray-900 dark:text-white">{req.name}</h3>
                   <span
                     className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${
                       req.mandatory
-                        ? "bg-rose-100 text-rose-800"
-                        : "bg-slate-100 text-slate-600"
+                        ? "bg-rose-100 dark:bg-rose-950/50 text-rose-800 dark:text-rose-300"
+                        : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
                     }`}
                   >
                     {req.mandatory ? "Mandatory" : "Optional"}
                   </span>
                 </div>
-                <p className="text-xs text-gray-600 leading-relaxed">{req.description}</p>
+                <p className="text-xs text-gray-600 dark:text-slate-300 leading-relaxed">{req.description}</p>
               </div>
 
-              <div className="flex items-center justify-between pt-2 border-t border-gray-200/60 text-xs">
-                <span className="text-[11px] font-mono text-gray-400">{req.allowedFormats}</span>
+              <div className="flex items-center justify-between pt-2 border-t border-gray-200 dark:border-slate-800/60 text-xs">
+                <span className="text-[11px] font-mono text-gray-400 dark:text-slate-500">{req.allowedFormats}</span>
                 {req.hasTemplate ? (
                   <button
                     onClick={() => handleDownloadTemplate(req)}
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:text-blue-800 hover:underline transition-colors"
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:underline transition-colors"
                   >
                     <Download className="w-3.5 h-3.5" />
                     Download Template
                   </button>
                 ) : (
-                  <span className="text-[11px] text-gray-400 italic">Issued by Authority</span>
+                  <span className="text-[11px] text-gray-400 dark:text-slate-500 italic">Issued by Authority</span>
                 )}
               </div>
             </div>
@@ -312,7 +312,7 @@ export default function SupplierDocumentsPage() {
 
       {/* Live Document Management Component (SPEC_17) */}
       {vendorLoading ? (
-        <div className="p-8 text-center text-sm text-gray-500 bg-white rounded-2xl border border-gray-200">
+        <div className="p-8 text-center text-sm text-gray-500 dark:text-slate-400 bg-white dark:bg-slate-900/80 rounded-2xl border border-gray-200 dark:border-slate-800">
           Loading vendor profile and documents...
         </div>
       ) : vendor?.id ? (
@@ -323,7 +323,7 @@ export default function SupplierDocumentsPage() {
           defaultDocumentType="GSTIN_CERTIFICATE"
         />
       ) : (
-        <div className="p-8 text-center text-sm text-gray-500 bg-white rounded-2xl border border-gray-200">
+        <div className="p-8 text-center text-sm text-gray-500 dark:text-slate-400 bg-white dark:bg-slate-900/80 rounded-2xl border border-gray-200 dark:border-slate-800">
           Vendor profile not found. Please complete your registration.
         </div>
       )}

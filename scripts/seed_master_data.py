@@ -7,6 +7,7 @@ Idempotent (ON CONFLICT DO NOTHING). Safe to run at startup.
 from __future__ import annotations
 
 import asyncio
+from datetime import date
 import logging
 import os
 import sys
@@ -83,6 +84,98 @@ DEFAULT_UOMS = [
     {"code": "PKT", "name": "Packet"},
 ]
 
+DEFAULT_CURRENCIES = [
+    {"code": "INR", "name": "Indian Rupee", "symbol": "₹", "exchange_rate_to_base": 1.0, "is_base_currency": True},
+    {"code": "USD", "name": "US Dollar", "symbol": "$", "exchange_rate_to_base": 83.50, "is_base_currency": False},
+    {"code": "EUR", "name": "Euro", "symbol": "€", "exchange_rate_to_base": 90.25, "is_base_currency": False},
+    {"code": "GBP", "name": "British Pound", "symbol": "£", "exchange_rate_to_base": 106.10, "is_base_currency": False},
+    {"code": "SGD", "name": "Singapore Dollar", "symbol": "S$", "exchange_rate_to_base": 62.40, "is_base_currency": False},
+    {"code": "AED", "name": "UAE Dirham", "symbol": "د.إ", "exchange_rate_to_base": 22.73, "is_base_currency": False},
+    {"code": "JPY", "name": "Japanese Yen", "symbol": "¥", "exchange_rate_to_base": 0.55, "is_base_currency": False},
+]
+
+DEFAULT_PAYMENT_TERMS = [
+    {"code": "NET30", "name": "Net 30 Days", "payment_days": 30, "net_days": 30, "advance_percentage": 0.0, "retention_percentage": 0.0, "discount_percentage": 0.0, "discount_days": 0, "description": "Payment due within 30 days of invoice date"},
+    {"code": "NET60", "name": "Net 60 Days", "payment_days": 60, "net_days": 60, "advance_percentage": 0.0, "retention_percentage": 0.0, "discount_percentage": 0.0, "discount_days": 0, "description": "Payment due within 60 days of invoice date"},
+    {"code": "NET90", "name": "Net 90 Days", "payment_days": 90, "net_days": 90, "advance_percentage": 0.0, "retention_percentage": 0.0, "discount_percentage": 0.0, "discount_days": 0, "description": "Payment due within 90 days of invoice date"},
+    {"code": "2_10_NET30", "name": "2% 10 Net 30", "payment_days": 30, "net_days": 30, "advance_percentage": 0.0, "retention_percentage": 0.0, "discount_percentage": 2.0, "discount_days": 10, "description": "2% discount if paid within 10 days, net due in 30 days"},
+    {"code": "IMMEDIATE", "name": "Immediate / Due Upon Receipt", "payment_days": 0, "net_days": 0, "advance_percentage": 0.0, "retention_percentage": 0.0, "discount_percentage": 0.0, "discount_days": 0, "description": "Payment due immediately upon receipt"},
+    {"code": "ADVANCE_50", "name": "50% Advance, Balance on Delivery", "payment_days": 30, "net_days": 30, "advance_percentage": 50.0, "retention_percentage": 0.0, "discount_percentage": 0.0, "discount_days": 0, "description": "50% advance payment required, remaining 50% net 30"},
+    {"code": "RETENTION_10", "name": "Net 30 with 10% Retention", "payment_days": 30, "net_days": 30, "advance_percentage": 0.0, "retention_percentage": 10.0, "discount_percentage": 0.0, "discount_days": 0, "description": "Net 30 days with 10% retention withheld until final signoff"},
+]
+
+DEFAULT_TAX_CODES = [
+    {"code": "GST_0", "name": "GST 0% (Exempt / Nil Rated)", "tax_type": "GST", "rate": 0.0, "hsn_chapter": "01"},
+    {"code": "GST_5", "name": "GST 5% (Essential Goods / Transport)", "tax_type": "GST", "rate": 5.0, "hsn_chapter": "10"},
+    {"code": "GST_12", "name": "GST 12% (Standard Concession)", "tax_type": "GST", "rate": 12.0, "hsn_chapter": "84"},
+    {"code": "GST_18", "name": "GST 18% (Standard Rate for Goods & Services)", "tax_type": "GST", "rate": 18.0, "hsn_chapter": "85"},
+    {"code": "GST_28", "name": "GST 28% (Luxury & Sin Goods)", "tax_type": "GST", "rate": 28.0, "hsn_chapter": "87"},
+    {"code": "TDS_194C", "name": "TDS u/s 194C (Contractors / Sub-contractors 2%)", "tax_type": "TDS", "rate": 2.0, "hsn_chapter": "99"},
+    {"code": "TDS_194J", "name": "TDS u/s 194J (Professional / Technical Fees 10%)", "tax_type": "TDS", "rate": 10.0, "hsn_chapter": "99"},
+    {"code": "TDS_194Q", "name": "TDS u/s 194Q (Purchase of Goods 0.1%)", "tax_type": "TDS", "rate": 0.1, "hsn_chapter": "99"},
+    {"code": "CESS_12", "name": "Compensation Cess 12%", "tax_type": "CESS", "rate": 12.0, "hsn_chapter": "87"},
+]
+
+DEFAULT_DELIVERY_LOCATIONS = [
+    {
+        "code": "LOC-HQ-MUM",
+        "name": "Corporate HQ & Server Room",
+        "address_line1": "Tower 4, 12th Floor, Bandra Kurla Complex",
+        "city": "Mumbai",
+        "state": "Maharashtra",
+        "postal_code": "400051",
+        "country_code": "IN",
+    },
+    {
+        "code": "LOC-DC-BLR",
+        "name": "Bengaluru Data Center & Technology Hub",
+        "address_line1": "Plot 24, Electronics City Phase 1",
+        "city": "Bengaluru",
+        "state": "Karnataka",
+        "postal_code": "560100",
+        "country_code": "IN",
+    },
+    {
+        "code": "LOC-WH-DEL",
+        "name": "Northern Regional Warehouse & Logistics",
+        "address_line1": "Udyog Vihar Phase 4, Sector 18",
+        "city": "Gurugram",
+        "state": "Haryana",
+        "postal_code": "122015",
+        "country_code": "IN",
+    },
+    {
+        "code": "LOC-PLANT-CHE",
+        "name": "Chennai Manufacturing & Assembly Plant",
+        "address_line1": "SIPCOT Industrial Park, Sriperumbudur",
+        "city": "Chennai",
+        "state": "Tamil Nadu",
+        "postal_code": "602105",
+        "country_code": "IN",
+    },
+    {
+        "code": "LOC-WH-HYD",
+        "name": "Hyderabad Distribution Center",
+        "address_line1": "Hardware Park, Shamshabad",
+        "city": "Hyderabad",
+        "state": "Telangana",
+        "postal_code": "501218",
+        "country_code": "IN",
+    },
+]
+
+DEFAULT_HOLIDAYS = [
+    {"name": "Republic Day", "holiday_date": date(2026, 1, 26)},
+    {"name": "Holi", "holiday_date": date(2026, 3, 4)},
+    {"name": "Eid al-Fitr", "holiday_date": date(2026, 3, 20)},
+    {"name": "Good Friday", "holiday_date": date(2026, 4, 3)},
+    {"name": "Independence Day", "holiday_date": date(2026, 8, 15)},
+    {"name": "Mahatma Gandhi Jayanti", "holiday_date": date(2026, 10, 2)},
+    {"name": "Dussehra", "holiday_date": date(2026, 10, 20)},
+    {"name": "Diwali", "holiday_date": date(2026, 11, 8)},
+    {"name": "Christmas", "holiday_date": date(2026, 12, 25)},
+]
+
 # Role-permission mappings: role_code -> list of permission codes granted
 ROLE_PERMISSIONS: dict[str, list[str]] = {
     "REQUESTOR": [
@@ -97,6 +190,7 @@ ROLE_PERMISSIONS: dict[str, list[str]] = {
         PermissionCode.USER_VIEW_OWN, PermissionCode.USER_UPDATE_OWN,
         PermissionCode.DOCUMENT_VIEW_OWN, PermissionCode.NOTIFICATION_VIEW_OWN,
         PermissionCode.ANALYTICS_VIEW_DASHBOARD, PermissionCode.WORKFLOW_VIEW,
+        PermissionCode.MASTER_VIEW,
     ],
     "PROCUREMENT_OFFICER": [
         PermissionCode.PR_VIEW_ALL, PermissionCode.PR_APPROVE, PermissionCode.PR_REJECT,
@@ -113,6 +207,7 @@ ROLE_PERMISSIONS: dict[str, list[str]] = {
         PermissionCode.WORKFLOW_VIEW, PermissionCode.USER_VIEW_OWN, PermissionCode.USER_UPDATE_OWN,
         PermissionCode.LIVE_AUCTION_CREATE, PermissionCode.LIVE_AUCTION_CANCEL,
         PermissionCode.LIVE_AUCTION_MONITOR, PermissionCode.LIVE_AUCTION_RELEASE_RESULTS,
+        PermissionCode.MASTER_VIEW,
     ],
     "BUYER": [
         PermissionCode.PR_VIEW_ALL, PermissionCode.PR_APPROVE, PermissionCode.PR_REJECT,
@@ -129,6 +224,7 @@ ROLE_PERMISSIONS: dict[str, list[str]] = {
         PermissionCode.WORKFLOW_VIEW, PermissionCode.USER_VIEW_OWN, PermissionCode.USER_UPDATE_OWN,
         PermissionCode.LIVE_AUCTION_CREATE, PermissionCode.LIVE_AUCTION_CANCEL,
         PermissionCode.LIVE_AUCTION_MONITOR, PermissionCode.LIVE_AUCTION_RELEASE_RESULTS,
+        PermissionCode.MASTER_VIEW,
     ],
     "PROCUREMENT_MANAGER": [
         PermissionCode.PR_VIEW_ALL, PermissionCode.PR_APPROVE, PermissionCode.PR_REJECT,
@@ -187,6 +283,7 @@ ROLE_PERMISSIONS: dict[str, list[str]] = {
         PermissionCode.DOCUMENT_VIEW_ALL, PermissionCode.DOCUMENT_UPLOAD,
         PermissionCode.USER_VIEW_OWN, PermissionCode.USER_UPDATE_OWN,
         PermissionCode.ORG_VIEW, PermissionCode.ORG_VIEW_AUDIT,
+        PermissionCode.MASTER_VIEW,
     ],
     "COMPLIANCE_OFFICER": [
         PermissionCode.VENDOR_VIEW_ALL, PermissionCode.VENDOR_BLACKLIST_INITIATE, PermissionCode.VENDOR_BLACKLIST_APPROVE,
@@ -196,6 +293,7 @@ ROLE_PERMISSIONS: dict[str, list[str]] = {
         PermissionCode.ANALYTICS_VIEW_DASHBOARD, PermissionCode.ANALYTICS_VIEW_REPORTS,
         PermissionCode.ORG_VIEW, PermissionCode.ORG_VIEW_AUDIT,
         PermissionCode.USER_VIEW_OWN,
+        PermissionCode.MASTER_VIEW,
     ],
     "VENDOR_ADMIN": [
         PermissionCode.VENDOR_VIEW_ALL, PermissionCode.VENDOR_INVITE, PermissionCode.VENDOR_QUALIFY,
@@ -250,6 +348,7 @@ ROLE_PERMISSIONS: dict[str, list[str]] = {
         PermissionCode.USER_VIEW_OWN, PermissionCode.USER_UPDATE_OWN,
         PermissionCode.LIVE_AUCTION_CREATE, PermissionCode.LIVE_AUCTION_MONITOR,
         PermissionCode.LIVE_AUCTION_RELEASE_RESULTS,
+        PermissionCode.MASTER_VIEW,
     ],
     "CFO": [
         PermissionCode.PR_VIEW_ALL, PermissionCode.PR_APPROVE,
@@ -261,6 +360,7 @@ ROLE_PERMISSIONS: dict[str, list[str]] = {
         PermissionCode.ANALYTICS_VIEW_DASHBOARD, PermissionCode.ANALYTICS_VIEW_REPORTS, PermissionCode.ANALYTICS_EXPORT,
         PermissionCode.ORG_VIEW, PermissionCode.ORG_VIEW_AUDIT, PermissionCode.ORG_MANAGE_LICENSE,
         PermissionCode.DOCUMENT_VIEW_ALL,
+        PermissionCode.MASTER_VIEW,
     ],
     "SUPPLIER": [
         PermissionCode.VENDOR_VIEW_OWN,
@@ -274,6 +374,7 @@ ROLE_PERMISSIONS: dict[str, list[str]] = {
         PermissionCode.NOTIFICATION_VIEW_OWN,
         PermissionCode.USER_VIEW_OWN, PermissionCode.USER_UPDATE_OWN,
         PermissionCode.CONTRACT_VIEW_OWN,
+        PermissionCode.MASTER_VIEW,
     ],
     "SUPPLIER_ADMIN": [
         PermissionCode.VENDOR_VIEW_OWN,
@@ -287,6 +388,7 @@ ROLE_PERMISSIONS: dict[str, list[str]] = {
         PermissionCode.NOTIFICATION_VIEW_OWN,
         PermissionCode.USER_VIEW_OWN, PermissionCode.USER_UPDATE_OWN,
         PermissionCode.CONTRACT_VIEW_OWN,
+        PermissionCode.MASTER_VIEW,
     ],
     "SUPPLIER_USER": [
         PermissionCode.VENDOR_VIEW_OWN,
@@ -300,6 +402,7 @@ ROLE_PERMISSIONS: dict[str, list[str]] = {
         PermissionCode.NOTIFICATION_VIEW_OWN,
         PermissionCode.USER_VIEW_OWN,
         PermissionCode.CONTRACT_VIEW_OWN,
+        PermissionCode.MASTER_VIEW,
     ],
     "SUPERADMIN": [
         # Full system access - all permissions except permanently denied
@@ -421,21 +524,22 @@ async def seed_data() -> None:
         logger.info("Seeded %d role-permission mappings across %d organizations", total_mappings, len(target_org_ids))
 
         # 4. Seed Incoterms
-        for term in INCOTERMS:
-            await session.execute(text("""
-                INSERT INTO incoterms (id, org_id, code, name, edition_year, risk_transfer_point, is_active, version)
-                VALUES (:id, :org_id, :code, :name, :edition_year, :risk_transfer_point, true, 1)
-                ON CONFLICT (org_id, code) DO NOTHING
-            """), {
-                "id": str(uuid4()),
-                "org_id": SYSTEM_ORG_ID,
-                "code": term["code"],
-                "name": term["name"],
-                "edition_year": term["edition_year"],
-                "risk_transfer_point": term["risk_transfer_point"],
-            })
+        for target_org in [SYSTEM_ORG_ID, DEFAULT_ORG_ID]:
+            for term in INCOTERMS:
+                await session.execute(text("""
+                    INSERT INTO incoterms (id, org_id, code, name, edition_year, risk_transfer_point, is_active, version)
+                    VALUES (:id, :org_id, :code, :name, :edition_year, :risk_transfer_point, true, 1)
+                    ON CONFLICT (org_id, code) DO NOTHING
+                """), {
+                    "id": str(uuid4()),
+                    "org_id": target_org,
+                    "code": term["code"],
+                    "name": term["name"],
+                    "edition_year": term["edition_year"],
+                    "risk_transfer_point": term["risk_transfer_point"],
+                })
 
-        # 5. Seed UOMs
+        # 5. Ensure organizations exist
         DEFAULT_ORG_ID = "00000000-0000-0000-0000-000000000001"
         await session.execute(text("""
             INSERT INTO organizations (id, name, legal_name, country_code, version)
@@ -444,12 +548,97 @@ async def seed_data() -> None:
         """), {"id": DEFAULT_ORG_ID})
 
         for target_org in [SYSTEM_ORG_ID, DEFAULT_ORG_ID]:
+            # Seed UOMs
             for uom in DEFAULT_UOMS:
                 await session.execute(text("""
                     INSERT INTO uom_master (id, org_id, code, name, is_active, version)
                     VALUES (:id, :org_id, :code, :name, true, 1)
                     ON CONFLICT (org_id, code) DO NOTHING
                 """), {"id": str(uuid4()), "org_id": target_org, "code": uom["code"], "name": uom["name"]})
+
+            # Seed Currencies
+            for curr in DEFAULT_CURRENCIES:
+                await session.execute(text("""
+                    INSERT INTO currency_master (id, org_id, code, name, symbol, decimal_places, exchange_rate_to_base, is_base_currency, is_active, version)
+                    VALUES (:id, :org_id, :code, :name, :symbol, 2, :exchange_rate_to_base, :is_base_currency, true, 1)
+                    ON CONFLICT (org_id, code) DO NOTHING
+                """), {
+                    "id": str(uuid4()),
+                    "org_id": target_org,
+                    "code": curr["code"],
+                    "name": curr["name"],
+                    "symbol": curr["symbol"],
+                    "exchange_rate_to_base": curr["exchange_rate_to_base"],
+                    "is_base_currency": curr["is_base_currency"],
+                })
+
+            # Seed Payment Terms
+            for pt in DEFAULT_PAYMENT_TERMS:
+                await session.execute(text("""
+                    INSERT INTO payment_terms (id, org_id, code, name, description, payment_days, net_days, advance_percentage, retention_percentage, discount_percentage, discount_days, is_active, version)
+                    VALUES (:id, :org_id, :code, :name, :description, :payment_days, :net_days, :advance_percentage, :retention_percentage, :discount_percentage, :discount_days, true, 1)
+                    ON CONFLICT (org_id, code) DO NOTHING
+                """), {
+                    "id": str(uuid4()),
+                    "org_id": target_org,
+                    "code": pt["code"],
+                    "name": pt["name"],
+                    "description": pt["description"],
+                    "payment_days": pt["payment_days"],
+                    "net_days": pt["net_days"],
+                    "advance_percentage": pt["advance_percentage"],
+                    "retention_percentage": pt["retention_percentage"],
+                    "discount_percentage": pt["discount_percentage"],
+                    "discount_days": pt["discount_days"],
+                })
+
+            # Seed Tax Codes
+            for tc in DEFAULT_TAX_CODES:
+                await session.execute(text("""
+                    INSERT INTO tax_codes (id, org_id, code, name, tax_type, rate, hsn_chapter, effective_from, is_active, version)
+                    VALUES (:id, :org_id, :code, :name, :tax_type, :rate, :hsn_chapter, :effective_from, true, 1)
+                    ON CONFLICT (org_id, code, effective_from) DO NOTHING
+                """), {
+                    "id": str(uuid4()),
+                    "org_id": target_org,
+                    "code": tc["code"],
+                    "name": tc["name"],
+                    "tax_type": tc["tax_type"],
+                    "rate": tc["rate"],
+                    "hsn_chapter": tc["hsn_chapter"],
+                    "effective_from": date(2026, 1, 1),
+                })
+
+            # Seed Delivery Locations
+            for loc in DEFAULT_DELIVERY_LOCATIONS:
+                await session.execute(text("""
+                    INSERT INTO delivery_locations (id, org_id, code, name, address_line1, city, state, postal_code, country_code, is_active, version)
+                    VALUES (:id, :org_id, :code, :name, :address_line1, :city, :state, :postal_code, :country_code, true, 1)
+                    ON CONFLICT (org_id, code) DO NOTHING
+                """), {
+                    "id": str(uuid4()),
+                    "org_id": target_org,
+                    "code": loc["code"],
+                    "name": loc["name"],
+                    "address_line1": loc["address_line1"],
+                    "city": loc["city"],
+                    "state": loc["state"],
+                    "postal_code": loc["postal_code"],
+                    "country_code": loc["country_code"],
+                })
+
+            # Seed Holidays
+            for hol in DEFAULT_HOLIDAYS:
+                await session.execute(text("""
+                    INSERT INTO holiday_master (id, org_id, name, holiday_date, is_active, version)
+                    VALUES (:id, :org_id, :name, :holiday_date, true, 1)
+                    ON CONFLICT DO NOTHING
+                """), {
+                    "id": str(uuid4()),
+                    "org_id": target_org,
+                    "name": hol["name"],
+                    "holiday_date": hol["holiday_date"],
+                })
 
             # 6. Seed Default Legal Entity, Business Unit, and Cost Center
             le_id = str(uuid4())
@@ -485,7 +674,7 @@ async def seed_data() -> None:
                 ON CONFLICT (org_id, code) DO NOTHING
             """), {"id": cc_id, "org_id": target_org, "business_unit_id": real_bu_id})
 
-        logger.info("Seeded default Legal Entity, Business Unit, and Cost Center")
+        logger.info("Seeded UOMs, Currencies, Payment Terms, Tax Codes, Locations, Holidays, Legal Entity, Business Unit, and Cost Center")
 
         await session.commit()
         logger.info("Master data seeding completed successfully.")

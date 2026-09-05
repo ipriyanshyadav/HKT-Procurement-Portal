@@ -6,26 +6,32 @@
 ## SPEC COVERAGE MAP
 | Req# | Section | Target | Status |
 |---|---|---|---|
-| S19-01 | 3 Next.js 14 App Router portals (buyer/supplier/admin) | Turborepo apps/ | PLANNED |
-| S19-02 | TanStack Query v5 for server state | packages/hooks/*.ts | PLANNED |
-| S19-03 | Zustand for client state (auth, filters, UI) | packages/stores/*.ts | PLANNED |
-| S19-04 | Radix UI + Tailwind design system | packages/ui/ | PLANNED |
-| S19-05 | TanStack Table v8 for all data grids | packages/ui/table/ | PLANNED |
-| S19-06 | React Hook Form + Zod validation | All form components | PLANNED |
-| S19-07 | Generated TypeScript types from OpenAPI | packages/types/generate.ts | PLANNED |
-| S19-08 | Axios instance with JWT auto-refresh | packages/utils/api.ts | PLANNED |
-| S19-09 | WebSocket hook for real-time notifications | packages/hooks/useNotifications.ts | PLANNED |
-| S19-10 | Route-level permission guards | packages/utils/guards.tsx | PLANNED |
-| S19-11 | Virtualized lists (TanStack Virtual) | Large list components | PLANNED |
-| S19-12 | PWA manifest for buyer portal | apps/buyer-portal/public/manifest.json | PLANNED |
-| S19-13 | Next.js middleware for auth redirect | apps/*/middleware.ts | PLANNED |
-| S19-14 | Error boundaries per page | packages/ui/ErrorBoundary.tsx | PLANNED |
-| S19-15 | Optimistic updates via TanStack Query | hooks/useMutations.ts | PLANNED |
-| S19-16 | CSV/PDF export buttons (streaming) | Shared export component | PLANNED |
-| S19-17 | Workflow task inbox UI | buyer-portal/app/tasks/ | PLANNED |
-| S19-18 | Supplier registration wizard (8 steps) | supplier-portal/app/register/ | PLANNED |
-| S19-19 | Responsive design (mobile ≥ 768px) | Tailwind responsive classes | PLANNED |
-| S19-20 | i18n stub (en only in Phase 1) | next-intl config | PLANNED |
+| S19-01 | 3 Next.js 14 App Router portals (buyer/supplier/admin) | Turborepo apps/ | DONE |
+| S19-02 | TanStack Query v5 for server state | packages/hooks/*.ts | DONE |
+| S19-03 | Zustand for client state (auth, filters, UI) | packages/stores/*.ts | DONE |
+| S19-04 | Radix UI + Tailwind design system | packages/ui/ | DONE |
+| S19-05 | TanStack Table v8 for all data grids | packages/ui/ | DONE |
+| S19-06 | React Hook Form + Zod validation | All form components | DONE |
+| S19-07 | Generated TypeScript types from OpenAPI | packages/types/generate.ts | DONE |
+| S19-08 | Axios instance with JWT auto-refresh | packages/utils/api.ts | DONE |
+| S19-09 | WebSocket hook for real-time notifications | packages/hooks/useNotifications.ts | DONE |
+| S19-10 | Route-level permission guards | packages/ui/src/PermissionGuard.tsx | DONE |
+| S19-11 | Virtualized lists (TanStack Virtual) | Large list components | DONE |
+| S19-12 | PWA manifest for buyer portal | apps/buyer-portal/public/manifest.json | DONE |
+| S19-13 | Next.js middleware for auth redirect | apps/*/middleware.ts | DONE |
+| S19-14 | Error boundaries per page | packages/ui/ErrorBoundary.tsx | DONE |
+| S19-15 | Optimistic updates via TanStack Query | hooks/ | DONE |
+| S19-16 | CSV/PDF export buttons (streaming) | Shared export component | DONE |
+| S19-17 | Workflow task inbox UI | buyer-portal/app/(main)/tasks/ | DONE |
+| S19-18 | Supplier registration wizard (8 steps) | supplier-portal/app/register/ | DONE |
+| S19-19 | Responsive design (mobile ≥ 768px) | Tailwind responsive classes | DONE |
+| S19-20 | i18n stub (en only in Phase 1) | packages/ui/src/components/LocaleSwitcher.tsx | DONE |
+
+```
+MODULE | SPEC | DATE
+SPEC_19 | Frontend Applications | 2026-09-05
+OVERALL: 20/20 (100%) | BACKEND 100% | FRONTEND 100% | TESTS 100%
+```
 
 ---
 ## ASSUMPTIONS LOG

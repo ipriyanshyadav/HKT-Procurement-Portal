@@ -186,7 +186,7 @@ export default function NewRequisitionPage() {
           >
             ← Back to Requisitions List
           </Link>
-          <h1 className="text-2xl font-bold text-gray-900">Create Purchase Requisition</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Create Purchase Requisition</h1>
         </div>
       </div>
 
@@ -201,8 +201,8 @@ export default function NewRequisitionPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left 2 Cols: Form Fields */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-4">
-            <h2 className="text-base font-semibold text-gray-900 border-b pb-2">Requisition Header</h2>
+          <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm space-y-4">
+            <h2 className="text-base font-semibold text-gray-900 dark:text-white border-b pb-2">Requisition Header</h2>
 
             <div>
               <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">
@@ -239,7 +239,7 @@ export default function NewRequisitionPage() {
                 <select
                   value={procurementType}
                   onChange={(e) => setProcurementType(e.target.value)}
-                  className="w-full px-3.5 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  className="w-full px-3.5 py-2 border border-gray-300 rounded-lg text-sm bg-white dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 >
                   <option value="OPEX">OPEX (Operational)</option>
                   <option value="CAPEX">CAPEX (Capital)</option>
@@ -256,7 +256,7 @@ export default function NewRequisitionPage() {
                 <select
                   value={currency}
                   onChange={(e) => setCurrency(e.target.value)}
-                  className="w-full px-3.5 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  className="w-full px-3.5 py-2 border border-gray-300 rounded-lg text-sm bg-white dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 >
                   <option value="INR">INR (₹)</option>
                   <option value="USD">USD ($)</option>
@@ -277,7 +277,7 @@ export default function NewRequisitionPage() {
                     setBusinessUnitId(e.target.value);
                     setCostCenterId("");
                   }}
-                  className="w-full px-3.5 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  className="w-full px-3.5 py-2 border border-gray-300 rounded-lg text-sm bg-white dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 >
                   <option value="">Select Business Unit...</option>
                   {businessUnits.map((bu) => (
@@ -295,7 +295,7 @@ export default function NewRequisitionPage() {
                 <select
                   value={costCenterId}
                   onChange={(e) => setCostCenterId(e.target.value)}
-                  className="w-full px-3.5 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  className="w-full px-3.5 py-2 border border-gray-300 rounded-lg text-sm bg-white dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 >
                   <option value="">Select Cost Center...</option>
                   {costCenters.map((cc) => (
@@ -358,7 +358,7 @@ export default function NewRequisitionPage() {
           {/* Line Items Section */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <h2 className="text-base font-semibold text-gray-900">Line Items ({lines.length})</h2>
+              <h2 className="text-base font-semibold text-gray-900 dark:text-white">Line Items ({lines.length})</h2>
               <PermissionGuard permission="pr.create">
                 <button
                   type="button"
@@ -390,7 +390,7 @@ export default function NewRequisitionPage() {
             currency={currency}
           />
 
-          <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-4">
+          <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm space-y-4">
             <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wider">
               Submission Actions
             </h3>

@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
   useVendors,
@@ -12,6 +12,7 @@ import {
   usePaymentTerms,
   useDeliveryLocations,
   useCreatePurchaseOrder,
+  useContract,
   POCreateRequest,
 } from "@procurement/hooks";
 import {
@@ -53,6 +54,12 @@ export default function NewPurchaseOrderPage() {
   const { data: paymentTerms = [] } = usePaymentTerms();
   const { data: deliveryLocations = [] } = useDeliveryLocations();
 
+  const searchParams = useSearchParams();
+  const contractIdParam = searchParams.get("contract_id") || "";
+  const vendorIdParam = searchParams.get("vendor_id") || "";
+
+  const { data: contract } = useContract(contractIdParam);
+
   // Form State
   const [title, setTitle] = useState("");
   const [vendorId, setVendorId] = useState("");
@@ -63,6 +70,33 @@ export default function NewPurchaseOrderPage() {
   const [deliveryLocationId, setDeliveryLocationId] = useState("");
   const [expectedDeliveryDate, setExpectedDeliveryDate] = useState("");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (contract) {
+      setTitle((prev) => prev || `PO under Contract ${contract.contract_number}: ${contract.title}`);
+      if (contract.vendor_id) setVendorId(contract.vendor_id);
+      if (contract.currency) setCurrency(contract.currency);
+      if (contract.category_id) setCategoryId(contract.category_id);
+      if (contract.business_unit_id) setBusinessUnitId(contract.business_unit_id);
+      if (contract.payment_term_id) setPaymentTermId(contract.payment_term_id);
+      if (contract.lines && contract.lines.length > 0) {
+        setLines(
+          contract.lines.map((l: any) => ({
+            item_description: l.item_description,
+            item_code: "",
+            uom_id: l.uom_id,
+            ordered_quantity: parseFloat(l.contracted_quantity || "1") || 1,
+            unit_price: parseFloat(l.unit_rate || "0") || 0,
+            tax_rate: 18,
+            hsn_code: l.hsn_code || "",
+            delivery_date: "",
+          }))
+        );
+      }
+    } else if (vendorIdParam) {
+      setVendorId(vendorIdParam);
+    }
+  }, [contract, vendorIdParam]);
 
   // Line items
   const [lines, setLines] = useState<POLineItemForm[]>([
@@ -174,6 +208,7 @@ export default function NewPurchaseOrderPage() {
       delivery_location_id: deliveryLocationId || undefined,
       expected_delivery_date: expectedDeliveryDate || undefined,
       po_type: "STANDARD",
+      contract_id: contractIdParam || undefined,
       lines: lines.map((l) => ({
         item_description: l.item_description.trim(),
         item_code: l.item_code.trim() || undefined,
@@ -205,7 +240,7 @@ export default function NewPurchaseOrderPage() {
       <div className="flex items-center gap-2">
         <Link
           href="/purchase-orders"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800 transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           Back to Purchase Orders
@@ -213,17 +248,17 @@ export default function NewPurchaseOrderPage() {
       </div>
 
       {/* Header */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-white dark:bg-slate-900/80 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Create Purchase Order</h1>
-          <p className="text-sm text-slate-500 mt-1">
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Create Purchase Order</h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
             Issue a formal purchase order to an approved vendor with line items, terms, and delivery schedules.
           </p>
         </div>
         <div className="flex items-center gap-3">
           <Link
             href="/purchase-orders"
-            className="px-4 py-2 border border-slate-300 text-slate-700 text-sm font-medium rounded-xl hover:bg-slate-50 transition-colors"
+            className="px-4 py-2 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-sm font-medium rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
           >
             Cancel
           </Link>
@@ -239,26 +274,46 @@ export default function NewPurchaseOrderPage() {
 
       {/* Error Alert */}
       {errorMsg && (
-        <div className="p-4 bg-rose-50 border border-rose-200 rounded-xl text-rose-800 text-sm flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
+        <div className="p-4 bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-900/50 rounded-xl text-rose-800 dark:text-rose-300 text-sm flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
           <div>
             <h4 className="font-semibold">Validation Error</h4>
-            <p className="mt-0.5 text-xs text-rose-700">{errorMsg}</p>
+            <p className="mt-0.5 text-xs text-rose-700 dark:text-rose-400">{errorMsg}</p>
           </div>
+        </div>
+      )}
+
+      {/* Linked Contract Notice */}
+      {contract && (
+        <div className="p-4 bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/50 rounded-xl text-indigo-900 dark:text-indigo-200 text-sm flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <FileText className="w-5 h-5 text-indigo-600 dark:text-indigo-400 shrink-0" />
+            <div>
+              <div className="font-semibold text-xs text-indigo-800 dark:text-indigo-300 uppercase tracking-wider">
+                Contract Drawdown PO
+              </div>
+              <p className="text-sm font-medium mt-0.5">
+                Linked to Contract #{contract.contract_number}: {contract.title}
+              </p>
+            </div>
+          </div>
+          <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300">
+            {contract.contract_type}
+          </span>
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Primary Information */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-5">
-          <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-            <Building className="w-5 h-5 text-indigo-600" />
+        <div className="bg-white dark:bg-slate-900/80 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-xs space-y-5">
+          <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <Building className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
             General Information & Header
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div className="md:col-span-2">
-              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                 Purchase Order Title *
               </label>
               <input
@@ -267,19 +322,19 @@ export default function NewPurchaseOrderPage() {
                 placeholder="e.g. Procurement of High-Performance Laptops & Workstations - Q3"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                className="w-full px-3.5 py-2.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800/90 text-slate-900 dark:text-white rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none placeholder:text-slate-400 dark:placeholder:text-slate-500"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                 Vendor / Supplier *
               </label>
               <select
                 required
                 value={vendorId}
                 onChange={(e) => setVendorId(e.target.value)}
-                className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                className="w-full px-3.5 py-2.5 border border-slate-300 dark:border-slate-700 rounded-xl text-sm bg-white dark:bg-slate-800/90 text-slate-900 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
               >
                 <option value="">Select Vendor</option>
                 {vendors.map((v) => (
@@ -291,14 +346,14 @@ export default function NewPurchaseOrderPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                 Business Unit *
               </label>
               <select
                 required
                 value={businessUnitId}
                 onChange={(e) => setBusinessUnitId(e.target.value)}
-                className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                className="w-full px-3.5 py-2.5 border border-slate-300 dark:border-slate-700 rounded-xl text-sm bg-white dark:bg-slate-800/90 text-slate-900 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
               >
                 <option value="">Select Business Unit</option>
                 {businessUnits.map((bu: any) => (
@@ -310,14 +365,14 @@ export default function NewPurchaseOrderPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                 Category *
               </label>
               <select
                 required
                 value={categoryId}
                 onChange={(e) => setCategoryId(e.target.value)}
-                className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                className="w-full px-3.5 py-2.5 border border-slate-300 dark:border-slate-700 rounded-xl text-sm bg-white dark:bg-slate-800/90 text-slate-900 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
               >
                 <option value="">Select Category</option>
                 {categories.map((c: any) => (
@@ -329,13 +384,13 @@ export default function NewPurchaseOrderPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                 Currency
               </label>
               <select
                 value={currency}
                 onChange={(e) => setCurrency(e.target.value)}
-                className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                className="w-full px-3.5 py-2.5 border border-slate-300 dark:border-slate-700 rounded-xl text-sm bg-white dark:bg-slate-800/90 text-slate-900 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
               >
                 {currencies.length > 0 ? (
                   currencies.map((curr: any) => (
@@ -354,13 +409,13 @@ export default function NewPurchaseOrderPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                 Payment Terms
               </label>
               <select
                 value={paymentTermId}
                 onChange={(e) => setPaymentTermId(e.target.value)}
-                className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                className="w-full px-3.5 py-2.5 border border-slate-300 dark:border-slate-700 rounded-xl text-sm bg-white dark:bg-slate-800/90 text-slate-900 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
               >
                 <option value="">Select Payment Terms</option>
                 {paymentTerms.map((pt: any) => (
@@ -372,13 +427,13 @@ export default function NewPurchaseOrderPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                 Delivery Location
               </label>
               <select
                 value={deliveryLocationId}
                 onChange={(e) => setDeliveryLocationId(e.target.value)}
-                className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                className="w-full px-3.5 py-2.5 border border-slate-300 dark:border-slate-700 rounded-xl text-sm bg-white dark:bg-slate-800/90 text-slate-900 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
               >
                 <option value="">Select Delivery Location</option>
                 {deliveryLocations.map((loc: any) => (
@@ -390,7 +445,7 @@ export default function NewPurchaseOrderPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                 Expected Delivery Date
               </label>
               <input
@@ -402,28 +457,28 @@ export default function NewPurchaseOrderPage() {
                     prev.map((l) => (l.delivery_date ? l : { ...l, delivery_date: e.target.value }))
                   );
                 }}
-                className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                className="w-full px-3.5 py-2.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800/90 text-slate-900 dark:text-white rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
               />
             </div>
           </div>
         </div>
 
         {/* Line Items Table */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-4">
+        <div className="bg-white dark:bg-slate-900/80 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-xs space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                <Package className="w-5 h-5 text-indigo-600" />
+              <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <Package className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
                 Line Items & Pricing Schedule ({lines.length})
               </h2>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                 Specify items, ordered quantities, unit rates, applicable GST rates, and delivery dates.
               </p>
             </div>
             <button
               type="button"
               onClick={handleAddLine}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 text-xs font-semibold rounded-lg transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 text-xs font-semibold rounded-lg transition-colors"
             >
               <Plus className="w-4 h-4" />
               Add Line Item
@@ -432,7 +487,7 @@ export default function NewPurchaseOrderPage() {
 
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-slate-50 text-slate-500 uppercase tracking-wider font-semibold border-b border-slate-200">
+              <thead className="bg-slate-50 dark:bg-slate-800/60 text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold border-b border-slate-200 dark:border-slate-700">
                 <tr>
                   <th className="px-3 py-3 w-8">#</th>
                   <th className="px-3 py-3 min-w-[200px]">Item Description *</th>
@@ -447,7 +502,7 @@ export default function NewPurchaseOrderPage() {
                   <th className="px-2 py-3 w-10 text-center"></th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                 {lines.map((line, idx) => {
                   const lineTotal =
                     (Number(line.ordered_quantity) || 0) *
@@ -455,8 +510,8 @@ export default function NewPurchaseOrderPage() {
                     (1 + (Number(line.tax_rate) || 0) / 100);
 
                   return (
-                    <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
-                      <td className="px-3 py-3 font-mono text-slate-400 font-bold">{idx + 1}</td>
+                    <tr key={idx} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition-colors">
+                      <td className="px-3 py-3 font-mono text-slate-400 dark:text-slate-500 font-bold">{idx + 1}</td>
                       <td className="px-3 py-3">
                         <input
                           type="text"
@@ -464,7 +519,7 @@ export default function NewPurchaseOrderPage() {
                           placeholder="Item name & specifications"
                           value={line.item_description}
                           onChange={(e) => handleLineChange(idx, "item_description", e.target.value)}
-                          className="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                          className="w-full px-2.5 py-1.5 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/90 text-slate-900 dark:text-white rounded-lg text-xs focus:ring-1 focus:ring-indigo-500 focus:outline-none placeholder:text-slate-400 dark:placeholder:text-slate-500"
                         />
                       </td>
                       <td className="px-3 py-3">
@@ -473,7 +528,7 @@ export default function NewPurchaseOrderPage() {
                           placeholder="SKU-100"
                           value={line.item_code}
                           onChange={(e) => handleLineChange(idx, "item_code", e.target.value)}
-                          className="w-full px-2 py-1.5 border border-slate-200 rounded-lg text-xs font-mono focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                          className="w-full px-2 py-1.5 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/90 text-slate-900 dark:text-white rounded-lg text-xs font-mono focus:ring-1 focus:ring-indigo-500 focus:outline-none placeholder:text-slate-400 dark:placeholder:text-slate-500"
                         />
                       </td>
                       <td className="px-3 py-3">
@@ -481,7 +536,7 @@ export default function NewPurchaseOrderPage() {
                           required
                           value={line.uom_id}
                           onChange={(e) => handleLineChange(idx, "uom_id", e.target.value)}
-                          className="w-full px-2 py-1.5 border border-slate-200 rounded-lg text-xs bg-white focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                          className="w-full px-2 py-1.5 border border-slate-200 dark:border-slate-700 rounded-lg text-xs bg-white dark:bg-slate-800/90 text-slate-900 dark:text-slate-200 focus:ring-1 focus:ring-indigo-500 focus:outline-none"
                         >
                           <option value="">Select</option>
                           {uoms.map((u: any) => (
@@ -499,7 +554,7 @@ export default function NewPurchaseOrderPage() {
                           required
                           value={line.ordered_quantity}
                           onChange={(e) => handleLineChange(idx, "ordered_quantity", Number(e.target.value))}
-                          className="w-full px-2 py-1.5 border border-slate-200 rounded-lg text-xs text-right font-mono focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                          className="w-full px-2 py-1.5 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/90 text-slate-900 dark:text-white rounded-lg text-xs text-right font-mono focus:ring-1 focus:ring-indigo-500 focus:outline-none"
                         />
                       </td>
                       <td className="px-3 py-3">
@@ -510,14 +565,14 @@ export default function NewPurchaseOrderPage() {
                           required
                           value={line.unit_price}
                           onChange={(e) => handleLineChange(idx, "unit_price", Number(e.target.value))}
-                          className="w-full px-2 py-1.5 border border-slate-200 rounded-lg text-xs text-right font-mono focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                          className="w-full px-2 py-1.5 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/90 text-slate-900 dark:text-white rounded-lg text-xs text-right font-mono focus:ring-1 focus:ring-indigo-500 focus:outline-none"
                         />
                       </td>
                       <td className="px-3 py-3">
                         <select
                           value={line.tax_rate}
                           onChange={(e) => handleLineChange(idx, "tax_rate", Number(e.target.value))}
-                          className="w-full px-2 py-1.5 border border-slate-200 rounded-lg text-xs bg-white text-right font-mono focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                          className="w-full px-2 py-1.5 border border-slate-200 dark:border-slate-700 rounded-lg text-xs bg-white dark:bg-slate-800/90 text-slate-900 dark:text-slate-200 text-right font-mono focus:ring-1 focus:ring-indigo-500 focus:outline-none"
                         >
                           <option value={0}>0%</option>
                           <option value={5}>5%</option>
@@ -532,7 +587,7 @@ export default function NewPurchaseOrderPage() {
                           placeholder="8471"
                           value={line.hsn_code}
                           onChange={(e) => handleLineChange(idx, "hsn_code", e.target.value)}
-                          className="w-full px-2 py-1.5 border border-slate-200 rounded-lg text-xs font-mono focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                          className="w-full px-2 py-1.5 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/90 text-slate-900 dark:text-white rounded-lg text-xs font-mono focus:ring-1 focus:ring-indigo-500 focus:outline-none placeholder:text-slate-400 dark:placeholder:text-slate-500"
                         />
                       </td>
                       <td className="px-3 py-3">
@@ -540,10 +595,10 @@ export default function NewPurchaseOrderPage() {
                           type="date"
                           value={line.delivery_date}
                           onChange={(e) => handleLineChange(idx, "delivery_date", e.target.value)}
-                          className="w-full px-2 py-1.5 border border-slate-200 rounded-lg text-xs focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                          className="w-full px-2 py-1.5 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/90 text-slate-900 dark:text-white rounded-lg text-xs focus:ring-1 focus:ring-indigo-500 focus:outline-none"
                         />
                       </td>
-                      <td className="px-3 py-3 text-right font-mono font-bold text-slate-800">
+                      <td className="px-3 py-3 text-right font-mono font-bold text-slate-800 dark:text-slate-200">
                         {lineTotal.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </td>
                       <td className="px-2 py-3 text-center">
@@ -551,7 +606,7 @@ export default function NewPurchaseOrderPage() {
                           type="button"
                           disabled={lines.length <= 1}
                           onClick={() => handleRemoveLine(idx)}
-                          className="text-slate-400 hover:text-rose-600 disabled:opacity-30 transition-colors"
+                          className="text-slate-400 dark:text-slate-500 hover:text-rose-600 dark:hover:text-rose-400 disabled:opacity-30 transition-colors"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -564,23 +619,23 @@ export default function NewPurchaseOrderPage() {
           </div>
 
           {/* Financial Summary */}
-          <div className="flex justify-end pt-4 border-t border-slate-100">
+          <div className="flex justify-end pt-4 border-t border-slate-100 dark:border-slate-800">
             <div className="w-72 space-y-2 text-xs">
-              <div className="flex justify-between text-slate-500">
+              <div className="flex justify-between text-slate-500 dark:text-slate-400">
                 <span>Subtotal (Net):</span>
-                <span className="font-mono text-slate-700 font-semibold">
+                <span className="font-mono text-slate-700 dark:text-slate-300 font-semibold">
                   {currency} {subtotal.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </span>
               </div>
-              <div className="flex justify-between text-slate-500">
+              <div className="flex justify-between text-slate-500 dark:text-slate-400">
                 <span>Estimated Taxes (GST):</span>
-                <span className="font-mono text-slate-700 font-semibold">
+                <span className="font-mono text-slate-700 dark:text-slate-300 font-semibold">
                   {currency} {totalTax.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </span>
               </div>
-              <div className="flex justify-between text-base font-bold text-slate-900 border-t border-slate-200 pt-2">
+              <div className="flex justify-between text-base font-bold text-slate-900 dark:text-white border-t border-slate-200 dark:border-slate-700 pt-2">
                 <span>Total PO Value:</span>
-                <span className="font-mono text-indigo-700">
+                <span className="font-mono text-indigo-700 dark:text-indigo-400">
                   {currency} {grandTotal.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </span>
               </div>
@@ -592,7 +647,7 @@ export default function NewPurchaseOrderPage() {
         <div className="flex justify-end gap-3 pt-2">
           <Link
             href="/purchase-orders"
-            className="px-5 py-2.5 border border-slate-300 text-slate-700 text-sm font-medium rounded-xl hover:bg-slate-50 transition-colors"
+            className="px-5 py-2.5 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-sm font-medium rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
           >
             Cancel
           </Link>

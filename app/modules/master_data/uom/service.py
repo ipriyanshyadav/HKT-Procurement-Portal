@@ -161,6 +161,7 @@ class UomService:
         db: AsyncSession,
         org_id: UUID,
         include_inactive: bool = False,
+        active_only: Optional[bool] = None,
     ) -> list[UomMaster]:
         """Return all UoM records visible to *org_id*.
 
@@ -168,10 +169,13 @@ class UomService:
             db: Active async database session.
             org_id: Tenant scope.
             include_inactive: When ``True`` inactive records are included.
+            active_only: When supplied, overrides ``include_inactive`` (True => include_inactive=False, False => include_inactive=True).
 
         Returns:
             Ordered list of :class:`~app.modules.master_data.models.UomMaster` ORM instances.
         """
+        if active_only is not None:
+            include_inactive = not active_only
         records = await self._repo.list_by_org(db, org_id, include_inactive=include_inactive)
         logger.debug(
             "UomService.list_all | org_id={org_id} include_inactive={include_inactive} count={count}",
@@ -388,6 +392,16 @@ class UomService:
             actor_id=actor_id,
             uom_id=uom.id,
         )
+
+    async def soft_delete(
+        self,
+        db: AsyncSession,
+        id: UUID,
+        actor_id: UUID,
+        org_id: UUID,
+    ) -> None:
+        """Soft delete (deactivate) a UoM record."""
+        await self.deactivate(db, id, actor_id, org_id)
 
 
 # ---------------------------------------------------------------------------

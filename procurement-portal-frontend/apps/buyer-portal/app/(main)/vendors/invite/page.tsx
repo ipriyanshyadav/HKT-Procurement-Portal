@@ -52,7 +52,7 @@ export default function InviteVendorPage() {
         <Link href="/vendors" className="text-xs text-blue-600 hover:underline mb-1 inline-block">
           ← Back to Vendors List
         </Link>
-        <h1 className="text-2xl font-bold text-gray-900">Invite New Vendor</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Invite New Vendor</h1>
         <p className="text-sm text-gray-500 mt-1">
           Send a tokenized invitation link to onboard a new supplier.
         </p>
@@ -97,14 +97,14 @@ export default function InviteVendorPage() {
             </button>
             <Link
               href="/vendors"
-              className="px-4 py-2 border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 rounded-lg text-xs font-semibold"
+              className="px-4 py-2 border border-gray-300 bg-white hover:bg-gray-50 dark:hover:bg-slate-800/50 text-gray-700 rounded-lg text-xs font-semibold"
             >
               View Vendors List
             </Link>
           </div>
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 space-y-5">
+        <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 space-y-5">
           {errorMsg && (
             <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-xs text-red-700">
               {errorMsg}
@@ -191,7 +191,7 @@ export default function InviteVendorPage() {
             <button
               type="button"
               onClick={() => router.back()}
-              className="px-4 py-2 border border-gray-300 rounded-lg text-xs font-semibold text-gray-700 hover:bg-gray-50"
+              className="px-4 py-2 border border-gray-300 rounded-lg text-xs font-semibold text-gray-700 hover:bg-gray-50 dark:hover:bg-slate-800/50"
             >
               Cancel
             </button>

@@ -137,17 +137,18 @@ export default function SupplierBidSubmissionPage() {
   return (
     <div className="max-w-4xl mx-auto space-y-8 pb-16">
       {/* Header */}
-      <div className="border-b pb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      {/* Header */}
+      <div className="border-b border-gray-200 dark:border-slate-800 pb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 text-xs text-gray-500 mb-1">
+          <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-slate-400 mb-1">
             <Link href="/rfqs" className="hover:underline">Tenders</Link>
             <span>/</span>
             <span className="font-mono">{rfq.rfq_number}</span>
             <span>/</span>
             <span>Commercial Quotation</span>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Bid Submission</h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Bid Submission</h1>
+          <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">
             Provide your unit pricing and delivery lead times. All financial data is encrypted end-to-end.
           </p>
         </div>
@@ -163,7 +164,7 @@ export default function SupplierBidSubmissionPage() {
       </div>
 
       {/* Sealed Encryption Notice */}
-      <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-xs text-blue-900 flex items-start gap-3">
+      <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/50 rounded-xl p-4 text-xs text-blue-900 dark:text-blue-200 flex items-start gap-3">
         <span className="text-lg">🛡️</span>
         <div>
           <span className="font-bold block">Cryptographic Envelope Active</span>
@@ -173,8 +174,8 @@ export default function SupplierBidSubmissionPage() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Line Items Pricing Table */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm space-y-4">
-          <h2 className="text-base font-semibold text-gray-900 border-b pb-3">
+        <div className="bg-white dark:bg-slate-900/80 rounded-xl border border-gray-200 dark:border-slate-800 p-6 shadow-sm space-y-4">
+          <h2 className="text-base font-semibold text-gray-900 dark:text-white border-b border-gray-100 dark:border-slate-800 pb-3">
             1. Line Items Quotation
           </h2>
 
@@ -191,23 +192,23 @@ export default function SupplierBidSubmissionPage() {
               const total = (Number(quote.unit_price) || 0) * Number(line.quantity);
 
               return (
-                <div key={line.id || idx} className="p-4 bg-gray-50 rounded-xl border border-gray-200 space-y-3">
+                <div key={line.id || idx} className="p-4 bg-gray-50 dark:bg-slate-800/40 rounded-xl border border-gray-200 dark:border-slate-700 space-y-3">
                   <div className="flex justify-between items-start">
                     <div>
-                      <span className="text-xs font-bold text-blue-600 font-mono block">Line #{line.line_number}</span>
-                      <h4 className="font-semibold text-gray-900 text-sm">{line.item_description}</h4>
+                      <span className="text-xs font-bold text-blue-600 dark:text-blue-400 font-mono block">Line #{line.line_number}</span>
+                      <h4 className="font-semibold text-gray-900 dark:text-white text-sm">{line.item_description}</h4>
                       {line.specifications && (
-                        <p className="text-xs text-gray-500 mt-0.5">{line.specifications}</p>
+                        <p className="text-xs text-gray-500 dark:text-slate-400 mt-0.5">{line.specifications}</p>
                       )}
                     </div>
-                    <span className="text-xs font-semibold px-2.5 py-1 bg-white border rounded">
+                    <span className="text-xs font-semibold px-2.5 py-1 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-800 dark:text-slate-200 rounded">
                       Qty: {Number(line.quantity)}
                     </span>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
                     <div>
-                      <label className="block text-[11px] font-semibold text-gray-600 mb-1">
+                      <label className="block text-[11px] font-semibold text-gray-600 dark:text-slate-400 mb-1">
                         Unit Price (₹ Excl. Tax) *
                       </label>
                       <input
@@ -218,11 +219,11 @@ export default function SupplierBidSubmissionPage() {
                         placeholder="Quoted unit price"
                         value={quote.unit_price || ""}
                         onChange={(e) => handleQuoteChange(line.id || "", "unit_price", e.target.value)}
-                        className="w-full text-sm border rounded-lg p-2 bg-white"
+                        className="w-full text-sm border border-gray-300 dark:border-slate-700 rounded-lg p-2 bg-white dark:bg-slate-800/90 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                       />
                     </div>
                     <div>
-                      <label className="block text-[11px] font-semibold text-gray-600 mb-1">
+                      <label className="block text-[11px] font-semibold text-gray-600 dark:text-slate-400 mb-1">
                         Delivery Lead Time (Days) *
                       </label>
                       <input
@@ -231,11 +232,11 @@ export default function SupplierBidSubmissionPage() {
                         required
                         value={quote.delivery_days || 14}
                         onChange={(e) => handleQuoteChange(line.id || "", "delivery_days", e.target.value)}
-                        className="w-full text-sm border rounded-lg p-2 bg-white"
+                        className="w-full text-sm border border-gray-300 dark:border-slate-700 rounded-lg p-2 bg-white dark:bg-slate-800/90 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
                       />
                     </div>
                     <div>
-                      <label className="block text-[11px] font-semibold text-gray-600 mb-1">
+                      <label className="block text-[11px] font-semibold text-gray-600 dark:text-slate-400 mb-1">
                         GST / Tax Rate (%)
                       </label>
                       <input
@@ -244,12 +245,12 @@ export default function SupplierBidSubmissionPage() {
                         max={100}
                         value={quote.tax_rate || 0}
                         onChange={(e) => handleQuoteChange(line.id || "", "tax_rate", e.target.value)}
-                        className="w-full text-sm border rounded-lg p-2 bg-white"
+                        className="w-full text-sm border border-gray-300 dark:border-slate-700 rounded-lg p-2 bg-white dark:bg-slate-800/90 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
                       />
                     </div>
                   </div>
 
-                  <div className="text-right text-xs font-semibold text-gray-800 pt-1">
+                  <div className="text-right text-xs font-semibold text-gray-800 dark:text-slate-200 pt-1">
                     Line Total: ₹{total.toLocaleString("en-IN")}
                   </div>
                 </div>
@@ -257,18 +258,18 @@ export default function SupplierBidSubmissionPage() {
             })}
           </div>
 
-          <div className="flex justify-end pt-3 border-t text-base font-bold text-gray-900">
+          <div className="flex justify-end pt-3 border-t border-gray-100 dark:border-slate-800 text-base font-bold text-gray-900 dark:text-white">
             Total Quotation Amount: ₹{totalQuotedAmount.toLocaleString("en-IN")}
           </div>
         </div>
 
         {/* Technical & Commercial Compliance */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm space-y-5">
-          <h2 className="text-base font-semibold text-gray-900 border-b pb-3">
+        <div className="bg-white dark:bg-slate-900/80 rounded-xl border border-gray-200 dark:border-slate-800 p-6 shadow-sm space-y-5">
+          <h2 className="text-base font-semibold text-gray-900 dark:text-white border-b border-gray-100 dark:border-slate-800 pb-3">
             2. Commercial Terms & Compliance
           </h2>
 
-          <div className="space-y-4 text-xs text-gray-700">
+          <div className="space-y-4 text-xs text-gray-700 dark:text-slate-300">
             <label className="flex items-center gap-2.5 cursor-pointer">
               <input
                 type="checkbox"
@@ -276,7 +277,7 @@ export default function SupplierBidSubmissionPage() {
                 onChange={(e) => setTechnicalCompliant(e.target.checked)}
                 className="rounded text-blue-600"
               />
-              <span className="font-semibold text-gray-900">
+              <span className="font-semibold text-gray-900 dark:text-white">
                 I certify that our offer strictly complies with the technical specifications outlined.
               </span>
             </label>
@@ -293,24 +294,24 @@ export default function SupplierBidSubmissionPage() {
 
             {hasDeviations && (
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">Deviation Specifics</label>
+                <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">Deviation Specifics</label>
                 <textarea
                   value={deviationDetails}
                   onChange={(e) => setDeviationDetails(e.target.value)}
                   rows={3}
                   placeholder="Detail exact technical or commercial deviations..."
-                  className="w-full text-sm border rounded-lg p-2.5"
+                  className="w-full text-sm border border-gray-300 dark:border-slate-700 rounded-lg p-2.5 bg-white dark:bg-slate-800/90 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 />
               </div>
             )}
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">Proposed Payment Terms</label>
+                <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">Proposed Payment Terms</label>
                 <select
                   value={paymentTermsCode}
                   onChange={(e) => setPaymentTermsCode(e.target.value)}
-                  className="w-full text-sm border rounded-lg p-2 bg-white"
+                  className="w-full text-sm border border-gray-300 dark:border-slate-700 rounded-lg p-2 bg-white dark:bg-slate-800/90 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 >
                   <option value="NET_30">Net 30 Days</option>
                   <option value="NET_45">Net 45 Days</option>
@@ -319,11 +320,11 @@ export default function SupplierBidSubmissionPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">Delivery Terms (Incoterm)</label>
+                <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">Delivery Terms (Incoterm)</label>
                 <select
                   value={incoterm}
                   onChange={(e) => setIncoterm(e.target.value)}
-                  className="w-full text-sm border rounded-lg p-2 bg-white"
+                  className="w-full text-sm border border-gray-300 dark:border-slate-700 rounded-lg p-2 bg-white dark:bg-slate-800/90 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 >
                   <option value="DDP">DDP - Delivered Duty Paid</option>
                   <option value="FOB">FOB - Free on Board</option>
@@ -332,32 +333,32 @@ export default function SupplierBidSubmissionPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">Bid Validity (Days)</label>
+                <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">Bid Validity (Days)</label>
                 <input
                   type="number"
                   min={30}
                   max={180}
                   value={validityDays}
                   onChange={(e) => setValidityDays(Number(e.target.value))}
-                  className="w-full text-sm border rounded-lg p-2 bg-white"
+                  className="w-full text-sm border border-gray-300 dark:border-slate-700 rounded-lg p-2 bg-white dark:bg-slate-800/90 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-1">Covering Letter / Remarks</label>
+              <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">Covering Letter / Remarks</label>
               <textarea
                 value={coveringLetter}
                 onChange={(e) => setCoveringLetter(e.target.value)}
                 rows={3}
                 placeholder="Optional notes or remarks to the committee..."
-                className="w-full text-sm border rounded-lg p-2.5"
+                className="w-full text-sm border border-gray-300 dark:border-slate-700 rounded-lg p-2.5 bg-white dark:bg-slate-800/90 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
               />
             </div>
           </div>
 
-          <div className="flex justify-end gap-3 pt-4 border-t">
-            <Link href="/rfqs" className="px-4 py-2 border rounded-lg text-sm text-gray-600 hover:bg-gray-50">
+          <div className="flex justify-end gap-3 pt-4 border-t border-gray-100 dark:border-slate-800">
+            <Link href="/rfqs" className="px-4 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm text-gray-600 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800/50">
               Back
             </Link>
             <button

@@ -33,7 +33,9 @@ celery_app = Celery(
         'app.tasks.contract_expiry',
         'app.tasks.invoice_aging',
         'app.tasks.document_scan',
+        'app.tasks.stubs',
         'app.events.outbox_worker',
+        'app.tasks.notification_digest',
     ],
 )
 celery_app.conf.broker_url = settings.RABBITMQ_URL
@@ -59,6 +61,10 @@ celery_app.conf.task_routes = {
 }
 
 celery_app.conf.beat_schedule = {
+    'compile-notification-digests': {
+        'task': 'app.tasks.notification.compile_digests',
+        'schedule': settings.CELERY_DIGEST_INTERVAL_MINUTES * 60,
+    },
     'outbox-publisher': {
         'task': 'app.tasks.maintenance.publish_outbox',
         'schedule': settings.CELERY_OUTBOX_INTERVAL_SECONDS,
@@ -66,6 +72,10 @@ celery_app.conf.beat_schedule = {
     'sla-check': {
         'task': 'app.tasks.critical.check_slas',
         'schedule': settings.CELERY_SLA_CHECK_MINUTES * 60,
+    },
+    'unmapped-pr-sla-check': {
+        'task': 'app.tasks.critical.check_unmapped_pr_sla',
+        'schedule': 900.0,
     },
     'bid-window-check': {
         'task': 'app.tasks.default.check_bid_windows',
@@ -75,53 +85,21 @@ celery_app.conf.beat_schedule = {
         'task': 'app.tasks.maintenance.check_vendor_compliance',
         'schedule': settings.CELERY_COMPLIANCE_CHECK_HOURS * 3600,
     },
-    'notification-digest': {
-        'task': 'app.tasks.notification.send_digests',
-        'schedule': settings.CELERY_DIGEST_INTERVAL_MINUTES * 60,
-    },
-    'analytics-snapshot': {
-        'task': 'app.tasks.analytics.take_snapshots',
-        'schedule': settings.CELERY_ANALYTICS_SNAPSHOT_HOURS * 3600,
-    },
-    'session-cleanup': {
-        'task': 'app.tasks.maintenance.cleanup_sessions',
-        'schedule': settings.CELERY_SESSION_CLEANUP_MINUTES * 60,
-    },
-    'dormant-user-check': {
-        'task': 'app.tasks.maintenance.check_dormant_users',
-        'schedule': settings.CELERY_DORMANT_USER_CHECK_DAYS * 86400,
-    },
     'exchange-rate-update': {
         'task': 'app.tasks.integration.update_exchange_rates',
         'schedule': settings.CELERY_EXCHANGE_RATE_HOURS * 3600,
-    },
-    'reminder-check': {
-        'task': 'app.tasks.notification.check_reminders',
-        'schedule': settings.CELERY_REMINDER_CHECK_MINUTES * 60,
     },
     'pr-aging-check': {
         'task': 'app.tasks.default.check_pr_aging',
         'schedule': settings.CELERY_PR_AGING_HOURS * 3600,
     },
-    'escalation-check': {
-        'task': 'app.tasks.critical.check_escalations',
-        'schedule': settings.CELERY_ESCALATION_CHECK_MINUTES * 60,
+    'contract-expiry-check': {
+        'task': 'app.tasks.maintenance.check_contract_expiry',
+        'schedule': settings.CELERY_CONTRACT_EXPIRY_CHECK_HOURS * 3600,
     },
-    'report-cache-refresh': {
-        'task': 'app.tasks.analytics.refresh_report_cache',
-        'schedule': settings.CELERY_REPORT_CACHE_HOURS * 3600,
-    },
-    'backup-verification': {
-        'task': 'app.tasks.maintenance.verify_backups',
-        'schedule': settings.CELERY_BACKUP_VERIFICATION_HOURS * 3600,
-    },
-    'metrics-collection': {
-        'task': 'app.tasks.analytics.collect_metrics',
-        'schedule': settings.CELERY_METRICS_COLLECTION_MINUTES * 60,
-    },
-    'workflow-timeout-check': {
-        'task': 'app.tasks.critical.check_workflow_timeouts',
-        'schedule': settings.CELERY_WORKFLOW_TIMEOUT_CHECK_MINUTES * 60,
+    'invoice-aging-check': {
+        'task': 'app.tasks.default.check_invoice_aging',
+        'schedule': 14400.0,
     },
     'open-scheduled-auctions': {
         'task': 'tasks.open_scheduled_auctions',
@@ -138,14 +116,6 @@ celery_app.conf.beat_schedule = {
     'auction-start-reminders': {
         'task': 'tasks.notify_auction_start_reminders',
         'schedule': 60.0,
-    },
-    'contract-expiry-check': {
-        'task': 'app.tasks.maintenance.check_contract_expiry',
-        'schedule': settings.CELERY_CONTRACT_EXPIRY_CHECK_HOURS * 3600,
-    },
-    'invoice-aging-check': {
-        'task': 'app.tasks.default.check_invoice_aging',
-        'schedule': 14400.0,
     },
 }
 celery_app.conf.timezone = 'UTC'

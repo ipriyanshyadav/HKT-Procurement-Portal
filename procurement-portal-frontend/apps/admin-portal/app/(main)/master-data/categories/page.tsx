@@ -89,7 +89,7 @@ export default function CategoriesPage() {
       <div key={node.id} className="border-b border-gray-100 last:border-b-0">
         <div
           style={{ paddingLeft: `${depth * 24 + 16}px` }}
-          className="flex items-center justify-between py-3 pr-4 hover:bg-gray-50 transition-colors"
+          className="flex items-center justify-between py-3 pr-4 hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors"
         >
           <div className="flex items-center gap-3">
             {hasChildren ? (
@@ -165,7 +165,7 @@ export default function CategoriesPage() {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Category Hierarchy</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Category Hierarchy</h1>
           <p className="text-sm text-gray-500">
             5-level organisational category tree for sourcing, requisitioning, and spend management.
           </p>
@@ -174,14 +174,14 @@ export default function CategoriesPage() {
           <button
             type="button"
             onClick={expandAll}
-            className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 shadow-sm"
+            className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-slate-800/50 shadow-sm"
           >
             Expand All
           </button>
           <button
             type="button"
             onClick={collapseAll}
-            className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 shadow-sm"
+            className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-slate-800/50 shadow-sm"
           >
             Collapse All
           </button>
@@ -234,7 +234,7 @@ export default function CategoriesPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="bg-white rounded-lg shadow-xl w-full max-w-lg p-6 space-y-4">
             <div className="flex items-center justify-between border-b border-gray-100 pb-3">
-              <h2 className="text-lg font-semibold text-gray-900">Create New Category</h2>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Create New Category</h2>
               <button
                 type="button"
                 onClick={() => setShowCreateModal(false)}
@@ -310,7 +310,7 @@ export default function CategoriesPage() {
                 <button
                   type="button"
                   onClick={() => setShowCreateModal(false)}
-                  className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                  className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-slate-800/50"
                 >
                   Cancel
                 </button>

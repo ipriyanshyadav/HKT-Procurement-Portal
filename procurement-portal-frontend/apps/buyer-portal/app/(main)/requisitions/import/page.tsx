@@ -347,7 +347,7 @@ export default function BulkRequisitionsImportPage() {
   return (
     <div className="w-full space-y-6 max-w-6xl mx-auto">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-gray-200 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-gray-200 dark:border-slate-800 pb-4">
         <div>
           <Link
             href="/requisitions"
@@ -355,7 +355,7 @@ export default function BulkRequisitionsImportPage() {
           >
             ← Back to Requisitions
           </Link>
-          <h1 className="text-2xl font-bold text-gray-900">Bulk Requisition Ingestion</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Bulk Requisition Ingestion</h1>
           <p className="text-xs text-gray-500 mt-1">
             Upload CSV data files for high-volume automated purchase requisition creation.
           </p>
@@ -370,7 +370,7 @@ export default function BulkRequisitionsImportPage() {
           </button>
           <button
             onClick={handleDownloadSample}
-            className="px-3.5 py-2 bg-white hover:bg-gray-50 text-blue-600 border border-blue-200 text-xs font-semibold rounded-lg shadow-sm transition"
+            className="px-3.5 py-2 bg-white hover:bg-gray-50 dark:hover:bg-slate-800/50 text-blue-600 border border-blue-200 text-xs font-semibold rounded-lg shadow-sm transition"
           >
             ⬇ Download Sample CSV
           </button>
@@ -542,7 +542,7 @@ export default function BulkRequisitionsImportPage() {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
               <p className="text-xs text-gray-500">Total PRs</p>
-              <p className="text-xl font-bold text-gray-900 mt-1">{parsedItems.length}</p>
+              <p className="text-xl font-bold text-gray-900 dark:text-white mt-1">{parsedItems.length}</p>
             </div>
             <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
               <p className="text-xs text-emerald-600 font-medium">Valid for Import</p>
@@ -562,7 +562,7 @@ export default function BulkRequisitionsImportPage() {
 
           {/* Tab Filter & Batch Submit Button */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white p-3 rounded-xl border border-gray-200 shadow-sm">
-            <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-lg">
+            <div className="flex items-center gap-1 bg-gray-100 dark:bg-slate-800 p-1 rounded-lg">
               <button
                 onClick={() => setActiveTab("ALL")}
                 className={`px-3 py-1.5 text-xs font-semibold rounded-md transition ${
@@ -614,11 +614,11 @@ export default function BulkRequisitionsImportPage() {
           </div>
 
           {/* Requisitions Preview Table */}
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+          <div className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
-                  <tr className="bg-gray-50 border-b border-gray-200 text-gray-500 font-semibold uppercase tracking-wider">
+                  <tr className="bg-gray-50 border-b border-gray-200 dark:border-slate-800 text-gray-500 font-semibold uppercase tracking-wider">
                     <th className="p-3.5">Status</th>
                     <th className="p-3.5">Requisition Title</th>
                     <th className="p-3.5">Type</th>
@@ -628,14 +628,14 @@ export default function BulkRequisitionsImportPage() {
                     <th className="p-3.5 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100">
+                <tbody className="divide-y divide-gray-100 dark:divide-slate-800">
                   {displayedItems.map((item) => {
                     const isExpanded = expandedId === item.id;
                     const hasErrors = item.errors.length > 0;
 
                     return (
                       <React.Fragment key={item.id}>
-                        <tr className="hover:bg-gray-50/80 transition">
+                        <tr className="hover:bg-gray-50 dark:hover:bg-slate-800/50/80 transition">
                           <td className="p-3.5">
                             <Badge variant={hasErrors ? "rejected" : "approved"}>
                               {hasErrors ? `INVALID (${item.errors.length})` : "READY"}

@@ -36,9 +36,9 @@ export default function SupplierRegisterLandingPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-gray-50 dark:bg-black flex flex-col transition-colors">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 py-4 px-6 shadow-sm">
+      <header className="bg-white dark:bg-slate-900/80 border-b border-gray-200 dark:border-slate-800 py-4 px-6 shadow-sm">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <Link href="/profile" className="flex items-center gap-2 hover:opacity-90 transition-opacity">
             <span className="flex items-center gap-2 font-bold tracking-tight">
@@ -49,13 +49,13 @@ export default function SupplierRegisterLandingPage() {
                 Procurement
               </span>
             </span>
-            <span className="text-xs font-semibold px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full">
+            <span className="text-xs font-semibold px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-800/50 rounded-full">
               Supplier Portal
             </span>
           </Link>
           <Link
             href="/login"
-            className="text-sm font-medium text-blue-600 hover:text-blue-800"
+            className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
           >
             Sign in to existing account →
           </Link>
@@ -65,29 +65,29 @@ export default function SupplierRegisterLandingPage() {
       {/* Main Content */}
       <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex-1 space-y-12">
         <div className="text-center space-y-4">
-          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
+          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300 dark:border dark:border-blue-800/50">
             SPEC_07 SRM · Vendor Self-Service
           </span>
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight">
             Supplier Self-Service Onboarding
           </h1>
-          <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg text-gray-600 dark:text-slate-400 max-w-2xl mx-auto">
             Welcome to the HKT Procurement vendor network. Complete your registration to participate in competitive sourcing events, submit tenders, and execute purchase orders.
           </p>
         </div>
 
         {/* Token Input & Demo Launch Card */}
-        <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-200 max-w-2xl mx-auto space-y-6">
+        <div className="bg-white dark:bg-slate-900/80 p-8 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-800 max-w-2xl mx-auto space-y-6">
           <div>
-            <h2 className="text-lg font-bold text-gray-900">Have an Invitation Link?</h2>
-            <p className="text-sm text-gray-500 mt-1">
+            <h2 className="text-lg font-bold text-gray-900 dark:text-white">Have an Invitation Link?</h2>
+            <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">
               Enter the invitation token received via email from the procurement team.
             </p>
           </div>
 
           <form onSubmit={handleStart} className="space-y-4">
             <div>
-              <label htmlFor="invitation-token" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="invitation-token" className="block text-sm font-medium text-gray-700 dark:text-slate-300">
                 Invitation Token
               </label>
               <input
@@ -99,9 +99,9 @@ export default function SupplierRegisterLandingPage() {
                   setError("");
                 }}
                 placeholder="e.g. 9c185e49379784c738ef5c36575fa0e342de897268fbdce69d1d6a80729ada78"
-                className="mt-1 block w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm font-mono"
+                className="mt-1 block w-full px-4 py-2.5 border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800/90 text-gray-900 dark:text-white rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm font-mono placeholder:text-gray-400 dark:placeholder:text-slate-500"
               />
-              {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
+              {error && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{error}</p>}
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3 pt-2">
@@ -114,7 +114,7 @@ export default function SupplierRegisterLandingPage() {
               <button
                 type="button"
                 onClick={handleLaunchDemo}
-                className="flex-1 px-5 py-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-sm font-semibold rounded-lg shadow-sm transition-colors"
+                className="flex-1 px-5 py-2.5 bg-indigo-50 dark:bg-indigo-950/40 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/60 text-sm font-semibold rounded-lg shadow-sm transition-colors"
               >
                 Launch Demo Wizard (Pre-Filled)
               </button>
@@ -125,8 +125,8 @@ export default function SupplierRegisterLandingPage() {
         {/* 8-Step Overview */}
         <div className="space-y-6">
           <div className="text-center">
-            <h2 className="text-xl font-bold text-gray-900">8-Step Onboarding Process</h2>
-            <p className="text-sm text-gray-500 mt-1">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">8-Step Onboarding Process</h2>
+            <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">
               What you will need during registration
             </p>
           </div>
@@ -135,11 +135,11 @@ export default function SupplierRegisterLandingPage() {
             {steps.map((step) => (
               <div
                 key={step.number}
-                className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm space-y-2 hover:border-blue-300 transition-colors"
+                className="bg-white dark:bg-slate-900/80 p-5 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm space-y-2 hover:border-blue-300 dark:hover:border-blue-500/50 transition-colors"
               >
-                <span className="text-xs font-bold text-blue-600 font-mono">{step.number}</span>
-                <h3 className="text-sm font-bold text-gray-900">{step.title}</h3>
-                <p className="text-xs text-gray-500 leading-relaxed">{step.desc}</p>
+                <span className="text-xs font-bold text-blue-600 dark:text-blue-400 font-mono">{step.number}</span>
+                <h3 className="text-sm font-bold text-gray-900 dark:text-white">{step.title}</h3>
+                <p className="text-xs text-gray-500 dark:text-slate-400 leading-relaxed">{step.desc}</p>
               </div>
             ))}
           </div>

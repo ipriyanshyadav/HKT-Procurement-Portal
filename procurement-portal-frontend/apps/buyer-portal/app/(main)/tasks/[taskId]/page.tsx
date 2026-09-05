@@ -108,7 +108,7 @@ export default function TaskDetailPage() {
       {instance && (
         <section className="bg-white rounded-lg shadow ring-1 ring-gray-200 p-5">
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-lg font-semibold text-gray-900">
+            <h1 className="text-lg font-semibold text-gray-900 dark:text-white">
               Workflow Instance
             </h1>
             <StatusBadge status={instance.status} />
@@ -157,7 +157,7 @@ export default function TaskDetailPage() {
       {task && task.status === "PENDING" && instance?.status === "ACTIVE" && (
         <PermissionGuard permission={["pr.approve", "pr.reject", "workflow.update"]}>
           <section className="bg-white rounded-lg shadow ring-1 ring-gray-200 p-5">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
               Your Action
             </h2>
 
@@ -179,7 +179,7 @@ export default function TaskDetailPage() {
                             : a === "reject"
                             ? "bg-red-600 text-white ring-red-600"
                             : "bg-yellow-500 text-white ring-yellow-500"
-                          : "bg-white text-gray-700 ring-gray-300 hover:bg-gray-50"
+                          : "bg-white text-gray-700 ring-gray-300 hover:bg-gray-50 dark:hover:bg-slate-800/50"
                       }`}
                     >
                       {a}

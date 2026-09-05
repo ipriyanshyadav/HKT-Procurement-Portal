@@ -27,12 +27,13 @@ export function Sidebar({
   items,
   className = '',
   footerContent,
-  mode = 'auto-hide',
+  mode = 'pinned',
   onModeChange,
 }: SidebarProps) {
   const pathname = usePathname();
   const [isExpanded, setIsExpanded] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isHoveredRef = useRef(false);
 
   // Group items by section
   const sections: { title?: string; items: SidebarItemData[] }[] = [];
@@ -46,6 +47,7 @@ export function Sidebar({
   });
 
   const handleMouseEnter = () => {
+    isHoveredRef.current = true;
     if (mode === 'pinned') return;
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
@@ -55,6 +57,7 @@ export function Sidebar({
   };
 
   const handleMouseLeave = () => {
+    isHoveredRef.current = false;
     if (mode === 'pinned') return;
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
@@ -65,6 +68,7 @@ export function Sidebar({
   };
 
   const handleFocus = () => {
+    isHoveredRef.current = true;
     if (mode === 'pinned') return;
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
@@ -76,16 +80,19 @@ export function Sidebar({
   const handleBlur = (e: React.FocusEvent) => {
     if (mode === 'pinned') return;
     if (!e.currentTarget.contains(e.relatedTarget as Node)) {
-      setIsExpanded(false);
+      if (!isHoveredRef.current) {
+        setIsExpanded(false);
+      }
     }
   };
 
-  // Collapse sidebar on route change when in auto-hide or minimized
+  // Collapse sidebar on route change when in auto-hide or minimized ONLY IF not currently hovered
   useEffect(() => {
-    if (mode !== 'pinned') {
+    if (mode !== 'pinned' && !isHoveredRef.current) {
       setIsExpanded(false);
     }
   }, [pathname, mode]);
+
 
   // Clean up timer on unmount
   useEffect(() => {

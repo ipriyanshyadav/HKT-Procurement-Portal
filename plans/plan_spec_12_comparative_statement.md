@@ -6,23 +6,29 @@
 ## SPEC COVERAGE MAP
 | Req# | Section | Target | Status |
 |---|---|---|---|
-| S12-01 | CS auto-generation on bid opening | evaluation/service.py | PLANNED |
-| S12-02 | L1 discovery per lot/line (lowest price per line) | evaluation/service.py | PLANNED |
-| S12-03 | Technical scoring (weighted) | evaluation/service.py | PLANNED |
-| S12-04 | Commercial scoring (weighted) | evaluation/service.py | PLANNED |
-| S12-05 | Composite score calculation | evaluation/service.py | PLANNED |
-| S12-06 | CS PDF generation (reportlab) | evaluation/pdf_generator.py | PLANNED |
-| S12-07 | Shortlisting logic | evaluation/service.py | PLANNED |
-| S12-08 | Negotiation rounds tracking | evaluation/models.py | PLANNED |
-| S12-09 | Negotiation price vs original bid comparison | evaluation/service.py | PLANNED |
-| S12-10 | Award recommendation workflow | evaluation/service.py + workflow | PLANNED |
-| S12-11 | Award details per lot/line | evaluation/models.py | PLANNED |
-| S12-12 | CS approval workflow | evaluation/service.py | PLANNED |
-| S12-13 | Price tolerance validation | evaluation/service.py | PLANNED |
-| S12-14 | CS amendment (re-evaluation) | evaluation/service.py | PLANNED |
-| S12-15 | Regret letters to non-awarded vendors | evaluation/service.py | PLANNED |
-| S12-16 | 12 audit events | evaluation/service.py | PLANNED |
-| S12-17 | CS stored in MinIO (comparative-statement bucket) | evaluation/service.py | PLANNED |
+| S12-01 | CS auto-generation on bid opening | evaluation/service.py | DONE |
+| S12-02 | L1 discovery per lot/line (lowest price per line) | evaluation/service.py | DONE |
+| S12-03 | Technical scoring (weighted) | evaluation/service.py | DONE |
+| S12-04 | Commercial scoring (weighted) | evaluation/service.py | DONE |
+| S12-05 | Composite score calculation | evaluation/service.py | DONE |
+| S12-06 | CS PDF generation (reportlab) | evaluation/pdf_generator.py | DONE |
+| S12-07 | Shortlisting logic | evaluation/service.py | DONE |
+| S12-08 | Negotiation rounds tracking | evaluation/models.py | DONE |
+| S12-09 | Negotiation price vs original bid comparison | evaluation/service.py | DONE |
+| S12-10 | Award recommendation workflow | evaluation/service.py + workflow | DONE |
+| S12-11 | Award details per lot/line | evaluation/models.py | DONE |
+| S12-12 | CS approval workflow | evaluation/service.py | DONE |
+| S12-13 | Price tolerance validation | evaluation/service.py | DONE |
+| S12-14 | CS amendment (re-evaluation) | evaluation/service.py | DONE |
+| S12-15 | Regret letters to non-awarded vendors | evaluation/service.py | DONE |
+| S12-16 | 12 audit events | evaluation/service.py | DONE |
+| S12-17 | CS stored in MinIO (comparative-statement bucket) | evaluation/service.py | DONE |
+
+```
+MODULE | SPEC | DATE
+SPEC_12 | Comparative Statement & Evaluation | 2026-09-05
+OVERALL: 17/17 (100%) | BACKEND 100% | FRONTEND 100% | TESTS 100%
+```
 
 ---
 ## ASSUMPTIONS LOG

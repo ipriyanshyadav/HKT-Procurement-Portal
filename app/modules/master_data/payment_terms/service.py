@@ -346,5 +346,15 @@ class PaymentTermsService:
             actor_id=str(actor_id),
         )
 
+    async def soft_delete(
+        self,
+        db: AsyncSession,
+        id: UUID,
+        actor_id: UUID,
+        org_id: UUID,
+    ) -> None:
+        """Soft delete (deactivate) a payment term."""
+        await self.deactivate(db, id, actor_id, org_id)
+
 
 payment_terms_service = PaymentTermsService(repo=payment_terms_repository)

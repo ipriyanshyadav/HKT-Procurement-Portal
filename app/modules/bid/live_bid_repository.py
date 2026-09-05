@@ -168,15 +168,10 @@ class LiveBidRepository:
 
     async def get_due_to_close(self, db: AsyncSession) -> List[LiveAuction]:
         now = datetime.now(timezone.utc)
-        stmt = (
-            update(LiveAuction)
-            .where(
-                LiveAuction.status.in_(["OPEN", "EXTENDED", "CLOSING"]),
-                LiveAuction.current_close_at <= now,
-                LiveAuction.deleted_at.is_(None),
-            )
-            .values(status="CLOSED", updated_at=now)
-            .returning(LiveAuction)
+        stmt = select(LiveAuction).where(
+            LiveAuction.status.in_(["OPEN", "EXTENDED", "CLOSING"]),
+            LiveAuction.current_close_at <= now,
+            LiveAuction.deleted_at.is_(None),
         )
         result = await db.execute(stmt)
         return list(result.scalars().all())

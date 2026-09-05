@@ -563,3 +563,32 @@ export function useConfirmPennyTest(vendorId: string) {
   });
 }
 
+export interface BulkVendorCategoryMappingItem {
+  vendor_id?: string;
+  vendor_code?: string;
+  category_ids: string[];
+}
+
+export interface BulkVendorCategoryMappingResponse {
+  total_processed: number;
+  updated_vendors: number;
+  errors: string[];
+}
+
+export function useBulkVendorCategoryMapping() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (mappings: BulkVendorCategoryMappingItem[]) => {
+      const res = await apiClient.post<APIEnvelope<BulkVendorCategoryMappingResponse>>(
+        "/vendors/bulk-category-mapping",
+        { mappings }
+      );
+      return res.data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["vendors"] });
+    },
+  });
+}
+
+

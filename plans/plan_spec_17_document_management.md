@@ -6,20 +6,26 @@
 ## SPEC COVERAGE MAP
 | Req# | Target | Status |
 |---|---|---|
-| S17-01 | Upload → ClamAV scan → MinIO store → DB record | document/service.py + scanner.py | PLANNED |
-| S17-02 | 11 document types with bucket routing | document/service.py | PLANNED |
-| S17-03 | File type validation (magic bytes + extension) | document/scanner.py | PLANNED |
-| S17-04 | File size validation (50 MB limit from settings) | document/service.py | PLANNED |
-| S17-05 | Presigned URL generation (15-min TTL) | document/service.py | PLANNED |
-| S17-06 | Document versioning (version_number increment) | document/service.py | PLANNED |
-| S17-07 | Path traversal prevention (sanitize_filename) | document/service.py | PLANNED |
-| S17-08 | Soft delete (deleted_at) | document/service.py | PLANNED |
-| S17-09 | Compliance expiry date tracking | document/models.py | PLANNED |
-| S17-10 | MinIO path convention: {org_id}/{module}/{entity_id}/{filename} | document/service.py | PLANNED |
-| S17-11 | Quarantine bucket for infected files | document/scanner.py | PLANNED |
-| S17-12 | Audit trail for all document operations | document/service.py | PLANNED |
-| S17-13 | Document type ↔ bucket mapping | document/service.py | PLANNED |
-| S17-14 | Async ClamAV scan via Celery task | tasks/document_scan.py | PLANNED |
+| S17-01 | Upload → ClamAV scan → MinIO store → DB record | document/service.py + scanner.py | DONE |
+| S17-02 | 11 document types with bucket routing | document/service.py | DONE |
+| S17-03 | File type validation (magic bytes + extension) | document/scanner.py | DONE |
+| S17-04 | File size validation (50 MB limit from settings) | document/service.py | DONE |
+| S17-05 | Presigned URL generation (15-min TTL) | document/service.py | DONE |
+| S17-06 | Document versioning (version_number increment) | document/service.py | DONE |
+| S17-07 | Path traversal prevention (sanitize_filename) | document/service.py | DONE |
+| S17-08 | Soft delete (deleted_at) | document/service.py | DONE |
+| S17-09 | Compliance expiry date tracking | document/models.py | DONE |
+| S17-10 | MinIO path convention: {org_id}/{module}/{entity_id}/{filename} | document/service.py | DONE |
+| S17-11 | Quarantine bucket for infected files | document/scanner.py | DONE |
+| S17-12 | Audit trail for all document operations | document/service.py | DONE |
+| S17-13 | Document type ↔ bucket mapping | document/service.py | DONE |
+| S17-14 | Async ClamAV scan via Celery task | tasks/document_scan.py | DONE |
+
+```
+MODULE | SPEC | DATE
+SPEC_17 | Document Management | 2026-09-05
+OVERALL: 14/14 (100%) | BACKEND 100% | FRONTEND 100% | TESTS 100%
+```
 
 ---
 ## ASSUMPTIONS LOG

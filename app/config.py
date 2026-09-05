@@ -90,8 +90,11 @@ class Settings(BaseSettings):
     RAZORPAY_KEY_SECRET: str = ""
     SENDGRID_API_KEY: str = ""
     SENDGRID_FROM_EMAIL: str = ""
+    SENDGRID_FROM_NAME: str = "Procurement Portal"
+    SENDGRID_API_URL: str = "https://api.sendgrid.com/v3/mail/send"
     MSG91_AUTH_KEY: str = ""
     MSG91_SENDER_ID: str = ""
+    MSG91_API_URL: str = "https://control.msg91.com/api/v5/flow"
     TWILIO_ACCOUNT_SID: str = ""
     TWILIO_AUTH_TOKEN: str = ""
     DIGIO_CLIENT_ID: str = ""
@@ -102,6 +105,7 @@ class Settings(BaseSettings):
     EXCHANGE_RATE_API_KEY: str = ""
 
     # Observability
+    OTEL_ENABLED: bool = True
     JAEGER_HOST: str = "localhost"
     JAEGER_PORT: int = 4317
     OTEL_SAMPLING_RATE: float = 1.0

@@ -1,8 +1,13 @@
 "use client";
 
-import { QueryClient, QueryClientProvider } from "@procurement/hooks";
+import { QueryClient, QueryClientProvider, useNotifications } from "@procurement/hooks";
 import { ThemeProvider } from "@procurement/ui";
 import { useState, type ReactNode } from "react";
+
+function NotificationListener() {
+  useNotifications();
+  return null;
+}
 
 export function Providers({ children }: { children: ReactNode }) {
   const [queryClient] = useState(
@@ -19,7 +24,10 @@ export function Providers({ children }: { children: ReactNode }) {
 
   return (
     <ThemeProvider>
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+      <QueryClientProvider client={queryClient}>
+        <NotificationListener />
+        {children}
+      </QueryClientProvider>
     </ThemeProvider>
   );
 }

@@ -66,7 +66,7 @@ export default function RequisitionsListPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Purchase Requisitions</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Purchase Requisitions</h1>
           <p className="text-sm text-gray-500 mt-1">
             Create, track, and manage material and service requisition lifecycles.
           </p>
@@ -86,7 +86,7 @@ export default function RequisitionsListPage() {
           <PermissionGuard permission="pr.create">
             <Link
               href="/requisitions/import"
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 text-sm font-semibold rounded-lg shadow-sm transition-colors"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 text-gray-700 dark:text-slate-200 border border-gray-300 dark:border-slate-700 text-sm font-semibold rounded-lg shadow-sm transition-colors"
             >
               <span>📥 Import CSV</span>
             </Link>
@@ -103,15 +103,15 @@ export default function RequisitionsListPage() {
       </div>
 
       {/* Scope Toggles & Filters */}
-      <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 space-y-4">
+      <div className="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 space-y-4">
         <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
           {/* Scope Segmented Control */}
-          <div className="flex bg-gray-100 p-1 rounded-lg">
+          <div className="flex bg-gray-100 dark:bg-slate-800 p-1 rounded-lg">
             <button
               type="button"
               onClick={() => { setScope("mine"); setPage(1); }}
               className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
-                scope === "mine" ? "bg-white text-blue-600 shadow-sm" : "text-gray-600 hover:text-gray-900"
+                scope === "mine" ? "bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm" : "text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white"
               }`}
             >
               My Requisitions
@@ -120,7 +120,7 @@ export default function RequisitionsListPage() {
               type="button"
               onClick={() => { setScope("bu"); setPage(1); }}
               className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
-                scope === "bu" ? "bg-white text-blue-600 shadow-sm" : "text-gray-600 hover:text-gray-900"
+                scope === "bu" ? "bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm" : "text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white"
               }`}
             >
               My Business Unit
@@ -129,7 +129,7 @@ export default function RequisitionsListPage() {
               type="button"
               onClick={() => { setScope("all"); setPage(1); }}
               className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
-                scope === "all" ? "bg-white text-blue-600 shadow-sm" : "text-gray-600 hover:text-gray-900"
+                scope === "all" ? "bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm" : "text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white"
               }`}
             >
               All Requisitions
@@ -150,7 +150,7 @@ export default function RequisitionsListPage() {
             <select
               value={statusFilter}
               onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-              className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm bg-white dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">All Statuses</option>
               <option value="DRAFT">Draft</option>
@@ -167,10 +167,10 @@ export default function RequisitionsListPage() {
       </div>
 
       {/* PR Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200 text-sm text-left">
-            <thead className="bg-gray-50 text-gray-600 uppercase text-xs tracking-wider">
+          <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-800 text-sm text-left">
+            <thead className="bg-gray-50 dark:bg-slate-800/60 text-gray-600 dark:text-slate-400 uppercase text-xs tracking-wider">
               <tr>
                 <th scope="col" className="px-4 py-3.5 w-10 text-center">
                   <input
@@ -189,7 +189,7 @@ export default function RequisitionsListPage() {
                 <th scope="col" className="px-4 py-3.5 font-semibold text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100 text-gray-800">
+            <tbody className="divide-y divide-gray-100 dark:divide-slate-800 text-gray-800">
               {isLoading ? (
                 <tr>
                   <td colSpan={8} className="text-center py-12 text-gray-500">
@@ -210,7 +210,7 @@ export default function RequisitionsListPage() {
                 </tr>
               ) : (
                 requisitions.map((pr) => (
-                  <tr key={pr.id} className="hover:bg-gray-50/75 transition-colors">
+                  <tr key={pr.id} className="hover:bg-gray-50 dark:hover:bg-slate-800/50/75 dark:hover:bg-slate-800/50 transition-colors">
                     <td className="px-4 py-3.5 text-center">
                       <input
                         type="checkbox"
@@ -257,7 +257,7 @@ export default function RequisitionsListPage() {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="p-4 border-t border-gray-200 flex items-center justify-between text-xs text-gray-600">
+          <div className="p-4 border-t border-gray-200 dark:border-slate-800 flex items-center justify-between text-xs text-gray-600">
             <span>
               Page {page} of {totalPages}
             </span>
@@ -265,14 +265,14 @@ export default function RequisitionsListPage() {
               <button
                 disabled={page <= 1}
                 onClick={() => setPage((p) => p - 1)}
-                className="px-3 py-1 border border-gray-300 rounded bg-white hover:bg-gray-50 disabled:opacity-50"
+                className="px-3 py-1 border border-gray-300 dark:border-slate-700 rounded bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 text-gray-700 dark:text-slate-200 disabled:opacity-50"
               >
                 Previous
               </button>
               <button
                 disabled={page >= totalPages}
                 onClick={() => setPage((p) => p + 1)}
-                className="px-3 py-1 border border-gray-300 rounded bg-white hover:bg-gray-50 disabled:opacity-50"
+                className="px-3 py-1 border border-gray-300 dark:border-slate-700 rounded bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 text-gray-700 dark:text-slate-200 disabled:opacity-50"
               >
                 Next
               </button>

@@ -75,7 +75,7 @@ export default function TasksPage() {
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Approval Inbox</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Approval Inbox</h1>
         <p className="mt-1 text-sm text-gray-500">
           {meta?.total ?? 0} pending task{(meta?.total ?? 0) !== 1 ? "s" : ""} awaiting your action
         </p>
@@ -88,12 +88,12 @@ export default function TasksPage() {
           <p className="text-gray-400 text-sm mt-1">No pending approvals at this time.</p>
         </div>
       ) : (
-        <ul role="list" className="divide-y divide-gray-100 bg-white rounded-lg shadow ring-1 ring-gray-200">
+        <ul role="list" className="divide-y divide-gray-100 dark:divide-slate-800 bg-white rounded-lg shadow ring-1 ring-gray-200">
           {tasks.map((task) => (
             <li key={task.id}>
               <Link
                 href={`/tasks/${task.id}`}
-                className="flex items-start gap-4 p-4 hover:bg-gray-50 transition-colors"
+                className="flex items-start gap-4 p-4 hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors"
                 aria-label={`Task ${task.id} — Step ${task.step_number}`}
               >
                 <div className="flex-1 min-w-0">
@@ -132,7 +132,7 @@ export default function TasksPage() {
           <button
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1}
-            className="relative inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="relative inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 dark:text-white ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:hover:bg-slate-800/50 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Previous
           </button>
@@ -142,7 +142,7 @@ export default function TasksPage() {
           <button
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             disabled={page === totalPages}
-            className="relative inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="relative inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 dark:text-white ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:hover:bg-slate-800/50 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Next
           </button>

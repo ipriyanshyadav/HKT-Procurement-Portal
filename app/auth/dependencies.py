@@ -59,7 +59,10 @@ async def get_current_user(
         logger.warning(f"get_current_user: session NOT FOUND for jti={jti}")
         raise AuthenticationError("Session has been revoked")
     if session.is_revoked:
-        logger.warning(f"get_current_user: session is_revoked=True for jti={jti}, reason={session.revoked_reason}")
+        if session.revoked_reason == "TOKEN_ROTATED":
+            logger.info(f"get_current_user: session is_revoked=True for jti={jti}, reason={session.revoked_reason}")
+        else:
+            logger.warning(f"get_current_user: session is_revoked=True for jti={jti}, reason={session.revoked_reason}")
         raise AuthenticationError("Session has been revoked")
 
     # Step 7: Inactivity timeout check
@@ -76,6 +79,20 @@ async def get_current_user(
     request.state.user = user
     request.state.org_id = org_id
     return user
+
+
+async def get_optional_current_user(
+    request: Request,
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
+    db: AsyncSession = Depends(get_db),
+) -> Optional[User]:
+    """Returns the authenticated user if valid, or None if unauthenticated."""
+    if not credentials or not credentials.credentials:
+        return None
+    try:
+        return await get_current_user(request, credentials, db)
+    except Exception:
+        return None
 
 
 def require_permission(permission_code: str):

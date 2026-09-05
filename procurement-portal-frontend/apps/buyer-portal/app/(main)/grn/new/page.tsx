@@ -153,26 +153,26 @@ export default function NewGRNPage() {
       <div>
         <Link
           href="/purchase-orders"
-          className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-slate-800 transition-colors"
+          className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to Purchase Orders
         </Link>
       </div>
 
-      <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm space-y-6">
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
-            <Truck className="h-6 w-6 text-indigo-600" />
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2.5">
+            <Truck className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
             Create Goods Receipt Note (GRN)
           </h1>
-          <p className="text-sm text-slate-500 mt-1">
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
             Record receipt of goods delivered by vendor against an issued purchase order.
           </p>
         </div>
 
         {errorMsg && (
-          <div className="p-4 bg-rose-50 border border-rose-200 rounded-lg text-rose-800 text-sm flex items-center gap-2">
+          <div className="p-4 bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/40 rounded-lg text-rose-800 dark:text-rose-200 text-sm flex items-center gap-2">
             <AlertCircle className="h-5 w-5 text-rose-500 flex-shrink-0" />
             <span>{errorMsg}</span>
           </div>
@@ -181,13 +181,13 @@ export default function NewGRNPage() {
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* PO Selector */}
           <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-1">
+            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
               Select Purchase Order *
             </label>
             <select
               value={selectedPoId}
               onChange={(e) => setSelectedPoId(e.target.value)}
-              className="w-full border border-slate-300 rounded-lg p-2.5 text-sm bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               required
             >
               <option value="">-- Choose a Purchase Order --</option>
@@ -200,9 +200,9 @@ export default function NewGRNPage() {
           </div>
 
           {/* Challan & Delivery Metadata */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pt-4 border-t border-slate-100">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pt-4 border-t border-slate-100 dark:border-slate-800">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 Vendor Challan Number *
               </label>
               <input
@@ -210,35 +210,35 @@ export default function NewGRNPage() {
                 value={challanNumber}
                 onChange={(e) => setChallanNumber(e.target.value)}
                 placeholder="e.g. CH-2026-9901"
-                className="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                className="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2 text-sm bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                 required
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 Challan Date
               </label>
               <input
                 type="date"
                 value={challanDate}
                 onChange={(e) => setChallanDate(e.target.value)}
-                className="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                className="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2 text-sm bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 Receipt Date *
               </label>
               <input
                 type="date"
                 value={receiptDate}
                 onChange={(e) => setReceiptDate(e.target.value)}
-                className="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                className="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2 text-sm bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                 required
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 Transporter Name
               </label>
               <input
@@ -246,11 +246,11 @@ export default function NewGRNPage() {
                 value={transporterName}
                 onChange={(e) => setTransporterName(e.target.value)}
                 placeholder="e.g. Blue Dart, Safexpress"
-                className="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                className="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2 text-sm bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 LR / Bilty Number
               </label>
               <input
@@ -258,11 +258,11 @@ export default function NewGRNPage() {
                 value={lrNumber}
                 onChange={(e) => setLrNumber(e.target.value)}
                 placeholder="e.g. LR-4482910"
-                className="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                className="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2 text-sm bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 Receiving Notes
               </label>
               <input
@@ -270,21 +270,21 @@ export default function NewGRNPage() {
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Remarks, bay number, physical condition"
-                className="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                className="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2 text-sm bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
               />
             </div>
           </div>
 
           {/* Line Items Entry */}
           {selectedPO && (
-            <div className="pt-6 border-t border-slate-100 space-y-3">
-              <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                <Package className="h-5 w-5 text-indigo-600" />
+            <div className="pt-6 border-t border-slate-100 dark:border-slate-800 space-y-3">
+              <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <Package className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                 Line Items for Receipt
               </h2>
-              <div className="overflow-x-auto border border-slate-200 rounded-lg">
-                <table className="min-w-full divide-y divide-slate-200 text-sm">
-                  <thead className="bg-slate-50 text-slate-700 font-semibold text-xs uppercase">
+              <div className="overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-lg">
+                <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-800 text-sm">
+                  <thead className="bg-slate-50 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 font-semibold text-xs uppercase">
                     <tr>
                       <th className="px-4 py-3 text-left">#</th>
                       <th className="px-4 py-3 text-left">Description</th>
@@ -295,7 +295,7 @@ export default function NewGRNPage() {
                       <th className="px-4 py-3 text-center w-28">QC Required</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 bg-white">
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800 bg-white dark:bg-slate-900">
                     {selectedPO.lines?.map((line) => {
                       const entry = lineQuantities[line.id] || {
                         received_quantity: 0,
@@ -303,20 +303,20 @@ export default function NewGRNPage() {
                       };
                       const openQty = parseFloat(line.open_quantity || "0");
                       return (
-                        <tr key={line.id} className="hover:bg-slate-50/50">
-                          <td className="px-4 py-3 font-medium text-slate-500">
+                        <tr key={line.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50">
+                          <td className="px-4 py-3 font-medium text-slate-500 dark:text-slate-400">
                             {line.line_number}
                           </td>
-                          <td className="px-4 py-3 font-medium text-slate-900">
+                          <td className="px-4 py-3 font-medium text-slate-900 dark:text-white">
                             {line.item_description}
                           </td>
-                          <td className="px-4 py-3 text-right font-mono text-slate-700">
+                          <td className="px-4 py-3 text-right font-mono text-slate-700 dark:text-slate-300">
                             {line.ordered_quantity}
                           </td>
-                          <td className="px-4 py-3 text-right font-mono text-slate-500">
+                          <td className="px-4 py-3 text-right font-mono text-slate-500 dark:text-slate-400">
                             {line.received_quantity}
                           </td>
-                          <td className="px-4 py-3 text-right font-mono font-semibold text-amber-600">
+                          <td className="px-4 py-3 text-right font-mono font-semibold text-amber-600 dark:text-amber-400">
                             {line.open_quantity}
                           </td>
                           <td className="px-4 py-3 text-right">
@@ -329,7 +329,7 @@ export default function NewGRNPage() {
                               onChange={(e) =>
                                 handleQtyChange(line.id, parseFloat(e.target.value) || 0)
                               }
-                              className="w-full border border-slate-300 rounded p-1.5 text-right font-mono text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                              className="w-full border border-slate-300 dark:border-slate-700 rounded p-1.5 text-right font-mono text-sm bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                             />
                           </td>
                           <td className="px-4 py-3 text-center">
@@ -337,7 +337,7 @@ export default function NewGRNPage() {
                               type="checkbox"
                               checked={entry.qc_required}
                               onChange={(e) => handleQcToggle(line.id, e.target.checked)}
-                              className="h-4 w-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500 cursor-pointer"
+                              className="h-4 w-4 text-indigo-600 rounded border-slate-300 dark:border-slate-700 focus:ring-indigo-500 cursor-pointer"
                             />
                           </td>
                         </tr>
@@ -350,10 +350,10 @@ export default function NewGRNPage() {
           )}
 
           {/* Form Actions */}
-          <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
+          <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
             <Link
               href="/purchase-orders"
-              className="px-4 py-2 border border-slate-300 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors"
+              className="px-4 py-2 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-lg text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
             >
               Cancel
             </Link>

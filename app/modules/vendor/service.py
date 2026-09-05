@@ -47,6 +47,8 @@ from app.modules.vendor.schemas import (
     VendorRegistrationRequest,
     VendorScorecardUpdateRequest,
     VendorUpdateRequest,
+    BulkVendorCategoryMappingItem,
+    BulkVendorCategoryMappingResponse,
 )
 from integration.adapters.bank import BankVerificationAdapter
 from integration.adapters.gst import GSTAdapter
@@ -1131,5 +1133,47 @@ class VendorService:
         await db.flush()
         return res
 
+    async def bulk_map_categories(
+        self,
+        db: AsyncSession,
+        mappings: List[BulkVendorCategoryMappingItem],
+        actor_id: UUID,
+        org_id: UUID,
+    ) -> BulkVendorCategoryMappingResponse:
+        updated = 0
+        errors: List[str] = []
+        for idx, item in enumerate(mappings):
+            vendor = None
+            if item.vendor_id:
+                vendor = await self.repo.find_by_id(db, item.vendor_id, org_id)
+            elif item.vendor_code:
+                vendor = await self.repo.find_by_vendor_code(db, org_id, item.vendor_code)
+
+            if not vendor:
+                errors.append(f"Row {idx + 1}: Vendor not found ({item.vendor_id or item.vendor_code})")
+                continue
+
+            try:
+                await self.repo.set_categories(db, org_id, vendor.id, item.category_ids)
+                updated += 1
+            except Exception as e:
+                errors.append(f"Row {idx + 1}: Failed to set categories: {str(e)}")
+
+        await audit_service.log(
+            db,
+            entity_type="VENDOR",
+            entity_id=actor_id,
+            action="VENDOR_BULK_CATEGORY_MAPPED",
+            actor_id=actor_id,
+            org_id=org_id,
+            metadata={"total_submitted": len(mappings), "updated": updated, "errors_count": len(errors)},
+        )
+        return BulkVendorCategoryMappingResponse(
+            total_processed=len(mappings),
+            updated_vendors=updated,
+            errors=errors,
+        )
+
 
 vendor_service = VendorService()
+

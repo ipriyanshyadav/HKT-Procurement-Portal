@@ -259,11 +259,12 @@ routes:
     service: api
     strip_path: false
     paths:
-      - /ws/notifications
-      - /ws/auction
+      - /ws
     protocols:
       - http
       - https
+      - ws
+      - wss
 
 plugins:
   - name: correlation-id

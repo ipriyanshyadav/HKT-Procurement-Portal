@@ -1,4 +1,7 @@
 from __future__ import annotations
+from uuid import UUID
+
+DEFAULT_ORG_ID: UUID = UUID("00000000-0000-0000-0000-000000000001")
 
 class AuditAction:
     # Auth (14)

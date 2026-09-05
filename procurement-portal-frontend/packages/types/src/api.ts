@@ -401,7 +401,7 @@ export interface paths {
         };
         /**
          * List Categories
-         * @description List categories (flat or tree view).
+         * @description List categories (flat or tree view). Accessible by all authenticated users and during registration.
          */
         get: operations["list_categories_api_v1_master_data_categories_get"];
         put?: never;
@@ -425,7 +425,7 @@ export interface paths {
         };
         /**
          * Get Category Tree
-         * @description Get full category hierarchy tree or subtree via recursive CTE.
+         * @description Get full category hierarchy tree or subtree via recursive CTE. Accessible by all authenticated users and during registration.
          */
         get: operations["get_category_tree_api_v1_master_data_categories_tree_get"];
         put?: never;
@@ -473,7 +473,11 @@ export interface paths {
          */
         get: operations["list_uoms_api_v1_master_data_uoms_get"];
         put?: never;
-        post?: never;
+        /**
+         * Create Uom
+         * @description Create a new unit of measure.
+         */
+        post: operations["create_uom_api_v1_master_data_uoms_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -500,6 +504,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/master-data/uoms/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Update Uom
+         * @description Update an existing unit of measure.
+         */
+        put: operations["update_uom_api_v1_master_data_uoms__id__put"];
+        post?: never;
+        /**
+         * Delete Uom
+         * @description Soft delete a unit of measure.
+         */
+        delete: operations["delete_uom_api_v1_master_data_uoms__id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/master-data/currencies": {
         parameters: {
             query?: never;
@@ -513,8 +541,36 @@ export interface paths {
          */
         get: operations["list_currencies_api_v1_master_data_currencies_get"];
         put?: never;
-        post?: never;
+        /**
+         * Create Currency
+         * @description Create a new currency.
+         */
+        post: operations["create_currency_api_v1_master_data_currencies_post"];
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/master-data/currencies/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Update Currency
+         * @description Update an existing currency.
+         */
+        put: operations["update_currency_api_v1_master_data_currencies__id__put"];
+        post?: never;
+        /**
+         * Delete Currency
+         * @description Soft delete a currency.
+         */
+        delete: operations["delete_currency_api_v1_master_data_currencies__id__delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -533,8 +589,36 @@ export interface paths {
          */
         get: operations["list_payment_terms_api_v1_master_data_payment_terms_get"];
         put?: never;
-        post?: never;
+        /**
+         * Create Payment Term
+         * @description Create a new payment term.
+         */
+        post: operations["create_payment_term_api_v1_master_data_payment_terms_post"];
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/master-data/payment-terms/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Update Payment Term
+         * @description Update an existing payment term.
+         */
+        put: operations["update_payment_term_api_v1_master_data_payment_terms__id__put"];
+        post?: never;
+        /**
+         * Delete Payment Term
+         * @description Soft delete a payment term.
+         */
+        delete: operations["delete_payment_term_api_v1_master_data_payment_terms__id__delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -573,8 +657,36 @@ export interface paths {
          */
         get: operations["list_tax_codes_api_v1_master_data_tax_codes_get"];
         put?: never;
-        post?: never;
+        /**
+         * Create Tax Code
+         * @description Create a new tax code.
+         */
+        post: operations["create_tax_code_api_v1_master_data_tax_codes_post"];
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/master-data/tax-codes/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Update Tax Code
+         * @description Update an existing tax code.
+         */
+        put: operations["update_tax_code_api_v1_master_data_tax_codes__id__put"];
+        post?: never;
+        /**
+         * Delete Tax Code
+         * @description Soft delete a tax code.
+         */
+        delete: operations["delete_tax_code_api_v1_master_data_tax_codes__id__delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -599,6 +711,30 @@ export interface paths {
          */
         post: operations["create_delivery_location_api_v1_master_data_delivery_locations_post"];
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/master-data/delivery-locations/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Update Delivery Location
+         * @description Update an existing delivery location.
+         */
+        put: operations["update_delivery_location_api_v1_master_data_delivery_locations__id__put"];
+        post?: never;
+        /**
+         * Delete Delivery Location
+         * @description Soft delete (deactivate) a delivery location.
+         */
+        delete: operations["delete_delivery_location_api_v1_master_data_delivery_locations__id__delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -639,6 +775,26 @@ export interface paths {
          */
         post: operations["create_holiday_api_v1_master_data_holidays_post"];
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/master-data/holidays/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete Holiday
+         * @description Soft delete a holiday.
+         */
+        delete: operations["delete_holiday_api_v1_master_data_holidays__id__delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -795,6 +951,26 @@ export interface paths {
          * @description Run duplicate detection checks.
          */
         post: operations["check_duplicates_api_v1_vendors_check_duplicates_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendors/bulk-category-mapping": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Bulk Category Mapping
+         * @description Bulk map categories to multiple vendors via imported CSV / JSON entries.
+         */
+        post: operations["bulk_category_mapping_api_v1_vendors_bulk_category_mapping_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -3078,6 +3254,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/payments/{payment_id}/remittance-pdf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Download Remittance Pdf
+         * @description Download official payment remittance advice as a generated PDF.
+         */
+        get: operations["download_remittance_pdf_api_v1_payments__payment_id__remittance_pdf_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/payments/{payment_id}/process": {
         parameters: {
             query?: never;
@@ -3177,6 +3373,90 @@ export interface paths {
         put?: never;
         /** Resolve Dispute */
         post: operations["resolve_dispute_api_v1_payments_disputes__dispute_id__resolve_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/notifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get notifications for current user
+         * @description Retrieve paginated notifications for current user, ordered unread first.
+         */
+        get: operations["get_notifications_api_v1_notifications_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/notifications/{notification_id}/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Mark single notification as read
+         * @description Mark a specific notification as read.
+         */
+        post: operations["mark_notification_read_api_v1_notifications__notification_id__read_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/notifications/mark-all-read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Mark all notifications as read
+         * @description Mark all unread notifications for current user as read.
+         */
+        post: operations["mark_all_notifications_read_api_v1_notifications_mark_all_read_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/notifications/preferences": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get user notification preferences
+         * @description Retrieve notification channel preferences for current user.
+         */
+        get: operations["get_notification_preferences_api_v1_notifications_preferences_get"];
+        /**
+         * Update user notification preferences
+         * @description Update notification preferences for current user.
+         */
+        put: operations["update_notification_preferences_api_v1_notifications_preferences_put"];
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -3678,6 +3958,126 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/integrations/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Integration Stats
+         * @description Retrieve aggregate statistics for external ERP and sync integration jobs.
+         */
+        get: operations["get_integration_stats_api_v1_integrations_stats_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/integrations/jobs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Integration Jobs
+         * @description List integration jobs with filtering and pagination.
+         */
+        get: operations["list_integration_jobs_api_v1_integrations_jobs_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/integrations/jobs/{job_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Integration Job Detail
+         * @description Get single integration job detail including request and response payloads.
+         */
+        get: operations["get_integration_job_detail_api_v1_integrations_jobs__job_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/integrations/jobs/{job_id}/retry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Retry Integration Job
+         * @description Manually trigger a retry for a failed or stalled integration job.
+         */
+        post: operations["retry_integration_job_api_v1_integrations_jobs__job_id__retry_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/integrations/scheduled-runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Scheduled Runs
+         * @description List recent scheduled cron and background integration job executions.
+         */
+        get: operations["list_scheduled_runs_api_v1_integrations_scheduled_runs_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/integrations/sync/trigger": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Trigger Erp Sync
+         * @description Manually trigger an outbound/bidirectional ERP synchronization run.
+         */
+        post: operations["trigger_erp_sync_api_v1_integrations_sync_trigger_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/analytics/health": {
         parameters: {
             query?: never;
@@ -4104,7 +4504,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T06:08:53.616611
+             * @default 2026-09-05T11:57:56.544765
              */
             timestamp: string;
         };
@@ -4116,7 +4516,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T06:08:53.616611
+             * @default 2026-09-05T11:57:56.544765
              */
             timestamp: string;
         };
@@ -4128,7 +4528,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T06:08:53.616611
+             * @default 2026-09-05T11:57:56.544765
              */
             timestamp: string;
         };
@@ -4140,7 +4540,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T06:08:53.616611
+             * @default 2026-09-05T11:57:56.544765
              */
             timestamp: string;
         };
@@ -4152,7 +4552,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T06:08:53.616611
+             * @default 2026-09-05T11:57:56.544765
              */
             timestamp: string;
         };
@@ -4164,7 +4564,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T06:08:53.616611
+             * @default 2026-09-05T11:57:56.544765
              */
             timestamp: string;
         };
@@ -4176,7 +4576,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T06:08:53.616611
+             * @default 2026-09-05T11:57:56.544765
              */
             timestamp: string;
         };
@@ -4188,7 +4588,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T06:08:53.616611
+             * @default 2026-09-05T11:57:56.544765
              */
             timestamp: string;
         };
@@ -4200,7 +4600,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T06:08:53.616611
+             * @default 2026-09-05T11:57:56.544765
              */
             timestamp: string;
         };
@@ -4212,7 +4612,31 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T06:08:53.616611
+             * @default 2026-09-05T11:57:56.544765
+             */
+            timestamp: string;
+        };
+        /** APIResponse[IntegrationJobResponse] */
+        APIResponse_IntegrationJobResponse_: {
+            data: components["schemas"]["IntegrationJobResponse"];
+            meta?: components["schemas"]["PaginationMeta"] | null;
+            links?: components["schemas"]["Links"] | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             * @default 2026-09-05T11:57:56.544765
+             */
+            timestamp: string;
+        };
+        /** APIResponse[IntegrationStatsResponse] */
+        APIResponse_IntegrationStatsResponse_: {
+            data: components["schemas"]["IntegrationStatsResponse"];
+            meta?: components["schemas"]["PaginationMeta"] | null;
+            links?: components["schemas"]["Links"] | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             * @default 2026-09-05T11:57:56.544765
              */
             timestamp: string;
         };
@@ -4224,7 +4648,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T06:08:53.616611
+             * @default 2026-09-05T11:57:56.544765
              */
             timestamp: string;
         };
@@ -4237,7 +4661,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T06:08:53.616611
+             * @default 2026-09-05T11:57:56.544765
              */
             timestamp: string;
         };
@@ -4250,7 +4674,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T06:08:53.616611
+             * @default 2026-09-05T11:57:56.544765
              */
             timestamp: string;
         };
@@ -4263,7 +4687,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T06:08:53.616611
+             * @default 2026-09-05T11:57:56.544765
              */
             timestamp: string;
         };
@@ -4276,7 +4700,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T06:08:53.616611
+             * @default 2026-09-05T11:57:56.544765
              */
             timestamp: string;
         };
@@ -4289,7 +4713,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T06:08:53.616611
+             * @default 2026-09-05T11:57:56.544765
              */
             timestamp: string;
         };
@@ -4302,7 +4726,20 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T06:08:53.616611
+             * @default 2026-09-05T11:57:56.544765
+             */
+            timestamp: string;
+        };
+        /** APIResponse[List[IntegrationJobResponse]] */
+        APIResponse_List_IntegrationJobResponse__: {
+            /** Data */
+            data: components["schemas"]["IntegrationJobResponse"][];
+            meta?: components["schemas"]["PaginationMeta"] | null;
+            links?: components["schemas"]["Links"] | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             * @default 2026-09-05T11:57:56.544765
              */
             timestamp: string;
         };
@@ -4315,7 +4752,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T06:08:53.616611
+             * @default 2026-09-05T11:57:56.544765
              */
             timestamp: string;
         };
@@ -4328,7 +4765,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T06:08:53.616611
+             * @default 2026-09-05T11:57:56.544765
              */
             timestamp: string;
         };
@@ -4341,7 +4778,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T06:08:53.616611
+             * @default 2026-09-05T11:57:56.544765
              */
             timestamp: string;
         };
@@ -4354,7 +4791,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T06:08:53.616611
+             * @default 2026-09-05T11:57:56.544765
              */
             timestamp: string;
         };
@@ -4367,7 +4804,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T06:08:53.616611
+             * @default 2026-09-05T11:57:56.544765
              */
             timestamp: string;
         };
@@ -4380,7 +4817,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T06:08:53.616611
+             * @default 2026-09-05T11:57:56.544765
              */
             timestamp: string;
         };
@@ -4393,7 +4830,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T06:08:53.616611
+             * @default 2026-09-05T11:57:56.544765
              */
             timestamp: string;
         };
@@ -4406,7 +4843,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T06:08:53.616611
+             * @default 2026-09-05T11:57:56.544765
              */
             timestamp: string;
         };
@@ -4419,7 +4856,20 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T06:08:53.616611
+             * @default 2026-09-05T11:57:56.544765
+             */
+            timestamp: string;
+        };
+        /** APIResponse[List[ScheduledJobRunResponse]] */
+        APIResponse_List_ScheduledJobRunResponse__: {
+            /** Data */
+            data: components["schemas"]["ScheduledJobRunResponse"][];
+            meta?: components["schemas"]["PaginationMeta"] | null;
+            links?: components["schemas"]["Links"] | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             * @default 2026-09-05T11:57:56.544765
              */
             timestamp: string;
         };
@@ -4432,7 +4882,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T06:08:53.616611
+             * @default 2026-09-05T11:57:56.544765
              */
             timestamp: string;
         };
@@ -4447,7 +4897,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T06:08:53.616611
+             * @default 2026-09-05T11:57:56.544765
              */
             timestamp: string;
         };
@@ -4459,7 +4909,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T06:08:53.616611
+             * @default 2026-09-05T11:57:56.544765
              */
             timestamp: string;
         };
@@ -4471,7 +4921,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T06:08:53.616611
+             * @default 2026-09-05T11:57:56.544765
              */
             timestamp: string;
         };
@@ -4483,7 +4933,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T06:08:53.616611
+             * @default 2026-09-05T11:57:56.544765
              */
             timestamp: string;
         };
@@ -4495,7 +4945,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T06:08:53.616611
+             * @default 2026-09-05T11:57:56.544765
              */
             timestamp: string;
         };
@@ -4507,7 +4957,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T06:08:53.616611
+             * @default 2026-09-05T11:57:56.544765
              */
             timestamp: string;
         };
@@ -4519,7 +4969,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T06:08:53.616611
+             * @default 2026-09-05T11:57:56.544765
              */
             timestamp: string;
         };
@@ -4531,7 +4981,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T06:08:53.616611
+             * @default 2026-09-05T11:57:56.544765
              */
             timestamp: string;
         };
@@ -4543,7 +4993,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T06:08:53.616611
+             * @default 2026-09-05T11:57:56.544765
              */
             timestamp: string;
         };
@@ -4555,7 +5005,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T06:08:53.616611
+             * @default 2026-09-05T11:57:56.544765
              */
             timestamp: string;
         };
@@ -4567,7 +5017,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T06:08:53.616611
+             * @default 2026-09-05T11:57:56.544765
              */
             timestamp: string;
         };
@@ -4579,7 +5029,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T06:08:53.616611
+             * @default 2026-09-05T11:57:56.544765
              */
             timestamp: string;
         };
@@ -4591,7 +5041,19 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T06:08:53.616611
+             * @default 2026-09-05T11:57:56.544765
+             */
+            timestamp: string;
+        };
+        /** APIResponse[SyncTriggerResponse] */
+        APIResponse_SyncTriggerResponse_: {
+            data: components["schemas"]["SyncTriggerResponse"];
+            meta?: components["schemas"]["PaginationMeta"] | null;
+            links?: components["schemas"]["Links"] | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             * @default 2026-09-05T11:57:56.544765
              */
             timestamp: string;
         };
@@ -4603,7 +5065,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T06:08:53.616611
+             * @default 2026-09-05T11:57:56.544765
              */
             timestamp: string;
         };
@@ -4615,7 +5077,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T06:08:53.616611
+             * @default 2026-09-05T11:57:56.544765
              */
             timestamp: string;
         };
@@ -4630,7 +5092,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T06:08:53.616611
+             * @default 2026-09-05T11:57:56.544765
              */
             timestamp: string;
         };
@@ -4643,7 +5105,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T06:08:53.616611
+             * @default 2026-09-05T11:57:56.544765
              */
             timestamp: string;
         };
@@ -5184,6 +5646,20 @@ export interface components {
             category?: string | null;
             /** Compliance Expiry */
             compliance_expiry?: string | null;
+        };
+        /** BulkVendorCategoryMappingItem */
+        BulkVendorCategoryMappingItem: {
+            /** Vendor Id */
+            vendor_id?: string | null;
+            /** Vendor Code */
+            vendor_code?: string | null;
+            /** Category Ids */
+            category_ids?: string[];
+        };
+        /** BulkVendorCategoryMappingRequest */
+        BulkVendorCategoryMappingRequest: {
+            /** Mappings */
+            mappings: components["schemas"]["BulkVendorCategoryMappingItem"][];
         };
         /** CSGenerateRequest */
         CSGenerateRequest: {
@@ -5914,6 +6390,42 @@ export interface components {
             /** Po Number */
             po_number?: string | null;
         };
+        /** CurrencyCreateRequest */
+        CurrencyCreateRequest: {
+            /**
+             * Code
+             * @description ISO 4217 3-letter currency code
+             */
+            code: string;
+            /** Name */
+            name: string;
+            /**
+             * Symbol
+             * @default
+             */
+            symbol: string;
+            /**
+             * Exchange Rate To Base
+             * @default 1.0
+             */
+            exchange_rate_to_base: number | string;
+            /**
+             * Is Base Currency
+             * @default false
+             */
+            is_base_currency: boolean;
+        };
+        /** CurrencyUpdateRequest */
+        CurrencyUpdateRequest: {
+            /** Name */
+            name?: string | null;
+            /** Symbol */
+            symbol?: string | null;
+            /** Exchange Rate To Base */
+            exchange_rate_to_base?: number | string | null;
+            /** Is Active */
+            is_active?: boolean | null;
+        };
         /** DisputeCreateRequest */
         DisputeCreateRequest: {
             /**
@@ -6317,6 +6829,82 @@ export interface components {
             /** Plant Id */
             plant_id?: string | null;
         };
+        /** IntegrationJobResponse */
+        IntegrationJobResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Org Id
+             * Format: uuid
+             */
+            org_id: string;
+            /** Job Type */
+            job_type: string;
+            /** Entity Type */
+            entity_type: string;
+            /**
+             * Entity Id
+             * Format: uuid
+             */
+            entity_id: string;
+            /** Direction */
+            direction: string;
+            /** Adapter Type */
+            adapter_type: string;
+            /** Status */
+            status: string;
+            /** Request Payload */
+            request_payload?: {
+                [key: string]: unknown;
+            } | null;
+            /** Response Payload */
+            response_payload?: {
+                [key: string]: unknown;
+            } | null;
+            /** Error Message */
+            error_message?: string | null;
+            /**
+             * Retry Count
+             * @default 0
+             */
+            retry_count: number;
+            /**
+             * Max Retries
+             * @default 7
+             */
+            max_retries: number;
+            /** Next Retry At */
+            next_retry_at?: string | null;
+            /** Completed At */
+            completed_at?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Updated At */
+            updated_at?: string | null;
+        };
+        /** IntegrationStatsResponse */
+        IntegrationStatsResponse: {
+            /** Total Jobs */
+            total_jobs: number;
+            /** Pending Jobs */
+            pending_jobs: number;
+            /** In Progress Jobs */
+            in_progress_jobs: number;
+            /** Completed Jobs */
+            completed_jobs: number;
+            /** Failed Jobs */
+            failed_jobs: number;
+            /** Retry Scheduled Jobs */
+            retry_scheduled_jobs: number;
+            /** Success Rate */
+            success_rate: number;
+        };
         /** InvoiceDisputeRequest */
         InvoiceDisputeRequest: {
             /** Reason Code */
@@ -6667,6 +7255,26 @@ export interface components {
              */
             plant_id?: string | null;
         };
+        /**
+         * LocationUpdateRequest
+         * @description Payload for partial update of a DeliveryLocation. All fields optional.
+         */
+        LocationUpdateRequest: {
+            /** Name */
+            name?: string | null;
+            /** Address */
+            address?: string | null;
+            /** City */
+            city?: string | null;
+            /** State */
+            state?: string | null;
+            /** Postal Code */
+            postal_code?: string | null;
+            /** Country Code */
+            country_code?: string | null;
+            /** Plant Id */
+            plant_id?: string | null;
+        };
         /** LoginRequest */
         LoginRequest: {
             /**
@@ -6774,6 +7382,40 @@ export interface components {
             vendor_ids: string[];
             /** Notes */
             notes?: string | null;
+        };
+        /** NotificationPreferenceItem */
+        NotificationPreferenceItem: {
+            /** Notification Type */
+            notification_type: string;
+            /**
+             * Email Enabled
+             * @default true
+             */
+            email_enabled: boolean;
+            /**
+             * Sms Enabled
+             * @default false
+             */
+            sms_enabled: boolean;
+            /**
+             * Inapp Enabled
+             * @default true
+             */
+            inapp_enabled: boolean;
+            /**
+             * Digest Mode
+             * @default false
+             */
+            digest_mode: boolean;
+            /** Quiet Hours Start */
+            quiet_hours_start?: string | null;
+            /** Quiet Hours End */
+            quiet_hours_end?: string | null;
+        };
+        /** NotificationPreferencesUpdateRequest */
+        NotificationPreferencesUpdateRequest: {
+            /** Preferences */
+            preferences: components["schemas"]["NotificationPreferenceItem"][];
         };
         /** POAcknowledgeRequest */
         POAcknowledgeRequest: {
@@ -7577,6 +8219,40 @@ export interface components {
              */
             invoice_id: string;
         };
+        /** PaymentTermCreateRequest */
+        PaymentTermCreateRequest: {
+            /** Code */
+            code: string;
+            /** Name */
+            name: string;
+            /** Net Days */
+            net_days: number;
+            /**
+             * Discount Percentage
+             * @default 0
+             */
+            discount_percentage: number | string;
+            /**
+             * Discount Days
+             * @default 0
+             */
+            discount_days: number;
+            /** Description */
+            description?: string | null;
+        };
+        /** PaymentTermUpdateRequest */
+        PaymentTermUpdateRequest: {
+            /** Name */
+            name?: string | null;
+            /** Net Days */
+            net_days?: number | null;
+            /** Discount Percentage */
+            discount_percentage?: number | string | null;
+            /** Discount Days */
+            discount_days?: number | null;
+            /** Description */
+            description?: string | null;
+        };
         /** PennyTestConfirmRequest */
         PennyTestConfirmRequest: {
             /** Amount Received */
@@ -8139,6 +8815,39 @@ export interface components {
             /** Lines */
             lines?: components["schemas"]["RfqLineCreateRequest"][] | null;
         };
+        /** ScheduledJobRunResponse */
+        ScheduledJobRunResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Org Id */
+            org_id?: string | null;
+            /** Job Name */
+            job_name: string;
+            /**
+             * Started At
+             * Format: date-time
+             */
+            started_at: string;
+            /** Completed At */
+            completed_at?: string | null;
+            /** Status */
+            status: string;
+            /**
+             * Records Processed
+             * @default 0
+             */
+            records_processed: number;
+            /** Error Message */
+            error_message?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
         /** SetProxyFloorRequest */
         SetProxyFloorRequest: {
             /** Lot Id */
@@ -8194,6 +8903,31 @@ export interface components {
             /** Requires Override */
             requires_override: boolean;
         };
+        /** SyncTriggerRequest */
+        SyncTriggerRequest: {
+            /**
+             * Adapter Type
+             * @default SAP
+             */
+            adapter_type: string;
+            /** Entity Type */
+            entity_type?: string | null;
+        };
+        /** SyncTriggerResponse */
+        SyncTriggerResponse: {
+            /** Status */
+            status: string;
+            /** Adapter Type */
+            adapter_type: string;
+            /** Jobs Created */
+            jobs_created: number;
+            /** Records Processed */
+            records_processed: number;
+            /** Message */
+            message: string;
+            /** Job Run Id */
+            job_run_id?: string | null;
+        };
         /** TaskActionRequest */
         TaskActionRequest: {
             /**
@@ -8201,6 +8935,36 @@ export interface components {
              * @default
              */
             comment: string;
+        };
+        /**
+         * TaxCreateRequest
+         * @description Validated payload for creating a new TaxCode.
+         */
+        TaxCreateRequest: {
+            /** Code */
+            code: string;
+            /** Name */
+            name: string;
+            /** Rate */
+            rate: number | string;
+            /** Tax Type */
+            tax_type: string;
+            /** Hsn Chapter */
+            hsn_chapter?: string | null;
+        };
+        /**
+         * TaxUpdateRequest
+         * @description Validated payload for updating an existing TaxCode. All fields optional.
+         */
+        TaxUpdateRequest: {
+            /** Name */
+            name?: string | null;
+            /** Rate */
+            rate?: number | string | null;
+            /** Tax Type */
+            tax_type?: string | null;
+            /** Hsn Chapter */
+            hsn_chapter?: string | null;
         };
         /** UnmappedPRDashboardResponse */
         UnmappedPRDashboardResponse: {
@@ -8312,6 +9076,41 @@ export interface components {
             suggestions?: components["schemas"]["MappingSuggestionItem"][];
             /** Reason */
             reason?: string | null;
+        };
+        /**
+         * UomCreateRequest
+         * @description Validated payload for creating a new Unit of Measure.
+         */
+        UomCreateRequest: {
+            /**
+             * Code
+             * @description Unique UoM code within the organisation.
+             */
+            code: string;
+            /**
+             * Name
+             * @description Human-readable name of the UoM.
+             */
+            name: string;
+            /**
+             * Iso Code
+             * @description ISO 80000 or similar standard code.
+             */
+            iso_code?: string | null;
+        };
+        /**
+         * UomUpdateRequest
+         * @description Validated payload for updating an existing Unit of Measure.
+         *
+         *     All fields are optional; only supplied fields are applied.
+         */
+        UomUpdateRequest: {
+            /** Name */
+            name?: string | null;
+            /** Iso Code */
+            iso_code?: string | null;
+            /** Is Active */
+            is_active?: boolean | null;
         };
         /** UserCreateRequest */
         UserCreateRequest: {
@@ -9420,6 +10219,39 @@ export interface operations {
             };
         };
     };
+    create_uom_api_v1_master_data_uoms_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UomCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_uoms_api_v1_master_data_uom_get: {
         parameters: {
             query?: {
@@ -9427,6 +10259,72 @@ export interface operations {
             };
             header?: never;
             path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_uom_api_v1_master_data_uoms__id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UomUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_uom_api_v1_master_data_uoms__id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
             cookie?: never;
         };
         requestBody?: never;
@@ -9483,6 +10381,105 @@ export interface operations {
             };
         };
     };
+    create_currency_api_v1_master_data_currencies_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CurrencyCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_currency_api_v1_master_data_currencies__id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CurrencyUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_currency_api_v1_master_data_currencies__id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_payment_terms_api_v1_master_data_payment_terms_get: {
         parameters: {
             query?: {
@@ -9490,6 +10487,105 @@ export interface operations {
             };
             header?: never;
             path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_payment_term_api_v1_master_data_payment_terms_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PaymentTermCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_payment_term_api_v1_master_data_payment_terms__id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PaymentTermUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_payment_term_api_v1_master_data_payment_terms__id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
             cookie?: never;
         };
         requestBody?: never;
@@ -9543,6 +10639,105 @@ export interface operations {
             };
             header?: never;
             path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_tax_code_api_v1_master_data_tax_codes_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TaxCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_tax_code_api_v1_master_data_tax_codes__id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TaxUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_tax_code_api_v1_master_data_tax_codes__id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
             cookie?: never;
         };
         requestBody?: never;
@@ -9632,6 +10827,72 @@ export interface operations {
             };
         };
     };
+    update_delivery_location_api_v1_master_data_delivery_locations__id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LocationUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_delivery_location_api_v1_master_data_delivery_locations__id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_holidays_by_year_api_v1_master_data_holidays__year__get: {
         parameters: {
             query?: never;
@@ -9678,6 +10939,37 @@ export interface operations {
         responses: {
             /** @description Successful Response */
             201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_holiday_api_v1_master_data_holidays__id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -9926,6 +11218,39 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["DuplicateCheckRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    bulk_category_mapping_api_v1_vendors_bulk_category_mapping_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BulkVendorCategoryMappingRequest"];
             };
         };
         responses: {
@@ -14647,6 +15972,37 @@ export interface operations {
             };
         };
     };
+    download_remittance_pdf_api_v1_payments__payment_id__remittance_pdf_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                payment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     process_payment_api_v1_payments__payment_id__process_post: {
         parameters: {
             query?: never;
@@ -14837,6 +16193,146 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["APIResponse_DisputeResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_notifications_api_v1_notifications_get: {
+        parameters: {
+            query?: {
+                /** @description Page number */
+                page?: number;
+                /** @description Page size */
+                page_size?: number;
+                /** @description Filter unread only */
+                unread_only?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    mark_notification_read_api_v1_notifications__notification_id__read_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                notification_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    mark_all_notifications_read_api_v1_notifications_mark_all_read_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    get_notification_preferences_api_v1_notifications_preferences_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    update_notification_preferences_api_v1_notifications_preferences_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NotificationPreferencesUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
                 };
             };
             /** @description Validation Error */
@@ -15739,6 +17235,190 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_integration_stats_api_v1_integrations_stats_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_IntegrationStatsResponse_"];
+                };
+            };
+        };
+    };
+    list_integration_jobs_api_v1_integrations_jobs_get: {
+        parameters: {
+            query?: {
+                /** @description Filter by job status (e.g. FAILED, COMPLETED, PENDING) */
+                status?: string | null;
+                /** @description Filter by job type */
+                job_type?: string | null;
+                /** @description Filter by adapter (e.g. SAP, ORACLE, WORKDAY, DIGIO) */
+                adapter_type?: string | null;
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_List_IntegrationJobResponse__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_integration_job_detail_api_v1_integrations_jobs__job_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_IntegrationJobResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    retry_integration_job_api_v1_integrations_jobs__job_id__retry_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_IntegrationJobResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_scheduled_runs_api_v1_integrations_scheduled_runs_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_List_ScheduledJobRunResponse__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    trigger_erp_sync_api_v1_integrations_sync_trigger_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["SyncTriggerRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_SyncTriggerResponse_"];
                 };
             };
             /** @description Validation Error */

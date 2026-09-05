@@ -256,6 +256,16 @@ class CurrencyService:
         )
         logger.info("Currency deactivated", id=str(currency.id), org_id=str(org_id))
 
+    async def soft_delete(
+        self,
+        db: AsyncSession,
+        id: UUID,
+        actor_id: UUID,
+        org_id: UUID,
+    ) -> None:
+        """Soft delete (deactivate) a currency."""
+        await self.deactivate(db, id, actor_id, org_id)
+
     async def get_exchange_rate(self, base: str, target: str) -> Optional[Decimal]:
         """Fetch cached exchange rate from Redis."""
         if base == target:

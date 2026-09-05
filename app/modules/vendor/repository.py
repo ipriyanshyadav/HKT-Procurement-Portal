@@ -31,6 +31,19 @@ class VendorRepository(BaseRepository[Vendor]):
         result = await db.execute(stmt)
         return result.scalar_one_or_none()
 
+    async def find_by_vendor_code(
+        self, db: AsyncSession, org_id: UUID, vendor_code: str
+    ) -> Optional[Vendor]:
+        stmt = select(Vendor).where(
+            and_(
+                Vendor.org_id == org_id,
+                Vendor.vendor_code == vendor_code.strip(),
+                Vendor.deleted_at.is_(None),
+            )
+        )
+        result = await db.execute(stmt)
+        return result.scalar_one_or_none()
+
     async def find_by_email(
         self, db: AsyncSession, org_id: UUID, email: str
     ) -> Optional[Vendor]:

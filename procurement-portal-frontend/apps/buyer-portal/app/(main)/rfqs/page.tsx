@@ -28,7 +28,7 @@ export default function RfqListPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Requests for Quotation (RFQs)</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Requests for Quotation (RFQs)</h1>
           <p className="text-sm text-gray-500 mt-1">
             Manage sourcing events, invite suppliers, inspect sealed submissions, and authorize bid openings.
           </p>
@@ -78,7 +78,7 @@ export default function RfqListPage() {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm overflow-hidden">
         {isLoading ? (
           <div className="p-12 text-center text-gray-500 text-sm">Loading RFQs...</div>
         ) : isError ? (
@@ -99,9 +99,9 @@ export default function RfqListPage() {
                   <th className="px-6 py-3.5 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-gray-100 dark:divide-slate-800">
                 {rfqs.map((rfq) => (
-                  <tr key={rfq.id} className="hover:bg-gray-50/75 transition-colors">
+                  <tr key={rfq.id} className="hover:bg-gray-50 dark:hover:bg-slate-800/50/75 dark:hover:bg-slate-800/50 transition-colors">
                     <td className="px-6 py-4 font-mono font-medium text-gray-900">
                       <Link href={`/rfqs/${rfq.id}`} className="hover:text-blue-600 hover:underline">
                         {rfq.rfq_number}
@@ -157,14 +157,14 @@ export default function RfqListPage() {
               <button
                 disabled={page <= 1}
                 onClick={() => setPage((p) => p - 1)}
-                className="px-3 py-1 border rounded disabled:opacity-40 hover:bg-gray-50"
+                className="px-3 py-1 border rounded disabled:opacity-40 hover:bg-gray-50 dark:hover:bg-slate-800/50"
               >
                 Previous
               </button>
               <button
                 disabled={page >= totalPages}
                 onClick={() => setPage((p) => p + 1)}
-                className="px-3 py-1 border rounded disabled:opacity-40 hover:bg-gray-50"
+                className="px-3 py-1 border rounded disabled:opacity-40 hover:bg-gray-50 dark:hover:bg-slate-800/50"
               >
                 Next
               </button>

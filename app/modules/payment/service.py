@@ -463,5 +463,175 @@ class PaymentService:
     ) -> List[Dispute]:
         return await self.repo.list_disputes(db, org_id, invoice_id, vendor_id, status)
 
+    def generate_remittance_pdf(
+        self,
+        payment: PaymentRecord,
+        invoice: Optional[Invoice],
+        vendor: Optional[Vendor],
+    ) -> bytes:
+        from io import BytesIO
+        from reportlab.lib import colors
+        from reportlab.lib.pagesizes import letter
+        from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, HRFlowable
+        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+
+        buf = BytesIO()
+        doc = SimpleDocTemplate(
+            buf,
+            pagesize=letter,
+            leftMargin=36,
+            rightMargin=36,
+            topMargin=36,
+            bottomMargin=36,
+        )
+        styles = getSampleStyleSheet()
+
+        title_style = ParagraphStyle(
+            "DocTitle",
+            parent=styles["Title"],
+            fontSize=18,
+            leading=22,
+            textColor=colors.HexColor("#0f172a"),
+            alignment=0,
+        )
+        subtitle_style = ParagraphStyle(
+            "DocSubtitle",
+            parent=styles["Normal"],
+            fontSize=10,
+            leading=14,
+            textColor=colors.HexColor("#64748b"),
+        )
+        h2_style = ParagraphStyle(
+            "SectionHeader",
+            parent=styles["Heading2"],
+            fontSize=12,
+            leading=16,
+            textColor=colors.HexColor("#1e293b"),
+            spaceBefore=10,
+            spaceAfter=6,
+        )
+        normal_style = ParagraphStyle(
+            "Body",
+            parent=styles["Normal"],
+            fontSize=9,
+            leading=13,
+            textColor=colors.HexColor("#334155"),
+        )
+        bold_style = ParagraphStyle(
+            "BodyBold",
+            parent=normal_style,
+            fontName="Helvetica-Bold",
+        )
+
+        elements = []
+
+        # Header Banner
+        elements.append(Paragraph("PAYMENT REMITTANCE ADVICE", title_style))
+        elements.append(Paragraph(f"Generated on {datetime.now(timezone.utc).strftime('%B %d, %Y at %H:%M UTC')}", subtitle_style))
+        elements.append(Spacer(1, 14))
+
+        # Payment Summary Table
+        status_val = payment.status.value if hasattr(payment.status, "value") else str(payment.status)
+        pmt_info = [
+            [
+                Paragraph("<b>Payment Reference ID:</b>", normal_style),
+                Paragraph(str(payment.id), normal_style),
+                Paragraph("<b>Status:</b>", normal_style),
+                Paragraph(f"<b>{status_val}</b>", bold_style),
+            ],
+            [
+                Paragraph("<b>Scheduled Date:</b>", normal_style),
+                Paragraph(str(payment.payment_date), normal_style),
+                Paragraph("<b>UTR / Bank Reference:</b>", normal_style),
+                Paragraph(str(payment.utr_number or "PENDING SETTLEMENT"), normal_style),
+            ],
+            [
+                Paragraph("<b>Payment Method:</b>", normal_style),
+                Paragraph(str(payment.payment_method or "NEFT/RTGS"), normal_style),
+                Paragraph("<b>Executed At:</b>", normal_style),
+                Paragraph(payment.executed_at.strftime("%Y-%m-%d %H:%M") if payment.executed_at else "—", normal_style),
+            ],
+        ]
+        t_pmt = Table(pmt_info, colWidths=[130, 150, 130, 130])
+        t_pmt.setStyle(TableStyle([
+            ("BACKGROUND", (0, 0), (-1, -1), colors.HexColor("#f8fafc")),
+            ("BOX", (0, 0), (-1, -1), 1, colors.HexColor("#cbd5e1")),
+            ("INNERGRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#e2e8f0")),
+            ("TOPPADDING", (0, 0), (-1, -1), 6),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+        ]))
+        elements.append(t_pmt)
+        elements.append(Spacer(1, 14))
+
+        # Beneficiary / Payee Details
+        elements.append(Paragraph("BENEFICIARY DETAILS", h2_style))
+        vendor_name = vendor.company_name if vendor else "Vendor Profile"
+        vendor_pan = getattr(vendor, "pan", None) or "—"
+        vendor_gstin = getattr(vendor, "gstin", None) or "—"
+        vendor_info = [
+            [
+                Paragraph("<b>Company Name:</b>", normal_style),
+                Paragraph(vendor_name, bold_style),
+                Paragraph("<b>PAN:</b>", normal_style),
+                Paragraph(vendor_pan, normal_style),
+            ],
+            [
+                Paragraph("<b>Vendor Code:</b>", normal_style),
+                Paragraph(getattr(vendor, "vendor_code", None) or str(payment.vendor_id)[:8], normal_style),
+                Paragraph("<b>GSTIN:</b>", normal_style),
+                Paragraph(vendor_gstin, normal_style),
+            ],
+        ]
+        t_vendor = Table(vendor_info, colWidths=[130, 150, 130, 130])
+        t_vendor.setStyle(TableStyle([
+            ("BACKGROUND", (0, 0), (-1, -1), colors.HexColor("#f1f5f9")),
+            ("BOX", (0, 0), (-1, -1), 1, colors.HexColor("#cbd5e1")),
+            ("INNERGRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#e2e8f0")),
+            ("TOPPADDING", (0, 0), (-1, -1), 5),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
+        ]))
+        elements.append(t_vendor)
+        elements.append(Spacer(1, 14))
+
+        # Financial Breakdown
+        elements.append(Paragraph("INVOICE & FINANCIAL BREAKDOWN", h2_style))
+        gross_amount = invoice.total_amount if invoice else (payment.amount + (payment.tds_amount or Decimal("0")))
+        tds_deducted = payment.tds_amount or Decimal("0")
+        net_paid = payment.net_amount or payment.amount
+        inv_num = invoice.invoice_number if invoice else "—"
+        inv_date = str(invoice.invoice_date) if invoice and invoice.invoice_date else "—"
+
+        breakdown = [
+            [Paragraph("<b>Description</b>", bold_style), Paragraph("<b>Reference</b>", bold_style), Paragraph("<b>Amount (INR)</b>", bold_style)],
+            [Paragraph("Gross Invoice Value", normal_style), Paragraph(f"Inv #{inv_num} ({inv_date})", normal_style), Paragraph(f"₹ {float(gross_amount):,.2f}", normal_style)],
+            [Paragraph("TDS Withholding (Sec 194C/194J)", normal_style), Paragraph(f"Rate: {float(payment.tds_rate or 0):.1f}%", normal_style), Paragraph(f"- ₹ {float(tds_deducted):,.2f}", normal_style)],
+            [Paragraph("<b>NET DISBURSED AMOUNT</b>", bold_style), Paragraph("<b>Direct Account Transfer</b>", bold_style), Paragraph(f"<b>₹ {float(net_paid):,.2f}</b>", bold_style)],
+        ]
+        t_breakdown = Table(breakdown, colWidths=[200, 170, 170])
+        t_breakdown.setStyle(TableStyle([
+            ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#e2e8f0")),
+            ("BACKGROUND", (0, -1), (-1, -1), colors.HexColor("#dcfce7")),
+            ("BOX", (0, 0), (-1, -1), 1, colors.HexColor("#94a3b8")),
+            ("INNERGRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#cbd5e1")),
+            ("ALIGN", (2, 0), (2, -1), "RIGHT"),
+            ("TOPPADDING", (0, 0), (-1, -1), 6),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+        ]))
+        elements.append(t_breakdown)
+        elements.append(Spacer(1, 24))
+
+        # Legal & System Notice
+        elements.append(HRFlowable(width="100%", thickness=0.5, color=colors.HexColor("#cbd5e1"), spaceAfter=10))
+        notice_text = (
+            "Notice: This is an authentic system-generated remittance advice. TDS certificates (Form 16A) "
+            "will be dispatched at the close of the financial quarter in accordance with CBDT provisions. "
+            "For reconciliation queries or dispute filings, please access the Invoice Dispute Desk."
+        )
+        elements.append(Paragraph(notice_text, subtitle_style))
+
+        doc.build(elements)
+        return buf.getvalue()
+
 
 payment_service = PaymentService()
+

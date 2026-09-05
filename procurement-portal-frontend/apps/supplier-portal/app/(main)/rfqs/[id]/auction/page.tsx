@@ -5,11 +5,15 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import {
   useRfq,
-  useAuctionRoom,
   useCurrentUser,
   useMyVendor,
-  AuctionBid,
+  useLiveAuctions,
+  useLiveAuction,
+  useAuctionMyRank,
+  useAuctionSocket,
+  useSetProxyFloor,
 } from "@procurement/hooks";
+import { PriceLeaderboard, AuctionCountdownTimer, BidEntryPanel } from "@procurement/ui";
 
 export default function SupplierAuctionRoomPage() {
   const params = useParams();
@@ -20,77 +24,90 @@ export default function SupplierAuctionRoomPage() {
   const { data: myVendor } = useMyVendor();
 
   const {
-    auctionState,
-    isLoading: auctionLoading,
-    isConnected,
-    lastBid,
-    errorMessage,
-    clearError,
-    placeBid,
-    isSubmitting,
-  } = useAuctionRoom(rfqId);
+    data: auctions,
+    isLoading: auctionsLoading,
+  } = useLiveAuctions({ rfq_id: rfqId });
 
-  // Countdown timer
-  const [timeLeft, setTimeLeft] = useState<string>("00:00:00");
+  const activeAuction = auctions?.[0];
 
-  useEffect(() => {
-    if (!auctionState?.ends_at) return;
-    const interval = setInterval(() => {
-      const remaining = new Date(auctionState.ends_at).getTime() - Date.now();
-      if (remaining <= 0) {
-        setTimeLeft("AUCTION ENDED");
-      } else {
-        const h = Math.floor(remaining / 3600000);
-        const m = Math.floor((remaining % 3600000) / 60000);
-        const s = Math.floor((remaining % 60000) / 1000);
-        setTimeLeft(
-          `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`
-        );
-      }
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [auctionState?.ends_at]);
+  // Active auction details & live socket
+  const { data: auctionDetail } = useLiveAuction(activeAuction?.id || "");
+  const currentAuction = auctionDetail || activeAuction;
 
-  // Bid form state
-  const currentLowest = auctionState?.current_lowest_bid ?? 100000;
-  const minDecrement = auctionState?.min_decrement ?? 1000;
-  const maxEligibleBid = Math.max(0, currentLowest - minDecrement);
+  const { data: restMyRank } = useAuctionMyRank(currentAuction?.id || "");
 
-  const [bidAmount, setBidAmount] = useState<string>("");
-  const [bidRemarks, setBidRemarks] = useState<string>("");
+  const {
+    connected,
+    rankings: wsRankings,
+    myRank: wsMyRank,
+    l1Price: wsL1,
+    totalBids: wsTotalBids,
+    closeAt: wsCloseAt,
+    extensionCount: wsExtCount,
+    auctionStatus: wsStatus,
+    rejectionReason,
+    clearRejection,
+    sendBid,
+  } = useAuctionSocket(currentAuction?.id || "");
+
+  const proxyFloorMutation = useSetProxyFloor();
+
+  // Proxy floor input state
+  const [proxyFloorInput, setProxyFloorInput] = useState<string>("");
+  const [proxyFloorSuccess, setProxyFloorSuccess] = useState<boolean>(false);
+
+  // Success alert
   const [bidSuccessAlert, setBidSuccessAlert] = useState<string | null>(null);
 
-  // Determine if this supplier is leading
-  const isLeading =
-    auctionState?.leading_bidder_id === currentUser?.id ||
-    (myVendor && auctionState?.leading_bidder_name?.includes(myVendor.company_name));
+  const effectiveStatus = wsStatus || currentAuction?.status;
+  const effectiveCloseAt = wsCloseAt || currentAuction?.current_close_at;
+  const effectiveExtensions = wsExtCount ?? currentAuction?.extension_count ?? 0;
 
-  const handlePlaceBid = async (amountToSubmit?: number) => {
-    const amt = amountToSubmit ?? parseFloat(bidAmount);
-    if (isNaN(amt) || amt >= currentLowest) {
-      alert(
-        `Your bid (₹${amt.toLocaleString()}) must be lower than the current leading bid (₹${currentLowest.toLocaleString()}).`
-      );
-      return;
-    }
+  // Derive current supplier rank and L1 price
+  const rankInfo = wsMyRank || restMyRank;
+  const currentRank = rankInfo?.your_rank;
+  const myCurrentBid = rankInfo?.your_bid_inr;
+  const currentL1Price = wsL1 != null ? wsL1 : rankInfo?.l1_price_inr ?? null;
+
+  const minDecrementType = currentAuction?.config?.min_decrement_type || "PERCENTAGE";
+  const minDecrementValue = currentAuction?.config?.min_decrement_value || 0.5;
+  const allowProxy = Boolean(currentAuction?.config?.allow_proxy_bid);
+  const rankVisibility = currentAuction?.config?.rank_visibility || "RANK_ONLY";
+
+  const isAuctionOpen = effectiveStatus === "OPEN";
+  const isAuctionClosed = effectiveStatus === "CLOSED" || effectiveStatus === "CANCELLED" || effectiveStatus === "RESULTS_RELEASED";
+
+  const handlePlaceBid = (lotId: string | null, amount: number) => {
+    sendBid(lotId, amount);
+    setBidSuccessAlert(`Bid of ₹${amount.toLocaleString("en-IN")} submitted to auction engine.`);
+    setTimeout(() => setBidSuccessAlert(null), 4000);
+  };
+
+  const handleSetProxyFloor = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!currentAuction || !proxyFloorInput) return;
+    const floorAmount = parseFloat(proxyFloorInput);
+    if (isNaN(floorAmount) || floorAmount <= 0) return;
 
     try {
-      await placeBid(amt, bidRemarks || undefined);
-      setBidSuccessAlert(`Your counter-bid of ₹${amt.toLocaleString()} is now the leading quote!`);
-      setBidAmount("");
-      setBidRemarks("");
-      setTimeout(() => setBidSuccessAlert(null), 4000);
+      await proxyFloorMutation.mutateAsync({
+        auctionId: currentAuction.id,
+        floorAmountInr: floorAmount,
+      });
+      setProxyFloorSuccess(true);
+      setProxyFloorInput("");
+      setTimeout(() => setProxyFloorSuccess(false), 4000);
     } catch {
-      // Error message tracked in hook
+      // Handled by mutation
     }
   };
 
-  if (rfqLoading || auctionLoading) {
+  if (rfqLoading || auctionsLoading) {
     return (
       <div className="max-w-5xl mx-auto p-8 space-y-6 animate-pulse">
-        <div className="h-8 bg-gray-200 rounded w-1/3" />
-        <div className="h-48 bg-gray-100 rounded-2xl" />
-        <div className="h-80 bg-gray-100 rounded-2xl" />
+        <div className="h-8 bg-gray-200 dark:bg-gray-800 rounded w-1/3" />
+        <div className="h-48 bg-gray-100 dark:bg-gray-900 rounded-2xl" />
+        <div className="h-80 bg-gray-100 dark:bg-gray-900 rounded-2xl" />
       </div>
     );
   }
@@ -98,23 +115,25 @@ export default function SupplierAuctionRoomPage() {
   return (
     <div className="max-w-5xl mx-auto space-y-6 pb-16">
       {/* Breadcrumbs & Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200 dark:border-gray-800 pb-4">
         <div>
           <div className="flex items-center gap-2 text-xs text-gray-500 mb-1">
             <Link href="/rfqs" className="hover:underline">RFQs</Link>
             <span>/</span>
             <span className="font-mono">{rfq?.rfq_number || rfqId.slice(0, 8)}</span>
             <span>/</span>
-            <span className="text-gray-800 font-semibold">Live Reverse Auction</span>
+            <span className="text-gray-800 dark:text-gray-200 font-semibold">Live Reverse Auction</span>
           </div>
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">
               Reverse Auction Bidding Terminal
             </h1>
-            <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-              <span className={`w-2 h-2 rounded-full ${isConnected ? "bg-emerald-500 animate-pulse" : "bg-gray-400"}`} />
-              {isConnected ? "LIVE WEBSOCKET" : "CONNECTING..."}
-            </span>
+            {currentAuction && (
+              <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-800">
+                <span className={`w-2 h-2 rounded-full ${connected ? "bg-emerald-500 animate-pulse" : "bg-gray-400"}`} />
+                {connected ? "LIVE WEBSOCKET" : "CONNECTING..."}
+              </span>
+            )}
           </div>
           <p className="text-xs text-gray-500 mt-1">
             {rfq?.title || "Active Sourcing Tender"} · Lowest price submitted wins evaluation.
@@ -124,241 +143,279 @@ export default function SupplierAuctionRoomPage() {
         <div className="flex items-center gap-3">
           <Link
             href={`/rfqs/${rfqId}/bid`}
-            className="px-3.5 py-2 bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 rounded-lg text-xs font-semibold shadow-sm transition"
+            className="px-3.5 py-2 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-slate-800/50 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 rounded-lg text-xs font-semibold shadow-sm transition"
           >
             Sealed Bid Form
           </Link>
           <Link
             href="/rfqs"
-            className="px-3.5 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-xs font-semibold transition"
+            className="px-3.5 py-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-xs font-semibold transition"
           >
             ← Tender List
           </Link>
         </div>
       </div>
 
-      {/* Success Notification */}
-      {bidSuccessAlert && (
-        <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800 font-medium flex items-center justify-between shadow-sm">
-          <span>✓ {bidSuccessAlert}</span>
-          <button onClick={() => setBidSuccessAlert(null)} className="font-bold opacity-70 hover:opacity-100 ml-2">
-            ✕
-          </button>
-        </div>
-      )}
-
-      {/* Error notification */}
-      {errorMessage && (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-xs text-red-800 flex items-center justify-between shadow-sm">
-          <span>⚠ {errorMessage}</span>
-          <button onClick={clearError} className="font-bold opacity-70 hover:opacity-100 ml-2">
-            ✕
-          </button>
-        </div>
-      )}
-
-      {/* Supplier Status Banner */}
-      <div
-        className={`p-4 rounded-2xl border text-sm font-semibold flex items-center justify-between shadow-sm ${
-          isLeading
-            ? "bg-emerald-50 border-emerald-300 text-emerald-900"
-            : "bg-amber-50 border-amber-300 text-amber-900"
-        }`}
-      >
-        <div className="flex items-center gap-3">
-          <span className="text-2xl">{isLeading ? "🏆" : "⚡"}</span>
-          <div>
-            <p className="font-bold text-base">
-              {isLeading
-                ? "You Are Currently in the Lead (L1)"
-                : "You Are Currently Outbid — Submit Counter-Bid"}
-            </p>
-            <p className="text-xs font-normal opacity-90">
-              {isLeading
-                ? "Your organization currently holds the lowest price in this auction."
-                : `The current market lowest bid is ₹${currentLowest.toLocaleString()}. Lower your price to take L1 status.`}
-            </p>
+      {/* CASE 1: No auction created yet */}
+      {!currentAuction && (
+        <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-12 text-center space-y-4">
+          <div className="w-12 h-12 rounded-full bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 mx-auto flex items-center justify-center text-xl font-bold">
+            ⏱
           </div>
-        </div>
-
-        <div className="text-right">
-          <span className="text-xs font-normal block opacity-80">Time Left</span>
-          <span className="text-xl font-extrabold font-mono tracking-tight">{timeLeft}</span>
-        </div>
-      </div>
-
-      {/* Live Bidding Console */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left 2 Cols: Pricing & Counter-Bid Terminal */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Ticker Card */}
-          <div className="bg-gradient-to-br from-slate-900 to-indigo-950 text-white p-6 rounded-2xl shadow-md space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-xs uppercase font-bold text-emerald-400 tracking-wider">
-                Current Leading Market Price
-              </span>
-              <span className="text-xs font-mono bg-white/10 px-2.5 py-0.5 rounded text-gray-300">
-                Currency: {auctionState?.currency || "INR"}
-              </span>
-            </div>
-
-            <div className="text-4xl sm:text-5xl font-extrabold text-emerald-300 font-mono tracking-tight">
-              ₹{currentLowest.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
-            </div>
-
-            <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/10 text-xs">
-              <div>
-                <span className="text-gray-400 block">Max Next Eligible Bid</span>
-                <span className="font-mono font-bold text-white text-sm">
-                  ₹{maxEligibleBid.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
-                </span>
-              </div>
-              <div>
-                <span className="text-gray-400 block">Min Required Decrement</span>
-                <span className="font-mono font-semibold text-gray-200">
-                  ₹{minDecrement.toLocaleString()}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Place Counter-Bid Box */}
-          <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-5">
-            <h2 className="text-base font-bold text-gray-900">Instant Counter-Bid Terminal</h2>
-
-            {/* Quick Decrement Buttons */}
-            <div>
-              <label className="block text-xs font-semibold text-gray-600 mb-2">
-                Quick Decrement Shortcuts
-              </label>
-              <div className="flex flex-wrap gap-2">
-                {[minDecrement, minDecrement * 2.5, minDecrement * 5].map((drop) => {
-                  const targetAmt = Math.max(0, currentLowest - drop);
-                  return (
-                    <button
-                      key={drop}
-                      type="button"
-                      onClick={() => setBidAmount(String(targetAmt))}
-                      className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-lg text-xs font-semibold font-mono transition shadow-xs"
-                    >
-                      -₹{drop.toLocaleString()} (₹{targetAmt.toLocaleString()})
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Manual Bid Input */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">
-                  Your New Bid Amount (₹)
-                </label>
-                <input
-                  type="number"
-                  value={bidAmount}
-                  onChange={(e) => setBidAmount(e.target.value)}
-                  placeholder={`Must be ≤ ₹${maxEligibleBid.toLocaleString()}`}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm font-mono focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">
-                  Remarks / Notes (Optional)
-                </label>
-                <input
-                  type="text"
-                  value={bidRemarks}
-                  onChange={(e) => setBidRemarks(e.target.value)}
-                  placeholder="e.g. Volume discount applied"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                />
-              </div>
-            </div>
-
-            {/* Submit Action */}
-            <button
-              type="button"
-              onClick={() => handlePlaceBid()}
-              disabled={isSubmitting || !bidAmount}
-              className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-sm shadow-md transition disabled:opacity-50 flex items-center justify-center gap-2"
+          <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">
+            No Reverse Auction Scheduled Yet
+          </h2>
+          <p className="text-xs text-gray-500 max-w-md mx-auto">
+            The buyer has not yet opened or scheduled a live reverse auction for this RFQ. If you haven&apos;t submitted your initial sealed bid, please complete the sealed bid form.
+          </p>
+          <div className="pt-2">
+            <Link
+              href={`/rfqs/${rfqId}/bid`}
+              className="inline-block px-4 py-2 bg-primary text-primary-foreground rounded-lg text-xs font-semibold shadow hover:opacity-90 transition"
             >
-              {isSubmitting ? (
-                <span>Transmitting Bid...</span>
-              ) : (
-                <span>
-                  🚀 Place Counter-Bid {bidAmount ? `(₹${parseFloat(bidAmount).toLocaleString()})` : ""}
-                </span>
-              )}
-            </button>
+              Go to Sealed Bid Submission
+            </Link>
           </div>
         </div>
+      )}
 
-        {/* Right Col: Live Feed & Room Stats */}
-        <div className="space-y-6">
-          {/* Room Summary */}
-          <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm space-y-3">
-            <h3 className="text-xs font-bold uppercase text-gray-500 tracking-wider">
-              Auction Room Summary
-            </h3>
-            <div className="space-y-2 text-xs">
-              <div className="flex justify-between py-1 border-b border-gray-100">
-                <span className="text-gray-500">Total Bids:</span>
-                <span className="font-mono font-bold text-gray-800">{auctionState?.total_bids || 0}</span>
+      {/* CASE 2: Live Auction Room Active */}
+      {currentAuction && (
+        <>
+          {/* Notifications */}
+          {bidSuccessAlert && (
+            <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800 font-medium flex items-center justify-between shadow-sm">
+              <span>✓ {bidSuccessAlert}</span>
+              <button onClick={() => setBidSuccessAlert(null)} className="font-bold opacity-70 hover:opacity-100 ml-2">
+                ✕
+              </button>
+            </div>
+          )}
+
+          {rejectionReason && (
+            <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-xs text-red-800 font-medium flex items-center justify-between shadow-sm">
+              <span>⚠ Bid Rejected: {rejectionReason}</span>
+              <button onClick={clearRejection} className="font-bold opacity-70 hover:opacity-100 ml-2">
+                ✕
+              </button>
+            </div>
+          )}
+
+          {effectiveExtensions > 0 && (
+            <div className="p-3.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-xl text-xs text-amber-800 dark:text-amber-200 flex items-center gap-2">
+              <span className="text-base">⏱</span>
+              <span>
+                <strong>Anti-Sniping Triggered:</strong> Auction extended by {currentAuction.config?.auto_extend_duration_minutes} minutes ({effectiveExtensions}/{currentAuction.config?.max_extensions} extensions used).
+              </span>
+            </div>
+          )}
+
+          {/* Supplier Status & Rank Banner */}
+          <div
+            className={`p-5 rounded-2xl border text-sm font-semibold flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm ${
+              currentRank === 1
+                ? "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-900 dark:text-emerald-100"
+                : currentRank != null
+                ? "bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-800 text-amber-900 dark:text-amber-100"
+                : "bg-gray-50 dark:bg-gray-800/40 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100"
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <span className="text-3xl">{currentRank === 1 ? "🏆" : "⚡"}</span>
+              <div>
+                <p className="font-bold text-base">
+                  {currentRank === 1
+                    ? "You Are Currently Leading (L1)"
+                    : currentRank != null
+                    ? `You Are Currently at Rank L${currentRank}`
+                    : effectiveStatus === "SCHEDULED"
+                    ? "Auction Scheduled to Open Soon"
+                    : "Place Your Bid to Enter Leaderboard"}
+                </p>
+                <p className="text-xs font-normal opacity-90">
+                  {currentRank === 1
+                    ? "Your organization currently holds the lowest price quote in this auction."
+                    : currentL1Price != null
+                    ? `Current market L1 quote is ₹${Number(currentL1Price).toLocaleString("en-IN")}. Submit a decrement to take the lead.`
+                    : "Quotes will update dynamically as participants submit downward decrements."}
+                </p>
               </div>
-              <div className="flex justify-between py-1 border-b border-gray-100">
-                <span className="text-gray-500">Min Decrement:</span>
-                <span className="font-mono font-semibold text-gray-800">₹{minDecrement.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between py-1 border-b border-gray-100">
-                <span className="text-gray-500">Connection Status:</span>
-                <span className="font-semibold text-emerald-600">
-                  {isConnected ? "Connected (Realtime)" : "Connecting..."}
-                </span>
+            </div>
+
+            <div className="text-right flex flex-col items-end">
+              <span className="text-xs font-normal block opacity-80">
+                {isAuctionOpen ? "Time Remaining" : "Status"}
+              </span>
+              <div className="mt-1">
+                {isAuctionOpen && effectiveCloseAt ? (
+                  <AuctionCountdownTimer closeAt={effectiveCloseAt} />
+                ) : (
+                  <span className="text-lg font-bold font-mono uppercase">{effectiveStatus}</span>
+                )}
               </div>
             </div>
           </div>
 
-          {/* Waterfall Bid History */}
-          <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm space-y-3">
-            <h3 className="text-xs font-bold uppercase text-gray-500 tracking-wider">
-              Recent Price Reductions
-            </h3>
-            {(!auctionState?.bids || auctionState.bids.length === 0) ? (
-              <p className="text-xs text-gray-400 italic">No counter-bids placed yet.</p>
-            ) : (
-              <div className="space-y-2 max-h-80 overflow-y-auto">
-                {auctionState.bids.slice(0, 10).map((b: AuctionBid, index: number) => {
-                  const isTop = index === 0;
-                  return (
-                    <div
-                      key={b.id}
-                      className={`p-2.5 rounded-lg border text-xs transition ${
-                        isTop ? "bg-emerald-50 border-emerald-200" : "bg-gray-50 border-gray-100"
-                      }`}
-                    >
-                      <div className="flex justify-between items-center">
-                        <span className="font-mono font-bold text-gray-900">
-                          ₹{b.amount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
-                        </span>
-                        <span className="text-[10px] text-gray-400">
-                          {new Date(b.timestamp).toLocaleTimeString()}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center text-[11px] text-gray-500 mt-1">
-                        <span>{b.bidder_name}</span>
-                        {isTop && (
-                          <span className="text-[10px] font-bold text-emerald-700">👑 LEADER</span>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
+          {/* Pricing & Bidding Console Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Left 2 Cols: Bid Entry & Automated Proxy */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Decrement & Market Info Card */}
+              <div className="bg-gradient-to-br from-slate-900 to-indigo-950 text-white p-6 rounded-2xl shadow-md space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs uppercase font-bold text-emerald-400 tracking-wider">
+                    Market Best Offer (L1)
+                  </span>
+                  <span className="text-xs font-mono bg-white/10 px-2.5 py-0.5 rounded text-gray-300">
+                    INR
+                  </span>
+                </div>
+
+                <div className="text-4xl sm:text-5xl font-extrabold text-emerald-300 font-mono tracking-tight">
+                  {currentL1Price != null
+                    ? `₹${Number(currentL1Price).toLocaleString("en-IN", { minimumFractionDigits: 2 })}`
+                    : "Pending Bids"}
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-4 border-t border-white/10 text-xs">
+                  <div>
+                    <span className="text-gray-400 block">Your Best Bid</span>
+                    <span className="font-mono font-bold text-white text-sm">
+                      {myCurrentBid ? `₹${Number(myCurrentBid).toLocaleString("en-IN")}` : "No bid yet"}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-gray-400 block">Min Decrement</span>
+                    <span className="font-mono font-semibold text-gray-200">
+                      {minDecrementValue} {minDecrementType === "PERCENTAGE" ? "%" : "₹"}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-gray-400 block">Visibility</span>
+                    <span className="font-mono font-semibold text-gray-200">
+                      {rankVisibility.replace("_", " ")}
+                    </span>
+                  </div>
+                </div>
               </div>
-            )}
+
+              {/* Instant Counter-Bid Terminal Component */}
+              <div>
+                <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-2">
+                  Instant Counter-Bid Terminal
+                </h3>
+                <BidEntryPanel
+                  lotId={null}
+                  currentL1Inr={currentL1Price != null ? Number(currentL1Price) : null}
+                  minDecrementType={minDecrementType}
+                  minDecrementValue={minDecrementValue}
+                  auctionClosed={!isAuctionOpen}
+                  onSubmit={handlePlaceBid}
+                />
+              </div>
+
+              {/* Automated Proxy Bidding Floor Card (SPEC_11B) */}
+              {allowProxy && (
+                <div className="p-5 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                        Automated Proxy Bidding (Confidential Floor)
+                      </h4>
+                      <p className="text-xs text-gray-500 mt-0.5">
+                        Set your lowest acceptable price. The auction engine will automatically submit minimal decrements to defend your L1 rank without exceeding your floor.
+                      </p>
+                    </div>
+                    <span className="text-xs font-mono bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 px-2 py-0.5 rounded-full">
+                      SPEC_11B
+                    </span>
+                  </div>
+
+                  {proxyFloorSuccess && (
+                    <div className="p-2.5 bg-green-50 text-green-800 rounded-lg text-xs">
+                      ✓ Automated floor price saved successfully! Engine will auto-bid to protect your position.
+                    </div>
+                  )}
+
+                  <form onSubmit={handleSetProxyFloor} className="flex gap-2 pt-1">
+                    <input
+                      type="number"
+                      step="any"
+                      placeholder="Enter minimum acceptable floor price (₹)"
+                      value={proxyFloorInput}
+                      onChange={(e) => setProxyFloorInput(e.target.value)}
+                      disabled={!isAuctionOpen}
+                      className="flex-1 border border-gray-300 dark:border-gray-700 bg-transparent rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-primary"
+                    />
+                    <button
+                      type="submit"
+                      disabled={!isAuctionOpen || !proxyFloorInput || proxyFloorMutation.isPending}
+                      className="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-lg text-xs font-semibold shadow disabled:opacity-50"
+                    >
+                      {proxyFloorMutation.isPending ? "Setting..." : "Save Proxy Floor"}
+                    </button>
+                  </form>
+                </div>
+              )}
+            </div>
+
+            {/* Right Col: Masked Leaderboard & Stats */}
+            <div className="space-y-6">
+              {/* Masked Leaderboard */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                    Leaderboard (Supplier Masked View)
+                  </h3>
+                  <span className="text-xs text-gray-400">
+                    {wsTotalBids} bids recorded
+                  </span>
+                </div>
+
+                <PriceLeaderboard
+                  rankings={wsRankings.map((r) => ({
+                    rank: r.rank,
+                    vendor_id: r.vendor_id,
+                    vendor_name: r.vendor_id === myVendor?.id ? "Your Organization" : `Bidder ${r.rank}`,
+                    bid_amount_inr: Number(r.bid_amount_inr),
+                    submitted_at: r.submitted_at,
+                  }))}
+                  isBuyer={false}
+                />
+              </div>
+
+              {/* Auction Specs Reference Card */}
+              <div className="p-5 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm space-y-2 text-xs">
+                <h4 className="font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wider text-[11px]">
+                  Auction Protocol Rules
+                </h4>
+                <div className="divide-y divide-gray-100 dark:divide-gray-800 text-gray-600 dark:text-gray-400">
+                  <div className="py-2 flex justify-between">
+                    <span>Rank Visibility:</span>
+                    <span className="font-semibold text-gray-900 dark:text-gray-100">{rankVisibility}</span>
+                  </div>
+                  <div className="py-2 flex justify-between">
+                    <span>Min Decrement:</span>
+                    <span className="font-semibold text-gray-900 dark:text-gray-100">
+                      {minDecrementValue} {minDecrementType === "PERCENTAGE" ? "%" : "₹"}
+                    </span>
+                  </div>
+                  <div className="py-2 flex justify-between">
+                    <span>Anti-Sniping:</span>
+                    <span className="font-semibold text-gray-900 dark:text-gray-100">
+                      {currentAuction.config?.auto_extend ? `+${currentAuction.config.auto_extend_duration_minutes}m on last-min bid` : "Disabled"}
+                    </span>
+                  </div>
+                  <div className="py-2 flex justify-between">
+                    <span>Audit Trail:</span>
+                    <span className="font-semibold text-emerald-600">Database & Redis Logged</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
+        </>
+      )}
     </div>
   );
 }

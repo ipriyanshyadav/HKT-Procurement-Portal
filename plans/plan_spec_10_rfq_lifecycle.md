@@ -6,28 +6,34 @@
 ## SPEC COVERAGE MAP
 | Req# | Section | Target | Status |
 |---|---|---|---|
-| S10-01 | RFQ types (OPEN/CLOSED/LIMITED/EMERGENCY/GEM) | sourcing/fsm.py + models.py | PLANNED |
-| S10-02 | RFQ number format | sourcing/service.py | PLANNED |
-| S10-03 | 12-status lifecycle FSM | sourcing/fsm.py | PLANNED |
-| S10-04 | SPEC section: lots and line items | sourcing/models.py | PLANNED |
-| S10-05 | Bid window validation (72h min; 24h emergency) | sourcing/service.py | PLANNED |
-| S10-06 | Participant management (category-qualified vendors only) | sourcing/service.py | PLANNED |
-| S10-07 | Dual-authorization bid opening (co_authorize) | sourcing/service.py + workflow | PLANNED |
-| S10-08 | Bid visibility enforcement (PERMANENTLY DENIED pre-opening) | sourcing/service.py | PLANNED |
-| S10-09 | Clarification management (buyer-vendor Q&A) | sourcing/service.py | PLANNED |
-| S10-10 | Clarification broadcast (anonymized to all bidders) | sourcing/service.py | PLANNED |
-| S10-11 | RFQ amendment (before publishing: free edit; after publishing: formal amendment) | sourcing/service.py | PLANNED |
-| S10-12 | Amendment extends bid deadline | sourcing/service.py | PLANNED |
-| S10-13 | Cancellation with reason + notification | sourcing/service.py | PLANNED |
-| S10-14 | Conversion from PR (APPROVED status only) | sourcing/service.py | PLANNED |
-| S10-15 | Eligibility criteria (5 types) | sourcing/models.py | PLANNED |
-| S10-16 | Technical + commercial evaluation split | sourcing/models.py | PLANNED |
-| S10-17 | RFQ approval workflow | sourcing/service.py + rules_engine | PLANNED |
-| S10-18 | Redis cache for RFQ counts | sourcing/service.py | PLANNED |
-| S10-19 | 15 audit events | sourcing/service.py | PLANNED |
-| S10-20 | Bid window Celery task (auto-close when deadline passes) | tasks/rfq_lifecycle.py | PLANNED |
-| S10-21 | Participant notification on publish | sourcing/service.py | PLANNED |
-| S10-22 | GEM portal RFQ sync | integration/adapters/gem.py | PLANNED |
+| S10-01 | RFQ types (OPEN/CLOSED/LIMITED/EMERGENCY/GEM) | sourcing/fsm.py + models.py | DONE |
+| S10-02 | RFQ number format | sourcing/service.py | DONE |
+| S10-03 | 12-status lifecycle FSM | sourcing/fsm.py | DONE |
+| S10-04 | SPEC section: lots and line items | sourcing/models.py | DONE |
+| S10-05 | Bid window validation (72h min; 24h emergency) | sourcing/service.py | DONE |
+| S10-06 | Participant management (category-qualified vendors only) | sourcing/service.py | DONE |
+| S10-07 | Dual-authorization bid opening (co_authorize) | sourcing/service.py + workflow | DONE |
+| S10-08 | Bid visibility enforcement (PERMANENTLY DENIED pre-opening) | sourcing/service.py | DONE |
+| S10-09 | Clarification management (buyer-vendor Q&A) | sourcing/service.py | DONE |
+| S10-10 | Clarification broadcast (anonymized to all bidders) | sourcing/service.py | DONE |
+| S10-11 | RFQ amendment (before publishing: free edit; after publishing: formal amendment) | sourcing/service.py | DONE |
+| S10-12 | Amendment extends bid deadline | sourcing/service.py | DONE |
+| S10-13 | Cancellation with reason + notification | sourcing/service.py | DONE |
+| S10-14 | Conversion from PR (APPROVED status only) | sourcing/service.py | DONE |
+| S10-15 | Eligibility criteria (5 types) | sourcing/models.py | DONE |
+| S10-16 | Technical + commercial evaluation split | sourcing/models.py | DONE |
+| S10-17 | RFQ approval workflow | sourcing/service.py + rules_engine | DONE |
+| S10-18 | Redis cache for RFQ counts | sourcing/service.py | DONE |
+| S10-19 | 15 audit events | sourcing/service.py | DONE |
+| S10-20 | Bid window Celery task (auto-close when deadline passes) | tasks/rfq_lifecycle.py | DONE |
+| S10-21 | Participant notification on publish | sourcing/service.py | DONE |
+| S10-22 | GEM portal RFQ sync | integration/adapters/gem.py | DONE |
+
+```
+MODULE | SPEC | DATE
+SPEC_10 | RFQ Lifecycle | 2026-09-05
+OVERALL: 22/22 (100%) | BACKEND 100% | FRONTEND 100% | TESTS 100%
+```
 
 ---
 ## ASSUMPTIONS LOG

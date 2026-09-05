@@ -138,7 +138,7 @@ export default function RequisitionDetailPage() {
             ← Back to Requisitions List
           </Link>
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold text-gray-900">{pr.title}</h1>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{pr.title}</h1>
             <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
               {pr.status.replace(/_/g, " ")}
             </span>
@@ -221,8 +221,8 @@ export default function RequisitionDetailPage() {
       {/* Grid: Details & Budget */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Header Metadata */}
-        <div className="lg:col-span-2 bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-4">
-          <h2 className="text-base font-semibold text-gray-900 border-b pb-2">Requisition Information</h2>
+        <div className="lg:col-span-2 bg-white dark:bg-slate-900 p-6 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm space-y-4">
+          <h2 className="text-base font-semibold text-gray-900 dark:text-white border-b pb-2">Requisition Information</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm">
             <div>
               <span className="text-xs text-gray-500 block">PR Number</span>
@@ -271,8 +271,8 @@ export default function RequisitionDetailPage() {
       </div>
 
       {/* Tabs: Line Items & Audit Trail */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-        <div className="flex border-b border-gray-200 px-6">
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm overflow-hidden">
+        <div className="flex border-b border-gray-200 dark:border-slate-800 px-6">
           <button
             onClick={() => setActiveTab("lines")}
             className={`py-3.5 px-4 text-sm font-semibold border-b-2 transition-colors ${
@@ -303,7 +303,7 @@ export default function RequisitionDetailPage() {
               {!auditLogs || auditLogs.length === 0 ? (
                 <p className="text-sm text-gray-400 text-center py-6">No audit history recorded yet.</p>
               ) : (
-                <div className="divide-y divide-gray-100">
+                <div className="divide-y divide-gray-100 dark:divide-slate-800">
                   {auditLogs.map((log: any) => (
                     <div key={log.id} className="py-3 flex items-center justify-between text-sm">
                       <div>
@@ -326,7 +326,7 @@ export default function RequisitionDetailPage() {
       {showSplitModal && (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
           <div className="bg-white rounded-xl max-w-lg w-full p-6 space-y-4 shadow-xl">
-            <h3 className="text-lg font-bold text-gray-900">Split Requisition</h3>
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white">Split Requisition</h3>
             <p className="text-sm text-gray-500">
               Select line numbers and target category to branch off into a separate child PR.
             </p>

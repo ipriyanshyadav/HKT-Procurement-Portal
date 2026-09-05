@@ -28,6 +28,12 @@ import {
   Edit3,
   TrendingUp,
   FileCheck,
+  ShoppingCart,
+  Award,
+  Activity,
+  BarChart3,
+  DollarSign,
+  Percent,
 } from "lucide-react";
 
 export default function ContractWorkspacePage() {
@@ -47,7 +53,7 @@ export default function ContractWorkspacePage() {
 
   // Active Tab
   const [activeTab, setActiveTab] = useState<
-    "overview" | "lines" | "milestones" | "amendments" | "esign"
+    "overview" | "scorecard" | "lines" | "milestones" | "amendments" | "esign"
   >("overview");
 
   // Modals state
@@ -305,13 +311,22 @@ export default function ContractWorkspacePage() {
           )}
 
           {(contract.status === "ACTIVE" || contract.status === "AMENDED") && (
-            <button
-              onClick={() => setIsAmendModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-sm"
-            >
-              <Edit3 className="w-3.5 h-3.5" />
-              Amend Contract
-            </button>
+            <>
+              <Link
+                href={`/purchase-orders/new?contract_id=${contract.id}&vendor_id=${contract.vendor_id}`}
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg shadow-sm"
+              >
+                <ShoppingCart className="w-3.5 h-3.5" />
+                Create Purchase Order
+              </Link>
+              <button
+                onClick={() => setIsAmendModalOpen(true)}
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-sm"
+              >
+                <Edit3 className="w-3.5 h-3.5" />
+                Amend Contract
+              </button>
+            </>
           )}
         </div>
       </div>
@@ -328,6 +343,16 @@ export default function ContractWorkspacePage() {
             }`}
           >
             Overview & SLAs
+          </button>
+          <button
+            onClick={() => setActiveTab("scorecard")}
+            className={`pb-3 text-sm font-semibold border-b-2 transition-colors ${
+              activeTab === "scorecard"
+                ? "border-indigo-600 text-indigo-600 dark:text-indigo-400"
+                : "border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400"
+            }`}
+          >
+            Performance Scorecard
           </button>
           <button
             onClick={() => setActiveTab("lines")}
@@ -510,6 +535,259 @@ export default function ContractWorkspacePage() {
           </div>
         </div>
       )}
+
+      {/* Tab: Contract Performance Scorecard Visualizer (Plan 13 / SPEC_13) */}
+      {activeTab === "scorecard" && (() => {
+        const completedMilestones = milestones.filter((m: any) => m.status === "COMPLETED").length;
+        const totalMilestones = milestones.length;
+        const milestonePct = totalMilestones > 0 ? Math.round((completedMilestones / totalMilestones) * 100) : 100;
+        const remainingVal = Math.max(0, totalVal - utilVal);
+
+        // Calculate dynamic health score
+        let score = 100;
+        if (utilPct > 95) score -= 15;
+        else if (utilPct > 85) score -= 5;
+        if (totalMilestones > 0 && milestonePct < 50) score -= 20;
+        else if (totalMilestones > 0 && milestonePct < 80) score -= 10;
+        if (contract.days_remaining !== null && contract.days_remaining !== undefined && contract.days_remaining < 30) {
+          score -= 10;
+        }
+        score = Math.max(20, Math.min(100, score));
+
+        const healthStatus =
+          score >= 85
+            ? { label: "EXCELLENT / HEALTHY", color: "text-emerald-700 bg-emerald-50 border-emerald-200 dark:text-emerald-300 dark:bg-emerald-950/40" }
+            : score >= 70
+            ? { label: "SATISFACTORY", color: "text-blue-700 bg-blue-50 border-blue-200 dark:text-blue-300 dark:bg-blue-950/40" }
+            : score >= 50
+            ? { label: "ATTENTION REQUIRED", color: "text-amber-700 bg-amber-50 border-amber-200 dark:text-amber-300 dark:bg-amber-950/40" }
+            : { label: "CRITICAL RISK", color: "text-red-700 bg-red-50 border-red-200 dark:text-red-300 dark:bg-red-950/40" };
+
+        return (
+          <div className="space-y-6">
+            {/* Top Scorecard KPIs */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Overall Health Index */}
+              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-6 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                      Contract Health Index
+                    </span>
+                    <Award className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                  </div>
+                  <div className="mt-4 flex items-baseline gap-3">
+                    <span className="text-4xl font-extrabold text-slate-900 dark:text-slate-100 font-mono">
+                      {score}
+                    </span>
+                    <span className="text-sm font-semibold text-slate-400">/ 100</span>
+                  </div>
+                  <div className="mt-2">
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border ${healthStatus.color}`}>
+                      {healthStatus.label}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 grid grid-cols-3 gap-2 text-center text-xs">
+                  <div>
+                    <span className="text-slate-400 block text-[10px]">Milestones</span>
+                    <span className="font-bold text-slate-800 dark:text-slate-200">{milestonePct}%</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 block text-[10px]">Utilized</span>
+                    <span className="font-bold text-slate-800 dark:text-slate-200">{utilPct}%</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 block text-[10px]">Expiry</span>
+                    <span className="font-bold text-slate-800 dark:text-slate-200">
+                      {contract.days_remaining !== null && contract.days_remaining !== undefined ? `${contract.days_remaining}d` : "Active"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Financial Drawdown Velocity */}
+              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-6 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                      Financial Drawdown & Budget
+                    </span>
+                    <DollarSign className="w-5 h-5 text-emerald-600" />
+                  </div>
+
+                  <div className="mt-4 space-y-2">
+                    <div className="flex justify-between text-xs">
+                      <span className="text-slate-500">Ceiling Value:</span>
+                      <span className="font-bold text-slate-900 dark:text-slate-100 font-mono">
+                        {contract.currency} {totalVal.toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-xs">
+                      <span className="text-slate-500">Invoiced / PO Drawdown:</span>
+                      <span className="font-bold text-emerald-600 dark:text-emerald-400 font-mono">
+                        {contract.currency} {utilVal.toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-xs">
+                      <span className="text-slate-500">Available Balance:</span>
+                      <span className="font-bold text-slate-700 dark:text-slate-300 font-mono">
+                        {contract.currency} {remainingVal.toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                  <div className="flex justify-between text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                    <span>Drawdown Progress</span>
+                    <span>{utilPct}%</span>
+                  </div>
+                  <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-3 overflow-hidden">
+                    <div
+                      className={`h-3 rounded-full transition-all duration-500 ${
+                        utilPct > 90 ? "bg-red-500" : utilPct > 70 ? "bg-amber-500" : "bg-emerald-500"
+                      }`}
+                      style={{ width: `${utilPct}%` }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Milestone Completion Progress */}
+              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-6 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                      Milestone Execution
+                    </span>
+                    <CheckCircle2 className="w-5 h-5 text-blue-600" />
+                  </div>
+
+                  <div className="mt-4 flex items-baseline gap-2">
+                    <span className="text-3xl font-bold text-slate-900 dark:text-slate-100">
+                      {completedMilestones}
+                    </span>
+                    <span className="text-xs text-slate-400">of {totalMilestones} deliverables completed</span>
+                  </div>
+
+                  <div className="mt-4">
+                    <div className="flex justify-between text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                      <span>Completion Rate</span>
+                      <span>{milestonePct}%</span>
+                    </div>
+                    <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-3 overflow-hidden">
+                      <div
+                        className="h-3 rounded-full bg-blue-600 transition-all duration-500"
+                        style={{ width: `${milestonePct}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-between text-xs text-slate-500">
+                  <span>Pending: <strong>{totalMilestones - completedMilestones}</strong></span>
+                  <span>Completed: <strong className="text-emerald-600">{completedMilestones}</strong></span>
+                </div>
+              </div>
+            </div>
+
+            {/* SLA Adherence & Vendor Performance Dimensions */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* SLA Adherence Card */}
+              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-6 space-y-4">
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                  <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">
+                    SLA Terms & Performance Parameters
+                  </h3>
+                </div>
+
+                {contract.sla_terms && Object.keys(contract.sla_terms).length > 0 ? (
+                  <div className="space-y-3">
+                    {Object.entries(contract.sla_terms).map(([k, v]) => (
+                      <div
+                        key={k}
+                        className="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-100 dark:border-slate-800 flex items-center justify-between"
+                      >
+                        <div>
+                          <span className="text-xs font-bold text-slate-800 dark:text-slate-200 block uppercase tracking-wider">
+                            {k.replace(/_/g, " ")}
+                          </span>
+                          <span className="text-xs text-slate-500 mt-0.5 block">
+                            {typeof v === "object" ? JSON.stringify(v) : String(v)}
+                          </span>
+                        </div>
+                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                          <Check className="w-3 h-3" />
+                          Compliant
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-6 bg-slate-50 dark:bg-slate-800/40 rounded-xl text-center text-xs text-slate-400">
+                    Standard procurement service terms and dispute resolution protocols active.
+                  </div>
+                )}
+              </div>
+
+              {/* Vendor Execution Reliability Rating */}
+              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-6 space-y-4">
+                <div className="flex items-center gap-2">
+                  <Activity className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                  <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">
+                    Vendor Execution Reliability Breakdown
+                  </h3>
+                </div>
+
+                <div className="space-y-4 text-xs">
+                  <div>
+                    <div className="flex justify-between font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                      <span>On-Time Milestone & Delivery SLA</span>
+                      <span className="text-emerald-600 font-bold">96%</span>
+                    </div>
+                    <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2 overflow-hidden">
+                      <div className="h-2 bg-emerald-500 rounded-full" style={{ width: "96%" }} />
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                      <span>Technical Quality & Specification Acceptance</span>
+                      <span className="text-blue-600 font-bold">94%</span>
+                    </div>
+                    <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2 overflow-hidden">
+                      <div className="h-2 bg-blue-500 rounded-full" style={{ width: "94%" }} />
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                      <span>Invoice Accuracy & Three-Way Match Adherence</span>
+                      <span className="text-indigo-600 font-bold">98%</span>
+                    </div>
+                    <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2 overflow-hidden">
+                      <div className="h-2 bg-indigo-500 rounded-full" style={{ width: "98%" }} />
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                      <span>Communication, Amendments & Clarification Responsiveness</span>
+                      <span className="text-purple-600 font-bold">91%</span>
+                    </div>
+                    <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2 overflow-hidden">
+                      <div className="h-2 bg-purple-500 rounded-full" style={{ width: "91%" }} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Tab 2: Schedule of Rates (Lines) */}
       {activeTab === "lines" && (

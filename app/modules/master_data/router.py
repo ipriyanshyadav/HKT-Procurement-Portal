@@ -9,8 +9,8 @@ from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.auth.dependencies import get_current_user, require_permission
-from app.core.constants import PermissionCode
+from app.auth.dependencies import get_current_user, get_optional_current_user, require_permission
+from app.core.constants import DEFAULT_ORG_ID, PermissionCode
 from app.core.responses import created_response, success_response
 from app.db.session import get_db
 from app.modules.master_data.category.service import (
@@ -85,25 +85,27 @@ class IncotermResponse(BaseModel):
 async def list_categories(
     flat: bool = Query(default=True, description="If false, returns nested tree structure"),
     active_only: bool = Query(default=True),
-    current_user: User = Depends(require_permission(PermissionCode.MASTER_VIEW)),
+    current_user: Optional[User] = Depends(get_optional_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """List categories (flat or tree view)."""
+    """List categories (flat or tree view). Accessible by all authenticated users and during registration."""
+    org_id = current_user.org_id if current_user else DEFAULT_ORG_ID
     if flat:
-        categories = await category_service.list_all(db, current_user.org_id, active_only=active_only)
+        categories = await category_service.list_all(db, org_id, active_only=active_only)
         return success_response([CategoryResponse.model_validate(c) for c in categories])
-    tree = await category_service.get_tree(db, current_user.org_id)
+    tree = await category_service.get_tree(db, org_id)
     return success_response(tree)
 
 
 @router.get("/categories/tree")
 async def get_category_tree(
     root_id: Optional[UUID] = Query(default=None, description="Optional root category to scope tree to"),
-    current_user: User = Depends(require_permission(PermissionCode.MASTER_VIEW)),
+    current_user: Optional[User] = Depends(get_optional_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """Get full category hierarchy tree or subtree via recursive CTE."""
-    tree = await category_service.get_tree(db, current_user.org_id, root_id=root_id)
+    """Get full category hierarchy tree or subtree via recursive CTE. Accessible by all authenticated users and during registration."""
+    org_id = current_user.org_id if current_user else DEFAULT_ORG_ID
+    tree = await category_service.get_tree(db, org_id, root_id=root_id)
     return success_response(tree)
 
 
@@ -158,6 +160,40 @@ async def list_uoms(
     return success_response([UomResponse.model_validate(u) for u in uoms])
 
 
+@router.post("/uoms", status_code=status.HTTP_201_CREATED)
+async def create_uom(
+    data: UomCreateRequest,
+    current_user: User = Depends(require_permission(PermissionCode.MASTER_CREATE)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Create a new unit of measure."""
+    uom = await uom_service.create(db, data, current_user.id, current_user.org_id)
+    return created_response(UomResponse.model_validate(uom))
+
+
+@router.put("/uoms/{id}")
+async def update_uom(
+    id: UUID,
+    data: UomUpdateRequest,
+    current_user: User = Depends(require_permission(PermissionCode.MASTER_UPDATE)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Update an existing unit of measure."""
+    uom = await uom_service.update(db, id, data, current_user.id, current_user.org_id)
+    return success_response(UomResponse.model_validate(uom))
+
+
+@router.delete("/uoms/{id}")
+async def delete_uom(
+    id: UUID,
+    current_user: User = Depends(require_permission(PermissionCode.MASTER_DELETE)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Soft delete a unit of measure."""
+    await uom_service.soft_delete(db, id, current_user.id, current_user.org_id)
+    return success_response({"message": "UOM deleted successfully"})
+
+
 # -----------------------------------------------------------------------------
 # 7: Currency
 # -----------------------------------------------------------------------------
@@ -177,6 +213,40 @@ async def list_currencies(
     return success_response([CurrencyResponse.model_validate(c) for c in currencies])
 
 
+@router.post("/currencies", status_code=status.HTTP_201_CREATED)
+async def create_currency(
+    data: CurrencyCreateRequest,
+    current_user: User = Depends(require_permission(PermissionCode.MASTER_CREATE)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Create a new currency."""
+    currency = await currency_service.create(db, data, current_user.id, current_user.org_id)
+    return created_response(CurrencyResponse.model_validate(currency))
+
+
+@router.put("/currencies/{id}")
+async def update_currency(
+    id: UUID,
+    data: CurrencyUpdateRequest,
+    current_user: User = Depends(require_permission(PermissionCode.MASTER_UPDATE)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Update an existing currency."""
+    currency = await currency_service.update(db, id, data, current_user.id, current_user.org_id)
+    return success_response(CurrencyResponse.model_validate(currency))
+
+
+@router.delete("/currencies/{id}")
+async def delete_currency(
+    id: UUID,
+    current_user: User = Depends(require_permission(PermissionCode.MASTER_DELETE)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Soft delete a currency."""
+    await currency_service.soft_delete(db, id, current_user.id, current_user.org_id)
+    return success_response({"message": "Currency deleted successfully"})
+
+
 # -----------------------------------------------------------------------------
 # 8: Payment Terms
 # -----------------------------------------------------------------------------
@@ -191,6 +261,40 @@ async def list_payment_terms(
     """List payment terms."""
     terms = await payment_terms_service.list_all(db, current_user.org_id, active_only=active_only)
     return success_response([PaymentTermResponse.model_validate(t) for t in terms])
+
+
+@router.post("/payment-terms", status_code=status.HTTP_201_CREATED)
+async def create_payment_term(
+    data: PaymentTermCreateRequest,
+    current_user: User = Depends(require_permission(PermissionCode.MASTER_CREATE)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Create a new payment term."""
+    term = await payment_terms_service.create(db, data, current_user.id, current_user.org_id)
+    return created_response(PaymentTermResponse.model_validate(term))
+
+
+@router.put("/payment-terms/{id}")
+async def update_payment_term(
+    id: UUID,
+    data: PaymentTermUpdateRequest,
+    current_user: User = Depends(require_permission(PermissionCode.MASTER_UPDATE)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Update an existing payment term."""
+    term = await payment_terms_service.update(db, id, data, current_user.id, current_user.org_id)
+    return success_response(PaymentTermResponse.model_validate(term))
+
+
+@router.delete("/payment-terms/{id}")
+async def delete_payment_term(
+    id: UUID,
+    current_user: User = Depends(require_permission(PermissionCode.MASTER_DELETE)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Soft delete a payment term."""
+    await payment_terms_service.soft_delete(db, id, current_user.id, current_user.org_id)
+    return success_response({"message": "Payment term deleted successfully"})
 
 
 # -----------------------------------------------------------------------------
@@ -237,6 +341,40 @@ async def list_tax_codes(
     return success_response([TaxResponse.model_validate(t) for t in tax_codes])
 
 
+@router.post("/tax-codes", status_code=status.HTTP_201_CREATED)
+async def create_tax_code(
+    data: TaxCreateRequest,
+    current_user: User = Depends(require_permission(PermissionCode.MASTER_CREATE)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Create a new tax code."""
+    tax = await tax_service.create(db, data, current_user.id, current_user.org_id)
+    return created_response(TaxResponse.model_validate(tax))
+
+
+@router.put("/tax-codes/{id}")
+async def update_tax_code(
+    id: UUID,
+    data: TaxUpdateRequest,
+    current_user: User = Depends(require_permission(PermissionCode.MASTER_UPDATE)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Update an existing tax code."""
+    tax = await tax_service.update(db, id, data, current_user.id, current_user.org_id)
+    return success_response(TaxResponse.model_validate(tax))
+
+
+@router.delete("/tax-codes/{id}")
+async def delete_tax_code(
+    id: UUID,
+    current_user: User = Depends(require_permission(PermissionCode.MASTER_DELETE)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Soft delete a tax code."""
+    await tax_service.soft_delete(db, id, current_user.id, current_user.org_id)
+    return success_response({"message": "Tax code deleted successfully"})
+
+
 # -----------------------------------------------------------------------------
 # 11-12: Delivery Locations
 # -----------------------------------------------------------------------------
@@ -269,6 +407,31 @@ async def create_delivery_location(
     return created_response(LocationResponse.model_validate(location))
 
 
+@router.put("/delivery-locations/{id}")
+async def update_delivery_location(
+    id: UUID,
+    data: LocationUpdateRequest,
+    current_user: User = Depends(require_permission(PermissionCode.MASTER_UPDATE)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Update an existing delivery location."""
+    location = await delivery_location_service.update(
+        db, id, data, current_user.id, current_user.org_id
+    )
+    return success_response(LocationResponse.model_validate(location))
+
+
+@router.delete("/delivery-locations/{id}")
+async def delete_delivery_location(
+    id: UUID,
+    current_user: User = Depends(require_permission(PermissionCode.MASTER_DELETE)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Soft delete (deactivate) a delivery location."""
+    await delivery_location_service.deactivate(db, id, current_user.id, current_user.org_id)
+    return success_response({"message": "Delivery location deleted successfully"})
+
+
 # -----------------------------------------------------------------------------
 # 13-14: Holidays
 # -----------------------------------------------------------------------------
@@ -294,6 +457,17 @@ async def create_holiday(
     """Add a custom holiday."""
     holiday = await holiday_service.create(db, data, current_user.id, current_user.org_id)
     return created_response(HolidayResponse.model_validate(holiday))
+
+
+@router.delete("/holidays/{id}")
+async def delete_holiday(
+    id: UUID,
+    current_user: User = Depends(require_permission(PermissionCode.MASTER_DELETE)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Soft delete a holiday."""
+    await holiday_service.delete(db, id, current_user.id, current_user.org_id)
+    return success_response({"message": "Holiday deleted successfully"})
 
 
 # -----------------------------------------------------------------------------

@@ -77,10 +77,10 @@ export default function SupplierRegistrationWizard() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6 bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center p-6 bg-gray-50 dark:bg-black">
         <div className="text-center space-y-3">
           <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto" />
-          <p className="text-sm font-semibold text-gray-600">Validating invitation token...</p>
+          <p className="text-sm font-semibold text-gray-600 dark:text-slate-400">Validating invitation token...</p>
         </div>
       </div>
     );
@@ -88,18 +88,18 @@ export default function SupplierRegistrationWizard() {
 
   if (isError || !initialVendor) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6 bg-gray-50">
-        <div className="bg-white p-8 rounded-2xl shadow-sm border border-red-200 max-w-md w-full text-center space-y-4">
+      <div className="min-h-screen flex items-center justify-center p-6 bg-gray-50 dark:bg-black">
+        <div className="bg-white dark:bg-slate-900/80 p-8 rounded-2xl shadow-sm border border-red-200 dark:border-red-900/50 max-w-md w-full text-center space-y-4">
           <div className="text-4xl text-red-500">⚠️</div>
-          <h2 className="text-xl font-bold text-gray-900">Invalid or Expired Invitation</h2>
-          <p className="text-sm text-gray-600">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white">Invalid or Expired Invitation</h2>
+          <p className="text-sm text-gray-600 dark:text-slate-400">
             This invitation token is either invalid or has expired (7-day TTL exceeded).
             Please request a new invitation from your procurement contact.
           </p>
           <div className="pt-2">
             <Link
               href="/register"
-              className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-800"
+              className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
             >
               ← Back to Registration Overview
             </Link>
@@ -174,15 +174,15 @@ export default function SupplierRegistrationWizard() {
 
   if (isSubmitted) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6 bg-gray-50">
-        <div className="bg-white p-8 rounded-2xl shadow-sm border border-emerald-200 max-w-lg w-full text-center space-y-4">
+      <div className="min-h-screen flex items-center justify-center p-6 bg-gray-50 dark:bg-black">
+        <div className="bg-white dark:bg-slate-900/80 p-8 rounded-2xl shadow-sm border border-emerald-200 dark:border-emerald-800/50 max-w-lg w-full text-center space-y-4">
           <div className="text-5xl">✅</div>
-          <h2 className="text-2xl font-bold text-gray-900">Registration Submitted!</h2>
-          <p className="text-sm text-gray-600">
-            Thank you, <strong>{formData.company_name}</strong>. Your vendor onboarding registration
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Registration Submitted!</h2>
+          <p className="text-sm text-gray-600 dark:text-slate-400">
+            Thank you, <strong className="text-gray-900 dark:text-white">{formData.company_name}</strong>. Your vendor onboarding registration
             has been submitted and routed to the procurement qualification committee.
           </p>
-          <div className="p-4 bg-blue-50 rounded-xl text-left text-xs text-blue-800 space-y-1">
+          <div className="p-4 bg-blue-50 dark:bg-blue-950/40 border border-blue-100 dark:border-blue-900/50 rounded-xl text-left text-xs text-blue-800 dark:text-blue-300 space-y-1">
             <p className="font-semibold">What happens next?</p>
             <p>1. Automated GSTIN and PAN online validation.</p>
             <p>2. Penny drop verification to your bank account.</p>
@@ -194,19 +194,19 @@ export default function SupplierRegistrationWizard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-10 px-4 sm:px-6">
+    <div className="min-h-screen bg-gray-50 dark:bg-black py-10 px-4 sm:px-6 transition-colors">
       <div className="max-w-3xl mx-auto space-y-8">
         {/* Back Link & Header */}
         <div>
           <Link
             href="/register"
-            className="text-xs text-blue-600 hover:underline mb-4 inline-flex items-center gap-1 font-medium"
+            className="text-xs text-blue-600 dark:text-blue-400 hover:underline mb-4 inline-flex items-center gap-1 font-medium"
           >
             ← Back to Registration Overview
           </Link>
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-gray-900">Supplier Onboarding Wizard</h1>
-            <p className="text-sm text-gray-500 mt-1">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Supplier Onboarding Wizard</h1>
+            <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">
               Step {step} of {WIZARD_STEPS.length}: {WIZARD_STEPS[step - 1]}
             </p>
           </div>
@@ -226,10 +226,10 @@ export default function SupplierRegistrationWizard() {
                       ? "bg-emerald-500"
                       : isCurrent
                       ? "bg-blue-600"
-                      : "bg-gray-200"
+                      : "bg-gray-200 dark:bg-slate-800"
                   }`}
                 />
-                <span className="text-[10px] text-gray-500 mt-1 block truncate">
+                <span className="text-[10px] text-gray-500 dark:text-slate-400 mt-1 block truncate">
                   {sName}
                 </span>
               </div>
@@ -238,7 +238,7 @@ export default function SupplierRegistrationWizard() {
         </div>
 
         {/* Step Card */}
-        <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-gray-200 space-y-6">
+        <div className="bg-white dark:bg-slate-900/80 p-6 sm:p-8 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-800 space-y-6">
           {errorMessage && (
             <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-xs text-red-700">
               {errorMessage}
@@ -605,25 +605,25 @@ export default function SupplierRegistrationWizard() {
           {/* STEP 8: Review & Submit */}
           {step === 8 && (
             <div className="space-y-4">
-              <h2 className="text-lg font-bold text-gray-900">Review Your Submission</h2>
-              <div className="p-4 bg-gray-50 rounded-xl space-y-2 text-xs text-gray-700">
-                <p><strong>Company:</strong> {formData.company_name} ({formData.legal_name})</p>
-                <p><strong>PAN / GSTIN:</strong> {formData.pan} / {formData.gstin}</p>
-                <p><strong>Address:</strong> {formData.address_line1}, {formData.city}, {formData.state} - {formData.postal_code}</p>
-                <p><strong>Contact:</strong> {formData.contact_name} ({formData.contact_email}, {formData.contact_phone})</p>
-                <p><strong>Bank Account:</strong> {formData.bank_name} (IFSC: {formData.ifsc_code})</p>
-                <p><strong>Conflict of Interest Declared:</strong> {formData.coi_declared ? "Yes" : "No"}</p>
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white">Review Your Submission</h2>
+              <div className="p-4 bg-gray-50 dark:bg-slate-800/60 rounded-xl space-y-2 text-xs text-gray-700 dark:text-slate-300 border border-transparent dark:border-slate-700/50">
+                <p><strong className="text-gray-900 dark:text-white">Company:</strong> {formData.company_name} ({formData.legal_name})</p>
+                <p><strong className="text-gray-900 dark:text-white">PAN / GSTIN:</strong> {formData.pan} / {formData.gstin}</p>
+                <p><strong className="text-gray-900 dark:text-white">Address:</strong> {formData.address_line1}, {formData.city}, {formData.state} - {formData.postal_code}</p>
+                <p><strong className="text-gray-900 dark:text-white">Contact:</strong> {formData.contact_name} ({formData.contact_email}, {formData.contact_phone})</p>
+                <p><strong className="text-gray-900 dark:text-white">Bank Account:</strong> {formData.bank_name} (IFSC: {formData.ifsc_code})</p>
+                <p><strong className="text-gray-900 dark:text-white">Conflict of Interest Declared:</strong> {formData.coi_declared ? "Yes" : "No"}</p>
               </div>
             </div>
           )}
 
           {/* Navigation Buttons */}
-          <div className="pt-4 border-t border-gray-200 flex justify-between">
+          <div className="pt-4 border-t border-gray-200 dark:border-slate-800 flex justify-between">
             {step > 1 ? (
               <button
                 type="button"
                 onClick={handleBack}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-xs font-semibold text-gray-700 hover:bg-gray-50"
+                className="px-4 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-xs font-semibold text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
               >
                 ← Back
               </button>

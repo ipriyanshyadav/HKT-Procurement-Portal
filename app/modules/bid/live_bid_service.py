@@ -405,6 +405,9 @@ class LiveBidService:
         if not auction:
             raise NotFoundError(f"Auction {auction_id} not found")
 
+        if auction.status == "CLOSED":
+            return auction
+
         await self._fsm_validate(auction.status, "CLOSED")
         auction.status = "CLOSED"
 

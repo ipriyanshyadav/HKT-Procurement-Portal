@@ -130,3 +130,24 @@ export function useResolveDispute() {
     },
   });
 }
+
+export function useDownloadRemittancePDF() {
+  return useMutation({
+    mutationFn: async (paymentId: string) => {
+      const res = await apiClient.get(`/payments/${paymentId}/remittance-pdf`, {
+        responseType: "blob",
+      });
+      const blob = new Blob([res.data], { type: "application/pdf" });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `remittance_advice_${paymentId}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      return true;
+    },
+  });
+}
+

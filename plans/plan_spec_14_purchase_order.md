@@ -6,22 +6,28 @@
 ## SPEC COVERAGE MAP
 | Req# | Section | Target | Status |
 |---|---|---|---|
-| S14-01 | PO number (BU-scoped, year-reset sequence) | purchase_order/service.py | PLANNED |
-| S14-02 | 9-status FSM | purchase_order/fsm.py | PLANNED |
-| S14-03 | PO creation from RFQ award / direct from contract | purchase_order/service.py | PLANNED |
-| S14-04 | PO approval workflow | purchase_order/service.py + rules_engine | PLANNED |
-| S14-05 | PO line items (UOM, tax, delivery schedule) | purchase_order/models.py | PLANNED |
-| S14-06 | PO amendment (formal, version increment) | purchase_order/service.py | PLANNED |
-| S14-07 | ERP PO sync (async outbox) | integration/adapters/erp_po.py | PLANNED |
-| S14-08 | Vendor acceptance tracking | purchase_order/service.py | PLANNED |
-| S14-09 | Delivery schedule tracking | purchase_order/models.py | PLANNED |
-| S14-10 | GRN linking (3-way match setup) | purchase_order/service.py | PLANNED |
-| S14-11 | PO cancellation with reason | purchase_order/service.py | PLANNED |
-| S14-12 | Partial receipt handling | purchase_order/service.py | PLANNED |
-| S14-13 | PO PDF generation | purchase_order/pdf_generator.py | PLANNED |
-| S14-14 | Contract utilization update on PO creation | purchase_order/service.py + contract | PLANNED |
-| S14-15 | 12 audit events | purchase_order/service.py | PLANNED |
-| S14-16 | GENERATED ALWAYS AS: po_lines.total_price | Migration 0012 | PLANNED |
+| S14-01 | PO number (BU-scoped, year-reset sequence) | purchase_order/service.py | DONE |
+| S14-02 | 9-status FSM | purchase_order/fsm.py | DONE |
+| S14-03 | PO creation from RFQ award / direct from contract | purchase_order/service.py | DONE |
+| S14-04 | PO approval workflow | purchase_order/service.py + rules_engine | DONE |
+| S14-05 | PO line items (UOM, tax, delivery schedule) | purchase_order/models.py | DONE |
+| S14-06 | PO amendment (formal, version increment) | purchase_order/service.py | DONE |
+| S14-07 | ERP PO sync (async outbox) | integration/adapters/erp_po.py | DONE |
+| S14-08 | Vendor acceptance tracking | purchase_order/service.py | DONE |
+| S14-09 | Delivery schedule tracking | purchase_order/models.py | DONE |
+| S14-10 | GRN linking (3-way match setup) | purchase_order/service.py | DONE |
+| S14-11 | PO cancellation with reason | purchase_order/service.py | DONE |
+| S14-12 | Partial receipt handling | purchase_order/service.py | DONE |
+| S14-13 | PO PDF generation | purchase_order/pdf_generator.py | DONE |
+| S14-14 | Contract utilization update on PO creation | purchase_order/service.py + contract | DONE |
+| S14-15 | 12 audit events | purchase_order/service.py | DONE |
+| S14-16 | GENERATED ALWAYS AS: po_lines.total_price | Migration 0032 | DONE |
+
+```
+MODULE | SPEC | DATE
+SPEC_14 | Purchase Order & GRN | 2026-09-05
+OVERALL: 16/16 (100%) | BACKEND 100% | FRONTEND 100% | TESTS 100%
+```
 
 ---
 ## ASSUMPTIONS LOG

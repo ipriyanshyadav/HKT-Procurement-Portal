@@ -31,3 +31,33 @@ export type DisputeMessageResponse = components["schemas"]["DisputeMessageRespon
 export type DisputeCreateRequest = components["schemas"]["DisputeCreateRequest"];
 export type DisputeMessageCreateRequest = components["schemas"]["DisputeMessageCreateRequest"];
 export type DisputeResolveRequest = components["schemas"]["DisputeResolveRequest"];
+
+export interface NotificationItem {
+  id: string;
+  org_id: string;
+  user_id: string;
+  notification_type: string;
+  channel: 'EMAIL' | 'SMS' | 'IN_APP' | 'WHATSAPP' | 'DIGEST';
+  title: string;
+  body: string;
+  entity_type?: string | null;
+  entity_id?: string | null;
+  status: 'PENDING' | 'SENT' | 'DELIVERED' | 'FAILED' | 'BOUNCED';
+  sent_at?: string | null;
+  delivered_at?: string | null;
+  read_at?: string | null;
+  error_message?: string | null;
+  retry_count: number;
+  created_at: string;
+  is_read: boolean;
+}
+
+export interface NotificationPreference {
+  notification_type: string;
+  email_enabled: boolean;
+  sms_enabled: boolean;
+  inapp_enabled: boolean;
+  digest_mode: boolean;
+  quiet_hours_start?: string | null;
+  quiet_hours_end?: string | null;
+}

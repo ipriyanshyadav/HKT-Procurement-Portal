@@ -6,22 +6,28 @@
 ## SPEC COVERAGE MAP
 | Req# | Section | Target | Status |
 |---|---|---|---|
-| S11-01 | Sealed bid storage (encrypted at rest + access control) | bid/service.py + encryption | PLANNED |
-| S11-02 | Bid versioning (revisions before deadline) | bid/service.py + models | PLANNED |
-| S11-03 | Bid status FSM (7 states) | bid/fsm.py | PLANNED |
-| S11-04 | Bid submission by supplier portal | bid/router.py (supplier-side) | PLANNED |
-| S11-05 | Bid acknowledgement by participant | bid/service.py | PLANNED |
-| S11-06 | Bid withdrawal (before deadline only) | bid/service.py | PLANNED |
-| S11-07 | Price breakdown (lot + line level) | bid/models.py | PLANNED |
-| S11-08 | Commercial terms (payment, delivery, warranty) | bid/models.py | PLANNED |
-| S11-09 | Deviation declaration | bid/models.py | PLANNED |
-| S11-10 | Technical offer documents | bid/service.py + document | PLANNED |
-| S11-11 | Bid count visible (not content) while sealed | bid/router.py | PLANNED |
-| S11-12 | Bid access control post-opening (role-based) | bid/service.py | PLANNED |
-| S11-13 | Late bid rejection | bid/service.py | PLANNED |
-| S11-14 | Single-vendor bid handling (policy decision flag) | bid/service.py | PLANNED |
-| S11-15 | 10 audit events | bid/service.py | PLANNED |
-| S11-16 | Price normalization (currency conversion) | bid/service.py | PLANNED |
+| S11-01 | Sealed bid storage (encrypted at rest + access control) | bid/service.py + encryption | DONE |
+| S11-02 | Bid versioning (revisions before deadline) | bid/service.py + models | DONE |
+| S11-03 | Bid status FSM (7 states) | bid/fsm.py | DONE |
+| S11-04 | Bid submission by supplier portal | bid/router.py (supplier-side) | DONE |
+| S11-05 | Bid acknowledgement by participant | bid/service.py | DONE |
+| S11-06 | Bid withdrawal (before deadline only) | bid/service.py | DONE |
+| S11-07 | Price breakdown (lot + line level) | bid/models.py | DONE |
+| S11-08 | Commercial terms (payment, delivery, warranty) | bid/models.py | DONE |
+| S11-09 | Deviation declaration | bid/models.py | DONE |
+| S11-10 | Technical offer documents | bid/service.py + document | DONE |
+| S11-11 | Bid count visible (not content) while sealed | bid/router.py | DONE |
+| S11-12 | Bid access control post-opening (role-based) | bid/service.py | DONE |
+| S11-13 | Late bid rejection | bid/service.py | DONE |
+| S11-14 | Single-vendor bid handling (policy decision flag) | bid/service.py | DONE |
+| S11-15 | 10 audit events | bid/service.py | DONE |
+| S11-16 | Price normalization (currency conversion) | bid/service.py | DONE |
+
+```
+MODULE | SPEC | DATE
+SPEC_11 | Bid Management | 2026-09-05
+OVERALL: 16/16 (100%) | BACKEND 100% | FRONTEND 100% | TESTS 100%
+```
 
 ---
 ## ASSUMPTIONS LOG

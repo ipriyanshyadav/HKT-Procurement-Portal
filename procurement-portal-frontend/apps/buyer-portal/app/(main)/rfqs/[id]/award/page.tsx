@@ -10,8 +10,10 @@ import {
   useRecommendAward,
   useApproveAward,
   useVendors,
+  useSendRegretLetters,
 } from "@procurement/hooks";
 import { Button, Badge, Input, Textarea } from "@procurement/ui";
+import { Mail, CheckCircle2, AlertCircle } from "lucide-react";
 
 interface AwardDraftItem {
   lot_id?: string | null;
@@ -37,6 +39,7 @@ export default function AwardRecommendationPage() {
 
   const recommendMutation = useRecommendAward();
   const approveMutation = useApproveAward();
+  const sendRegretLettersMutation = useSendRegretLetters();
 
   const [awardItems, setAwardItems] = useState<AwardDraftItem[]>([]);
   const [overallJustification, setOverallJustification] = useState<string>("");
@@ -125,6 +128,23 @@ export default function AwardRecommendationPage() {
       refetchAward();
     } catch (err: any) {
       alert(err?.response?.data?.error?.message || "Failed to approve award");
+    }
+  };
+
+  const handleDispatchRegretLetters = async () => {
+    if (!cs?.id) return;
+    if (
+      !confirm(
+        "Dispatch regret letters to all unsuccessful bidders for this RFQ? Formal non-award notices will be recorded and communicated."
+      )
+    ) {
+      return;
+    }
+    try {
+      await sendRegretLettersMutation.mutateAsync({ csId: cs.id });
+      setFeedback("Regret letters dispatched successfully to all unawarded suppliers!");
+    } catch (err: any) {
+      alert(err?.response?.data?.error?.message || "Failed to dispatch regret letters");
     }
   };
 
@@ -270,6 +290,36 @@ export default function AwardRecommendationPage() {
               >
                 {approveMutation.isPending ? "Approving..." : "Approve Award Recommendation"}
               </Button>
+            </div>
+          )}
+
+          {/* Approved Award Action Bar & Regret Letters (Plan 12) */}
+          {existingAward.status === "APPROVED" && (
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-4 border-t border-border/30">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                <span className="text-xs text-emerald-700 dark:text-emerald-300 font-medium">
+                  Award approved. You may draft contracts or notify non-awarded bidders.
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  disabled={sendRegretLettersMutation.isPending}
+                  onClick={handleDispatchRegretLetters}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-rose-200 dark:border-rose-800/60 bg-rose-50/60 dark:bg-rose-950/30 hover:bg-rose-100 dark:hover:bg-rose-900/40 text-rose-700 dark:text-rose-300 text-xs font-semibold rounded-xl shadow-2xs transition-colors disabled:opacity-50"
+                  title="Send formal regret letters to unsuccessful bidders"
+                >
+                  <Mail className="w-3.5 h-3.5" />
+                  {sendRegretLettersMutation.isPending ? "Dispatching Letters..." : "Dispatch Regret Letters"}
+                </button>
+                <Link
+                  href={`/contracts/new?rfq_id=${rfqId}&vendor_id=${existingAward.details[0]?.vendor_id || ""}`}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl shadow-2xs transition-colors"
+                >
+                  Draft Contract &rarr;
+                </Link>
+              </div>
             </div>
           )}
         </div>

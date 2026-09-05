@@ -3,7 +3,7 @@ from datetime import datetime, time
 from typing import Optional, List
 from uuid import UUID, uuid4
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import String, Boolean, Integer, Time, ForeignKey, Text
+from sqlalchemy import String, Boolean, Integer, Time, ForeignKey, Text, DateTime
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.sql import func
 from app.db.base import BaseModel, Base
@@ -25,13 +25,13 @@ class Notification(Base):
     entity_type: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
     entity_id: Mapped[Optional[UUID]] = mapped_column(nullable=True)
     status: Mapped[NotificationStatusEnum] = mapped_column(NOTIFICATION_STATUS_PG, default=NotificationStatusEnum.PENDING, nullable=False)
-    sent_at: Mapped[Optional[datetime]] = mapped_column(nullable=True)
-    delivered_at: Mapped[Optional[datetime]] = mapped_column(nullable=True)
-    read_at: Mapped[Optional[datetime]] = mapped_column(nullable=True)
+    sent_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    delivered_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    read_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
     error_message: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     retry_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     provider_message_id: Mapped[Optional[str]] = mapped_column(String(200), nullable=True)
-    created_at: Mapped[datetime] = mapped_column(server_default=func.now(), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
 class NotificationPreference(Base):
     __tablename__ = "notification_preferences"
@@ -46,8 +46,8 @@ class NotificationPreference(Base):
     digest_mode: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     quiet_hours_start: Mapped[Optional[time]] = mapped_column(Time, nullable=True)
     quiet_hours_end: Mapped[Optional[time]] = mapped_column(Time, nullable=True)
-    created_at: Mapped[datetime] = mapped_column(server_default=func.now(), nullable=False)
-    updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now(), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
 class NotificationTemplate(BaseModel):
     __tablename__ = "notification_templates"

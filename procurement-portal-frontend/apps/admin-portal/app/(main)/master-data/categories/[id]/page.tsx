@@ -140,7 +140,7 @@ export default function CategoryDetailPage() {
             <span className="inline-flex items-center px-2.5 py-0.5 rounded text-sm font-semibold bg-blue-100 text-blue-800 font-mono">
               Level {category.level}
             </span>
-            <h1 className="text-xl font-bold text-gray-900">{category.name}</h1>
+            <h1 className="text-xl font-bold text-gray-900 dark:text-white">{category.name}</h1>
             <span
               className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
                 category.is_active ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-600"
@@ -156,7 +156,7 @@ export default function CategoryDetailPage() {
                 <button
                   type="button"
                   onClick={() => setIsEditing(true)}
-                  className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                  className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-slate-800/50"
                 >
                   Edit Details
                 </button>
@@ -261,7 +261,7 @@ export default function CategoryDetailPage() {
       {/* Sub-categories Section */}
       <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 space-y-4">
         <div className="flex items-center justify-between border-b border-gray-100 pb-3">
-          <h2 className="text-base font-semibold text-gray-900">
+          <h2 className="text-base font-semibold text-gray-900 dark:text-white">
             Sub-Categories ({category.children?.length || 0})
           </h2>
         </div>
@@ -271,7 +271,7 @@ export default function CategoryDetailPage() {
             This category has no sub-categories (it is a leaf node).
           </p>
         ) : (
-          <div className="divide-y divide-gray-100">
+          <div className="divide-y divide-gray-100 dark:divide-slate-800">
             {category.children.map((sub) => (
               <div key={sub.id} className="py-3 flex items-center justify-between">
                 <div>
@@ -287,7 +287,7 @@ export default function CategoryDetailPage() {
                 </div>
                 <Link
                   href={`/master-data/categories/${sub.id}`}
-                  className="px-2.5 py-1 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50"
+                  className="px-2.5 py-1 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 dark:hover:bg-slate-800/50"
                 >
                   View Details →
                 </Link>

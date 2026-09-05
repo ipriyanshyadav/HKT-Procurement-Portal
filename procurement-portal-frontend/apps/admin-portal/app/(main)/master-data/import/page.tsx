@@ -72,14 +72,14 @@ export default function MasterDataImportPage() {
   return (
     <div className="w-full space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Bulk Master Data Import</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Bulk Master Data Import</h1>
         <p className="text-sm text-gray-500">
           Asynchronously import master data entities using standard CSV files (up to 5,000 rows).
         </p>
       </div>
 
       {/* Tabs */}
-      <div className="border-b border-gray-200">
+      <div className="border-b border-gray-200 dark:border-slate-800">
         <nav className="flex space-x-6">
           <button
             type="button"
@@ -94,7 +94,7 @@ export default function MasterDataImportPage() {
       <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-base font-semibold text-gray-900">Category Import</h2>
+            <h2 className="text-base font-semibold text-gray-900 dark:text-white">Category Import</h2>
             <p className="text-xs text-gray-400">
               Required headers: <code className="text-blue-600 font-mono">code, name, parent_code</code>
             </p>
@@ -141,7 +141,7 @@ export default function MasterDataImportPage() {
             <span className="text-3xl">📄</span>
             {selectedFile ? (
               <div>
-                <p className="text-sm font-semibold text-gray-900">{selectedFile.name}</p>
+                <p className="text-sm font-semibold text-gray-900 dark:text-white">{selectedFile.name}</p>
                 <p className="text-xs text-gray-500 font-mono">
                   {(selectedFile.size / 1024).toFixed(1)} KB · Ready to import
                 </p>
@@ -162,7 +162,7 @@ export default function MasterDataImportPage() {
             <button
               type="button"
               onClick={() => setSelectedFile(null)}
-              className="px-3 py-1.5 text-xs font-medium text-gray-600 hover:text-gray-900"
+              className="px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white"
             >
               Clear
             </button>
@@ -184,7 +184,7 @@ export default function MasterDataImportPage() {
         <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 space-y-4">
           <div className="flex items-center justify-between border-b border-gray-100 pb-3">
             <div>
-              <h3 className="text-sm font-semibold text-gray-900">Import Progress</h3>
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Import Progress</h3>
               <p className="text-xs text-gray-400 font-mono">Job ID: {currentJobId}</p>
             </div>
 
@@ -224,7 +224,7 @@ export default function MasterDataImportPage() {
               <div className="grid grid-cols-3 gap-4 text-center">
                 <div className="bg-gray-50 rounded p-3">
                   <p className="text-xs text-gray-500">Total Rows</p>
-                  <p className="text-lg font-bold text-gray-900">
+                  <p className="text-lg font-bold text-gray-900 dark:text-white">
                     {jobStatus.response_payload.total_rows}
                   </p>
                 </div>

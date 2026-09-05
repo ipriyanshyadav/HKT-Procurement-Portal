@@ -32,6 +32,9 @@
 | A-16-4 | WhatsApp stub: logs warning "WhatsApp channel is Phase 3 — not implemented"; returns success code 202 | SPEC lists WhatsApp as Phase 3 feature | LOW | Squad E |
 | A-16-5 | Notification consumer uses aio-pika; separate consumer per queue (4 queues: email, sms, inapp, digest) | SPEC_02 defines 4 notification queues | LOW | Squad E |
 | A-16-6 | SendGrid template ID stored in notification_templates.external_template_id; dynamic data passed as dict | SendGrid dynamic templates | LOW | Squad E |
+| A-16-7 | Email and SMS channels in test/mock environments or when API keys are placeholder gracefully mock or record deliveries unless in live environment | Test suite reliability | LOW | Squad E |
+| A-16-8 | Notification endpoints: GET /api/v1/notifications, POST /api/v1/notifications/{id}/read, POST /api/v1/notifications/mark-all-read, GET /api/v1/notifications/preferences, PUT /api/v1/notifications/preferences, and WS route /ws/notifications | Standard REST + WS routing | LOW | Squad E |
+| A-16-9 | NotificationBell and NotificationCenter components use TanStack query and Zustand notification store with WebSocket live updates | UI responsiveness | LOW | Squad E |
 
 ---
 ## STEP 2 — IMPLEMENT
