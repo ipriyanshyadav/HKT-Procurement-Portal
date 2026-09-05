@@ -115,10 +115,17 @@ cd procurement-portal-frontend && pnpm typecheck
 ```
 
 ## Current Session State
-- **Session Focus:** STATUS and ACTIONS button standardization across all portal tables to match Approval Rules Engine.
-- **Completed Standardization:**
-  1. Shared UI Package: Extended `Badge` component and `badge.css` with semantic color mappings; updated `PRLineItemTable` with right-aligned Actions column and `Button` remove actions.
-  2. Admin Portal: Updated Users directory (`/users`), Master Data Modules overview (`/dashboard`), and Categories hierarchy (`/master-data/categories`) to match Approval Rules (`/approval-rules`).
-  3. Buyer Portal: Updated Purchase Requisitions (`/requisitions`), RFQ Opportunities (`/rfqs`), Vendor Directory (`/vendors`), Unmapped PR Exceptions (`/unmapped-prs`), and Requisition Bulk Import Preview (`/requisitions/import`).
-  4. Supplier Portal: Added right-aligned Actions column and unified `Badge` status to Supplier Compliance Documents (`/documents`).
-- **Verification:** Turborepo 9-package typecheck passed (`pnpm typecheck`); Next.js production build succeeded for all portals (`pnpm build`); unit test suite (386 tests) passed. Graphify graph updated (4242 nodes, 9848 edges).
+- **Session Focus:** Module 15 (Invoices, 3-Way Match & Payments) Implementation & Dedicated Portals Frontend Wiring.
+- **Completed Modules & Features:**
+  1. Backend (SPEC_15): Complete `InvoiceService` with 3-way line item match (quantity & price tolerance), `PaymentService` with automatic 2% TDS deduction and business-day holiday calendar adjustment, invoice aging Celery task (`app/tasks/invoice_aging.py`), routers, and repositories.
+  2. Database & Seed Data: Fixed permission unhashable list check in `app/auth/dependencies.py`; seeded PO, GRN, Invoice, and Payment master permissions for all procurement and supplier roles; seeded demo POs, GRN, and 3-way matched invoice with scheduled payment.
+  3. Buyer Portal:
+     - `/invoices` and `/invoices/[id]` for 3-way match audit, discrepancy review, and approval/dispute actions.
+     - `/payments` master disbursement ledger with KPIs, search, status/method filters, and UTR recording modal.
+     - Sidebar updated with dedicated "Invoices" and "Payments" links.
+  4. Supplier Portal:
+     - `/invoices` and `/invoices/new` for PO-linked invoice submission and tracking.
+     - `/payments` inward remittance ledger with UTR tracking and Form 16A / 26AS TDS tax credit visibility.
+     - Sidebar updated with dedicated "Invoices" and "Payments" links.
+- **Verification:** 372 pytest unit and integration tests passing (`.venv/bin/pytest tests/unit/ tests/integration/`); 9-package Turborepo typecheck passing (`pnpm turbo run typecheck`); Graphify graph synchronized (5330 nodes, 13383 edges).
+

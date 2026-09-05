@@ -4,7 +4,7 @@ import React, { ReactNode } from "react";
 import { useAuthInit, useCurrentUser, useLogout } from "@procurement/hooks";
 import { useAuthStore } from "@procurement/stores";
 import { AppShell } from "@procurement/ui";
-import { Building2, FileCheck, UserPlus, Gavel, Package, Receipt } from "lucide-react";
+import { Building2, FileCheck, UserPlus, Gavel, Package, Receipt, CreditCard } from "lucide-react";
 
 export default function SupplierMainLayout({ children }: { children: ReactNode }) {
   const { isInitializing } = useAuthInit();
@@ -32,9 +32,15 @@ export default function SupplierMainLayout({ children }: { children: ReactNode }
       section: "Orders",
     },
     {
-      label: "Invoices & Payments",
+      label: "Invoices",
       href: "/invoices",
       icon: <Receipt className="w-4 h-4" />,
+      section: "Finance",
+    },
+    {
+      label: "Payments",
+      href: "/payments",
+      icon: <CreditCard className="w-4 h-4" />,
       section: "Finance",
     },
     {
