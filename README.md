@@ -10,7 +10,7 @@
 **Migration Head:** 0036_item_master
 **Test Commands:** `.venv/bin/pytest tests/ --cov=app --cov-fail-under=80` & `cd procurement-portal-frontend && pnpm typecheck`
 **Next:** Performance Baseline (Part 17) & Production Deployment
-**Graphify:** 7365 nodes, 18840 edges, 441 communities
+**Graphify:** 7379 nodes, 18853 edges, 443 communities
 
 ---
 
