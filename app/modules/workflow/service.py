@@ -651,3 +651,4 @@ workflow_engine = WorkflowEngine(
     group_repo=approval_group_repository,
     publisher=workflow_event_publisher,
 )
+workflow_service = workflow_engine

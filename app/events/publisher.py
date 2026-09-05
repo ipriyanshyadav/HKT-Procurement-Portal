@@ -50,3 +50,7 @@ class OutboxPublisher:
             "headers": json.dumps(headers),
         })
 
+
+publisher = OutboxPublisher
+
+

@@ -39,7 +39,7 @@ async def _async_import(job_id: str, org_id: str) -> None:
             logger.error(f"IntegrationJob {job_id} not found for import")
             return
 
-        job.status = IntegrationJobStatusEnum.RUNNING
+        job.status = IntegrationJobStatusEnum.IN_PROGRESS
         await db.flush()
 
         payload = job.request_payload or {}
@@ -92,10 +92,11 @@ async def _async_import(job_id: str, org_id: str) -> None:
         if len(errors) == 0:
             job.status = IntegrationJobStatusEnum.COMPLETED
         elif success_count > 0:
-            job.status = IntegrationJobStatusEnum.PARTIAL
+            job.status = IntegrationJobStatusEnum.COMPLETED
         else:
             job.status = IntegrationJobStatusEnum.FAILED
             job.error_message = f"All {len(rows)} rows failed to import"
+
 
         await db.commit()
         logger.info(
