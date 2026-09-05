@@ -111,6 +111,8 @@ class Settings(BaseSettings):
     JAEGER_PORT: int = 4317
     OTEL_SAMPLING_RATE: float = 1.0
     LOG_LEVEL: str = "INFO"
+    ELASTICSEARCH_URL: str = "http://localhost:9200"
+    ELASTICSEARCH_INDEX_PREFIX: str = "audit-logs"
 
     # CORS
     CORS_ORIGINS: list[str] = ["http://localhost:3000", "http://localhost:3001", "http://localhost:3002"]

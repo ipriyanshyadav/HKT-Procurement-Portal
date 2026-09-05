@@ -17,6 +17,7 @@ from uuid import UUID
 
 from loguru import logger
 
+from app.core.metrics import workflow_sla_breaches_total
 from app.db.enums import ApprovalTaskStatusEnum
 from app.modules.workflow.events import workflow_event_publisher
 from app.modules.workflow.models import WorkflowTask
@@ -123,6 +124,10 @@ async def _evaluate_task_sla(
 
     elif pct >= 100.0 and task.sla_status not in ("ESCALATED", "REASSIGNED", "CRITICAL"):
         task.sla_status = "ESCALATED"
+        workflow_sla_breaches_total.labels(
+            org_id=str(task.org_id),
+            entity_type="WORKFLOW_TASK",
+        ).inc()
         await workflow_event_publisher.sla_escalation(
             db,
             task.id,

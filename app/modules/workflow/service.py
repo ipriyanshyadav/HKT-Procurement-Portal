@@ -17,6 +17,7 @@ from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.constants import AuditAction
+from app.core.metrics import workflow_tasks_pending
 from app.core.exceptions import AppException, ForbiddenError, NotFoundError
 from app.db.enums import (
     ApprovalTaskStatusEnum,
@@ -151,6 +152,10 @@ class WorkflowEngine:
         await self._publisher.task_completed(
             db, task.id, instance_id, action, actor_id, comment, org_id
         )
+        workflow_tasks_pending.labels(
+            org_id=str(org_id),
+            step_name=str(task.assigned_role or "step"),
+        ).dec()
         await self._handle_step_completion(db, instance, task, action)
         return instance
 
@@ -408,6 +413,10 @@ class WorkflowEngine:
                 sla_deadline.isoformat(),
                 instance.org_id,
             )
+            workflow_tasks_pending.labels(
+                org_id=str(instance.org_id),
+                step_name=str(step.get("step_name") or task.assigned_role or "step"),
+            ).inc()
 
     async def _handle_step_completion(
         self,

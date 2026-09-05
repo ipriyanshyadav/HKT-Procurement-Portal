@@ -4340,6 +4340,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/audit-logs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Audit Logs
+         * @description Elasticsearch-backed audit log search with date range, entity type, action, actor filters.
+         */
+        get: operations["get_audit_logs_api_v1_admin_audit_logs_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/login": {
         parameters: {
             query?: never;
@@ -4732,7 +4752,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T13:35:34.531866
+             * @default 2026-09-05T14:30:31.354265
              */
             timestamp: string;
         };
@@ -4744,7 +4764,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T13:35:34.531866
+             * @default 2026-09-05T14:30:31.354265
              */
             timestamp: string;
         };
@@ -4756,7 +4776,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T13:35:34.531866
+             * @default 2026-09-05T14:30:31.354265
              */
             timestamp: string;
         };
@@ -4768,7 +4788,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T13:35:34.531866
+             * @default 2026-09-05T14:30:31.354265
              */
             timestamp: string;
         };
@@ -4780,7 +4800,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T13:35:34.531866
+             * @default 2026-09-05T14:30:31.354265
              */
             timestamp: string;
         };
@@ -4792,7 +4812,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T13:35:34.531866
+             * @default 2026-09-05T14:30:31.354265
              */
             timestamp: string;
         };
@@ -4804,7 +4824,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T13:35:34.531866
+             * @default 2026-09-05T14:30:31.354265
              */
             timestamp: string;
         };
@@ -4816,7 +4836,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T13:35:34.531866
+             * @default 2026-09-05T14:30:31.354265
              */
             timestamp: string;
         };
@@ -4828,7 +4848,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T13:35:34.531866
+             * @default 2026-09-05T14:30:31.354265
              */
             timestamp: string;
         };
@@ -4840,7 +4860,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T13:35:34.531866
+             * @default 2026-09-05T14:30:31.354265
              */
             timestamp: string;
         };
@@ -4852,7 +4872,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T13:35:34.531866
+             * @default 2026-09-05T14:30:31.354265
              */
             timestamp: string;
         };
@@ -4864,7 +4884,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T13:35:34.531866
+             * @default 2026-09-05T14:30:31.354265
              */
             timestamp: string;
         };
@@ -4876,7 +4896,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T13:35:34.531866
+             * @default 2026-09-05T14:30:31.354265
              */
             timestamp: string;
         };
@@ -4888,7 +4908,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T13:35:34.531866
+             * @default 2026-09-05T14:30:31.354265
              */
             timestamp: string;
         };
@@ -4901,7 +4921,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T13:35:34.531866
+             * @default 2026-09-05T14:30:31.354265
              */
             timestamp: string;
         };
@@ -4914,7 +4934,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T13:35:34.531866
+             * @default 2026-09-05T14:30:31.354265
              */
             timestamp: string;
         };
@@ -4927,7 +4947,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T13:35:34.531866
+             * @default 2026-09-05T14:30:31.354265
              */
             timestamp: string;
         };
@@ -4940,7 +4960,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T13:35:34.531866
+             * @default 2026-09-05T14:30:31.354265
              */
             timestamp: string;
         };
@@ -4953,7 +4973,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T13:35:34.531866
+             * @default 2026-09-05T14:30:31.354265
              */
             timestamp: string;
         };
@@ -4966,7 +4986,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T13:35:34.531866
+             * @default 2026-09-05T14:30:31.354265
              */
             timestamp: string;
         };
@@ -4979,7 +4999,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T13:35:34.531866
+             * @default 2026-09-05T14:30:31.354265
              */
             timestamp: string;
         };
@@ -4992,7 +5012,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T13:35:34.531866
+             * @default 2026-09-05T14:30:31.354265
              */
             timestamp: string;
         };
@@ -5005,7 +5025,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T13:35:34.531866
+             * @default 2026-09-05T14:30:31.354265
              */
             timestamp: string;
         };
@@ -5018,7 +5038,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T13:35:34.531866
+             * @default 2026-09-05T14:30:31.354265
              */
             timestamp: string;
         };
@@ -5031,7 +5051,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T13:35:34.531866
+             * @default 2026-09-05T14:30:31.354265
              */
             timestamp: string;
         };
@@ -5044,7 +5064,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T13:35:34.531866
+             * @default 2026-09-05T14:30:31.354265
              */
             timestamp: string;
         };
@@ -5057,7 +5077,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T13:35:34.531866
+             * @default 2026-09-05T14:30:31.354265
              */
             timestamp: string;
         };
@@ -5070,7 +5090,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T13:35:34.531866
+             * @default 2026-09-05T14:30:31.354265
              */
             timestamp: string;
         };
@@ -5083,7 +5103,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T13:35:34.531866
+             * @default 2026-09-05T14:30:31.354265
              */
             timestamp: string;
         };
@@ -5096,7 +5116,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T13:35:34.531866
+             * @default 2026-09-05T14:30:31.354265
              */
             timestamp: string;
         };
@@ -5109,7 +5129,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T13:35:34.531866
+             * @default 2026-09-05T14:30:31.354265
              */
             timestamp: string;
         };
@@ -5122,7 +5142,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T13:35:34.531866
+             * @default 2026-09-05T14:30:31.354265
              */
             timestamp: string;
         };
@@ -5137,7 +5157,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T13:35:34.531866
+             * @default 2026-09-05T14:30:31.354265
              */
             timestamp: string;
         };
@@ -5149,7 +5169,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T13:35:34.531866
+             * @default 2026-09-05T14:30:31.354265
              */
             timestamp: string;
         };
@@ -5161,7 +5181,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T13:35:34.531866
+             * @default 2026-09-05T14:30:31.354265
              */
             timestamp: string;
         };
@@ -5173,7 +5193,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T13:35:34.531866
+             * @default 2026-09-05T14:30:31.354265
              */
             timestamp: string;
         };
@@ -5185,7 +5205,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T13:35:34.531866
+             * @default 2026-09-05T14:30:31.354265
              */
             timestamp: string;
         };
@@ -5197,7 +5217,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T13:35:34.531866
+             * @default 2026-09-05T14:30:31.354265
              */
             timestamp: string;
         };
@@ -5209,7 +5229,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T13:35:34.531866
+             * @default 2026-09-05T14:30:31.354265
              */
             timestamp: string;
         };
@@ -5221,7 +5241,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T13:35:34.531866
+             * @default 2026-09-05T14:30:31.354265
              */
             timestamp: string;
         };
@@ -5233,7 +5253,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T13:35:34.531866
+             * @default 2026-09-05T14:30:31.354265
              */
             timestamp: string;
         };
@@ -5245,7 +5265,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T13:35:34.531866
+             * @default 2026-09-05T14:30:31.354265
              */
             timestamp: string;
         };
@@ -5257,7 +5277,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T13:35:34.531866
+             * @default 2026-09-05T14:30:31.354265
              */
             timestamp: string;
         };
@@ -5269,7 +5289,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T13:35:34.531866
+             * @default 2026-09-05T14:30:31.354265
              */
             timestamp: string;
         };
@@ -5281,7 +5301,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T13:35:34.531866
+             * @default 2026-09-05T14:30:31.354265
              */
             timestamp: string;
         };
@@ -5293,7 +5313,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T13:35:34.531866
+             * @default 2026-09-05T14:30:31.354265
              */
             timestamp: string;
         };
@@ -5305,7 +5325,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T13:35:34.531866
+             * @default 2026-09-05T14:30:31.354265
              */
             timestamp: string;
         };
@@ -5317,7 +5337,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T13:35:34.531866
+             * @default 2026-09-05T14:30:31.354265
              */
             timestamp: string;
         };
@@ -5332,7 +5352,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T13:35:34.531866
+             * @default 2026-09-05T14:30:31.354265
              */
             timestamp: string;
         };
@@ -5345,7 +5365,22 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T13:35:34.531866
+             * @default 2026-09-05T14:30:31.354265
+             */
+            timestamp: string;
+        };
+        /** APIResponse[list[dict]] */
+        APIResponse_list_dict__: {
+            /** Data */
+            data: {
+                [key: string]: unknown;
+            }[];
+            meta?: components["schemas"]["PaginationMeta"] | null;
+            links?: components["schemas"]["Links"] | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             * @default 2026-09-05T14:30:31.354265
              */
             timestamp: string;
         };
@@ -18215,6 +18250,56 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+        };
+    };
+    get_audit_logs_api_v1_admin_audit_logs_get: {
+        parameters: {
+            query?: {
+                /** @description Entity type filter */
+                entity_type?: string | null;
+                /** @description Action filter */
+                action?: string | null;
+                /** @description Actor user ID */
+                actor_id?: string | null;
+                /** @description Actor email */
+                actor_email?: string | null;
+                /** @description Entity ID */
+                entity_id?: string | null;
+                /** @description Start date filter */
+                date_from?: string | null;
+                /** @description End date filter */
+                date_to?: string | null;
+                /** @description Full-text search query */
+                search?: string | null;
+                /** @description Page number */
+                page?: number;
+                /** @description Items per page */
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_list_dict__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

@@ -1,0 +1,61 @@
+global:
+  resolve_timeout: 5m
+
+route:
+  group_by: ['alertname', 'cluster', 'service', 'team']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+  receiver: opsgenie-warning
+  routes:
+    # Route Watchdog / DeadMansSwitch to null receiver
+    - match:
+        alertname: DeadMansSwitch
+      receiver: 'null'
+
+    # Route CRITICAL alerts to PagerDuty
+    - match:
+        severity: critical
+      receiver: pagerduty-critical
+      continue: false
+
+    # Route WARNING alerts to OpsGenie
+    - match:
+        severity: warning
+      receiver: opsgenie-warning
+      continue: false
+
+inhibit_rules:
+  # Mute warning alerts if a matching critical alert is already active
+  - source_match:
+      severity: critical
+    target_match:
+      severity: warning
+    equal: ['alertname', 'service', 'instance']
+
+receivers:
+  - name: 'null'
+
+  - name: pagerduty-critical
+    pagerduty_configs:
+      - routing_key: "${PAGERDUTY_ROUTING_KEY}"
+        url: "https://events.pagerduty.com/v2/enqueue"
+        client: "Procurement Portal Alertmanager"
+        client_url: "https://admin.procurement.com/system/health"
+        severity: "critical"
+        send_resolved: true
+        details:
+          summary: "{{ .CommonAnnotations.summary }}"
+          description: "{{ .CommonAnnotations.description }}"
+          runbook: "{{ .CommonAnnotations.runbook_url }}"
+
+  - name: opsgenie-warning
+    opsgenie_configs:
+      - api_key: "${OPSGENIE_API_KEY}"
+        api_url: "https://api.opsgenie.com/"
+        priority: "P3"
+        send_resolved: true
+        message: "{{ .CommonAnnotations.summary }}"
+        description: "{{ .CommonAnnotations.description }}"
+        source: "Procurement Portal Monitoring"
+        tags: "warning,procurement,automated"

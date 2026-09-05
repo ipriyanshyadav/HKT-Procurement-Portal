@@ -5,6 +5,7 @@ from typing import Optional, Any
 from loguru import logger
 
 from app.config import settings
+from app.core.metrics import unmapped_pr_pending_count, workflow_sla_breaches_total
 from app.db.session import async_session
 from app.events.publisher import OutboxPublisher
 from app.modules.unmapped_pr.repository import unmapped_pr_repository
@@ -30,6 +31,14 @@ async def async_check_unmapped_sla(session_factory: Optional[Any] = None) -> dic
     async with factory() as db:
         pending = await unmapped_pr_repository.get_all_pending(db)
 
+        # Update gauge for pending count by org
+        by_org: dict[str, int] = {}
+        for p in pending:
+            org_str = str(p.org_id)
+            by_org[org_str] = by_org.get(org_str, 0) + 1
+        for org_str, count in by_org.items():
+            unmapped_pr_pending_count.labels(org_id=org_str).set(count)
+
         for exc in pending:
             created_at = exc.created_at
             if created_at.tzinfo is None:
@@ -38,6 +47,7 @@ async def async_check_unmapped_sla(session_factory: Optional[Any] = None) -> dic
 
             if elapsed_hours >= tier_4_h and exc.sla_breach_level < 4:
                 exc.sla_breach_level = 4
+                workflow_sla_breaches_total.labels(org_id=str(exc.org_id), entity_type="UNMAPPED_PR").inc()
                 await OutboxPublisher.publish(
                     db,
                     "procurement.alert",
@@ -54,6 +64,7 @@ async def async_check_unmapped_sla(session_factory: Optional[Any] = None) -> dic
 
             elif elapsed_hours >= tier_3_h and exc.sla_breach_level < 3:
                 exc.sla_breach_level = 3
+                workflow_sla_breaches_total.labels(org_id=str(exc.org_id), entity_type="UNMAPPED_PR").inc()
                 await OutboxPublisher.publish(
                     db,
                     "procurement.alert",

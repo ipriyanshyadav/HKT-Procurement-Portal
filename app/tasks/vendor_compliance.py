@@ -6,6 +6,7 @@ from loguru import logger
 from sqlalchemy import select, and_
 
 from app.config import settings
+from app.core.metrics import vendor_compliance_holds
 from app.db.enums import VendorStatusEnum
 from app.db.session import async_session
 from app.events.publisher import OutboxPublisher
@@ -57,6 +58,7 @@ async def async_check_compliance(session_factory: Optional[Any] = None) -> dict:
                     # 0 days remaining or expired: place on COMPLIANCE_HOLD if ACTIVE
                     if vendor.status == VendorStatusEnum.ACTIVE:
                         vendor.status = VendorStatusEnum.COMPLIANCE_HOLD
+                        vendor_compliance_holds.labels(org_id=str(vendor.org_id)).inc()
                         reason = f"Compliance document {doc.document_id} expired on {doc.expiry_date}"
                         vendor.suspension_reason = reason
                         holds_placed += 1

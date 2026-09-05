@@ -132,4 +132,6 @@ export * from "./useDocuments";
 export * from "./useIntegrations";
 export * from "./useNotifications";
 export * from "./useAnalytics";
+export * from "./useAuditLogs";
+export * from "./useSystemHealth";
 

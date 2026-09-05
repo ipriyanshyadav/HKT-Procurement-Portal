@@ -2,9 +2,12 @@ from __future__ import annotations
 from typing import Any, Optional
 from uuid import UUID
 from sqlalchemy.ext.asyncio import AsyncSession
+from datetime import datetime, timezone
+from loguru import logger
 from app.modules.audit.models import AuditLog
 from app.db.enums import AuditEntityTypeEnum
 from app.core.telemetry import get_current_trace_id
+from app.core.metrics import audit_log_last_insert_timestamp
 
 
 class AuditService:
@@ -32,6 +35,7 @@ class AuditService:
         except ValueError:
             entity_type_enum = AuditEntityTypeEnum.USER  # fallback for auth events
 
+        now_utc = datetime.now(timezone.utc)
         log_entry = AuditLog(
             org_id=org_id,
             entity_type=entity_type_enum,
@@ -44,8 +48,17 @@ class AuditService:
             new_values=new_values,
             metadata_=metadata or {},
             trace_id=trace_id or get_current_trace_id(),
+            created_at=now_utc,
         )
         db.add(log_entry)
+        audit_log_last_insert_timestamp.set(now_utc.timestamp())
+
+        # Forward to Elasticsearch audit search service
+        try:
+            from app.modules.audit.search_service import audit_search_service
+            await audit_search_service.index_audit_log(log_entry)
+        except Exception as exc:
+            logger.warning(f"Error calling search_service.index_audit_log: {exc}")
         # No commit — caller's transaction commits
 
 

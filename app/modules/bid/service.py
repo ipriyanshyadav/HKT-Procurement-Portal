@@ -10,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.config import settings
 from app.core.constants import AuditAction
 from app.core.encryption import encrypt_field, decrypt_field
+from app.core.metrics import bid_submitted_total
 from app.core.exceptions import AppException, ConflictError, ForbiddenError, NotFoundError, ValidationError
 from app.core.redis_client import get_redis_client
 from app.db.enums import BidStatus, AuditEntityType
@@ -152,6 +153,7 @@ class BidService:
             db, AuditEntityType.BID, bid.id, AuditAction.BID_SUBMITTED, actor_id, org_id
         )
         await db.flush()
+        bid_submitted_total.labels(org_id=str(org_id)).inc()
         return bid
 
     # ─── Revise Bid ─────────────────────────────────────────────────────────────
@@ -233,6 +235,7 @@ class BidService:
             db, AuditEntityType.BID, bid.id, AuditAction.BID_REVISED, actor_id, org_id,
             new_values={"version": bid.current_version}
         )
+        bid_submitted_total.labels(org_id=str(org_id)).inc()
         return bid
 
     # ─── Withdraw Bid ───────────────────────────────────────────────────────────

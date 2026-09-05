@@ -162,6 +162,20 @@ services:
     networks:
       - procurement_net
 
+  elasticsearch:
+    image: elasticsearch:8.14.0
+    container_name: procurement_elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - procurement_net
+
   api:
     build:
       context: ..
@@ -175,6 +189,7 @@ services:
       REDIS_URL: redis://redis:6379/0
       RABBITMQ_URL: amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASSWORD:-guest}@rabbitmq:5672/%2Fprocurement
       MINIO_ENDPOINT: minio:9000
+      ELASTICSEARCH_URL: http://elasticsearch:9200
       OTEL_ENABLED: ${OTEL_ENABLED:-true}
       JAEGER_HOST: jaeger
       CLAMAV_HOST: clamav
@@ -294,6 +309,7 @@ volumes:
   minio_data:
   prometheus_data:
   grafana_data:
+  elasticsearch_data:
 
 networks:
   procurement_net:

@@ -20,6 +20,8 @@ import {
   Calendar,
   Cpu,
   BarChart3,
+  ShieldCheck,
+  Activity,
 } from "lucide-react";
 
 export default function AdminMainLayout({ children }: { children: ReactNode }) {
@@ -57,6 +59,12 @@ export default function AdminMainLayout({ children }: { children: ReactNode }) {
       label: "Users & Roles",
       href: "/users",
       icon: <Users className="w-4 h-4" />,
+      section: "Access & Security",
+    },
+    {
+      label: "Audit Trail",
+      href: "/audit-trail",
+      icon: <ShieldCheck className="w-4 h-4" />,
       section: "Access & Security",
     },
     {
@@ -129,6 +137,12 @@ export default function AdminMainLayout({ children }: { children: ReactNode }) {
       label: "ERP Integrations",
       href: "/integrations",
       icon: <Cpu className="w-4 h-4" />,
+      section: "System Operations",
+    },
+    {
+      label: "System Health",
+      href: "/system/health",
+      icon: <Activity className="w-4 h-4" />,
       section: "System Operations",
     },
   ];

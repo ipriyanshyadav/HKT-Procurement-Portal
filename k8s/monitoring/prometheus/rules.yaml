@@ -1,0 +1,189 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: procurement-alert-rules
+  namespace: monitoring
+  labels:
+    role: alert-rules
+    app.kubernetes.io/part-of: procurement-portal
+spec:
+  groups:
+    - name: procurement.slo.alerts
+      rules:
+        # Rule 1: HighErrorRate
+        - alert: HighErrorRate
+          expr: sum(rate(http_requests_total{status_code=~"5.."}[5m])) / sum(rate(http_requests_total[5m])) > 0.01
+          for: 2m
+          labels:
+            severity: critical
+            team: devops
+          annotations:
+            summary: "API 5xx error rate > 1% for 2 minutes"
+            description: "HTTP 5xx rate currently exceeds 1% of all platform traffic over a 5m sliding window."
+            runbook_url: "/runbooks/high-error-rate"
+
+        # Rule 2: HighAPILatency (SlowP95)
+        - alert: HighAPILatency
+          expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le)) > 0.5
+          for: 5m
+          labels:
+            severity: warning
+            team: devops
+          annotations:
+            summary: "API p95 latency > 500ms SLA target"
+            description: "95th percentile response time exceeds the 500ms SLA limit."
+            runbook_url: "/runbooks/high-api-latency"
+
+        # Rule 3: SlowP99
+        - alert: SlowP99
+          expr: histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket[5m])) by (le)) > 1.0
+          for: 5m
+          labels:
+            severity: critical
+            team: devops
+          annotations:
+            summary: "API p99 latency > 1.0s SLO threshold"
+            description: "99th percentile response time exceeds 1.0s critical latency boundary."
+            runbook_url: "/runbooks/slow-p99"
+
+        # Rule 4: DLQDepthHigh
+        - alert: DLQDepthHigh
+          expr: sum(dlq_message_count) > 50
+          for: 5m
+          labels:
+            severity: warning
+            team: devops
+          annotations:
+            summary: "Dead-letter queue depth exceeds 50 messages"
+            description: "Messages accumulating in DLQ require manual replay or triage."
+            runbook_url: "/runbooks/dlq-depth-high"
+
+        # Rule 5: OutboxMessagesPending
+        - alert: OutboxMessagesPending
+          expr: outbox_messages_pending > 1000
+          for: 10m
+          labels:
+            severity: warning
+            team: devops
+          annotations:
+            summary: "Transactional outbox has > 1,000 pending messages"
+            description: "Outbox dispatcher backlog is growing; potential RabbitMQ or DB contention."
+            runbook_url: "/runbooks/outbox-pending"
+
+        # Rule 6: WorkflowSLABreachRate
+        - alert: WorkflowSLABreachRate
+          expr: rate(workflow_sla_breaches_total[1h]) > 10
+          for: 5m
+          labels:
+            severity: critical
+            team: governance
+          annotations:
+            summary: "Workflow SLA breaches accumulating at > 10 per hour"
+            description: "Approvers are bottlenecked causing systematic procurement SLA violations."
+            runbook_url: "/runbooks/sla-breach"
+
+        # Rule 7: IntegrationJobFailureRate
+        - alert: IntegrationJobFailureRate
+          expr: rate(integration_job_failures_total[1h]) > 5
+          for: 5m
+          labels:
+            severity: critical
+            team: devops
+          annotations:
+            summary: "Integration job failures > 5 per hour"
+            description: "External ERP adapters (SAP, Oracle, Workday) experiencing recurring sync errors."
+            runbook_url: "/runbooks/integration-failures"
+
+        # Rule 8: DeadMansSwitch (Watchdog)
+        - alert: DeadMansSwitch
+          expr: vector(1)
+          for: 0m
+          labels:
+            severity: none
+          annotations:
+            summary: "Watchdog: alertmanager notification pipeline is functioning"
+            description: "Dead man's switch constantly firing to verify the alerting pipeline health."
+
+        # Rule 9: DatabaseConnectionPoolExhausted
+        - alert: DatabaseConnectionPoolExhausted
+          expr: pg_stat_activity_count > 180
+          for: 2m
+          labels:
+            severity: critical
+            team: dba
+          annotations:
+            summary: "PostgreSQL active connections > 180 (90% capacity)"
+            description: "PostgreSQL active connections approaching max limit of 200 via PgBouncer."
+            runbook_url: "/runbooks/db-pool-exhausted"
+
+        # Rule 10: VendorComplianceHoldsHigh
+        - alert: VendorComplianceHoldsHigh
+          expr: sum(vendor_compliance_holds) > 10
+          for: 30m
+          labels:
+            severity: warning
+            team: srm
+          annotations:
+            summary: "Vendor compliance holds count > 10"
+            description: "Unusually high number of suppliers placed on hold due to document expiry."
+            runbook_url: "/runbooks/vendor-compliance"
+
+        # Rule 11: RabbitMQQueueDepth
+        - alert: RabbitMQQueueDepth
+          expr: rabbitmq_queue_messages{vhost="procurement"} > 1000
+          for: 15m
+          labels:
+            severity: warning
+            team: devops
+          annotations:
+            summary: "RabbitMQ queue messages backlog > 1,000"
+            description: "Consumer processing lag detected in RabbitMQ vhost 'procurement'."
+            runbook_url: "/runbooks/rabbitmq-queue-depth"
+
+        # Rule 12: RedisMemoryHigh
+        - alert: RedisMemoryHigh
+          expr: redis_memory_used_bytes / redis_memory_max_bytes > 0.8
+          for: 10m
+          labels:
+            severity: warning
+            team: devops
+          annotations:
+            summary: "Redis memory utilization > 80%"
+            description: "Redis instance nearing memory exhaustion limit; key eviction risk."
+            runbook_url: "/runbooks/redis-memory"
+
+        # Rule 13: CeleryWorkerDown
+        - alert: CeleryWorkerDown
+          expr: celery_workers_active == 0
+          for: 2m
+          labels:
+            severity: critical
+            team: devops
+          annotations:
+            summary: "Zero active Celery workers detected"
+            description: "All asynchronous background workers are offline or disconnected."
+            runbook_url: "/runbooks/celery-worker-down"
+
+        # Rule 14: MinIODiskUsageHigh
+        - alert: MinIODiskUsageHigh
+          expr: minio_disk_used_bytes / minio_disk_total_bytes > 0.85
+          for: 10m
+          labels:
+            severity: warning
+            team: devops
+          annotations:
+            summary: "MinIO distributed storage disk usage > 85%"
+            description: "MinIO document and contract storage volume nearing disk capacity."
+            runbook_url: "/runbooks/minio-disk-usage"
+
+        # Rule 15: AuditLogIngestionLag
+        - alert: AuditLogIngestionLag
+          expr: time() - max(audit_log_last_insert_timestamp) > 60
+          for: 2m
+          labels:
+            severity: critical
+            team: security
+          annotations:
+            summary: "Audit log ingestion lag exceeds 60 seconds"
+            description: "No audit logs recorded for over 60 seconds during active system operation."
+            runbook_url: "/runbooks/audit-log-lag"

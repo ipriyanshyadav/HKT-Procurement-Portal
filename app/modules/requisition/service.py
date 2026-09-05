@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
 from app.core.constants import AuditAction
+from app.core.metrics import pr_created_total, pr_approval_duration_hours
 from app.core.exceptions import AppException, ConflictError, ForbiddenError, NotFoundError, ValidationError
 from app.core.redis_client import RedisKeys, get_redis_client
 from app.db.enums import PRStatus, PRSource, ProcurementType
@@ -97,6 +98,10 @@ class RequisitionService:
         await db.flush()
 
         await self._invalidate_pr_cache(org_id)
+        pr_created_total.labels(
+            org_id=str(org_id),
+            bu_id=str(data.business_unit_id),
+        ).inc()
         await audit_service.log(
             db,
             "REQUISITION",
@@ -390,6 +395,11 @@ class RequisitionService:
         pr.approved_at = datetime.now(timezone.utc)
         pr.updated_by = actor_id
         await self.repo.update(db, pr)
+
+        if pr.created_at:
+            c_at = pr.created_at if pr.created_at.tzinfo is not None else pr.created_at.replace(tzinfo=timezone.utc)
+            duration_hours = max(0.0, (pr.approved_at - c_at).total_seconds() / 3600.0)
+            pr_approval_duration_hours.labels(org_id=str(org_id)).observe(duration_hours)
 
         await self._invalidate_pr_cache(org_id)
         await OutboxPublisher.publish(

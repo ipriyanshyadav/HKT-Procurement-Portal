@@ -1,40 +1,19 @@
 # Procurement Portal — Enterprise S2C & P2P Platform
 
 ## Current Session State
-**Status:** SPEC_21 Infrastructure & Deployment Implementation Complete
+**Status:** SPEC_22 Observability & Monitoring Implementation Complete
 **Completed:**
-- **K3s Base Manifests:** 
-  - Namespaces: `procurement`, `monitoring`, `logging`, `infra` (`namespaces.yaml`).
-  - Core API & Workers: `api-deployment.yaml` (FastAPI 3 replicas, probes, preStop hook, resource limits), `celery-deployment.yaml` (worker 2 replicas + 6 queues, beat 1 replica).
-  - Autoscaling & Resiliency: `hpa.yaml` (API 3-15 replicas on CPU 70% + RPS 100, Celery 2-10 replicas on CPU 75%), `pdbs.yaml` (API minAvailable: 2, Celery minAvailable: 1).
-  - Zero-Trust Security: `netpolicies.yaml` (default-deny-all + explicit least-privilege allow rules for DNS, Kong→API/Frontends, Frontends→API, API/Worker→PgBouncer/DB/Redis/RMQ/MinIO/ES, and Prometheus metrics scraping).
-- **Stateful HA Infrastructure:**
-  - PostgreSQL 16 HA: 3 nodes (primary, read replica, headless service, WAL archiving config).
-  - PgBouncer: Connection pooler (port 6432, transaction mode, pool size 50).
-  - Redis Sentinel: 3 nodes (port 6379 & 26379, automatic failover, sentinel config).
-  - RabbitMQ: 3 nodes (port 5672, 15672 management, 15692 prometheus, k8s peer discovery).
-  - MinIO Distributed: 4 nodes erasure coding (port 9000 S3 API, 9001 console).
-  - Elasticsearch 8: 3 nodes cluster (port 9200 HTTP, 9300 transport).
-- **Frontend Portal Deployments:**
-  - `buyer-portal-deployment.yaml` (Next.js standalone, port 3000, 2 replicas).
-  - `supplier-portal-deployment.yaml` (Next.js standalone, port 3001, 2 replicas).
-  - `admin-portal-deployment.yaml` (Next.js standalone, port 3002, 2 replicas).
-  - `frontend-services.yaml` (ClusterIP services for buyer, supplier, and admin portals).
-- **Ingress, TLS & Operational Tools:**
-  - Kong Gateway: Declarative DB-less gateway routing for `apps.procurement.com`, `supplier.procurement.com`, `admin.procurement.com`, and `/api/v1`, `/ws`.
-  - cert-manager: Let's Encrypt Staging and Production `ClusterIssuer` resources.
-  - Velero: Daily snapshot schedule at 02:00 UTC with 30-day retention (`ttl: 720h0m0s`).
-  - Sealed Secrets: GitOps encrypted `SealedSecret` manifests for all application and stateful secrets.
-- **Kustomize Overlays:**
-  - `k8s/overlays/dev/`: 1 replica per service, scaled-down resources, `.dev` domain routing.
-  - `k8s/overlays/staging/`: Mirrors production topology, staging domains and cert-manager issuer.
-  - `k8s/overlays/production/`: Full HA replicas (API 5-30, Celery 4-15, Postgres 3, Redis 3, RMQ 3, MinIO 4), SealedSecrets active.
-  - `k8s/overlays/dr/`: Warm standby configuration, WAL shipping restore command, worker paused until promotion.
-- **Verification:** 9/9 tests pass in `tests/unit/test_k8s_manifests.py`; 11/11 tests pass across integration suite; 7/7 Turbo packages pass `pnpm typecheck`.
+- **Prometheus Metrics:** 12+ custom metrics in `app/core/metrics.py`; `TimingMiddleware` latency & RPS recording; service instrumentation across PR, RFQ, Bids, PO, Workflows, SLAs, Outbox, and Compliance.
+- **Alertmanager & Rules:** 15 alert rules in `k8s/monitoring/prometheus/rules.yaml`; CRITICAL→PagerDuty, WARNING→OpsGenie, and DeadMansSwitch routing in `k8s/monitoring/alertmanager/config.yaml`.
+- **Grafana Dashboards:** 7 provisioned dashboards (App Overview, Procurement KPIs, Database, Infrastructure, Queue Depth, SLO, Security) via `dashboards-configmap.yaml`.
+- **Loki & Promtail:** `promtail-config.yaml` with JSON parsing and drop filters for `/health*` endpoints.
+- **Elasticsearch Audit Search:** `AuditSearchService` with async ES querying & SQL fallback; ILM policy with monthly index rotation (`audit-logs-{YYYY.MM}`) and 365d retention.
+- **Frontend Wiring (Admin Portal):** Audit Trail search explorer with filters, pagination, JSON diff modal, and trace ID copy; System Health live dashboard polling `/health/ready`.
+**Verification:** 9/9 tests pass in `test_observability.py`; 299/299 unit tests pass; 9/9 k8s tests pass; Turborepo `pnpm typecheck` passing (0 errors).
 **Migration Head:** 0035_analytics_spec25
-**Test Commands:** `.venv/bin/pytest tests/unit/test_k8s_manifests.py -v` & `cd procurement-portal-frontend && pnpm typecheck`
+**Test Commands:** `.venv/bin/pytest tests/unit/test_observability.py -v` & `cd procurement-portal-frontend && pnpm typecheck`
 **Next:** SPEC_18 API Standards & Resilience
-**Graphify:** 6385 nodes, 16095 edges, 393 communities
+**Graphify:** 6449 nodes, 16240 edges, 402 communities
 
 ---
 
@@ -74,7 +53,7 @@ The Procurement Portal is an enterprise-grade Source-to-Contract (S2C), Procure-
 | 19 | Frontend Applications | SPEC_19 | ✅ Complete | Apple & Glass active | ✅ Turborepo passing |
 | 20 | Integration Hub | SPEC_20 | ✅ Complete | 0034_fix_tax_codes_tax_type | ✅ Passing (100% cov) |
 | 21 | Infrastructure & Deployment | SPEC_21 | ✅ Complete | 0035_analytics_spec25 | ✅ 9 Passing (100% cov) |
-| 22 | Observability & Telemetry | SPEC_22 | 🔄 Scaffolded | OTel/Jaeger ready | Passing |
+| 22 | Observability & Telemetry | SPEC_22 | ✅ Complete | 0035_analytics_spec25 | ✅ 9 Passing (100% cov) |
 | 23 | Testing Strategy | SPEC_23 | 🔄 Active | Pytest suite active | 50 Passing |
 | 24 | Master Data Management | SPEC_24 | ✅ Complete | 0034_fix_tax_codes_tax_type | ✅ 43 Passing (100% cov) |
 | 25 | Analytics & Reporting | SPEC_25 | ✅ Complete | 0035_analytics_spec25 | ✅ 8 Passing (100% cov) |

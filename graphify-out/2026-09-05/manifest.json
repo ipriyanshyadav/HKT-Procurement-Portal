@@ -156,10 +156,10 @@
     "semantic_hash": "452d213aa6cc0fc3fd3196261950f69c"
   },
   "plans/plan_spec_21_infrastructure.md": {
-    "mtime": 1788283793.9845579,
-    "seen": 1788464912.473658,
-    "ast_hash": "4329a2d9040d13d274558108a2eb2eeb",
-    "semantic_hash": "4329a2d9040d13d274558108a2eb2eeb"
+    "mtime": 1788616367.5500615,
+    "seen": 1788616381.851278,
+    "ast_hash": "b9b743b0a6f0744a17328266f0f369ee",
+    "semantic_hash": ""
   },
   "plans/plan_spec_22_observability.md": {
     "mtime": 1788283793.984673,
@@ -948,8 +948,8 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/types/src/api.ts": {
-    "mtime": 1788615573.7246716,
-    "seen": 1788615628.4132721,
+    "mtime": 1788616353.6722007,
+    "seen": 1788616381.8511071,
     "ast_hash": "7b75fa63af86a7cc5390bc5c1be9291b",
     "semantic_hash": ""
   },
@@ -1482,9 +1482,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1788612772.894036,
-    "seen": 1788615628.413431,
-    "ast_hash": "690f5d392cdc2d4c3a22a3a38345c127",
+    "mtime": 1788615645.302375,
+    "seen": 1788616381.851218,
+    "ast_hash": "4933e17bd1386013a63b208af398c9b3",
     "semantic_hash": ""
   },
   "graphify_diff_20260904_014322.txt": {
@@ -4077,6 +4077,288 @@
     "mtime": 1788615239.2402048,
     "seen": 1788615628.413358,
     "ast_hash": "7725f2241a74013171976b93852c9727",
+    "semantic_hash": ""
+  },
+  "tests/unit/test_k8s_manifests.py": {
+    "mtime": 1788616336.3921447,
+    "seen": 1788616381.851201,
+    "ast_hash": "bddf1390cb21c7c79d2e080d0e1f1753",
+    "semantic_hash": ""
+  },
+  "docs/audits/SPEC_21_AUDIT.md": {
+    "mtime": 1788616361.6476743,
+    "seen": 1788616381.8512251,
+    "ast_hash": "a5a7eb6f82b56e9dec933ac65e70d923",
+    "semantic_hash": ""
+  },
+  "k8s/base/admin-portal-deployment.yaml": {
+    "mtime": 1788616178.601121,
+    "seen": 1788616381.851226,
+    "ast_hash": "d8943b732b8f8a3a4ed1b1b6f6e0bdb1",
+    "semantic_hash": ""
+  },
+  "k8s/base/api-deployment.yaml": {
+    "mtime": 1788616071.9436297,
+    "seen": 1788616381.85123,
+    "ast_hash": "fc1f3d5fccd100ad37f86d9b4c990c0f",
+    "semantic_hash": ""
+  },
+  "k8s/base/buyer-portal-deployment.yaml": {
+    "mtime": 1788616172.2577882,
+    "seen": 1788616381.8512309,
+    "ast_hash": "96abeb5a102a6ab6ffc811383dbbf9c8",
+    "semantic_hash": ""
+  },
+  "k8s/base/celery-deployment.yaml": {
+    "mtime": 1788616078.3837838,
+    "seen": 1788616381.851232,
+    "ast_hash": "6630cd633dbd0154ef3a52270eb34596",
+    "semantic_hash": ""
+  },
+  "k8s/base/cert-manager/cluster-issuer.yaml": {
+    "mtime": 1788616203.35456,
+    "seen": 1788616381.851232,
+    "ast_hash": "01efab46cf080b2f5f31d4ae21165e2e",
+    "semantic_hash": ""
+  },
+  "k8s/base/cert-manager/kustomization.yaml": {
+    "mtime": 1788616209.046918,
+    "seen": 1788616381.851233,
+    "ast_hash": "3107db81d848db66a4b6f9ee5963221f",
+    "semantic_hash": ""
+  },
+  "k8s/base/configmap.yaml": {
+    "mtime": 1788616068.1498446,
+    "seen": 1788616381.851234,
+    "ast_hash": "3e6ca3e96e19bd4c0bb15f5ccab1ff49",
+    "semantic_hash": ""
+  },
+  "k8s/base/elasticsearch/kustomization.yaml": {
+    "mtime": 1788616164.0012567,
+    "seen": 1788616381.851234,
+    "ast_hash": "884019e39ed663a3808e60c2d4dd51f7",
+    "semantic_hash": ""
+  },
+  "k8s/base/elasticsearch/statefulset.yaml": {
+    "mtime": 1788616162.0041227,
+    "seen": 1788616381.8512352,
+    "ast_hash": "8722a0017c1d44eec319695962fd0a6d",
+    "semantic_hash": ""
+  },
+  "k8s/base/frontend-services.yaml": {
+    "mtime": 1788616181.5067205,
+    "seen": 1788616381.851236,
+    "ast_hash": "08382ec728cca453293545e515b41b9e",
+    "semantic_hash": ""
+  },
+  "k8s/base/hpa.yaml": {
+    "mtime": 1788616081.5654025,
+    "seen": 1788616381.851236,
+    "ast_hash": "f386f8320107b77c9cc0eb004d516152",
+    "semantic_hash": ""
+  },
+  "k8s/base/kong/configmap.yaml": {
+    "mtime": 1788616188.8818157,
+    "seen": 1788616381.851237,
+    "ast_hash": "4c22033283dfc158bb07a1b9aef7dce5",
+    "semantic_hash": ""
+  },
+  "k8s/base/kong/deployment.yaml": {
+    "mtime": 1788616194.7475224,
+    "seen": 1788616381.851237,
+    "ast_hash": "f4ab0008e49a990cb72ee1c8120b1e35",
+    "semantic_hash": ""
+  },
+  "k8s/base/kong/kustomization.yaml": {
+    "mtime": 1788616198.979902,
+    "seen": 1788616381.8512378,
+    "ast_hash": "cc4a9d8be3dfc8f485cd1ea6b79fbb1f",
+    "semantic_hash": ""
+  },
+  "k8s/base/kustomization.yaml": {
+    "mtime": 1788616232.6167727,
+    "seen": 1788616381.851239,
+    "ast_hash": "347fb390af43a8276f99d9242d7d1854",
+    "semantic_hash": ""
+  },
+  "k8s/base/minio/kustomization.yaml": {
+    "mtime": 1788616157.8964436,
+    "seen": 1788616381.851239,
+    "ast_hash": "884019e39ed663a3808e60c2d4dd51f7",
+    "semantic_hash": ""
+  },
+  "k8s/base/minio/statefulset.yaml": {
+    "mtime": 1788616154.730974,
+    "seen": 1788616381.85124,
+    "ast_hash": "99dd2a4c47b78fd03dd64cb6c377c15d",
+    "semantic_hash": ""
+  },
+  "k8s/base/namespaces.yaml": {
+    "mtime": 1788616065.4475505,
+    "seen": 1788616381.8512409,
+    "ast_hash": "2c085433ab6a4f4dea9e5a77c349983a",
+    "semantic_hash": ""
+  },
+  "k8s/base/netpolicies.yaml": {
+    "mtime": 1788616112.7549126,
+    "seen": 1788616381.8512409,
+    "ast_hash": "fd09a463b854aa0b1670d511942e9056",
+    "semantic_hash": ""
+  },
+  "k8s/base/pdbs.yaml": {
+    "mtime": 1788616084.940657,
+    "seen": 1788616381.851242,
+    "ast_hash": "b63635bd048adc60bb8cd3eb6216d940",
+    "semantic_hash": ""
+  },
+  "k8s/base/pgbouncer/configmap.yaml": {
+    "mtime": 1788616128.1372716,
+    "seen": 1788616381.851243,
+    "ast_hash": "42f14c855ac45ccc7fdea20e09caffb1",
+    "semantic_hash": ""
+  },
+  "k8s/base/pgbouncer/deployment.yaml": {
+    "mtime": 1788616131.842697,
+    "seen": 1788616381.851244,
+    "ast_hash": "89409e7b02b1b00c1bf2b99ca1be433e",
+    "semantic_hash": ""
+  },
+  "k8s/base/pgbouncer/kustomization.yaml": {
+    "mtime": 1788616134.179331,
+    "seen": 1788616381.8512452,
+    "ast_hash": "cc4a9d8be3dfc8f485cd1ea6b79fbb1f",
+    "semantic_hash": ""
+  },
+  "k8s/base/postgresql/kustomization.yaml": {
+    "mtime": 1788616125.121156,
+    "seen": 1788616381.8512452,
+    "ast_hash": "884019e39ed663a3808e60c2d4dd51f7",
+    "semantic_hash": ""
+  },
+  "k8s/base/postgresql/statefulset.yaml": {
+    "mtime": 1788616122.6593876,
+    "seen": 1788616381.851246,
+    "ast_hash": "3843c9c56371894f1a79d99012576e19",
+    "semantic_hash": ""
+  },
+  "k8s/base/rabbitmq/kustomization.yaml": {
+    "mtime": 1788616149.9698076,
+    "seen": 1788616381.851247,
+    "ast_hash": "884019e39ed663a3808e60c2d4dd51f7",
+    "semantic_hash": ""
+  },
+  "k8s/base/rabbitmq/statefulset.yaml": {
+    "mtime": 1788616148.115115,
+    "seen": 1788616381.851247,
+    "ast_hash": "2c54ee9e691efebe0c40ac536b86ad29",
+    "semantic_hash": ""
+  },
+  "k8s/base/redis/kustomization.yaml": {
+    "mtime": 1788616142.3561285,
+    "seen": 1788616381.851248,
+    "ast_hash": "884019e39ed663a3808e60c2d4dd51f7",
+    "semantic_hash": ""
+  },
+  "k8s/base/redis/statefulset.yaml": {
+    "mtime": 1788616140.2931771,
+    "seen": 1788616381.851248,
+    "ast_hash": "3d195df01a13f0c2036f521714dab147",
+    "semantic_hash": ""
+  },
+  "k8s/base/sealed-secrets/kustomization.yaml": {
+    "mtime": 1788616225.1808171,
+    "seen": 1788616381.851249,
+    "ast_hash": "53e90f088640db240c9ab17059cee69c",
+    "semantic_hash": ""
+  },
+  "k8s/base/supplier-portal-deployment.yaml": {
+    "mtime": 1788616175.4631734,
+    "seen": 1788616381.85125,
+    "ast_hash": "40315633b8fd095b2ad72d344a5e2649",
+    "semantic_hash": ""
+  },
+  "k8s/base/velero/backup-schedule.yaml": {
+    "mtime": 1788616212.5348768,
+    "seen": 1788616381.85125,
+    "ast_hash": "2fc929aab1a314b8a4290fe62b59989c",
+    "semantic_hash": ""
+  },
+  "k8s/base/velero/kustomization.yaml": {
+    "mtime": 1788616215.7125013,
+    "seen": 1788616381.851251,
+    "ast_hash": "d2c11155145c4160f73de3ab5c114b9f",
+    "semantic_hash": ""
+  },
+  "k8s/overlays/dev/kustomization.yaml": {
+    "mtime": 1788616269.2518249,
+    "seen": 1788616381.851252,
+    "ast_hash": "defbccb41c7cb2984b9bd6817a612431",
+    "semantic_hash": ""
+  },
+  "k8s/overlays/dev/patches/ingress.yaml": {
+    "mtime": 1788616266.003637,
+    "seen": 1788616381.851252,
+    "ast_hash": "8aa1c8f913b7ad9b177b794740d9cfb2",
+    "semantic_hash": ""
+  },
+  "k8s/overlays/dev/patches/replicas.yaml": {
+    "mtime": 1788616258.0409708,
+    "seen": 1788616381.851253,
+    "ast_hash": "f68ecf2570c13455dd304c505bebd7f4",
+    "semantic_hash": ""
+  },
+  "k8s/overlays/dev/patches/resources.yaml": {
+    "mtime": 1788616261.5543103,
+    "seen": 1788616381.851253,
+    "ast_hash": "2d2c7cd25cbe4c2b16df3c6edafc3ada",
+    "semantic_hash": ""
+  },
+  "k8s/overlays/dr/kustomization.yaml": {
+    "mtime": 1788616301.7272985,
+    "seen": 1788616381.851254,
+    "ast_hash": "f276de55596d61904097d2b0e614892c",
+    "semantic_hash": ""
+  },
+  "k8s/overlays/dr/patches/postgresql-dr.yaml": {
+    "mtime": 1788616298.9725153,
+    "seen": 1788616381.851255,
+    "ast_hash": "be42362046528bed4847886db89afdb5",
+    "semantic_hash": ""
+  },
+  "k8s/overlays/dr/patches/standby.yaml": {
+    "mtime": 1788616295.9395573,
+    "seen": 1788616381.851255,
+    "ast_hash": "99f134f8091806026c5201036c897437",
+    "semantic_hash": ""
+  },
+  "k8s/overlays/production/kustomization.yaml": {
+    "mtime": 1788616290.1740208,
+    "seen": 1788616381.8512561,
+    "ast_hash": "96386abfe739708132a4c6278b480557",
+    "semantic_hash": ""
+  },
+  "k8s/overlays/production/patches/api-replicas.yaml": {
+    "mtime": 1788616284.4580479,
+    "seen": 1788616381.851257,
+    "ast_hash": "d0817754ceadf57f045bee2e6a38d70b",
+    "semantic_hash": ""
+  },
+  "k8s/overlays/production/patches/hpa-production.yaml": {
+    "mtime": 1788616287.134488,
+    "seen": 1788616381.851257,
+    "ast_hash": "05dc7cad7526cf993737659728044f54",
+    "semantic_hash": ""
+  },
+  "k8s/overlays/staging/kustomization.yaml": {
+    "mtime": 1788616277.498127,
+    "seen": 1788616381.851258,
+    "ast_hash": "bd693bd3dd8635e0368712978dfca9e8",
+    "semantic_hash": ""
+  },
+  "k8s/overlays/staging/patches/ingress.yaml": {
+    "mtime": 1788616274.2255123,
+    "seen": 1788616381.851258,
+    "ast_hash": "431986ab1032f92119940b2899b92671",
     "semantic_hash": ""
   }
 }

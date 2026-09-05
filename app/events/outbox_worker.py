@@ -5,6 +5,7 @@ from loguru import logger
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from sqlalchemy import text
 from app.config import settings
+from app.core.metrics import outbox_messages_pending
 from app.tasks.celery_app import celery_app
 import aio_pika
 
@@ -22,6 +23,11 @@ async def publish_outbox_messages():
 
     async with async_session() as session:
         try:
+            # Query and record pending count gauge
+            count_stmt = text("SELECT COUNT(*) FROM outbox_messages WHERE status = 'PENDING'")
+            count_res = await session.execute(count_stmt)
+            outbox_messages_pending.set(count_res.scalar() or 0)
+
             # Claim PENDING messages
             stmt = text(f"""
                 SELECT id, exchange, routing_key, payload, headers 

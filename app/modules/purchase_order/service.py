@@ -22,6 +22,7 @@ from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import AppException, NotFoundError, ValidationError
+from app.core.metrics import po_value_total
 from app.db.enums import POStatus
 from app.events.publisher import OutboxPublisher
 from app.modules.approval_rules.service import rules_engine
@@ -212,6 +213,8 @@ class PurchaseOrderService:
             org_id,
             new_values={"po_number": po.po_number, "total_value": str(po.total_value)},
         )
+
+        po_value_total.labels(org_id=str(org_id), currency=str(po.currency)).inc(float(po.total_value))
 
         return po
 

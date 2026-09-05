@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
 from app.core.exceptions import AppException
+from app.core.metrics import integration_job_failures_total
 from app.db.enums import IntegrationJobStatusEnum
 from app.events.publisher import OutboxPublisher
 from app.modules.audit.service import audit_service
@@ -156,6 +157,10 @@ class IntegrationJobProcessor:
 
             if job.retry_count >= job.max_retries:
                 job.status = IntegrationJobStatusEnum.FAILED
+                integration_job_failures_total.labels(
+                    job_type=str(job.job_type),
+                    org_id=str(job.org_id),
+                ).inc()
                 alert_payload = {
                     "job_id": str(job.id),
                     "job_type": job.job_type,

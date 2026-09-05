@@ -10,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
 from app.core.constants import AuditAction, PermissionCode
+from app.core.metrics import rfq_published_total
 from app.core.exceptions import AppException, ConflictError, ForbiddenError, NotFoundError, ValidationError
 from app.core.redis_client import RedisKeys, get_redis_client
 from app.db.enums import RFQStatus, RFQType, AuditEntityType
@@ -266,6 +267,9 @@ class RfqService:
         rfq.published_at = datetime.now(timezone.utc)
         rfq.updated_by = actor_id
         await db.flush()
+
+        rfq_type_str = rfq.rfq_type.value if hasattr(rfq.rfq_type, "value") else str(rfq.rfq_type)
+        rfq_published_total.labels(org_id=str(org_id), rfq_type=rfq_type_str).inc()
 
         # Notify all participants (SPEC_10 S10-21)
         participants = await rfq_participant_repository.get_all(db, rfq_id, org_id)

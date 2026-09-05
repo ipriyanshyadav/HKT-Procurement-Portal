@@ -5,6 +5,7 @@ from fastapi import Request
 from starlette.middleware.base import BaseHTTPMiddleware
 from loguru import logger
 from app.core.telemetry import get_current_trace_id
+from app.core.metrics import http_requests_total, http_request_duration_seconds
 
 class RequestIDMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
@@ -31,7 +32,22 @@ class TimingMiddleware(BaseHTTPMiddleware):
         response = await call_next(request)
         process_time = time.time() - start_time
         response.headers["X-Process-Time"] = str(process_time)
-        if not request.url.path.startswith("/health"):
+
+        endpoint = request.url.path
+        org_id = getattr(request.state, "org_id", None) or "unknown"
+
+        http_requests_total.labels(
+            method=request.method,
+            endpoint=endpoint,
+            status_code=str(response.status_code),
+            org_id=str(org_id),
+        ).inc()
+
+        if not endpoint.startswith("/health"):
+            http_request_duration_seconds.labels(
+                method=request.method,
+                endpoint=endpoint,
+            ).observe(process_time)
             logger.info(f"{request.method} {request.url.path} completed in {process_time:.4f}s")
         return response
 
