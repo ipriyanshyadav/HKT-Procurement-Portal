@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Bell,
   Check,
@@ -88,9 +89,28 @@ export function NotificationBell() {
 
   const recentNotifications = notifications.slice(0, 8);
 
+  const router = useRouter();
+
   const handleItemClick = (n: NotificationItem) => {
     if (!n.is_read && !n.read_at) {
       markReadMutation.mutate(n.id);
+    }
+    setIsOpen(false);
+    if (n.entity_type) {
+      const type = n.entity_type.toLowerCase();
+      if (type.includes("req") || type === "pr") {
+        router.push(n.entity_id ? `/requisitions/${n.entity_id}` : "/requisitions");
+      } else if (type === "rfq" || type === "sourcing" || type === "bid") {
+        router.push(n.entity_id ? `/rfqs/${n.entity_id}` : "/rfqs");
+      } else if (type.includes("order") || type === "po") {
+        router.push(n.entity_id ? `/purchase-orders/${n.entity_id}` : "/purchase-orders");
+      } else if (type.includes("invoice") || type.includes("payment")) {
+        router.push(n.entity_id ? `/invoices/${n.entity_id}` : "/invoices");
+      } else if (type.includes("task") || type.includes("approval")) {
+        router.push(n.entity_id ? `/tasks/${n.entity_id}` : "/tasks");
+      } else if (type.includes("vendor")) {
+        router.push(n.entity_id ? `/vendors/${n.entity_id}` : "/vendors");
+      }
     }
   };
 

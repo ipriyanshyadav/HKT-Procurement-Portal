@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Bell,
   CheckCheck,
@@ -48,6 +49,7 @@ function getNotificationIcon(type: string) {
 }
 
 export function NotificationCenter() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<FilterTab>("ALL");
   const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
@@ -217,13 +219,44 @@ export function NotificationCenter() {
                     {item.body}
                   </p>
 
-                  <div className="flex items-center gap-3 text-[11px] text-neutral-400">
+                  <div className="flex flex-wrap items-center gap-3 text-[11px] text-neutral-400">
                     <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300">
                       {item.notification_type}
                     </span>
                     <span>Channel: {item.channel}</span>
                     {item.entity_type && (
-                      <span>Entity: {item.entity_type}</span>
+                      <span className="capitalize">
+                        Entity: {item.entity_type.replace("_", " ")}
+                      </span>
+                    )}
+                    {item.entity_type && item.entity_id && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (!item.is_read && !item.read_at) {
+                            markReadMutation.mutate(item.id);
+                          }
+                          const type = item.entity_type!.toLowerCase();
+                          if (type.includes("req") || type === "pr") {
+                            router.push(`/requisitions/${item.entity_id}`);
+                          } else if (type === "rfq" || type === "sourcing" || type === "bid") {
+                            router.push(`/rfqs/${item.entity_id}`);
+                          } else if (type.includes("order") || type === "po") {
+                            router.push(`/purchase-orders/${item.entity_id}`);
+                          } else if (type.includes("invoice") || type.includes("payment")) {
+                            router.push(`/invoices/${item.entity_id}`);
+                          } else if (type.includes("task") || type.includes("approval")) {
+                            router.push(`/tasks/${item.entity_id}`);
+                          } else if (type.includes("vendor")) {
+                            router.push(`/vendors/${item.entity_id}`);
+                          }
+                        }}
+                        className="inline-flex items-center gap-1 font-medium text-blue-600 dark:text-blue-400 hover:underline ml-auto"
+                      >
+                        <span>View Document</span>
+                        <ExternalLink className="w-3 h-3" />
+                      </button>
                     )}
                   </div>
                 </div>
