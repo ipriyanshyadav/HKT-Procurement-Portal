@@ -12,7 +12,7 @@ import {
   useVendors,
   useSendRegretLetters,
 } from "@procurement/hooks";
-import { Button, Badge, Input, Textarea } from "@procurement/ui";
+import { Button, Badge, Input, Textarea, PermissionGuard } from "@procurement/ui";
 import { Mail, CheckCircle2, AlertCircle } from "lucide-react";
 
 interface AwardDraftItem {
@@ -282,14 +282,16 @@ export default function AwardRecommendationPage() {
               <span className="text-xs text-amber-600 dark:text-amber-400 font-medium">
                 ⏳ Awaiting formal management approval before contracting.
               </span>
-              <Button
-                size="sm"
-                variant="primary"
-                disabled={approveMutation.isPending}
-                onClick={handleApprove}
-              >
-                {approveMutation.isPending ? "Approving..." : "Approve Award Recommendation"}
-              </Button>
+              <PermissionGuard permission="rfq.award">
+                <Button
+                  size="sm"
+                  variant="primary"
+                  disabled={approveMutation.isPending}
+                  onClick={handleApprove}
+                >
+                  {approveMutation.isPending ? "Approving..." : "Approve Award Recommendation"}
+                </Button>
+              </PermissionGuard>
             </div>
           )}
 
@@ -462,16 +464,18 @@ export default function AwardRecommendationPage() {
               </span>
             </div>
 
-            <Button
-              size="lg"
-              disabled={recommendMutation.isPending || awardItems.length === 0}
-              onClick={handleRecommend}
-              className="shadow-sm"
-            >
-              {recommendMutation.isPending
-                ? "Submitting Recommendation..."
-                : "Submit Award Recommendation for Approval"}
-            </Button>
+            <PermissionGuard permission="rfq.award">
+              <Button
+                size="lg"
+                disabled={recommendMutation.isPending || awardItems.length === 0}
+                onClick={handleRecommend}
+                className="shadow-sm"
+              >
+                {recommendMutation.isPending
+                  ? "Submitting Recommendation..."
+                  : "Submit Award Recommendation for Approval"}
+              </Button>
+            </PermissionGuard>
           </div>
         </div>
       )}

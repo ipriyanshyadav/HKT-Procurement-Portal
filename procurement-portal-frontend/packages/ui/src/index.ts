@@ -1,5 +1,7 @@
 // Shared UI Components & Utilities
 export { cn } from "./utils";
+export { ErrorBoundary } from "./ErrorBoundary";
+export type { ErrorBoundaryProps } from "./ErrorBoundary";
 export { SLAIndicator } from "./SLAIndicator";
 export type { SLAIndicatorProps } from "./SLAIndicator";
 export { WorkflowChainPreview } from "./WorkflowChainPreview";
@@ -63,6 +65,32 @@ export type { BadgeProps, BadgeVariant } from "./components/Badge";
 export { Input, SearchInput, Select, Textarea } from "./components/Input";
 export type { InputProps, SearchInputProps, SelectProps, TextareaProps } from "./components/Input";
 
+export {
+  RadixSelect,
+  SelectGroup,
+  SelectValue,
+  SelectTrigger,
+  SelectContent,
+  SelectLabel,
+  SelectItem,
+  SelectSeparator,
+  SelectScrollUpButton,
+  SelectScrollDownButton,
+} from "./components/Select";
+
+export {
+  Dialog,
+  DialogTrigger,
+  DialogPortal,
+  DialogClose,
+  DialogOverlay,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+  DialogDescription,
+} from "./components/Dialog";
+
 export { Toggle } from "./components/Toggle";
 export type { ToggleProps } from "./components/Toggle";
 
@@ -81,7 +109,7 @@ export type { KPIItemProps, HeroKPIStripProps, KPICardProps } from "./components
 export { SpendChart } from "./components/SpendChart";
 export type { SpendChartProps, SpendItem, BreakdownType } from "./components/SpendChart";
 
-export { Tabs } from "./components/Tabs";
+export { Tabs, RadixTabs, TabsList, TabsTrigger, TabsContent } from "./components/Tabs";
 export type { TabsProps, TabOption } from "./components/Tabs";
 
 export { Skeleton } from "./components/Skeleton";
@@ -144,6 +172,8 @@ export type { DocumentListProps } from "./DocumentList";
 // Internationalization & Locale (SPEC_19)
 export { LocaleSwitcher, SUPPORTED_LOCALES } from "./components/LocaleSwitcher";
 export type { LocaleOption } from "./components/LocaleSwitcher";
+export { I18nProvider, useTranslation, enMessages } from "./i18n";
+export type { I18nProviderProps } from "./i18n";
 
 // Notification Components (SPEC_16)
 export { NotificationBell } from "./components/NotificationBell";

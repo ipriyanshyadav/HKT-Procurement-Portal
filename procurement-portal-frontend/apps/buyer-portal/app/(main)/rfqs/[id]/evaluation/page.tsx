@@ -11,8 +11,7 @@ import {
   useSendRegretLetters,
   useVendors,
 } from "@procurement/hooks";
-import { ComparativeStatementTable } from "@procurement/ui";
-import { Button, Badge } from "@procurement/ui";
+import { ComparativeStatementTable, Button, Badge, PermissionGuard } from "@procurement/ui";
 
 export default function EvaluationPage() {
   const params = useParams();
@@ -110,18 +109,20 @@ export default function EvaluationPage() {
           </Link>
 
           {bidsOpened && (
-            <Button
-              size="sm"
-              variant={cs ? "secondary" : "primary"}
-              disabled={generateCSMutation.isPending}
-              onClick={handleGenerateCS}
-            >
-              {generateCSMutation.isPending
-                ? "Generating CS..."
-                : cs
-                ? "Re-Generate CS"
-                : "⚡ Generate Comparative Statement"}
-            </Button>
+            <PermissionGuard permission="rfq.evaluate">
+              <Button
+                size="sm"
+                variant={cs ? "secondary" : "primary"}
+                disabled={generateCSMutation.isPending}
+                onClick={handleGenerateCS}
+              >
+                {generateCSMutation.isPending
+                  ? "Generating CS..."
+                  : cs
+                  ? "Re-Generate CS"
+                  : "⚡ Generate Comparative Statement"}
+              </Button>
+            </PermissionGuard>
           )}
 
           {cs && (
@@ -134,23 +135,27 @@ export default function EvaluationPage() {
                 💬 Negotiate {selectedVendors.length > 0 ? `(${selectedVendors.length})` : ""}
               </Button>
 
-              <Button
-                size="sm"
-                variant="primary"
-                onClick={() => router.push(`/rfqs/${rfqId}/award`)}
-              >
-                🏆 Award Recommendation
-              </Button>
-
-              {cs.status === "APPROVED" && (
+              <PermissionGuard permission="rfq.award">
                 <Button
                   size="sm"
-                  variant="destructive"
-                  disabled={sendRegretsMutation.isPending}
-                  onClick={handleSendRegretLetters}
+                  variant="primary"
+                  onClick={() => router.push(`/rfqs/${rfqId}/award`)}
                 >
-                  {sendRegretsMutation.isPending ? "Sending..." : "✉️ Send Regrets"}
+                  🏆 Award Recommendation
                 </Button>
+              </PermissionGuard>
+
+              {cs.status === "APPROVED" && (
+                <PermissionGuard permission="rfq.award">
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    disabled={sendRegretsMutation.isPending}
+                    onClick={handleSendRegretLetters}
+                  >
+                    {sendRegretsMutation.isPending ? "Sending..." : "✉️ Send Regrets"}
+                  </Button>
+                </PermissionGuard>
               )}
             </>
           )}

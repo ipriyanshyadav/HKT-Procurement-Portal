@@ -8778,6 +8778,8 @@ export interface components {
             has_next_page?: boolean | null;
             /** Has Prev Page */
             has_prev_page?: boolean | null;
+            /** Unread Count */
+            unread_count?: number | null;
         };
         /** PaymentProcessRequest */
         PaymentProcessRequest: {
@@ -16303,9 +16305,7 @@ export interface operations {
         parameters: {
             query?: {
                 po_id?: string | null;
-                vendor_id?: string | null;
                 status?: string | null;
-                search?: string | null;
                 page?: number;
                 page_size?: number;
             };

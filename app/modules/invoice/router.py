@@ -44,6 +44,7 @@ router = APIRouter(tags=["Invoice"])
 
 
 def _to_invoice_response(inv: Any, vendor_name: Optional[str] = None, po_number: Optional[str] = None) -> InvoiceResponse:
+    lines_list = inv.__dict__.get("lines", []) or []
     lines_resp = [
         InvoiceLineResponse(
             id=line.id,
@@ -58,9 +59,10 @@ def _to_invoice_response(inv: Any, vendor_name: Optional[str] = None, po_number:
             tax_amount=line.tax_amount,
             line_total=line.line_total,
         )
-        for line in getattr(inv, "lines", [])
+        for line in lines_list
     ]
 
+    matches_list = inv.__dict__.get("match_results", []) or []
     matches_resp = [
         InvoiceMatchLineResultResponse(
             id=m.id,
@@ -77,7 +79,7 @@ def _to_invoice_response(inv: Any, vendor_name: Optional[str] = None, po_number:
             mismatch_reasons=m.mismatch_reasons,
             created_at=m.created_at,
         )
-        for m in getattr(inv, "match_results", [])
+        for m in matches_list
     ]
 
     status_str = inv.status.value if hasattr(inv.status, "value") else str(inv.status)
@@ -286,14 +288,16 @@ async def submit_invoice(
     current_user: User = Depends(require_permission(PermissionCode.INVOICE_SUBMIT)),
 ):
     effective_vendor_id = current_user.vendor_id or vendor_id
+    org_id = current_user.org_id
+    user_id = current_user.id
     if not effective_vendor_id:
         raise ValidationError("vendor_id is required to submit an invoice")
 
     invoice = await invoice_service.submit_invoice(
-        db, request, current_user.id, effective_vendor_id, current_user.org_id
+        db, request, user_id, effective_vendor_id, org_id
     )
-    v = await vendor_repository.find_by_id(db, invoice.vendor_id, current_user.org_id)
-    po = await purchase_order_repository.get(db, invoice.po_id, current_user.org_id)
+    v = await vendor_repository.find_by_id(db, invoice.vendor_id, org_id)
+    po = await purchase_order_repository.get(db, invoice.po_id, org_id)
     return created_response(
         data=_to_invoice_response(
             invoice,
@@ -309,12 +313,14 @@ async def get_invoice(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_any_permission([PermissionCode.INVOICE_VIEW_OWN, PermissionCode.INVOICE_VIEW_ALL])),
 ):
-    invoice = await invoice_service.get(db, invoice_id, current_user.org_id)
-    if current_user.vendor_id and invoice.vendor_id != current_user.vendor_id:
+    org_id = current_user.org_id
+    curr_vendor_id = current_user.vendor_id
+    invoice = await invoice_service.get(db, invoice_id, org_id)
+    if curr_vendor_id and invoice.vendor_id != curr_vendor_id:
         raise ValidationError("Access denied to another vendor's invoice")
 
-    v = await vendor_repository.find_by_id(db, invoice.vendor_id, current_user.org_id)
-    po = await purchase_order_repository.get(db, invoice.po_id, current_user.org_id)
+    v = await vendor_repository.find_by_id(db, invoice.vendor_id, org_id)
+    po = await purchase_order_repository.get(db, invoice.po_id, org_id)
     return success_response(
         data=_to_invoice_response(
             invoice,
@@ -330,9 +336,10 @@ async def match_invoice(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_permission(PermissionCode.INVOICE_MATCH)),
 ):
-    invoice = await invoice_service.get(db, invoice_id, current_user.org_id)
-    po = await purchase_order_repository.get(db, invoice.po_id, current_user.org_id)
-    match_result = await invoice_service.perform_three_way_match(db, invoice, po, current_user.org_id)
+    org_id = current_user.org_id
+    invoice = await invoice_service.get(db, invoice_id, org_id)
+    po = await purchase_order_repository.get(db, invoice.po_id, org_id)
+    match_result = await invoice_service.perform_three_way_match(db, invoice, po, org_id)
 
     if match_result["all_match"]:
         invoice.match_status = "MATCHED"
@@ -341,7 +348,7 @@ async def match_invoice(
         invoice.match_status = "DISCREPANCY"
 
     await db.commit()
-    updated = await invoice_service.get(db, invoice_id, current_user.org_id)
+    updated = await invoice_service.get(db, invoice_id, org_id)
     return success_response(data=_to_invoice_response(updated))
 
 
@@ -351,9 +358,11 @@ async def approve_invoice(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_permission(PermissionCode.INVOICE_APPROVE)),
 ):
-    invoice = await invoice_service.approve(db, invoice_id, current_user.id, current_user.org_id)
-    v = await vendor_repository.find_by_id(db, invoice.vendor_id, current_user.org_id)
-    po = await purchase_order_repository.get(db, invoice.po_id, current_user.org_id)
+    org_id = current_user.org_id
+    user_id = current_user.id
+    invoice = await invoice_service.approve(db, invoice_id, user_id, org_id)
+    v = await vendor_repository.find_by_id(db, invoice.vendor_id, org_id)
+    po = await purchase_order_repository.get(db, invoice.po_id, org_id)
     return success_response(
         data=_to_invoice_response(
             invoice,
@@ -370,8 +379,10 @@ async def reject_invoice(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_permission(PermissionCode.INVOICE_REJECT)),
 ):
+    org_id = current_user.org_id
+    user_id = current_user.id
     invoice = await invoice_service.reject(
-        db, invoice_id, request.rejection_reason, current_user.id, current_user.org_id
+        db, invoice_id, request.rejection_reason, user_id, org_id
     )
     return success_response(data=_to_invoice_response(invoice))
 
@@ -383,7 +394,9 @@ async def dispute_invoice(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_any_permission([PermissionCode.INVOICE_VIEW_OWN, PermissionCode.INVOICE_VIEW_ALL])),
 ):
+    org_id = current_user.org_id
+    user_id = current_user.id
     invoice = await invoice_service.dispute(
-        db, invoice_id, request.reason_code, request.description, current_user.id, current_user.org_id
+        db, invoice_id, request.reason_code, request.description, user_id, org_id
     )
     return success_response(data=_to_invoice_response(invoice))

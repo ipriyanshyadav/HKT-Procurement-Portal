@@ -43,6 +43,7 @@ async def create_requisition(
         org_id=current_user.org_id,
     )
     await db.commit()
+    pr = await requisition_service.get_by_id(db, pr.id, current_user.org_id)
     return created_response(PRDetailResponse.model_validate(pr))
 
 

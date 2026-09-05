@@ -564,26 +564,30 @@ class WorkflowEngine:
         result_users: list[User] = []
 
         for approver in approvers:
-            delegation_stmt = text(
-                """
-                SELECT delegate_id FROM user_delegations
-                WHERE delegator_id = :delegator_id
-                  AND org_id = :org_id
-                  AND is_active = TRUE
-                  AND start_date <= :now
-                  AND (end_date IS NULL OR end_date >= :now)
-                LIMIT 1
-                """
-            )
-            res = await db.execute(
-                delegation_stmt,
-                {
-                    "delegator_id": str(approver.id),
-                    "org_id": str(org_id),
-                    "now": now.isoformat(),
-                },
-            )
-            row = res.fetchone()
+            row = None
+            try:
+                delegation_stmt = text(
+                    """
+                    SELECT delegate_id FROM delegation_rules
+                    WHERE delegator_id = :delegator_id
+                      AND org_id = :org_id
+                      AND is_active = TRUE
+                      AND valid_from <= :now
+                      AND (valid_until IS NULL OR valid_until >= :now)
+                    LIMIT 1
+                    """
+                )
+                res = await db.execute(
+                    delegation_stmt,
+                    {
+                        "delegator_id": str(approver.id),
+                        "org_id": str(org_id),
+                        "now": now.isoformat(),
+                    },
+                )
+                row = res.fetchone()
+            except Exception:
+                row = None
 
             if row:
                 try:

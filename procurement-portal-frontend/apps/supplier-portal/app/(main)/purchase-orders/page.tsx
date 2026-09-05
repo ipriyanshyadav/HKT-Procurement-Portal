@@ -46,7 +46,9 @@ export default function SupplierPurchaseOrdersPage() {
 
   const kpis = useMemo(() => {
     const total = purchaseOrders.length;
-    const pendingAck = purchaseOrders.filter((po) => po.status === "SENT_TO_VENDOR").length;
+    const pendingAck = purchaseOrders.filter(
+      (po) => po.status === "SENT_TO_VENDOR" || po.status === "RELEASED"
+    ).length;
     const acknowledged = purchaseOrders.filter(
       (po) => po.status === "VENDOR_ACKNOWLEDGED" || po.status === "PARTIALLY_RECEIVED"
     ).length;
@@ -125,12 +127,15 @@ export default function SupplierPurchaseOrdersPage() {
   const getStatusBadgeClass = (status: string) => {
     switch (status) {
       case "SENT_TO_VENDOR":
+      case "RELEASED":
         return "bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800";
       case "VENDOR_ACKNOWLEDGED":
+      case "ACKNOWLEDGED":
         return "bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800";
       case "PARTIALLY_RECEIVED":
         return "bg-indigo-50 text-indigo-800 border-indigo-200 dark:bg-indigo-950/40 dark:text-indigo-300 dark:border-indigo-800";
       case "RECEIVED":
+      case "FULLY_RECEIVED":
       case "CLOSED":
         return "bg-green-100 text-green-800 border-green-300 dark:bg-green-950/40 dark:text-green-300 dark:border-green-800";
       case "VENDOR_REJECTED":
@@ -254,7 +259,7 @@ export default function SupplierPurchaseOrdersPage() {
           <div className="divide-y divide-slate-100 dark:divide-slate-800">
             {purchaseOrders.map((po) => {
               const isExpanded = expandedPoId === po.id;
-              const isPendingAck = po.status === "SENT_TO_VENDOR";
+              const isPendingAck = po.status === "SENT_TO_VENDOR" || po.status === "RELEASED";
 
               return (
                 <div key={po.id} className="p-5 hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors space-y-4">
@@ -274,7 +279,7 @@ export default function SupplierPurchaseOrdersPage() {
                             po.status
                           )}`}
                         >
-                          {po.status === "SENT_TO_VENDOR" ? "Action Required: Pending Acknowledgment" : po.status.replace(/_/g, " ")}
+                          {isPendingAck ? "Action Required: Pending Acknowledgment" : po.status.replace(/_/g, " ")}
                         </span>
                       </div>
                       <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mt-1">{po.title}</p>

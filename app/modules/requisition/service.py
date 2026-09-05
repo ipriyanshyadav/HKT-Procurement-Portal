@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 from decimal import Decimal
 from typing import Optional, List, Tuple
 from uuid import UUID
+import re
 from loguru import logger
 from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -842,7 +843,8 @@ class RequisitionService:
         bu = bu_res.scalar_one_or_none()
         bu_code = bu.code.upper() if bu else "CORP"
         year = datetime.now(timezone.utc).year
-        seq_name = f"seq_pr_{bu_code.lower()}_{year}"
+        clean_code = re.sub(r"[^a-zA-Z0-9_]", "_", bu_code.lower())
+        seq_name = f"seq_pr_{clean_code}_{year}"
 
         try:
             await db.execute(text(f"CREATE SEQUENCE IF NOT EXISTS {seq_name} START WITH 1 INCREMENT BY 1;"))

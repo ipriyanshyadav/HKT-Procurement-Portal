@@ -36,9 +36,11 @@ from app.modules.user.models import User
 router = APIRouter(tags=["GRN"])
 
 
-def _to_grn_response(grn: Any) -> GrnResponse:
+def _to_grn_response(grn: GoodsReceiptNote) -> GrnResponse:
     lines_resp = []
-    for line in getattr(grn, "lines", []):
+    lines_list = grn.__dict__.get("lines", []) or []
+    for line in lines_list:
+        inspections_list = line.__dict__.get("inspections", []) or []
         inspections_resp = [
             QualityInspectionResponse(
                 id=insp.id,
@@ -51,7 +53,7 @@ def _to_grn_response(grn: Any) -> GrnResponse:
                 remarks=insp.remarks,
                 created_at=insp.created_at,
             )
-            for insp in getattr(line, "inspections", [])
+            for insp in inspections_list
         ]
 
         lines_resp.append(
@@ -101,32 +103,23 @@ async def health():
 @router.get("", response_model=APIResponse[List[GrnResponse]])
 async def list_grns(
     po_id: Optional[UUID] = Query(None),
-    vendor_id: Optional[UUID] = Query(None),
     status: Optional[str] = Query(None),
-    search: Optional[str] = Query(None),
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_any_permission([PermissionCode.GRN_VIEW_OWN, PermissionCode.GRN_VIEW_ALL])),
 ):
-    effective_vendor_id = vendor_id
-    if current_user.vendor_id:
-        effective_vendor_id = current_user.vendor_id
-
     filters = GrnFilterParams(
         po_id=po_id,
-        vendor_id=effective_vendor_id,
         status=status,
-        search=search,
         page=page,
         page_size=page_size,
     )
-    grns, total_count = await grn_service.list(db, current_user.org_id, filters)
+    grns, total = await grn_service.list(db, current_user.org_id, filters)
+    total_pages = (total + page_size - 1) // page_size if total > 0 else 1
     data = [_to_grn_response(g) for g in grns]
-
-    total_pages = math.ceil(total_count / page_size) if page_size else 1
     meta = PaginationMeta(
-        total=total_count,
+        total=total,
         page=page,
         page_size=page_size,
         total_pages=total_pages,
@@ -140,8 +133,12 @@ async def create_grn(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_permission(PermissionCode.GRN_CREATE)),
 ):
-    grn = await grn_service.create_grn(db, request, current_user.id, current_user.org_id)
-    return created_response(data=_to_grn_response(grn))
+    org_id = current_user.org_id
+    user_id = current_user.id
+    grn = await grn_service.create_grn(db, request, user_id, org_id)
+    await db.commit()
+    updated = await grn_service.get(db, grn.id, org_id)
+    return created_response(data=_to_grn_response(updated))
 
 
 @router.get("/{grn_id}", response_model=APIResponse[GrnResponse])
@@ -160,7 +157,10 @@ async def record_quality_inspection(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_permission(PermissionCode.GRN_APPROVE)),
 ):
-    qi = await grn_service.quality_inspection(db, request, current_user.id, current_user.org_id)
+    org_id = current_user.org_id
+    user_id = current_user.id
+    qi = await grn_service.quality_inspection(db, request, user_id, org_id)
+    await db.commit()
     resp = QualityInspectionResponse(
         id=qi.id,
         grn_line_id=qi.grn_line_id,
@@ -181,8 +181,12 @@ async def confirm_grn(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_permission(PermissionCode.GRN_APPROVE)),
 ):
-    grn = await grn_service.confirm_grn(db, grn_id, current_user.id, current_user.org_id)
-    return success_response(data=_to_grn_response(grn))
+    org_id = current_user.org_id
+    user_id = current_user.id
+    await grn_service.confirm_grn(db, grn_id, user_id, org_id)
+    await db.commit()
+    updated = await grn_service.get(db, grn_id, org_id)
+    return success_response(data=_to_grn_response(updated))
 
 
 @router.post("/{grn_id}/cancel", response_model=APIResponse[GrnResponse])
@@ -192,5 +196,9 @@ async def cancel_grn(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_permission(PermissionCode.GRN_REJECT)),
 ):
-    grn = await grn_service.cancel_grn(db, grn_id, reason, current_user.id, current_user.org_id)
-    return success_response(data=_to_grn_response(grn))
+    org_id = current_user.org_id
+    user_id = current_user.id
+    await grn_service.cancel_grn(db, grn_id, reason, user_id, org_id)
+    await db.commit()
+    updated = await grn_service.get(db, grn_id, org_id)
+    return success_response(data=_to_grn_response(updated))

@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "decimal.js": "^10.6.0",
-    "lucide-react": "^1.41.0"
+    "lucide-react": "^1.41.0",
+    "next-intl": "^4.14.2"
   }
 }

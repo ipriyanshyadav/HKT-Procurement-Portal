@@ -11,7 +11,7 @@ import {
   useMatchInvoice,
   usePayments,
 } from "@procurement/hooks";
-import { ThreeWayMatchResult, PaymentSchedule, DocumentList } from "@procurement/ui";
+import { ThreeWayMatchResult, PaymentSchedule, DocumentList, PermissionGuard } from "@procurement/ui";
 import {
   ArrowLeft,
   Receipt,
@@ -189,30 +189,36 @@ export default function InvoiceDetailPage() {
           <div className="flex flex-wrap items-center gap-3">
             {isPendingApproval && (
               <>
-                <button
-                  onClick={handleApprove}
-                  disabled={approveMutation.isPending}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-xl shadow-xs transition-colors disabled:opacity-50"
-                >
-                  <CheckCircle2 className="h-4 w-4" />
-                  {approveMutation.isPending ? "Approving..." : "Approve Invoice"}
-                </button>
+                <PermissionGuard permission="invoice.approve">
+                  <button
+                    onClick={handleApprove}
+                    disabled={approveMutation.isPending}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-xl shadow-xs transition-colors disabled:opacity-50"
+                  >
+                    <CheckCircle2 className="h-4 w-4" />
+                    {approveMutation.isPending ? "Approving..." : "Approve Invoice"}
+                  </button>
+                </PermissionGuard>
 
-                <button
-                  onClick={() => setDisputeModalOpen(true)}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-amber-50 dark:bg-amber-950/30 hover:bg-amber-100 dark:hover:bg-amber-950/50 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 text-sm font-medium rounded-xl transition-colors"
-                >
-                  <AlertTriangle className="h-4 w-4" />
-                  Raise Dispute
-                </button>
+                <PermissionGuard permission="invoice.dispute">
+                  <button
+                    onClick={() => setDisputeModalOpen(true)}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-amber-50 dark:bg-amber-950/30 hover:bg-amber-100 dark:hover:bg-amber-950/50 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 text-sm font-medium rounded-xl transition-colors"
+                  >
+                    <AlertTriangle className="h-4 w-4" />
+                    Raise Dispute
+                  </button>
+                </PermissionGuard>
 
-                <button
-                  onClick={() => setRejectModalOpen(true)}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-rose-950/20 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-rose-600 dark:text-rose-300 border border-rose-200 dark:border-rose-900/40 text-sm font-medium rounded-xl transition-colors"
-                >
-                  <XCircle className="h-4 w-4" />
-                  Reject
-                </button>
+                <PermissionGuard permission="invoice.reject">
+                  <button
+                    onClick={() => setRejectModalOpen(true)}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-rose-950/20 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-rose-600 dark:text-rose-300 border border-rose-200 dark:border-rose-900/40 text-sm font-medium rounded-xl transition-colors"
+                  >
+                    <XCircle className="h-4 w-4" />
+                    Reject
+                  </button>
+                </PermissionGuard>
               </>
             )}
           </div>

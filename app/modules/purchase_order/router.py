@@ -41,6 +41,7 @@ router = APIRouter(tags=["Purchase Order"])
 
 
 def _to_po_response(po: Any) -> POResponse:
+    lines_list = po.lines if "lines" in po.__dict__ else []
     lines_resp = [
         POLineResponse(
             id=line.id,
@@ -62,9 +63,10 @@ def _to_po_response(po: Any) -> POResponse:
             delivery_date=line.delivery_date,
             created_at=line.created_at,
         )
-        for line in getattr(po, "lines", [])
+        for line in lines_list
     ]
 
+    amends_list = po.amendments if "amendments" in po.__dict__ else []
     amendments_resp = [
         POAmendmentResponse(
             id=amend.id,
@@ -79,7 +81,7 @@ def _to_po_response(po: Any) -> POResponse:
             approved_at=amend.approved_at,
             created_at=amend.created_at,
         )
-        for amend in getattr(po, "amendments", [])
+        for amend in amends_list
     ]
 
     status_str = po.status.value if hasattr(po.status, "value") else str(po.status)
@@ -205,8 +207,12 @@ async def approve_purchase_order(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_permission(PermissionCode.PO_APPROVE)),
 ):
-    po = await purchase_order_service.approve(db, po_id, current_user.id, current_user.org_id)
-    return success_response(data=_to_po_response(po))
+    org_id = current_user.org_id
+    user_id = current_user.id
+    po = await purchase_order_service.approve(db, po_id, user_id, org_id)
+    await db.commit()
+    updated = await purchase_order_service.get(db, po_id, org_id)
+    return success_response(data=_to_po_response(updated))
 
 
 @router.post("/{po_id}/reject", response_model=APIResponse[POResponse])
@@ -216,8 +222,12 @@ async def reject_purchase_order(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_permission(PermissionCode.PO_APPROVE)),
 ):
-    po = await purchase_order_service.reject(db, po_id, rejection_reason, current_user.id, current_user.org_id)
-    return success_response(data=_to_po_response(po))
+    org_id = current_user.org_id
+    user_id = current_user.id
+    po = await purchase_order_service.reject(db, po_id, rejection_reason, user_id, org_id)
+    await db.commit()
+    updated = await purchase_order_service.get(db, po_id, org_id)
+    return success_response(data=_to_po_response(updated))
 
 
 @router.post("/{po_id}/send-to-vendor", response_model=APIResponse[POResponse])
@@ -226,8 +236,12 @@ async def send_to_vendor(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_permission(PermissionCode.PO_CREATE)),
 ):
-    po = await purchase_order_service.send_to_vendor(db, po_id, current_user.id, current_user.org_id)
-    return success_response(data=_to_po_response(po))
+    org_id = current_user.org_id
+    user_id = current_user.id
+    po = await purchase_order_service.send_to_vendor(db, po_id, user_id, org_id)
+    await db.commit()
+    updated = await purchase_order_service.get(db, po_id, org_id)
+    return success_response(data=_to_po_response(updated))
 
 
 @router.post("/{po_id}/acknowledge", response_model=APIResponse[POResponse])
@@ -237,15 +251,19 @@ async def acknowledge_purchase_order(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_permission(PermissionCode.PO_ACKNOWLEDGE)),
 ):
+    org_id = current_user.org_id
+    user_id = current_user.id
     po = await purchase_order_service.record_vendor_acknowledgement(
         db,
         po_id,
         accepted=request.accepted,
         rejection_reason=request.rejection_reason,
-        actor_id=current_user.id,
-        org_id=current_user.org_id,
+        actor_id=user_id,
+        org_id=org_id,
     )
-    return success_response(data=_to_po_response(po))
+    await db.commit()
+    updated = await purchase_order_service.get(db, po_id, org_id)
+    return success_response(data=_to_po_response(updated))
 
 
 @router.post("/{po_id}/amend", response_model=APIResponse[POResponse])

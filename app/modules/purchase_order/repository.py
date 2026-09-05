@@ -7,6 +7,7 @@ Layer discipline: router -> service -> repository -> model.
 from __future__ import annotations
 
 from datetime import datetime, timezone
+import re
 from typing import List, Optional, Tuple
 from uuid import UUID
 
@@ -209,7 +210,8 @@ class PurchaseOrderRepository:
         bu = bu_res.scalar_one_or_none()
         bu_code = bu.code.upper() if bu and bu.code else "CORP"
         year = datetime.now(timezone.utc).year
-        seq_name = f"seq_po_{bu_code.lower()}_{year}"
+        clean_code = re.sub(r"[^a-zA-Z0-9_]", "_", bu_code.lower())
+        seq_name = f"seq_po_{clean_code}_{year}"
 
         try:
             await db.execute(

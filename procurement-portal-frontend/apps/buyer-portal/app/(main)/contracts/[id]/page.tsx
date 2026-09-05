@@ -15,7 +15,7 @@ import {
   ContractLine,
   ContractAmendment,
 } from "@procurement/hooks";
-import { ContractExpiryCountdown, MilestoneTracker, DocumentList } from "@procurement/ui";
+import { ContractExpiryCountdown, MilestoneTracker, DocumentList, PermissionGuard } from "@procurement/ui";
 import {
   FileText,
   Clock,
@@ -248,84 +248,98 @@ export default function ContractWorkspacePage() {
 
         <div className="flex flex-wrap items-center gap-2">
           {contract.status === "DRAFT" && (
-            <button
-              onClick={handleSubmitReview}
-              disabled={submitReviewMut.isPending}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-sm disabled:opacity-50"
-            >
-              <Send className="w-3.5 h-3.5" />
-              {submitReviewMut.isPending ? "Submitting..." : "Submit for Review"}
-            </button>
+            <PermissionGuard permission="contract.update">
+              <button
+                onClick={handleSubmitReview}
+                disabled={submitReviewMut.isPending}
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-sm disabled:opacity-50"
+              >
+                <Send className="w-3.5 h-3.5" />
+                {submitReviewMut.isPending ? "Submitting..." : "Submit for Review"}
+              </button>
+            </PermissionGuard>
           )}
 
           {contract.status === "PENDING_REVIEW" && (
             <>
-              <button
-                onClick={handleApprove}
-                disabled={approveMut.isPending}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg shadow-sm disabled:opacity-50"
-              >
-                <Check className="w-3.5 h-3.5" />
-                {approveMut.isPending ? "Approving..." : "Approve Contract"}
-              </button>
-              <button
-                onClick={() => setIsReturnModalOpen(true)}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-lg shadow-sm"
-              >
-                <RotateCcw className="w-3.5 h-3.5" />
-                Return with Comments
-              </button>
+              <PermissionGuard permission="contract.approve">
+                <button
+                  onClick={handleApprove}
+                  disabled={approveMut.isPending}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg shadow-sm disabled:opacity-50"
+                >
+                  <Check className="w-3.5 h-3.5" />
+                  {approveMut.isPending ? "Approving..." : "Approve Contract"}
+                </button>
+              </PermissionGuard>
+              <PermissionGuard permission="contract.approve">
+                <button
+                  onClick={() => setIsReturnModalOpen(true)}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-lg shadow-sm"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  Return with Comments
+                </button>
+              </PermissionGuard>
             </>
           )}
 
           {contract.status === "APPROVED" && (
             <>
-              <button
-                onClick={() => handleInitiateEsign("DIGIO")}
-                disabled={initiateEsignMut.isPending}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-sm disabled:opacity-50"
-              >
-                <ShieldCheck className="w-3.5 h-3.5" />
-                Sign via Digio (India eSign)
-              </button>
-              <button
-                onClick={() => handleInitiateEsign("DOCUSIGN")}
-                disabled={initiateEsignMut.isPending}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg shadow-sm disabled:opacity-50"
-              >
-                <ShieldCheck className="w-3.5 h-3.5" />
-                Sign via DocuSign
-              </button>
+              <PermissionGuard permission="contract.update">
+                <button
+                  onClick={() => handleInitiateEsign("DIGIO")}
+                  disabled={initiateEsignMut.isPending}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-sm disabled:opacity-50"
+                >
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  Sign via Digio (India eSign)
+                </button>
+                <button
+                  onClick={() => handleInitiateEsign("DOCUSIGN")}
+                  disabled={initiateEsignMut.isPending}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg shadow-sm disabled:opacity-50"
+                >
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  Sign via DocuSign
+                </button>
+              </PermissionGuard>
             </>
           )}
 
           {contract.status === "PENDING_ESIGN" && (
-            <button
-              onClick={handleConfirmEsign}
-              disabled={confirmEsignMut.isPending}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg shadow-sm disabled:opacity-50"
-            >
-              <FileCheck className="w-3.5 h-3.5" />
-              {confirmEsignMut.isPending ? "Confirming..." : "Simulate / Confirm eSign Completion"}
-            </button>
+            <PermissionGuard permission="contract.update">
+              <button
+                onClick={handleConfirmEsign}
+                disabled={confirmEsignMut.isPending}
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg shadow-sm disabled:opacity-50"
+              >
+                <FileCheck className="w-3.5 h-3.5" />
+                {confirmEsignMut.isPending ? "Confirming..." : "Simulate / Confirm eSign Completion"}
+              </button>
+            </PermissionGuard>
           )}
 
           {(contract.status === "ACTIVE" || contract.status === "AMENDED") && (
             <>
-              <Link
-                href={`/purchase-orders/new?contract_id=${contract.id}&vendor_id=${contract.vendor_id}`}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg shadow-sm"
-              >
-                <ShoppingCart className="w-3.5 h-3.5" />
-                Create Purchase Order
-              </Link>
-              <button
-                onClick={() => setIsAmendModalOpen(true)}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-sm"
-              >
-                <Edit3 className="w-3.5 h-3.5" />
-                Amend Contract
-              </button>
+              <PermissionGuard permission="po.create">
+                <Link
+                  href={`/purchase-orders/new?contract_id=${contract.id}&vendor_id=${contract.vendor_id}`}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg shadow-sm"
+                >
+                  <ShoppingCart className="w-3.5 h-3.5" />
+                  Create Purchase Order
+                </Link>
+              </PermissionGuard>
+              <PermissionGuard permission="contract.amend">
+                <button
+                  onClick={() => setIsAmendModalOpen(true)}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-sm"
+                >
+                  <Edit3 className="w-3.5 h-3.5" />
+                  Amend Contract
+                </button>
+              </PermissionGuard>
             </>
           )}
         </div>

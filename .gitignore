@@ -58,3 +58,7 @@ keys/*.pem
 # Docker
 *.log
 celerybeat-schedule*
+
+# Playwright
+playwright-report/
+test-results/

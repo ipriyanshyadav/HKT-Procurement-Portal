@@ -175,6 +175,26 @@ class GrnRepository:
             cnt = (await db.execute(cnt_stmt)).scalar() or 0
             n = cnt + 1
 
+        try:
+            max_res = await db.execute(
+                text("""
+                SELECT COALESCE(
+                    MAX(CAST(NULLIF(regexp_replace(grn_number, '^GRN-[0-9]+-', ''), '') AS INTEGER)),
+                    0
+                ) FROM goods_receipt_notes WHERE org_id = :org_id AND grn_number LIKE :prefix
+                """),
+                {"org_id": org_id, "prefix": f"GRN-{year}-%"},
+            )
+            max_val = max_res.scalar() or 0
+            if n <= max_val:
+                n = max_val + 1
+                try:
+                    await db.execute(text(f"SELECT setval('{seq_name}', {n})"))
+                except Exception:
+                    pass
+        except Exception:
+            pass
+
         return f"GRN-{year}-{str(n).zfill(6)}"
 
 

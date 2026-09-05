@@ -27786,6 +27786,17 @@
               }
             ],
             "title": "Has Prev Page"
+          },
+          "unread_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unread Count"
           }
         },
         "type": "object",

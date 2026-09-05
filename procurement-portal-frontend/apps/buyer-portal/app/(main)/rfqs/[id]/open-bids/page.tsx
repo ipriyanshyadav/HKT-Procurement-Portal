@@ -9,6 +9,7 @@ import {
   useInitiateBidOpening,
   useCoAuthorizeBidOpening,
 } from "@procurement/hooks";
+import { PermissionGuard } from "@procurement/ui";
 
 export default function DualAuthBidOpeningPage() {
   const params = useParams();
@@ -132,14 +133,16 @@ export default function DualAuthBidOpeningPage() {
                 Initiated
               </span>
             ) : (
-              <button
-                type="button"
-                disabled={initiateMutation.isPending}
-                onClick={handleInitiate}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg shadow-sm disabled:opacity-50"
-              >
-                {initiateMutation.isPending ? "Initiating..." : "Initiate Opening"}
-              </button>
+              <PermissionGuard permission="rfq.open_bids">
+                <button
+                  type="button"
+                  disabled={initiateMutation.isPending}
+                  onClick={handleInitiate}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg shadow-sm disabled:opacity-50"
+                >
+                  {initiateMutation.isPending ? "Initiating..." : "Initiate Opening"}
+                </button>
+              </PermissionGuard>
             )}
           </div>
           {isInitiated && rfq.bid_opening_initiated_at && (
@@ -168,14 +171,16 @@ export default function DualAuthBidOpeningPage() {
                 Decrypted & Opened
               </span>
             ) : (
-              <button
-                type="button"
-                disabled={!isInitiated || coAuthorizeMutation.isPending}
-                onClick={handleCoAuthorize}
-                className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold rounded-lg shadow-sm disabled:opacity-50"
-              >
-                {coAuthorizeMutation.isPending ? "Unsealing Bids..." : "Co-Authorize & Unseal"}
-              </button>
+              <PermissionGuard permission="rfq.open_bids">
+                <button
+                  type="button"
+                  disabled={!isInitiated || coAuthorizeMutation.isPending}
+                  onClick={handleCoAuthorize}
+                  className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold rounded-lg shadow-sm disabled:opacity-50"
+                >
+                  {coAuthorizeMutation.isPending ? "Unsealing Bids..." : "Co-Authorize & Unseal"}
+                </button>
+              </PermissionGuard>
             )}
           </div>
           {isCompleted && rfq.bids_opened_at && (

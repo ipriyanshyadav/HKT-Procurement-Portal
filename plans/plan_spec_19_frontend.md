@@ -42,6 +42,13 @@ OVERALL: 20/20 (100%) | BACKEND 100% | FRONTEND 100% | TESTS 100%
 | A-19-3 | Tailwind config extended with design tokens (colors, spacing, typography) in `packages/config/tailwind.config.ts`; all portals import this config | Shared design system | LOW | FE Lead |
 | A-19-4 | Supplier portal is ENTIRELY separate Next.js app on port 3001; vendors NEVER see buyer portal routes | Security isolation | HIGH | FE Lead |
 | A-19-5 | React Query cache time: 5 minutes default; invalidated on relevant mutations; staleTime: 30 seconds | Performance vs freshness trade-off | LOW | FE Lead |
+| A-19-6 | Playwright E2E full procurement cycle tests will execute against local or test-stubbed environments without breaking on external dependencies | End-to-end verification requirement | MEDIUM | QA Lead |
+| A-19-7 | Supplier portal invoice submission and PO acknowledgement forms directly wire to backend `/api/v1/invoices` and `/api/v1/purchase-orders/{id}/acknowledge` | Complete supplier P2P workflow | LOW | FE Lead |
+| A-19-8 | PWA manifest configured at `apps/buyer-portal/public/manifest.json` with app icons and metadata | Offline/PWA compliance | LOW | FE Lead |
+| A-19-9 | All page routes provide React ErrorBoundary coverage to prevent full-page crashes on runtime faults | Resilience requirement | LOW | FE Lead |
+| A-19-10 | Radix UI library in `packages/ui/` provides complete, unified components: Button, Input, Select, Dialog, Table, Badge, Toast, Tabs, Card, Skeleton | Unified design system | LOW | FE Lead |
+| A-19-11 | i18n stub using `next-intl` provides centralized translation extraction in `messages/en.json` | Localization architecture | LOW | FE Lead |
+| A-19-12 | Responsive layouts enforce min-width 768px usability with adaptive tables, dialogs, and navigation | Mobile responsive UX requirement | LOW | FE Lead |
 
 ---
 ## STEP 2 — IMPLEMENT

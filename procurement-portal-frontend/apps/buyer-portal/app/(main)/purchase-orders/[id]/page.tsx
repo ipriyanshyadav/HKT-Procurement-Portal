@@ -11,7 +11,7 @@ import {
   useDownloadPOPDF,
   useGRNs,
 } from "@procurement/hooks";
-import { DeliveryScheduleTable, DocumentList } from "@procurement/ui";
+import { DeliveryScheduleTable, DocumentList, PermissionGuard } from "@procurement/ui";
 import {
   Package,
   ArrowLeft,
@@ -162,24 +162,28 @@ export default function PurchaseOrderDetailPage() {
         </Link>
         <div className="flex items-center gap-2">
           {po.status === "PENDING_APPROVAL" && (
-            <button
-              onClick={handleApprove}
-              disabled={approveMutation.isPending}
-              className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg shadow-sm transition-colors disabled:opacity-50"
-            >
-              <CheckCircle2 className="h-4 w-4" />
-              Approve PO
-            </button>
+            <PermissionGuard permission="po.approve">
+              <button
+                onClick={handleApprove}
+                disabled={approveMutation.isPending}
+                className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg shadow-sm transition-colors disabled:opacity-50"
+              >
+                <CheckCircle2 className="h-4 w-4" />
+                Approve PO
+              </button>
+            </PermissionGuard>
           )}
           {po.status === "APPROVED" && (
-            <button
-              onClick={handleSendToVendor}
-              disabled={sendToVendorMutation.isPending}
-              className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg shadow-sm transition-colors disabled:opacity-50"
-            >
-              <Send className="h-4 w-4" />
-              Send to Vendor
-            </button>
+            <PermissionGuard permission="po.update">
+              <button
+                onClick={handleSendToVendor}
+                disabled={sendToVendorMutation.isPending}
+                className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg shadow-sm transition-colors disabled:opacity-50"
+              >
+                <Send className="h-4 w-4" />
+                Send to Vendor
+              </button>
+            </PermissionGuard>
           )}
           {(po.status === "APPROVED" ||
             po.status === "SENT_TO_VENDOR" ||
@@ -198,22 +202,26 @@ export default function PurchaseOrderDetailPage() {
           {(po.status === "SENT_TO_VENDOR" ||
             po.status === "VENDOR_ACKNOWLEDGED" ||
             po.status === "PARTIALLY_RECEIVED") && (
-            <Link
-              href={`/grn/new?po_id=${po.id}`}
-              className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-sm transition-colors"
-            >
-              <Truck className="h-4 w-4" />
-              Create GRN
-            </Link>
+            <PermissionGuard permission="grn.create">
+              <Link
+                href={`/grn/new?po_id=${po.id}`}
+                className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-sm transition-colors"
+              >
+                <Truck className="h-4 w-4" />
+                Create GRN
+              </Link>
+            </PermissionGuard>
           )}
           {po.status !== "CANCELLED" && po.status !== "CLOSED" && (
-            <button
-              onClick={() => setCancelModalOpen(true)}
-              className="inline-flex items-center gap-2 px-3.5 py-1.5 border border-rose-200 dark:border-rose-900/40 bg-white dark:bg-rose-950/20 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-rose-700 dark:text-rose-300 text-xs font-semibold rounded-lg shadow-sm transition-colors"
-            >
-              <XCircle className="h-4 w-4" />
-              Cancel PO
-            </button>
+            <PermissionGuard permission="po.cancel">
+              <button
+                onClick={() => setCancelModalOpen(true)}
+                className="inline-flex items-center gap-2 px-3.5 py-1.5 border border-rose-200 dark:border-rose-900/40 bg-white dark:bg-rose-950/20 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-rose-700 dark:text-rose-300 text-xs font-semibold rounded-lg shadow-sm transition-colors"
+              >
+                <XCircle className="h-4 w-4" />
+                Cancel PO
+              </button>
+            </PermissionGuard>
           )}
         </div>
       </div>
