@@ -6,6 +6,8 @@
   "types": "./src/index.ts",
   "dependencies": {
     "@procurement/stores": "workspace:*",
+    "@procurement/hooks": "workspace:*",
+    "@procurement/utils": "workspace:*",
     "@radix-ui/react-dialog": "^1.0.0",
     "@radix-ui/react-dropdown-menu": "^2.0.0",
     "@radix-ui/react-select": "^2.0.0",

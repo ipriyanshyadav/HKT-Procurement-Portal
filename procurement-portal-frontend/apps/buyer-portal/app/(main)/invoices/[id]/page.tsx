@@ -11,7 +11,7 @@ import {
   useMatchInvoice,
   usePayments,
 } from "@procurement/hooks";
-import { ThreeWayMatchResult, PaymentSchedule } from "@procurement/ui";
+import { ThreeWayMatchResult, PaymentSchedule, DocumentList } from "@procurement/ui";
 import {
   ArrowLeft,
   Receipt,
@@ -294,6 +294,14 @@ export default function InvoiceDetailPage() {
           </table>
         </div>
       </div>
+
+      {/* Invoice Documents (SPEC_17) */}
+      <DocumentList
+        entityType="INVOICE"
+        entityId={invoice.id}
+        title="Invoice Attachments & Supporting Documents"
+        defaultDocumentType="TAX_INVOICE"
+      />
 
       {/* Reject Modal */}
       {rejectModalOpen && (

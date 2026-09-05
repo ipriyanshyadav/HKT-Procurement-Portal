@@ -11,7 +11,7 @@ import {
   useDownloadPOPDF,
   useGRNs,
 } from "@procurement/hooks";
-import { DeliveryScheduleTable } from "@procurement/ui";
+import { DeliveryScheduleTable, DocumentList } from "@procurement/ui";
 import {
   Package,
   ArrowLeft,
@@ -44,7 +44,7 @@ export default function PurchaseOrderDetailPage() {
 
   const [cancelModalOpen, setCancelModalOpen] = useState(false);
   const [cancelReason, setCancelReason] = useState("");
-  const [activeTab, setActiveTab] = useState<"lines" | "grn" | "amendments">("lines");
+  const [activeTab, setActiveTab] = useState<"lines" | "grn" | "amendments" | "documents">("lines");
 
   if (isLoading) {
     return (
@@ -314,6 +314,17 @@ export default function PurchaseOrderDetailPage() {
               Amendments ({po.amendments.length})
             </button>
           )}
+          <button
+            onClick={() => setActiveTab("documents")}
+            className={`py-3 px-1 border-b-2 font-medium text-sm flex items-center gap-2 ${
+              activeTab === "documents"
+                ? "border-indigo-600 text-indigo-600"
+                : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
+            }`}
+          >
+            <FileText className="h-4 w-4" />
+            Documents & Attachments
+          </button>
         </nav>
       </div>
 
@@ -431,6 +442,17 @@ export default function PurchaseOrderDetailPage() {
               </tbody>
             </table>
           </div>
+        </div>
+      )}
+
+      {activeTab === "documents" && (
+        <div className="space-y-4">
+          <DocumentList
+            entityType="PURCHASE_ORDER"
+            entityId={po.id}
+            title="Purchase Order Attachments & Delivery Notes"
+            defaultDocumentType="PURCHASE_ORDER"
+          />
         </div>
       )}
 

@@ -225,7 +225,7 @@ export function DocumentList({
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {docList.map((doc) => (
+              {docList.map((doc: DocumentItem) => (
                 <tr key={doc.id} className="hover:bg-gray-50/50 transition-colors">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">

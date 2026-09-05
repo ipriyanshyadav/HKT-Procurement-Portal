@@ -15,7 +15,7 @@ import {
   ContractLine,
   ContractAmendment,
 } from "@procurement/hooks";
-import { ContractExpiryCountdown, MilestoneTracker } from "@procurement/ui";
+import { ContractExpiryCountdown, MilestoneTracker, DocumentList } from "@procurement/ui";
 import {
   FileText,
   Clock,
@@ -500,37 +500,13 @@ export default function ContractWorkspacePage() {
               </div>
             )}
 
-            {/* Contract Documents */}
-            <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-6">
-              <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100 mb-3 flex items-center gap-2">
-                <FileCheck className="w-5 h-5 text-indigo-600" />
-                Legal Documents
-              </h3>
-
-              <div className="space-y-3 text-xs">
-                {contract.contract_document_path ? (
-                  <div className="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-lg flex items-center justify-between border border-slate-100 dark:border-slate-800">
-                    <div className="flex items-center gap-2 truncate">
-                      <FileText className="w-4 h-4 text-slate-400 shrink-0" />
-                      <span className="truncate">Draft Contract Document</span>
-                    </div>
-                    <span className="text-[11px] font-mono text-slate-400">MinIO Stored</span>
-                  </div>
-                ) : (
-                  <div className="text-slate-400">No draft document generated yet.</div>
-                )}
-
-                {contract.signed_document_path && (
-                  <div className="p-3 bg-emerald-50 dark:bg-emerald-950/30 rounded-lg flex items-center justify-between border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300">
-                    <div className="flex items-center gap-2 truncate">
-                      <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
-                      <span className="truncate font-semibold">Fully Executed eSigned Contract</span>
-                    </div>
-                    <span className="text-[11px] font-mono">Verified</span>
-                  </div>
-                )}
-              </div>
-            </div>
+            {/* Contract Documents (SPEC_17) */}
+            <DocumentList
+              entityType="CONTRACT"
+              entityId={contract.id}
+              title="Contract Legal & Supporting Documents"
+              defaultDocumentType="SIGNED_CONTRACT"
+            />
           </div>
         </div>
       )}

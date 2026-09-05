@@ -17,7 +17,7 @@ import {
   useConfirmPennyTest,
   VendorDocument,
 } from "@procurement/hooks";
-import { ComplianceExpiryAlert, VendorStatusBadge, PermissionGuard } from "@procurement/ui";
+import { ComplianceExpiryAlert, VendorStatusBadge, PermissionGuard, DocumentList } from "@procurement/ui";
 
 export default function VendorDetailPage() {
   const params = useParams();
@@ -262,41 +262,13 @@ export default function VendorDetailPage() {
             </dl>
           </div>
 
-          {/* Compliance & Documents Card */}
-          <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-base font-bold text-gray-900">Compliance & Documents</h2>
-              <span className="text-xs font-semibold text-gray-500">
-                {vendor.documents.length} document{vendor.documents.length === 1 ? "" : "s"}
-              </span>
-            </div>
-
-            {vendor.documents.length === 0 ? (
-              <p className="text-sm text-gray-400 italic">No documents uploaded yet.</p>
-            ) : (
-              <div className="space-y-3">
-                {vendor.documents.map((doc: VendorDocument) => (
-                  <div
-                    key={doc.id}
-                    className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3.5 rounded-lg border border-gray-100 bg-gray-50 gap-3"
-                  >
-                    <div>
-                      <p className="font-semibold text-sm text-gray-900">
-                        {doc.document_type_name || `Document #${doc.document_id.slice(0, 8)}`}
-                      </p>
-                      <p className="text-xs text-gray-500 mt-0.5">
-                        Status: <span className="font-semibold">{doc.verification_status}</span>
-                        {doc.expiry_date && ` · Expiry: ${doc.expiry_date}`}
-                      </p>
-                    </div>
-                    {doc.expiry_date && (
-                      <ComplianceExpiryAlert expiryDate={doc.expiry_date} />
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          {/* Compliance & Documents Card (SPEC_17) */}
+          <DocumentList
+            entityType="VENDOR"
+            entityId={vendorId}
+            title="Compliance & Statutory Documents"
+            defaultDocumentType="GSTIN_CERTIFICATE"
+          />
 
           {/* Bank Accounts Card */}
           <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200 space-y-4">
