@@ -12,7 +12,7 @@ from app.db.session import get_db
 from app.modules.audit.search_service import AuditSearchQuery, audit_search_service
 from app.modules.user.models import User
 
-router = APIRouter()
+router = APIRouter(tags=["Admin"])
 
 
 @router.get("/health")

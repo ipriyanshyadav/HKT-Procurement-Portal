@@ -18,7 +18,7 @@ from app.core.exceptions import AppException
 from app.db.session import get_db
 from app.modules.user.models import User
 
-router = APIRouter()
+router = APIRouter(tags=["Auth"])
 
 
 def _get_portal(request: Request) -> Optional[str]:

@@ -15,7 +15,7 @@ from app.db.session import get_db
 from app.modules.bid.live_bid_service import live_bid_service
 from app.modules.bid.schemas import AuctionCreateRequest, LiveAuctionDetailResponse
 
-router = APIRouter(prefix="/auctions", tags=["live-auction"])
+router = APIRouter(prefix="/auctions", tags=["Live Auction"])
 
 
 def _sanitize_auction_for_actor(auction, current_user) -> dict:
@@ -173,7 +173,7 @@ async def get_bid_history(
     db: AsyncSession = Depends(get_db),
 ):
     bids = await live_bid_service.get_bid_history(db, auction_id, current_user, current_user.org_id)
-    return success_response(bids)
+    return success_response(bids, meta=PaginationMeta(total=len(bids), page=1, page_size=len(bids) or 20))
 
 
 @router.post("/{auction_id}/proxy-floor")

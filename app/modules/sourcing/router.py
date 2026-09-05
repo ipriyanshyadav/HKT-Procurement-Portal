@@ -30,9 +30,10 @@ from app.modules.sourcing.schemas import (
     RfqDashboardResponse,
 )
 from app.modules.sourcing.service import rfq_service
+from app.core.streaming import stream_csv, stream_pdf, generate_table_pdf
 from app.modules.user.models import User
 
-router = APIRouter(tags=["RFQs"])
+router = APIRouter(tags=["RFQ"])
 
 # ─── CRITICAL: rfq.view_bids_before_opening is PERMANENTLY DENIED ──────────────
 # This permission code MUST never be granted to any role.
@@ -115,6 +116,108 @@ async def list_rfqs(
         data=[RfqListResponse.model_validate(r) for r in items],
         meta=meta,
     )
+
+
+@router.get("/export/csv")
+async def export_rfqs_csv(
+    status_filter: Optional[str] = Query(None, alias="status"),
+    rfq_type: Optional[str] = Query(None),
+    business_unit_id: Optional[UUID] = Query(None),
+    category_id: Optional[UUID] = Query(None),
+    search: Optional[str] = Query(None),
+    current_user: User = Depends(require_any_permission(PermissionCode.RFQ_VIEW_ALL, PermissionCode.RFQ_VIEW_OWN)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Stream CSV export of RFQs."""
+    if current_user.is_supplier_user or current_user.vendor_id:
+        if not current_user.vendor_id:
+            raise ForbiddenError("Supplier user is not linked to any vendor")
+        items, _ = await rfq_service.list_for_supplier(
+            db,
+            org_id=current_user.org_id,
+            vendor_id=current_user.vendor_id,
+            status=status_filter,
+            search=search,
+            skip=0,
+            limit=1000,
+        )
+    else:
+        items, _ = await rfq_service.list_rfqs(
+            db,
+            org_id=current_user.org_id,
+            status=status_filter,
+            rfq_type=rfq_type,
+            business_unit_id=business_unit_id,
+            category_id=category_id,
+            search=search,
+            skip=0,
+            limit=1000,
+        )
+
+    headers = ["rfq_number", "title", "rfq_type", "status", "bid_submission_deadline", "created_at"]
+    rows = [
+        {
+            "rfq_number": getattr(r, "rfq_number", ""),
+            "title": getattr(r, "title", ""),
+            "rfq_type": getattr(r, "rfq_type", ""),
+            "status": getattr(r, "status", ""),
+            "bid_submission_deadline": getattr(r, "bid_submission_deadline", ""),
+            "created_at": getattr(r, "created_at", ""),
+        }
+        for r in items
+    ]
+    return stream_csv(headers=headers, rows=rows, filename=f"rfqs_{current_user.org_id.hex[:6]}")
+
+
+@router.get("/export/pdf")
+async def export_rfqs_pdf(
+    status_filter: Optional[str] = Query(None, alias="status"),
+    rfq_type: Optional[str] = Query(None),
+    business_unit_id: Optional[UUID] = Query(None),
+    category_id: Optional[UUID] = Query(None),
+    search: Optional[str] = Query(None),
+    current_user: User = Depends(require_any_permission(PermissionCode.RFQ_VIEW_ALL, PermissionCode.RFQ_VIEW_OWN)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Stream PDF export of RFQs."""
+    if current_user.is_supplier_user or current_user.vendor_id:
+        if not current_user.vendor_id:
+            raise ForbiddenError("Supplier user is not linked to any vendor")
+        items, _ = await rfq_service.list_for_supplier(
+            db,
+            org_id=current_user.org_id,
+            vendor_id=current_user.vendor_id,
+            status=status_filter,
+            search=search,
+            skip=0,
+            limit=500,
+        )
+    else:
+        items, _ = await rfq_service.list_rfqs(
+            db,
+            org_id=current_user.org_id,
+            status=status_filter,
+            rfq_type=rfq_type,
+            business_unit_id=business_unit_id,
+            category_id=category_id,
+            search=search,
+            skip=0,
+            limit=500,
+        )
+
+    headers = ["rfq_number", "title", "rfq_type", "status", "bid_submission_deadline"]
+    rows = [
+        {
+            "rfq_number": getattr(r, "rfq_number", ""),
+            "title": getattr(r, "title", ""),
+            "rfq_type": getattr(r, "rfq_type", ""),
+            "status": getattr(r, "status", ""),
+            "bid_submission_deadline": getattr(r, "bid_submission_deadline", ""),
+        }
+        for r in items
+    ]
+    pdf_bytes = generate_table_pdf("RFQs Sourcing Report", headers, rows)
+    return stream_pdf(pdf_bytes, f"rfqs_{current_user.org_id.hex[:6]}")
 
 
 # ─── GET ───────────────────────────────────────────────────────────────────────
@@ -324,7 +427,8 @@ async def get_clarifications(
         clarifications = await rfq_service.get_clarifications(
             db, rfq_id=id, org_id=current_user.org_id
         )
-    return success_response([RfqClarificationResponse.model_validate(c) for c in clarifications])
+    meta = PaginationMeta(total=len(clarifications), page=1, page_size=len(clarifications) or 20)
+    return success_response([RfqClarificationResponse.model_validate(c) for c in clarifications], meta=meta)
 
 
 @router.post("/{id}/clarifications", response_model=APIResponse[RfqClarificationResponse], status_code=status.HTTP_201_CREATED)
@@ -413,7 +517,8 @@ async def get_rfq_audit_trail(
         }
         for l in logs
     ]
-    return success_response(data)
+    meta = PaginationMeta(total=len(data), page=1, page_size=len(data) or 20)
+    return success_response(data, meta=meta)
 
 
 # ─── DASHBOARD ─────────────────────────────────────────────────────────────────

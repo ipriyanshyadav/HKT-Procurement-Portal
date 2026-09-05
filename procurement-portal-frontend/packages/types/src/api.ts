@@ -937,6 +937,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/vendors/export/csv": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export Vendors Csv
+         * @description Stream CSV export of vendors.
+         */
+        get: operations["export_vendors_csv_api_v1_vendors_export_csv_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendors/export/pdf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export Vendors Pdf
+         * @description Stream PDF export of vendors.
+         */
+        get: operations["export_vendors_pdf_api_v1_vendors_export_pdf_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/vendors/check-duplicates": {
         parameters: {
             query?: never;
@@ -1395,6 +1435,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/requisitions/export/csv": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export Requisitions Csv
+         * @description Stream CSV export of requisitions.
+         */
+        get: operations["export_requisitions_csv_api_v1_requisitions_export_csv_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/requisitions/export/pdf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export Requisitions Pdf
+         * @description Stream PDF export of requisitions.
+         */
+        get: operations["export_requisitions_pdf_api_v1_requisitions_export_pdf_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/requisitions/{id}": {
         parameters: {
             query?: never;
@@ -1686,6 +1766,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/rfqs/export/csv": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export Rfqs Csv
+         * @description Stream CSV export of RFQs.
+         */
+        get: operations["export_rfqs_csv_api_v1_rfqs_export_csv_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/rfqs/export/pdf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export Rfqs Pdf
+         * @description Stream PDF export of RFQs.
+         */
+        get: operations["export_rfqs_pdf_api_v1_rfqs_export_pdf_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/rfqs/{id}": {
         parameters: {
             query?: never;
@@ -1946,6 +2066,46 @@ export interface paths {
         put?: never;
         /** Create Rfq */
         post: operations["create_rfq_api_v1_sourcing_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sourcing/export/csv": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export Rfqs Csv
+         * @description Stream CSV export of RFQs.
+         */
+        get: operations["export_rfqs_csv_api_v1_sourcing_export_csv_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sourcing/export/pdf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export Rfqs Pdf
+         * @description Stream PDF export of RFQs.
+         */
+        get: operations["export_rfqs_pdf_api_v1_sourcing_export_pdf_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -3078,6 +3238,46 @@ export interface paths {
         put?: never;
         /** Submit Invoice */
         post: operations["submit_invoice_api_v1_invoices_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/invoices/export/csv": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export Invoices Csv
+         * @description Stream CSV export of invoices.
+         */
+        get: operations["export_invoices_csv_api_v1_invoices_export_csv_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/invoices/export/pdf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export Invoices Pdf
+         * @description Stream PDF export of invoices.
+         */
+        get: operations["export_invoices_pdf_api_v1_invoices_export_pdf_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -4296,10 +4496,34 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /**
+         * Get Export Csv
+         * @description Stream CSV export for analytics report.
+         */
+        get: operations["get_export_csv_api_v1_analytics_export_csv_get"];
         put?: never;
         /** Export Csv */
         post: operations["export_csv_api_v1_analytics_export_csv_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analytics/export/pdf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Export Pdf
+         * @description Stream PDF export for analytics report.
+         */
+        get: operations["get_export_pdf_api_v1_analytics_export_pdf_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -4752,9 +4976,8 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T15:08:12.732699
              */
-            timestamp: string;
+            timestamp?: string;
         };
         /** APIResponse[BidCountResponse] */
         APIResponse_BidCountResponse_: {
@@ -4764,9 +4987,8 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T15:08:12.732699
              */
-            timestamp: string;
+            timestamp?: string;
         };
         /** APIResponse[BidDetailResponse] */
         APIResponse_BidDetailResponse_: {
@@ -4776,9 +4998,8 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T15:08:12.732699
              */
-            timestamp: string;
+            timestamp?: string;
         };
         /** APIResponse[ComparativeStatementResponse] */
         APIResponse_ComparativeStatementResponse_: {
@@ -4788,9 +5009,8 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T15:08:12.732699
              */
-            timestamp: string;
+            timestamp?: string;
         };
         /** APIResponse[ContractMilestoneResponse] */
         APIResponse_ContractMilestoneResponse_: {
@@ -4800,9 +5020,8 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T15:08:12.732699
              */
-            timestamp: string;
+            timestamp?: string;
         };
         /** APIResponse[ContractResponse] */
         APIResponse_ContractResponse_: {
@@ -4812,9 +5031,8 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T15:08:12.732699
              */
-            timestamp: string;
+            timestamp?: string;
         };
         /** APIResponse[DisputeMessageResponse] */
         APIResponse_DisputeMessageResponse_: {
@@ -4824,9 +5042,8 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T15:08:12.732699
              */
-            timestamp: string;
+            timestamp?: string;
         };
         /** APIResponse[DisputeResponse] */
         APIResponse_DisputeResponse_: {
@@ -4836,9 +5053,8 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T15:08:12.732699
              */
-            timestamp: string;
+            timestamp?: string;
         };
         /** APIResponse[ERPConfigResponse] */
         APIResponse_ERPConfigResponse_: {
@@ -4848,9 +5064,8 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T15:08:12.732699
              */
-            timestamp: string;
+            timestamp?: string;
         };
         /** APIResponse[EsignInitiateResponse] */
         APIResponse_EsignInitiateResponse_: {
@@ -4860,9 +5075,8 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T15:08:12.732699
              */
-            timestamp: string;
+            timestamp?: string;
         };
         /** APIResponse[GrnResponse] */
         APIResponse_GrnResponse_: {
@@ -4872,9 +5086,8 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T15:08:12.732699
              */
-            timestamp: string;
+            timestamp?: string;
         };
         /** APIResponse[IntegrationJobResponse] */
         APIResponse_IntegrationJobResponse_: {
@@ -4884,9 +5097,8 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T15:08:12.732699
              */
-            timestamp: string;
+            timestamp?: string;
         };
         /** APIResponse[IntegrationStatsResponse] */
         APIResponse_IntegrationStatsResponse_: {
@@ -4896,9 +5108,8 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T15:08:12.732699
              */
-            timestamp: string;
+            timestamp?: string;
         };
         /** APIResponse[InvoiceResponse] */
         APIResponse_InvoiceResponse_: {
@@ -4908,9 +5119,20 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T15:08:12.732699
              */
-            timestamp: string;
+            timestamp?: string;
+        };
+        /** APIResponse[List[BusinessUnitResponse]] */
+        APIResponse_List_BusinessUnitResponse__: {
+            /** Data */
+            data: components["schemas"]["BusinessUnitResponse"][];
+            meta?: components["schemas"]["PaginationMeta"] | null;
+            links?: components["schemas"]["Links"] | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             */
+            timestamp?: string;
         };
         /** APIResponse[List[CSVersionSummaryResponse]] */
         APIResponse_List_CSVersionSummaryResponse__: {
@@ -4921,9 +5143,8 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T15:08:12.732699
              */
-            timestamp: string;
+            timestamp?: string;
         };
         /** APIResponse[List[ContractListResponse]] */
         APIResponse_List_ContractListResponse__: {
@@ -4934,9 +5155,8 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T15:08:12.732699
              */
-            timestamp: string;
+            timestamp?: string;
         };
         /** APIResponse[List[ContractTemplateResponse]] */
         APIResponse_List_ContractTemplateResponse__: {
@@ -4947,9 +5167,20 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T15:08:12.732699
              */
-            timestamp: string;
+            timestamp?: string;
+        };
+        /** APIResponse[List[CostCenterResponse]] */
+        APIResponse_List_CostCenterResponse__: {
+            /** Data */
+            data: components["schemas"]["CostCenterResponse"][];
+            meta?: components["schemas"]["PaginationMeta"] | null;
+            links?: components["schemas"]["Links"] | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             */
+            timestamp?: string;
         };
         /** APIResponse[List[DisputeResponse]] */
         APIResponse_List_DisputeResponse__: {
@@ -4960,9 +5191,8 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T15:08:12.732699
              */
-            timestamp: string;
+            timestamp?: string;
         };
         /** APIResponse[List[EligibleLineResponse]] */
         APIResponse_List_EligibleLineResponse__: {
@@ -4973,9 +5203,8 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T15:08:12.732699
              */
-            timestamp: string;
+            timestamp?: string;
         };
         /** APIResponse[List[GrnResponse]] */
         APIResponse_List_GrnResponse__: {
@@ -4986,9 +5215,8 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T15:08:12.732699
              */
-            timestamp: string;
+            timestamp?: string;
         };
         /** APIResponse[List[IntegrationJobResponse]] */
         APIResponse_List_IntegrationJobResponse__: {
@@ -4999,9 +5227,8 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T15:08:12.732699
              */
-            timestamp: string;
+            timestamp?: string;
         };
         /** APIResponse[List[InvoiceResponse]] */
         APIResponse_List_InvoiceResponse__: {
@@ -5012,9 +5239,8 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T15:08:12.732699
              */
-            timestamp: string;
+            timestamp?: string;
         };
         /** APIResponse[List[NegotiationResponse]] */
         APIResponse_List_NegotiationResponse__: {
@@ -5025,9 +5251,8 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T15:08:12.732699
              */
-            timestamp: string;
+            timestamp?: string;
         };
         /** APIResponse[List[POResponse]] */
         APIResponse_List_POResponse__: {
@@ -5038,9 +5263,8 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T15:08:12.732699
              */
-            timestamp: string;
+            timestamp?: string;
         };
         /** APIResponse[List[PRDetailResponse]] */
         APIResponse_List_PRDetailResponse__: {
@@ -5051,9 +5275,8 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T15:08:12.732699
              */
-            timestamp: string;
+            timestamp?: string;
         };
         /** APIResponse[List[PRListResponse]] */
         APIResponse_List_PRListResponse__: {
@@ -5064,9 +5287,8 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T15:08:12.732699
              */
-            timestamp: string;
+            timestamp?: string;
         };
         /** APIResponse[List[PaymentRecordResponse]] */
         APIResponse_List_PaymentRecordResponse__: {
@@ -5077,9 +5299,8 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T15:08:12.732699
              */
-            timestamp: string;
+            timestamp?: string;
         };
         /** APIResponse[List[RfqClarificationResponse]] */
         APIResponse_List_RfqClarificationResponse__: {
@@ -5090,9 +5311,8 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T15:08:12.732699
              */
-            timestamp: string;
+            timestamp?: string;
         };
         /** APIResponse[List[RfqListResponse]] */
         APIResponse_List_RfqListResponse__: {
@@ -5103,9 +5323,8 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T15:08:12.732699
              */
-            timestamp: string;
+            timestamp?: string;
         };
         /** APIResponse[List[RfqParticipantResponse]] */
         APIResponse_List_RfqParticipantResponse__: {
@@ -5116,9 +5335,8 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T15:08:12.732699
              */
-            timestamp: string;
+            timestamp?: string;
         };
         /** APIResponse[List[ScheduledJobRunResponse]] */
         APIResponse_List_ScheduledJobRunResponse__: {
@@ -5129,9 +5347,8 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T15:08:12.732699
              */
-            timestamp: string;
+            timestamp?: string;
         };
         /** APIResponse[List[UnmappedPRExceptionResponse]] */
         APIResponse_List_UnmappedPRExceptionResponse__: {
@@ -5142,9 +5359,8 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T15:08:12.732699
              */
-            timestamp: string;
+            timestamp?: string;
         };
         /** APIResponse[List[dict]] */
         APIResponse_List_dict__: {
@@ -5157,9 +5373,8 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T15:08:12.732699
              */
-            timestamp: string;
+            timestamp?: string;
         };
         /** APIResponse[LiveAuctionDetailResponse] */
         APIResponse_LiveAuctionDetailResponse_: {
@@ -5169,9 +5384,8 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T15:08:12.732699
              */
-            timestamp: string;
+            timestamp?: string;
         };
         /** APIResponse[NegotiationResponse] */
         APIResponse_NegotiationResponse_: {
@@ -5181,9 +5395,8 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T15:08:12.732699
              */
-            timestamp: string;
+            timestamp?: string;
         };
         /** APIResponse[POResponse] */
         APIResponse_POResponse_: {
@@ -5193,9 +5406,8 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T15:08:12.732699
              */
-            timestamp: string;
+            timestamp?: string;
         };
         /** APIResponse[PRDetailResponse] */
         APIResponse_PRDetailResponse_: {
@@ -5205,9 +5417,8 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T15:08:12.732699
              */
-            timestamp: string;
+            timestamp?: string;
         };
         /** APIResponse[PaymentRecordResponse] */
         APIResponse_PaymentRecordResponse_: {
@@ -5217,9 +5428,8 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T15:08:12.732699
              */
-            timestamp: string;
+            timestamp?: string;
         };
         /** APIResponse[QualityInspectionResponse] */
         APIResponse_QualityInspectionResponse_: {
@@ -5229,9 +5439,8 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T15:08:12.732699
              */
-            timestamp: string;
+            timestamp?: string;
         };
         /** APIResponse[RegretLettersResponse] */
         APIResponse_RegretLettersResponse_: {
@@ -5241,9 +5450,8 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T15:08:12.732699
              */
-            timestamp: string;
+            timestamp?: string;
         };
         /** APIResponse[RfqClarificationResponse] */
         APIResponse_RfqClarificationResponse_: {
@@ -5253,9 +5461,8 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T15:08:12.732699
              */
-            timestamp: string;
+            timestamp?: string;
         };
         /** APIResponse[RfqDashboardResponse] */
         APIResponse_RfqDashboardResponse_: {
@@ -5265,9 +5472,8 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T15:08:12.732699
              */
-            timestamp: string;
+            timestamp?: string;
         };
         /** APIResponse[RfqDetailResponse] */
         APIResponse_RfqDetailResponse_: {
@@ -5277,9 +5483,8 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T15:08:12.732699
              */
-            timestamp: string;
+            timestamp?: string;
         };
         /** APIResponse[ShortlistResponse] */
         APIResponse_ShortlistResponse_: {
@@ -5289,9 +5494,8 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T15:08:12.732699
              */
-            timestamp: string;
+            timestamp?: string;
         };
         /** APIResponse[SingleVendorCheckResponse] */
         APIResponse_SingleVendorCheckResponse_: {
@@ -5301,9 +5505,8 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T15:08:12.732699
              */
-            timestamp: string;
+            timestamp?: string;
         };
         /** APIResponse[SyncTriggerResponse] */
         APIResponse_SyncTriggerResponse_: {
@@ -5313,9 +5516,8 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T15:08:12.732699
              */
-            timestamp: string;
+            timestamp?: string;
         };
         /** APIResponse[UnmappedPRDashboardResponse] */
         APIResponse_UnmappedPRDashboardResponse_: {
@@ -5325,9 +5527,8 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T15:08:12.732699
              */
-            timestamp: string;
+            timestamp?: string;
         };
         /** APIResponse[UnmappedPRSuggestionResponse] */
         APIResponse_UnmappedPRSuggestionResponse_: {
@@ -5337,9 +5538,8 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T15:08:12.732699
              */
-            timestamp: string;
+            timestamp?: string;
         };
         /** APIResponse[dict] */
         APIResponse_dict_: {
@@ -5352,9 +5552,8 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T15:08:12.732699
              */
-            timestamp: string;
+            timestamp?: string;
         };
         /** APIResponse[list[LiveAuctionDetailResponse]] */
         APIResponse_list_LiveAuctionDetailResponse__: {
@@ -5365,9 +5564,8 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T15:08:12.732699
              */
-            timestamp: string;
+            timestamp?: string;
         };
         /** APIResponse[list[dict]] */
         APIResponse_list_dict__: {
@@ -5380,9 +5578,8 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T15:08:12.732699
              */
-            timestamp: string;
+            timestamp?: string;
         };
         /** AddParticipantsRequest */
         AddParticipantsRequest: {
@@ -5935,6 +6132,44 @@ export interface components {
         BulkVendorCategoryMappingRequest: {
             /** Mappings */
             mappings: components["schemas"]["BulkVendorCategoryMappingItem"][];
+        };
+        /** BusinessUnitResponse */
+        BusinessUnitResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Org Id
+             * Format: uuid
+             */
+            org_id: string;
+            /** Code */
+            code: string;
+            /** Name */
+            name: string;
+            /**
+             * Legal Entity Id
+             * Format: uuid
+             */
+            legal_entity_id: string;
+            /** Erp Company Code */
+            erp_company_code?: string | null;
+            /**
+             * Default Currency
+             * @default INR
+             */
+            default_currency: string;
+            /**
+             * Is Active
+             * @default true
+             */
+            is_active: boolean;
+            /** Created At */
+            created_at?: string | null;
+            /** Updated At */
+            updated_at?: string | null;
         };
         /** CSGenerateRequest */
         CSGenerateRequest: {
@@ -6664,6 +6899,55 @@ export interface components {
             po_value: number | string;
             /** Po Number */
             po_number?: string | null;
+        };
+        /** CostCenterResponse */
+        CostCenterResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Org Id
+             * Format: uuid
+             */
+            org_id: string;
+            /** Code */
+            code: string;
+            /** Name */
+            name: string;
+            /**
+             * Business Unit Id
+             * Format: uuid
+             */
+            business_unit_id: string;
+            /** Gl Account */
+            gl_account?: string | null;
+            /** Erp Cost Center Code */
+            erp_cost_center_code?: string | null;
+            /**
+             * Annual Budget
+             * @default 0.0
+             */
+            annual_budget: string;
+            /**
+             * Available Budget
+             * @default 0.0
+             */
+            available_budget: string;
+            /** Budget Period Start */
+            budget_period_start?: string | null;
+            /** Budget Period End */
+            budget_period_end?: string | null;
+            /**
+             * Is Active
+             * @default true
+             */
+            is_active: boolean;
+            /** Created At */
+            created_at?: string | null;
+            /** Updated At */
+            updated_at?: string | null;
         };
         /** CurrencyCreateRequest */
         CurrencyCreateRequest: {
@@ -7502,6 +7786,16 @@ export interface components {
         };
         /** Links */
         Links: {
+            /** Self */
+            self?: string | null;
+            /** Next */
+            next?: string | null;
+            /** Prev */
+            prev?: string | null;
+            /** Related */
+            related?: {
+                [key: string]: string;
+            } | null;
             /** Self */
             self_?: string | null;
             /** Next */
@@ -8440,16 +8734,18 @@ export interface components {
         };
         /** PaginationMeta */
         PaginationMeta: {
+            /** Total */
+            total?: number | null;
             /**
              * Page
              * @default 1
              */
-            page: number;
+            page: number | null;
             /**
              * Page Size
              * @default 20
              */
-            page_size: number;
+            page_size: number | null;
             /**
              * Total Count
              * @default 0
@@ -8470,6 +8766,10 @@ export interface components {
              * @default false
              */
             has_prev: boolean;
+            /** Next Cursor */
+            next_cursor?: string | null;
+            /** Prev Cursor */
+            prev_cursor?: string | null;
             /** Page Number */
             page_number?: number | null;
             /** Total Records */
@@ -9903,7 +10203,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["APIResponse_List_BusinessUnitResponse__"];
                 };
             };
             /** @description Validation Error */
@@ -9934,7 +10234,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["APIResponse_List_BusinessUnitResponse__"];
                 };
             };
             /** @description Validation Error */
@@ -9966,7 +10266,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["APIResponse_List_CostCenterResponse__"];
                 };
             };
             /** @description Validation Error */
@@ -9998,7 +10298,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["APIResponse_List_CostCenterResponse__"];
                 };
             };
             /** @description Validation Error */
@@ -11561,6 +11861,72 @@ export interface operations {
             };
         };
     };
+    export_vendors_csv_api_v1_vendors_export_csv_get: {
+        parameters: {
+            query?: {
+                status?: string | null;
+                category_id?: string | null;
+                search?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    export_vendors_pdf_api_v1_vendors_export_pdf_get: {
+        parameters: {
+            query?: {
+                status?: string | null;
+                category_id?: string | null;
+                search?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     check_duplicates_api_v1_vendors_check_duplicates_post: {
         parameters: {
             query?: never;
@@ -12484,6 +12850,78 @@ export interface operations {
             };
         };
     };
+    export_requisitions_csv_api_v1_requisitions_export_csv_get: {
+        parameters: {
+            query?: {
+                status?: string | null;
+                business_unit_id?: string | null;
+                category_id?: string | null;
+                requestor_id?: string | null;
+                search?: string | null;
+                scope?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    export_requisitions_pdf_api_v1_requisitions_export_pdf_get: {
+        parameters: {
+            query?: {
+                status?: string | null;
+                business_unit_id?: string | null;
+                category_id?: string | null;
+                requestor_id?: string | null;
+                search?: string | null;
+                scope?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_requisition_api_v1_requisitions__id__get: {
         parameters: {
             query?: never;
@@ -13102,6 +13540,76 @@ export interface operations {
             };
         };
     };
+    export_rfqs_csv_api_v1_rfqs_export_csv_get: {
+        parameters: {
+            query?: {
+                status?: string | null;
+                rfq_type?: string | null;
+                business_unit_id?: string | null;
+                category_id?: string | null;
+                search?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    export_rfqs_pdf_api_v1_rfqs_export_pdf_get: {
+        parameters: {
+            query?: {
+                status?: string | null;
+                rfq_type?: string | null;
+                business_unit_id?: string | null;
+                category_id?: string | null;
+                search?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_rfq_api_v1_rfqs__id__get: {
         parameters: {
             query?: never;
@@ -13683,6 +14191,76 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["APIResponse_RfqDetailResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    export_rfqs_csv_api_v1_sourcing_export_csv_get: {
+        parameters: {
+            query?: {
+                status?: string | null;
+                rfq_type?: string | null;
+                business_unit_id?: string | null;
+                category_id?: string | null;
+                search?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    export_rfqs_pdf_api_v1_sourcing_export_pdf_get: {
+        parameters: {
+            query?: {
+                status?: string | null;
+                rfq_type?: string | null;
+                business_unit_id?: string | null;
+                category_id?: string | null;
+                search?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
                 };
             };
             /** @description Validation Error */
@@ -16012,6 +16590,80 @@ export interface operations {
             };
         };
     };
+    export_invoices_csv_api_v1_invoices_export_csv_get: {
+        parameters: {
+            query?: {
+                po_id?: string | null;
+                vendor_id?: string | null;
+                status?: string | null;
+                match_status?: string | null;
+                payment_status?: string | null;
+                financial_year?: string | null;
+                search?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    export_invoices_pdf_api_v1_invoices_export_pdf_get: {
+        parameters: {
+            query?: {
+                po_id?: string | null;
+                vendor_id?: string | null;
+                status?: string | null;
+                match_status?: string | null;
+                payment_status?: string | null;
+                financial_year?: string | null;
+                search?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_eligible_lines_api_v1_invoices_eligible_lines_get: {
         parameters: {
             query?: {
@@ -18162,6 +18814,42 @@ export interface operations {
             };
         };
     };
+    get_export_csv_api_v1_analytics_export_csv_get: {
+        parameters: {
+            query?: {
+                /** @description spend, vendors, or kpis */
+                report_type?: string | null;
+                fiscal_year?: string | null;
+                group_by?: string | null;
+                /** @description Optional Business Unit filter */
+                business_unit_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     export_csv_api_v1_analytics_export_csv_post: {
         parameters: {
             query?: {
@@ -18177,6 +18865,42 @@ export interface operations {
                 "application/json": components["schemas"]["ExportRequest"];
             };
         };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_export_pdf_api_v1_analytics_export_pdf_get: {
+        parameters: {
+            query?: {
+                /** @description spend, vendors, or kpis */
+                report_type?: string | null;
+                fiscal_year?: string | null;
+                group_by?: string | null;
+                /** @description Optional Business Unit filter */
+                business_unit_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description Successful Response */
             200: {

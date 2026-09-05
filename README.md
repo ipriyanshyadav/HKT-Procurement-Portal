@@ -1,16 +1,19 @@
 # Procurement Portal — Enterprise S2C & P2P Platform
 
 ## Current Session State
-**Status:** Bugfix: Elasticsearch client compatibility, circuit breaker & clean shutdown resolved
+**Status:** SPEC_18 API Design Standards Retrofit completed across all 24 modules
 **Completed:**
-- **Elasticsearch Client Pinning:** Pinned `elasticsearch[async]>=8.14.0,<9.0.0` in `pyproject.toml` ensuring compatibility with server 8.14.0 (avoiding v9 media-type header incompatibility).
-- **Circuit Breaker & Fallback:** Added `ELASTICSEARCH_ENABLED` in `app/config.py` and implemented failure cooldown circuit breaker in `AuditSearchService` to prevent connection log spam during hybrid dev when ES is offline.
-- **Query Flexibility & Lifespan Close:** Implemented `_exact_term` for keyword/.keyword mapping resilience and added `audit_search_service.close()` to `lifespan` shutdown in `app/main.py`. Updated Mode B backing services docs.
-**Verification:** 11/11 tests pass in `test_observability.py`; 301/301 unit tests pass; 163/163 integration tests pass; Turborepo `pnpm typecheck` passing (0 errors).
+- **Core API Modules:** Fully implemented and tested `responses.py` (envelopes, metadata, links, field filtering), `pagination.py` (cursor & offset pagination), `filters.py` (filter builder), `streaming.py` (CSV/PDF generators), and `deprecation.py` (standard headers).
+- **Module Routers Audit:** Standardized all 24 routers to return APIResponse envelope and PaginationMeta on all collection/list endpoints.
+- **Error Envelopes:** Verified uniform error envelope `{error: {code, message, details, trace_id, timestamp}}` across `app/core/exceptions.py`.
+- **Idempotency Support:** Implemented `IdempotencyMiddleware` supporting `X-Idempotency-Key` and `Idempotency-Key` across all state-changing endpoints with Redis & in-memory cache fallback.
+- **Streaming Exports:** Implemented streaming CSV and PDF export endpoints across 5 modules: `requisitions`, `rfqs`, `vendors`, `invoices`, and `analytics`.
+- **OpenAPI & TypeScript:** Cleaned router tags to exactly one canonical tag per module (24 tags total), regenerated `openapi.json` and TypeScript types in `@procurement/types`, with Turborepo `pnpm typecheck --force` passing (0 errors).
+**Verification:** 311/311 unit tests pass; 163/163 integration tests pass (total 474/474 passing); Turborepo `pnpm typecheck` passing (0 errors).
 **Migration Head:** 0035_analytics_spec25
-**Test Commands:** `.venv/bin/pytest tests/unit/test_observability.py -v` & `cd procurement-portal-frontend && pnpm typecheck`
-**Next:** SPEC_18 API Standards & Resilience
-**Graphify:** 6462 nodes, 16264 edges, 417 communities
+**Test Commands:** `.venv/bin/pytest tests/unit/test_spec18_api_standards.py -v` & `cd procurement-portal-frontend && pnpm typecheck`
+**Next:** Production readiness and performance baseline (Part 17)
+**Graphify:** 6529 nodes, 16525 edges, 409 communities
 
 ---
 
@@ -46,7 +49,7 @@ The Procurement Portal is an enterprise-grade Source-to-Contract (S2C), Procure-
 | 15 | Invoice & Payment | SPEC_15 | ✅ Complete | 0033_invoice_payment_spec15 | ✅ 10 Passing (100% cov) |
 | 16 | Notification Service | SPEC_16 | ✅ Complete | 0020_notification | ✅ 12 Passing (100% cov) |
 | 17 | Document Management | SPEC_17 | ✅ Complete | 0027_data_seed | ✅ 39 Passing (100% cov) |
-| 18 | API Standards & Resilience | SPEC_18 | ⏳ Planned | Pending | Pending |
+| 18 | API Standards & Resilience | SPEC_18 | ✅ Complete | 0035_analytics_spec25 | ✅ 10 Passing (100% cov) |
 | 19 | Frontend Applications | SPEC_19 | ✅ Complete | Apple & Glass active | ✅ Turborepo passing |
 | 20 | Integration Hub | SPEC_20 | ✅ Complete | 0034_fix_tax_codes_tax_type | ✅ Passing (100% cov) |
 | 21 | Infrastructure & Deployment | SPEC_21 | ✅ Complete | 0035_analytics_spec25 | ✅ 9 Passing (100% cov) |

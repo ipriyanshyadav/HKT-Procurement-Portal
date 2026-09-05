@@ -40,7 +40,7 @@ from app.modules.payment.service import payment_service
 from app.modules.user.models import User
 from app.modules.vendor.repository import vendor_repository
 
-router = APIRouter(tags=["Payments"])
+router = APIRouter(tags=["Payment"])
 
 
 def _to_payment_response(
@@ -270,7 +270,11 @@ async def list_disputes(
     disputes = await payment_service.list_disputes(
         db, current_user.org_id, invoice_id=invoice_id, vendor_id=vendor_id, status=status
     )
-    return success_response(data=[_to_dispute_response(d) for d in disputes])
+    resp_list = [_to_dispute_response(d) for d in disputes]
+    return success_response(
+        data=resp_list,
+        meta=PaginationMeta(total=len(resp_list), page=1, page_size=len(resp_list) or 20),
+    )
 
 
 @router.post("/disputes", response_model=APIResponse[DisputeResponse], status_code=status.HTTP_201_CREATED)

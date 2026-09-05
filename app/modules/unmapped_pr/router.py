@@ -18,7 +18,7 @@ from app.modules.unmapped_pr.schemas import (
 from app.modules.unmapped_pr.service import unmapped_pr_service
 from app.modules.user.models import User
 
-router = APIRouter(tags=["Unmapped PRs"])
+router = APIRouter(tags=["Unmapped PR"])
 
 
 @router.get("", response_model=APIResponse[List[UnmappedPRExceptionResponse]])

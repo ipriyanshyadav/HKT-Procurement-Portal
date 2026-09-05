@@ -33,7 +33,7 @@ from app.modules.grn.schemas import (
 from app.modules.grn.service import grn_service
 from app.modules.user.models import User
 
-router = APIRouter(tags=["GRN & Quality Inspection"])
+router = APIRouter(tags=["GRN"])
 
 
 def _to_grn_response(grn: Any) -> GrnResponse:

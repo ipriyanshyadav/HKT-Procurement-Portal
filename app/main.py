@@ -17,6 +17,7 @@ from app.core.middleware import (
     LoggingContextMiddleware,
     RequestIDMiddleware
 )
+from app.core.idempotency import IdempotencyMiddleware
 
 # Import all module models so SQLAlchemy Base.metadata is fully populated
 import app.modules.organization.models  # noqa: F401
@@ -110,11 +111,12 @@ def create_app() -> FastAPI:
         from fastapi.responses import JSONResponse
         return JSONResponse(app.openapi())
 
-    # Middleware order: Outermost first -> SecurityHeaders -> Timing -> LoggingContext -> RequestID
+    # Middleware order: Outermost first -> SecurityHeaders -> Timing -> LoggingContext -> RequestID -> Idempotency
     app.add_middleware(SecurityHeadersMiddleware)
     app.add_middleware(TimingMiddleware)
     app.add_middleware(LoggingContextMiddleware)
     app.add_middleware(RequestIDMiddleware)
+    app.add_middleware(IdempotencyMiddleware)
 
     if settings.ENVIRONMENT == "local":
         app.add_middleware(
@@ -198,30 +200,30 @@ def create_app() -> FastAPI:
 
     # Routers
     api_router = APIRouter(prefix="/api/v1")
-    api_router.include_router(organization_router, tags=["Organization"])
-    api_router.include_router(user_router, prefix="/users", tags=["User"])
-    api_router.include_router(master_data_router, prefix="/master-data", tags=["Master Data"])
-    api_router.include_router(vendor_router, prefix="/vendors", tags=["Vendor"])
-    api_router.include_router(requisition_router, prefix="/requisitions", tags=["Requisition"])
-    api_router.include_router(unmapped_pr_router, prefix="/unmapped-prs", tags=["Unmapped PR"])
-    api_router.include_router(sourcing_router, prefix="/rfqs", tags=["RFQs"])
-    api_router.include_router(sourcing_router, prefix="/sourcing", tags=["Sourcing"])
-    api_router.include_router(bid_router, tags=["Bids"])
-    api_router.include_router(evaluation_router, prefix="/evaluations", tags=["Evaluation"])
-    api_router.include_router(award_router, prefix="/awards", tags=["Award"])
-    api_router.include_router(contract_router, prefix="/contracts", tags=["Contract"])
-    api_router.include_router(purchase_order_router, prefix="/purchase-orders", tags=["Purchase Order"])
-    api_router.include_router(grn_router, prefix="/grn", tags=["GRN"])
-    api_router.include_router(invoice_router, prefix="/invoices", tags=["Invoice"])
-    api_router.include_router(payment_router, prefix="/payments", tags=["Payment"])
-    api_router.include_router(notification_router, prefix="/notifications", tags=["Notification"])
-    api_router.include_router(document_router, prefix="/documents", tags=["Document"])
-    api_router.include_router(workflow_router, prefix="/workflows", tags=["Workflow"])
-    api_router.include_router(approval_rules_router, prefix="/approval-rules", tags=["Approval Rules"])
-    api_router.include_router(integration_router, prefix="/integrations", tags=["Integration"])
-    api_router.include_router(analytics_router, prefix="/analytics", tags=["Analytics"])
-    api_router.include_router(admin_router, prefix="/admin", tags=["Admin"])
-    api_router.include_router(auth_router, prefix="/auth", tags=["Auth"])
+    api_router.include_router(organization_router)
+    api_router.include_router(user_router, prefix="/users")
+    api_router.include_router(master_data_router, prefix="/master-data")
+    api_router.include_router(vendor_router, prefix="/vendors")
+    api_router.include_router(requisition_router, prefix="/requisitions")
+    api_router.include_router(unmapped_pr_router, prefix="/unmapped-prs")
+    api_router.include_router(sourcing_router, prefix="/rfqs")
+    api_router.include_router(sourcing_router, prefix="/sourcing")
+    api_router.include_router(bid_router)
+    api_router.include_router(evaluation_router, prefix="/evaluations")
+    api_router.include_router(award_router, prefix="/awards")
+    api_router.include_router(contract_router, prefix="/contracts")
+    api_router.include_router(purchase_order_router, prefix="/purchase-orders")
+    api_router.include_router(grn_router, prefix="/grn")
+    api_router.include_router(invoice_router, prefix="/invoices")
+    api_router.include_router(payment_router, prefix="/payments")
+    api_router.include_router(notification_router, prefix="/notifications")
+    api_router.include_router(document_router, prefix="/documents")
+    api_router.include_router(workflow_router, prefix="/workflows")
+    api_router.include_router(approval_rules_router, prefix="/approval-rules")
+    api_router.include_router(integration_router, prefix="/integrations")
+    api_router.include_router(analytics_router, prefix="/analytics")
+    api_router.include_router(admin_router, prefix="/admin")
+    api_router.include_router(auth_router, prefix="/auth")
     api_router.include_router(auction_router)
 
     app.include_router(api_router)

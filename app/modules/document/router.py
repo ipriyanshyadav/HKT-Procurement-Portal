@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.dependencies import get_current_user
 from app.config import settings
+from app.core.responses import APIResponse, PaginationMeta, created_response, success_response
 from app.db.enums import DocumentCategory
 from app.db.session import get_db
 from app.modules.document.schemas import (
@@ -17,7 +18,7 @@ from app.modules.document.schemas import (
 from app.modules.document.service import document_service
 from app.modules.user.models import User
 
-router = APIRouter()
+router = APIRouter(tags=["Document"])
 
 
 @router.get("/health")
@@ -52,7 +53,7 @@ async def upload_document(
         content_type=file.content_type,
     )
     await db.commit()
-    return {"data": DocumentResponse.model_validate(doc).model_dump()}
+    return created_response(DocumentResponse.model_validate(doc))
 
 
 @router.get("/{id}/presigned-url", status_code=status.HTTP_200_OK)
@@ -68,7 +69,7 @@ async def get_document_presigned_url(
         org_id=current_user.org_id,
         actor_id=current_user.id,
     )
-    return {"data": PresignedUrlResponse(url=url, expires_in=settings.PRESIGNED_URL_EXPIRY_SECONDS).model_dump()}
+    return success_response(PresignedUrlResponse(url=url, expires_in=settings.PRESIGNED_URL_EXPIRY_SECONDS))
 
 
 @router.get("/{id}/versions", status_code=status.HTTP_200_OK)
@@ -83,7 +84,11 @@ async def get_document_versions(
         document_id=id,
         org_id=current_user.org_id,
     )
-    return {"data": [DocumentVersionResponse.model_validate(v).model_dump() for v in versions]}
+    version_models = [DocumentVersionResponse.model_validate(v) for v in versions]
+    return success_response(
+        version_models,
+        meta=PaginationMeta(total=len(version_models), page=1, page_size=len(version_models) or 20),
+    )
 
 
 @router.delete("/{id}", status_code=status.HTTP_200_OK)
@@ -100,7 +105,7 @@ async def delete_document(
         actor_id=current_user.id,
     )
     await db.commit()
-    return {"data": {"message": "Document deleted successfully", "id": str(id)}}
+    return success_response({"message": "Document deleted successfully", "id": str(id)})
 
 
 @router.get("/entity/{entity_type}/{entity_id}", status_code=status.HTTP_200_OK)
@@ -117,4 +122,8 @@ async def list_entity_documents(
         entity_id=entity_id,
         org_id=current_user.org_id,
     )
-    return {"data": [DocumentResponse.model_validate(doc).model_dump() for doc in docs]}
+    doc_models = [DocumentResponse.model_validate(doc) for doc in docs]
+    return success_response(
+        doc_models,
+        meta=PaginationMeta(total=len(doc_models), page=1, page_size=len(doc_models) or 20),
+    )

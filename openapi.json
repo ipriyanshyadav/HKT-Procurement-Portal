@@ -138,7 +138,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/APIResponse_List_BusinessUnitResponse__"
+                }
               }
             }
           },
@@ -185,7 +187,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/APIResponse_List_BusinessUnitResponse__"
+                }
               }
             }
           },
@@ -249,7 +253,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/APIResponse_List_CostCenterResponse__"
+                }
               }
             }
           },
@@ -313,7 +319,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/APIResponse_List_CostCenterResponse__"
+                }
               }
             }
           },
@@ -2463,8 +2471,7 @@
     "/api/v1/vendors/invitation/{token}": {
       "get": {
         "tags": [
-          "Vendor",
-          "Vendors"
+          "Vendor"
         ],
         "summary": "Validate Invitation Token",
         "description": "Validate invitation token and return pre-filled vendor data.",
@@ -2505,8 +2512,7 @@
     "/api/v1/vendors/register/{token}": {
       "post": {
         "tags": [
-          "Vendor",
-          "Vendors"
+          "Vendor"
         ],
         "summary": "Register Vendor With Token",
         "description": "Complete vendor registration wizard step via invitation token.",
@@ -2557,8 +2563,7 @@
     "/api/v1/vendors/invite": {
       "post": {
         "tags": [
-          "Vendor",
-          "Vendors"
+          "Vendor"
         ],
         "summary": "Invite Vendor",
         "description": "Buyer invites a vendor by company name and email.",
@@ -2603,8 +2608,7 @@
     "/api/v1/vendors": {
       "get": {
         "tags": [
-          "Vendor",
-          "Vendors"
+          "Vendor"
         ],
         "summary": "List Vendors",
         "description": "List vendors with pagination, filtering, and search.",
@@ -2730,11 +2734,182 @@
         }
       }
     },
+    "/api/v1/vendors/export/csv": {
+      "get": {
+        "tags": [
+          "Vendor"
+        ],
+        "summary": "Export Vendors Csv",
+        "description": "Stream CSV export of vendors.",
+        "operationId": "export_vendors_csv_api_v1_vendors_export_csv_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "name": "category_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Category Id"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Search"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/vendors/export/pdf": {
+      "get": {
+        "tags": [
+          "Vendor"
+        ],
+        "summary": "Export Vendors Pdf",
+        "description": "Stream PDF export of vendors.",
+        "operationId": "export_vendors_pdf_api_v1_vendors_export_pdf_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "name": "category_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Category Id"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Search"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/vendors/check-duplicates": {
       "post": {
         "tags": [
-          "Vendor",
-          "Vendors"
+          "Vendor"
         ],
         "summary": "Check Duplicates",
         "description": "Run duplicate detection checks.",
@@ -2779,8 +2954,7 @@
     "/api/v1/vendors/bulk-category-mapping": {
       "post": {
         "tags": [
-          "Vendor",
-          "Vendors"
+          "Vendor"
         ],
         "summary": "Bulk Category Mapping",
         "description": "Bulk map categories to multiple vendors via imported CSV / JSON entries.",
@@ -2825,8 +2999,7 @@
     "/api/v1/vendors/me": {
       "get": {
         "tags": [
-          "Vendor",
-          "Vendors"
+          "Vendor"
         ],
         "summary": "Get My Vendor Profile",
         "description": "Supplier portal endpoint to fetch the current supplier's own vendor details.",
@@ -2849,8 +3022,7 @@
       },
       "put": {
         "tags": [
-          "Vendor",
-          "Vendors"
+          "Vendor"
         ],
         "summary": "Update My Vendor Profile",
         "description": "Supplier portal endpoint to update the current supplier's own vendor details.",
@@ -2895,8 +3067,7 @@
     "/api/v1/vendors/me/documents": {
       "get": {
         "tags": [
-          "Vendor",
-          "Vendors"
+          "Vendor"
         ],
         "summary": "Get My Vendor Documents",
         "description": "Supplier portal endpoint to list documents for current supplier.",
@@ -2919,8 +3090,7 @@
       },
       "post": {
         "tags": [
-          "Vendor",
-          "Vendors"
+          "Vendor"
         ],
         "summary": "Add My Vendor Document",
         "description": "Supplier portal endpoint to attach a document for current supplier.",
@@ -2965,8 +3135,7 @@
     "/api/v1/vendors/{id}": {
       "get": {
         "tags": [
-          "Vendor",
-          "Vendors"
+          "Vendor"
         ],
         "summary": "Get Vendor Detail",
         "description": "Get complete vendor details.",
@@ -3011,8 +3180,7 @@
       },
       "put": {
         "tags": [
-          "Vendor",
-          "Vendors"
+          "Vendor"
         ],
         "summary": "Update Vendor",
         "description": "Update vendor profile.",
@@ -3069,8 +3237,7 @@
     "/api/v1/vendors/{id}/submit": {
       "post": {
         "tags": [
-          "Vendor",
-          "Vendors"
+          "Vendor"
         ],
         "summary": "Submit Vendor",
         "description": "Submit vendor registration for review.",
@@ -3134,8 +3301,7 @@
     "/api/v1/vendors/{id}/qualify": {
       "post": {
         "tags": [
-          "Vendor",
-          "Vendors"
+          "Vendor"
         ],
         "summary": "Qualify Vendor",
         "description": "Mark vendor as qualified.",
@@ -3199,8 +3365,7 @@
     "/api/v1/vendors/{id}/activate": {
       "post": {
         "tags": [
-          "Vendor",
-          "Vendors"
+          "Vendor"
         ],
         "summary": "Activate Vendor",
         "description": "Activate a qualified vendor and assign vendor code.",
@@ -3247,8 +3412,7 @@
     "/api/v1/vendors/{id}/reject": {
       "post": {
         "tags": [
-          "Vendor",
-          "Vendors"
+          "Vendor"
         ],
         "summary": "Reject Vendor",
         "description": "Reject vendor qualification.",
@@ -3305,8 +3469,7 @@
     "/api/v1/vendors/{id}/request-resubmission": {
       "post": {
         "tags": [
-          "Vendor",
-          "Vendors"
+          "Vendor"
         ],
         "summary": "Request Resubmission",
         "description": "Request resubmission of vendor documents or information.",
@@ -3363,8 +3526,7 @@
     "/api/v1/vendors/{id}/suspend": {
       "post": {
         "tags": [
-          "Vendor",
-          "Vendors"
+          "Vendor"
         ],
         "summary": "Suspend Vendor",
         "description": "Suspend an active vendor.",
@@ -3421,8 +3583,7 @@
     "/api/v1/vendors/{id}/reinstate": {
       "post": {
         "tags": [
-          "Vendor",
-          "Vendors"
+          "Vendor"
         ],
         "summary": "Reinstate Vendor",
         "description": "Reinstate a suspended vendor.",
@@ -3486,8 +3647,7 @@
     "/api/v1/vendors/{id}/initiate-blacklist": {
       "post": {
         "tags": [
-          "Vendor",
-          "Vendors"
+          "Vendor"
         ],
         "summary": "Initiate Blacklist",
         "description": "Initiate dual-approval blacklisting for a vendor.",
@@ -3544,8 +3704,7 @@
     "/api/v1/vendors/{id}/confirm-blacklist": {
       "post": {
         "tags": [
-          "Vendor",
-          "Vendors"
+          "Vendor"
         ],
         "summary": "Confirm Blacklist",
         "description": "Confirm vendor blacklisting (enforces Segregation of Duties).",
@@ -3609,8 +3768,7 @@
     "/api/v1/vendors/{id}/scorecard": {
       "get": {
         "tags": [
-          "Vendor",
-          "Vendors"
+          "Vendor"
         ],
         "summary": "Get Vendor Scorecard",
         "description": "Get the latest vendor scorecard.",
@@ -3655,8 +3813,7 @@
       },
       "post": {
         "tags": [
-          "Vendor",
-          "Vendors"
+          "Vendor"
         ],
         "summary": "Update Vendor Scorecard",
         "description": "Recalculate or update vendor scorecard.",
@@ -3720,8 +3877,7 @@
     "/api/v1/vendors/{id}/documents": {
       "get": {
         "tags": [
-          "Vendor",
-          "Vendors"
+          "Vendor"
         ],
         "summary": "Get Vendor Documents",
         "description": "List documents for a vendor.",
@@ -3766,8 +3922,7 @@
       },
       "post": {
         "tags": [
-          "Vendor",
-          "Vendors"
+          "Vendor"
         ],
         "summary": "Add Vendor Document",
         "description": "Attach a document to vendor profile.",
@@ -3824,8 +3979,7 @@
     "/api/v1/vendors/{id}/categories": {
       "post": {
         "tags": [
-          "Vendor",
-          "Vendors"
+          "Vendor"
         ],
         "summary": "Update Vendor Categories",
         "description": "Update category mappings for a vendor.",
@@ -3882,8 +4036,7 @@
     "/api/v1/vendors/{id}/bank-accounts": {
       "post": {
         "tags": [
-          "Vendor",
-          "Vendors"
+          "Vendor"
         ],
         "summary": "Add Bank Account",
         "description": "Add a bank account to vendor profile.",
@@ -3940,8 +4093,7 @@
     "/api/v1/vendors/{id}/bank-accounts/{bank_id}/initiate-penny-test": {
       "post": {
         "tags": [
-          "Vendor",
-          "Vendors"
+          "Vendor"
         ],
         "summary": "Initiate Penny Test",
         "description": "Initiate penny drop verification test.",
@@ -3998,8 +4150,7 @@
     "/api/v1/vendors/{id}/bank-accounts/{bank_id}/confirm-penny-test": {
       "post": {
         "tags": [
-          "Vendor",
-          "Vendors"
+          "Vendor"
         ],
         "summary": "Confirm Penny Test",
         "description": "Confirm penny test by entering amount received.",
@@ -4066,8 +4217,7 @@
     "/api/v1/requisitions": {
       "post": {
         "tags": [
-          "Requisition",
-          "Requisitions"
+          "Requisition"
         ],
         "summary": "Create Requisition",
         "operationId": "create_requisition_api_v1_requisitions_post",
@@ -4111,8 +4261,7 @@
       },
       "get": {
         "tags": [
-          "Requisition",
-          "Requisitions"
+          "Requisition"
         ],
         "summary": "List Requisitions",
         "operationId": "list_requisitions_api_v1_requisitions_get",
@@ -4267,8 +4416,7 @@
     "/api/v1/requisitions/bulk": {
       "post": {
         "tags": [
-          "Requisition",
-          "Requisitions"
+          "Requisition"
         ],
         "summary": "Bulk Create Requisitions",
         "description": "POST /api/v1/requisitions/bulk \u2014 create multiple requisitions in batch.",
@@ -4312,11 +4460,272 @@
         ]
       }
     },
+    "/api/v1/requisitions/export/csv": {
+      "get": {
+        "tags": [
+          "Requisition"
+        ],
+        "summary": "Export Requisitions Csv",
+        "description": "Stream CSV export of requisitions.",
+        "operationId": "export_requisitions_csv_api_v1_requisitions_export_csv_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "name": "business_unit_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Business Unit Id"
+            }
+          },
+          {
+            "name": "category_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Category Id"
+            }
+          },
+          {
+            "name": "requestor_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Requestor Id"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Search"
+            }
+          },
+          {
+            "name": "scope",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^(all|mine|bu)$",
+              "default": "all",
+              "title": "Scope"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/requisitions/export/pdf": {
+      "get": {
+        "tags": [
+          "Requisition"
+        ],
+        "summary": "Export Requisitions Pdf",
+        "description": "Stream PDF export of requisitions.",
+        "operationId": "export_requisitions_pdf_api_v1_requisitions_export_pdf_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "name": "business_unit_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Business Unit Id"
+            }
+          },
+          {
+            "name": "category_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Category Id"
+            }
+          },
+          {
+            "name": "requestor_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Requestor Id"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Search"
+            }
+          },
+          {
+            "name": "scope",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^(all|mine|bu)$",
+              "default": "all",
+              "title": "Scope"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/requisitions/{id}": {
       "get": {
         "tags": [
-          "Requisition",
-          "Requisitions"
+          "Requisition"
         ],
         "summary": "Get Requisition",
         "operationId": "get_requisition_api_v1_requisitions__id__get",
@@ -4362,8 +4771,7 @@
       },
       "put": {
         "tags": [
-          "Requisition",
-          "Requisitions"
+          "Requisition"
         ],
         "summary": "Update Requisition",
         "operationId": "update_requisition_api_v1_requisitions__id__put",
@@ -4421,8 +4829,7 @@
     "/api/v1/requisitions/{id}/submit": {
       "post": {
         "tags": [
-          "Requisition",
-          "Requisitions"
+          "Requisition"
         ],
         "summary": "Submit Requisition",
         "operationId": "submit_requisition_api_v1_requisitions__id__submit_post",
@@ -4470,8 +4877,7 @@
     "/api/v1/requisitions/{id}/withdraw": {
       "post": {
         "tags": [
-          "Requisition",
-          "Requisitions"
+          "Requisition"
         ],
         "summary": "Withdraw Requisition",
         "operationId": "withdraw_requisition_api_v1_requisitions__id__withdraw_post",
@@ -4519,8 +4925,7 @@
     "/api/v1/requisitions/{id}/amend": {
       "post": {
         "tags": [
-          "Requisition",
-          "Requisitions"
+          "Requisition"
         ],
         "summary": "Amend Requisition",
         "operationId": "amend_requisition_api_v1_requisitions__id__amend_post",
@@ -4578,8 +4983,7 @@
     "/api/v1/requisitions/merge": {
       "post": {
         "tags": [
-          "Requisition",
-          "Requisitions"
+          "Requisition"
         ],
         "summary": "Merge Requisitions",
         "operationId": "merge_requisitions_api_v1_requisitions_merge_post",
@@ -4625,8 +5029,7 @@
     "/api/v1/requisitions/{id}/split": {
       "post": {
         "tags": [
-          "Requisition",
-          "Requisitions"
+          "Requisition"
         ],
         "summary": "Split Requisition",
         "operationId": "split_requisition_api_v1_requisitions__id__split_post",
@@ -4684,8 +5087,7 @@
     "/api/v1/requisitions/{id}/convert-to-rfq": {
       "post": {
         "tags": [
-          "Requisition",
-          "Requisitions"
+          "Requisition"
         ],
         "summary": "Convert To Rfq",
         "operationId": "convert_to_rfq_api_v1_requisitions__id__convert_to_rfq_post",
@@ -4733,8 +5135,7 @@
     "/api/v1/requisitions/{id}/convert-to-po": {
       "post": {
         "tags": [
-          "Requisition",
-          "Requisitions"
+          "Requisition"
         ],
         "summary": "Convert To Po",
         "operationId": "convert_to_po_api_v1_requisitions__id__convert_to_po_post",
@@ -4782,8 +5183,7 @@
     "/api/v1/requisitions/{id}/audit-trail": {
       "get": {
         "tags": [
-          "Requisition",
-          "Requisitions"
+          "Requisition"
         ],
         "summary": "Get Pr Audit Trail",
         "operationId": "get_pr_audit_trail_api_v1_requisitions__id__audit_trail_get",
@@ -4831,8 +5231,7 @@
     "/api/v1/requisitions/{id}/approve": {
       "post": {
         "tags": [
-          "Requisition",
-          "Requisitions"
+          "Requisition"
         ],
         "summary": "Approve Requisition",
         "operationId": "approve_requisition_api_v1_requisitions__id__approve_post",
@@ -4914,8 +5313,7 @@
     "/api/v1/requisitions/{id}/reject": {
       "post": {
         "tags": [
-          "Requisition",
-          "Requisitions"
+          "Requisition"
         ],
         "summary": "Reject Requisition",
         "operationId": "reject_requisition_api_v1_requisitions__id__reject_post",
@@ -4990,8 +5388,7 @@
     "/api/v1/unmapped-prs": {
       "get": {
         "tags": [
-          "Unmapped PR",
-          "Unmapped PRs"
+          "Unmapped PR"
         ],
         "summary": "List Unmapped Prs",
         "operationId": "list_unmapped_prs_api_v1_unmapped_prs_get",
@@ -5068,8 +5465,7 @@
     "/api/v1/unmapped-prs/dashboard": {
       "get": {
         "tags": [
-          "Unmapped PR",
-          "Unmapped PRs"
+          "Unmapped PR"
         ],
         "summary": "Get Unmapped Pr Dashboard",
         "operationId": "get_unmapped_pr_dashboard_api_v1_unmapped_prs_dashboard_get",
@@ -5095,8 +5491,7 @@
     "/api/v1/unmapped-prs/{id}/map": {
       "post": {
         "tags": [
-          "Unmapped PR",
-          "Unmapped PRs"
+          "Unmapped PR"
         ],
         "summary": "Map Unmapped Pr",
         "operationId": "map_unmapped_pr_api_v1_unmapped_prs__id__map_post",
@@ -5154,8 +5549,7 @@
     "/api/v1/unmapped-prs/{id}/suggest": {
       "get": {
         "tags": [
-          "Unmapped PR",
-          "Unmapped PRs"
+          "Unmapped PR"
         ],
         "summary": "Get Mapping Suggestions",
         "operationId": "get_mapping_suggestions_api_v1_unmapped_prs__id__suggest_get",
@@ -5203,8 +5597,7 @@
     "/api/v1/unmapped-prs/{id}/auto-map": {
       "post": {
         "tags": [
-          "Unmapped PR",
-          "Unmapped PRs"
+          "Unmapped PR"
         ],
         "summary": "Auto Map Pr",
         "operationId": "auto_map_pr_api_v1_unmapped_prs__id__auto_map_post",
@@ -5252,8 +5645,7 @@
     "/api/v1/rfqs": {
       "post": {
         "tags": [
-          "RFQs",
-          "RFQs"
+          "RFQ"
         ],
         "summary": "Create Rfq",
         "operationId": "create_rfq_api_v1_rfqs_post",
@@ -5297,8 +5689,7 @@
       },
       "get": {
         "tags": [
-          "RFQs",
-          "RFQs"
+          "RFQ"
         ],
         "summary": "List Rfqs",
         "operationId": "list_rfqs_api_v1_rfqs_get",
@@ -5438,11 +5829,248 @@
         }
       }
     },
+    "/api/v1/rfqs/export/csv": {
+      "get": {
+        "tags": [
+          "RFQ"
+        ],
+        "summary": "Export Rfqs Csv",
+        "description": "Stream CSV export of RFQs.",
+        "operationId": "export_rfqs_csv_api_v1_rfqs_export_csv_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "name": "rfq_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Rfq Type"
+            }
+          },
+          {
+            "name": "business_unit_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Business Unit Id"
+            }
+          },
+          {
+            "name": "category_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Category Id"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Search"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/rfqs/export/pdf": {
+      "get": {
+        "tags": [
+          "RFQ"
+        ],
+        "summary": "Export Rfqs Pdf",
+        "description": "Stream PDF export of RFQs.",
+        "operationId": "export_rfqs_pdf_api_v1_rfqs_export_pdf_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "name": "rfq_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Rfq Type"
+            }
+          },
+          {
+            "name": "business_unit_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Business Unit Id"
+            }
+          },
+          {
+            "name": "category_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Category Id"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Search"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/rfqs/{id}": {
       "get": {
         "tags": [
-          "RFQs",
-          "RFQs"
+          "RFQ"
         ],
         "summary": "Get Rfq",
         "operationId": "get_rfq_api_v1_rfqs__id__get",
@@ -5488,8 +6116,7 @@
       },
       "put": {
         "tags": [
-          "RFQs",
-          "RFQs"
+          "RFQ"
         ],
         "summary": "Update Rfq",
         "operationId": "update_rfq_api_v1_rfqs__id__put",
@@ -5547,8 +6174,7 @@
     "/api/v1/rfqs/{id}/submit": {
       "post": {
         "tags": [
-          "RFQs",
-          "RFQs"
+          "RFQ"
         ],
         "summary": "Submit Rfq",
         "operationId": "submit_rfq_api_v1_rfqs__id__submit_post",
@@ -5596,8 +6222,7 @@
     "/api/v1/rfqs/{id}/publish": {
       "post": {
         "tags": [
-          "RFQs",
-          "RFQs"
+          "RFQ"
         ],
         "summary": "Publish Rfq",
         "operationId": "publish_rfq_api_v1_rfqs__id__publish_post",
@@ -5645,8 +6270,7 @@
     "/api/v1/rfqs/{id}/amend": {
       "post": {
         "tags": [
-          "RFQs",
-          "RFQs"
+          "RFQ"
         ],
         "summary": "Amend Rfq",
         "operationId": "amend_rfq_api_v1_rfqs__id__amend_post",
@@ -5704,8 +6328,7 @@
     "/api/v1/rfqs/{id}/cancel": {
       "post": {
         "tags": [
-          "RFQs",
-          "RFQs"
+          "RFQ"
         ],
         "summary": "Cancel Rfq",
         "operationId": "cancel_rfq_api_v1_rfqs__id__cancel_post",
@@ -5763,8 +6386,7 @@
     "/api/v1/rfqs/{id}/extend-deadline": {
       "post": {
         "tags": [
-          "RFQs",
-          "RFQs"
+          "RFQ"
         ],
         "summary": "Extend Deadline",
         "operationId": "extend_deadline_api_v1_rfqs__id__extend_deadline_post",
@@ -5822,8 +6444,7 @@
     "/api/v1/rfqs/{id}/add-participants": {
       "post": {
         "tags": [
-          "RFQs",
-          "RFQs"
+          "RFQ"
         ],
         "summary": "Add Participants",
         "operationId": "add_participants_api_v1_rfqs__id__add_participants_post",
@@ -5881,8 +6502,7 @@
     "/api/v1/rfqs/{id}/participants/{vendor_id}": {
       "delete": {
         "tags": [
-          "RFQs",
-          "RFQs"
+          "RFQ"
         ],
         "summary": "Remove Participant",
         "operationId": "remove_participant_api_v1_rfqs__id__participants__vendor_id__delete",
@@ -5933,8 +6553,7 @@
     "/api/v1/rfqs/{id}/initiate-bid-opening": {
       "post": {
         "tags": [
-          "RFQs",
-          "RFQs"
+          "RFQ"
         ],
         "summary": "Initiate Bid Opening",
         "description": "Step 1 of dual-authorization bid opening.\nInitiator must NOT be the RFQ creator.",
@@ -5981,8 +6600,7 @@
     "/api/v1/rfqs/{id}/co-authorize-opening": {
       "post": {
         "tags": [
-          "RFQs",
-          "RFQs"
+          "RFQ"
         ],
         "summary": "Co Authorize Bid Opening",
         "description": "Step 2 of dual-authorization bid opening.\nCo-authorizer must be a different user than the initiator.",
@@ -6031,8 +6649,7 @@
     "/api/v1/rfqs/{id}/clarifications": {
       "get": {
         "tags": [
-          "RFQs",
-          "RFQs"
+          "RFQ"
         ],
         "summary": "Get Clarifications",
         "operationId": "get_clarifications_api_v1_rfqs__id__clarifications_get",
@@ -6078,8 +6695,7 @@
       },
       "post": {
         "tags": [
-          "RFQs",
-          "RFQs"
+          "RFQ"
         ],
         "summary": "Add Clarification",
         "operationId": "add_clarification_api_v1_rfqs__id__clarifications_post",
@@ -6137,8 +6753,7 @@
     "/api/v1/rfqs/{id}/clarifications/{cid}/respond": {
       "put": {
         "tags": [
-          "RFQs",
-          "RFQs"
+          "RFQ"
         ],
         "summary": "Respond To Clarification",
         "operationId": "respond_to_clarification_api_v1_rfqs__id__clarifications__cid__respond_put",
@@ -6206,8 +6821,7 @@
     "/api/v1/rfqs/{id}/audit-trail": {
       "get": {
         "tags": [
-          "RFQs",
-          "RFQs"
+          "RFQ"
         ],
         "summary": "Get Rfq Audit Trail",
         "operationId": "get_rfq_audit_trail_api_v1_rfqs__id__audit_trail_get",
@@ -6255,8 +6869,7 @@
     "/api/v1/rfqs/{id}/dashboard": {
       "get": {
         "tags": [
-          "RFQs",
-          "RFQs"
+          "RFQ"
         ],
         "summary": "Get Rfq Dashboard",
         "operationId": "get_rfq_dashboard_api_v1_rfqs__id__dashboard_get",
@@ -6304,8 +6917,7 @@
     "/api/v1/sourcing": {
       "post": {
         "tags": [
-          "Sourcing",
-          "RFQs"
+          "RFQ"
         ],
         "summary": "Create Rfq",
         "operationId": "create_rfq_api_v1_sourcing_post",
@@ -6349,8 +6961,7 @@
       },
       "get": {
         "tags": [
-          "Sourcing",
-          "RFQs"
+          "RFQ"
         ],
         "summary": "List Rfqs",
         "operationId": "list_rfqs_api_v1_sourcing_get",
@@ -6490,11 +7101,248 @@
         }
       }
     },
+    "/api/v1/sourcing/export/csv": {
+      "get": {
+        "tags": [
+          "RFQ"
+        ],
+        "summary": "Export Rfqs Csv",
+        "description": "Stream CSV export of RFQs.",
+        "operationId": "export_rfqs_csv_api_v1_sourcing_export_csv_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "name": "rfq_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Rfq Type"
+            }
+          },
+          {
+            "name": "business_unit_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Business Unit Id"
+            }
+          },
+          {
+            "name": "category_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Category Id"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Search"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sourcing/export/pdf": {
+      "get": {
+        "tags": [
+          "RFQ"
+        ],
+        "summary": "Export Rfqs Pdf",
+        "description": "Stream PDF export of RFQs.",
+        "operationId": "export_rfqs_pdf_api_v1_sourcing_export_pdf_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "name": "rfq_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Rfq Type"
+            }
+          },
+          {
+            "name": "business_unit_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Business Unit Id"
+            }
+          },
+          {
+            "name": "category_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Category Id"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Search"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/sourcing/{id}": {
       "get": {
         "tags": [
-          "Sourcing",
-          "RFQs"
+          "RFQ"
         ],
         "summary": "Get Rfq",
         "operationId": "get_rfq_api_v1_sourcing__id__get",
@@ -6540,8 +7388,7 @@
       },
       "put": {
         "tags": [
-          "Sourcing",
-          "RFQs"
+          "RFQ"
         ],
         "summary": "Update Rfq",
         "operationId": "update_rfq_api_v1_sourcing__id__put",
@@ -6599,8 +7446,7 @@
     "/api/v1/sourcing/{id}/submit": {
       "post": {
         "tags": [
-          "Sourcing",
-          "RFQs"
+          "RFQ"
         ],
         "summary": "Submit Rfq",
         "operationId": "submit_rfq_api_v1_sourcing__id__submit_post",
@@ -6648,8 +7494,7 @@
     "/api/v1/sourcing/{id}/publish": {
       "post": {
         "tags": [
-          "Sourcing",
-          "RFQs"
+          "RFQ"
         ],
         "summary": "Publish Rfq",
         "operationId": "publish_rfq_api_v1_sourcing__id__publish_post",
@@ -6697,8 +7542,7 @@
     "/api/v1/sourcing/{id}/amend": {
       "post": {
         "tags": [
-          "Sourcing",
-          "RFQs"
+          "RFQ"
         ],
         "summary": "Amend Rfq",
         "operationId": "amend_rfq_api_v1_sourcing__id__amend_post",
@@ -6756,8 +7600,7 @@
     "/api/v1/sourcing/{id}/cancel": {
       "post": {
         "tags": [
-          "Sourcing",
-          "RFQs"
+          "RFQ"
         ],
         "summary": "Cancel Rfq",
         "operationId": "cancel_rfq_api_v1_sourcing__id__cancel_post",
@@ -6815,8 +7658,7 @@
     "/api/v1/sourcing/{id}/extend-deadline": {
       "post": {
         "tags": [
-          "Sourcing",
-          "RFQs"
+          "RFQ"
         ],
         "summary": "Extend Deadline",
         "operationId": "extend_deadline_api_v1_sourcing__id__extend_deadline_post",
@@ -6874,8 +7716,7 @@
     "/api/v1/sourcing/{id}/add-participants": {
       "post": {
         "tags": [
-          "Sourcing",
-          "RFQs"
+          "RFQ"
         ],
         "summary": "Add Participants",
         "operationId": "add_participants_api_v1_sourcing__id__add_participants_post",
@@ -6933,8 +7774,7 @@
     "/api/v1/sourcing/{id}/participants/{vendor_id}": {
       "delete": {
         "tags": [
-          "Sourcing",
-          "RFQs"
+          "RFQ"
         ],
         "summary": "Remove Participant",
         "operationId": "remove_participant_api_v1_sourcing__id__participants__vendor_id__delete",
@@ -6985,8 +7825,7 @@
     "/api/v1/sourcing/{id}/initiate-bid-opening": {
       "post": {
         "tags": [
-          "Sourcing",
-          "RFQs"
+          "RFQ"
         ],
         "summary": "Initiate Bid Opening",
         "description": "Step 1 of dual-authorization bid opening.\nInitiator must NOT be the RFQ creator.",
@@ -7033,8 +7872,7 @@
     "/api/v1/sourcing/{id}/co-authorize-opening": {
       "post": {
         "tags": [
-          "Sourcing",
-          "RFQs"
+          "RFQ"
         ],
         "summary": "Co Authorize Bid Opening",
         "description": "Step 2 of dual-authorization bid opening.\nCo-authorizer must be a different user than the initiator.",
@@ -7083,8 +7921,7 @@
     "/api/v1/sourcing/{id}/clarifications": {
       "get": {
         "tags": [
-          "Sourcing",
-          "RFQs"
+          "RFQ"
         ],
         "summary": "Get Clarifications",
         "operationId": "get_clarifications_api_v1_sourcing__id__clarifications_get",
@@ -7130,8 +7967,7 @@
       },
       "post": {
         "tags": [
-          "Sourcing",
-          "RFQs"
+          "RFQ"
         ],
         "summary": "Add Clarification",
         "operationId": "add_clarification_api_v1_sourcing__id__clarifications_post",
@@ -7189,8 +8025,7 @@
     "/api/v1/sourcing/{id}/clarifications/{cid}/respond": {
       "put": {
         "tags": [
-          "Sourcing",
-          "RFQs"
+          "RFQ"
         ],
         "summary": "Respond To Clarification",
         "operationId": "respond_to_clarification_api_v1_sourcing__id__clarifications__cid__respond_put",
@@ -7258,8 +8093,7 @@
     "/api/v1/sourcing/{id}/audit-trail": {
       "get": {
         "tags": [
-          "Sourcing",
-          "RFQs"
+          "RFQ"
         ],
         "summary": "Get Rfq Audit Trail",
         "operationId": "get_rfq_audit_trail_api_v1_sourcing__id__audit_trail_get",
@@ -7307,8 +8141,7 @@
     "/api/v1/sourcing/{id}/dashboard": {
       "get": {
         "tags": [
-          "Sourcing",
-          "RFQs"
+          "RFQ"
         ],
         "summary": "Get Rfq Dashboard",
         "operationId": "get_rfq_dashboard_api_v1_sourcing__id__dashboard_get",
@@ -7356,8 +8189,7 @@
     "/api/v1/rfqs/{rfq_id}/bid-count": {
       "get": {
         "tags": [
-          "Bids",
-          "Bids"
+          "Bid"
         ],
         "summary": "Get Bid Count",
         "description": "Returns only the count of submitted bids.\nNEVER returns bid content before bids are officially opened.",
@@ -7406,8 +8238,7 @@
     "/api/v1/rfqs/{rfq_id}/bids": {
       "post": {
         "tags": [
-          "Bids",
-          "Bids"
+          "Bid"
         ],
         "summary": "Submit Bid",
         "operationId": "submit_bid_api_v1_rfqs__rfq_id__bids_post",
@@ -7463,8 +8294,7 @@
       },
       "put": {
         "tags": [
-          "Bids",
-          "Bids"
+          "Bid"
         ],
         "summary": "Revise Bid",
         "operationId": "revise_bid_api_v1_rfqs__rfq_id__bids_put",
@@ -7520,8 +8350,7 @@
       },
       "delete": {
         "tags": [
-          "Bids",
-          "Bids"
+          "Bid"
         ],
         "summary": "Withdraw Bid",
         "operationId": "withdraw_bid_api_v1_rfqs__rfq_id__bids_delete",
@@ -7579,8 +8408,7 @@
     "/api/v1/bids/{bid_id}": {
       "get": {
         "tags": [
-          "Bids",
-          "Bids"
+          "Bid"
         ],
         "summary": "Get Bid Details",
         "description": "Returns bid details. Prices are masked until RFQ.bids_opened_at IS NOT NULL.\nVendors can only see their own bids before opening.",
@@ -7629,8 +8457,7 @@
     "/api/v1/rfqs/{rfq_id}/single-vendor-check": {
       "get": {
         "tags": [
-          "Bids",
-          "Bids"
+          "Bid"
         ],
         "summary": "Single Vendor Check",
         "operationId": "single_vendor_check_api_v1_rfqs__rfq_id__single_vendor_check_get",
@@ -7678,8 +8505,7 @@
     "/api/v1/evaluations/health": {
       "get": {
         "tags": [
-          "Evaluation",
-          "Evaluation & Comparative Statement"
+          "Evaluation"
         ],
         "summary": "Health",
         "operationId": "health_api_v1_evaluations_health_get",
@@ -7698,8 +8524,7 @@
     "/api/v1/evaluations/rfq/{rfq_id}/generate-cs": {
       "post": {
         "tags": [
-          "Evaluation",
-          "Evaluation & Comparative Statement"
+          "Evaluation"
         ],
         "summary": "Generate Comparative Statement",
         "operationId": "generate_comparative_statement_api_v1_evaluations_rfq__rfq_id__generate_cs_post",
@@ -7764,8 +8589,7 @@
     "/api/v1/evaluations/rfq/{rfq_id}/cs": {
       "get": {
         "tags": [
-          "Evaluation",
-          "Evaluation & Comparative Statement"
+          "Evaluation"
         ],
         "summary": "Get Latest Cs For Rfq",
         "operationId": "get_latest_cs_for_rfq_api_v1_evaluations_rfq__rfq_id__cs_get",
@@ -7813,8 +8637,7 @@
     "/api/v1/evaluations/rfq/{rfq_id}/cs-versions": {
       "get": {
         "tags": [
-          "Evaluation",
-          "Evaluation & Comparative Statement"
+          "Evaluation"
         ],
         "summary": "List Cs Versions",
         "operationId": "list_cs_versions_api_v1_evaluations_rfq__rfq_id__cs_versions_get",
@@ -7862,8 +8685,7 @@
     "/api/v1/evaluations/{cs_id}": {
       "get": {
         "tags": [
-          "Evaluation",
-          "Evaluation & Comparative Statement"
+          "Evaluation"
         ],
         "summary": "Get Cs By Id",
         "operationId": "get_cs_by_id_api_v1_evaluations__cs_id__get",
@@ -7911,8 +8733,7 @@
     "/api/v1/evaluations/{cs_id}/shortlist": {
       "post": {
         "tags": [
-          "Evaluation",
-          "Evaluation & Comparative Statement"
+          "Evaluation"
         ],
         "summary": "Shortlist Vendors",
         "operationId": "shortlist_vendors_api_v1_evaluations__cs_id__shortlist_post",
@@ -7970,8 +8791,7 @@
     "/api/v1/evaluations/{cs_id}/negotiations": {
       "post": {
         "tags": [
-          "Evaluation",
-          "Evaluation & Comparative Statement"
+          "Evaluation"
         ],
         "summary": "Start Negotiation",
         "operationId": "start_negotiation_api_v1_evaluations__cs_id__negotiations_post",
@@ -8027,8 +8847,7 @@
       },
       "get": {
         "tags": [
-          "Evaluation",
-          "Evaluation & Comparative Statement"
+          "Evaluation"
         ],
         "summary": "Get Negotiations For Cs",
         "operationId": "get_negotiations_for_cs_api_v1_evaluations__cs_id__negotiations_get",
@@ -8076,8 +8895,7 @@
     "/api/v1/evaluations/negotiations/{negotiation_id}/submit-price": {
       "post": {
         "tags": [
-          "Evaluation",
-          "Evaluation & Comparative Statement"
+          "Evaluation"
         ],
         "summary": "Submit Negotiated Price",
         "operationId": "submit_negotiated_price_api_v1_evaluations_negotiations__negotiation_id__submit_price_post",
@@ -8135,8 +8953,7 @@
     "/api/v1/evaluations/{cs_id}/recommend-award": {
       "post": {
         "tags": [
-          "Evaluation",
-          "Evaluation & Comparative Statement"
+          "Evaluation"
         ],
         "summary": "Recommend Award",
         "operationId": "recommend_award_api_v1_evaluations__cs_id__recommend_award_post",
@@ -8194,8 +9011,7 @@
     "/api/v1/evaluations/{cs_id}/award": {
       "get": {
         "tags": [
-          "Evaluation",
-          "Evaluation & Comparative Statement"
+          "Evaluation"
         ],
         "summary": "Get Award Recommendation",
         "operationId": "get_award_recommendation_api_v1_evaluations__cs_id__award_get",
@@ -8243,8 +9059,7 @@
     "/api/v1/evaluations/awards/{arn_id}/approve": {
       "post": {
         "tags": [
-          "Evaluation",
-          "Evaluation & Comparative Statement"
+          "Evaluation"
         ],
         "summary": "Approve Award",
         "operationId": "approve_award_api_v1_evaluations_awards__arn_id__approve_post",
@@ -8309,8 +9124,7 @@
     "/api/v1/evaluations/{cs_id}/send-regret-letters": {
       "post": {
         "tags": [
-          "Evaluation",
-          "Evaluation & Comparative Statement"
+          "Evaluation"
         ],
         "summary": "Send Regret Letters",
         "operationId": "send_regret_letters_api_v1_evaluations__cs_id__send_regret_letters_post",
@@ -8377,8 +9191,7 @@
     "/api/v1/contracts/health": {
       "get": {
         "tags": [
-          "Contract",
-          "Contracts"
+          "Contract"
         ],
         "summary": "Health",
         "operationId": "health_api_v1_contracts_health_get",
@@ -8397,8 +9210,7 @@
     "/api/v1/contracts": {
       "get": {
         "tags": [
-          "Contract",
-          "Contracts"
+          "Contract"
         ],
         "summary": "List Contracts",
         "description": "List contracts with filters and pagination.",
@@ -8524,8 +9336,7 @@
       },
       "post": {
         "tags": [
-          "Contract",
-          "Contracts"
+          "Contract"
         ],
         "summary": "Create Contract",
         "description": "Create a new contract manually.",
@@ -8572,8 +9383,7 @@
     "/api/v1/contracts/from-award/{arn_id}": {
       "post": {
         "tags": [
-          "Contract",
-          "Contracts"
+          "Contract"
         ],
         "summary": "Create Contract From Award",
         "description": "Create contract from an approved award recommendation (S13-04).",
@@ -8639,8 +9449,7 @@
     "/api/v1/contracts/templates": {
       "get": {
         "tags": [
-          "Contract",
-          "Contracts"
+          "Contract"
         ],
         "summary": "List Templates",
         "description": "List available contract templates.",
@@ -8695,8 +9504,7 @@
     "/api/v1/contracts/{contract_id}": {
       "get": {
         "tags": [
-          "Contract",
-          "Contracts"
+          "Contract"
         ],
         "summary": "Get Contract Detail",
         "description": "Get single contract details including lines, milestones, amendments, countdown.",
@@ -8745,8 +9553,7 @@
     "/api/v1/contracts/{contract_id}/esign/initiate": {
       "post": {
         "tags": [
-          "Contract",
-          "Contracts"
+          "Contract"
         ],
         "summary": "Initiate Esign",
         "description": "Initiate eSignature workflow via Digio (primary) or DocuSign (fallback).",
@@ -8812,8 +9619,7 @@
     "/api/v1/contracts/{contract_id}/esign/confirm": {
       "post": {
         "tags": [
-          "Contract",
-          "Contracts"
+          "Contract"
         ],
         "summary": "Confirm Esign",
         "description": "Confirm signature completion and activate contract.",
@@ -8879,8 +9685,7 @@
     "/api/v1/contracts/esign/callback": {
       "post": {
         "tags": [
-          "Contract",
-          "Contracts"
+          "Contract"
         ],
         "summary": "Esign Webhook",
         "description": "Receive eSign webhook events from Digio / DocuSign.",
@@ -8922,8 +9727,7 @@
     "/api/v1/contracts/{contract_id}/amend": {
       "post": {
         "tags": [
-          "Contract",
-          "Contracts"
+          "Contract"
         ],
         "summary": "Amend Contract",
         "description": "Create a formal versioned amendment with before/after snapshot (S13-07).",
@@ -8982,8 +9786,7 @@
     "/api/v1/contracts/{contract_id}/status": {
       "put": {
         "tags": [
-          "Contract",
-          "Contracts"
+          "Contract"
         ],
         "summary": "Update Contract Status",
         "description": "Transition contract status validated against FSM rules.",
@@ -9042,8 +9845,7 @@
     "/api/v1/contracts/{contract_id}/milestones/{milestone_id}/complete": {
       "post": {
         "tags": [
-          "Contract",
-          "Contracts"
+          "Contract"
         ],
         "summary": "Complete Milestone",
         "description": "Mark a contract milestone as completed.",
@@ -9119,8 +9921,7 @@
     "/api/v1/contracts/{contract_id}/utilization": {
       "post": {
         "tags": [
-          "Contract",
-          "Contracts"
+          "Contract"
         ],
         "summary": "Update Utilization",
         "description": "Update utilized value for RATE_CONTRACT with optimistic locking check (S13-17).",
@@ -9179,8 +9980,7 @@
     "/api/v1/purchase-orders/health": {
       "get": {
         "tags": [
-          "Purchase Order",
-          "Purchase Orders"
+          "Purchase Order"
         ],
         "summary": "Health",
         "operationId": "health_api_v1_purchase_orders_health_get",
@@ -9199,8 +9999,7 @@
     "/api/v1/purchase-orders": {
       "get": {
         "tags": [
-          "Purchase Order",
-          "Purchase Orders"
+          "Purchase Order"
         ],
         "summary": "List Purchase Orders",
         "operationId": "list_purchase_orders_api_v1_purchase_orders_get",
@@ -9359,8 +10158,7 @@
       },
       "post": {
         "tags": [
-          "Purchase Order",
-          "Purchase Orders"
+          "Purchase Order"
         ],
         "summary": "Create Purchase Order",
         "operationId": "create_purchase_order_api_v1_purchase_orders_post",
@@ -9406,8 +10204,7 @@
     "/api/v1/purchase-orders/from-award": {
       "post": {
         "tags": [
-          "Purchase Order",
-          "Purchase Orders"
+          "Purchase Order"
         ],
         "summary": "Create From Award",
         "operationId": "create_from_award_api_v1_purchase_orders_from_award_post",
@@ -9453,8 +10250,7 @@
     "/api/v1/purchase-orders/{po_id}": {
       "get": {
         "tags": [
-          "Purchase Order",
-          "Purchase Orders"
+          "Purchase Order"
         ],
         "summary": "Get Purchase Order",
         "operationId": "get_purchase_order_api_v1_purchase_orders__po_id__get",
@@ -9502,8 +10298,7 @@
     "/api/v1/purchase-orders/{po_id}/approve": {
       "post": {
         "tags": [
-          "Purchase Order",
-          "Purchase Orders"
+          "Purchase Order"
         ],
         "summary": "Approve Purchase Order",
         "operationId": "approve_purchase_order_api_v1_purchase_orders__po_id__approve_post",
@@ -9551,8 +10346,7 @@
     "/api/v1/purchase-orders/{po_id}/reject": {
       "post": {
         "tags": [
-          "Purchase Order",
-          "Purchase Orders"
+          "Purchase Order"
         ],
         "summary": "Reject Purchase Order",
         "operationId": "reject_purchase_order_api_v1_purchase_orders__po_id__reject_post",
@@ -9610,8 +10404,7 @@
     "/api/v1/purchase-orders/{po_id}/send-to-vendor": {
       "post": {
         "tags": [
-          "Purchase Order",
-          "Purchase Orders"
+          "Purchase Order"
         ],
         "summary": "Send To Vendor",
         "operationId": "send_to_vendor_api_v1_purchase_orders__po_id__send_to_vendor_post",
@@ -9659,8 +10452,7 @@
     "/api/v1/purchase-orders/{po_id}/acknowledge": {
       "post": {
         "tags": [
-          "Purchase Order",
-          "Purchase Orders"
+          "Purchase Order"
         ],
         "summary": "Acknowledge Purchase Order",
         "operationId": "acknowledge_purchase_order_api_v1_purchase_orders__po_id__acknowledge_post",
@@ -9718,8 +10510,7 @@
     "/api/v1/purchase-orders/{po_id}/amend": {
       "post": {
         "tags": [
-          "Purchase Order",
-          "Purchase Orders"
+          "Purchase Order"
         ],
         "summary": "Amend Purchase Order",
         "operationId": "amend_purchase_order_api_v1_purchase_orders__po_id__amend_post",
@@ -9777,8 +10568,7 @@
     "/api/v1/purchase-orders/{po_id}/close": {
       "post": {
         "tags": [
-          "Purchase Order",
-          "Purchase Orders"
+          "Purchase Order"
         ],
         "summary": "Close Purchase Order",
         "operationId": "close_purchase_order_api_v1_purchase_orders__po_id__close_post",
@@ -9826,8 +10616,7 @@
     "/api/v1/purchase-orders/{po_id}/cancel": {
       "post": {
         "tags": [
-          "Purchase Order",
-          "Purchase Orders"
+          "Purchase Order"
         ],
         "summary": "Cancel Purchase Order",
         "operationId": "cancel_purchase_order_api_v1_purchase_orders__po_id__cancel_post",
@@ -9885,8 +10674,7 @@
     "/api/v1/purchase-orders/{po_id}/pdf": {
       "get": {
         "tags": [
-          "Purchase Order",
-          "Purchase Orders"
+          "Purchase Order"
         ],
         "summary": "Download Po Pdf",
         "operationId": "download_po_pdf_api_v1_purchase_orders__po_id__pdf_get",
@@ -9932,8 +10720,7 @@
     "/api/v1/grn/health": {
       "get": {
         "tags": [
-          "GRN",
-          "GRN & Quality Inspection"
+          "GRN"
         ],
         "summary": "Health",
         "operationId": "health_api_v1_grn_health_get",
@@ -9952,8 +10739,7 @@
     "/api/v1/grn": {
       "get": {
         "tags": [
-          "GRN",
-          "GRN & Quality Inspection"
+          "GRN"
         ],
         "summary": "List Grns",
         "operationId": "list_grns_api_v1_grn_get",
@@ -10078,8 +10864,7 @@
       },
       "post": {
         "tags": [
-          "GRN",
-          "GRN & Quality Inspection"
+          "GRN"
         ],
         "summary": "Create Grn",
         "operationId": "create_grn_api_v1_grn_post",
@@ -10125,8 +10910,7 @@
     "/api/v1/grn/{grn_id}": {
       "get": {
         "tags": [
-          "GRN",
-          "GRN & Quality Inspection"
+          "GRN"
         ],
         "summary": "Get Grn",
         "operationId": "get_grn_api_v1_grn__grn_id__get",
@@ -10174,8 +10958,7 @@
     "/api/v1/grn/inspections": {
       "post": {
         "tags": [
-          "GRN",
-          "GRN & Quality Inspection"
+          "GRN"
         ],
         "summary": "Record Quality Inspection",
         "operationId": "record_quality_inspection_api_v1_grn_inspections_post",
@@ -10221,8 +11004,7 @@
     "/api/v1/grn/{grn_id}/confirm": {
       "post": {
         "tags": [
-          "GRN",
-          "GRN & Quality Inspection"
+          "GRN"
         ],
         "summary": "Confirm Grn",
         "operationId": "confirm_grn_api_v1_grn__grn_id__confirm_post",
@@ -10270,8 +11052,7 @@
     "/api/v1/grn/{grn_id}/cancel": {
       "post": {
         "tags": [
-          "GRN",
-          "GRN & Quality Inspection"
+          "GRN"
         ],
         "summary": "Cancel Grn",
         "operationId": "cancel_grn_api_v1_grn__grn_id__cancel_post",
@@ -10329,8 +11110,7 @@
     "/api/v1/invoices/health": {
       "get": {
         "tags": [
-          "Invoice",
-          "Invoices"
+          "Invoice"
         ],
         "summary": "Health",
         "operationId": "health_api_v1_invoices_health_get",
@@ -10349,8 +11129,7 @@
     "/api/v1/invoices": {
       "get": {
         "tags": [
-          "Invoice",
-          "Invoices"
+          "Invoice"
         ],
         "summary": "List Invoices",
         "operationId": "list_invoices_api_v1_invoices_get",
@@ -10523,8 +11302,7 @@
       },
       "post": {
         "tags": [
-          "Invoice",
-          "Invoices"
+          "Invoice"
         ],
         "summary": "Submit Invoice",
         "operationId": "submit_invoice_api_v1_invoices_post",
@@ -10586,11 +11364,312 @@
         }
       }
     },
+    "/api/v1/invoices/export/csv": {
+      "get": {
+        "tags": [
+          "Invoice"
+        ],
+        "summary": "Export Invoices Csv",
+        "description": "Stream CSV export of invoices.",
+        "operationId": "export_invoices_csv_api_v1_invoices_export_csv_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "po_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Po Id"
+            }
+          },
+          {
+            "name": "vendor_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Vendor Id"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "name": "match_status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Match Status"
+            }
+          },
+          {
+            "name": "payment_status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Payment Status"
+            }
+          },
+          {
+            "name": "financial_year",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Financial Year"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Search"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/invoices/export/pdf": {
+      "get": {
+        "tags": [
+          "Invoice"
+        ],
+        "summary": "Export Invoices Pdf",
+        "description": "Stream PDF export of invoices.",
+        "operationId": "export_invoices_pdf_api_v1_invoices_export_pdf_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "po_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Po Id"
+            }
+          },
+          {
+            "name": "vendor_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Vendor Id"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "name": "match_status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Match Status"
+            }
+          },
+          {
+            "name": "payment_status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Payment Status"
+            }
+          },
+          {
+            "name": "financial_year",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Financial Year"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Search"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/invoices/eligible-lines": {
       "get": {
         "tags": [
-          "Invoice",
-          "Invoices"
+          "Invoice"
         ],
         "summary": "Get Eligible Lines",
         "operationId": "get_eligible_lines_api_v1_invoices_eligible_lines_get",
@@ -10645,8 +11724,7 @@
     "/api/v1/invoices/{invoice_id}": {
       "get": {
         "tags": [
-          "Invoice",
-          "Invoices"
+          "Invoice"
         ],
         "summary": "Get Invoice",
         "operationId": "get_invoice_api_v1_invoices__invoice_id__get",
@@ -10694,8 +11772,7 @@
     "/api/v1/invoices/{invoice_id}/match": {
       "post": {
         "tags": [
-          "Invoice",
-          "Invoices"
+          "Invoice"
         ],
         "summary": "Match Invoice",
         "operationId": "match_invoice_api_v1_invoices__invoice_id__match_post",
@@ -10743,8 +11820,7 @@
     "/api/v1/invoices/{invoice_id}/approve": {
       "post": {
         "tags": [
-          "Invoice",
-          "Invoices"
+          "Invoice"
         ],
         "summary": "Approve Invoice",
         "operationId": "approve_invoice_api_v1_invoices__invoice_id__approve_post",
@@ -10792,8 +11868,7 @@
     "/api/v1/invoices/{invoice_id}/reject": {
       "post": {
         "tags": [
-          "Invoice",
-          "Invoices"
+          "Invoice"
         ],
         "summary": "Reject Invoice",
         "operationId": "reject_invoice_api_v1_invoices__invoice_id__reject_post",
@@ -10851,8 +11926,7 @@
     "/api/v1/invoices/{invoice_id}/dispute": {
       "post": {
         "tags": [
-          "Invoice",
-          "Invoices"
+          "Invoice"
         ],
         "summary": "Dispute Invoice",
         "operationId": "dispute_invoice_api_v1_invoices__invoice_id__dispute_post",
@@ -10910,8 +11984,7 @@
     "/api/v1/payments/health": {
       "get": {
         "tags": [
-          "Payment",
-          "Payments"
+          "Payment"
         ],
         "summary": "Health",
         "operationId": "health_api_v1_payments_health_get",
@@ -10930,8 +12003,7 @@
     "/api/v1/payments": {
       "get": {
         "tags": [
-          "Payment",
-          "Payments"
+          "Payment"
         ],
         "summary": "List Payments",
         "operationId": "list_payments_api_v1_payments_get",
@@ -11042,8 +12114,7 @@
     "/api/v1/payments/schedule": {
       "post": {
         "tags": [
-          "Payment",
-          "Payments"
+          "Payment"
         ],
         "summary": "Schedule Payment",
         "operationId": "schedule_payment_api_v1_payments_schedule_post",
@@ -11089,8 +12160,7 @@
     "/api/v1/payments/{payment_id}": {
       "get": {
         "tags": [
-          "Payment",
-          "Payments"
+          "Payment"
         ],
         "summary": "Get Payment",
         "operationId": "get_payment_api_v1_payments__payment_id__get",
@@ -11138,8 +12208,7 @@
     "/api/v1/payments/{payment_id}/remittance-pdf": {
       "get": {
         "tags": [
-          "Payment",
-          "Payments"
+          "Payment"
         ],
         "summary": "Download Remittance Pdf",
         "description": "Download official payment remittance advice as a generated PDF.",
@@ -11186,8 +12255,7 @@
     "/api/v1/payments/{payment_id}/process": {
       "post": {
         "tags": [
-          "Payment",
-          "Payments"
+          "Payment"
         ],
         "summary": "Process Payment",
         "operationId": "process_payment_api_v1_payments__payment_id__process_post",
@@ -11245,8 +12313,7 @@
     "/api/v1/payments/webhook": {
       "post": {
         "tags": [
-          "Payment",
-          "Payments"
+          "Payment"
         ],
         "summary": "Erp Payment Webhook",
         "description": "Inbound webhook from external ERP system recording payment settlement.",
@@ -11286,8 +12353,7 @@
     "/api/v1/payments/disputes/all": {
       "get": {
         "tags": [
-          "Payment",
-          "Payments"
+          "Payment"
         ],
         "summary": "List Disputes",
         "operationId": "list_disputes_api_v1_payments_disputes_all_get",
@@ -11358,8 +12424,7 @@
     "/api/v1/payments/disputes": {
       "post": {
         "tags": [
-          "Payment",
-          "Payments"
+          "Payment"
         ],
         "summary": "Create Dispute",
         "operationId": "create_dispute_api_v1_payments_disputes_post",
@@ -11405,8 +12470,7 @@
     "/api/v1/payments/disputes/{dispute_id}/messages": {
       "post": {
         "tags": [
-          "Payment",
-          "Payments"
+          "Payment"
         ],
         "summary": "Add Dispute Message",
         "operationId": "add_dispute_message_api_v1_payments_disputes__dispute_id__messages_post",
@@ -11464,8 +12528,7 @@
     "/api/v1/payments/disputes/{dispute_id}/resolve": {
       "post": {
         "tags": [
-          "Payment",
-          "Payments"
+          "Payment"
         ],
         "summary": "Resolve Dispute",
         "operationId": "resolve_dispute_api_v1_payments_disputes__dispute_id__resolve_post",
@@ -13160,7 +14223,6 @@
     "/api/v1/integrations/stats": {
       "get": {
         "tags": [
-          "Integration",
           "Integration"
         ],
         "summary": "Get Integration Stats",
@@ -13188,7 +14250,6 @@
     "/api/v1/integrations/jobs": {
       "get": {
         "tags": [
-          "Integration",
           "Integration"
         ],
         "summary": "List Integration Jobs",
@@ -13305,7 +14366,6 @@
     "/api/v1/integrations/jobs/{job_id}": {
       "get": {
         "tags": [
-          "Integration",
           "Integration"
         ],
         "summary": "Get Integration Job Detail",
@@ -13355,7 +14415,6 @@
     "/api/v1/integrations/jobs/{job_id}/retry": {
       "post": {
         "tags": [
-          "Integration",
           "Integration"
         ],
         "summary": "Retry Integration Job",
@@ -13405,7 +14464,6 @@
     "/api/v1/integrations/scheduled-runs": {
       "get": {
         "tags": [
-          "Integration",
           "Integration"
         ],
         "summary": "List Scheduled Runs",
@@ -13457,7 +14515,6 @@
     "/api/v1/integrations/sync/trigger": {
       "post": {
         "tags": [
-          "Integration",
           "Integration"
         ],
         "summary": "Trigger Erp Sync",
@@ -13507,7 +14564,6 @@
     "/api/v1/integrations/config": {
       "get": {
         "tags": [
-          "Integration",
           "Integration"
         ],
         "summary": "Get Integration Config",
@@ -13533,7 +14589,6 @@
       },
       "put": {
         "tags": [
-          "Integration",
           "Integration"
         ],
         "summary": "Update Integration Config",
@@ -13597,6 +14652,930 @@
         }
       }
     },
+    "/api/v1/analytics/dashboard": {
+      "get": {
+        "tags": [
+          "Analytics"
+        ],
+        "summary": "Get Dashboard",
+        "operationId": "get_dashboard_api_v1_analytics_dashboard_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "fiscal_year",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Fiscal Year"
+            }
+          },
+          {
+            "name": "business_unit_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional Business Unit filter",
+              "title": "Business Unit Id"
+            },
+            "description": "Optional Business Unit filter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analytics/spend": {
+      "get": {
+        "tags": [
+          "Analytics"
+        ],
+        "summary": "Get Spend",
+        "operationId": "get_spend_api_v1_analytics_spend_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "group_by",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "category, vendor, bu, or all",
+              "title": "Group By"
+            },
+            "description": "category, vendor, bu, or all"
+          },
+          {
+            "name": "fiscal_year",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Fiscal Year"
+            }
+          },
+          {
+            "name": "business_unit_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional Business Unit filter",
+              "title": "Business Unit Id"
+            },
+            "description": "Optional Business Unit filter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analytics/savings": {
+      "get": {
+        "tags": [
+          "Analytics"
+        ],
+        "summary": "Get Savings",
+        "operationId": "get_savings_api_v1_analytics_savings_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "fiscal_year",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Fiscal Year"
+            }
+          },
+          {
+            "name": "business_unit_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional Business Unit filter",
+              "title": "Business Unit Id"
+            },
+            "description": "Optional Business Unit filter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analytics/cycle-times": {
+      "get": {
+        "tags": [
+          "Analytics"
+        ],
+        "summary": "Get Cycle Times",
+        "operationId": "get_cycle_times_api_v1_analytics_cycle_times_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "fiscal_year",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Fiscal Year"
+            }
+          },
+          {
+            "name": "business_unit_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional Business Unit filter",
+              "title": "Business Unit Id"
+            },
+            "description": "Optional Business Unit filter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analytics/vendor-performance": {
+      "get": {
+        "tags": [
+          "Analytics"
+        ],
+        "summary": "Get All Vendor Performance",
+        "operationId": "get_all_vendor_performance_api_v1_analytics_vendor_performance_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "business_unit_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional Business Unit filter",
+              "title": "Business Unit Id"
+            },
+            "description": "Optional Business Unit filter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analytics/vendor-performance/{vendor_id}": {
+      "get": {
+        "tags": [
+          "Analytics"
+        ],
+        "summary": "Get Single Vendor Performance",
+        "operationId": "get_single_vendor_performance_api_v1_analytics_vendor_performance__vendor_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "vendor_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Vendor Id"
+            }
+          },
+          {
+            "name": "business_unit_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional Business Unit filter",
+              "title": "Business Unit Id"
+            },
+            "description": "Optional Business Unit filter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analytics/sla-compliance": {
+      "get": {
+        "tags": [
+          "Analytics"
+        ],
+        "summary": "Get Sla Compliance",
+        "operationId": "get_sla_compliance_api_v1_analytics_sla_compliance_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "business_unit_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional Business Unit filter",
+              "title": "Business Unit Id"
+            },
+            "description": "Optional Business Unit filter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analytics/compliance": {
+      "get": {
+        "tags": [
+          "Analytics"
+        ],
+        "summary": "Get Compliance",
+        "operationId": "get_compliance_api_v1_analytics_compliance_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/analytics/unmapped-prs": {
+      "get": {
+        "tags": [
+          "Analytics"
+        ],
+        "summary": "Get Unmapped Prs",
+        "operationId": "get_unmapped_prs_api_v1_analytics_unmapped_prs_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/analytics/invoices": {
+      "get": {
+        "tags": [
+          "Analytics"
+        ],
+        "summary": "Get Invoices",
+        "operationId": "get_invoices_api_v1_analytics_invoices_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "business_unit_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional Business Unit filter",
+              "title": "Business Unit Id"
+            },
+            "description": "Optional Business Unit filter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analytics/export/csv": {
+      "get": {
+        "tags": [
+          "Analytics"
+        ],
+        "summary": "Get Export Csv",
+        "description": "Stream CSV export for analytics report.",
+        "operationId": "get_export_csv_api_v1_analytics_export_csv_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "report_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "spend, vendors, or kpis",
+              "default": "spend",
+              "title": "Report Type"
+            },
+            "description": "spend, vendors, or kpis"
+          },
+          {
+            "name": "fiscal_year",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Fiscal Year"
+            }
+          },
+          {
+            "name": "group_by",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": "category",
+              "title": "Group By"
+            }
+          },
+          {
+            "name": "business_unit_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional Business Unit filter",
+              "title": "Business Unit Id"
+            },
+            "description": "Optional Business Unit filter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Analytics"
+        ],
+        "summary": "Export Csv",
+        "operationId": "export_csv_api_v1_analytics_export_csv_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "business_unit_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional Business Unit filter",
+              "title": "Business Unit Id"
+            },
+            "description": "Optional Business Unit filter"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExportRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analytics/export/pdf": {
+      "get": {
+        "tags": [
+          "Analytics"
+        ],
+        "summary": "Get Export Pdf",
+        "description": "Stream PDF export for analytics report.",
+        "operationId": "get_export_pdf_api_v1_analytics_export_pdf_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "report_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "spend, vendors, or kpis",
+              "default": "spend",
+              "title": "Report Type"
+            },
+            "description": "spend, vendors, or kpis"
+          },
+          {
+            "name": "fiscal_year",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Fiscal Year"
+            }
+          },
+          {
+            "name": "group_by",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": "category",
+              "title": "Group By"
+            }
+          },
+          {
+            "name": "business_unit_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional Business Unit filter",
+              "title": "Business Unit Id"
+            },
+            "description": "Optional Business Unit filter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analytics/export/excel": {
+      "post": {
+        "tags": [
+          "Analytics"
+        ],
+        "summary": "Export Excel",
+        "operationId": "export_excel_api_v1_analytics_export_excel_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "business_unit_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional Business Unit filter",
+              "title": "Business Unit Id"
+            },
+            "description": "Optional Business Unit filter"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExportRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/admin/health": {
       "get": {
         "tags": [
@@ -13610,6 +15589,220 @@
             "content": {
               "application/json": {
                 "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/audit-logs": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Get Audit Logs",
+        "description": "Elasticsearch-backed audit log search with date range, entity type, action, actor filters.",
+        "operationId": "get_audit_logs_api_v1_admin_audit_logs_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "entity_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Entity type filter",
+              "title": "Entity Type"
+            },
+            "description": "Entity type filter"
+          },
+          {
+            "name": "action",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Action filter",
+              "title": "Action"
+            },
+            "description": "Action filter"
+          },
+          {
+            "name": "actor_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Actor user ID",
+              "title": "Actor Id"
+            },
+            "description": "Actor user ID"
+          },
+          {
+            "name": "actor_email",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Actor email",
+              "title": "Actor Email"
+            },
+            "description": "Actor email"
+          },
+          {
+            "name": "entity_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Entity ID",
+              "title": "Entity Id"
+            },
+            "description": "Entity ID"
+          },
+          {
+            "name": "date_from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Start date filter",
+              "title": "Date From"
+            },
+            "description": "Start date filter"
+          },
+          {
+            "name": "date_to",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "End date filter",
+              "title": "Date To"
+            },
+            "description": "End date filter"
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Full-text search query",
+              "title": "Search"
+            },
+            "description": "Full-text search query"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Page number",
+              "default": 1,
+              "title": "Page"
+            },
+            "description": "Page number"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "description": "Items per page",
+              "default": 20,
+              "title": "Page Size"
+            },
+            "description": "Items per page"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIResponse_list_dict__"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
               }
             }
           }
@@ -13991,7 +16184,7 @@
     "/api/v1/rfqs/{rfq_id}/auction/state": {
       "get": {
         "tags": [
-          "Reverse Auction"
+          "Live Auction"
         ],
         "summary": "Get Auction State",
         "description": "GET /api/v1/rfqs/{rfq_id}/auction/state \u2014 get live reverse auction room state.",
@@ -14038,7 +16231,7 @@
     "/api/v1/rfqs/{rfq_id}/auction/bid": {
       "post": {
         "tags": [
-          "Reverse Auction"
+          "Live Auction"
         ],
         "summary": "Place Auction Bid",
         "description": "POST /api/v1/rfqs/{rfq_id}/auction/bid \u2014 place counter-bid in reverse auction.",
@@ -14095,7 +16288,7 @@
     "/api/v1/auctions": {
       "post": {
         "tags": [
-          "live-auction"
+          "Live Auction"
         ],
         "summary": "Create Auction",
         "operationId": "create_auction_api_v1_auctions_post",
@@ -14139,7 +16332,7 @@
       },
       "get": {
         "tags": [
-          "live-auction"
+          "Live Auction"
         ],
         "summary": "List Auctions",
         "operationId": "list_auctions_api_v1_auctions_get",
@@ -14233,7 +16426,7 @@
     "/api/v1/auctions/{auction_id}": {
       "get": {
         "tags": [
-          "live-auction"
+          "Live Auction"
         ],
         "summary": "Get Auction",
         "operationId": "get_auction_api_v1_auctions__auction_id__get",
@@ -14281,7 +16474,7 @@
     "/api/v1/auctions/{auction_id}/open": {
       "post": {
         "tags": [
-          "live-auction"
+          "Live Auction"
         ],
         "summary": "Open Auction",
         "operationId": "open_auction_api_v1_auctions__auction_id__open_post",
@@ -14327,7 +16520,7 @@
     "/api/v1/auctions/{auction_id}/cancel": {
       "post": {
         "tags": [
-          "live-auction"
+          "Live Auction"
         ],
         "summary": "Cancel Auction",
         "operationId": "cancel_auction_api_v1_auctions__auction_id__cancel_post",
@@ -14383,7 +16576,7 @@
     "/api/v1/auctions/{auction_id}/release-results": {
       "post": {
         "tags": [
-          "live-auction"
+          "Live Auction"
         ],
         "summary": "Release Results",
         "operationId": "release_results_api_v1_auctions__auction_id__release_results_post",
@@ -14429,7 +16622,7 @@
     "/api/v1/auctions/{auction_id}/leaderboard": {
       "get": {
         "tags": [
-          "live-auction"
+          "Live Auction"
         ],
         "summary": "Get Leaderboard",
         "description": "Buyer-only: full leaderboard with prices and vendor names.",
@@ -14476,7 +16669,7 @@
     "/api/v1/auctions/{auction_id}/my-rank": {
       "get": {
         "tags": [
-          "live-auction"
+          "Live Auction"
         ],
         "summary": "Get My Rank",
         "description": "Vendor-only: own rank + L1 price (subject to rank_visibility config).",
@@ -14523,7 +16716,7 @@
     "/api/v1/auctions/{auction_id}/bids": {
       "get": {
         "tags": [
-          "live-auction"
+          "Live Auction"
         ],
         "summary": "Get Bid History",
         "operationId": "get_bid_history_api_v1_auctions__auction_id__bids_get",
@@ -14569,7 +16762,7 @@
     "/api/v1/auctions/{auction_id}/proxy-floor": {
       "post": {
         "tags": [
-          "live-auction"
+          "Live Auction"
         ],
         "summary": "Set Proxy Floor",
         "operationId": "set_proxy_floor_api_v1_auctions__auction_id__proxy_floor_post",
@@ -14653,8 +16846,7 @@
           "timestamp": {
             "type": "string",
             "format": "date-time",
-            "title": "Timestamp",
-            "default": "2026-09-05T12:49:47.546030"
+            "title": "Timestamp"
           }
         },
         "type": "object",
@@ -14691,8 +16883,7 @@
           "timestamp": {
             "type": "string",
             "format": "date-time",
-            "title": "Timestamp",
-            "default": "2026-09-05T12:49:47.546030"
+            "title": "Timestamp"
           }
         },
         "type": "object",
@@ -14729,8 +16920,7 @@
           "timestamp": {
             "type": "string",
             "format": "date-time",
-            "title": "Timestamp",
-            "default": "2026-09-05T12:49:47.546030"
+            "title": "Timestamp"
           }
         },
         "type": "object",
@@ -14767,8 +16957,7 @@
           "timestamp": {
             "type": "string",
             "format": "date-time",
-            "title": "Timestamp",
-            "default": "2026-09-05T12:49:47.546030"
+            "title": "Timestamp"
           }
         },
         "type": "object",
@@ -14805,8 +16994,7 @@
           "timestamp": {
             "type": "string",
             "format": "date-time",
-            "title": "Timestamp",
-            "default": "2026-09-05T12:49:47.546030"
+            "title": "Timestamp"
           }
         },
         "type": "object",
@@ -14843,8 +17031,7 @@
           "timestamp": {
             "type": "string",
             "format": "date-time",
-            "title": "Timestamp",
-            "default": "2026-09-05T12:49:47.546030"
+            "title": "Timestamp"
           }
         },
         "type": "object",
@@ -14881,8 +17068,7 @@
           "timestamp": {
             "type": "string",
             "format": "date-time",
-            "title": "Timestamp",
-            "default": "2026-09-05T12:49:47.546030"
+            "title": "Timestamp"
           }
         },
         "type": "object",
@@ -14919,8 +17105,7 @@
           "timestamp": {
             "type": "string",
             "format": "date-time",
-            "title": "Timestamp",
-            "default": "2026-09-05T12:49:47.546030"
+            "title": "Timestamp"
           }
         },
         "type": "object",
@@ -14957,8 +17142,7 @@
           "timestamp": {
             "type": "string",
             "format": "date-time",
-            "title": "Timestamp",
-            "default": "2026-09-05T12:49:47.546030"
+            "title": "Timestamp"
           }
         },
         "type": "object",
@@ -14995,8 +17179,7 @@
           "timestamp": {
             "type": "string",
             "format": "date-time",
-            "title": "Timestamp",
-            "default": "2026-09-05T12:49:47.546030"
+            "title": "Timestamp"
           }
         },
         "type": "object",
@@ -15033,8 +17216,7 @@
           "timestamp": {
             "type": "string",
             "format": "date-time",
-            "title": "Timestamp",
-            "default": "2026-09-05T12:49:47.546030"
+            "title": "Timestamp"
           }
         },
         "type": "object",
@@ -15071,8 +17253,7 @@
           "timestamp": {
             "type": "string",
             "format": "date-time",
-            "title": "Timestamp",
-            "default": "2026-09-05T12:49:47.546030"
+            "title": "Timestamp"
           }
         },
         "type": "object",
@@ -15109,8 +17290,7 @@
           "timestamp": {
             "type": "string",
             "format": "date-time",
-            "title": "Timestamp",
-            "default": "2026-09-05T12:49:47.546030"
+            "title": "Timestamp"
           }
         },
         "type": "object",
@@ -15147,8 +17327,7 @@
           "timestamp": {
             "type": "string",
             "format": "date-time",
-            "title": "Timestamp",
-            "default": "2026-09-05T12:49:47.546030"
+            "title": "Timestamp"
           }
         },
         "type": "object",
@@ -15156,6 +17335,47 @@
           "data"
         ],
         "title": "APIResponse[InvoiceResponse]"
+      },
+      "APIResponse_List_BusinessUnitResponse__": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/BusinessUnitResponse"
+            },
+            "type": "array",
+            "title": "Data"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PaginationMeta"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "links": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Links"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Timestamp"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "APIResponse[List[BusinessUnitResponse]]"
       },
       "APIResponse_List_CSVersionSummaryResponse__": {
         "properties": {
@@ -15189,8 +17409,7 @@
           "timestamp": {
             "type": "string",
             "format": "date-time",
-            "title": "Timestamp",
-            "default": "2026-09-05T12:49:47.546030"
+            "title": "Timestamp"
           }
         },
         "type": "object",
@@ -15231,8 +17450,7 @@
           "timestamp": {
             "type": "string",
             "format": "date-time",
-            "title": "Timestamp",
-            "default": "2026-09-05T12:49:47.546030"
+            "title": "Timestamp"
           }
         },
         "type": "object",
@@ -15273,8 +17491,7 @@
           "timestamp": {
             "type": "string",
             "format": "date-time",
-            "title": "Timestamp",
-            "default": "2026-09-05T12:49:47.546030"
+            "title": "Timestamp"
           }
         },
         "type": "object",
@@ -15282,6 +17499,47 @@
           "data"
         ],
         "title": "APIResponse[List[ContractTemplateResponse]]"
+      },
+      "APIResponse_List_CostCenterResponse__": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/CostCenterResponse"
+            },
+            "type": "array",
+            "title": "Data"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PaginationMeta"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "links": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Links"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Timestamp"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "APIResponse[List[CostCenterResponse]]"
       },
       "APIResponse_List_DisputeResponse__": {
         "properties": {
@@ -15315,8 +17573,7 @@
           "timestamp": {
             "type": "string",
             "format": "date-time",
-            "title": "Timestamp",
-            "default": "2026-09-05T12:49:47.546030"
+            "title": "Timestamp"
           }
         },
         "type": "object",
@@ -15357,8 +17614,7 @@
           "timestamp": {
             "type": "string",
             "format": "date-time",
-            "title": "Timestamp",
-            "default": "2026-09-05T12:49:47.546030"
+            "title": "Timestamp"
           }
         },
         "type": "object",
@@ -15399,8 +17655,7 @@
           "timestamp": {
             "type": "string",
             "format": "date-time",
-            "title": "Timestamp",
-            "default": "2026-09-05T12:49:47.546030"
+            "title": "Timestamp"
           }
         },
         "type": "object",
@@ -15441,8 +17696,7 @@
           "timestamp": {
             "type": "string",
             "format": "date-time",
-            "title": "Timestamp",
-            "default": "2026-09-05T12:49:47.546030"
+            "title": "Timestamp"
           }
         },
         "type": "object",
@@ -15483,8 +17737,7 @@
           "timestamp": {
             "type": "string",
             "format": "date-time",
-            "title": "Timestamp",
-            "default": "2026-09-05T12:49:47.546030"
+            "title": "Timestamp"
           }
         },
         "type": "object",
@@ -15525,8 +17778,7 @@
           "timestamp": {
             "type": "string",
             "format": "date-time",
-            "title": "Timestamp",
-            "default": "2026-09-05T12:49:47.546030"
+            "title": "Timestamp"
           }
         },
         "type": "object",
@@ -15567,8 +17819,7 @@
           "timestamp": {
             "type": "string",
             "format": "date-time",
-            "title": "Timestamp",
-            "default": "2026-09-05T12:49:47.546030"
+            "title": "Timestamp"
           }
         },
         "type": "object",
@@ -15609,8 +17860,7 @@
           "timestamp": {
             "type": "string",
             "format": "date-time",
-            "title": "Timestamp",
-            "default": "2026-09-05T12:49:47.546030"
+            "title": "Timestamp"
           }
         },
         "type": "object",
@@ -15651,8 +17901,7 @@
           "timestamp": {
             "type": "string",
             "format": "date-time",
-            "title": "Timestamp",
-            "default": "2026-09-05T12:49:47.546030"
+            "title": "Timestamp"
           }
         },
         "type": "object",
@@ -15693,8 +17942,7 @@
           "timestamp": {
             "type": "string",
             "format": "date-time",
-            "title": "Timestamp",
-            "default": "2026-09-05T12:49:47.546030"
+            "title": "Timestamp"
           }
         },
         "type": "object",
@@ -15735,8 +17983,7 @@
           "timestamp": {
             "type": "string",
             "format": "date-time",
-            "title": "Timestamp",
-            "default": "2026-09-05T12:49:47.546030"
+            "title": "Timestamp"
           }
         },
         "type": "object",
@@ -15777,8 +18024,7 @@
           "timestamp": {
             "type": "string",
             "format": "date-time",
-            "title": "Timestamp",
-            "default": "2026-09-05T12:49:47.546030"
+            "title": "Timestamp"
           }
         },
         "type": "object",
@@ -15819,8 +18065,7 @@
           "timestamp": {
             "type": "string",
             "format": "date-time",
-            "title": "Timestamp",
-            "default": "2026-09-05T12:49:47.546030"
+            "title": "Timestamp"
           }
         },
         "type": "object",
@@ -15861,8 +18106,7 @@
           "timestamp": {
             "type": "string",
             "format": "date-time",
-            "title": "Timestamp",
-            "default": "2026-09-05T12:49:47.546030"
+            "title": "Timestamp"
           }
         },
         "type": "object",
@@ -15903,8 +18147,7 @@
           "timestamp": {
             "type": "string",
             "format": "date-time",
-            "title": "Timestamp",
-            "default": "2026-09-05T12:49:47.546030"
+            "title": "Timestamp"
           }
         },
         "type": "object",
@@ -15946,8 +18189,7 @@
           "timestamp": {
             "type": "string",
             "format": "date-time",
-            "title": "Timestamp",
-            "default": "2026-09-05T12:49:47.546030"
+            "title": "Timestamp"
           }
         },
         "type": "object",
@@ -15984,8 +18226,7 @@
           "timestamp": {
             "type": "string",
             "format": "date-time",
-            "title": "Timestamp",
-            "default": "2026-09-05T12:49:47.546030"
+            "title": "Timestamp"
           }
         },
         "type": "object",
@@ -16022,8 +18263,7 @@
           "timestamp": {
             "type": "string",
             "format": "date-time",
-            "title": "Timestamp",
-            "default": "2026-09-05T12:49:47.546030"
+            "title": "Timestamp"
           }
         },
         "type": "object",
@@ -16060,8 +18300,7 @@
           "timestamp": {
             "type": "string",
             "format": "date-time",
-            "title": "Timestamp",
-            "default": "2026-09-05T12:49:47.546030"
+            "title": "Timestamp"
           }
         },
         "type": "object",
@@ -16098,8 +18337,7 @@
           "timestamp": {
             "type": "string",
             "format": "date-time",
-            "title": "Timestamp",
-            "default": "2026-09-05T12:49:47.546030"
+            "title": "Timestamp"
           }
         },
         "type": "object",
@@ -16136,8 +18374,7 @@
           "timestamp": {
             "type": "string",
             "format": "date-time",
-            "title": "Timestamp",
-            "default": "2026-09-05T12:49:47.546030"
+            "title": "Timestamp"
           }
         },
         "type": "object",
@@ -16174,8 +18411,7 @@
           "timestamp": {
             "type": "string",
             "format": "date-time",
-            "title": "Timestamp",
-            "default": "2026-09-05T12:49:47.546030"
+            "title": "Timestamp"
           }
         },
         "type": "object",
@@ -16212,8 +18448,7 @@
           "timestamp": {
             "type": "string",
             "format": "date-time",
-            "title": "Timestamp",
-            "default": "2026-09-05T12:49:47.546030"
+            "title": "Timestamp"
           }
         },
         "type": "object",
@@ -16250,8 +18485,7 @@
           "timestamp": {
             "type": "string",
             "format": "date-time",
-            "title": "Timestamp",
-            "default": "2026-09-05T12:49:47.546030"
+            "title": "Timestamp"
           }
         },
         "type": "object",
@@ -16288,8 +18522,7 @@
           "timestamp": {
             "type": "string",
             "format": "date-time",
-            "title": "Timestamp",
-            "default": "2026-09-05T12:49:47.546030"
+            "title": "Timestamp"
           }
         },
         "type": "object",
@@ -16326,8 +18559,7 @@
           "timestamp": {
             "type": "string",
             "format": "date-time",
-            "title": "Timestamp",
-            "default": "2026-09-05T12:49:47.546030"
+            "title": "Timestamp"
           }
         },
         "type": "object",
@@ -16364,8 +18596,7 @@
           "timestamp": {
             "type": "string",
             "format": "date-time",
-            "title": "Timestamp",
-            "default": "2026-09-05T12:49:47.546030"
+            "title": "Timestamp"
           }
         },
         "type": "object",
@@ -16402,8 +18633,7 @@
           "timestamp": {
             "type": "string",
             "format": "date-time",
-            "title": "Timestamp",
-            "default": "2026-09-05T12:49:47.546030"
+            "title": "Timestamp"
           }
         },
         "type": "object",
@@ -16440,8 +18670,7 @@
           "timestamp": {
             "type": "string",
             "format": "date-time",
-            "title": "Timestamp",
-            "default": "2026-09-05T12:49:47.546030"
+            "title": "Timestamp"
           }
         },
         "type": "object",
@@ -16478,8 +18707,7 @@
           "timestamp": {
             "type": "string",
             "format": "date-time",
-            "title": "Timestamp",
-            "default": "2026-09-05T12:49:47.546030"
+            "title": "Timestamp"
           }
         },
         "type": "object",
@@ -16516,8 +18744,7 @@
           "timestamp": {
             "type": "string",
             "format": "date-time",
-            "title": "Timestamp",
-            "default": "2026-09-05T12:49:47.546030"
+            "title": "Timestamp"
           }
         },
         "type": "object",
@@ -16556,8 +18783,7 @@
           "timestamp": {
             "type": "string",
             "format": "date-time",
-            "title": "Timestamp",
-            "default": "2026-09-05T12:49:47.546030"
+            "title": "Timestamp"
           }
         },
         "type": "object",
@@ -16598,8 +18824,7 @@
           "timestamp": {
             "type": "string",
             "format": "date-time",
-            "title": "Timestamp",
-            "default": "2026-09-05T12:49:47.546030"
+            "title": "Timestamp"
           }
         },
         "type": "object",
@@ -16607,6 +18832,48 @@
           "data"
         ],
         "title": "APIResponse[list[LiveAuctionDetailResponse]]"
+      },
+      "APIResponse_list_dict__": {
+        "properties": {
+          "data": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Data"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PaginationMeta"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "links": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Links"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Timestamp"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "APIResponse[list[dict]]"
       },
       "AddParticipantsRequest": {
         "properties": {
@@ -18167,6 +20434,87 @@
           "mappings"
         ],
         "title": "BulkVendorCategoryMappingRequest"
+      },
+      "BusinessUnitResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "org_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Org Id"
+          },
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "legal_entity_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Legal Entity Id"
+          },
+          "erp_company_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Erp Company Code"
+          },
+          "default_currency": {
+            "type": "string",
+            "title": "Default Currency",
+            "default": "INR"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active",
+            "default": true
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "org_id",
+          "code",
+          "name",
+          "legal_entity_id"
+        ],
+        "title": "BusinessUnitResponse"
       },
       "CSGenerateRequest": {
         "properties": {
@@ -20162,6 +22510,129 @@
         ],
         "title": "ContractUtilizationUpdateRequest"
       },
+      "CostCenterResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "org_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Org Id"
+          },
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "business_unit_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Business Unit Id"
+          },
+          "gl_account": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gl Account"
+          },
+          "erp_cost_center_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Erp Cost Center Code"
+          },
+          "annual_budget": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Annual Budget",
+            "default": "0.0"
+          },
+          "available_budget": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Available Budget",
+            "default": "0.0"
+          },
+          "budget_period_start": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Budget Period Start"
+          },
+          "budget_period_end": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Budget Period End"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active",
+            "default": true
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "org_id",
+          "code",
+          "name",
+          "business_unit_id"
+        ],
+        "title": "CostCenterResponse"
+      },
       "CurrencyCreateRequest": {
         "properties": {
           "code": {
@@ -21020,6 +23491,97 @@
           "event"
         ],
         "title": "EsignWebhookPayload"
+      },
+      "ExportRequest": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data"
+          },
+          "columns": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Columns"
+          },
+          "filename": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Filename"
+          },
+          "sheet_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sheet Name",
+            "default": "Analytics"
+          },
+          "report_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Report Type"
+          },
+          "fiscal_year": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fiscal Year"
+          },
+          "group_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Group By"
+          }
+        },
+        "type": "object",
+        "title": "ExportRequest"
       },
       "ExtendDeadlineRequest": {
         "properties": {
@@ -22327,6 +24889,53 @@
       },
       "Links": {
         "properties": {
+          "self": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Self"
+          },
+          "next": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next"
+          },
+          "prev": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prev"
+          },
+          "related": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Related"
+          },
           "self_": {
             "anyOf": [
               {
@@ -25057,13 +27666,38 @@
       },
       "PaginationMeta": {
         "properties": {
+          "total": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Total"
+          },
           "page": {
-            "type": "integer",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Page",
             "default": 1
           },
           "page_size": {
-            "type": "integer",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Page Size",
             "default": 20
           },
@@ -25086,6 +27720,28 @@
             "type": "boolean",
             "title": "Has Prev",
             "default": false
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          },
+          "prev_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prev Cursor"
           },
           "page_number": {
             "anyOf": [

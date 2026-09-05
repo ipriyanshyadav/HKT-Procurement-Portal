@@ -22,7 +22,7 @@ from app.modules.bid.schemas import (
 from app.modules.bid.service import bid_service
 from app.modules.user.models import User
 
-router = APIRouter(tags=["Bids"])
+router = APIRouter(tags=["Bid"])
 
 
 # ─── BID COUNT (sealed — only count, no content) ───────────────────────────────

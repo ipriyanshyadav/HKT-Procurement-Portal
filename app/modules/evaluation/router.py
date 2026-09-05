@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.auth.dependencies import get_current_user, require_permission, require_any_permission
 from app.core.constants import PermissionCode
 from app.core.exceptions import NotFoundError
-from app.core.responses import APIResponse, created_response, success_response
+from app.core.responses import APIResponse, PaginationMeta, created_response, success_response
 from app.db.session import get_db
 from app.modules.user.models import User
 from app.modules.evaluation.service import evaluation_service
@@ -27,7 +27,7 @@ from app.modules.evaluation.schemas import (
     RegretLettersResponse,
 )
 
-router = APIRouter(tags=["Evaluation & Comparative Statement"])
+router = APIRouter(tags=["Evaluation"])
 
 
 @router.get("/health")
@@ -109,7 +109,11 @@ async def list_cs_versions(
     db: AsyncSession = Depends(get_db),
 ):
     versions = await evaluation_repository.list_cs_versions(db, rfq_id, current_user.org_id)
-    return success_response([CSVersionSummaryResponse.model_validate(v) for v in versions])
+    version_models = [CSVersionSummaryResponse.model_validate(v) for v in versions]
+    return success_response(
+        version_models,
+        meta=PaginationMeta(total=len(version_models), page=1, page_size=len(version_models) or 20),
+    )
 
 
 @router.get(
@@ -218,7 +222,11 @@ async def get_negotiations_for_cs(
     db: AsyncSession = Depends(get_db),
 ):
     negs = await negotiation_repository.list_by_cs(db, cs_id, current_user.org_id)
-    return success_response([NegotiationResponse.model_validate(n) for n in negs])
+    neg_models = [NegotiationResponse.model_validate(n) for n in negs]
+    return success_response(
+        neg_models,
+        meta=PaginationMeta(total=len(neg_models), page=1, page_size=len(neg_models) or 20),
+    )
 
 
 @router.post(

@@ -7,6 +7,7 @@ from pydantic import BaseModel, EmailStr
 
 from app.auth.dependencies import get_current_user, require_permission
 from app.core.exceptions import AppException, ForbiddenError
+from app.core.responses import APIResponse, PaginationMeta, created_response, success_response
 from app.core.security import hash_password, verify_password, validate_password_strength
 from app.db.session import get_db
 from app.modules.user.models import User
@@ -16,7 +17,7 @@ from app.modules.audit.service import audit_service
 from app.core.constants import PermissionCode
 from app.db.enums import UserStatusEnum
 
-router = APIRouter()
+router = APIRouter(tags=["User"])
 
 
 class UserResponse(BaseModel):
@@ -63,19 +64,17 @@ class AssignRoleRequest(BaseModel):
 @router.get("/me")
 async def get_me(current_user: User = Depends(get_current_user)) -> dict:
     """GET /api/v1/users/me — returns current user profile."""
-    return {
-        "data": {
-            "id": str(current_user.id),
-            "email": current_user.email,
-            "first_name": current_user.first_name,
-            "last_name": current_user.last_name,
-            "status": current_user.status.value,
-            "mfa_enabled": current_user.mfa_enabled,
-            "is_supplier_user": current_user.is_supplier_user,
-            "vendor_id": str(current_user.vendor_id) if current_user.vendor_id else None,
-            "org_id": str(current_user.org_id),
-        }
-    }
+    return success_response({
+        "id": str(current_user.id),
+        "email": current_user.email,
+        "first_name": current_user.first_name,
+        "last_name": current_user.last_name,
+        "status": current_user.status.value,
+        "mfa_enabled": current_user.mfa_enabled,
+        "is_supplier_user": current_user.is_supplier_user,
+        "vendor_id": str(current_user.vendor_id) if current_user.vendor_id else None,
+        "org_id": str(current_user.org_id),
+    })
 
 
 @router.get("/me/permissions")
@@ -101,7 +100,7 @@ async def get_my_permissions(
     )
     result = await db.execute(stmt)
     permissions = list(result.scalars().all())
-    return {"data": {"permissions": permissions}}
+    return success_response({"permissions": permissions})
 
 
 @router.put("/me/password")
@@ -131,7 +130,7 @@ async def change_my_password(
         org_id=current_user.org_id,
         metadata={},
     )
-    return {"data": {"message": "Password changed successfully"}}
+    return success_response({"message": "Password changed successfully"})
 
 
 @router.get("/")
@@ -152,7 +151,8 @@ async def list_users(
             "status": u.status.value,
             "roles": roles,
         })
-    return {"data": user_list}
+    meta = PaginationMeta(total=len(user_list), page=1, page_size=len(user_list) or 20)
+    return success_response(user_list, meta=meta)
 
 
 @router.get("/roles")
@@ -170,17 +170,17 @@ async def list_roles(
     )
     res = await db.execute(stmt)
     roles = res.scalars().all()
-    return {
-        "data": [
-            {
-                "id": str(r.id),
-                "code": r.code,
-                "name": r.name,
-                "description": r.description,
-            }
-            for r in roles
-        ]
-    }
+    roles_data = [
+        {
+            "id": str(r.id),
+            "code": r.code,
+            "name": r.name,
+            "description": r.description,
+        }
+        for r in roles
+    ]
+    meta = PaginationMeta(total=len(roles_data), page=1, page_size=len(roles_data) or 20)
+    return success_response(roles_data, meta=meta)
 
 
 @router.post("/")
@@ -237,7 +237,8 @@ async def create_user(
         metadata={"email": user.email},
     )
     await db.commit()
-    return {"data": {"id": str(user.id), "email": user.email}}
+    await db.commit()
+    return created_response({"id": str(user.id), "email": user.email})
 
 
 @router.post("/{user_id}/roles")
@@ -275,7 +276,7 @@ async def assign_user_role(
         )
         db.add(assignment)
         await db.commit()
-    return {"data": {"message": f"Role '{data.role_code}' assigned to user"}}
+    return success_response({"message": f"Role '{data.role_code}' assigned to user"})
 
 
 @router.delete("/{user_id}/roles/{role_code}")
@@ -300,7 +301,7 @@ async def remove_user_role(
     )
     await db.execute(del_stmt)
     await db.commit()
-    return {"data": {"message": f"Role '{role_code}' removed from user"}}
+    return success_response({"message": f"Role '{role_code}' removed from user"})
 
 
 @router.get("/{user_id}")
@@ -313,16 +314,14 @@ async def get_user(
     user = await user_repository.get_by_id(db, user_id, current_user.org_id)
     if not user:
         raise AppException("User not found", "NOT_FOUND")
-    return {
-        "data": {
-            "id": str(user.id),
-            "email": user.email,
-            "first_name": user.first_name,
-            "last_name": user.last_name,
-            "status": user.status.value,
-            "mfa_enabled": user.mfa_enabled,
-        }
-    }
+    return success_response({
+        "id": str(user.id),
+        "email": user.email,
+        "first_name": user.first_name,
+        "last_name": user.last_name,
+        "status": user.status.value,
+        "mfa_enabled": user.mfa_enabled,
+    })
 
 
 @router.put("/{user_id}")
@@ -348,7 +347,7 @@ async def update_user(
     if data.timezone is not None:
         user.timezone = data.timezone
 
-    return {"data": {"id": str(user.id), "message": "Updated"}}
+    return success_response({"id": str(user.id), "message": "Updated"})
 
 
 @router.post("/{user_id}/activate")
@@ -366,7 +365,7 @@ async def activate_user(
         db, entity_type="USER", entity_id=user.id,
         action="ACTIVATED", actor_id=current_user.id, org_id=current_user.org_id,
     )
-    return {"data": {"message": "User activated"}}
+    return success_response({"message": "User activated"})
 
 
 @router.post("/{user_id}/deactivate")
@@ -384,4 +383,4 @@ async def deactivate_user(
         db, entity_type="USER", entity_id=user.id,
         action="DEACTIVATED", actor_id=current_user.id, org_id=current_user.org_id,
     )
-    return {"data": {"message": "User deactivated"}}
+    return success_response({"message": "User deactivated"})

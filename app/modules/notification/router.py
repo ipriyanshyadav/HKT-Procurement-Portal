@@ -16,7 +16,7 @@ from app.modules.notification.service import notification_service
 from app.modules.notification.websocket import ws_manager
 from app.modules.user.models import User
 
-router = APIRouter()
+router = APIRouter(tags=["Notification"])
 
 @router.get("", summary="Get notifications for current user")
 async def get_notifications(
@@ -35,14 +35,13 @@ async def get_notifications(
         page_size=page_size,
         unread_only=unread_only,
     )
-    meta = {
-        "page": page,
-        "page_size": page_size,
-        "total_count": total,
-        "total": total,
-        "unread_count": unread,
-        "total_pages": (total + page_size - 1) // page_size if total > 0 else 1,
-    }
+    meta = PaginationMeta(
+        page=page,
+        page_size=page_size,
+        total=total,
+        unread_count=unread,
+        total_pages=(total + page_size - 1) // page_size if total > 0 else 1,
+    )
     return success_response(data=[item.model_dump() for item in items], meta=meta)
 
 @router.post("/{notification_id}/read", summary="Mark single notification as read")
@@ -84,7 +83,10 @@ async def get_notification_preferences(
         user_id=current_user.id,
         org_id=current_user.org_id,
     )
-    return success_response(data=[p.model_dump() for p in prefs])
+    return success_response(
+        data=[p.model_dump() for p in prefs],
+        meta=PaginationMeta(total=len(prefs), page=1, page_size=len(prefs) or 20),
+    )
 
 @router.put("/preferences", summary="Update user notification preferences")
 async def update_notification_preferences(

@@ -42,10 +42,11 @@ from app.modules.vendor.schemas import (
     BulkVendorCategoryMappingRequest,
     BulkVendorCategoryMappingResponse,
 )
+from app.core.streaming import stream_csv, stream_pdf, generate_table_pdf
 from app.modules.vendor.service import vendor_service
 
 
-router = APIRouter(tags=["Vendors"])
+router = APIRouter(tags=["Vendor"])
 
 
 def _assert_vendor_access(user: User, vendor_id: UUID) -> None:
@@ -144,6 +145,78 @@ async def list_vendors(
     )
     data = [VendorResponse.model_validate(v).model_dump() for v in items]
     return success_response(data, meta=meta)
+
+
+@router.get("/export/csv")
+async def export_vendors_csv(
+    status: Optional[str] = Query(None),
+    category_id: Optional[UUID] = Query(None),
+    search: Optional[str] = Query(None),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Stream CSV export of vendors."""
+    if current_user.is_supplier_user:
+        raise ForbiddenError("Suppliers cannot export vendor catalog")
+
+    items, _ = await vendor_service.repo.list_vendors(
+        db,
+        org_id=current_user.org_id,
+        status=status,
+        category_id=category_id,
+        search=search,
+        page=1,
+        page_size=1000,
+    )
+    headers = ["vendor_code", "company_name", "status", "pan", "gstin", "created_at"]
+    rows = [
+        {
+            "vendor_code": getattr(v, "vendor_code", ""),
+            "company_name": getattr(v, "company_name", ""),
+            "status": getattr(v, "status", ""),
+            "pan": getattr(v, "pan", ""),
+            "gstin": getattr(v, "gstin", ""),
+            "created_at": getattr(v, "created_at", ""),
+        }
+        for v in items
+    ]
+    return stream_csv(headers=headers, rows=rows, filename=f"vendors_{current_user.org_id.hex[:6]}")
+
+
+@router.get("/export/pdf")
+async def export_vendors_pdf(
+    status: Optional[str] = Query(None),
+    category_id: Optional[UUID] = Query(None),
+    search: Optional[str] = Query(None),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Stream PDF export of vendors."""
+    if current_user.is_supplier_user:
+        raise ForbiddenError("Suppliers cannot export vendor catalog")
+
+    items, _ = await vendor_service.repo.list_vendors(
+        db,
+        org_id=current_user.org_id,
+        status=status,
+        category_id=category_id,
+        search=search,
+        page=1,
+        page_size=500,
+    )
+    headers = ["vendor_code", "company_name", "status", "pan", "gstin"]
+    rows = [
+        {
+            "vendor_code": getattr(v, "vendor_code", ""),
+            "company_name": getattr(v, "company_name", ""),
+            "status": getattr(v, "status", ""),
+            "pan": getattr(v, "pan", ""),
+            "gstin": getattr(v, "gstin", ""),
+        }
+        for v in items
+    ]
+    pdf_bytes = generate_table_pdf("Vendors Master Report", headers, rows)
+    return stream_pdf(pdf_bytes, f"vendors_{current_user.org_id.hex[:6]}")
 
 
 @router.post("/check-duplicates", status_code=status.HTTP_200_OK)

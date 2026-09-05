@@ -34,12 +34,13 @@ from app.modules.invoice.schemas import (
     InvoiceResponse,
     InvoiceSubmitRequest,
 )
+from app.core.streaming import stream_csv, stream_pdf, generate_table_pdf
 from app.modules.invoice.service import invoice_service
 from app.modules.purchase_order.repository import purchase_order_repository
 from app.modules.user.models import User
 from app.modules.vendor.repository import vendor_repository
 
-router = APIRouter(tags=["Invoices"])
+router = APIRouter(tags=["Invoice"])
 
 
 def _to_invoice_response(inv: Any, vendor_name: Optional[str] = None, po_number: Optional[str] = None) -> InvoiceResponse:
@@ -173,6 +174,95 @@ async def list_invoices(
     return success_response(data=data, meta=meta)
 
 
+@router.get("/export/csv")
+async def export_invoices_csv(
+    po_id: Optional[UUID] = Query(None),
+    vendor_id: Optional[UUID] = Query(None),
+    status: Optional[str] = Query(None),
+    match_status: Optional[str] = Query(None),
+    payment_status: Optional[str] = Query(None),
+    financial_year: Optional[str] = Query(None),
+    search: Optional[str] = Query(None),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_any_permission([PermissionCode.INVOICE_VIEW_OWN, PermissionCode.INVOICE_VIEW_ALL])),
+):
+    """Stream CSV export of invoices."""
+    effective_vendor_id = vendor_id
+    if current_user.vendor_id:
+        effective_vendor_id = current_user.vendor_id
+
+    filters = InvoiceFilterParams(
+        po_id=po_id,
+        vendor_id=effective_vendor_id,
+        status=status,
+        match_status=match_status,
+        payment_status=payment_status,
+        financial_year=financial_year,
+        search=search,
+        page=1,
+        page_size=1000,
+    )
+    invoices, _ = await invoice_service.list(db, current_user.org_id, filters)
+    headers = ["invoice_number", "vendor_invoice_number", "total_amount", "currency", "status", "payment_status", "invoice_date"]
+    rows = [
+        {
+            "invoice_number": getattr(inv, "invoice_number", ""),
+            "vendor_invoice_number": getattr(inv, "vendor_invoice_number", ""),
+            "total_amount": getattr(inv, "total_amount", 0),
+            "currency": getattr(inv, "currency", "INR"),
+            "status": getattr(inv, "status", ""),
+            "payment_status": getattr(inv, "payment_status", ""),
+            "invoice_date": getattr(inv, "invoice_date", ""),
+        }
+        for inv in invoices
+    ]
+    return stream_csv(headers=headers, rows=rows, filename=f"invoices_{current_user.org_id.hex[:6]}")
+
+
+@router.get("/export/pdf")
+async def export_invoices_pdf(
+    po_id: Optional[UUID] = Query(None),
+    vendor_id: Optional[UUID] = Query(None),
+    status: Optional[str] = Query(None),
+    match_status: Optional[str] = Query(None),
+    payment_status: Optional[str] = Query(None),
+    financial_year: Optional[str] = Query(None),
+    search: Optional[str] = Query(None),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_any_permission([PermissionCode.INVOICE_VIEW_OWN, PermissionCode.INVOICE_VIEW_ALL])),
+):
+    """Stream PDF export of invoices."""
+    effective_vendor_id = vendor_id
+    if current_user.vendor_id:
+        effective_vendor_id = current_user.vendor_id
+
+    filters = InvoiceFilterParams(
+        po_id=po_id,
+        vendor_id=effective_vendor_id,
+        status=status,
+        match_status=match_status,
+        payment_status=payment_status,
+        financial_year=financial_year,
+        search=search,
+        page=1,
+        page_size=500,
+    )
+    invoices, _ = await invoice_service.list(db, current_user.org_id, filters)
+    headers = ["invoice_number", "total_amount", "currency", "status", "payment_status"]
+    rows = [
+        {
+            "invoice_number": getattr(inv, "invoice_number", ""),
+            "total_amount": getattr(inv, "total_amount", 0),
+            "currency": getattr(inv, "currency", "INR"),
+            "status": getattr(inv, "status", ""),
+            "payment_status": getattr(inv, "payment_status", ""),
+        }
+        for inv in invoices
+    ]
+    pdf_bytes = generate_table_pdf("Invoices Ledger Report", headers, rows)
+    return stream_pdf(pdf_bytes, f"invoices_{current_user.org_id.hex[:6]}")
+
+
 @router.get("/eligible-lines", response_model=APIResponse[List[EligibleLineResponse]])
 async def get_eligible_lines(
     vendor_id: Optional[UUID] = Query(None),
@@ -184,7 +274,8 @@ async def get_eligible_lines(
         raise ValidationError("vendor_id is required to fetch eligible invoice lines")
 
     lines = await invoice_service.get_eligible_lines(db, effective_vendor_id, current_user.org_id)
-    return success_response(data=lines)
+    meta = PaginationMeta(total=len(lines), page=1, page_size=len(lines) or 20)
+    return success_response(data=lines, meta=meta)
 
 
 @router.post("", response_model=APIResponse[InvoiceResponse], status_code=status.HTTP_201_CREATED)

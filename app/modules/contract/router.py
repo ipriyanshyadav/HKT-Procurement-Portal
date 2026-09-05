@@ -44,7 +44,7 @@ from app.modules.contract.schemas import (
 from app.modules.contract.service import contract_service
 from app.modules.user.models import User
 
-router = APIRouter(tags=["Contracts"])
+router = APIRouter(tags=["Contract"])
 
 
 @router.get("/health")
@@ -160,7 +160,10 @@ async def list_templates(
 ):
     """List available contract templates."""
     templates = await contract_service.repo.list_templates(db, current_user.org_id, contract_type)
-    return success_response(data=templates)
+    return success_response(
+        data=templates,
+        meta=PaginationMeta(total=len(templates), page=1, page_size=len(templates) or 20),
+    )
 
 
 @router.get(

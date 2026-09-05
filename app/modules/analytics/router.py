@@ -12,9 +12,10 @@ from app.db.session import get_db
 from app.modules.analytics.export_service import analytics_export_service
 from app.modules.analytics.service import analytics_service
 from app.modules.user.models import User
+from app.core.streaming import stream_csv, stream_pdf, generate_table_pdf
 from app.modules.user.role_repository import role_repository
 
-router = APIRouter()
+router = APIRouter(tags=["Analytics"])
 
 
 class ExportRequest(BaseModel):
@@ -204,6 +205,66 @@ async def get_invoices(
 
 
 # 11. Ad-hoc CSV export
+@router.get("/export/csv")
+async def get_export_csv(
+    report_type: Optional[str] = Query("spend", description="spend, vendors, or kpis"),
+    fiscal_year: Optional[str] = Query(None),
+    group_by: Optional[str] = Query("category"),
+    current_user: User = Depends(get_current_user),
+    user_bu_scope: List[UUID] = Depends(get_user_bu_scope),
+    db: AsyncSession = Depends(get_db),
+):
+    """Stream CSV export for analytics report."""
+    if report_type == "spend":
+        data = await analytics_service.get_spend_summary(
+            db, current_user.org_id, fiscal_year, user_bu_scope, group_by=group_by or "category"
+        )
+    elif report_type == "vendors":
+        data = await analytics_service.get_vendor_performance(
+            db, current_user.org_id, vendor_id=None, user_bu_scope=user_bu_scope
+        )
+    else:
+        kpis = await analytics_service.get_procurement_kpis(
+            db, current_user.org_id, fiscal_year, user_bu_scope
+        )
+        data = [{"metric": k, "value": v} for k, v in kpis.items()]
+
+    headers = list(data[0].keys()) if data and isinstance(data[0], dict) else ["key", "value"]
+    return stream_csv(headers=headers, rows=data or [], filename=f"analytics_{report_type}_{current_user.org_id.hex[:6]}")
+
+
+@router.get("/export/pdf")
+async def get_export_pdf(
+    report_type: Optional[str] = Query("spend", description="spend, vendors, or kpis"),
+    fiscal_year: Optional[str] = Query(None),
+    group_by: Optional[str] = Query("category"),
+    current_user: User = Depends(get_current_user),
+    user_bu_scope: List[UUID] = Depends(get_user_bu_scope),
+    db: AsyncSession = Depends(get_db),
+):
+    """Stream PDF export for analytics report."""
+    if report_type == "spend":
+        data = await analytics_service.get_spend_summary(
+            db, current_user.org_id, fiscal_year, user_bu_scope, group_by=group_by or "category"
+        )
+        title = f"Spend Summary Report ({group_by or 'category'})"
+    elif report_type == "vendors":
+        data = await analytics_service.get_vendor_performance(
+            db, current_user.org_id, vendor_id=None, user_bu_scope=user_bu_scope
+        )
+        title = "Vendor Performance Report"
+    else:
+        kpis = await analytics_service.get_procurement_kpis(
+            db, current_user.org_id, fiscal_year, user_bu_scope
+        )
+        data = [{"metric": k, "value": v} for k, v in kpis.items()]
+        title = "Procurement KPIs Summary Report"
+
+    headers = list(data[0].keys()) if data and isinstance(data[0], dict) else ["key", "value"]
+    pdf_bytes = generate_table_pdf(title, headers, data or [])
+    return stream_pdf(pdf_bytes, f"analytics_{report_type}_{current_user.org_id.hex[:6]}")
+
+
 @router.post("/export/csv")
 async def export_csv(
     req: ExportRequest,

@@ -37,7 +37,7 @@ from app.modules.purchase_order.schemas import (
 from app.modules.purchase_order.service import purchase_order_service
 from app.modules.user.models import User
 
-router = APIRouter(tags=["Purchase Orders"])
+router = APIRouter(tags=["Purchase Order"])
 
 
 def _to_po_response(po: Any) -> POResponse:

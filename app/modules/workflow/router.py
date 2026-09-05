@@ -28,7 +28,7 @@ from app.modules.workflow.schemas import (
 )
 from app.modules.workflow.service import workflow_engine
 
-router = APIRouter()
+router = APIRouter(tags=["Workflow"])
 
 
 @router.get("/instances/{instance_id}")
@@ -230,7 +230,7 @@ async def list_templates(
 
     res = await db.execute(stmt)
     templates = res.scalars().all()
-    return success_response([
+    template_items = [
         {
             "id": str(t.id),
             "code": t.code,
@@ -241,7 +241,11 @@ async def list_templates(
             "created_at": t.created_at.isoformat() if t.created_at else None,
         }
         for t in templates
-    ])
+    ]
+    return success_response(
+        template_items,
+        meta=PaginationMeta(total=len(template_items), page=1, page_size=len(template_items) or 20),
+    )
 
 
 @router.post("/templates")

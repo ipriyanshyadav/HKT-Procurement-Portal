@@ -11,7 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.dependencies import get_current_user, get_optional_current_user, require_permission
 from app.core.constants import DEFAULT_ORG_ID, PermissionCode
-from app.core.responses import created_response, success_response
+from app.core.responses import APIResponse, PaginationMeta, created_response, success_response
 from app.db.session import get_db
 from app.modules.master_data.category.service import (
     CategoryCreateRequest,
@@ -58,7 +58,7 @@ from app.modules.master_data.uom.service import (
 )
 from app.modules.user.models import User
 
-router = APIRouter()
+router = APIRouter(tags=["Master Data"])
 
 
 class IncotermResponse(BaseModel):
@@ -92,7 +92,10 @@ async def list_categories(
     org_id = current_user.org_id if current_user else DEFAULT_ORG_ID
     if flat:
         categories = await category_service.list_all(db, org_id, active_only=active_only)
-        return success_response([CategoryResponse.model_validate(c) for c in categories])
+        return success_response(
+            [CategoryResponse.model_validate(c) for c in categories],
+            meta=PaginationMeta(total=len(categories), page=1, page_size=len(categories) or 20),
+        )
     tree = await category_service.get_tree(db, org_id)
     return success_response(tree)
 
@@ -157,7 +160,10 @@ async def list_uoms(
 ):
     """List units of measure."""
     uoms = await uom_service.list_all(db, current_user.org_id, active_only=active_only)
-    return success_response([UomResponse.model_validate(u) for u in uoms])
+    return success_response(
+        [UomResponse.model_validate(u) for u in uoms],
+        meta=PaginationMeta(total=len(uoms), page=1, page_size=len(uoms) or 20),
+    )
 
 
 @router.post("/uoms", status_code=status.HTTP_201_CREATED)
@@ -210,7 +216,10 @@ async def list_currencies(
     currencies = await currency_service.list_all(
         db, current_user.org_id, active_only=active_only, include_rates=include_rates
     )
-    return success_response([CurrencyResponse.model_validate(c) for c in currencies])
+    return success_response(
+        [CurrencyResponse.model_validate(c) for c in currencies],
+        meta=PaginationMeta(total=len(currencies), page=1, page_size=len(currencies) or 20),
+    )
 
 
 @router.post("/currencies", status_code=status.HTTP_201_CREATED)
@@ -260,7 +269,10 @@ async def list_payment_terms(
 ):
     """List payment terms."""
     terms = await payment_terms_service.list_all(db, current_user.org_id, active_only=active_only)
-    return success_response([PaymentTermResponse.model_validate(t) for t in terms])
+    return success_response(
+        [PaymentTermResponse.model_validate(t) for t in terms],
+        meta=PaginationMeta(total=len(terms), page=1, page_size=len(terms) or 20),
+    )
 
 
 @router.post("/payment-terms", status_code=status.HTTP_201_CREATED)
@@ -319,7 +331,10 @@ async def list_incoterms(
     )
     result = await db.execute(stmt)
     incoterms = result.scalars().all()
-    return success_response([IncotermResponse.model_validate(i) for i in incoterms])
+    return success_response(
+        [IncotermResponse.model_validate(i) for i in incoterms],
+        meta=PaginationMeta(total=len(incoterms), page=1, page_size=len(incoterms) or 20),
+    )
 
 
 # -----------------------------------------------------------------------------
@@ -338,7 +353,10 @@ async def list_tax_codes(
     tax_codes = await tax_service.list_all(
         db, current_user.org_id, tax_type=tax_type, active_only=active_only
     )
-    return success_response([TaxResponse.model_validate(t) for t in tax_codes])
+    return success_response(
+        [TaxResponse.model_validate(t) for t in tax_codes],
+        meta=PaginationMeta(total=len(tax_codes), page=1, page_size=len(tax_codes) or 20),
+    )
 
 
 @router.post("/tax-codes", status_code=status.HTTP_201_CREATED)
@@ -391,7 +409,10 @@ async def list_delivery_locations(
     locations = await delivery_location_service.list_all(
         db, current_user.org_id, active_only=active_only, country_code=country_code
     )
-    return success_response([LocationResponse.model_validate(loc) for loc in locations])
+    return success_response(
+        [LocationResponse.model_validate(loc) for loc in locations],
+        meta=PaginationMeta(total=len(locations), page=1, page_size=len(locations) or 20),
+    )
 
 
 @router.post("/delivery-locations", status_code=status.HTTP_201_CREATED)
@@ -445,7 +466,10 @@ async def list_holidays_by_year(
 ):
     """List holidays for a specific calendar year."""
     holidays = await holiday_service.list_by_year(db, current_user.org_id, year)
-    return success_response([HolidayResponse.model_validate(h) for h in holidays])
+    return success_response(
+        [HolidayResponse.model_validate(h) for h in holidays],
+        meta=PaginationMeta(total=len(holidays), page=1, page_size=len(holidays) or 20),
+    )
 
 
 @router.post("/holidays", status_code=status.HTTP_201_CREATED)

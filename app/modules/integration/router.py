@@ -219,7 +219,10 @@ async def list_scheduled_runs(
         )
         for r in runs
     ]
-    return success_response(data=data)
+    return success_response(
+        data=data,
+        meta=PaginationMeta(total=len(data), page=1, page_size=limit),
+    )
 
 
 @router.post("/sync/trigger", response_model=APIResponse[SyncTriggerResponse])

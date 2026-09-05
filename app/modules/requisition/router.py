@@ -24,9 +24,10 @@ from app.modules.requisition.schemas import (
     PRUpdateRequest,
 )
 from app.modules.requisition.service import requisition_service
+from app.core.streaming import stream_csv, stream_pdf, generate_table_pdf
 from app.modules.user.models import User
 
-router = APIRouter(tags=["Requisitions"])
+router = APIRouter(tags=["Requisition"])
 
 
 @router.post("", response_model=APIResponse[PRDetailResponse], status_code=status.HTTP_201_CREATED)
@@ -115,6 +116,86 @@ async def list_requisitions(
         data=[PRListResponse.model_validate(pr) for pr in items],
         meta=meta,
     )
+
+
+@router.get("/export/csv")
+async def export_requisitions_csv(
+    status: Optional[str] = Query(None),
+    business_unit_id: Optional[UUID] = Query(None),
+    category_id: Optional[UUID] = Query(None),
+    requestor_id: Optional[UUID] = Query(None),
+    search: Optional[str] = Query(None),
+    scope: str = Query("all", pattern="^(all|mine|bu)$"),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Stream CSV export of requisitions."""
+    items, _ = await requisition_service.list_prs(
+        db,
+        org_id=current_user.org_id,
+        status=status,
+        business_unit_id=business_unit_id,
+        category_id=category_id,
+        requestor_id=requestor_id,
+        search=search,
+        scope=scope,
+        current_user=current_user,
+        skip=0,
+        limit=1000,
+    )
+    headers = ["pr_number", "title", "status", "estimated_amount", "currency", "created_at"]
+    rows = [
+        {
+            "pr_number": getattr(p, "pr_number", ""),
+            "title": getattr(p, "title", ""),
+            "status": getattr(p, "status", ""),
+            "estimated_amount": getattr(p, "estimated_amount", 0),
+            "currency": getattr(p, "currency", "INR"),
+            "created_at": getattr(p, "created_at", ""),
+        }
+        for p in items
+    ]
+    return stream_csv(headers=headers, rows=rows, filename=f"requisitions_{current_user.org_id.hex[:6]}")
+
+
+@router.get("/export/pdf")
+async def export_requisitions_pdf(
+    status: Optional[str] = Query(None),
+    business_unit_id: Optional[UUID] = Query(None),
+    category_id: Optional[UUID] = Query(None),
+    requestor_id: Optional[UUID] = Query(None),
+    search: Optional[str] = Query(None),
+    scope: str = Query("all", pattern="^(all|mine|bu)$"),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Stream PDF export of requisitions."""
+    items, _ = await requisition_service.list_prs(
+        db,
+        org_id=current_user.org_id,
+        status=status,
+        business_unit_id=business_unit_id,
+        category_id=category_id,
+        requestor_id=requestor_id,
+        search=search,
+        scope=scope,
+        current_user=current_user,
+        skip=0,
+        limit=500,
+    )
+    headers = ["pr_number", "title", "status", "estimated_amount", "currency"]
+    rows = [
+        {
+            "pr_number": getattr(p, "pr_number", ""),
+            "title": getattr(p, "title", ""),
+            "status": getattr(p, "status", ""),
+            "estimated_amount": getattr(p, "estimated_amount", 0),
+            "currency": getattr(p, "currency", "INR"),
+        }
+        for p in items
+    ]
+    pdf_bytes = generate_table_pdf("Purchase Requisitions Report", headers, rows)
+    return stream_pdf(pdf_bytes, f"requisitions_{current_user.org_id.hex[:6]}")
 
 
 @router.get("/{id}", response_model=APIResponse[PRDetailResponse])

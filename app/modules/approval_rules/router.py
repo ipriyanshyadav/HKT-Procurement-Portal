@@ -16,7 +16,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.auth.dependencies import get_current_user, require_permission
 from app.core.constants import PermissionCode
 from app.core.exceptions import ValidationError
-from app.core.responses import success_response, created_response
+from app.core.responses import APIResponse, PaginationMeta, created_response, success_response
 from app.db.session import get_db
 from app.modules.approval_rules.models import ApprovalRule
 from app.modules.approval_rules.repository import approval_rules_repository
@@ -32,7 +32,7 @@ from app.modules.approval_rules.schemas import (
 from app.modules.approval_rules.service import rules_engine
 from app.modules.user.models import User
 
-router = APIRouter()
+router = APIRouter(tags=["Approval Rules"])
 
 
 @router.post("", status_code=status.HTTP_201_CREATED)
@@ -147,7 +147,10 @@ async def list_rules(
         rules = await approval_rules_repository.get_multi(
             db, current_user.org_id, skip=(page - 1) * page_size, limit=page_size
         )
-    return success_response([ApprovalRuleResponse.model_validate(r) for r in rules])
+    return success_response(
+        [ApprovalRuleResponse.model_validate(r) for r in rules],
+        meta=PaginationMeta(total=len(rules), page=page, page_size=page_size),
+    )
 
 
 @router.get("/{rule_id}")
@@ -169,7 +172,10 @@ async def get_rule_versions(
 ):
     """Get version history for an approval rule."""
     versions = await approval_rules_repository.get_versions(db, rule_id, current_user.org_id)
-    return success_response([ApprovalRuleVersionResponse.model_validate(v) for v in versions])
+    return success_response(
+        [ApprovalRuleVersionResponse.model_validate(v) for v in versions],
+        meta=PaginationMeta(total=len(versions), page=1, page_size=len(versions) or 20),
+    )
 
 
 @router.post("/simulate")

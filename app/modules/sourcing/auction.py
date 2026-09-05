@@ -115,7 +115,7 @@ class AuctionRoomManager:
 
 auction_manager = AuctionRoomManager()
 
-auction_router = APIRouter(prefix="/rfqs/{rfq_id}/auction", tags=["Reverse Auction"])
+auction_router = APIRouter(prefix="/rfqs/{rfq_id}/auction", tags=["Live Auction"])
 
 
 @auction_router.get("/state")
