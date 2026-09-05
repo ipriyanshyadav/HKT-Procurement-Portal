@@ -16,6 +16,9 @@ convention = {
 
 class Base(DeclarativeBase):
     metadata = MetaData(naming_convention=convention)
+    type_annotation_map = {
+        datetime: DateTime(timezone=True),
+    }
 
 class BaseModel(Base):
     __abstract__ = True

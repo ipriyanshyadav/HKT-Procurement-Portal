@@ -111,7 +111,7 @@ class GSTAdapter:
 
         try:
             ttl = settings.VENDOR_GST_CACHE_TTL_DAYS * 86400
-            await redis.set(cache_key, json.dumps(result), ex=ttl)
+            await redis.setex(cache_key, ttl, json.dumps(result))
         except Exception:
             pass
 

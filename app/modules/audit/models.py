@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Optional, Dict, Any
 from uuid import UUID, uuid4
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import String, ForeignKey, Text
+from sqlalchemy import String, ForeignKey, Text, DateTime
 from sqlalchemy.dialects.postgresql import JSONB, INET
 from sqlalchemy.sql import func
 from app.db.base import BaseModel, Base
@@ -13,7 +13,7 @@ class AuditLog(Base):
     __tablename__ = "audit_logs"
 
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
-    created_at: Mapped[datetime] = mapped_column(primary_key=True, server_default=func.now(), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), primary_key=True, server_default=func.now(), nullable=False)
     org_id: Mapped[UUID] = mapped_column(nullable=False)
     entity_type: Mapped[AuditEntityTypeEnum] = mapped_column(AUDIT_ENTITY_TYPE_PG, nullable=False)
     entity_id: Mapped[UUID] = mapped_column(nullable=False)

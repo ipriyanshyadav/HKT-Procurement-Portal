@@ -279,3 +279,20 @@ def test_elasticsearch_ilm_policy_and_template():
     assert "365d" in content
     assert "audit-logs-*" in content
     assert "elasticsearch-ilm-setup" in content
+
+
+def test_audit_log_timezone_and_asyncpg_compilation():
+    """Verify that Base.type_annotation_map and AuditLog enforce DateTime(timezone=True) for asyncpg compatibility."""
+    from sqlalchemy.dialects.postgresql.asyncpg import PGDialect_asyncpg
+    from sqlalchemy.sql import insert
+    from app.db.base import Base
+
+    # Verify column type on AuditLog table
+    assert AuditLog.__table__.c.created_at.type.timezone is True
+
+    # Verify compilation for asyncpg binds $2 with TIMESTAMP WITH TIME ZONE
+    stmt = insert(AuditLog)
+    compiled = stmt.compile(dialect=PGDialect_asyncpg())
+    compiled_str = str(compiled)
+    assert "TIMESTAMP WITH TIME ZONE" in compiled_str
+    assert "TIMESTAMP WITHOUT TIME ZONE" not in compiled_str

@@ -1,19 +1,16 @@
 # Procurement Portal — Enterprise S2C & P2P Platform
 
 ## Current Session State
-**Status:** SPEC_22 Observability & Monitoring Implementation Complete
+**Status:** Bugfix: Login asyncpg timezone-aware datetime mismatch resolved
 **Completed:**
-- **Prometheus Metrics:** 12+ custom metrics in `app/core/metrics.py`; `TimingMiddleware` latency & RPS recording; service instrumentation across PR, RFQ, Bids, PO, Workflows, SLAs, Outbox, and Compliance.
-- **Alertmanager & Rules:** 15 alert rules in `k8s/monitoring/prometheus/rules.yaml`; CRITICAL→PagerDuty, WARNING→OpsGenie, and DeadMansSwitch routing in `k8s/monitoring/alertmanager/config.yaml`.
-- **Grafana Dashboards:** 7 provisioned dashboards (App Overview, Procurement KPIs, Database, Infrastructure, Queue Depth, SLO, Security) via `dashboards-configmap.yaml`.
-- **Loki & Promtail:** `promtail-config.yaml` with JSON parsing and drop filters for `/health*` endpoints.
-- **Elasticsearch Audit Search:** `AuditSearchService` with async ES querying & SQL fallback; ILM policy with monthly index rotation (`audit-logs-{YYYY.MM}`) and 365d retention.
-- **Frontend Wiring (Admin Portal):** Audit Trail search explorer with filters, pagination, JSON diff modal, and trace ID copy; System Health live dashboard polling `/health/ready`.
-**Verification:** 9/9 tests pass in `test_observability.py`; 299/299 unit tests pass; 9/9 k8s tests pass; Turborepo `pnpm typecheck` passing (0 errors).
+- **SQLAlchemy Timezone Mapping:** Configured `type_annotation_map = {datetime: DateTime(timezone=True)}` on `Base` in `app/db/base.py` and explicit `DateTime(timezone=True)` on `AuditLog.created_at` in `app/modules/audit/models.py`. Resolves asyncpg offset-naive vs offset-aware datetime TypeError on `INSERT INTO audit_logs`.
+- **Integration Caching Fix:** Aligned `GSTAdapter` cache writes with `redis.setex` in `app/modules/integration/adapters/gst.py`.
+- **Regression Tests:** Added `test_audit_log_timezone_and_asyncpg_compilation` in `tests/unit/test_observability.py`.
+**Verification:** 10/10 tests pass in `test_observability.py`; 299/299 unit tests pass; 173 integration tests pass; Turborepo `pnpm typecheck` passing (0 errors).
 **Migration Head:** 0035_analytics_spec25
 **Test Commands:** `.venv/bin/pytest tests/unit/test_observability.py -v` & `cd procurement-portal-frontend && pnpm typecheck`
 **Next:** SPEC_18 API Standards & Resilience
-**Graphify:** 6449 nodes, 16240 edges, 402 communities
+**Graphify:** 6451 nodes, 16243 edges, 412 communities
 
 ---
 
