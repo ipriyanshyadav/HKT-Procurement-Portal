@@ -66,3 +66,22 @@ class SyncTriggerResponse(BaseModel):
     message: str
     job_run_id: Optional[UUID] = None
 
+
+class ERPConfigResponse(BaseModel):
+    erp_provider: str = "SAP"
+    endpoint_url: Optional[str] = None
+    auth_type: str = "API_KEY"
+    api_key_masked: Optional[str] = None
+    allowed_domains: List[str] = []
+    is_enabled: bool = True
+    updated_at: Optional[datetime] = None
+
+
+class ERPConfigUpdateRequest(BaseModel):
+    erp_provider: str = "SAP"
+    endpoint_url: Optional[str] = None
+    auth_type: str = "API_KEY"
+    api_key: Optional[str] = None
+    allowed_domains: List[str] = []
+    is_enabled: bool = True
+

@@ -103,5 +103,35 @@ class IntegrationRepository:
         result = await db.execute(stmt)
         return list(result.scalars().all())
 
+    async def get_due_jobs(
+        self,
+        db: AsyncSession,
+        now: Optional[datetime] = None,
+        limit: int = 50,
+    ) -> List[IntegrationJob]:
+        from sqlalchemy import or_
+        from datetime import timezone
+        current_time = now or datetime.now(timezone.utc)
+        stmt = (
+            select(IntegrationJob)
+            .where(
+                and_(
+                    IntegrationJob.status.in_([
+                        IntegrationJobStatusEnum.PENDING,
+                        IntegrationJobStatusEnum.RETRY_SCHEDULED,
+                    ]),
+                    or_(
+                        IntegrationJob.next_retry_at.is_(None),
+                        IntegrationJob.next_retry_at <= current_time,
+                    ),
+                    IntegrationJob.deleted_at.is_(None),
+                )
+            )
+            .order_by(IntegrationJob.next_retry_at.asc().nullsfirst())
+            .limit(limit)
+        )
+        result = await db.execute(stmt)
+        return list(result.scalars().all())
+
 
 integration_repository = IntegrationRepository()

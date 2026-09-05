@@ -297,6 +297,118 @@ class IntegrationService:
             "job_run_id": run.id,
         }
 
+    async def get_erp_config(self, db: AsyncSession, org_id: UUID) -> Dict[str, Any]:
+        from sqlalchemy import select
+        from app.modules.integration.models import TenantSetting
+
+        stmt = select(TenantSetting).where(
+            TenantSetting.org_id == org_id,
+            TenantSetting.setting_key.in_(["erp_config", "allowed_domains"]),
+            TenantSetting.deleted_at.is_(None),
+        )
+        res = await db.execute(stmt)
+        settings_rows = {s.setting_key: s for s in res.scalars().all()}
+
+        erp_val = settings_rows["erp_config"].setting_value if "erp_config" in settings_rows else {}
+        domains_val = settings_rows["allowed_domains"].setting_value if "allowed_domains" in settings_rows else {}
+
+        raw_domains = domains_val.get("domains", []) if isinstance(domains_val, dict) else domains_val
+        if not isinstance(raw_domains, list):
+            raw_domains = []
+
+        api_key = erp_val.get("api_key", "")
+        masked_key = f"{api_key[:4]}****{api_key[-4:]}" if len(api_key) > 8 else ("****" if api_key else None)
+
+        updated_at = None
+        if "erp_config" in settings_rows:
+            updated_at = settings_rows["erp_config"].updated_at
+
+        return {
+            "erp_provider": erp_val.get("provider") or erp_val.get("adapter_type") or "SAP",
+            "endpoint_url": erp_val.get("endpoint_url"),
+            "auth_type": erp_val.get("auth_type", "API_KEY"),
+            "api_key_masked": masked_key,
+            "allowed_domains": raw_domains,
+            "is_enabled": erp_val.get("is_enabled", True),
+            "updated_at": updated_at,
+        }
+
+    async def update_erp_config(
+        self,
+        db: AsyncSession,
+        org_id: UUID,
+        actor_id: UUID,
+        erp_provider: str,
+        endpoint_url: Optional[str],
+        auth_type: str,
+        api_key: Optional[str],
+        allowed_domains: List[str],
+        is_enabled: bool = True,
+    ) -> Dict[str, Any]:
+        from sqlalchemy import select
+        from app.modules.integration.models import TenantSetting
+
+        stmt = select(TenantSetting).where(
+            TenantSetting.org_id == org_id,
+            TenantSetting.setting_key.in_(["erp_config", "allowed_domains"]),
+            TenantSetting.deleted_at.is_(None),
+        )
+        res = await db.execute(stmt)
+        settings_rows = {s.setting_key: s for s in res.scalars().all()}
+
+        # 1. Update/create erp_config
+        erp_row = settings_rows.get("erp_config")
+        existing_val = erp_row.setting_value if erp_row else {}
+        new_val = {
+            "provider": erp_provider,
+            "adapter_type": erp_provider,
+            "endpoint_url": endpoint_url,
+            "auth_type": auth_type,
+            "api_key": api_key if api_key else existing_val.get("api_key"),
+            "is_enabled": is_enabled,
+        }
+        if erp_row:
+            erp_row.setting_value = new_val
+            erp_row.updated_by = actor_id
+        else:
+            erp_row = TenantSetting(
+                org_id=org_id,
+                setting_key="erp_config",
+                setting_value=new_val,
+                description="ERP Integration Settings",
+                updated_by=actor_id,
+            )
+            db.add(erp_row)
+
+        # 2. Update/create allowed_domains
+        domains_row = settings_rows.get("allowed_domains")
+        cleaned_domains = list(dict.fromkeys(d.strip().lower() for d in allowed_domains if d and d.strip()))
+        if domains_row:
+            domains_row.setting_value = {"domains": cleaned_domains}
+            domains_row.updated_by = actor_id
+        else:
+            domains_row = TenantSetting(
+                org_id=org_id,
+                setting_key="allowed_domains",
+                setting_value={"domains": cleaned_domains},
+                description="Allowed Integration Domains for SSRF Prevention",
+                updated_by=actor_id,
+            )
+            db.add(domains_row)
+
+        await db.flush()
+
+        await self.audit.log(
+            db,
+            entity_type="INTEGRATION_CONFIG",
+            entity_id=erp_row.id,
+            action="INTEGRATION_CONFIG_UPDATED",
+            actor_id=actor_id,
+            org_id=org_id,
+            metadata={"erp_provider": erp_provider, "domains_count": len(cleaned_domains)},
+        )
+
+        return await self.get_erp_config(db, org_id)
 
 
 integration_service = IntegrationService()

@@ -1,19 +1,24 @@
 # Procurement Portal — Enterprise S2C & P2P Platform
 
 ## Current Session State
-**Status:** SPEC_16 Notification Service Implementation Complete
+**Status:** SPEC_20 Integration Layer & Hub Implementation Complete
 **Completed:**
-- **Multi-Channel Notification Engine:** Email (`SendGrid`), SMS (`MSG91` with 160-char chunking), In-App (`Redis pub/sub`), WhatsApp (Phase 3 stub returning 202).
-- **Message Queuing & Consumer:** `aio-pika` consumer for 4 queues (`q.notification.email`, `q.notification.sms`, `q.notification.inapp`, `q.notification.digest`) with exponential retry backoff and DLQ routing.
-- **WebSocket & Real-Time Delivery:** `/ws/notifications` route authenticated via token query param with code 4001 termination on invalid auth; Kong configured for `/ws` upgrade; per-user Redis pub/sub routing.
-- **Digest Aggregator:** Celery task (`compile_notification_digests_async`) with strict SLA_BREACH and COMPLIANCE alert exclusions.
-- **Templates & Preferences:** Seeded 34 SPEC_16 notification template types (48 templates across channels); user preference engine with critical alert override and quiet hours support.
-- **Frontend Integration:** `useNotifications` React hook, `notificationStore` Zustand store, `NotificationBell` with unread badge in Buyer & Supplier AppShell headers, `NotificationCenter` page at `/notifications`.
-- **Verification:** 12/12 integration tests passing (`tests/integration/test_notifications.py`); 503/503 full suite passing; Turbo typecheck passing across all 9 workspaces; AST Graphify updated.
+- **ERP Integration Adapters:** `ERPAdapterBase` ABC and `ERPAdapterFactory` supporting `SAPAdapter` (IDoc/RFC transforms), `OracleAdapter` (Fusion REST), and `CustomERPAdapter` (Generic REST).
+- **Domain Entity Adapters:** Modular serializers and idempotency hashing for Vendors (`ERPVendorAdapter`), Purchase Orders (`ERPPOAdapter`), Invoices (`ERPInvoiceAdapter`), Payments (`ERPPaymentAdapter`), and Materials (`ERPMaterialAdapter`).
+- **HRMS Consumer:** Automated termination event handler revoking active user sessions, reassigning open approval tasks, and recording immutable audit entries.
+- **Tax & Government Gateways:** Finalized `GSTAdapter` with Redis caching and fallback; added `GEMAdapter` for async Government e-Marketplace bid, tender, and seller sync.
+- **SSRF Prevention Engine:** `SafeHTTPClient` enforcing per-tenant domain allowlists and blocking cloud metadata (`169.254.169.254`), loopback, and RFC 1918 private subnets.
+- **Webhook Delivery:** `WebhookDeliveryService` with HMAC-SHA256 signature verification in `X-Procurement-Signature`.
+- **Job Processor & Scheduling:** `IntegrationJobProcessor` with 7-step exponential backoff (`[60, 300, 900, 1800, 3600, 14400, 86400]`), DLQ alerts to `procurement.alert`, and Celery task `process_due_jobs` scheduled every 60s.
+- **Admin Portal UI:**
+  - `/integrations` — Job monitor with status badges, retry counts, last error display, and manual retry.
+  - `/integrations/[id]` — Single job inspector with JSON request/response viewers and manual retry.
+  - `/integrations/settings` — ERP provider setup form and SSRF domain allowlist manager.
+- **Verification:** 15/15 unit & integration tests passing (`tests/unit/test_ssrf_prevention.py`, `tests/integration/test_integration_jobs.py`); 7/7 Turbo packages passing typecheck; AST Graphify updated.
 **Migration Head:** 0034_fix_tax_codes_tax_type
-**Test Commands:** `.venv/bin/pytest tests/integration/test_notifications.py -v` & `cd procurement-portal-frontend && pnpm typecheck`
+**Test Commands:** `.venv/bin/pytest tests/unit/test_ssrf_prevention.py tests/integration/test_integration_jobs.py -v` & `cd procurement-portal-frontend && pnpm typecheck`
 **Next:** SPEC_18 API Standards & Resilience or SPEC_25 Analytics & Reporting
-**Graphify:** 5973 nodes, 15053 edges, 385 communities
+**Graphify:** 6221 nodes, 15714 edges, 411 communities
 
 ---
 

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
+import Link from "next/link";
 import {
   useIntegrationStats,
   useIntegrationJobs,
@@ -30,6 +31,8 @@ import {
   Activity,
   ShieldCheck,
   Zap,
+  Settings,
+  ExternalLink,
 } from "lucide-react";
 
 export default function IntegrationMonitorPage() {
@@ -206,6 +209,13 @@ export default function IntegrationMonitorPage() {
         </div>
 
         <div className="flex items-center gap-3">
+          <Link
+            href="/integrations/settings"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 shadow-2xs transition-all cursor-pointer"
+          >
+            <Settings className="w-3.5 h-3.5 text-slate-500" />
+            ERP Settings & Allowlist
+          </Link>
           <button
             onClick={handleRefresh}
             disabled={isRefetching}
@@ -417,6 +427,7 @@ export default function IntegrationMonitorPage() {
                   <th className="px-3 py-3.5 text-left">Adapter</th>
                   <th className="px-3 py-3.5 text-left">Direction & Entity</th>
                   <th className="px-3 py-3.5 text-center">Status</th>
+                  <th className="px-3 py-3.5 text-left">Last Error</th>
                   <th className="px-3 py-3.5 text-left">Timestamp</th>
                   <th className="px-3 py-3.5 text-center">Retries</th>
                   <th className="py-3.5 pl-3 pr-4 text-right">Actions</th>
@@ -424,7 +435,7 @@ export default function IntegrationMonitorPage() {
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-mono">
                 {filteredJobs.map((job: IntegrationJob) => {
-                  const isFailed = job.status === "FAILED";
+                  const isFailed = job.status === "FAILED" || job.status === "MAX_RETRIES_EXCEEDED";
                   return (
                     <tr
                       key={job.id}
@@ -433,9 +444,12 @@ export default function IntegrationMonitorPage() {
                       {/* Job ID */}
                       <td className="py-3.5 pl-4 pr-3 whitespace-nowrap">
                         <div className="flex items-center gap-1.5">
-                          <span className="font-bold text-slate-900 dark:text-slate-100">
+                          <Link
+                            href={`/integrations/${job.id}`}
+                            className="font-bold text-blue-600 dark:text-blue-400 hover:underline"
+                          >
                             {job.id.slice(0, 8)}...
-                          </span>
+                          </Link>
                           <button
                             onClick={() => handleCopy(job.id, job.id)}
                             title="Copy full Job UUID"
@@ -478,6 +492,20 @@ export default function IntegrationMonitorPage() {
                         {getStatusBadge(job.status)}
                       </td>
 
+                      {/* Last Error */}
+                      <td className="px-3 py-3.5 font-sans max-w-xs">
+                        {job.error_message ? (
+                          <span
+                            className="text-[11px] text-red-600 dark:text-red-400 font-mono truncate block"
+                            title={job.error_message}
+                          >
+                            {job.error_message}
+                          </span>
+                        ) : (
+                          <span className="text-slate-400 text-xs">—</span>
+                        )}
+                      </td>
+
                       {/* Timestamp */}
                       <td className="px-3 py-3.5 whitespace-nowrap font-sans text-slate-500 dark:text-slate-400">
                         {new Date(job.created_at).toLocaleString()}
@@ -508,6 +536,12 @@ export default function IntegrationMonitorPage() {
                             <Eye className="w-3 h-3" />
                             Payload
                           </button>
+                          <Link
+                            href={`/integrations/${job.id}`}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg transition-colors"
+                          >
+                            Details
+                          </Link>
                         </div>
                       </td>
                     </tr>

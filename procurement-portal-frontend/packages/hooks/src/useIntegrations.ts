@@ -129,3 +129,57 @@ export function useTriggerSync() {
   });
 }
 
+export function useIntegrationJob(jobId: string) {
+  return useQuery({
+    queryKey: ["integrations", "job", jobId],
+    queryFn: async () => {
+      const res = await apiClient.get(`/integrations/jobs/${jobId}`);
+      return res.data.data as IntegrationJob;
+    },
+    enabled: !!jobId,
+    refetchInterval: 8000,
+  });
+}
+
+export interface ERPConfig {
+  erp_provider: string;
+  endpoint_url?: string | null;
+  auth_type: string;
+  api_key_masked?: string | null;
+  allowed_domains: string[];
+  is_enabled: boolean;
+  updated_at?: string | null;
+}
+
+export interface ERPConfigUpdatePayload {
+  erp_provider: string;
+  endpoint_url?: string | null;
+  auth_type: string;
+  api_key?: string | null;
+  allowed_domains: string[];
+  is_enabled: boolean;
+}
+
+export function useIntegrationConfig() {
+  return useQuery({
+    queryKey: ["integrations", "config"],
+    queryFn: async () => {
+      const res = await apiClient.get("/integrations/config");
+      return res.data.data as ERPConfig;
+    },
+  });
+}
+
+export function useUpdateIntegrationConfig() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload: ERPConfigUpdatePayload) => {
+      const res = await apiClient.put("/integrations/config", payload);
+      return res.data.data as ERPConfig;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["integrations", "config"] });
+    },
+  });
+}
+

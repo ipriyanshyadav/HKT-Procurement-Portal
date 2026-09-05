@@ -36,6 +36,7 @@ celery_app = Celery(
         'app.tasks.stubs',
         'app.events.outbox_worker',
         'app.tasks.notification_digest',
+        'app.tasks.integration_jobs',
     ],
 )
 celery_app.conf.broker_url = settings.RABBITMQ_URL
@@ -115,6 +116,10 @@ celery_app.conf.beat_schedule = {
     },
     'auction-start-reminders': {
         'task': 'tasks.notify_auction_start_reminders',
+        'schedule': 60.0,
+    },
+    'process-due-integration-jobs': {
+        'task': 'app.tasks.integration.process_due_jobs',
         'schedule': 60.0,
     },
 }

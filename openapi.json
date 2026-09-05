@@ -13504,6 +13504,80 @@
         ]
       }
     },
+    "/api/v1/integrations/config": {
+      "get": {
+        "tags": [
+          "Integration",
+          "Integration"
+        ],
+        "summary": "Get Integration Config",
+        "description": "Retrieve current ERP adapter configuration and allowed integration domains for SSRF prevention.",
+        "operationId": "get_integration_config_api_v1_integrations_config_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIResponse_ERPConfigResponse_"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Integration",
+          "Integration"
+        ],
+        "summary": "Update Integration Config",
+        "description": "Update active ERP provider settings and allowed outbound domains.",
+        "operationId": "update_integration_config_api_v1_integrations_config_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ERPConfigUpdateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIResponse_ERPConfigResponse_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/api/v1/analytics/health": {
       "get": {
         "tags": [
@@ -14580,7 +14654,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-05T11:51:49.672287"
+            "default": "2026-09-05T12:49:47.546030"
           }
         },
         "type": "object",
@@ -14618,7 +14692,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-05T11:51:49.672287"
+            "default": "2026-09-05T12:49:47.546030"
           }
         },
         "type": "object",
@@ -14656,7 +14730,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-05T11:51:49.672287"
+            "default": "2026-09-05T12:49:47.546030"
           }
         },
         "type": "object",
@@ -14694,7 +14768,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-05T11:51:49.672287"
+            "default": "2026-09-05T12:49:47.546030"
           }
         },
         "type": "object",
@@ -14732,7 +14806,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-05T11:51:49.672287"
+            "default": "2026-09-05T12:49:47.546030"
           }
         },
         "type": "object",
@@ -14770,7 +14844,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-05T11:51:49.672287"
+            "default": "2026-09-05T12:49:47.546030"
           }
         },
         "type": "object",
@@ -14808,7 +14882,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-05T11:51:49.672287"
+            "default": "2026-09-05T12:49:47.546030"
           }
         },
         "type": "object",
@@ -14846,7 +14920,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-05T11:51:49.672287"
+            "default": "2026-09-05T12:49:47.546030"
           }
         },
         "type": "object",
@@ -14854,6 +14928,44 @@
           "data"
         ],
         "title": "APIResponse[DisputeResponse]"
+      },
+      "APIResponse_ERPConfigResponse_": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/ERPConfigResponse"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PaginationMeta"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "links": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Links"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Timestamp",
+            "default": "2026-09-05T12:49:47.546030"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "APIResponse[ERPConfigResponse]"
       },
       "APIResponse_EsignInitiateResponse_": {
         "properties": {
@@ -14884,7 +14996,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-05T11:51:49.672287"
+            "default": "2026-09-05T12:49:47.546030"
           }
         },
         "type": "object",
@@ -14922,7 +15034,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-05T11:51:49.672287"
+            "default": "2026-09-05T12:49:47.546030"
           }
         },
         "type": "object",
@@ -14960,7 +15072,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-05T11:51:49.672287"
+            "default": "2026-09-05T12:49:47.546030"
           }
         },
         "type": "object",
@@ -14998,7 +15110,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-05T11:51:49.672287"
+            "default": "2026-09-05T12:49:47.546030"
           }
         },
         "type": "object",
@@ -15036,7 +15148,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-05T11:51:49.672287"
+            "default": "2026-09-05T12:49:47.546030"
           }
         },
         "type": "object",
@@ -15078,7 +15190,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-05T11:51:49.672287"
+            "default": "2026-09-05T12:49:47.546030"
           }
         },
         "type": "object",
@@ -15120,7 +15232,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-05T11:51:49.672287"
+            "default": "2026-09-05T12:49:47.546030"
           }
         },
         "type": "object",
@@ -15162,7 +15274,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-05T11:51:49.672287"
+            "default": "2026-09-05T12:49:47.546030"
           }
         },
         "type": "object",
@@ -15204,7 +15316,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-05T11:51:49.672287"
+            "default": "2026-09-05T12:49:47.546030"
           }
         },
         "type": "object",
@@ -15246,7 +15358,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-05T11:51:49.672287"
+            "default": "2026-09-05T12:49:47.546030"
           }
         },
         "type": "object",
@@ -15288,7 +15400,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-05T11:51:49.672287"
+            "default": "2026-09-05T12:49:47.546030"
           }
         },
         "type": "object",
@@ -15330,7 +15442,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-05T11:51:49.672287"
+            "default": "2026-09-05T12:49:47.546030"
           }
         },
         "type": "object",
@@ -15372,7 +15484,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-05T11:51:49.672287"
+            "default": "2026-09-05T12:49:47.546030"
           }
         },
         "type": "object",
@@ -15414,7 +15526,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-05T11:51:49.672287"
+            "default": "2026-09-05T12:49:47.546030"
           }
         },
         "type": "object",
@@ -15456,7 +15568,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-05T11:51:49.672287"
+            "default": "2026-09-05T12:49:47.546030"
           }
         },
         "type": "object",
@@ -15498,7 +15610,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-05T11:51:49.672287"
+            "default": "2026-09-05T12:49:47.546030"
           }
         },
         "type": "object",
@@ -15540,7 +15652,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-05T11:51:49.672287"
+            "default": "2026-09-05T12:49:47.546030"
           }
         },
         "type": "object",
@@ -15582,7 +15694,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-05T11:51:49.672287"
+            "default": "2026-09-05T12:49:47.546030"
           }
         },
         "type": "object",
@@ -15624,7 +15736,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-05T11:51:49.672287"
+            "default": "2026-09-05T12:49:47.546030"
           }
         },
         "type": "object",
@@ -15666,7 +15778,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-05T11:51:49.672287"
+            "default": "2026-09-05T12:49:47.546030"
           }
         },
         "type": "object",
@@ -15708,7 +15820,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-05T11:51:49.672287"
+            "default": "2026-09-05T12:49:47.546030"
           }
         },
         "type": "object",
@@ -15750,7 +15862,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-05T11:51:49.672287"
+            "default": "2026-09-05T12:49:47.546030"
           }
         },
         "type": "object",
@@ -15792,7 +15904,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-05T11:51:49.672287"
+            "default": "2026-09-05T12:49:47.546030"
           }
         },
         "type": "object",
@@ -15835,7 +15947,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-05T11:51:49.672287"
+            "default": "2026-09-05T12:49:47.546030"
           }
         },
         "type": "object",
@@ -15873,7 +15985,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-05T11:51:49.672287"
+            "default": "2026-09-05T12:49:47.546030"
           }
         },
         "type": "object",
@@ -15911,7 +16023,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-05T11:51:49.672287"
+            "default": "2026-09-05T12:49:47.546030"
           }
         },
         "type": "object",
@@ -15949,7 +16061,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-05T11:51:49.672287"
+            "default": "2026-09-05T12:49:47.546030"
           }
         },
         "type": "object",
@@ -15987,7 +16099,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-05T11:51:49.672287"
+            "default": "2026-09-05T12:49:47.546030"
           }
         },
         "type": "object",
@@ -16025,7 +16137,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-05T11:51:49.672287"
+            "default": "2026-09-05T12:49:47.546030"
           }
         },
         "type": "object",
@@ -16063,7 +16175,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-05T11:51:49.672287"
+            "default": "2026-09-05T12:49:47.546030"
           }
         },
         "type": "object",
@@ -16101,7 +16213,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-05T11:51:49.672287"
+            "default": "2026-09-05T12:49:47.546030"
           }
         },
         "type": "object",
@@ -16139,7 +16251,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-05T11:51:49.672287"
+            "default": "2026-09-05T12:49:47.546030"
           }
         },
         "type": "object",
@@ -16177,7 +16289,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-05T11:51:49.672287"
+            "default": "2026-09-05T12:49:47.546030"
           }
         },
         "type": "object",
@@ -16215,7 +16327,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-05T11:51:49.672287"
+            "default": "2026-09-05T12:49:47.546030"
           }
         },
         "type": "object",
@@ -16253,7 +16365,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-05T11:51:49.672287"
+            "default": "2026-09-05T12:49:47.546030"
           }
         },
         "type": "object",
@@ -16291,7 +16403,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-05T11:51:49.672287"
+            "default": "2026-09-05T12:49:47.546030"
           }
         },
         "type": "object",
@@ -16329,7 +16441,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-05T11:51:49.672287"
+            "default": "2026-09-05T12:49:47.546030"
           }
         },
         "type": "object",
@@ -16367,7 +16479,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-05T11:51:49.672287"
+            "default": "2026-09-05T12:49:47.546030"
           }
         },
         "type": "object",
@@ -16405,7 +16517,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-05T11:51:49.672287"
+            "default": "2026-09-05T12:49:47.546030"
           }
         },
         "type": "object",
@@ -16445,7 +16557,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-05T11:51:49.672287"
+            "default": "2026-09-05T12:49:47.546030"
           }
         },
         "type": "object",
@@ -16487,7 +16599,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Timestamp",
-            "default": "2026-09-05T11:51:49.672287"
+            "default": "2026-09-05T12:49:47.546030"
           }
         },
         "type": "object",
@@ -20517,6 +20629,120 @@
         },
         "type": "object",
         "title": "DuplicateCheckRequest"
+      },
+      "ERPConfigResponse": {
+        "properties": {
+          "erp_provider": {
+            "type": "string",
+            "title": "Erp Provider",
+            "default": "SAP"
+          },
+          "endpoint_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Endpoint Url"
+          },
+          "auth_type": {
+            "type": "string",
+            "title": "Auth Type",
+            "default": "API_KEY"
+          },
+          "api_key_masked": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Api Key Masked"
+          },
+          "allowed_domains": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Allowed Domains",
+            "default": []
+          },
+          "is_enabled": {
+            "type": "boolean",
+            "title": "Is Enabled",
+            "default": true
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "title": "ERPConfigResponse"
+      },
+      "ERPConfigUpdateRequest": {
+        "properties": {
+          "erp_provider": {
+            "type": "string",
+            "title": "Erp Provider",
+            "default": "SAP"
+          },
+          "endpoint_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Endpoint Url"
+          },
+          "auth_type": {
+            "type": "string",
+            "title": "Auth Type",
+            "default": "API_KEY"
+          },
+          "api_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Api Key"
+          },
+          "allowed_domains": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Allowed Domains",
+            "default": []
+          },
+          "is_enabled": {
+            "type": "boolean",
+            "title": "Is Enabled",
+            "default": true
+          }
+        },
+        "type": "object",
+        "title": "ERPConfigUpdateRequest"
       },
       "EligibleLineResponse": {
         "properties": {

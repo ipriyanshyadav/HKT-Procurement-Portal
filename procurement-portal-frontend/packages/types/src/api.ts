@@ -4078,6 +4078,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/integrations/config": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Integration Config
+         * @description Retrieve current ERP adapter configuration and allowed integration domains for SSRF prevention.
+         */
+        get: operations["get_integration_config_api_v1_integrations_config_get"];
+        /**
+         * Update Integration Config
+         * @description Update active ERP provider settings and allowed outbound domains.
+         */
+        put: operations["update_integration_config_api_v1_integrations_config_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/analytics/health": {
         parameters: {
             query?: never;
@@ -4504,7 +4528,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:35:48.167045
+             * @default 2026-09-05T12:51:11.702918
              */
             timestamp: string;
         };
@@ -4516,7 +4540,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:35:48.167045
+             * @default 2026-09-05T12:51:11.702918
              */
             timestamp: string;
         };
@@ -4528,7 +4552,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:35:48.167045
+             * @default 2026-09-05T12:51:11.702918
              */
             timestamp: string;
         };
@@ -4540,7 +4564,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:35:48.167045
+             * @default 2026-09-05T12:51:11.702918
              */
             timestamp: string;
         };
@@ -4552,7 +4576,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:35:48.167045
+             * @default 2026-09-05T12:51:11.702918
              */
             timestamp: string;
         };
@@ -4564,7 +4588,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:35:48.167045
+             * @default 2026-09-05T12:51:11.702918
              */
             timestamp: string;
         };
@@ -4576,7 +4600,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:35:48.167045
+             * @default 2026-09-05T12:51:11.702918
              */
             timestamp: string;
         };
@@ -4588,7 +4612,19 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:35:48.167045
+             * @default 2026-09-05T12:51:11.702918
+             */
+            timestamp: string;
+        };
+        /** APIResponse[ERPConfigResponse] */
+        APIResponse_ERPConfigResponse_: {
+            data: components["schemas"]["ERPConfigResponse"];
+            meta?: components["schemas"]["PaginationMeta"] | null;
+            links?: components["schemas"]["Links"] | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             * @default 2026-09-05T12:51:11.702918
              */
             timestamp: string;
         };
@@ -4600,7 +4636,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:35:48.167045
+             * @default 2026-09-05T12:51:11.702918
              */
             timestamp: string;
         };
@@ -4612,7 +4648,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:35:48.167045
+             * @default 2026-09-05T12:51:11.702918
              */
             timestamp: string;
         };
@@ -4624,7 +4660,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:35:48.167045
+             * @default 2026-09-05T12:51:11.702918
              */
             timestamp: string;
         };
@@ -4636,7 +4672,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:35:48.167045
+             * @default 2026-09-05T12:51:11.702918
              */
             timestamp: string;
         };
@@ -4648,7 +4684,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:35:48.167045
+             * @default 2026-09-05T12:51:11.702918
              */
             timestamp: string;
         };
@@ -4661,7 +4697,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:35:48.167045
+             * @default 2026-09-05T12:51:11.702918
              */
             timestamp: string;
         };
@@ -4674,7 +4710,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:35:48.167045
+             * @default 2026-09-05T12:51:11.702918
              */
             timestamp: string;
         };
@@ -4687,7 +4723,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:35:48.167045
+             * @default 2026-09-05T12:51:11.702918
              */
             timestamp: string;
         };
@@ -4700,7 +4736,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:35:48.167045
+             * @default 2026-09-05T12:51:11.702918
              */
             timestamp: string;
         };
@@ -4713,7 +4749,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:35:48.167045
+             * @default 2026-09-05T12:51:11.702918
              */
             timestamp: string;
         };
@@ -4726,7 +4762,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:35:48.167045
+             * @default 2026-09-05T12:51:11.702918
              */
             timestamp: string;
         };
@@ -4739,7 +4775,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:35:48.167045
+             * @default 2026-09-05T12:51:11.702918
              */
             timestamp: string;
         };
@@ -4752,7 +4788,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:35:48.167045
+             * @default 2026-09-05T12:51:11.702918
              */
             timestamp: string;
         };
@@ -4765,7 +4801,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:35:48.167045
+             * @default 2026-09-05T12:51:11.702918
              */
             timestamp: string;
         };
@@ -4778,7 +4814,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:35:48.167045
+             * @default 2026-09-05T12:51:11.702918
              */
             timestamp: string;
         };
@@ -4791,7 +4827,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:35:48.167045
+             * @default 2026-09-05T12:51:11.702918
              */
             timestamp: string;
         };
@@ -4804,7 +4840,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:35:48.167045
+             * @default 2026-09-05T12:51:11.702918
              */
             timestamp: string;
         };
@@ -4817,7 +4853,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:35:48.167045
+             * @default 2026-09-05T12:51:11.702918
              */
             timestamp: string;
         };
@@ -4830,7 +4866,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:35:48.167045
+             * @default 2026-09-05T12:51:11.702918
              */
             timestamp: string;
         };
@@ -4843,7 +4879,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:35:48.167045
+             * @default 2026-09-05T12:51:11.702918
              */
             timestamp: string;
         };
@@ -4856,7 +4892,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:35:48.167045
+             * @default 2026-09-05T12:51:11.702918
              */
             timestamp: string;
         };
@@ -4869,7 +4905,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:35:48.167045
+             * @default 2026-09-05T12:51:11.702918
              */
             timestamp: string;
         };
@@ -4882,7 +4918,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:35:48.167045
+             * @default 2026-09-05T12:51:11.702918
              */
             timestamp: string;
         };
@@ -4897,7 +4933,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:35:48.167045
+             * @default 2026-09-05T12:51:11.702918
              */
             timestamp: string;
         };
@@ -4909,7 +4945,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:35:48.167045
+             * @default 2026-09-05T12:51:11.702918
              */
             timestamp: string;
         };
@@ -4921,7 +4957,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:35:48.167045
+             * @default 2026-09-05T12:51:11.702918
              */
             timestamp: string;
         };
@@ -4933,7 +4969,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:35:48.167045
+             * @default 2026-09-05T12:51:11.702918
              */
             timestamp: string;
         };
@@ -4945,7 +4981,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:35:48.167045
+             * @default 2026-09-05T12:51:11.702918
              */
             timestamp: string;
         };
@@ -4957,7 +4993,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:35:48.167045
+             * @default 2026-09-05T12:51:11.702918
              */
             timestamp: string;
         };
@@ -4969,7 +5005,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:35:48.167045
+             * @default 2026-09-05T12:51:11.702918
              */
             timestamp: string;
         };
@@ -4981,7 +5017,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:35:48.167045
+             * @default 2026-09-05T12:51:11.702918
              */
             timestamp: string;
         };
@@ -4993,7 +5029,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:35:48.167045
+             * @default 2026-09-05T12:51:11.702918
              */
             timestamp: string;
         };
@@ -5005,7 +5041,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:35:48.167045
+             * @default 2026-09-05T12:51:11.702918
              */
             timestamp: string;
         };
@@ -5017,7 +5053,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:35:48.167045
+             * @default 2026-09-05T12:51:11.702918
              */
             timestamp: string;
         };
@@ -5029,7 +5065,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:35:48.167045
+             * @default 2026-09-05T12:51:11.702918
              */
             timestamp: string;
         };
@@ -5041,7 +5077,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:35:48.167045
+             * @default 2026-09-05T12:51:11.702918
              */
             timestamp: string;
         };
@@ -5053,7 +5089,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:35:48.167045
+             * @default 2026-09-05T12:51:11.702918
              */
             timestamp: string;
         };
@@ -5065,7 +5101,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:35:48.167045
+             * @default 2026-09-05T12:51:11.702918
              */
             timestamp: string;
         };
@@ -5077,7 +5113,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:35:48.167045
+             * @default 2026-09-05T12:51:11.702918
              */
             timestamp: string;
         };
@@ -5092,7 +5128,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:35:48.167045
+             * @default 2026-09-05T12:51:11.702918
              */
             timestamp: string;
         };
@@ -5105,7 +5141,7 @@ export interface components {
             /**
              * Timestamp
              * Format: date-time
-             * @default 2026-09-05T12:35:48.167045
+             * @default 2026-09-05T12:51:11.702918
              */
             timestamp: string;
         };
@@ -6558,6 +6594,62 @@ export interface components {
             bank_account?: string | null;
             /** Ifsc */
             ifsc?: string | null;
+        };
+        /** ERPConfigResponse */
+        ERPConfigResponse: {
+            /**
+             * Erp Provider
+             * @default SAP
+             */
+            erp_provider: string;
+            /** Endpoint Url */
+            endpoint_url?: string | null;
+            /**
+             * Auth Type
+             * @default API_KEY
+             */
+            auth_type: string;
+            /** Api Key Masked */
+            api_key_masked?: string | null;
+            /**
+             * Allowed Domains
+             * @default []
+             */
+            allowed_domains: string[];
+            /**
+             * Is Enabled
+             * @default true
+             */
+            is_enabled: boolean;
+            /** Updated At */
+            updated_at?: string | null;
+        };
+        /** ERPConfigUpdateRequest */
+        ERPConfigUpdateRequest: {
+            /**
+             * Erp Provider
+             * @default SAP
+             */
+            erp_provider: string;
+            /** Endpoint Url */
+            endpoint_url?: string | null;
+            /**
+             * Auth Type
+             * @default API_KEY
+             */
+            auth_type: string;
+            /** Api Key */
+            api_key?: string | null;
+            /**
+             * Allowed Domains
+             * @default []
+             */
+            allowed_domains: string[];
+            /**
+             * Is Enabled
+             * @default true
+             */
+            is_enabled: boolean;
         };
         /** EligibleLineResponse */
         EligibleLineResponse: {
@@ -17419,6 +17511,59 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["APIResponse_SyncTriggerResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_integration_config_api_v1_integrations_config_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_ERPConfigResponse_"];
+                };
+            };
+        };
+    };
+    update_integration_config_api_v1_integrations_config_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ERPConfigUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_ERPConfigResponse_"];
                 };
             };
             /** @description Validation Error */

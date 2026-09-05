@@ -16,6 +16,8 @@ from app.core.constants import PermissionCode
 from app.core.responses import APIResponse, PaginationMeta, success_response
 from app.db.session import get_db
 from app.modules.integration.schemas import (
+    ERPConfigResponse,
+    ERPConfigUpdateRequest,
     IntegrationJobResponse,
     IntegrationStatsResponse,
     ScheduledJobRunResponse,
@@ -244,3 +246,51 @@ async def trigger_erp_sync(
     )
     await db.commit()
     return success_response(data=SyncTriggerResponse(**result))
+
+
+@router.get("/config", response_model=APIResponse[ERPConfigResponse])
+async def get_integration_config(
+    current_user: User = Depends(
+        require_any_permission(
+            [
+                PermissionCode.INTEGRATION_VIEW,
+                PermissionCode.INTEGRATION_CONFIGURE,
+                PermissionCode.ADMIN_MANAGE_SYSTEM,
+                PermissionCode.ADMIN_VIEW_SETTINGS,
+            ]
+        )
+    ),
+    db: AsyncSession = Depends(get_db),
+):
+    """Retrieve current ERP adapter configuration and allowed integration domains for SSRF prevention."""
+    config = await integration_service.get_erp_config(db, org_id=current_user.org_id)
+    return success_response(data=ERPConfigResponse(**config))
+
+
+@router.put("/config", response_model=APIResponse[ERPConfigResponse])
+async def update_integration_config(
+    payload: ERPConfigUpdateRequest,
+    current_user: User = Depends(
+        require_any_permission(
+            [
+                PermissionCode.INTEGRATION_CONFIGURE,
+                PermissionCode.ADMIN_MANAGE_SYSTEM,
+            ]
+        )
+    ),
+    db: AsyncSession = Depends(get_db),
+):
+    """Update active ERP provider settings and allowed outbound domains."""
+    updated = await integration_service.update_erp_config(
+        db,
+        org_id=current_user.org_id,
+        actor_id=current_user.id,
+        erp_provider=payload.erp_provider,
+        endpoint_url=payload.endpoint_url,
+        auth_type=payload.auth_type,
+        api_key=payload.api_key,
+        allowed_domains=payload.allowed_domains,
+        is_enabled=payload.is_enabled,
+    )
+    await db.commit()
+    return success_response(data=ERPConfigResponse(**updated))
