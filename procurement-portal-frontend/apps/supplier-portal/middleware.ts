@@ -12,7 +12,8 @@ export function middleware(request: NextRequest) {
     AUTH_GROUP_ROUTES.some((route) => pathname.startsWith(route)) ||
     pathname.startsWith("/_next") ||
     pathname.startsWith("/api") ||
-    pathname === "/favicon.ico";
+    pathname === "/favicon.ico" ||
+    pathname === "/manifest.json";
 
   if (isPublic) {
     return NextResponse.next();

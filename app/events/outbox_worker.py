@@ -2,15 +2,12 @@ from __future__ import annotations
 import asyncio
 import json
 from loguru import logger
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from sqlalchemy import text
 from app.config import settings
 from app.core.metrics import outbox_messages_pending
+from app.db.session import async_session
 from app.tasks.celery_app import celery_app
 import aio_pika
-
-engine = create_async_engine(settings.DATABASE_URL)
-async_session = async_sessionmaker(engine)
 
 
 async def publish_outbox_messages():

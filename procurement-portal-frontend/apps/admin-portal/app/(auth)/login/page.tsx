@@ -129,7 +129,11 @@ function AdminLoginForm() {
           {error && (
             <div className="rounded-xl bg-red-50 dark:bg-rose-950/50 border border-red-200 dark:border-rose-900/50 p-4" role="alert">
               <p className="text-xs text-red-800 dark:text-red-300">
-                {(error as Error).message || "Login failed. Please check your credentials."}
+                {(error as any)?.response?.data?.error?.message ||
+                  (error as any)?.response?.data?.message ||
+                  (error as any)?.response?.data?.detail ||
+                  (error as Error).message ||
+                  "Login failed. Please check your credentials."}
               </p>
             </div>
           )}

@@ -131,7 +131,17 @@ def create_app() -> FastAPI:
     setup_telemetry(app)
     Instrumentator().instrument(app).expose(app)
 
-    # Health endpoints
+    # Root & Health endpoints
+    @app.get("/")
+    async def root():
+        return {
+            "name": "Procurement Portal API",
+            "version": settings.APP_VERSION,
+            "status": "online",
+            "docs": "/docs",
+            "health": "/health",
+        }
+
     @app.get("/health")
     async def health_check():
         return {"status": "ok", "version": settings.APP_VERSION, "timestamp": datetime.utcnow().isoformat()}

@@ -31,6 +31,7 @@ def test_key_settings_defaults():
     assert s.OUTBOX_BATCH_SIZE == 100
     assert s.JWT_ALGORITHM == "RS256"
     assert s.DATABASE_POOL_SIZE == 20
+    assert s.DATABASE_POOL_CLASS == ""
     assert s.CELERY_OUTBOX_INTERVAL_SECONDS == 5.0
 
 
@@ -40,7 +41,15 @@ def test_permanently_denied_permissions():
 
 def test_cors_origins():
     s = Settings()
-    assert len(s.CORS_ORIGINS) == 3
+    for origin in [
+        "http://localhost:3000",
+        "http://localhost:3001",
+        "http://localhost:3002",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:3001",
+        "http://127.0.0.1:3002",
+    ]:
+        assert origin in s.CORS_ORIGINS
 
 
 def test_environment_is_literal():

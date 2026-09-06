@@ -298,8 +298,36 @@ class TestAuctionTasks:
             mock_svc.live_bid_repo.get_due_to_close = AsyncMock(return_value=[])
             mock_svc.live_bid_repo.get_closing_soon = AsyncMock(return_value=[])
             mock_svc_cls.return_value = mock_svc
-
             open_scheduled_auctions()
             close_due_auctions()
             send_auction_closing_warning()
+
+
+@pytest.mark.unit
+class TestIntegrationRepositoryDueJobs:
+    @pytest.mark.asyncio
+    async def test_get_due_jobs_default_now(self):
+        from app.modules.integration.repository import IntegrationRepository
+        repo = IntegrationRepository()
+        mock_db = AsyncMock(spec=AsyncSession)
+        mock_res = MagicMock()
+        mock_res.scalars.return_value.all.return_value = []
+        mock_db.execute.return_value = mock_res
+
+        # Call with now=None to exercise datetime.now(timezone.utc)
+        jobs = await repo.get_due_jobs(mock_db, now=None, limit=10)
+        assert jobs == []
+        mock_db.execute.assert_awaited_once()
+
+
+@pytest.mark.unit
+class TestCeleryWorkerProcessInit:
+    def test_on_worker_process_init(self):
+        from app.tasks.celery_app import on_worker_process_init
+        with patch("app.db.session.engine.sync_engine.dispose") as mock_disp, \
+             patch("app.db.session.analytics_engine.sync_engine.dispose") as mock_a_disp:
+            on_worker_process_init()
+            mock_disp.assert_called_once()
+            mock_a_disp.assert_called_once()
+
 

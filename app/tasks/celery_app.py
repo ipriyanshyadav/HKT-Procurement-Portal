@@ -134,3 +134,15 @@ celery_app.conf.beat_schedule = {
     },
 }
 celery_app.conf.timezone = 'UTC'
+
+from celery.signals import worker_process_init
+
+@worker_process_init.connect
+def on_worker_process_init(**kwargs):
+    """Dispose parent connection pools and engines in child workers post-fork."""
+    try:
+        from app.db.session import engine, analytics_engine
+        engine.sync_engine.dispose()
+        analytics_engine.sync_engine.dispose()
+    except Exception:
+        pass

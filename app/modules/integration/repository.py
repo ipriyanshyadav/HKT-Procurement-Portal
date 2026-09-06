@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Tuple
 from uuid import UUID
 
@@ -110,7 +111,6 @@ class IntegrationRepository:
         limit: int = 50,
     ) -> List[IntegrationJob]:
         from sqlalchemy import or_
-        from datetime import timezone
         current_time = now or datetime.now(timezone.utc)
         stmt = (
             select(IntegrationJob)

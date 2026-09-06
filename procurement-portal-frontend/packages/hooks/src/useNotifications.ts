@@ -41,10 +41,12 @@ export function useNotifications() {
     function connect() {
       if (isUnmounted) return;
 
-      const wsBaseUrl =
-        (typeof process !== "undefined" && process.env.NEXT_PUBLIC_WS_URL
-          ? process.env.NEXT_PUBLIC_WS_URL.replace(/^http/, "ws")
-          : null) || "ws://localhost:8000";
+      let wsBaseUrl =
+        typeof window !== "undefined"
+          ? `${window.location.protocol === "https:" ? "wss:" : "ws:"}//${window.location.hostname.includes(":") && !window.location.hostname.startsWith("[") ? `[${window.location.hostname}]` : window.location.hostname}:8000`
+          : (typeof process !== "undefined" && process.env.NEXT_PUBLIC_WS_URL
+              ? process.env.NEXT_PUBLIC_WS_URL.replace(/^http/, "ws")
+              : null) || "ws://localhost:8000";
 
       const url = `${wsBaseUrl}/ws/notifications?token=${encodeURIComponent(token!)}`;
 

@@ -56,6 +56,7 @@ class AuthService:
         portal_type: Optional[str] = None,
     ) -> LoginResult:
         redis = get_redis_client(settings.REDIS_SESSION_DB)
+        email = email.strip()
 
         # Brute-force check (before user lookup for timing safety)
         fail_count = await self._get_fail_count(redis, email)

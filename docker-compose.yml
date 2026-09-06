@@ -1,2 +1,4 @@
+name: procurement-portal
+
 include:
   - docker/docker-compose.yml

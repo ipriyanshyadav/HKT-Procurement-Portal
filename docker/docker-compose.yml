@@ -1,3 +1,5 @@
+name: procurement-portal
+
 services:
   postgres:
     image: postgres:16-alpine
@@ -64,7 +66,7 @@ services:
     container_name: procurement_rabbitmq
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-guest}
-      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-${RABBITMQ_PASS:-guest}}
       RABBITMQ_DEFAULT_VHOST: ${RABBITMQ_VHOST:-/procurement}
     ports:
       - "5672:5672"
@@ -187,7 +189,7 @@ services:
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-procurement}
       ANALYTICS_DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-procurement}
       REDIS_URL: redis://redis:6379/0
-      RABBITMQ_URL: amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASSWORD:-guest}@rabbitmq:5672/%2Fprocurement
+      RABBITMQ_URL: amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASSWORD:-${RABBITMQ_PASS:-guest}}@rabbitmq:5672/%2Fprocurement
       MINIO_ENDPOINT: minio:9000
       ELASTICSEARCH_URL: http://elasticsearch:9200
       OTEL_ENABLED: ${OTEL_ENABLED:-true}
@@ -215,14 +217,16 @@ services:
       context: ..
       dockerfile: docker/Dockerfile.api
     container_name: procurement_celery_worker
-    command: celery -A app.tasks.celery_app worker
+    command: celery -A app.tasks.celery_app worker -l info
     env_file:
       - ../.env
     environment:
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-procurement}
       ANALYTICS_DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-procurement}
+      DATABASE_POOL_CLASS: "NullPool"
+      IS_CELERY_WORKER: "true"
       REDIS_URL: redis://redis:6379/0
-      RABBITMQ_URL: amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASSWORD:-guest}@rabbitmq:5672/%2Fprocurement
+      RABBITMQ_URL: amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASSWORD:-${RABBITMQ_PASS:-guest}}@rabbitmq:5672/%2Fprocurement
       MINIO_ENDPOINT: minio:9000
       JAEGER_HOST: jaeger
     volumes:
@@ -237,14 +241,16 @@ services:
       context: ..
       dockerfile: docker/Dockerfile.api
     container_name: procurement_celery_beat
-    command: celery -A app.tasks.celery_app beat
+    command: celery -A app.tasks.celery_app beat -l info
     env_file:
       - ../.env
     environment:
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-procurement}
       ANALYTICS_DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-procurement}
+      DATABASE_POOL_CLASS: "NullPool"
+      IS_CELERY_WORKER: "true"
       REDIS_URL: redis://redis:6379/0
-      RABBITMQ_URL: amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASSWORD:-guest}@rabbitmq:5672/%2Fprocurement
+      RABBITMQ_URL: amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASSWORD:-${RABBITMQ_PASS:-guest}}@rabbitmq:5672/%2Fprocurement
       MINIO_ENDPOINT: minio:9000
       JAEGER_HOST: jaeger
     volumes:

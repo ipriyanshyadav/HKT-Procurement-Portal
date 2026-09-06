@@ -26,21 +26,43 @@ import app.modules.notification.models  # noqa: F401
 import app.modules.audit.models  # noqa: F401
 import app.modules.integration.models  # noqa: F401
 
-engine = create_async_engine(
-    settings.DATABASE_URL,
-    pool_size=settings.DATABASE_POOL_SIZE,
-    max_overflow=settings.DATABASE_MAX_OVERFLOW,
-    pool_recycle=settings.DATABASE_POOL_RECYCLE,
-    echo=settings.SQL_ECHO
-)
+import os
+import sys
+from sqlalchemy.pool import NullPool
 
-analytics_engine = create_async_engine(
-    settings.ANALYTICS_DATABASE_URL or settings.DATABASE_URL,
-    pool_size=settings.DATABASE_POOL_SIZE,
-    max_overflow=settings.DATABASE_MAX_OVERFLOW,
-    pool_recycle=settings.DATABASE_POOL_RECYCLE,
-    echo=settings.SQL_ECHO
+_is_celery = (
+    os.getenv("IS_CELERY_WORKER", "").lower() in ("true", "1", "yes")
+    or any("celery" in arg.lower() for arg in sys.argv)
 )
+_pool_class = (getattr(settings, "DATABASE_POOL_CLASS", "") or "").lower()
+use_null_pool = _pool_class == "nullpool" or (_pool_class != "queuepool" and _is_celery)
+
+if use_null_pool:
+    engine = create_async_engine(
+        settings.DATABASE_URL,
+        poolclass=NullPool,
+        echo=settings.SQL_ECHO,
+    )
+    analytics_engine = create_async_engine(
+        settings.ANALYTICS_DATABASE_URL or settings.DATABASE_URL,
+        poolclass=NullPool,
+        echo=settings.SQL_ECHO,
+    )
+else:
+    engine = create_async_engine(
+        settings.DATABASE_URL,
+        pool_size=settings.DATABASE_POOL_SIZE,
+        max_overflow=settings.DATABASE_MAX_OVERFLOW,
+        pool_recycle=settings.DATABASE_POOL_RECYCLE,
+        echo=settings.SQL_ECHO,
+    )
+    analytics_engine = create_async_engine(
+        settings.ANALYTICS_DATABASE_URL or settings.DATABASE_URL,
+        pool_size=settings.DATABASE_POOL_SIZE,
+        max_overflow=settings.DATABASE_MAX_OVERFLOW,
+        pool_recycle=settings.DATABASE_POOL_RECYCLE,
+        echo=settings.SQL_ECHO,
+    )
 
 from contextlib import asynccontextmanager
 

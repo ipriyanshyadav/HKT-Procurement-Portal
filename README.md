@@ -1,112 +1,57 @@
-# S2P Procurement Portal
+# 🏢 S2P Procurement Portal
 
-Enterprise Source-to-Pay procurement platform built on FastAPI (backend) + Next.js 14 (frontend).
+> **Enterprise Source-to-Pay Platform** built with **FastAPI**, **Next.js 14 Turborepo**, **PostgreSQL**, **RabbitMQ**, and **Kong Gateway**.
 
-## Current Session State
+---
 
-**Status:** APPLE DESIGN SYSTEM: THEME SIMPLIFICATION, COMPREHENSIVE DARK MODE & HARDCODED DATA REMOVAL COMPLETE (2026-09-03)  
-**Migration Head:** `0028_update_category_level_check`  
-**Test Suite:** 142/142 backend unit tests passing cleanly (`pytest tests/unit/`), 100% frontend production builds passing across all 3 portals (86/86 routes compiled in 29.6s with `pnpm run build`), 0 TypeScript errors (`tsc --noEmit`).  
-**Implementation Summary:**
+### 🌐 Portals & Demo Accounts
 
-1. **Liquid Glass Deprecation & Theme Streamlining:**
-   - Completely removed Liquid Glass theme and associated CSS/TS/SVG artifacts across the monorepo per user directive.
-   - Streamlined `ThemeProvider` and `ThemeSwitcher` to clean, high-performance 2-state toggle: **☀️ Light** (`apple-light`) and **🌙 Dark** (`apple-dark`).
-   - Removed `<LiquidGlassBackground />`, SVG refraction filters, and liquid glass cursor trackers.
-2. **Systemic Dark Mode Architecture Across All Portals & Tabs:**
-   - Enabled `darkMode: 'class'` across all three Next.js applications (`admin-portal`, `buyer-portal`, `supplier-portal`).
-   - Synced both `theme-apple-dark` and `dark` class tokens to `document.documentElement` to activate Tailwind `dark:` variants and CSS custom properties simultaneously.
-   - Overhauled `apple-base.css` to guarantee dark mode adaptation: pure `#000000` background, elevated `#1C1C1E` card surfaces, `#2C2C2E` fills, hairline `#FFFFFF/12` borders, and high-contrast Apple SF typography.
-2. **ThemeSwitcher, Universal Dark Mode & Popups/Blur:**
-   - Mounted `ThemeSwitcher` (Apple segmented control: ☀️ Light / 🌙 Dark) directly into navbars of all 3 portals (`admin-portal`, `buyer-portal`, `supplier-portal`).
-   - Extended `apple-base.css` and `apple-tokens.css` with unified `.dark`, `.theme-apple-dark`, and `[data-theme="apple-dark"]` selectors across all inputs, cards, selects, textareas, tables, hover states, and dynamic status badges.
-   - Standardized Apple frosted glass vibrancy on all popups and modals: `backdrop-filter: blur(24px) saturate(190%)`, `-webkit-backdrop-filter`, dark translucent fills (`rgba(28, 28, 30, 0.85)`), hairline borders, and 20px radius.
-   - Enforced Apple HIG pill shape (`rounded-full` / 980px) and spring micro-press (`scale(0.98)`) across primary and secondary buttons.
-3. **Complete Elimination of Hardcoded Data & Account Recovery:**
-   - Buyer Budgets, Buyer Catalog, Supplier Catalog, Deliveries, and Messages now exclusively use live hooks with zero hardcoded sample records.
-   - Reactivated super administrator account `admin@yourcompany.com` in PostgreSQL with audit log verification.
-4. **Verification:**
-   - Frontend build: all 3 portals compiled & generated 86/86 static routes cleanly in 24.5s (`pnpm run build` exited with 0).
-   - Backend unit suite: 142/142 tests passed in 26.08s.
+All three portals run simultaneously with seeded test roles. Access them directly in your browser:
 
-**Next:** Final user walkthrough and interactive verification.
+| Portal | Local URL | Primary Users | Demo Account | Password | Assigned Roles |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Buyer Portal** | [http://localhost:3000](http://localhost:3000) | Procurement Team (PRs, RFQs, Bids) | `buyer@procurement.com` | `Buyer123456!@#` | `REQUESTOR`, `BUYER`, `PROCUREMENT_OFFICER` |
+| **Buyer Portal (Approver)** | [http://localhost:3000](http://localhost:3000) | Approvers & Leadership (Sign-offs) | `approver@procurement.com` | `Approver123!@#` | `APPROVER`, `PROCUREMENT_HEAD`, `FINANCE_MANAGER` |
+| **Supplier Portal** | [http://localhost:3001](http://localhost:3001) | External Vendors (Bids, Invoices) | `supplier@acme.com` | `Supplier123456!@#` | `SUPPLIER` (Acme Tech Solutions) |
+| **Admin Portal** | [http://localhost:3002](http://localhost:3002) | System Administrators (Master Data) | `admin@procurement.com` | `Admin123456!@#` | `SUPERADMIN`, `ORG_ADMIN`, `PROCUREMENT_MANAGER` |
 
-## Module Status
+> 🔑 **Organization ID for all logins:** `00000000-0000-0000-0000-000000000001` (Default Organization)
+>
+> 🚪 **API Gateway (Kong):** [http://localhost:8000](http://localhost:8000) &nbsp;•&nbsp; **Direct Backend API:** [http://localhost:8080](http://localhost:8080)
+>
+> 📘 **Git & CI/CD Guide:** [Complete Beginner Guide to Git, GitHub & Branching](docs/GIT_AND_CICD_GUIDE.md)
 
+---
 
-| Module                          | Status     | Migration                        | Tests                                     |
-| ------------------------------- | ---------- | -------------------------------- | ----------------------------------------- |
-| Core Scaffolding (SPEC_01)      | ✅ Complete | —                                | ✅ Unit passing                            |
-| Architecture Wiring (SPEC_02)   | ✅ Complete | —                                | ✅ Unit passing                            |
-| Database Schema (SPEC_03)       | ✅ Complete | 0027_data_seed                   | ✅ 28 passing                              |
-| Auth / Security (SPEC_04)       | ✅ Complete | 0027_data_seed                   | ✅ 69 passing (85% cov)                    |
-| Workflow Engine (SPEC_05)       | ✅ Complete | 0027_data_seed                   | ✅ Passing                                 |
-| Approval Rules (SPEC_06)        | ✅ Complete | 0027_data_seed                   | ✅ Passing                                 |
-| Vendor Management (SPEC_07)     | ✅ Complete | 0027_data_seed                   | ✅ 8 passing                               |
-| Purchase Requisition (SPEC_08)  | ✅ Complete | 0027_data_seed                   | ✅ 9 passing                               |
-| Unmapped PR (SPEC_09)           | ✅ Complete | 0027_data_seed                   | ✅ 9 passing                               |
-| RFQ Lifecycle (SPEC_10)         | ✅ Complete | 0027_data_seed                   | ✅ 7 passing                               |
-| Bid Management (SPEC_11)        | ✅ Complete | 0027_data_seed                   | ✅ 7 passing                               |
-| Comparative Statement (SPEC_12) | ✅ Complete | 0028_update_category_level_check | ✅ 6 passing                               |
-| Contract Management (SPEC_13)   | ✅ Complete | 0028_update_category_level_check | ✅ 6 passing                               |
-| Purchase Order (SPEC_14)        | ✅ Complete | 0028_update_category_level_check | ✅ 6 passing                               |
-| Invoice / Payment (SPEC_15)     | ✅ Complete | 0028_update_category_level_check | ✅ 6 passing                               |
-| Notifications (SPEC_16)         | ✅ Complete | 0028_update_category_level_check | ✅ 9 passing                               |
-| Document Management (SPEC_17)   | ✅ Complete | 0028_update_category_level_check | ✅ 9 passing                               |
-| API Design Standards (SPEC_18)  | ✅ Complete | —                                | ✅ 138 passing                             |
-| Frontend (SPEC_19)              | ✅ Complete | —                                | ✅ 3 portals built cleanly                 |
-| Integration (SPEC_20)           | ✅ Complete | 0028_update_category_level_check | ✅ 11 passing                              |
-| Infrastructure (SPEC_21)        | ✅ Complete | —                                | ✅ Manifest validation passing             |
-| Observability (SPEC_22)         | ✅ Complete | —                                | ✅ Unit passing                            |
-| Testing (SPEC_23)               | ✅ Complete | —                                | ✅ 229 backend / 3 frontend suites passing |
-| Master Data (SPEC_24)           | ✅ Complete | 0028_update_category_level_check | ✅ Passing                                 |
-| Analytics (SPEC_25)             | ✅ Complete | 0028_update_category_level_check | ✅ 6 passing                               |
+## ⚡ Quickstart & Verification
 
+### Mode 1: Complete Docker Stack (Fastest)
 
+Start all services (PostgreSQL, Redis, RabbitMQ, MinIO, Kong, FastAPI, Celery, and all 3 Next.js Portals) in Docker:
 
-
-## Tech Stack
-
-
-| Layer            | Technology                                                            |
-| ---------------- | --------------------------------------------------------------------- |
-| API              | FastAPI 0.115+, Python 3.12, Uvicorn                                  |
-| ORM              | SQLAlchemy 2.0 async + asyncpg                                        |
-| Migrations       | Alembic (async env)                                                   |
-| Queue            | RabbitMQ 3.13 via aio-pika                                            |
-| Cache / Sessions | Redis 7 via redis-py async                                            |
-| Object Storage   | MinIO                                                                 |
-| Task Queue       | Celery 5.4 + Beat                                                     |
-| Gateway          | Kong 3.6 (DB-less declarative)                                        |
-| Tracing          | OpenTelemetry + Jaeger                                                |
-| Metrics          | Prometheus + Grafana                                                  |
-| Auth             | JWT RS256, TOTP MFA, SAML 2.0, OIDC                                   |
-| Frontend         | Next.js 14 (App Router), Turborepo, TanStack Query, Zustand, Radix UI |
-
-## Quickstart & Verification
-
-### Mode 1: Complete Docker Stack
 ```bash
-# Start all containers (Postgres, Redis, RabbitMQ, MinIO, Kong, API, Worker, Portals)
 docker compose -f docker/docker-compose.yml up -d
 ```
-Portals:
-- Buyer Portal: http://localhost:3000
-- Supplier Portal: http://localhost:3001
-- Admin Portal: http://localhost:3002
-- API Gateway (Kong): http://localhost:8000
+
+---
 
 ### Mode 2: Local Development (Hybrid)
+
+Run databases and message queues in Docker while developing FastAPI and Next.js locally:
+
 ```bash
 # 1. Start backing services only in Docker (do NOT start kong or api)
 docker compose -f docker/docker-compose.yml up -d postgres redis rabbitmq minio jaeger elasticsearch
 
-# 2. Seed data
+# 2. Initialize schema, messaging topology & seed data
 .venv/bin/python scripts/generate_rsa_keys.py
+.venv/bin/alembic upgrade head
+.venv/bin/python scripts/rabbitmq_setup.py
+.venv/bin/python scripts/minio_setup.py
 .venv/bin/python scripts/seed_master_data.py
 .venv/bin/python scripts/seed_demo_user.py
 
-# 3. Start API backend locally on port 8000
+# 3. Start API backend locally on port 8000 (direct mode, no Kong)
 .venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
 # 4. Start Celery worker locally
@@ -116,8 +61,469 @@ docker compose -f docker/docker-compose.yml up -d postgres redis rabbitmq minio 
 cd procurement-portal-frontend && pnpm dev
 ```
 
-### Run Tests
+---
+
+### Quick Test Commands
+
 ```bash
-.venv/bin/pytest tests/ -v
-cd procurement-portal-frontend && pnpm typecheck
+# Backend unit tests
+.venv/bin/pytest tests/unit/ -v
+
+# Frontend typecheck
+cd procurement-portal-frontend && pnpm run typecheck
 ```
+
+---
+
+## 🛠️ Step-by-Step Local Setup
+
+Follow these structured steps for a clean, brand-new environment.
+
+### Step 1 — Prerequisites & Environment
+
+Make sure every tool below is installed on your machine:
+
+| Tool | Minimum Version | Install Command / Link |
+| :--- | :--- | :--- |
+| **Python** | 3.14+ | `brew install python@3.14` (macOS) / [python.org](https://python.org) |
+| **pip / pip3** | bundled with Python | — |
+| **Node.js** | 20 LTS+ | `brew install node` / [nodejs.org](https://nodejs.org) |
+| **pnpm** | 9+ | `npm install -g pnpm` |
+| **Docker Desktop** | 4.x+ | [docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop/) |
+| **Docker Compose** | v2 (bundled in Desktop) | `docker compose version` |
+| **Git** | 2.x+ | `brew install git` |
+
+Verify everything is ready:
+
+```bash
+python3 --version      # Python 3.14.x
+node --version         # v20.x.x
+pnpm --version         # 9.x.x
+docker --version       # Docker version 26.x.x
+docker compose version # Docker Compose version v2.x.x
+git --version          # git version 2.x.x
+```
+
+Clone the repository and set up the Python virtual environment:
+
+```bash
+git clone <your-repo-url> procurement-portal
+cd procurement-portal
+
+python3 -m venv .venv
+source .venv/bin/activate
+
+pip install --upgrade pip
+pip install -e .
+
+cd procurement-portal-frontend && pnpm install && cd ..
+```
+
+---
+
+### Step 2 — Configuration & Environment Variables (`.env`)
+
+Copy the documented template:
+
+```bash
+cp .env.example .env
+```
+
+#### Understanding the Template
+
+`.env.example` is divided into sections. Here is what each section is for and what you need to do:
+
+| Section | What it controls | Action required? |
+| :--- | :--- | :--- |
+| **# Application** | App version, environment, debug flag | ✅ Leave as-is for local dev (`ENVIRONMENT=local`, `DEBUG=true`) |
+| **# Database** | PostgreSQL connection URLs and pool settings | ✅ Leave default credentials or update to match PostgreSQL |
+| **# PostgreSQL (docker-compose)** | Credentials Docker uses to initialize the DB container | ✅ Must match `DATABASE_URL` credentials |
+| **# Redis** | Cache, sessions, rate limits, Celery backend | ✅ Leave as-is (default `localhost:6379`) |
+| **# RabbitMQ** | Message queue connection & vhost | ✅ Default `guest / guest` on `localhost:5672` with `/procurement` vhost |
+| **# MinIO** | Object storage (documents, attachments) | ✅ Use `minioadmin / minioadmin` on port `9000` for local dev |
+| **# JWT / Auth** | Key file paths + token expiry settings | ⚠️ Key paths default to `keys/*.pem` — generated in Step 3 |
+| **# Field Encryption** | AES-256 encryption key for sensitive DB columns | ✅ Must generate — see command below |
+| **# ClamAV Antivirus** | Document antivirus scanning | ⬜ Disabled by default (`CLAMAV_ENABLED=false`) for local dev |
+| **# Enterprise SSO (SAML / OIDC)** | Corporate identity providers (SAML 2.0 / Azure AD OIDC) | ⬜ Leave blank unless configuring corporate SSO |
+| **# External Services** | SendGrid, Razorpay, MSG91, Twilio, Digio, DocuSign | ⬜ Leave blank for local dev — features degrade gracefully (see 2c) |
+| **# Observability** | OpenTelemetry, Jaeger host/port, Elasticsearch | ✅ Leave as-is (`localhost:4317` & `localhost:9200`) |
+| **# CORS** | Allowed frontend origins | ✅ Pre-configured for ports `3000`, `3001`, `3002` (both `localhost` and `127.0.0.1`) |
+| **# Celery** | Task queues, broker, result backend & schedules | ✅ Leave as-is |
+| **# Business Rules** | Thresholds, limits, SLAs, aging alert windows | ✅ Leave as-is |
+| **# Superadmin Seed** | First admin account credentials | ✅ Default `admin@procurement.com` / `Admin123456!@#` |
+| **# Grafana** | Dashboard admin password | ✅ Set any password (default `admin`) |
+| **# Frontend Portals** | API & WebSocket URLs called by Next.js apps | ✅ Leave as-is (Kong Gateway on port 8000; direct API on 8080) |
+
+Generate the mandatory 32-byte URL-safe base64 field encryption key:
+
+```bash
+python3 -c "import secrets, base64; print(base64.urlsafe_b64encode(secrets.token_bytes(32)).decode())"
+```
+
+#### 2a — Minimum Required `.env` Values for Local Dev
+
+Copy these default values into `.env` (replacing `<paste generated key here>` with your generated encryption key):
+
+```dotenv
+# --- PostgreSQL ---
+POSTGRES_USER=app_user
+POSTGRES_PASSWORD=dev_password_123
+POSTGRES_DB=procurement
+DATABASE_URL=postgresql+asyncpg://app_user:dev_password_123@localhost:5432/procurement
+ANALYTICS_DATABASE_URL=postgresql+asyncpg://app_user:dev_password_123@localhost:5432/procurement
+
+# --- Redis ---
+REDIS_URL=redis://localhost:6379/0
+
+# --- RabbitMQ ---
+RABBITMQ_URL=amqp://app_user:dev_password_123@localhost:5672/procurement
+RABBITMQ_USER=app_user
+RABBITMQ_PASSWORD=dev_password_123
+RABBITMQ_PASS=dev_password_123
+RABBITMQ_VHOST=/procurement
+
+# --- MinIO ---
+MINIO_ENDPOINT=localhost:9000
+MINIO_ACCESS_KEY=minioadmin
+MINIO_SECRET_KEY=minioadmin
+
+# --- Field Encryption (REQUIRED) ---
+FIELD_ENCRYPTION_KEY=<paste generated key here>
+
+# --- Superadmin Seed ---
+SUPERADMIN_EMAIL=admin@yourcompany.com
+SUPERADMIN_PASSWORD=SecurePass123!
+SUPERADMIN_ORG_NAME="Acme Corp"
+SUPERADMIN_ORG_CODE="ACME"
+
+# --- Grafana ---
+GRAFANA_PASSWORD=admin
+
+# --- Frontend Portals ---
+NEXT_PUBLIC_API_URL=http://localhost:8000
+NEXT_PUBLIC_WS_URL=ws://localhost:8000
+INTERNAL_API_URL=http://api:8000
+```
+
+#### 2b — JWT Authentication Key Paths
+
+Leave `JWT_PRIVATE_KEY_PATH` and `JWT_PUBLIC_KEY_PATH` at their defaults (`keys/private.pem` and `keys/public.pem`). Step 3 generates the RSA-256 key pair:
+
+```dotenv
+JWT_PRIVATE_KEY_PATH=keys/private.pem
+JWT_PUBLIC_KEY_PATH=keys/public.pem
+```
+
+#### 2c — External Services (Optional for Local Dev)
+
+Third-party integrations degrade gracefully if omitted for local development:
+
+| Variable | Service | What breaks if missing |
+| :--- | :--- | :--- |
+| `SENDGRID_API_KEY` / `SENDGRID_FROM_EMAIL` | Email delivery | Notification emails not sent |
+| `MSG91_AUTH_KEY` / `MSG91_SENDER_ID` | SMS delivery | SMS notifications not sent |
+| `TWILIO_ACCOUNT_SID` / `TWILIO_AUTH_TOKEN` | SMS (alternative) | SMS notifications not sent |
+| `RAZORPAY_KEY_ID` / `RAZORPAY_KEY_SECRET` | Payment gateway | Payment initiation disabled |
+| `DIGIO_CLIENT_ID` / `DIGIO_CLIENT_SECRET` | e-Signing (Digio) | Digital signature flow disabled |
+| `DOCUSIGN_ACCOUNT_ID` / `DOCUSIGN_INTEGRATION_KEY` | e-Signing (DocuSign) | DocuSign flow disabled |
+| `GST_API_KEY` / `NSDL_API_KEY` | GST/PAN verification | Compliance checks skipped |
+| `SAML_IDP_METADATA_URL` | SAML SSO | SSO login unavailable |
+| `OIDC_CLIENT_ID` / `OIDC_CLIENT_SECRET` / `OIDC_DISCOVERY_URL` | OIDC / Azure AD SSO | OIDC login unavailable |
+
+#### 2d — Sanity Check Before Continuing
+
+```bash
+# Check that no <REPLACE_ME> placeholders remain in required fields
+grep "<REPLACE_ME>" .env
+
+# Verify the encryption key is present
+grep "FIELD_ENCRYPTION_KEY" .env
+```
+
+---
+
+### Step 3 — Generate RSA Keys (JWT Auth)
+
+```bash
+python3 scripts/generate_rsa_keys.py
+```
+
+This creates `keys/private.pem` and `keys/public.pem`.
+
+---
+
+### Step 4 — Start Backing Services (Docker)
+
+```bash
+docker compose -f docker/docker-compose.yml up -d \
+  postgres redis rabbitmq minio jaeger prometheus grafana clamav elasticsearch
+```
+
+Wait ~20 seconds for services to become healthy. If any service shows unhealthy, inspect its logs:
+
+```bash
+docker compose -f docker/docker-compose.yml logs <service-name>
+```
+
+---
+
+### Step 5 — Database Migrations & Messaging Setup
+
+```bash
+# 1. Apply all 37 database migrations
+alembic upgrade head
+# Expected output ends with:
+# INFO  [alembic.runtime.migration] Running upgrade ... -> 0036_item_master
+
+# 2. Verify migration head
+alembic current
+# Expected: 0036_item_master (head)
+
+# 3. Setup RabbitMQ topology & MinIO buckets
+python3 scripts/rabbitmq_setup.py
+python3 scripts/minio_setup.py
+```
+
+---
+
+### Step 6 — Seed Master Data & Create Superadmin
+
+```bash
+# Seed reference data and demo accounts
+python3 scripts/seed_master_data.py
+python3 scripts/seed_demo_user.py
+python3 scripts/seed_workflows.py
+python3 scripts/seed_notification_templates.py
+python3 scripts/seed_demo_notifications.py
+python3 scripts/seed_catalog_items.py
+
+# Create superadmin account
+python3 scripts/create_superadmin.py
+```
+
+Expected output for superadmin creation:
+
+```
+✅ Organisation "Acme Corp" created
+✅ Superadmin admin@yourcompany.com created with SUPERADMIN role
+```
+
+---
+
+### Step 7 — Start the Application Services
+
+Open separate terminal windows (ensure `.venv` is activated):
+
+```bash
+# Terminal 1 — Backend API (port 8080 behind Kong, or 8000 for direct dev)
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8080
+
+# Terminal 2 — Background Celery Worker
+celery -A app.tasks.celery_app worker --loglevel=info --concurrency=4
+
+# Terminal 3 — Scheduled Tasks (Celery Beat)
+celery -A app.tasks.celery_app beat --loglevel=info
+
+# Terminal 4 — API Gateway (Kong on port 8000)
+docker compose -f docker/docker-compose.yml up -d kong
+
+# Terminal 5 — Frontend Portals (Turborepo Next.js)
+cd procurement-portal-frontend
+pnpm dev
+```
+
+---
+
+## 🔍 Full-Stack Verification Checklist
+
+Run these quick checks to verify complete system health:
+
+```bash
+# 1. API Gateway health (Kong)
+curl http://localhost:8000/health
+# → {"status":"ok","version":"1.0.0"}
+
+# 2. Direct Backend health (FastAPI)
+curl http://localhost:8080/health
+# → {"status":"ok","version":"1.0.0"}
+
+# 3. Superadmin API authentication (get JWT access token)
+curl -s -X POST http://localhost:8000/api/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@procurement.com","password":"Admin123456!@#","org_id":"00000000-0000-0000-0000-000000000001"}' | python3 -m json.tool
+
+# 4. PostgreSQL connectivity (lists all ~30+ tables)
+docker compose -f docker/docker-compose.yml exec postgres \
+  psql -U app_user -d procurement -c "\dt" | head -20
+
+# 5. Redis connectivity
+docker compose -f docker/docker-compose.yml exec redis redis-cli ping
+# → PONG
+```
+
+Interactive API Documentation:
+- **Swagger UI:** [http://localhost:8000/docs](http://localhost:8000/docs) (or direct: [http://localhost:8080/docs](http://localhost:8080/docs))
+- **ReDoc:** [http://localhost:8000/redoc](http://localhost:8000/redoc) (or direct: [http://localhost:8080/redoc](http://localhost:8080/redoc))
+
+---
+
+## 🔄 Rebuilding Docker Containers
+
+Pass the `--build` flag to force Docker Compose to recompile the Next.js apps and re-copy the Python codebase:
+
+```bash
+docker compose down
+docker compose up -d --build
+```
+
+*(Alternatively, if passing the file path explicitly: `docker compose -f docker/docker-compose.yml down && docker compose -f docker/docker-compose.yml up -d --build`)*
+
+If you want to ensure a 100% clean rebuild without using any Docker build cache layers:
+
+```bash
+docker compose build --no-cache
+docker compose up -d
+```
+
+---
+
+## 🧪 Testing Suite
+
+```bash
+# Backend unit tests (fast, no infrastructure required)
+pytest tests/unit/ -v
+
+# Full test suite with coverage gate (requires running infra)
+pytest tests/ -v --cov=app --cov-fail-under=80
+
+# Auth & Security tests with 85% coverage gate
+pytest tests/ -v --cov=app/auth --cov=app/modules/user --cov-fail-under=85
+
+# Backend integration tests
+pytest tests/integration/ -v
+
+# Frontend TypeScript validation & unit tests
+cd procurement-portal-frontend
+pnpm run typecheck
+pnpm test
+
+# Frontend production build validation (all 3 portals)
+pnpm run build
+```
+
+---
+
+## 🔌 Service Port Directory
+
+| Service | Local URL / Port | Protocol | Description | Live Logs Command |
+| :--- | :--- | :--- | :--- | :--- |
+| **FastAPI Backend** | [http://localhost:8080](http://localhost:8080) | HTTP | Direct API & Uvicorn ASGI server | `docker compose logs -f api` |
+| **All Portals (Combined)** | Ports 3000, 3001, 3002 | HTTP | Combined stream for all 3 frontends | `docker compose logs -f buyer-portal supplier-portal admin-portal` |
+| **Buyer Portal** | [http://localhost:3000](http://localhost:3000) | HTTP | Next.js Buyer app (PRs, RFQs, POs) | `docker compose logs -f buyer-portal` |
+| **Supplier Portal** | [http://localhost:3001](http://localhost:3001) | HTTP | Next.js Supplier app (Bids, Invoices) | `docker compose logs -f supplier-portal` |
+| **Admin Portal** | [http://localhost:3002](http://localhost:3002) | HTTP | Next.js Admin app (Settings, Master Data) | `docker compose logs -f admin-portal` |
+| **Kong Gateway** | [http://localhost:8000](http://localhost:8000) | HTTP | API Gateway proxy for frontend traffic | `docker compose logs -f kong` |
+| **Celery Worker** | *(Internal)* | TCP | Asynchronous background tasks & outbox | `docker compose logs -f celery-worker` |
+| **Celery Beat** | *(Internal)* | TCP | Scheduled periodic tasks | `docker compose logs -f celery-beat` |
+| **PostgreSQL** | `localhost:5432` | TCP | Relational database (PgBouncer on 6432) | `docker compose logs -f postgres` |
+| **Redis** | `localhost:6379` | TCP | Caching, session store & task broker | `docker compose logs -f redis` |
+| **RabbitMQ UI** | [http://localhost:15672](http://localhost:15672) | HTTP | Message broker UI (`guest` / `guest`) | `docker compose logs -f rabbitmq` |
+| **MinIO Console** | [http://localhost:9001](http://localhost:9001) | HTTP | Object storage UI (`minioadmin` / `minioadmin`) | `docker compose logs -f minio` |
+| **Grafana** | [http://localhost:3003](http://localhost:3003) | HTTP | Metrics dashboards (`admin` / `$GRAFANA_PASSWORD`) | `docker compose logs -f grafana` |
+| **Jaeger UI** | [http://localhost:16686](http://localhost:16686) | HTTP | Distributed trace visualization | `docker compose logs -f jaeger` |
+| **Prometheus** | [http://localhost:9090](http://localhost:9090) | HTTP | Metrics collection server | `docker compose logs -f prometheus` |
+| **ClamAV** | `localhost:3310` | TCP | Antivirus scanning service (internal) | `docker compose logs -f clamav` |
+
+### 📜 Live Terminal Log Streaming
+
+Stream real-time terminal output (Uvicorn requests, SQL queries, errors, Next.js logs, background tasks):
+
+```bash
+# 🖥️ All Frontend Portals in a single command (Buyer, Supplier & Admin combined):
+docker compose logs -f buyer-portal supplier-portal admin-portal
+
+# Individual portal frontend logs:
+docker compose logs -f buyer-portal
+docker compose logs -f supplier-portal
+docker compose logs -f admin-portal
+
+# FastAPI / Uvicorn server logs (shows live incoming HTTP requests, errors, SQL queries)
+docker compose logs -f api
+
+# Direct Docker container command alternative for API:
+docker logs -f procurement_api
+
+# Celery background worker logs (shows async jobs, emails, virus scans)
+docker compose logs -f celery-worker
+
+# Kong API Gateway proxy logs
+docker compose logs -f kong
+
+# Stream all running container logs simultaneously with timestamps
+docker compose logs -f -t
+```
+
+---
+
+## 🏗️ Architecture & Tech Stack
+
+| Domain | Technology | Key Highlights |
+| :--- | :--- | :--- |
+| **API & Core** | FastAPI 0.115+, Python 3.14, Uvicorn | Async ASGI, Pydantic v2 validation |
+| **Database & ORM** | SQLAlchemy 2.0 (asyncpg), Alembic, PostgreSQL 16 | 37 migrations, connection pooling, RLS |
+| **Asynchronous Jobs** | Celery 5.4 + Beat, RabbitMQ 3.13, Redis 7 | Event outbox pattern, scheduled tasks |
+| **API Gateway** | Kong 3.7 (DB-less declarative) | Centralized rate limiting, CORS, routing |
+| **Storage & Security** | MinIO S3, ClamAV, RS256 JWT, TOTP MFA, AES-256 | Presigned URLs, antivirus scanning |
+| **Observability** | OpenTelemetry, Jaeger, Prometheus, Grafana, Elasticsearch | Distributed tracing, audit logs, metrics |
+| **Frontend Monorepo** | Next.js 14 (App Router), Turborepo, TanStack Query | Shared `@procurement/*` packages, Tailwind, Radix |
+
+---
+
+## 📋 Assumptions Log
+
+| ID | Assumption | Risk |
+| :--- | :--- | :--- |
+| A-01-1 | SUPERADMIN role seeded at initialization via scripts/create_superadmin.py | LOW |
+| A-01-2 | Graphify initialised as empty JSON if not found (first run) | LOW |
+| A-01-3 | cost_of_capital_rate defaults to 0.12 (12%) per org in settings | LOW |
+| A-01-4 | Emergency RFQ SLA = half of standard (24h vs 72h min bid window) | MEDIUM |
+| A-01-5 | Phase 3 features (eAuction, ML, WhatsApp, Mobile) excluded from scaffold | LOW |
+| A-01-6 | Holiday master populated by seed script for default calendar | MEDIUM |
+| A-02-1 | RabbitMQ topology initialised via scripts/rabbitmq_setup.py not app startup | LOW |
+| A-02-2 | MinIO buckets initialised via scripts/minio_setup.py not app startup | LOW |
+| A-02-3 | Cross-module calls use direct Python function calls in Phase 1 monolith | LOW |
+| A-02-4 | Celery Beat runs in dedicated container separate from worker | LOW |
+| A-02-5 | audit module is service-layer only — no public router | LOW |
+| A-04-1 | OIDC SSO defaults to azure-ad provider configuration if omitted | LOW |
+| A-04-2 | Just-In-Time provisioned SSO users are assigned default REQUESTOR role | LOW |
+| A-08-1 | PR number format `{BU_CODE}-PR-{YYYY}-{NNNNNN}` generated per BU and year | LOW |
+| A-08-2 | Merge PRs requires same BU, same Category, minimum 2 PRs, maximum 10 PRs | LOW |
+| A-08-3 | Budget check is SOFT by default; HARD block enabled per tenant setting or capex budget breach | MEDIUM |
+| A-08-4 | PR aging alerts task checks pending PRs older than settings.PR_AGING_ALERT_DAYS thresholds | LOW |
+| A-08-5 | Redis cache for PR counts by status is invalidated on PR status changes | LOW |
+| A-09-1 | Unmapped PR exception created when ERP PR lacks category or business unit | MEDIUM |
+| A-09-2 | SLA escalation tiers defined by settings.UNMAPPED_PR_SLA_HOURS ([4, 8, 24, 48]) | LOW |
+| A-09-3 | ML auto-mapping requires confidence score >= 0.85 and 100+ mapping log entries | MEDIUM |
+| A-12-1 | L1 calculated on landed_cost per line. Missing price raises MISSING_NORMALIZED_PRICES (400) | LOW |
+| A-12-2 | Technical + Commercial weights default to 70/30 split if omitted on RFQ | LOW |
+| A-12-3 | Negotiated price increase > 0.5% tolerance threshold raises PRICE_TOLERANCE_EXCEEDED | LOW |
+| A-12-4 | CS PDF uploaded to MinIO comparative-statement bucket using reportlab | LOW |
+| A-12-5 | Regret letters published as outbox events to non-awarded vendors on award approval | LOW |
+| A-17-1 | ClamAV scan runs async via Celery; file stored with scan_status=PENDING initially; updated to CLEAN/INFECTED | MEDIUM |
+| A-17-2 | Infected files moved to quarantine bucket; original MinIO path deleted; scan_status=INFECTED | LOW |
+| A-17-3 | Presigned URL TTL = 900s (15 min); generated on demand | LOW |
+| A-17-4 | sanitize_filename strips path separators, null bytes, and non-ASCII; truncates to 255 chars | LOW |
+| A-17-5 | ALLOWED_MIME_TYPES by document_type stored in config; validated against magic bytes | LOW |
+| A-19-1 | Access token stored in memory (Zustand state); refresh token in httpOnly cookie | HIGH |
+| A-19-2 | `packages/types/` generated at build time via `pnpm generate:types` | MEDIUM |
+| A-AUTH-1 | Frontend API client dynamically adapts baseURL when accessed via 127.0.0.1 to maintain cookie domain consistency | LOW |
+| A-AUTH-2 | User input email is trimmed both in frontend login forms and backend login methods to avoid whitespace auth failures | LOW |
+| A-AUTH-3 | Frontend login forms extract and display structured server error messages (401/403/429) rather than generic status strings | LOW |
+
+---
+
+## Current Session State
+- **Planned**: Prepare codebase for GitHub push, create beginner Git & CI/CD guide, verify full test suite, update Graphify graph.
+- **Implemented**: Created `docs/GIT_AND_CICD_GUIDE.md`, updated `README.md` reference links, audited `.gitignore` and untracked Graphify caches, updated Graphify AST knowledge graph, staged all changes.
+- **Tested**: Backend unit tests (367 passed), frontend Turborepo typecheck (7/7 packages successful).
+- **Next**: Configure GitHub remote repository URL and push `main` and `develop` branches.

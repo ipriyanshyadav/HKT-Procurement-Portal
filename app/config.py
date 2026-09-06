@@ -6,7 +6,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=".env", env_file_encoding="utf-8", case_sensitive=False
+        env_file=".env", env_file_encoding="utf-8", case_sensitive=False, extra="ignore"
     )
 
     # Application
@@ -20,6 +20,7 @@ class Settings(BaseSettings):
     DATABASE_POOL_SIZE: int = 20
     DATABASE_MAX_OVERFLOW: int = 10
     DATABASE_POOL_RECYCLE: int = 3600
+    DATABASE_POOL_CLASS: str = ""
     SQL_ECHO: bool = False
 
     # Redis
@@ -125,7 +126,20 @@ class Settings(BaseSettings):
     ELASTICSEARCH_INDEX_PREFIX: str = "audit-logs"
 
     # CORS
-    CORS_ORIGINS: list[str] = ["http://localhost:3000", "http://localhost:3001", "http://localhost:3002"]
+    CORS_ORIGINS: list[str] = [
+        "http://localhost:3000",
+        "http://localhost:3001",
+        "http://localhost:3002",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:3001",
+        "http://127.0.0.1:3002",
+        "http://0.0.0.0:3000",
+        "http://0.0.0.0:3001",
+        "http://0.0.0.0:3002",
+        "http://[::1]:3000",
+        "http://[::1]:3001",
+        "http://[::1]:3002",
+    ]
 
     # Celery
     CELERY_OUTBOX_INTERVAL_SECONDS: float = 5.0

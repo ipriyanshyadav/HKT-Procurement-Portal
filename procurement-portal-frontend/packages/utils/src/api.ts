@@ -3,12 +3,21 @@ import axios, { type AxiosError, type AxiosInstance, type InternalAxiosRequestCo
 declare const process: { env: Record<string, string | undefined> };
 
 const isServer = typeof window === "undefined";
-export const API_URL =
-  (typeof process !== "undefined" &&
-    (isServer
-      ? (process.env?.INTERNAL_API_URL || process.env?.NEXT_PUBLIC_API_URL)
-      : process.env?.NEXT_PUBLIC_API_URL)) ||
-  "http://localhost:8000";
+export function getEffectiveApiUrl(): string {
+  if (!isServer) {
+    const hostname = window.location.hostname;
+    const protocol = window.location.protocol;
+    const host = hostname.includes(":") && !hostname.startsWith("[") ? `[${hostname}]` : hostname;
+    return `${protocol}//${host}:8000`;
+  }
+  return (
+    (typeof process !== "undefined" &&
+      (process.env?.INTERNAL_API_URL || process.env?.NEXT_PUBLIC_API_URL)) ||
+    "http://localhost:8000"
+  );
+}
+
+export const API_URL = getEffectiveApiUrl();
 
 let accessToken: string | null = null;
 let isRefreshing = false;
@@ -76,6 +85,15 @@ export const apiClient: AxiosInstance = axios.create({
 
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
+    if (!isServer) {
+      const hostname = window.location.hostname;
+      const protocol = window.location.protocol;
+      const host = hostname.includes(":") && !hostname.startsWith("[") ? `[${hostname}]` : hostname;
+      const currentOrigin = `${protocol}//${host}:8000`;
+      if (config.baseURL && !config.baseURL.startsWith(currentOrigin)) {
+        config.baseURL = config.baseURL.replace(/^https?:\/\/[^/]+(:[0-9]+)?/, currentOrigin);
+      }
+    }
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
     }
@@ -133,8 +151,11 @@ apiClient.interceptors.response.use(
       if (portal) {
         headers["X-Portal-Id"] = portal;
       }
+      const refreshBaseUrl = !isServer
+        ? `${window.location.protocol}//${window.location.hostname.includes(":") && !window.location.hostname.startsWith("[") ? `[${window.location.hostname}]` : window.location.hostname}:8000`
+        : API_URL;
       const { data } = await axios.post<{ data: { access_token: string } }>(
-        `${API_URL}/api/v1/auth/refresh`,
+        `${refreshBaseUrl}/api/v1/auth/refresh`,
         {},
         { withCredentials: true, headers },
       );
