@@ -21,7 +21,7 @@ services:
       retries: 5
 
   pgbouncer:
-    image: edoburu/pgbouncer:v1.22.1
+    image: edoburu/pgbouncer:1.22.1-p0
     container_name: procurement_pgbouncer
     environment:
       DB_USER: ${POSTGRES_USER:-postgres}
@@ -100,7 +100,7 @@ services:
       retries: 5
 
   clamav:
-    image: clamav/clamav:1.3-alpine
+    image: clamav/clamav:1.4-debian
     container_name: procurement_clamav
     ports:
       - "3310:3310"
