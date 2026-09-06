@@ -4,6 +4,31 @@ set -e
 if [ "$#" -gt 0 ]; then
   exec "$@"
 fi
+echo "Waiting for database connection..."
+python -c "
+import asyncio, sys, os
+from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy import text
+
+async def wait_for_db():
+    url = os.environ.get('DATABASE_URL')
+    if not url:
+        return
+    engine = create_async_engine(url, pool_pre_ping=True)
+    for i in range(30):
+        try:
+            async with engine.connect() as conn:
+                await conn.execute(text('SELECT 1'))
+            print('Database is ready.')
+            await engine.dispose()
+            return
+        except Exception:
+            await asyncio.sleep(1)
+    print('Database connection timed out.', file=sys.stderr)
+    sys.exit(1)
+
+asyncio.run(wait_for_db())
+"
 
 echo "Generating RSA keys if needed..."
 python scripts/generate_rsa_keys.py

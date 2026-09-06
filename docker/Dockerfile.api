@@ -10,7 +10,7 @@ RUN pip install --no-cache-dir --upgrade pip "setuptools>=83.0.0" "msgpack>=1.2.
 FROM deps AS app
 COPY . .
 COPY docker/entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+RUN sed -i 's/\r$//' /entrypoint.sh && chmod +x /entrypoint.sh
 
 EXPOSE 8000
 ENTRYPOINT ["/entrypoint.sh"]

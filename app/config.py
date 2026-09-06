@@ -1,6 +1,7 @@
 from __future__ import annotations
 from functools import lru_cache
 from typing import Literal
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -43,6 +44,14 @@ class Settings(BaseSettings):
     # JWT/Auth
     JWT_PRIVATE_KEY_PATH: str = "keys/private.pem"
     JWT_PUBLIC_KEY_PATH: str = "keys/public.pem"
+
+    @field_validator("JWT_PRIVATE_KEY_PATH", "JWT_PUBLIC_KEY_PATH", mode="before")
+    @classmethod
+    def normalize_key_paths(cls, v: str) -> str:
+        if isinstance(v, str):
+            return v.replace("\\", "/")
+        return v
+
     JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
     JWT_REFRESH_TOKEN_EXPIRE_HOURS: int = 8
     JWT_KEY_ID: str = "key-2026-06"

@@ -20,6 +20,8 @@ All three portals run simultaneously with seeded test roles. Access them directl
 > 🚪 **API Gateway (Kong):** [http://localhost:8000](http://localhost:8000) &nbsp;•&nbsp; **Direct Backend API:** [http://localhost:8080](http://localhost:8080)
 >
 > 📘 **Git & CI/CD Guide:** [Complete Beginner Guide to Git, GitHub & Branching](docs/GIT_AND_CICD_GUIDE.md)
+>
+> 🪟 **Windows PC Guide:** [Running Docker on Windows (WSL2 Setup & Troubleshooting)](docs/WINDOWS_DOCKER_GUIDE.md)
 
 ---
 
@@ -519,11 +521,14 @@ docker compose logs -f -t
 | A-AUTH-1 | Frontend API client dynamically adapts baseURL when accessed via 127.0.0.1 to maintain cookie domain consistency | LOW |
 | A-AUTH-2 | User input email is trimmed both in frontend login forms and backend login methods to avoid whitespace auth failures | LOW |
 | A-AUTH-3 | Frontend login forms extract and display structured server error messages (401/403/429) rather than generic status strings | LOW |
+| A-21-1 | Line endings normalized via .gitattributes and Dockerfile sed sanitization for seamless Windows, Mac, and Linux builds | LOW |
+| A-21-2 | Kong Gateway default declarative config routes to internal Docker DNS (http://api:8000), avoiding Windows host firewall blocks | LOW |
+| A-21-3 | JWT key path configuration normalizes Windows backslashes to forward slashes across platforms | LOW |
 
 ---
 
 ## Current Session State
-- **Planned**: Establish full CI/CD suite per GEMINI.md protocol, fix GitHub Actions runner failures, and push to remote.
-- **Implemented**: Created `deploy-staging.yml`, `deploy-prod.yml`, and `e2e.yml`; hardened `ci.yml` with dead-code verification, migration reversibility, and frontend build validation; fixed flat-layout discovery in `pyproject.toml`; configured ESLint configs across Next.js portals; updated Graphify AST knowledge graph.
-- **Tested**: Verified backend unit tests (367 passed), frontend typecheck (7/7 passed), frontend production build (7/7 passed), frontend lint (passed), and Alembic rollback/upgrade cycle.
-- **Next**: Commit and push changes to `develop` and `main` branches.
+- **Planned**: Enable full cross-platform parity (Windows, Mac, Linux) for complete Docker stack execution and local hybrid workflows.
+- **Implemented**: Created `.gitattributes` to enforce Unix LF line endings; added defensive `sed` carriage-return stripping in `Dockerfile.api`; added database readiness check in `entrypoint.sh`; added Windows backslash normalization in `Settings.normalize_key_paths`; updated Kong Gateway routing to internal Docker DNS (`api:8000`) with hybrid fallback (`kong.local.yml`); created `docs/WINDOWS_DOCKER_GUIDE.md`.
+- **Tested**: Verified backend unit tests (367 passed), JWT path normalization unit test, Kong Gateway internal proxy routing (`200 OK` on `/health` and `/docs`), Next.js portals on ports 3000, 3001, 3002.
+- **Next**: Run graphify update, commit and push changes.

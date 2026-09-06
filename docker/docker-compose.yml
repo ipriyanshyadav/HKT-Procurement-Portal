@@ -158,7 +158,7 @@ services:
       - "8443:8443"
       - "8001:8001"
     volumes:
-      - ../kong/kong.yml:/etc/kong/kong.yml
+      - ${KONG_CONFIG_PATH:-../kong/kong.yml}:/etc/kong/kong.yml
     extra_hosts:
       - "host.docker.internal:host-gateway"
     networks:

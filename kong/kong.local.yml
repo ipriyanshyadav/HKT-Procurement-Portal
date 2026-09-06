@@ -2,7 +2,7 @@ _format_version: "3.0"
 
 services:
   - name: api
-    url: http://api:8000
+    url: http://host.docker.internal:8080
 
 routes:
   - name: auth-route
