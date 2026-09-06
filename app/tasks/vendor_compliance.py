@@ -1,7 +1,7 @@
 from __future__ import annotations
 import asyncio
 from datetime import date, timedelta
-from typing import Optional
+from typing import Optional, Any
 from loguru import logger
 from sqlalchemy import select, and_
 

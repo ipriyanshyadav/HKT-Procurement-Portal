@@ -31,6 +31,7 @@ from app.modules.grn.schemas import (
     QualityInspectionResponse,
 )
 from app.modules.grn.service import grn_service
+from app.modules.grn.models import GoodsReceiptNote
 from app.modules.user.models import User
 
 router = APIRouter(tags=["GRN"])
