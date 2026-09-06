@@ -50,6 +50,7 @@ jobs:
       FIELD_ENCRYPTION_KEY: "MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDE="
       JWT_PRIVATE_KEY_PATH: keys/private.pem
       JWT_PUBLIC_KEY_PATH: keys/public.pem
+      OTEL_SDK_DISABLED: "true"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -65,7 +66,7 @@ jobs:
           alembic downgrade -1
           alembic upgrade head
       - name: Run Backend Unit Tests
-        run: pytest tests/unit/ -v --cov=app --cov-report=xml
+        run: pytest tests/unit/ -v --cov=app --cov-report=xml --cov-fail-under=50
 
   frontend:
     name: Frontend Quality & Build
