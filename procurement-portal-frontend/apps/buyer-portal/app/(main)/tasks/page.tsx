@@ -447,7 +447,7 @@ export default function TasksPage() {
                           {new Date(rule.valid_from).toLocaleString()} → {new Date(rule.valid_until).toLocaleString()}
                         </p>
                         <p className="text-xs text-slate-600 dark:text-slate-300 italic">
-                          "{rule.reason}"
+                          &ldquo;{rule.reason}&rdquo;
                         </p>
                       </div>
 

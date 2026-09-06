@@ -1,0 +1,23 @@
+name: Deploy to Production
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+
+jobs:
+  production-deploy:
+    name: Production Release & Deploy Gate
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - name: Log release tag
+        run: |
+          echo "Deploying production release: ${{ github.ref_name }}"
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Build Production Images
+        run: |
+          docker compose -f docker/docker-compose.yml build

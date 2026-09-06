@@ -553,7 +553,7 @@ export default function VendorDetailPage() {
             <div>
               <h3 className="text-lg font-bold text-gray-900 dark:text-white">Confirm Penny-Drop Deposit</h3>
               <p className="text-xs text-gray-500 mt-1">
-                Enter the exact micro-deposit amount that appeared in the vendor's bank account
+                Enter the exact micro-deposit amount that appeared in the vendor&apos;s bank account
                 statement for{" "}
                 <span className="font-semibold text-gray-700">
                   {vendor.bank_accounts.find((b) => b.id === pennyBankId)?.bank_name}

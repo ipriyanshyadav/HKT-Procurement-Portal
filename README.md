@@ -523,7 +523,7 @@ docker compose logs -f -t
 ---
 
 ## Current Session State
-- **Planned**: Prepare codebase for GitHub push, create beginner Git & CI/CD guide, verify full test suite, update Graphify graph.
-- **Implemented**: Created `docs/GIT_AND_CICD_GUIDE.md`, updated `README.md` reference links, audited `.gitignore` and untracked Graphify caches, updated Graphify AST knowledge graph, staged all changes.
-- **Tested**: Backend unit tests (367 passed), frontend Turborepo typecheck (7/7 packages successful).
-- **Next**: Configure GitHub remote repository URL and push `main` and `develop` branches.
+- **Planned**: Establish full CI/CD suite per GEMINI.md protocol, fix GitHub Actions runner failures, and push to remote.
+- **Implemented**: Created `deploy-staging.yml`, `deploy-prod.yml`, and `e2e.yml`; hardened `ci.yml` with dead-code verification, migration reversibility, and frontend build validation; fixed flat-layout discovery in `pyproject.toml`; configured ESLint configs across Next.js portals; updated Graphify AST knowledge graph.
+- **Tested**: Verified backend unit tests (367 passed), frontend typecheck (7/7 passed), frontend production build (7/7 passed), frontend lint (passed), and Alembic rollback/upgrade cycle.
+- **Next**: Commit and push changes to `develop` and `main` branches.

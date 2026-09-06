@@ -150,7 +150,7 @@ export default function SupplierProfilePage() {
                 </span>
               </p>
               <p className="text-xs text-amber-700 dark:text-amber-400 mt-2">
-                Make necessary changes below or under Documents, then click "Resubmit Application" to restart review.
+                Make necessary changes below or under Documents, then click &quot;Resubmit Application&quot; to restart review.
               </p>
             </div>
             <button
