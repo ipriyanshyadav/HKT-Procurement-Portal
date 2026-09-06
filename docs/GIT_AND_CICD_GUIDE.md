@@ -10,7 +10,7 @@
 2. [The Branching Strategy: Which Branch Do I Use?](#2-the-branching-strategy-which-branch-do-i-use)
 3. [Who Gets What Link? (Devs, Testers, Clients)](#3-who-gets-what-link-devs-testers-clients)
 4. [Step-by-Step Daily Workflow: How to Make & Merge Changes](#4-step-by-step-daily-workflow-how-to-make--merge-changes)
-5. [CI/CD Explained: What Happens When You Push?](#5-cicd-explained-what-happens-when-you-push)
+5. [CI/CD Explained: The 4 Pipelines & What Happens When You Push?](#5-cicd-explained-the-4-pipelines--what-happens-when-you-push)
 6. [Common Mistakes to Avoid & How to Recover](#6-common-mistakes-to-avoid--how-to-recover)
 7. [Daily Git Command Cheatsheet](#7-daily-git-command-cheatsheet)
 
@@ -215,36 +215,65 @@ git branch -d feature/buyer-pr-filter
 
 ---
 
-## 5. CI/CD Explained: What Happens When You Push?
+### 5. CI/CD Explained: The 4 Pipelines & What Happens When You Push?
 
-In this project, our pipeline is defined in [`.github/workflows/ci.yml`](file:///.github/workflows/ci.yml).
+In this project, automation is divided into **4 distinct pipelines** located in [`.github/workflows/`](../.github/workflows/).
 
-Every time you open a PR or push to `develop`/`main`, GitHub runs the following jobs in parallel in the cloud:
+Think of these 4 workflows like the **quality control and delivery stages of a car factory**:
+
+```
+[ Developer commits code ]
+           │
+           ▼
+  1. CI Pipeline                 ──► Quality Inspector (checks engine, brakes, wiring)
+           │
+  (Merged into develop)
+           ▼
+  2. Deploy to Staging           ──► Test Track Delivery (ships car to private test track for test drivers)
+           │
+  (PR to main)
+           ▼
+  3. E2E Playwright Tests        ──► Crash & Road Test Robot (simulates a human driving the car)
+           │
+  (Official Release Tag v1.0.0)
+           ▼
+  4. Deploy to Production        ──► Showroom Delivery (delivers car to real paying customers)
+```
+
+---
+
+### Pipeline 1: `CI Pipeline` (Continuous Integration)
+**File:** [`.github/workflows/ci.yml`](../.github/workflows/ci.yml)  
+**When does it run?** Automatically on **every single push** or Pull Request (PR) to either `develop` or `main`.
+
+Every time code is pushed, GitHub spins up temporary cloud containers and runs 4 parallel verification jobs:
 
 ```
                       ┌───────────────────────────────────────┐
                       │            GIT PUSH / PR              │
                       └──────────────────┬────────────────────┘
                                          ▼
-        ┌────────────────────────────────┬────────────────────────────────┐
+        ┌────────────────────────────────┼────────────────────────────────┐
         │                                │                                │
         ▼                                ▼                                ▼
 ┌──────────────┐                 ┌──────────────┐                 ┌──────────────┐
 │  1. LINTING  │                 │ 2. BACKEND   │                 │ 3. FRONTEND  │
 │              │                 │    TESTS     │                 │    TESTS     │
-│ • ruff check │                 │ • Start test │                 │ • pnpm       │
-│ • black      │                 │   Postgres   │                 │   typecheck  │
-│ • mypy       │                 │ • Alembic    │                 │ • ESLint     │
-│ • Dead code  │                 │   migrations │                 │ • Vitest     │
-│   scan       │                 │ • pytest     │                 │ • Next.js    │
-└───────┬──────┘                 └───────┬──────┘                 │   build      │
-        │                                │                        └──────┬───────┘
+│ • Dead code  │                 │ • Start test │                 │ • pnpm       │
+│   scan       │                 │   Postgres   │                 │   typecheck  │
+│ • ruff check │                 │ • Generate   │                 │ • ESLint     │
+│              │                 │   RSA keys   │                 │ • Next.js    │
+│              │                 │ • Alembic    │                 │   build      │
+│              │                 │   migrations │                 └──────┬───────┘
+│              │                 │ • pytest     │                        │
+└───────┬──────┘                 └───────┬──────┘                        │
+        │                                │                               │
         └────────────────────────────────┼───────────────────────────────┘
                                          ▼
                         ┌─────────────────────────────────┐
                         │      4. SECURITY & AUDIT        │
                         │ • Trivy container vulnerability │
-                        │ • pip-audit / pnpm audit        │
+                        │ • pip-audit                     │
                         └────────────────┬────────────────┘
                                          ▼
                         ┌─────────────────────────────────┐
@@ -253,7 +282,58 @@ Every time you open a PR or push to `develop`/`main`, GitHub runs the following 
                         └─────────────────────────────────┘
 ```
 
-If any step fails, GitHub blocks merging so bad code can **never** accidentally break Staging or Production.
+1. **Dead Code & Hygiene Scan:** Verifies no raw `print()` statements exist in backend code and no `console.log()` statements exist in frontend source code.
+2. **Backend Tests & Migration Safety:**
+   - Starts an isolated PostgreSQL 16 database.
+   - Generates ephemeral RSA-256 JWT keys (`scripts/generate_rsa_keys.py`).
+   - Tests migration rollback reversibility: runs `alembic upgrade head` -> `alembic downgrade -1` -> `alembic upgrade head` to guarantee schema migrations can be cleanly undone.
+   - Runs all 367 backend unit tests with coverage reporting.
+3. **Frontend Quality & Build:**
+   - Runs TypeScript type checking across all packages (`pnpm run typecheck`).
+   - Runs Next.js ESLint verification (`pnpm run lint`).
+   - Compiles production builds of all three portals (`buyer-portal`, `supplier-portal`, `admin-portal`).
+4. **Security & Vulnerability Scan:**
+   - Scans dependencies for known security CVEs using `pip-audit` and the Trivy vulnerability scanner.
+
+---
+
+### Pipeline 2: `Deploy to Staging` (Continuous Delivery)
+**File:** [`.github/workflows/deploy-staging.yml`](../.github/workflows/deploy-staging.yml)  
+**When does it run?** Automatically whenever a completed PR is merged into the **`develop`** branch.
+
+- **What it does:** Uses Docker Buildx to build production container images for the FastAPI backend and all three Next.js portals, preparing them for deployment to your staging environment (`staging.procurement.yourcompany.com`).
+- **Why it matters:** Testers, developers, and product managers can immediately test the latest merged features in a shared, live cloud environment without anyone having to manually run deployment commands on a server.
+
+---
+
+### Pipeline 3: `E2E Playwright Tests` (End-to-End Browser Testing)
+**File:** [`.github/workflows/e2e.yml`](../.github/workflows/e2e.yml)  
+**When does it run?** On Pull Requests targeting `main` (before production release), or when manually triggered.
+
+- **What it does:**
+  - Launches headless Google Chrome browsers in the cloud.
+  - Simulates a real human: logs into the Buyer Portal, creates a Purchase Requisition, switches to the Supplier Portal to submit bids, and tests the full procurement lifecycle through actual web clicks.
+  - Automatically captures screenshots and reports if any button or flow fails.
+- **Why it matters:** While unit tests test code logic in isolation, E2E tests prove that the entire platform (Frontend + Gateway + Backend + Database) works together harmoniously in a real browser.
+
+---
+
+### Pipeline 4: `Deploy to Production`
+**File:** [`.github/workflows/deploy-prod.yml`](../.github/workflows/deploy-prod.yml)  
+**When does it run?** Only when an official version tag is published on `main` (e.g., `v1.0.0`, `v1.1.0`), or manually triggered by an authorized administrator.
+
+- **What it does:** Builds audited production Docker images, targets production servers, and enforces approval gating.
+- **Why it matters:** Production is the live environment handling real company finances, contracts, and supplier bids. This workflow guarantees that production deployments are strictly gated, intentional, and traceable.
+
+---
+
+### Understanding the GitHub Actions Sidebar
+
+When you open the **Actions** tab on GitHub:
+- **`All workflows`:** Shows a combined timeline of every single pipeline run across your entire repository.
+- **Clicking any specific workflow** (e.g. `CI Pipeline`, `Deploy to Staging`): Filters the list to only runs for that specific pipeline, and provides a **"Run workflow"** button to trigger it on-demand if manual dispatch is enabled.
+- 🟢 **Green checkmark (Success):** All automated steps passed. Safe to merge or deploy.
+- 🔴 **Red cross (Failure):** A test, lint check, or build failed. Click into the run to inspect the exact line that caused the error.
 
 ---
 
