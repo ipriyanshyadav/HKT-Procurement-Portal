@@ -312,7 +312,21 @@ Expected output for superadmin creation:
 
 ---
 
-### Step 7 — Start the Application Services
+### Step 7 (Docker Mode) — Start All Remaining Application Containers
+
+Run from the project root:
+
+```bash
+docker compose -f docker/docker-compose.yml up -d --build
+```
+
+(Alternatively, simply `docker compose up -d --build` from the root directory).
+
+This builds and launches the API backend (`api`), API Gateway (`kong`), background workers (`celery-worker`, `celery-beat`), and all three Next.js portals (`buyer-portal`, `supplier-portal`, `admin-portal`) in the background.
+
+---
+
+### Step 7 (Alternative: Local / Hybrid Mode) — Start Application Services Locally
 
 Open separate terminal windows (ensure `.venv` is activated):
 
@@ -528,7 +542,7 @@ docker compose logs -f -t
 ---
 
 ## Current Session State
-- **Planned**: Enable full cross-platform parity (Windows, Mac, Linux) for complete Docker stack execution and local hybrid workflows.
-- **Implemented**: Created `.gitattributes` to enforce Unix LF line endings; added defensive `sed` carriage-return stripping in `Dockerfile.api`; added database readiness check in `entrypoint.sh`; added Windows backslash normalization in `Settings.normalize_key_paths`; updated Kong Gateway routing to internal Docker DNS (`api:8000`) with hybrid fallback (`kong.local.yml`); created `docs/WINDOWS_DOCKER_GUIDE.md`.
-- **Tested**: Verified backend unit tests (367 passed), JWT path normalization unit test, Kong Gateway internal proxy routing (`200 OK` on `/health` and `/docs`), Next.js portals on ports 3000, 3001, 3002.
-- **Next**: Run graphify update, commit and push changes.
+- **Planned**: Document Step 7 Docker Mode in README, update Graphify knowledge graph, and sync latest changes to GitHub `develop` and `main`.
+- **Implemented**: Added `Step 7 (Docker Mode)` to `README.md`; re-extracted AST and refreshed Graphify graph (7,404 nodes, 452 communities) and manifest; synchronized working tree to GitHub `origin/develop` and `origin/main`.
+- **Tested**: Verified unit tests (367 passed), Next.js typecheck (7/7 packages), API & Kong health endpoints (`/health`), and git tree clean state.
+- **Next**: Ready for automated CI/CD pipeline execution and production deployments.
