@@ -10,6 +10,7 @@
 2. [The Branching Strategy: Which Branch Do I Use?](#2-the-branching-strategy-which-branch-do-i-use)
 3. [Who Gets What Link? (Devs, Testers, Clients)](#3-who-gets-what-link-devs-testers-clients)
 4. [Step-by-Step Daily Workflow: How to Make & Merge Changes](#4-step-by-step-daily-workflow-how-to-make--merge-changes)
+   - [📦 Practical Runbook: How to Update Your Application & Push to GitHub](#-practical-runbook-how-to-update-your-application--push-to-github)
 5. [CI/CD Explained: The 4 Pipelines & What Happens When You Push?](#5-cicd-explained-the-4-pipelines--what-happens-when-you-push)
 6. [Common Mistakes to Avoid & How to Recover](#6-common-mistakes-to-avoid--how-to-recover)
 7. [Daily Git Command Cheatsheet](#7-daily-git-command-cheatsheet)
@@ -103,6 +104,75 @@ When people ask you for a link or access, here is exactly what to give them:
 ---
 
 ## 4. Step-by-Step Daily Workflow: How to Make & Merge Changes
+
+> [!IMPORTANT]
+> ### 📦 Practical Runbook: How to Update Your Application & Push to GitHub
+>
+> *(Use this quick reference box whenever you update code and want to commit and push cleanly without breaking CI/CD).*
+>
+> #### 1️⃣ Run Pre-Commit Quality Checks Locally
+> Catch issues before pushing to prevent CI failure on GitHub:
+> ```bash
+> # A. Dead Code Scan (Zero raw print / console.log)
+> ! grep -rn "print(" app/ | grep -v "#"
+> ! grep -rn "console.log(" procurement-portal-frontend/apps/ --exclude-dir={.next,node_modules} | grep -v "#"
+>
+> # B. Python Syntax & Ruff Lint
+> ./.venv/bin/ruff check --select E9,F63,F7,F82 app
+>
+> # C. Backend Unit Tests
+> ./.venv/bin/pytest tests/unit/ -q
+>
+> # D. Frontend Typecheck & Lint (if frontend/UI changed)
+> cd procurement-portal-frontend && pnpm run typecheck && pnpm run lint && cd ..
+>
+> # E. Knowledge Graph Update (Graphify)
+> graphify update .
+> ```
+>
+> #### 2️⃣ Review & Stage Changes
+> ```bash
+> # Check what was modified
+> git status
+> git diff
+>
+> # Stage files
+> git add .
+> ```
+>
+> #### 3️⃣ Commit with Project Protocol
+> *Always include the `[NON-BREAKING]` or `[BREAKING]` flag:*
+> ```bash
+> # Format: git commit -m "[NON-BREAKING] <type>(<scope>): <message>"
+> git commit -m "[NON-BREAKING] feat(sourcing): add bulk RFQ export feature"
+> git commit -m "[NON-BREAKING] fix(eval,vendor): resolve undefined select in evaluation service"
+> ```
+>
+> #### 4️⃣ Push to GitHub & Monitor CI/CD
+> ```bash
+> # Push to develop
+> git push origin develop
+> ```
+> *GitHub Actions will automatically trigger the **CI Pipeline** (lint, tests, migration check, security) and **Deploy to Staging** (Docker container build).*  
+> 👉 Monitor live runs at: **`https://github.com/ipriyanshyadav/HKT-Procurement-Portal/actions`**
+>
+> #### 5️⃣ Sync to Production (`main`)
+> When `develop` is verified and green on staging:
+> ```bash
+> git checkout main
+> git merge --ff-only develop
+> git push origin main
+> git checkout develop
+> ```
+>
+> ---
+> **⚡ Quick 4-Step Daily Cheat Loop:**
+> ```bash
+> ./.venv/bin/pytest tests/unit/ -q && graphify update .
+> git add .
+> git commit -m "[NON-BREAKING] <type>(<scope>): <summary>"
+> git push origin develop
+> ```
 
 Follow these exact steps every single time you want to add a feature or fix a bug:
 
