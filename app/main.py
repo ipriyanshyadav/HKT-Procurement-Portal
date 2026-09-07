@@ -68,6 +68,21 @@ from app.modules.sourcing.auction import auction_router
 from app.modules.bid.auction_router import router as live_auction_router
 from app.modules.bid.auction_ws import auction_ws_endpoint
 from app.modules.notification.websocket import notification_ws_endpoint
+
+_minio_health_client = None
+
+
+def _get_minio_health_client():
+    global _minio_health_client
+    if _minio_health_client is None:
+        from minio import Minio
+        _minio_health_client = Minio(
+            settings.MINIO_ENDPOINT,
+            access_key=settings.MINIO_ACCESS_KEY,
+            secret_key=settings.MINIO_SECRET_KEY,
+            secure=settings.MINIO_USE_SSL,
+        )
+    return _minio_health_client
 # Note: audit has no router — it is a service-layer-only module
 
 @asynccontextmanager
@@ -185,13 +200,7 @@ def create_app() -> FastAPI:
             overall = "degraded"
 
         try:
-            from minio import Minio
-            client = Minio(
-                settings.MINIO_ENDPOINT,
-                access_key=settings.MINIO_ACCESS_KEY,
-                secret_key=settings.MINIO_SECRET_KEY,
-                secure=settings.MINIO_USE_SSL,
-            )
+            client = _get_minio_health_client()
             client.list_buckets()
             checks["minio"] = "ok"
         except Exception:

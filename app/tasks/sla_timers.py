@@ -11,7 +11,6 @@ Business workflow SLAs read from UNMAPPED_PR_SLA_HOURS (index 0-3 = [4, 8, 24, 4
 """
 from __future__ import annotations
 
-import asyncio
 from datetime import datetime, timezone
 from uuid import UUID
 
@@ -22,6 +21,7 @@ from app.db.enums import ApprovalTaskStatusEnum
 from app.modules.workflow.events import workflow_event_publisher
 from app.modules.workflow.models import WorkflowTask
 from app.modules.workflow.repository import workflow_repository
+from app.tasks.async_runner import run_async
 from app.tasks.celery_app import celery_app
 
 
@@ -33,7 +33,7 @@ from app.tasks.celery_app import celery_app
 )
 def check_workflow_sla_timers(self):
     """Celery beat task: check workflow SLA thresholds and fire escalation events."""
-    asyncio.run(_async_check_sla())
+    run_async(_async_check_sla())
 
 
 @celery_app.task(
@@ -42,7 +42,7 @@ def check_workflow_sla_timers(self):
 )
 def check_slas():
     """Alias for check_workflow_sla_timers."""
-    asyncio.run(_async_check_sla())
+    run_async(_async_check_sla())
 
 
 async def _async_check_sla() -> None:

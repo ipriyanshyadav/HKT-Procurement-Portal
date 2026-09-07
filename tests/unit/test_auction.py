@@ -60,3 +60,30 @@ async def test_auction_room_reject_higher_or_equal_bid():
         )
     assert exc_info.value.status_code == 400
     assert "must be lower than" in exc_info.value.detail
+
+
+@pytest.mark.asyncio
+async def test_auction_room_default_settings():
+    from app.config import settings
+    manager = AuctionRoomManager()
+    rfq_id = str(uuid4())
+    state = manager.get_or_create_state(rfq_id)
+    assert state["current_lowest_bid"] == settings.AUCTION_DEFAULT_CEILING_PRICE
+    assert state["min_decrement"] == settings.AUCTION_DEFAULT_MIN_DECREMENT
+
+
+@pytest.mark.asyncio
+async def test_auction_room_disconnect_cleanup():
+    from unittest.mock import MagicMock
+    manager = AuctionRoomManager()
+    rfq_id = str(uuid4())
+    ws1 = MagicMock()
+    ws2 = MagicMock()
+    manager.active_connections[rfq_id] = [ws1, ws2]
+
+    manager.disconnect(rfq_id, ws1)
+    assert manager.active_connections[rfq_id] == [ws2]
+
+    manager.disconnect(rfq_id, ws2)
+    assert rfq_id not in manager.active_connections
+

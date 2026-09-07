@@ -142,17 +142,13 @@ def require_any_permission(*permission_codes: str | list[str] | tuple[str, ...])
 
 def require_mfa_enabled():
     """Dependency: asserts user has MFA enabled (for privileged roles)."""
-    MFA_REQUIRED_ROLES = {
-        "APPROVER", "PROCUREMENT_HEAD", "FINANCE_CONTROLLER",
-        "COMPLIANCE_OFFICER", "VENDOR_ADMIN", "PROCUREMENT_ADMIN",
-        "SOURCING_MANAGER", "CFO",
-    }
+    mfa_roles = set(settings.MFA_REQUIRED_ROLES)
     async def _check(
         current_user: User = Depends(get_current_user),
         db: AsyncSession = Depends(get_db),
     ) -> User:
         user_roles = set(await role_repository.get_user_role_codes(db, current_user.id, current_user.org_id))
-        if MFA_REQUIRED_ROLES.intersection(user_roles) and not current_user.mfa_enabled:
+        if mfa_roles.intersection(user_roles) and not current_user.mfa_enabled:
             raise ForbiddenError(
                 "MFA must be enabled for your role. Please complete MFA enrollment."
             )

@@ -1,5 +1,4 @@
 from __future__ import annotations
-import asyncio
 from datetime import date, timedelta
 from typing import Optional, Any
 from loguru import logger
@@ -13,13 +12,14 @@ from app.events.publisher import OutboxPublisher
 from app.modules.audit.service import audit_service
 from app.modules.vendor.models import Vendor, VendorDocument
 from app.modules.vendor.repository import vendor_repository
+from app.tasks.async_runner import run_async
 from app.tasks.celery_app import celery_app
 
 
 @celery_app.task(queue="maintenance", name="app.tasks.maintenance.check_vendor_compliance")
 def check_vendor_compliance() -> None:
     """Daily Celery task to check compliance document expiry and set hold if expired."""
-    asyncio.run(async_check_compliance())
+    run_async(async_check_compliance())
 
 
 async def async_check_compliance(session_factory: Optional[Any] = None) -> dict:

@@ -10,7 +10,6 @@ At 90, 60, 30 days:
 """
 from __future__ import annotations
 
-import asyncio
 from datetime import date, timedelta
 from typing import Any, Dict, Optional
 
@@ -21,13 +20,14 @@ from app.db.session import async_session
 from app.events.publisher import OutboxPublisher
 from app.modules.contract.repository import contract_repository
 from app.modules.contract.service import contract_service
+from app.tasks.async_runner import run_async
 from app.tasks.celery_app import celery_app
 
 
 @celery_app.task(queue="maintenance", name="app.tasks.maintenance.check_contract_expiry")
 def check_contract_expiry() -> None:
     """Daily Celery task to check contract expiry thresholds and trigger auto-renewal."""
-    asyncio.run(async_check_contract_expiry())
+    run_async(async_check_contract_expiry())
 
 
 async def async_check_contract_expiry(session_factory: Optional[Any] = None) -> Dict[str, int]:

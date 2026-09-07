@@ -8,7 +8,8 @@ from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect, HTTPExce
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.auth.dependencies import get_current_user
+from app.auth.dependencies import get_current_user, get_current_user_ws
+from app.config import settings
 from app.core.responses import success_response
 from app.db.session import get_db
 from app.modules.user.models import User
@@ -27,19 +28,20 @@ class AuctionRoomManager:
         self.active_connections: Dict[str, List[WebSocket]] = {}
         self.auction_states: Dict[str, Dict[str, Any]] = {}
 
-    def get_or_create_state(self, rfq_id: str, initial_price: float = 100000.0) -> Dict[str, Any]:
+    def get_or_create_state(self, rfq_id: str, initial_price: Optional[float] = None) -> Dict[str, Any]:
         if rfq_id not in self.auction_states:
+            init_price = initial_price if initial_price is not None else settings.AUCTION_DEFAULT_CEILING_PRICE
             self.auction_states[rfq_id] = {
                 "rfq_id": rfq_id,
-                "current_lowest_bid": initial_price,
+                "current_lowest_bid": init_price,
                 "currency": "INR",
-                "min_decrement": 1000.0,
+                "min_decrement": settings.AUCTION_DEFAULT_MIN_DECREMENT,
                 "total_bids": 0,
                 "leading_bidder_id": None,
                 "leading_bidder_name": "Reserve Ceiling Price",
                 "status": "LIVE",
                 "bids": [],
-                "ends_at": (datetime.now(timezone.utc) + timedelta(minutes=30)).isoformat(),
+                "ends_at": (datetime.now(timezone.utc) + timedelta(minutes=settings.AUCTION_DEFAULT_DURATION_MINUTES)).isoformat(),
             }
         return self.auction_states[rfq_id]
 
@@ -55,6 +57,8 @@ class AuctionRoomManager:
         if rfq_id in self.active_connections:
             if websocket in self.active_connections[rfq_id]:
                 self.active_connections[rfq_id].remove(websocket)
+            if not self.active_connections[rfq_id]:
+                self.active_connections.pop(rfq_id, None)
 
     async def broadcast(self, rfq_id: str, message: Dict[str, Any]):
         if rfq_id in self.active_connections:
@@ -150,6 +154,7 @@ async def place_auction_bid(
 async def auction_websocket(
     websocket: WebSocket,
     rfq_id: UUID,
+    current_user: User = Depends(get_current_user_ws),
 ):
     """WebSocket /api/v1/rfqs/{rfq_id}/auction/ws — bi-directional real-time auction ticker."""
     s_rfq_id = str(rfq_id)
@@ -163,8 +168,8 @@ async def auction_websocket(
             elif msg_type == "BID":
                 payload = data.get("payload", {})
                 amount = float(payload.get("amount", 0))
-                bidder_id = payload.get("bidder_id", "anon")
-                bidder_name = payload.get("bidder_name", "Supplier")
+                bidder_id = str(current_user.id)
+                bidder_name = f"{current_user.first_name} {current_user.last_name}".strip() or current_user.email
                 remarks = payload.get("remarks")
                 try:
                     await auction_manager.place_bid(s_rfq_id, bidder_id, bidder_name, amount, remarks)

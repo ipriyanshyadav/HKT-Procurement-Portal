@@ -21,6 +21,7 @@ from uuid import UUID
 from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.config import settings
 from app.core.exceptions import AppException, NotFoundError, ValidationError
 from app.core.metrics import po_value_total
 from app.db.enums import POStatus
@@ -101,10 +102,10 @@ class PurchaseOrderService:
         for idx, line in enumerate(data.lines, 1):
             if line.awarded_unit_price and line.awarded_unit_price > 0:
                 deviation = abs(line.unit_price - line.awarded_unit_price) / line.awarded_unit_price
-                if deviation > Decimal("0.001") and not data.deviation_justification:
+                if deviation > Decimal(str(settings.PO_PRICE_DEVIATION_TOLERANCE)) and not data.deviation_justification:
                     raise AppException(
                         "PRICE_DEVIATION",
-                        f"Line {idx}: price deviation {float(deviation):.2%} exceeds 0.1% tolerance. Justification required.",
+                        f"Line {idx}: price deviation {float(deviation):.2%} exceeds tolerance. Justification required.",
                     )
             total_val += line.ordered_quantity * line.unit_price
 
@@ -116,8 +117,8 @@ class PurchaseOrderService:
 
         po_number = await self.repo.generate_po_number(db, data.business_unit_id, org_id)
 
-        # Auto-approve if <= threshold (e.g. INR 2,00,000)
-        auto_approve_threshold = Decimal("200000.0")
+        # Auto-approve if <= threshold from settings
+        auto_approve_threshold = Decimal(str(settings.PO_AUTO_APPROVE_THRESHOLD))
         initial_status = POStatus.APPROVED if total_val <= auto_approve_threshold else POStatus.PENDING_APPROVAL
 
         lines_to_add = []
@@ -462,7 +463,7 @@ class PurchaseOrderService:
 
         val_change = data.value_change or Decimal("0.0")
         val_change_pct = (val_change / po.total_value) if po.total_value > 0 else Decimal("0.0")
-        re_approval = val_change_pct > Decimal("0.10")
+        re_approval = val_change_pct > Decimal(str(settings.PO_AMENDMENT_REAPPROVAL_THRESHOLD_PCT))
 
         next_amendment_num = await self.repo.next_amendment_number(db, po.id, org_id)
 

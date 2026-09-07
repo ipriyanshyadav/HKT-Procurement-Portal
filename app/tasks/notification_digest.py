@@ -1,5 +1,4 @@
 from __future__ import annotations
-import asyncio
 from datetime import datetime, timezone
 from typing import List
 from uuid import UUID
@@ -12,6 +11,7 @@ from app.modules.notification.channels.email import email_channel
 from app.modules.notification.models import Notification
 from app.modules.notification.repository import notification_repo
 from app.modules.user.models import User
+from app.tasks.async_runner import run_async
 from app.tasks.celery_app import celery_app
 
 EXCLUDED_DIGEST_TYPES = {
@@ -113,4 +113,4 @@ async def compile_notification_digests_async() -> int:
 @celery_app.task(queue="notifications", name="app.tasks.notification.compile_digests")
 def compile_notification_digests() -> int:
     """Celery entrypoint for compiling daily/hourly notification digests."""
-    return asyncio.run(compile_notification_digests_async())
+    return run_async(compile_notification_digests_async())

@@ -1,5 +1,4 @@
 from __future__ import annotations
-import asyncio
 from datetime import datetime, date, timezone
 from typing import Optional, Any
 from loguru import logger
@@ -10,12 +9,13 @@ from app.db.enums import PRStatus
 from app.db.session import async_session
 from app.events.publisher import OutboxPublisher
 from app.modules.requisition.models import Requisition
+from app.tasks.async_runner import run_async
 from app.tasks.celery_app import celery_app
 
 
 @celery_app.task(queue="default", name="app.tasks.default.check_pr_aging")
 def check_pr_aging() -> None:
-    asyncio.run(async_check_pr_aging())
+    run_async(async_check_pr_aging())
 
 
 async def async_check_pr_aging(session_factory: Optional[Any] = None) -> dict:

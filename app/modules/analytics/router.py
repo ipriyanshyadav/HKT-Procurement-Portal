@@ -7,6 +7,7 @@ from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.dependencies import get_current_user
+from app.config import settings
 from app.core.responses import success_response
 from app.db.session import get_db
 from app.modules.analytics.export_service import analytics_export_service
@@ -43,7 +44,7 @@ async def get_user_bu_scope(
     except Exception:
         pass
 
-    unscoped_roles = {"PROCUREMENT_HEAD", "SUPERADMIN", "CFO", "PROCUREMENT_ADMIN", "ADMIN"}
+    unscoped_roles = set(settings.UNSCOPED_ANALYTICS_ROLES)
 
     if unscoped_roles.intersection(user_roles):
         if business_unit_id:

@@ -215,6 +215,12 @@ services:
       - ../keys:/app/keys
     networks:
       - procurement_net
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health')\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
     depends_on:
       postgres:
         condition: service_healthy
@@ -247,11 +253,9 @@ services:
       - ../keys:/app/keys
     networks:
       - procurement_net
-    volumes:
-      - redis_data:/data
-    command: redis-server --appendonly yes
     depends_on:
-      - api
+      api:
+        condition: service_healthy
 
   celery-beat:
     build:
@@ -276,7 +280,8 @@ services:
     networks:
       - procurement_net
     depends_on:
-      - api
+      api:
+        condition: service_healthy
 
   buyer-portal:
     build:
@@ -295,7 +300,8 @@ services:
     networks:
       - procurement_net
     depends_on:
-      - api
+      api:
+        condition: service_healthy
 
   supplier-portal:
     build:
@@ -315,7 +321,8 @@ services:
     networks:
       - procurement_net
     depends_on:
-      - api
+      api:
+        condition: service_healthy
 
   admin-portal:
     build:
@@ -335,10 +342,13 @@ services:
     networks:
       - procurement_net
     depends_on:
-      - api
+      api:
+        condition: service_healthy
 
 volumes:
   postgres_data:
+  redis_data:
+  rabbitmq_data:
   minio_data:
   prometheus_data:
   grafana_data:

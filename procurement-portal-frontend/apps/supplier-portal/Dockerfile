@@ -18,8 +18,11 @@ RUN pnpm --filter supplier-portal build
 FROM base AS runner
 WORKDIR /app
 ENV NODE_ENV=production
-COPY --from=builder /app/apps/supplier-portal/.next/standalone ./
-COPY --from=builder /app/apps/supplier-portal/.next/static ./apps/supplier-portal/.next/static
-COPY --from=builder /app/apps/supplier-portal/public ./apps/supplier-portal/public
+ENV PORT=3001
+RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 nextjs
+COPY --from=builder --chown=nextjs:nodejs /app/apps/supplier-portal/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/apps/supplier-portal/.next/static ./apps/supplier-portal/.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/apps/supplier-portal/public ./apps/supplier-portal/public
+USER nextjs
 EXPOSE 3001
 CMD ["node", "apps/supplier-portal/server.js"]

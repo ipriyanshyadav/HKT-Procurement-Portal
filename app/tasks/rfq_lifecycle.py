@@ -1,5 +1,4 @@
 from __future__ import annotations
-import asyncio
 from datetime import datetime, timezone
 from typing import Optional, Any
 from loguru import logger
@@ -11,6 +10,7 @@ from app.events.publisher import OutboxPublisher
 from app.modules.sourcing.models import Rfq
 from app.modules.sourcing.repository import rfq_repository
 from app.modules.bid.repository import bid_repository
+from app.tasks.async_runner import run_async
 from app.tasks.celery_app import celery_app
 
 
@@ -20,7 +20,7 @@ def check_bid_windows() -> None:
     Auto-close RFQs where bid deadline has passed. (SPEC_10 S10-20)
     Runs every settings.CELERY_BID_WINDOW_CHECK_MINUTES minutes.
     """
-    asyncio.run(_async_check_bid_windows())
+    run_async(_async_check_bid_windows())
 
 
 async def _async_check_bid_windows(session_factory: Optional[Any] = None) -> dict:

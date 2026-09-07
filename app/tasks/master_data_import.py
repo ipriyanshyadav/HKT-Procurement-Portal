@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import asyncio
 from datetime import datetime, timezone
 from uuid import UUID
 
@@ -29,13 +28,14 @@ from app.modules.master_data.location.service import (
     delivery_location_service,
 )
 from decimal import Decimal
+from app.tasks.async_runner import run_async
 from app.tasks.celery_app import celery_app
 
 
 @celery_app.task(queue="integrations", name="app.tasks.master_data_import.import_categories")
 def import_categories_task(job_id: str, org_id: str) -> None:
     """Async Celery task to process master data CSV rows (categories, uom, tax, terms, locations)."""
-    asyncio.run(_async_import(job_id, org_id))
+    run_async(_async_import(job_id, org_id))
 
 
 async def _async_import(job_id: str, org_id: str) -> None:

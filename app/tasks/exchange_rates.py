@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import asyncio
 from decimal import Decimal
 from typing import Any
 from uuid import UUID
@@ -14,13 +13,14 @@ from app.core.redis_client import RedisKeys, get_redis_client
 from app.db.session import async_session
 from app.modules.integration.models import TenantSetting
 from app.modules.master_data.models import CurrencyMaster
+from app.tasks.async_runner import run_async
 from app.tasks.celery_app import celery_app
 
 
 @celery_app.task(queue="integrations", name="app.tasks.integration.update_exchange_rates")
 def refresh_exchange_rates() -> None:
     """Daily Celery task to fetch latest exchange rates and update cache + DB."""
-    asyncio.run(_async_refresh())
+    run_async(_async_refresh())
 
 
 async def _async_refresh() -> None:

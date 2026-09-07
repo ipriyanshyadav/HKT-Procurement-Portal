@@ -35,14 +35,23 @@ python scripts/generate_rsa_keys.py
 echo "Running database migrations..."
 alembic upgrade head
 if [ "${SEED_ON_STARTUP:-false}" = "true" ]; then
+  echo "Setting up RabbitMQ topology and MinIO buckets..."
+  python scripts/rabbitmq_setup.py || true
+  python scripts/minio_setup.py || true
   echo "Seeding master data..."
   python scripts/seed_master_data.py
   echo "Seeding demo users..."
   python scripts/seed_demo_user.py
+  echo "Seeding workflows..."
+  python scripts/seed_workflows.py
   echo "Seeding notification templates..."
   python scripts/seed_notification_templates.py
   echo "Seeding demo notifications..."
   python scripts/seed_demo_notifications.py
+  echo "Seeding catalog items..."
+  python scripts/seed_catalog_items.py
+  echo "Creating superadmin..."
+  python scripts/create_superadmin.py
 fi
 echo "Starting API server..."
 exec uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers ${UVICORN_WORKERS:-4}

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import asyncio
 from datetime import date, datetime, timezone
 from typing import Any, Optional
 
@@ -12,12 +11,13 @@ from app.db.enums import InvoiceStatusEnum, PaymentStatusEnum
 from app.db.session import async_session
 from app.events.publisher import OutboxPublisher
 from app.modules.invoice.models import Invoice
+from app.tasks.async_runner import run_async
 from app.tasks.celery_app import celery_app
 
 
 @celery_app.task(queue="default", name="app.tasks.default.check_invoice_aging")
 def check_invoice_aging() -> None:
-    asyncio.run(async_check_invoice_aging())
+    run_async(async_check_invoice_aging())
 
 
 async def async_check_invoice_aging(session_factory: Optional[Any] = None) -> dict:

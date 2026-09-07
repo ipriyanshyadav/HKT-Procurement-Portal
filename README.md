@@ -544,11 +544,15 @@ docker compose logs -f -t
 | A-PERF-4 | Sourcing, Bid, and Evaluation models declare selectin eager loading on collections to prevent N+1 query cascades | LOW |
 | A-PERF-5 | Security headers, request ID, and timing middlewares use pure ASGI classes to eliminate BaseHTTPMiddleware generator overhead | LOW |
 | A-PERF-6 | Clean up redundant sync/async Redis client calls across service modules | LOW |
+| A-PERF-7 | Celery worker tasks reuse persistent asyncio loop via app.tasks.async_runner.run_async to eliminate loop recreation overhead | LOW |
+| A-PERF-8 | Evaluation comparative statement PDF generation uses batch vendor querying (Vendor.id.in_) to eliminate N+1 query loop | LOW |
+| A-SEC-1 | Reverse auction WebSocket /ws requires authenticated JWT token via get_current_user_ws and binds counter-bids to verified identity | MEDIUM |
+| A-DOCKER-1 | Frontend Dockerfiles run as unprivileged nextjs:nodejs user and ignore node_modules, .next, .turbo via .dockerignore | LOW |
 
 ---
 
 ## Current Session State
-- **Planned**: Deep code audit — bugs, GEMINI.md rule violations, performance, and container improvements.
-- **Implemented**: BUG-1 SQL injection in RLS `get_db_with_rls` fixed (parameterized `set_config`); BUG-2 Celery beat auction task paths corrected (`app.tasks.auction.*`); BUG-3 `IdempotencyMiddleware` refactored from `BaseHTTPMiddleware` to pure ASGI + in-memory cache eviction; BUG-4 health probe Redis connection leak fixed (pool reuse via `get_redis_client`). RULE-5 `datetime.utcnow()` → `datetime.now(timezone.utc)` across 8 occurrences (Python 3.14 compat). 8 new `settings.*` fields replacing hardcoded magic numbers: `ML_AUTO_MAP_CONFIDENCE_THRESHOLD` (0.85), `VENDOR_DUPLICATE_NAME_SIMILARITY` (0.85), `DEFAULT_COST_OF_CAPITAL_RATE` (0.12), `INVOICE_QUANTITY_TOLERANCE_PCT` (0.02), `HSTS_MAX_AGE_SECONDS`, 4 Celery schedule consts. Docker: `restart: unless-stopped` on all core services; Redis+RabbitMQ persistent volumes; Prometheus scrape config (`docker/prometheus/prometheus.yml`); conditional `SEED_ON_STARTUP` seeding; production image optimization restored; Prometheus low-cardinality metric labels via route template extraction.
-- **Tested**: 367 unit tests passed (0 failures) post all fixes; graphify updated (7,515 nodes, 461 communities).
-- **Next**: Run integration tests; commit all changes with `[NON-BREAKING]` flag.
+- **Planned**: Deep code audit & optimization: containers, performance, GEMINI.md rules, and bug fixing.
+- **Implemented**: Container fixes (resolved duplicate volumes/command in docker-compose.yml for celery-worker, added frontend .dockerignore, unprivileged nextjs user in frontend Dockerfiles, curl in Dockerfile.api, missing seed scripts in entrypoint.sh). GEMINI.md compliance: added RoleCode constant enum; added 14 settings in app/config.py replacing magic numbers across PO, invoice, auction, analytics, auth, and Celery beat schedules. Performance & Bugs: created app/tasks/async_runner.py to reuse event loops across Celery tasks; fixed N+1 vendor queries in evaluation service; cached MinIO health client; sanitized Prometheus metric labels against UUID cardinality explosion; secured live auction WebSocket endpoint with JWT token authentication.
+- **Tested**: 373 unit tests passed (100% passing, 0 failures); frontend typecheck passed (7/7 packages clean); docker-compose config validated; graphify updated (7,565 nodes, 474 communities).
+- **Next**: Commit with [NON-BREAKING] tag.

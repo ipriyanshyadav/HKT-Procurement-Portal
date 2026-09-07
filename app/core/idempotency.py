@@ -67,7 +67,7 @@ async def store_idempotency(
     }
 
     # Evict expired entries if cache is growing large
-    if len(_memory_cache) > 10000:
+    if len(_memory_cache) > settings.IDEMPOTENCY_MEMORY_CACHE_MAX_ENTRIES:
         now = time.time()
         expired = [k for k, v in list(_memory_cache.items()) if now >= v.get("expires_at", 0)]
         for k in expired:

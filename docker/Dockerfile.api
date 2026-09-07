@@ -1,6 +1,6 @@
 FROM python:3.14-slim AS base
 WORKDIR /app
-RUN apt-get update && apt-get install -y --no-install-recommends libmagic1 && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends libmagic1 curl && rm -rf /var/lib/apt/lists/*
 
 FROM base AS deps
 COPY pyproject.toml .

@@ -93,7 +93,7 @@ class InvoiceService:
         Calculates payment due date based on payment terms and advances across
         weekends and active holidays in holiday_master.
         """
-        net_days = 30  # Default fallback
+        net_days = settings.DEFAULT_PAYMENT_TERMS_NET_DAYS  # Default fallback
         if payment_terms_code:
             term = await self.terms_repo.get_by_code(db, payment_terms_code, org_id)
             if term and term.net_days:

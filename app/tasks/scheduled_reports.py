@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import asyncio
 from datetime import date, datetime
 from loguru import logger
 
@@ -8,6 +7,7 @@ from app.db.session import async_session_factory
 from app.events.publisher import publisher
 from app.modules.analytics.service import analytics_service
 from app.modules.organization.repository import organization_repository
+from app.tasks.async_runner import run_async
 from app.tasks.celery_app import celery_app
 
 
@@ -17,17 +17,17 @@ def _current_fy() -> str:
 
 @celery_app.task(queue="analytics", name="app.tasks.analytics.generate_daily_report")
 def generate_daily_analytics_report():
-    asyncio.run(_async_generate_daily())
+    run_async(_async_generate_daily())
 
 
 @celery_app.task(queue="analytics", name="app.tasks.analytics.generate_weekly_report")
 def generate_weekly_analytics_report():
-    asyncio.run(_async_generate_periodic("WEEKLY"))
+    run_async(_async_generate_periodic("WEEKLY"))
 
 
 @celery_app.task(queue="analytics", name="app.tasks.analytics.generate_monthly_report")
 def generate_monthly_analytics_report():
-    asyncio.run(_async_generate_periodic("MONTHLY"))
+    run_async(_async_generate_periodic("MONTHLY"))
 
 
 async def _async_generate_daily():

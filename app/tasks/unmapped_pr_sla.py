@@ -1,5 +1,4 @@
 from __future__ import annotations
-import asyncio
 from datetime import datetime, timezone
 from typing import Optional, Any
 from loguru import logger
@@ -9,12 +8,13 @@ from app.core.metrics import unmapped_pr_pending_count, workflow_sla_breaches_to
 from app.db.session import async_session
 from app.events.publisher import OutboxPublisher
 from app.modules.unmapped_pr.repository import unmapped_pr_repository
+from app.tasks.async_runner import run_async
 from app.tasks.celery_app import celery_app
 
 
 @celery_app.task(queue="critical", name="app.tasks.critical.check_unmapped_pr_sla")
 def check_unmapped_pr_sla() -> None:
-    asyncio.run(async_check_unmapped_sla())
+    run_async(async_check_unmapped_sla())
 
 
 async def async_check_unmapped_sla(session_factory: Optional[Any] = None) -> dict:

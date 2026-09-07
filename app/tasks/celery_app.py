@@ -106,23 +106,23 @@ celery_app.conf.beat_schedule = {
     },
     'open-scheduled-auctions': {
         'task': 'app.tasks.auction.open_scheduled_auctions',
-        'schedule': 30.0,
+        'schedule': settings.CELERY_AUCTION_OPEN_SECONDS,
     },
     'close-due-auctions': {
         'task': 'app.tasks.auction.close_due_auctions',
-        'schedule': 10.0,
+        'schedule': settings.CELERY_AUCTION_CLOSE_SECONDS,
     },
     'auction-closing-warning': {
         'task': 'app.tasks.auction.send_auction_closing_warning',
-        'schedule': 10.0,
+        'schedule': settings.CELERY_AUCTION_WARNING_SECONDS,
     },
     'auction-start-reminders': {
         'task': 'app.tasks.auction.notify_auction_start_reminders',
-        'schedule': 60.0,
+        'schedule': settings.CELERY_AUCTION_REMINDER_SECONDS,
     },
     'process-due-integration-jobs': {
         'task': 'app.tasks.integration.process_due_jobs',
-        'schedule': 60.0,
+        'schedule': settings.CELERY_INTEGRATION_JOB_SECONDS,
     },
     'refresh-analytics-cache': {
         'task': 'app.tasks.analytics.refresh_analytics_cache',
@@ -137,12 +137,18 @@ celery_app.conf.timezone = 'UTC'
 
 from celery.signals import worker_process_init
 
+
 @worker_process_init.connect
 def on_worker_process_init(**kwargs):
-    """Dispose parent connection pools and engines in child workers post-fork."""
+    """Dispose parent connection pools, engines, and async loops in child workers post-fork."""
     try:
         from app.db.session import engine, analytics_engine
         engine.sync_engine.dispose()
         analytics_engine.sync_engine.dispose()
+    except Exception:
+        pass
+    try:
+        from app.tasks.async_runner import reset_worker_loop
+        reset_worker_loop()
     except Exception:
         pass

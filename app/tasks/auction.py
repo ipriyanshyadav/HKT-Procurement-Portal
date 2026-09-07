@@ -1,5 +1,4 @@
 from __future__ import annotations
-import asyncio
 from datetime import datetime, timezone
 from decimal import Decimal
 from typing import Optional
@@ -11,6 +10,7 @@ from app.tasks.celery_app import celery_app
 from app.db.session import get_db_ctx
 from app.modules.bid.live_bid_service import LiveBidService
 from app.modules.bid.models import LiveBid
+from app.tasks.async_runner import run_async
 
 
 @celery_app.task(name="app.tasks.auction.open_scheduled_auctions", bind=True, max_retries=3)
@@ -28,7 +28,7 @@ def open_scheduled_auctions(self):
                 except Exception as exc:
                     logger.warning(f"Failed to open auction {a_id}: {exc}")
                     await db.rollback()
-    asyncio.run(_run())
+    run_async(_run())
 
 
 @celery_app.task(name="app.tasks.auction.close_due_auctions", bind=True, max_retries=3)
@@ -46,7 +46,7 @@ def close_due_auctions(self):
                 except Exception as exc:
                     logger.warning(f"Failed to close auction {a_id}: {exc}")
                     await db.rollback()
-    asyncio.run(_run())
+    run_async(_run())
 
 
 @celery_app.task(name="app.tasks.auction.send_auction_closing_warning")
@@ -65,7 +65,7 @@ def send_auction_closing_warning():
                 except Exception as exc:
                     logger.warning(f"Failed to send closing warning for {a_id}: {exc}")
                     await db.rollback()
-    asyncio.run(_run())
+    run_async(_run())
 
 
 @celery_app.task(name="app.tasks.auction.notify_auction_start_reminders")
@@ -96,7 +96,7 @@ def notify_auction_start_reminders():
                         except Exception as exc:
                             logger.warning(f"Error publishing reminder for participant {p.vendor_id}: {exc}")
             await db.commit()
-    asyncio.run(_run())
+    run_async(_run())
 
 
 @celery_app.task(name="tasks.execute_proxy_bids")
@@ -121,4 +121,4 @@ def execute_proxy_bids_task(
             if triggering_bid:
                 await svc.execute_proxy_bids(db, auction_id, lot_id, triggering_bid, org_id, cascade_count=cascade_count)
                 await db.commit()
-    asyncio.run(_run())
+    run_async(_run())

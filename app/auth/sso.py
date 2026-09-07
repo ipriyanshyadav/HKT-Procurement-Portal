@@ -227,8 +227,8 @@ async def provision_or_login_sso_user(
         db.add(user)
         await db.flush()
 
-        # Assign default REQUESTOR role
-        role_stmt = select(Role).where(Role.code == "REQUESTOR").where(Role.deleted_at.is_(None))
+        # Assign default SSO role (e.g. REQUESTOR)
+        role_stmt = select(Role).where(Role.code == settings.DEFAULT_SSO_ROLE_CODE).where(Role.deleted_at.is_(None))
         role_res = await db.execute(role_stmt)
         requestor_role = role_res.scalar_one_or_none()
         if requestor_role:

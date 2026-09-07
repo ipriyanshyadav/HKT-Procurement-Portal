@@ -1,5 +1,4 @@
 from __future__ import annotations
-import asyncio
 import os
 import tempfile
 from uuid import UUID
@@ -11,6 +10,7 @@ from app.db.session import async_session_factory
 from app.modules.document.models import Document
 from app.modules.document.scanner import scan_with_clamav
 from app.modules.document.service import document_service
+from app.tasks.async_runner import run_async
 from app.tasks.celery_app import celery_app
 
 
@@ -19,7 +19,7 @@ def scan_document_task(document_id: str, bucket: str, minio_path: str, org_id: s
     """
     Celery task: download document from MinIO → run ClamAV scan → update scan status or quarantine.
     """
-    asyncio.run(_async_scan(document_id, bucket, minio_path, org_id))
+    run_async(_async_scan(document_id, bucket, minio_path, org_id))
 
 
 async def _async_scan(document_id: str, bucket: str, minio_path: str, org_id: str):

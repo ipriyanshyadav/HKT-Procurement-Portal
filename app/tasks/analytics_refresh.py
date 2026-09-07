@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import asyncio
 from datetime import datetime
 from loguru import logger
 
@@ -9,6 +8,7 @@ from app.core.redis_client import get_redis_client
 from app.db.session import async_session_factory
 from app.modules.analytics.service import analytics_service
 from app.modules.organization.repository import organization_repository
+from app.tasks.async_runner import run_async
 from app.tasks.celery_app import celery_app
 
 
@@ -19,7 +19,7 @@ def _current_fy() -> str:
 @celery_app.task(queue="analytics", name="app.tasks.analytics.refresh_analytics_cache")
 def refresh_analytics_cache():
     """Runs every 15 minutes. Warms Redis cache for all active orgs."""
-    asyncio.run(_async_refresh())
+    run_async(_async_refresh())
 
 
 async def _async_refresh():

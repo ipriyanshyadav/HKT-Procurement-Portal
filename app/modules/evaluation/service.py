@@ -116,10 +116,13 @@ class EvaluationService:
         db.add(cs)
         await db.flush()
 
-        # Evaluation weights (A-12-2: defaults to 70/30)
-        weights = getattr(rfq, "evaluation_weights", None) or {"technical": 0.70, "commercial": 0.30}
-        tech_weight = Decimal(str(weights.get("technical", 0.70)))
-        comm_weight = Decimal(str(weights.get("commercial", 0.30)))
+        # Evaluation weights (A-12-2: defaults to settings-configured split)
+        weights = getattr(rfq, "evaluation_weights", None) or {
+            "technical": settings.DEFAULT_EVALUATION_TECHNICAL_WEIGHT,
+            "commercial": settings.DEFAULT_EVALUATION_COMMERCIAL_WEIGHT,
+        }
+        tech_weight = Decimal(str(weights.get("technical", settings.DEFAULT_EVALUATION_TECHNICAL_WEIGHT)))
+        comm_weight = Decimal(str(weights.get("commercial", settings.DEFAULT_EVALUATION_COMMERCIAL_WEIGHT)))
 
         all_rankings: List[CsLineRanking] = []
         lots = rfq.lots or []
@@ -308,12 +311,21 @@ class EvaluationService:
                 savings = ((rfq.estimated_value - l1_total) / rfq.estimated_value) * Decimal("100")
                 cs.savings_percentage = round(savings, 2)
 
-        # Fetch vendor names for PDF
+        # Fetch vendor names for PDF (batch fetched to eliminate N+1 query overhead)
+        unique_vendor_ids = list({r.vendor_id for r in all_rankings if r.vendor_id})
         vendor_names: dict[UUID, str] = {}
+        if unique_vendor_ids:
+            from app.modules.vendor.models import Vendor
+            v_stmt = select(Vendor).where(
+                Vendor.id.in_(unique_vendor_ids),
+                Vendor.org_id == org_id,
+            )
+            v_res = await db.execute(v_stmt)
+            for v in v_res.scalars().all():
+                vendor_names[v.id] = (v.company_name or v.legal_name)
         for r in all_rankings:
-            if r.vendor_id not in vendor_names:
-                v = await self.vendor_repo.get(db, r.vendor_id, org_id)
-                vendor_names[r.vendor_id] = (v.company_name or v.legal_name) if v else f"Vendor {str(r.vendor_id)[:8]}"
+            if r.vendor_id and r.vendor_id not in vendor_names:
+                vendor_names[r.vendor_id] = f"Vendor {str(r.vendor_id)[:8]}"
 
         # Generate PDF and upload to MinIO
         pdf_path = await self.pdf_generator.generate(

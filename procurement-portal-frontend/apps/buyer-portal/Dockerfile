@@ -18,8 +18,11 @@ RUN pnpm --filter buyer-portal build
 FROM base AS runner
 WORKDIR /app
 ENV NODE_ENV=production
-COPY --from=builder /app/apps/buyer-portal/.next/standalone ./
-COPY --from=builder /app/apps/buyer-portal/.next/static ./apps/buyer-portal/.next/static
-COPY --from=builder /app/apps/buyer-portal/public ./apps/buyer-portal/public
+ENV PORT=3000
+RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 nextjs
+COPY --from=builder --chown=nextjs:nodejs /app/apps/buyer-portal/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/apps/buyer-portal/.next/static ./apps/buyer-portal/.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/apps/buyer-portal/public ./apps/buyer-portal/public
+USER nextjs
 EXPOSE 3000
 CMD ["node", "apps/buyer-portal/server.js"]

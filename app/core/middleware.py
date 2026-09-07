@@ -1,6 +1,9 @@
 from __future__ import annotations
+import re
 import time
 from uuid import uuid4
+
+_UUID_REGEX = re.compile(r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}")
 from starlette.datastructures import MutableHeaders, Headers
 from loguru import logger
 from app.config import settings
@@ -74,7 +77,10 @@ class TimingMiddleware:
 
                 # Use route template path (low-cardinality) instead of raw path (high-cardinality)
                 route = scope.get("route")
-                endpoint = route.path if route and hasattr(route, "path") else scope.get("path", "")
+                if route and hasattr(route, "path"):
+                    endpoint = route.path
+                else:
+                    endpoint = _UUID_REGEX.sub("{id}", scope.get("path", ""))
                 method = scope.get("method", "GET")
                 status_code = str(message.get("status", 200))
                 state = scope.get("state", {})
