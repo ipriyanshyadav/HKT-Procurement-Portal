@@ -315,13 +315,8 @@ class EvaluationService:
         unique_vendor_ids = list({r.vendor_id for r in all_rankings if r.vendor_id})
         vendor_names: dict[UUID, str] = {}
         if unique_vendor_ids:
-            from app.modules.vendor.models import Vendor
-            v_stmt = select(Vendor).where(
-                Vendor.id.in_(unique_vendor_ids),
-                Vendor.org_id == org_id,
-            )
-            v_res = await db.execute(v_stmt)
-            for v in v_res.scalars().all():
+            vendors = await self.vendor_repo.find_by_ids(db, unique_vendor_ids, org_id)
+            for v in vendors:
                 vendor_names[v.id] = (v.company_name or v.legal_name)
         for r in all_rankings:
             if r.vendor_id and r.vendor_id not in vendor_names:

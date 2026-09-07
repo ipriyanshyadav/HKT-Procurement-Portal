@@ -31,6 +31,17 @@ class VendorRepository(BaseRepository[Vendor]):
         result = await db.execute(stmt)
         return result.scalar_one_or_none()
 
+    async def find_by_ids(
+        self, db: AsyncSession, vendor_ids: List[UUID], org_id: Optional[UUID] = None
+    ) -> List[Vendor]:
+        if not vendor_ids:
+            return []
+        stmt = select(Vendor).where(Vendor.id.in_(vendor_ids), Vendor.deleted_at.is_(None))
+        if org_id:
+            stmt = stmt.where(Vendor.org_id == org_id)
+        result = await db.execute(stmt)
+        return list(result.scalars().all())
+
     async def find_by_vendor_code(
         self, db: AsyncSession, org_id: UUID, vendor_code: str
     ) -> Optional[Vendor]:

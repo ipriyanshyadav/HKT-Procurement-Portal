@@ -296,3 +296,38 @@ class TestAuthDependenciesLogic:
         # by verifying the function exists and runs
         fn = require_mfa_enabled()
         assert fn is not None
+
+
+class TestVendorRepository:
+    @pytest.mark.asyncio
+    async def test_find_by_ids_empty(self):
+        from app.modules.vendor.repository import VendorRepository
+
+        repo = VendorRepository()
+        mock_db = AsyncMock()
+        result = await repo.find_by_ids(mock_db, [])
+        assert result == []
+        mock_db.execute.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_find_by_ids_returns_vendors(self):
+        from app.modules.vendor.repository import VendorRepository
+        from app.modules.vendor.models import Vendor
+
+        repo = VendorRepository()
+        v1 = MagicMock(spec=Vendor)
+        v1.id = uuid4()
+        v2 = MagicMock(spec=Vendor)
+        v2.id = uuid4()
+
+        mock_scalars = MagicMock()
+        mock_scalars.all.return_value = [v1, v2]
+        mock_result = MagicMock()
+        mock_result.scalars.return_value = mock_scalars
+
+        mock_db = AsyncMock()
+        mock_db.execute = AsyncMock(return_value=mock_result)
+
+        result = await repo.find_by_ids(mock_db, [v1.id, v2.id], org_id=uuid4())
+        assert result == [v1, v2]
+        mock_db.execute.assert_called_once()
