@@ -4,6 +4,7 @@ from typing import Optional, Any
 from loguru import logger
 
 from app.config import settings
+from app.core.constants import RoleCode
 from app.core.metrics import unmapped_pr_pending_count, workflow_sla_breaches_total
 from app.db.session import async_session
 from app.events.publisher import OutboxPublisher
@@ -73,7 +74,7 @@ async def async_check_unmapped_sla(session_factory: Optional[Any] = None) -> dic
                         "exception_id": str(exc.id),
                         "elapsed_hours": elapsed_hours,
                         "tier": 3,
-                        "target": "PROCUREMENT_HEAD",
+                        "target": RoleCode.PROCUREMENT_HEAD,
                     },
                     exc.org_id,
                 )

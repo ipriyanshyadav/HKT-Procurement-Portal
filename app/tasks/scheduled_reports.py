@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import date, datetime
 from loguru import logger
 
+from app.core.constants import RoleCode
 from app.db.session import async_session_factory
 from app.events.publisher import publisher
 from app.modules.analytics.service import analytics_service
@@ -52,7 +53,7 @@ async def _async_generate_daily():
                         {
                             "template_code": "DAILY_ANALYTICS_REPORT",
                             "org_id": str(org.id),
-                            "recipient_role": "PROCUREMENT_HEAD",
+                            "recipient_role": RoleCode.PROCUREMENT_HEAD,
                             "report_data": report,
                         },
                         org.id,
@@ -90,7 +91,7 @@ async def _async_generate_periodic(period: str):
                         {
                             "template_code": f"{period}_ANALYTICS_REPORT",
                             "org_id": str(org.id),
-                            "recipient_role": "PROCUREMENT_HEAD",
+                            "recipient_role": RoleCode.PROCUREMENT_HEAD,
                             "report_data": report,
                         },
                         org.id,

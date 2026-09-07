@@ -8,9 +8,11 @@ RUN pip install --no-cache-dir --upgrade pip "setuptools>=83.0.0" "msgpack>=1.2.
 
 
 FROM deps AS app
+RUN groupadd -g 10001 appgroup && useradd -u 10001 -g appgroup -d /app -s /sbin/nologin appuser
 COPY . .
 COPY docker/entrypoint.sh /entrypoint.sh
-RUN sed -i 's/\r$//' /entrypoint.sh && chmod +x /entrypoint.sh
+RUN sed -i 's/\r$//' /entrypoint.sh && chmod +x /entrypoint.sh && mkdir -p /app/keys && chown -R 10001:10001 /app
 
+USER 10001
 EXPOSE 8000
 ENTRYPOINT ["/entrypoint.sh"]

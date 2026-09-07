@@ -10,6 +10,8 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from app.core.constants import RoleCode
+
 
 class ContractLineCreate(BaseModel):
     line_number: int
@@ -38,7 +40,7 @@ class ContractMilestoneCreate(BaseModel):
     title: str
     description: Optional[str] = None
     due_date: date
-    responsible_party: str = "BUYER"  # BUYER, VENDOR, ESCROW
+    responsible_party: str = RoleCode.BUYER  # BUYER, VENDOR, ESCROW
     responsible_user_id: Optional[UUID] = None
     milestone_weight: Optional[Decimal] = None
 
