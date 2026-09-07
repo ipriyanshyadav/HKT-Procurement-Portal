@@ -272,14 +272,14 @@ docker compose -f docker/docker-compose.yml logs <service-name>
 ### Step 5 — Database Migrations & Messaging Setup
 
 ```bash
-# 1. Apply all 37 database migrations
+# 1. Apply all 38 database migrations
 alembic upgrade head
 # Expected output ends with:
-# INFO  [alembic.runtime.migration] Running upgrade ... -> 0036_item_master
+# INFO  [alembic.runtime.migration] Running upgrade ... -> 0037_trgm_search_indexes
 
 # 2. Verify migration head
 alembic current
-# Expected: 0036_item_master (head)
+# Expected: 0037_trgm_search_indexes (head)
 
 # 3. Setup RabbitMQ topology & MinIO buckets
 python3 scripts/rabbitmq_setup.py
@@ -538,11 +538,17 @@ docker compose logs -f -t
 | A-21-1 | Line endings normalized via .gitattributes and Dockerfile sed sanitization for seamless Windows, Mac, and Linux builds | LOW |
 | A-21-2 | Kong Gateway default declarative config routes to internal Docker DNS (http://api:8000), avoiding Windows host firewall blocks | LOW |
 | A-21-3 | JWT key path configuration normalizes Windows backslashes to forward slashes across platforms | LOW |
+| A-PERF-1 | Redis client uses cached async connection pools per DB index to eliminate connection creation overhead and prevent FD leaks | LOW |
+| A-PERF-2 | Database engine enables pool_pre_ping=True to discard disconnected sockets transparently without request errors | LOW |
+| A-PERF-3 | Search queries using ILIKE on entity identifiers and names leverage pg_trgm GIN indexes in migration 0037 | LOW |
+| A-PERF-4 | Sourcing, Bid, and Evaluation models declare selectin eager loading on collections to prevent N+1 query cascades | LOW |
+| A-PERF-5 | Security headers, request ID, and timing middlewares use pure ASGI classes to eliminate BaseHTTPMiddleware generator overhead | LOW |
+| A-PERF-6 | Clean up redundant sync/async Redis client calls across service modules | LOW |
 
 ---
 
 ## Current Session State
-- **Planned**: Document Step 7 Docker Mode in README, update Graphify knowledge graph, and sync latest changes to GitHub `develop` and `main`.
-- **Implemented**: Added `Step 7 (Docker Mode)` to `README.md`; re-extracted AST and refreshed Graphify graph (7,404 nodes, 452 communities) and manifest; synchronized working tree to GitHub `origin/develop` and `origin/main`.
-- **Tested**: Verified unit tests (367 passed), Next.js typecheck (7/7 packages), API & Kong health endpoints (`/health`), and git tree clean state.
-- **Next**: Ready for automated CI/CD pipeline execution and production deployments.
+- **Planned**: Implement non-degrading code-level performance optimizations without closing features or reducing concurrency.
+- **Implemented**: Singleton Redis ConnectionPool per DB index with lifespan cleanup (`redis_client.py`, `main.py`); DB engine `pool_pre_ping=True` (`session.py`); migration 0037 adding `pg_trgm` GIN search indexes and composite `(org_id, status, created_at DESC)` sort indexes; ORM relationship eager loading via `lazy='selectin'` (`sourcing/models.py`, `bid/models.py`, `evaluation/models.py`); pure ASGI middleware refactoring (`middleware.py`); Next.js dev unoptimized images across all 3 portals; generated `reports/performance_code_optimization_audit.md`; refreshed Graphify graph (7,515 nodes, 469 communities).
+- **Tested**: Verified backend unit suite (367 passed), targeted middleware & Redis tests (21 passed), and Turborepo Next.js typecheck across all 7 packages.
+- **Next**: Run integration checks and commit performance optimization changes.

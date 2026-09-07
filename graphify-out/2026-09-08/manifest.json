@@ -396,9 +396,9 @@
     "semantic_hash": ""
   },
   "app/core/middleware.py": {
-    "mtime": 1788814047.6661878,
-    "seen": 1788814129.588577,
-    "ast_hash": "6e8a5d8a1186ca70e65b891bbb5ae39d",
+    "mtime": 1788618165.7546265,
+    "seen": 1788618737.278346,
+    "ast_hash": "d40359dde8fabcdeff9dce9404a90fbf",
     "semantic_hash": ""
   },
   "app/core/pagination.py": {
@@ -414,9 +414,9 @@
     "semantic_hash": ""
   },
   "app/core/redis_client.py": {
-    "mtime": 1788813965.0394535,
-    "seen": 1788814129.5885801,
-    "ast_hash": "7ce38f3112ce306083125de642057b04",
+    "mtime": 1788615026.2391295,
+    "seen": 1788615628.412812,
+    "ast_hash": "af624f33ffe6ada75ac8a61e7f5216c0",
     "semantic_hash": ""
   },
   "app/core/responses.py": {
@@ -444,9 +444,9 @@
     "semantic_hash": ""
   },
   "app/db/session.py": {
-    "mtime": 1788813941.6200461,
-    "seen": 1788814129.5885901,
-    "ast_hash": "c18dcd396dcd05631aa6fd56a83e3204",
+    "mtime": 1788692165.2044477,
+    "seen": 1788692289.3306859,
+    "ast_hash": "4ff2585cb68620d867dc76c93757ebc8",
     "semantic_hash": ""
   },
   "app/events/__init__.py": {
@@ -474,9 +474,9 @@
     "semantic_hash": ""
   },
   "app/main.py": {
-    "mtime": 1788813969.4848244,
-    "seen": 1788814129.588594,
-    "ast_hash": "57df943f6d996709699bd9598560d9a9",
+    "mtime": 1788692196.624639,
+    "seen": 1788692289.3306901,
+    "ast_hash": "79c11bafb0435380a425040a81119dbc",
     "semantic_hash": ""
   },
   "app/modules/admin/__init__.py": {
@@ -792,9 +792,9 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/admin-portal/next.config.js": {
-    "mtime": 1788814076.383712,
-    "seen": 1788814129.5888262,
-    "ast_hash": "35b54f8bf6177cddaf3bfc25236b4201",
+    "mtime": 1788465544.0323145,
+    "seen": 1788466385.863093,
+    "ast_hash": "9c950fd400e733dca1b4c5bed9713b8c",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/admin-portal/package.json": {
@@ -822,9 +822,9 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/buyer-portal/next.config.js": {
-    "mtime": 1788814072.156995,
-    "seen": 1788814129.588876,
-    "ast_hash": "35b54f8bf6177cddaf3bfc25236b4201",
+    "mtime": 1788465543.987981,
+    "seen": 1788466385.863096,
+    "ast_hash": "9c950fd400e733dca1b4c5bed9713b8c",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/buyer-portal/package.json": {
@@ -852,9 +852,9 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/supplier-portal/next.config.js": {
-    "mtime": 1788814074.6023996,
-    "seen": 1788814129.588916,
-    "ast_hash": "35b54f8bf6177cddaf3bfc25236b4201",
+    "mtime": 1788465544.0122194,
+    "seen": 1788466385.8630989,
+    "ast_hash": "9c950fd400e733dca1b4c5bed9713b8c",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/supplier-portal/package.json": {
@@ -948,9 +948,9 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/types/src/api.ts": {
-    "mtime": 1788814081.8399723,
-    "seen": 1788814129.5889769,
-    "ast_hash": "9b44fa6ac8cb0a794bb115c3c82a2bd9",
+    "mtime": 1788715882.0321193,
+    "seen": 1788715899.879447,
+    "ast_hash": "1dd3b63ab563992b08efcfc831041c95",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/types/src/index.ts": {
@@ -1362,9 +1362,9 @@
     "semantic_hash": ""
   },
   "app/modules/bid/models.py": {
-    "mtime": 1788814015.0153928,
-    "seen": 1788814129.588619,
-    "ast_hash": "955e33dd069bf3813954350c555c6895",
+    "mtime": 1788699284.4347858,
+    "seen": 1788715899.879146,
+    "ast_hash": "5b764df8fdadaa748d097d78a5754c57",
     "semantic_hash": ""
   },
   "app/modules/contract/models.py": {
@@ -1380,9 +1380,9 @@
     "semantic_hash": ""
   },
   "app/modules/evaluation/models.py": {
-    "mtime": 1788814018.0041788,
-    "seen": 1788814129.588636,
-    "ast_hash": "ac26b5a2b7235d0f291c4718bd646195",
+    "mtime": 1788562045.5665934,
+    "seen": 1788562115.7223182,
+    "ast_hash": "20808f6b005d3a0021ea2a63ad244a9c",
     "semantic_hash": ""
   },
   "app/modules/grn/models.py": {
@@ -1440,9 +1440,9 @@
     "semantic_hash": ""
   },
   "app/modules/sourcing/models.py": {
-    "mtime": 1788814013.287616,
-    "seen": 1788814129.588738,
-    "ast_hash": "fd5b27d418c8af085fc77788c3b1527d",
+    "mtime": 1788555410.9864779,
+    "seen": 1788556887.343146,
+    "ast_hash": "9792ebd5509bd678ea1e3c0cb421e153",
     "semantic_hash": ""
   },
   "app/modules/user/models.py": {
@@ -1482,9 +1482,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1788813934.3157313,
-    "seen": 1788814129.5891469,
-    "ast_hash": "328db28710e1b69353de14ab28e7a643",
+    "mtime": 1788718247.4620426,
+    "seen": 1788718265.469119,
+    "ast_hash": "852e62788b75e1b7b975953ba5204d53",
     "semantic_hash": ""
   },
   "graphify_diff_20260904_014322.txt": {
@@ -2562,9 +2562,9 @@
     "semantic_hash": ""
   },
   "app/modules/bid/service.py": {
-    "mtime": 1788813946.6280367,
-    "seen": 1788814129.588622,
-    "ast_hash": "e667387ff35cfdff55542978702288d6",
+    "mtime": 1788618212.7346034,
+    "seen": 1788618737.278383,
+    "ast_hash": "94953f61adcf5762e16bc034c5e1acde",
     "semantic_hash": ""
   },
   "app/modules/sourcing/fsm.py": {
@@ -4971,36 +4971,6 @@
     "mtime": 1788715914.1270478,
     "seen": 1788718265.469173,
     "ast_hash": "6f5d4ee2d770b5bfa5d08848e3b2ee8a",
-    "semantic_hash": ""
-  },
-  "alembic/versions/0037_trgm_search_indexes.py": {
-    "mtime": 1788814000.8133395,
-    "seen": 1788814129.588557,
-    "ast_hash": "319f24ccdb40d2345d5fb4276870f957",
-    "semantic_hash": ""
-  },
-  "docs/Cycle 2/ADDITIONAL_MODULES_AUDIT.md": {
-    "mtime": 1788768553.578149,
-    "seen": 1788814129.58915,
-    "ast_hash": "3a134bcb6f636a57150b028c652ed726",
-    "semantic_hash": ""
-  },
-  "plans/plan_spec_26_ticket_system.md": {
-    "mtime": 1788786843.2503545,
-    "seen": 1788814129.589225,
-    "ast_hash": "a9ebc4b431edf10e34e053b800500927",
-    "semantic_hash": ""
-  },
-  "reports/performance_code_optimization_audit.md": {
-    "mtime": 1788814116.9806006,
-    "seen": 1788814129.5892322,
-    "ast_hash": "7e256b7f631e622c2b9320d9a54ae09c",
-    "semantic_hash": ""
-  },
-  "specs/SPEC_26_TICKET_SYSTEM.md": {
-    "mtime": 1788786625.7172937,
-    "seen": 1788814129.5892742,
-    "ast_hash": "afd2913e48296150bdb99c4cd5480a98",
     "semantic_hash": ""
   }
 }

@@ -369,7 +369,7 @@ class BidService:
         """
         Called when bids are opened. Converts all bid prices to INR. (SPEC_11 S11-16 / A-11-5)
         """
-        redis = await get_redis_client()
+        redis = get_redis_client()
         bids = await bid_repository.get_all_for_rfq(db, rfq_id, org_id)
 
         for bid in bids:

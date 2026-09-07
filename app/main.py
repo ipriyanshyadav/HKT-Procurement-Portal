@@ -93,8 +93,14 @@ async def lifespan(app: FastAPI):
         from app.modules.audit.search_service import audit_search_service
         await audit_search_service.close()
         logger.info("Closed Elasticsearch audit search connection")
-    except Exception:
-        pass
+    except Exception as e:
+        logger.debug(f"Elasticsearch cleanup: {e}")
+    try:
+        from app.core.redis_client import close_redis_pools
+        await close_redis_pools()
+        logger.info("Closed Redis connection pools")
+    except Exception as e:
+        logger.debug(f"Redis pool cleanup: {e}")
 
 def create_app() -> FastAPI:
     app = FastAPI(

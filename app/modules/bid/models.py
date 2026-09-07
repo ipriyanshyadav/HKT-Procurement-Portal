@@ -42,7 +42,7 @@ class BidResponse(BaseModel):
     is_single_vendor_situation: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
     # Relationships
-    lines: Mapped[List["BidLineResponse"]] = relationship("BidLineResponse", back_populates="bid", lazy="select")
+    lines: Mapped[List["BidLineResponse"]] = relationship("BidLineResponse", back_populates="bid", lazy="selectin")
 
 
 class BidLineResponse(BaseModel):

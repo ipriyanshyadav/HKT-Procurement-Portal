@@ -70,11 +70,11 @@ class Rfq(BaseModel):
     auction_config: Mapped[Optional[dict]] = mapped_column(JSONB, nullable=True)
 
     # Relationships
-    lots: Mapped[List["RfqLot"]] = relationship("RfqLot", back_populates="rfq", lazy="select")
-    lines: Mapped[List["RfqLine"]] = relationship("RfqLine", back_populates="rfq", lazy="select")
-    participants: Mapped[List["RfqParticipant"]] = relationship("RfqParticipant", back_populates="rfq", lazy="select")
-    clarifications: Mapped[List["RfqClarification"]] = relationship("RfqClarification", back_populates="rfq", lazy="select")
-    amendments: Mapped[List["RfqAmendment"]] = relationship("RfqAmendment", back_populates="rfq", lazy="select")
+    lots: Mapped[List["RfqLot"]] = relationship("RfqLot", back_populates="rfq", lazy="selectin")
+    lines: Mapped[List["RfqLine"]] = relationship("RfqLine", back_populates="rfq", lazy="selectin")
+    participants: Mapped[List["RfqParticipant"]] = relationship("RfqParticipant", back_populates="rfq", lazy="selectin")
+    clarifications: Mapped[List["RfqClarification"]] = relationship("RfqClarification", back_populates="rfq", lazy="selectin")
+    amendments: Mapped[List["RfqAmendment"]] = relationship("RfqAmendment", back_populates="rfq", lazy="selectin")
 
 
 class RfqLot(BaseModel):

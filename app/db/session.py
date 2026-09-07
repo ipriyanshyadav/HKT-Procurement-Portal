@@ -41,11 +41,13 @@ if use_null_pool:
     engine = create_async_engine(
         settings.DATABASE_URL,
         poolclass=NullPool,
+        pool_pre_ping=True,
         echo=settings.SQL_ECHO,
     )
     analytics_engine = create_async_engine(
         settings.ANALYTICS_DATABASE_URL or settings.DATABASE_URL,
         poolclass=NullPool,
+        pool_pre_ping=True,
         echo=settings.SQL_ECHO,
     )
 else:
@@ -54,6 +56,7 @@ else:
         pool_size=settings.DATABASE_POOL_SIZE,
         max_overflow=settings.DATABASE_MAX_OVERFLOW,
         pool_recycle=settings.DATABASE_POOL_RECYCLE,
+        pool_pre_ping=True,
         echo=settings.SQL_ECHO,
     )
     analytics_engine = create_async_engine(
@@ -61,6 +64,7 @@ else:
         pool_size=settings.DATABASE_POOL_SIZE,
         max_overflow=settings.DATABASE_MAX_OVERFLOW,
         pool_recycle=settings.DATABASE_POOL_RECYCLE,
+        pool_pre_ping=True,
         echo=settings.SQL_ECHO,
     )
 

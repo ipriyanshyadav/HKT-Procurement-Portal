@@ -19,7 +19,7 @@ class Evaluation(BaseModel):
     evaluated_by: Mapped[UUID] = mapped_column(ForeignKey("users.id"), nullable=False)
     completed_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
 
-    scores: Mapped[List["EvaluationScore"]] = relationship("EvaluationScore", back_populates="evaluation", lazy="select")
+    scores: Mapped[List["EvaluationScore"]] = relationship("EvaluationScore", back_populates="evaluation", lazy="selectin")
 
 
 class EvaluationScore(BaseModel):

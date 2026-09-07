@@ -1,8 +1,13 @@
-from __future__ import annotations
+from typing import TYPE_CHECKING
 from urllib.parse import urlparse, urlunparse
-from uuid import UUID
+
 import redis.asyncio as redis
+
 from app.config import settings
+
+if TYPE_CHECKING:
+    from uuid import UUID
+
 
 class RedisKeys:
     @staticmethod
@@ -84,19 +89,43 @@ class RedisKeys:
     def analytics_cache(prefix: str, org_id: str | UUID, fiscal_year: str, bu_scope: str = "") -> str:
         return f"analytics:{prefix}:{org_id}:{fiscal_year}:{bu_scope}"
 
+_redis_pools: dict[int, redis.ConnectionPool] = {}
+
+
+def get_redis_pool(db_index: int = 0) -> redis.ConnectionPool:
+    """Retrieve or initialize a cached singleton ConnectionPool for the requested DB index."""
+    if db_index not in _redis_pools:
+        redis_url = settings.REDIS_URL
+        if "://" not in redis_url:
+            redis_url = f"redis://{redis_url}"
+        parsed = urlparse(redis_url)
+        target_url = urlunparse((
+            parsed.scheme,
+            parsed.netloc,
+            f"/{db_index}",
+            parsed.params,
+            parsed.query,
+            parsed.fragment,
+        ))
+        _redis_pools[db_index] = redis.ConnectionPool.from_url(
+            target_url,
+            max_connections=20,
+        )
+    return _redis_pools[db_index]
+
+
 def get_redis_client(db_index: int = 0) -> redis.Redis:
-    redis_url = settings.REDIS_URL
-    if "://" not in redis_url:
-        redis_url = f"redis://{redis_url}"
-    parsed = urlparse(redis_url)
-    target_url = urlunparse((
-        parsed.scheme,
-        parsed.netloc,
-        f"/{db_index}",
-        parsed.params,
-        parsed.query,
-        parsed.fragment,
-    ))
-    return redis.from_url(target_url)
+    """Get a Redis client sharing the singleton ConnectionPool for the given DB index."""
+    pool = get_redis_pool(db_index)
+    return redis.Redis(connection_pool=pool)
+
+
+async def close_redis_pools() -> None:
+    """Disconnect and clean up all singleton connection pools."""
+    for pool in list(_redis_pools.values()):
+        await pool.disconnect()
+    _redis_pools.clear()
+
 
 get_redis = get_redis_client
+
