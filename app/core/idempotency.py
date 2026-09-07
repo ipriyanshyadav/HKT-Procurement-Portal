@@ -2,9 +2,7 @@ from __future__ import annotations
 import json
 import time
 from typing import Optional, Dict, Any
-from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse, Response
-from fastapi import Request
 from loguru import logger
 
 from app.core.redis_client import RedisKeys, get_redis
@@ -68,6 +66,13 @@ async def store_idempotency(
         "data": response,
     }
 
+    # Evict expired entries if cache is growing large
+    if len(_memory_cache) > 10000:
+        now = time.time()
+        expired = [k for k, v in list(_memory_cache.items()) if now >= v.get("expires_at", 0)]
+        for k in expired:
+            _memory_cache.pop(k, None)
+
     # Try Redis
     client = redis_client
     if client is None:
@@ -83,64 +88,84 @@ async def store_idempotency(
             logger.debug(f"Redis idempotency store failed: {e}")
 
 
-class IdempotencyMiddleware(BaseHTTPMiddleware):
-    """
-    SPEC_18 Idempotency Middleware.
-    Inspects X-Idempotency-Key or Idempotency-Key header on state-changing requests (POST, PUT, PATCH).
-    If duplicate key exists, returns cached response directly without re-executing handler.
-    If new key, captures successful response (200/201) and caches it.
+class IdempotencyMiddleware:
+    """Pure ASGI idempotency middleware (no BaseHTTPMiddleware generator overhead).
+    Inspects X-Idempotency-Key or Idempotency-Key header on POST/PUT/PATCH.
+    Returns cached response on duplicate key; caches 200/201 JSON responses.
     """
 
-    async def dispatch(self, request: Request, call_next):
-        if request.method not in ("POST", "PUT", "PATCH"):
-            return await call_next(request)
+    def __init__(self, app):
+        self.app = app
 
-        idempotency_key = request.headers.get("X-Idempotency-Key") or request.headers.get("Idempotency-Key")
+    async def __call__(self, scope, receive, send):
+        if scope["type"] != "http":
+            await self.app(scope, receive, send)
+            return
+
+        method = scope.get("method", "")
+        if method not in ("POST", "PUT", "PATCH"):
+            await self.app(scope, receive, send)
+            return
+
+        from starlette.datastructures import Headers
+        headers = Headers(scope=scope)
+        idempotency_key = headers.get("X-Idempotency-Key") or headers.get("Idempotency-Key")
         if not idempotency_key:
-            return await call_next(request)
+            await self.app(scope, receive, send)
+            return
 
         # Check existing cached response
         cached = await check_idempotency(key=idempotency_key)
         if cached:
             status_code = cached.get("status_code", 200)
             content = cached.get("content", {})
-            headers = cached.get("headers", {})
-            headers["X-Cache"] = "HIT-IDEMPOTENCY"
-            headers["X-Idempotency-Key"] = idempotency_key
-            return JSONResponse(status_code=status_code, content=content, headers=headers)
+            extra_headers = cached.get("headers", {})
+            extra_headers["X-Cache"] = "HIT-IDEMPOTENCY"
+            extra_headers["X-Idempotency-Key"] = idempotency_key
+            # Build raw ASGI response
+            from starlette.responses import JSONResponse
+            resp = JSONResponse(status_code=status_code, content=content, headers=extra_headers)
+            await resp(scope, receive, send)
+            return
 
-        # Execute request
-        response = await call_next(request)
+        # Capture response for caching
+        response_started = False
+        response_headers = {}
+        status_code = 200
+        body_chunks: list[bytes] = []
 
-        # Only cache successful 200 / 201 responses
-        if response.status_code in (200, 201):
-            response_body = [chunk async for chunk in response.body_iterator]
-            raw_body = b"".join(response_body)
-            content_type = response.headers.get("content-type", "")
+        async def send_wrapper(message):
+            nonlocal response_started, response_headers, status_code
+            if message["type"] == "http.response.start":
+                response_started = True
+                status_code = message.get("status", 200)
+                from starlette.datastructures import MutableHeaders
+                mh = MutableHeaders(scope=message)
+                mh["X-Idempotency-Key"] = idempotency_key
+                response_headers = dict(mh)
+                await send(message)
+            elif message["type"] == "http.response.body":
+                body_chunks.append(message.get("body", b""))
+                await send(message)
+            else:
+                await send(message)
 
+        await self.app(scope, receive, send_wrapper)
+
+        # Cache successful JSON responses
+        if status_code in (200, 201) and body_chunks:
+            raw_body = b"".join(body_chunks)
+            content_type = response_headers.get("content-type", "")
             if "application/json" in content_type:
                 try:
                     content_json = json.loads(raw_body.decode("utf-8"))
                     await store_idempotency(
                         key=idempotency_key,
                         response={
-                            "status_code": response.status_code,
+                            "status_code": status_code,
                             "content": content_json,
-                            "headers": {
-                                "Content-Type": content_type,
-                            },
+                            "headers": {"Content-Type": content_type},
                         },
                     )
                 except Exception as e:
                     logger.debug(f"Could not parse response body for idempotency caching: {e}")
-
-            headers = dict(response.headers)
-            headers["X-Idempotency-Key"] = idempotency_key
-            return Response(
-                content=raw_body,
-                status_code=response.status_code,
-                headers=headers,
-                media_type=response.media_type,
-            )
-
-        return response

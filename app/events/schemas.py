@@ -1,6 +1,6 @@
 from __future__ import annotations
 from typing import Optional, Dict, Any
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import UUID
 from pydantic import BaseModel, Field
 
@@ -8,7 +8,7 @@ class BaseEvent(BaseModel):
     entity_id: Optional[UUID] = None
     org_id: UUID
     event_type: str = Field(...)
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     actor_id: Optional[UUID] = None
     metadata: Dict[str, Any] = Field(default_factory=dict)
 

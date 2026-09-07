@@ -3,6 +3,7 @@ import time
 from uuid import uuid4
 from starlette.datastructures import MutableHeaders, Headers
 from loguru import logger
+from app.config import settings
 from app.core.telemetry import get_current_trace_id
 from app.core.metrics import http_requests_total, http_request_duration_seconds
 
@@ -71,7 +72,9 @@ class TimingMiddleware:
                 res_headers = MutableHeaders(scope=message)
                 res_headers["X-Process-Time"] = str(process_time)
 
-                endpoint = scope.get("path", "")
+                # Use route template path (low-cardinality) instead of raw path (high-cardinality)
+                route = scope.get("route")
+                endpoint = route.path if route and hasattr(route, "path") else scope.get("path", "")
                 method = scope.get("method", "GET")
                 status_code = str(message.get("status", 200))
                 state = scope.get("state", {})
@@ -112,7 +115,7 @@ class SecurityHeadersMiddleware:
             if message["type"] == "http.response.start":
                 res_headers = MutableHeaders(scope=message)
                 res_headers["Content-Security-Policy"] = "default-src 'self'"
-                res_headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+                res_headers["Strict-Transport-Security"] = f"max-age={settings.HSTS_MAX_AGE_SECONDS}; includeSubDomains"
                 res_headers["X-Frame-Options"] = "DENY"
                 res_headers["X-Content-Type-Options"] = "nosniff"
                 res_headers["Referrer-Policy"] = "strict-origin-when-cross-origin"

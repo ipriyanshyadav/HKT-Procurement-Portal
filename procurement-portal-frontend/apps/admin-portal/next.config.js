@@ -2,7 +2,7 @@
 const nextConfig = {
   output: "standalone",
   images: {
-    unoptimized: true,
+    unoptimized: process.env.NODE_ENV !== 'production',
   },
   transpilePackages: [
     "@procurement/ui",

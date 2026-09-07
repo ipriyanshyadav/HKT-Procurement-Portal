@@ -130,7 +130,7 @@ class VendorService:
                     continue
                 v_name_lower = v.company_name.lower().strip()
                 similarity = difflib.SequenceMatcher(None, c_name_lower, v_name_lower).ratio()
-                if similarity > 0.85:
+                if similarity > settings.VENDOR_DUPLICATE_NAME_SIMILARITY:
                     result.has_soft_warnings = True
                     result.soft_warnings.append(
                         DuplicateMatch(

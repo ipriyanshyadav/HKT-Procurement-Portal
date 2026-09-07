@@ -312,7 +312,7 @@ class AnalyticsService:
                 {"org_id": org_id},
             )
             org_row = r.fetchone()
-            coc_rate = float(org_row.cost_of_capital_rate) if org_row and org_row.cost_of_capital_rate is not None else 0.12
+            coc_rate = float(org_row.cost_of_capital_rate) if org_row and org_row.cost_of_capital_rate is not None else settings.DEFAULT_COST_OF_CAPITAL_RATE
             metrics["cost_of_capital_rate"] = coc_rate
             metrics["cost_of_capital_benefit"] = round(metrics["savings_amount"] * coc_rate, 2)
 
@@ -573,7 +573,7 @@ class AnalyticsService:
                 {"org_id": org_id},
             )
             org_row = org_r.fetchone()
-            coc_rate = float(org_row.cost_of_capital_rate) if org_row and org_row.cost_of_capital_rate is not None else 0.12
+            coc_rate = float(org_row.cost_of_capital_rate) if org_row and org_row.cost_of_capital_rate is not None else settings.DEFAULT_COST_OF_CAPITAL_RATE
 
             return {
                 "total_budgeted": round(tot_budgeted, 2),

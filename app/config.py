@@ -210,7 +210,17 @@ class Settings(BaseSettings):
     CONTRACT_NUMBER_PREFIX: str = "CNT"
     CELERY_CONTRACT_EXPIRY_CHECK_HOURS: int = 24
 
-
+    # ML & Matching Thresholds
+    ML_AUTO_MAP_CONFIDENCE_THRESHOLD: float = 0.85
+    VENDOR_DUPLICATE_NAME_SIMILARITY: float = 0.85
+    DEFAULT_COST_OF_CAPITAL_RATE: float = 0.12
+    INVOICE_QUANTITY_TOLERANCE_PCT: float = 0.02
+    HSTS_MAX_AGE_SECONDS: int = 31536000
+    # Celery schedule overrides (seconds)
+    CELERY_UNMAPPED_SLA_CHECK_SECONDS: int = 900
+    CELERY_INVOICE_AGING_CHECK_SECONDS: int = 14400
+    CELERY_ANALYTICS_REFRESH_SECONDS: int = 900
+    CELERY_DAILY_REPORT_SECONDS: int = 86400
 @lru_cache
 def get_settings() -> Settings:
     return Settings()

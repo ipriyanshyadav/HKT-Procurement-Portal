@@ -78,7 +78,7 @@ celery_app.conf.beat_schedule = {
     },
     'unmapped-pr-sla-check': {
         'task': 'app.tasks.critical.check_unmapped_pr_sla',
-        'schedule': 900.0,
+        'schedule': settings.CELERY_UNMAPPED_SLA_CHECK_SECONDS,
     },
     'bid-window-check': {
         'task': 'app.tasks.default.check_bid_windows',
@@ -102,22 +102,22 @@ celery_app.conf.beat_schedule = {
     },
     'invoice-aging-check': {
         'task': 'app.tasks.default.check_invoice_aging',
-        'schedule': 14400.0,
+        'schedule': settings.CELERY_INVOICE_AGING_CHECK_SECONDS,
     },
     'open-scheduled-auctions': {
-        'task': 'tasks.open_scheduled_auctions',
+        'task': 'app.tasks.auction.open_scheduled_auctions',
         'schedule': 30.0,
     },
     'close-due-auctions': {
-        'task': 'tasks.close_due_auctions',
+        'task': 'app.tasks.auction.close_due_auctions',
         'schedule': 10.0,
     },
     'auction-closing-warning': {
-        'task': 'tasks.send_auction_closing_warning',
+        'task': 'app.tasks.auction.send_auction_closing_warning',
         'schedule': 10.0,
     },
     'auction-start-reminders': {
-        'task': 'tasks.notify_auction_start_reminders',
+        'task': 'app.tasks.auction.notify_auction_start_reminders',
         'schedule': 60.0,
     },
     'process-due-integration-jobs': {
@@ -126,11 +126,11 @@ celery_app.conf.beat_schedule = {
     },
     'refresh-analytics-cache': {
         'task': 'app.tasks.analytics.refresh_analytics_cache',
-        'schedule': 900.0,
+        'schedule': settings.CELERY_ANALYTICS_REFRESH_SECONDS,
     },
     'generate-daily-analytics-report': {
         'task': 'app.tasks.analytics.generate_daily_report',
-        'schedule': 86400.0,
+        'schedule': settings.CELERY_DAILY_REPORT_SECONDS,
     },
 }
 celery_app.conf.timezone = 'UTC'

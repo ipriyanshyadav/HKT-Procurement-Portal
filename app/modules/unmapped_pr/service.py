@@ -213,7 +213,7 @@ class UnmappedPRService:
                     "method": "default_catalog_match",
                 })
 
-        auto_apply = confidence >= 0.85
+        auto_apply = confidence >= settings.ML_AUTO_MAP_CONFIDENCE_THRESHOLD
 
         return {
             "exception_id": exception_id,
@@ -222,7 +222,7 @@ class UnmappedPRService:
             "auto_apply": auto_apply,
             "based_on_records": len(history),
             "suggestions": suggestions,
-            "reason": None if auto_apply else "Confidence below 0.85 threshold",
+            "reason": None if auto_apply else f"Confidence below {settings.ML_AUTO_MAP_CONFIDENCE_THRESHOLD} threshold",
         }
 
     async def auto_map(
@@ -231,11 +231,11 @@ class UnmappedPRService:
         suggestion = await self.suggest_mapping(db, exception_id, org_id)
         confidence = suggestion.get("confidence", 0.0)
 
-        if confidence < 0.85 or not suggestion.get("suggested_category_id"):
+        if confidence < settings.ML_AUTO_MAP_CONFIDENCE_THRESHOLD or not suggestion.get("suggested_category_id"):
             raise AppException(
-                f"Auto-mapping requires confidence >= 0.85 (current: {confidence})",
+                f"Auto-mapping requires confidence >= {settings.ML_AUTO_MAP_CONFIDENCE_THRESHOLD} (current: {confidence})",
                 "CONFIDENCE_TOO_LOW",
-                {"confidence": confidence, "threshold": 0.85},
+                {"confidence": confidence, "threshold": settings.ML_AUTO_MAP_CONFIDENCE_THRESHOLD},
             )
 
         cat_id = suggestion["suggested_category_id"]

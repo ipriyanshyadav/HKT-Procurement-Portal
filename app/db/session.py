@@ -98,7 +98,10 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
 async def get_db_with_rls(org_id: UUID) -> AsyncGenerator[AsyncSession, None]:
     async with async_session() as session:
         try:
-            await session.execute(text(f"SET app.current_org_id = '{org_id}'"))
+            await session.execute(
+                text("SELECT set_config('app.current_org_id', :org_id, false)"),
+                {"org_id": str(org_id)},
+            )
             yield session
             await session.commit()
         except Exception:

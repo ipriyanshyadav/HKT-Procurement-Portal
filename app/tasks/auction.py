@@ -13,7 +13,7 @@ from app.modules.bid.live_bid_service import LiveBidService
 from app.modules.bid.models import LiveBid
 
 
-@celery_app.task(name="tasks.open_scheduled_auctions", bind=True, max_retries=3)
+@celery_app.task(name="app.tasks.auction.open_scheduled_auctions", bind=True, max_retries=3)
 def open_scheduled_auctions(self):
     """Runs every 30 seconds via Celery beat. Opens SCHEDULED auctions past start time."""
     async def _run():
@@ -31,7 +31,7 @@ def open_scheduled_auctions(self):
     asyncio.run(_run())
 
 
-@celery_app.task(name="tasks.close_due_auctions", bind=True, max_retries=3)
+@celery_app.task(name="app.tasks.auction.close_due_auctions", bind=True, max_retries=3)
 def close_due_auctions(self):
     """Runs every 10 seconds. Closes OPEN/EXTENDED/CLOSING auctions past current_close_at."""
     async def _run():
@@ -49,7 +49,7 @@ def close_due_auctions(self):
     asyncio.run(_run())
 
 
-@celery_app.task(name="tasks.send_auction_closing_warning")
+@celery_app.task(name="app.tasks.auction.send_auction_closing_warning")
 def send_auction_closing_warning():
     """Runs every 10 seconds. Broadcasts AUCTION_CLOSING for auctions within 30s of close."""
     async def _run():
@@ -68,7 +68,7 @@ def send_auction_closing_warning():
     asyncio.run(_run())
 
 
-@celery_app.task(name="tasks.notify_auction_start_reminders")
+@celery_app.task(name="app.tasks.auction.notify_auction_start_reminders")
 def notify_auction_start_reminders():
     """Runs every minute. Sends email+in-app alerts 60min and 15min before start."""
     async def _run():

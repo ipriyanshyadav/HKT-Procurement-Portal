@@ -1,6 +1,6 @@
 from __future__ import annotations
 from typing import Any, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 from loguru import logger
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
@@ -129,7 +129,7 @@ def register_exception_handlers(app: FastAPI) -> None:
                     "message": exc.message,
                     "details": exc.details,
                     "trace_id": trace_id,
-                    "timestamp": datetime.utcnow().isoformat()
+                    "timestamp": datetime.now(timezone.utc).isoformat()
                 }
             }
         )
@@ -145,7 +145,7 @@ def register_exception_handlers(app: FastAPI) -> None:
                     "message": "Request validation failed",
                     "details": {"errors": exc.errors()},
                     "trace_id": trace_id,
-                    "timestamp": datetime.utcnow().isoformat()
+                    "timestamp": datetime.now(timezone.utc).isoformat()
                 }
             }
         )
@@ -162,7 +162,7 @@ def register_exception_handlers(app: FastAPI) -> None:
                     "message": "An unexpected error occurred",
                     "details": {},
                     "trace_id": trace_id,
-                    "timestamp": datetime.utcnow().isoformat()
+                    "timestamp": datetime.now(timezone.utc).isoformat()
                 }
             }
         )

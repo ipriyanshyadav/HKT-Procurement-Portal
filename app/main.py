@@ -5,7 +5,7 @@ from sqlalchemy import text
 from fastapi.middleware.cors import CORSMiddleware
 from prometheus_fastapi_instrumentator import Instrumentator
 import aio_pika
-from datetime import datetime
+from datetime import datetime, timezone
 from loguru import logger
 
 from app.config import settings
@@ -150,7 +150,7 @@ def create_app() -> FastAPI:
 
     @app.get("/health")
     async def health_check():
-        return {"status": "ok", "version": settings.APP_VERSION, "timestamp": datetime.utcnow().isoformat()}
+        return {"status": "ok", "version": settings.APP_VERSION, "timestamp": datetime.now(timezone.utc).isoformat()}
 
     @app.get("/health/ready")
     async def health_ready():
@@ -166,10 +166,9 @@ def create_app() -> FastAPI:
             overall = "degraded"
 
         try:
-            import redis.asyncio as aioredis
-            r = aioredis.from_url(settings.REDIS_URL)
+            from app.core.redis_client import get_redis_client
+            r = get_redis_client(settings.REDIS_SESSION_DB)
             await r.ping()
-            await r.aclose()
             checks["redis"] = "ok"
         except Exception:
             checks["redis"] = "failed"
@@ -206,13 +205,13 @@ def create_app() -> FastAPI:
             content={
                 "status": overall,
                 "checks": checks,
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             },
         )
 
     @app.get("/health/live")
     async def health_live():
-        return {"status": "ok", "timestamp": datetime.utcnow().isoformat()}
+        return {"status": "ok", "timestamp": datetime.now(timezone.utc).isoformat()}
 
     # Routers
     api_router = APIRouter(prefix="/api/v1")

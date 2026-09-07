@@ -94,7 +94,7 @@ class EvaluationService:
             )
 
         # Cost of capital and evaluation methodology
-        cocr = cost_of_capital_rate if cost_of_capital_rate is not None else Decimal("0.12")
+        cocr = cost_of_capital_rate if cost_of_capital_rate is not None else Decimal(str(settings.DEFAULT_COST_OF_CAPITAL_RATE))
         methodology = evaluation_methodology or (
             rfq.evaluation_type.value if hasattr(rfq.evaluation_type, "value") else str(rfq.evaluation_type)
         )

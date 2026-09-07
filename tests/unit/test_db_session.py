@@ -79,7 +79,8 @@ async def test_get_db_with_rls_sets_org_id():
         assert sess == mock_session
         mock_session.execute.assert_awaited_once()
         stmt = str(mock_session.execute.await_args[0][0])
-        assert f"SET app.current_org_id = '{test_org_id}'" in stmt
+        assert "SELECT set_config('app.current_org_id', :org_id, false)" in stmt
+        assert mock_session.execute.await_args[0][1] == {"org_id": str(test_org_id)}
         with pytest.raises(StopAsyncIteration):
             await anext(gen)
 

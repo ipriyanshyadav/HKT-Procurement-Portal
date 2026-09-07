@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 from uuid import UUID
 from loguru import logger
@@ -103,7 +103,7 @@ class AuditSearchService:
             logger.debug("Elasticsearch client unavailable; skipping index_audit_log")
             return
 
-        created_dt = log.created_at or datetime.utcnow()
+        created_dt = log.created_at or datetime.now(timezone.utc)
         index_name = f"{self.index_prefix}-{created_dt.strftime('%Y.%m')}"
 
         entity_type_str = (

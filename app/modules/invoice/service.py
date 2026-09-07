@@ -51,7 +51,7 @@ from app.modules.purchase_order.repository import (
 from app.modules.workflow.service import workflow_engine
 
 # SPEC_15 Section 2 / Plan A-15-1: Physical quantity tolerance hardcoded at module level
-QUANTITY_TOLERANCE: float = 0.02  # 2%
+QUANTITY_TOLERANCE: float = settings.INVOICE_QUANTITY_TOLERANCE_PCT
 
 
 class InvoiceService:
