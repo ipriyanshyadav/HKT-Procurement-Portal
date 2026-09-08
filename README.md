@@ -52,6 +52,7 @@ docker compose -f docker/docker-compose.yml up -d postgres redis rabbitmq minio 
 .venv/bin/python scripts/minio_setup.py
 .venv/bin/python scripts/seed_master_data.py
 .venv/bin/python scripts/seed_demo_user.py
+.venv/bin/python scripts/seed_tickets.py
 
 # 3. Start API backend locally on port 8000 (direct mode, no Kong)
 .venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
@@ -298,10 +299,16 @@ python3 scripts/seed_workflows.py
 python3 scripts/seed_notification_templates.py
 python3 scripts/seed_demo_notifications.py
 python3 scripts/seed_catalog_items.py
+python3 scripts/seed_tickets.py
 
 # Create superadmin account
 python3 scripts/create_superadmin.py
 ```
+
+> 💡 **Tip (Docker Mode):** You can also run seeding directly inside the running API container:
+> ```bash
+> docker compose -f docker/docker-compose.yml exec api python3 scripts/seed_tickets.py
+> ```
 
 Expected output for superadmin creation:
 

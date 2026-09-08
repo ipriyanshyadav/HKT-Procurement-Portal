@@ -56357,7 +56357,7 @@
       "node_kind": "heading",
       "norm_label": "\ud83c\udfd7\ufe0f architecture & tech stack",
       "source_file": "README.md",
-      "source_location": "L484"
+      "source_location": "L491"
     },
     {
       "id": "readme_assumptions_log",
@@ -56369,7 +56369,7 @@
       "node_kind": "heading",
       "norm_label": "\ud83d\udccb assumptions log",
       "source_file": "README.md",
-      "source_location": "L498"
+      "source_location": "L505"
     },
     {
       "id": "readme_current_session_state",
@@ -56381,7 +56381,7 @@
       "node_kind": "heading",
       "norm_label": "current session state",
       "source_file": "README.md",
-      "source_location": "L554"
+      "source_location": "L561"
     },
     {
       "id": "readme_full_stack_verification_checklist",
@@ -56393,7 +56393,7 @@
       "node_kind": "heading",
       "norm_label": "\ud83d\udd0d full-stack verification checklist",
       "source_file": "README.md",
-      "source_location": "L353"
+      "source_location": "L360"
     },
     {
       "id": "readme_live_terminal_log_streaming",
@@ -56405,7 +56405,7 @@
       "node_kind": "heading",
       "norm_label": "\ud83d\udcdc live terminal log streaming",
       "source_file": "README.md",
-      "source_location": "L453"
+      "source_location": "L460"
     },
     {
       "id": "readme_portals_demo_accounts",
@@ -56429,7 +56429,7 @@
       "node_kind": "heading",
       "norm_label": "\ud83d\udd04 rebuilding docker containers",
       "source_file": "README.md",
-      "source_location": "L386"
+      "source_location": "L393"
     },
     {
       "id": "readme_s2p_procurement_portal",
@@ -56453,7 +56453,7 @@
       "node_kind": "heading",
       "norm_label": "\ud83d\udd0c service port directory",
       "source_file": "README.md",
-      "source_location": "L432"
+      "source_location": "L439"
     },
     {
       "id": "readme_testing_suite",
@@ -56465,7 +56465,7 @@
       "node_kind": "heading",
       "norm_label": "\ud83e\uddea testing suite",
       "source_file": "README.md",
-      "source_location": "L406"
+      "source_location": "L413"
     },
     {
       "id": "reports_spec_03_audit",
@@ -77484,7 +77484,7 @@
       "node_kind": "heading",
       "norm_label": "step 1 \u2014 prerequisites & environment",
       "source_file": "README.md",
-      "source_location": "L84"
+      "source_location": "L85"
     },
     {
       "id": "readme_step_3_generate_rsa_keys_jwt_auth",
@@ -77496,7 +77496,7 @@
       "node_kind": "heading",
       "norm_label": "step 3 \u2014 generate rsa keys (jwt auth)",
       "source_file": "README.md",
-      "source_location": "L247"
+      "source_location": "L248"
     },
     {
       "id": "readme_step_4_start_backing_services_docker",
@@ -77508,7 +77508,7 @@
       "node_kind": "heading",
       "norm_label": "step 4 \u2014 start backing services (docker)",
       "source_file": "README.md",
-      "source_location": "L257"
+      "source_location": "L258"
     },
     {
       "id": "readme_step_5_database_migrations_messaging_setup",
@@ -77520,7 +77520,7 @@
       "node_kind": "heading",
       "norm_label": "step 5 \u2014 database migrations & messaging setup",
       "source_file": "README.md",
-      "source_location": "L272"
+      "source_location": "L273"
     },
     {
       "id": "readme_step_6_seed_master_data_create_superadmin",
@@ -77532,7 +77532,7 @@
       "node_kind": "heading",
       "norm_label": "step 6 \u2014 seed master data & create superadmin",
       "source_file": "README.md",
-      "source_location": "L291"
+      "source_location": "L292"
     },
     {
       "id": "readme_step_7_alternative_local_hybrid_mode_start_application_services_locally",
@@ -77544,7 +77544,7 @@
       "node_kind": "heading",
       "norm_label": "step 7 (alternative: local / hybrid mode) \u2014 start application services locally",
       "source_file": "README.md",
-      "source_location": "L329"
+      "source_location": "L336"
     },
     {
       "id": "readme_step_7_docker_mode_start_all_remaining_application_containers",
@@ -77556,7 +77556,7 @@
       "node_kind": "heading",
       "norm_label": "step 7 (docker mode) \u2014 start all remaining application containers",
       "source_file": "README.md",
-      "source_location": "L315"
+      "source_location": "L322"
     },
     {
       "id": "readme_step_by_step_local_setup",
@@ -77568,7 +77568,7 @@
       "node_kind": "heading",
       "norm_label": "\ud83d\udee0\ufe0f step-by-step local setup",
       "source_file": "README.md",
-      "source_location": "L80"
+      "source_location": "L81"
     },
     {
       "id": "app_tasks_notification_digest",
@@ -79678,7 +79678,7 @@
       "node_kind": "heading",
       "norm_label": "quick test commands",
       "source_file": "README.md",
-      "source_location": "L68"
+      "source_location": "L69"
     },
     {
       "id": "readme_quickstart_verification",
@@ -80456,7 +80456,7 @@
       "node_kind": "heading",
       "norm_label": "2a \u2014 minimum required `.env` values for local dev",
       "source_file": "README.md",
-      "source_location": "L165"
+      "source_location": "L166"
     },
     {
       "id": "readme_2b_jwt_authentication_key_paths",
@@ -80468,7 +80468,7 @@
       "node_kind": "heading",
       "norm_label": "2b \u2014 jwt authentication key paths",
       "source_file": "README.md",
-      "source_location": "L210"
+      "source_location": "L211"
     },
     {
       "id": "readme_2c_external_services_optional_for_local_dev",
@@ -80480,7 +80480,7 @@
       "node_kind": "heading",
       "norm_label": "2c \u2014 external services (optional for local dev)",
       "source_file": "README.md",
-      "source_location": "L219"
+      "source_location": "L220"
     },
     {
       "id": "readme_2d_sanity_check_before_continuing",
@@ -80492,7 +80492,7 @@
       "node_kind": "heading",
       "norm_label": "2d \u2014 sanity check before continuing",
       "source_file": "README.md",
-      "source_location": "L235"
+      "source_location": "L236"
     },
     {
       "id": "readme_step_2_configuration_environment_variables_env",
@@ -80504,7 +80504,7 @@
       "node_kind": "heading",
       "norm_label": "step 2 \u2014 configuration & environment variables (`.env`)",
       "source_file": "README.md",
-      "source_location": "L126"
+      "source_location": "L127"
     },
     {
       "id": "readme_understanding_the_template",
@@ -80516,7 +80516,7 @@
       "node_kind": "heading",
       "norm_label": "understanding the template",
       "source_file": "README.md",
-      "source_location": "L134"
+      "source_location": "L135"
     },
     {
       "id": "tests_integration_test_auth_router",
@@ -276283,7 +276283,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L68",
+      "source_location": "L69",
       "weight": 1.0
     },
     {
@@ -276305,7 +276305,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L353",
+      "source_location": "L360",
       "weight": 1.0
     },
     {
@@ -276316,7 +276316,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L386",
+      "source_location": "L393",
       "weight": 1.0
     },
     {
@@ -276327,7 +276327,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L406",
+      "source_location": "L413",
       "weight": 1.0
     },
     {
@@ -276338,7 +276338,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L432",
+      "source_location": "L439",
       "weight": 1.0
     },
     {
@@ -276349,7 +276349,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L484",
+      "source_location": "L491",
       "weight": 1.0
     },
     {
@@ -276360,7 +276360,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L498",
+      "source_location": "L505",
       "weight": 1.0
     },
     {
@@ -276371,7 +276371,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L554",
+      "source_location": "L561",
       "weight": 1.0
     },
     {
@@ -276393,7 +276393,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L80",
+      "source_location": "L81",
       "weight": 1.0
     },
     {
@@ -276404,7 +276404,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L453",
+      "source_location": "L460",
       "weight": 1.0
     },
     {
@@ -276415,7 +276415,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L134",
+      "source_location": "L135",
       "weight": 1.0
     },
     {
@@ -276426,7 +276426,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L165",
+      "source_location": "L166",
       "weight": 1.0
     },
     {
@@ -276437,7 +276437,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L210",
+      "source_location": "L211",
       "weight": 1.0
     },
     {
@@ -276448,7 +276448,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L219",
+      "source_location": "L220",
       "weight": 1.0
     },
     {
@@ -276459,7 +276459,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L235",
+      "source_location": "L236",
       "weight": 1.0
     },
     {
@@ -276470,7 +276470,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L126",
+      "source_location": "L127",
       "weight": 1.0
     },
     {
@@ -276481,7 +276481,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L247",
+      "source_location": "L248",
       "weight": 1.0
     },
     {
@@ -276492,7 +276492,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L257",
+      "source_location": "L258",
       "weight": 1.0
     },
     {
@@ -276503,7 +276503,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L272",
+      "source_location": "L273",
       "weight": 1.0
     },
     {
@@ -276514,7 +276514,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L291",
+      "source_location": "L292",
       "weight": 1.0
     },
     {
@@ -276525,7 +276525,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L315",
+      "source_location": "L322",
       "weight": 1.0
     },
     {
@@ -276536,7 +276536,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L329",
+      "source_location": "L336",
       "weight": 1.0
     },
     {
@@ -276547,7 +276547,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L84",
+      "source_location": "L85",
       "weight": 1.0
     },
     {
@@ -335812,5 +335812,5 @@
       "source_file": "specs/SPEC_04_AUTH_SECURITY.md"
     }
   ],
-  "built_at_commit": "0752d465bd2c4da317d901e071b2175d5506c53b"
+  "built_at_commit": "4ade1c54cff68314d91531d418b1e556c138e765"
 }
