@@ -22,7 +22,6 @@ from uuid import UUID, uuid4
 import pytest
 from httpx import AsyncClient
 from jose import jwt
-from passlib.context import CryptContext
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -30,13 +29,11 @@ from app.auth.jwt import create_access_token, _load_private_key
 from app.config import settings
 from app.core.encryption import encrypt_field, decrypt_field
 from app.core.exceptions import ForbiddenError, ValidationError
+from app.core.security import pwd_context
 from app.modules.integration.http_client import SafeHTTPClient
 from app.db.enums import BidStatusEnum, PrStatusEnum, UserStatusEnum
 from app.modules.bid.service import bid_service
 from app.modules.document.scanner import sanitize_filename, validate_mime_type
-
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 # ==============================================================================

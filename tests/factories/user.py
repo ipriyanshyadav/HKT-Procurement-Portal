@@ -1,14 +1,13 @@
 from __future__ import annotations
 from typing import Optional, List, Any
 from uuid import UUID, uuid4
-from passlib.context import CryptContext
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.db.enums import UserStatusEnum
 from app.modules.user.models import User, Role, UserRoleAssignment
+from app.core.security import pwd_context
 from tests.factories.organization import OrganizationFactory
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 DEFAULT_PASSWORD_HASH = pwd_context.hash("TestPassword@123")
 
 

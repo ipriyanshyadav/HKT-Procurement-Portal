@@ -32,6 +32,26 @@ def pytest_configure(config):
     os.environ.setdefault("JWT_PRIVATE_KEY_PATH", "keys/private.pem")
     os.environ.setdefault("JWT_PUBLIC_KEY_PATH", "keys/public.pem")
     os.environ.setdefault("FIELD_ENCRYPTION_KEY", "U5RAQQjKHzcBauoi8R7GrRrj7bBSf-eQPhPtfGg370A=")
+    
+    # Compatibility fix for passlib with bcrypt >= 4.1.0
+    try:
+        import bcrypt
+        if not hasattr(bcrypt, "__about__"):
+            class _About:
+                __version__ = getattr(bcrypt, "__version__", "4.0.0")
+            bcrypt.__about__ = _About()
+        if hasattr(bcrypt, "hashpw"):
+            _orig = bcrypt.hashpw
+            def _safe_hashpw(password, salt):
+                try:
+                    return _orig(password, salt)
+                except ValueError as e:
+                    if "72 bytes" in str(e):
+                        return _orig(password[:72], salt)
+                    raise
+            bcrypt.hashpw = _safe_hashpw
+    except ImportError:
+        pass
 
 
 @pytest.fixture
