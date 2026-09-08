@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { useTickets, useBulkStatusTickets, useBulkAssignTickets } from "@procurement/hooks";
 import { TicketSLAIndicator } from "@procurement/ui";
-import type { TicketStatus, TicketPriority, TicketType } from "@procurement/types";
+import type { TicketStatus, TicketPriority, TicketType, TicketListResponse } from "@procurement/types";
 
 export default function AdminTicketsPage() {
   const [search, setSearch] = useState("");
@@ -24,6 +24,7 @@ export default function AdminTicketsPage() {
   const [priority, setPriority] = useState<string>("");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [assigneeId, setAssigneeId] = useState("");
+  const [drawerTicket, setDrawerTicket] = useState<TicketListResponse | null>(null);
 
   const { data: tickets = [], isLoading, refetch } = useTickets({
     search: search || undefined,
@@ -205,51 +206,182 @@ export default function AdminTicketsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {tickets.map((t) => (
-                <tr key={t.id} className="hover:bg-slate-50 transition-colors">
-                  <td className="p-3.5" onClick={(e) => handleToggleSelect(t.id, e)}>
-                    {selectedIds.includes(t.id) ? (
-                      <CheckSquare className="w-4 h-4 text-blue-600" />
-                    ) : (
-                      <Square className="w-4 h-4 text-slate-300" />
-                    )}
-                  </td>
-                  <td className="p-3.5 font-mono text-xs font-semibold text-blue-600">
-                    {t.ticket_number}
-                  </td>
-                  <td className="p-3.5 font-medium text-slate-900 max-w-xs truncate">
-                    {t.title}
-                  </td>
-                  <td className="p-3.5 text-xs text-slate-600 uppercase">{t.ticket_type}</td>
-                  <td className="p-3.5 text-xs font-semibold">{t.priority}</td>
-                  <td className="p-3.5 text-xs font-medium">{t.status}</td>
-                  <td className="p-3.5">
-                    <TicketSLAIndicator
-                      slaStatus={t.sla_status}
-                      slaBreachAt={t.sla_breach_at}
-                      firstResponseAt={t.first_response_at}
-                      resolvedAt={t.resolved_at}
-                      status={t.status}
-                      compact
-                    />
-                  </td>
-                  <td className="p-3.5 text-xs text-slate-500">
-                    {t.assigned_to ? t.assigned_to.slice(0, 8) : "Unassigned"}
-                  </td>
-                  <td className="p-3.5 text-right">
-                    <Link
-                      href={`/tickets/${t.id}`}
-                      className="text-xs text-blue-600 hover:underline font-medium"
+              {tickets.map((t) => {
+                const isSelected = selectedIds.includes(t.id);
+                const isDrawerActive = drawerTicket?.id === t.id;
+
+                return (
+                  <tr
+                    key={t.id}
+                    onClick={() => setDrawerTicket(t)}
+                    className={`hover:bg-slate-50/80 transition-colors cursor-pointer ${
+                      isDrawerActive
+                        ? "bg-blue-50/70"
+                        : isSelected
+                        ? "bg-blue-50/30"
+                        : ""
+                    }`}
+                  >
+                    <td
+                      className="p-3.5"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleToggleSelect(t.id, e);
+                      }}
                     >
-                      View
-                    </Link>
-                  </td>
-                </tr>
-              ))}
+                      {isSelected ? (
+                        <CheckSquare className="w-4 h-4 text-blue-600" />
+                      ) : (
+                        <Square className="w-4 h-4 text-slate-300 hover:text-slate-500" />
+                      )}
+                    </td>
+                    <td className="p-3.5 font-mono text-xs font-semibold text-blue-600">
+                      {t.ticket_number}
+                    </td>
+                    <td className="p-3.5 font-medium text-slate-900 max-w-xs truncate">
+                      {t.title}
+                    </td>
+                    <td className="p-3.5 text-xs text-slate-600 uppercase font-medium">{t.ticket_type}</td>
+                    <td className="p-3.5 text-xs font-semibold">{t.priority}</td>
+                    <td className="p-3.5 text-xs font-medium">{t.status}</td>
+                    <td className="p-3.5">
+                      <TicketSLAIndicator
+                        slaStatus={t.sla_status}
+                        slaBreachAt={t.sla_breach_at}
+                        firstResponseAt={t.first_response_at}
+                        resolvedAt={t.resolved_at}
+                        status={t.status}
+                        compact
+                      />
+                    </td>
+                    <td className="p-3.5 text-xs text-slate-500">
+                      {t.assigned_to ? (
+                        <span className="flex items-center gap-1 text-slate-800 font-medium">
+                          <User className="w-3.5 h-3.5 text-slate-400" />
+                          <span>{t.assigned_to.slice(0, 8)}</span>
+                        </span>
+                      ) : (
+                        <span className="text-slate-400 italic">Unassigned</span>
+                      )}
+                    </td>
+                    <td className="p-3.5 text-right" onClick={(e) => e.stopPropagation()}>
+                      <Link
+                        href={`/tickets/${t.id}`}
+                        className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 font-medium p-1 hover:bg-blue-50 rounded"
+                      >
+                        <span>View</span>
+                        <ExternalLink className="w-3.5 h-3.5" />
+                      </Link>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         )}
       </div>
+
+      {/* Quick Drawer Preview */}
+      {drawerTicket && (
+        <>
+          <div
+            className="fixed inset-0 bg-slate-900/20 z-40 backdrop-blur-sm transition-opacity"
+            onClick={() => setDrawerTicket(null)}
+          />
+          <div className="fixed inset-y-0 right-0 z-50 w-full max-w-md bg-white shadow-2xl border-l border-slate-200 p-6 overflow-y-auto">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-200 mb-4">
+              <div>
+                <span className="font-mono text-xs font-semibold text-blue-600">
+                  {drawerTicket.ticket_number}
+                </span>
+                <h3 className="text-lg font-bold text-slate-900 mt-1">
+                  {drawerTicket.title}
+                </h3>
+              </div>
+              <button
+                onClick={() => setDrawerTicket(null)}
+                className="text-slate-400 hover:text-slate-600 p-1.5 rounded-md hover:bg-slate-100 transition-colors"
+                aria-label="Close drawer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-4 text-sm">
+              <div>
+                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">
+                  Status &amp; Priority
+                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs px-2.5 py-1 rounded-full bg-slate-100 font-medium text-slate-800">
+                    {drawerTicket.status}
+                  </span>
+                  <span className="text-xs px-2.5 py-1 rounded-full bg-blue-100 text-blue-800 font-medium">
+                    {drawerTicket.priority}
+                  </span>
+                  <span className="text-xs px-2.5 py-1 rounded bg-slate-100 font-medium text-slate-600 uppercase">
+                    {drawerTicket.ticket_type}
+                  </span>
+                </div>
+              </div>
+
+              <div>
+                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">
+                  SLA Status
+                </span>
+                <TicketSLAIndicator
+                  slaStatus={drawerTicket.sla_status}
+                  slaBreachAt={drawerTicket.sla_breach_at}
+                  firstResponseAt={drawerTicket.first_response_at}
+                  resolvedAt={drawerTicket.resolved_at}
+                  status={drawerTicket.status}
+                />
+              </div>
+
+              <div>
+                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">
+                  Assignee
+                </span>
+                <span className="text-xs text-slate-700 font-medium">
+                  {drawerTicket.assigned_to ? drawerTicket.assigned_to : "Unassigned"}
+                </span>
+              </div>
+
+              {drawerTicket.entity_type && (
+                <div>
+                  <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">
+                    Linked Entity
+                  </span>
+                  <span className="text-xs font-medium text-slate-700 bg-slate-50 border border-slate-200 px-2 py-1 rounded inline-block font-mono">
+                    {drawerTicket.entity_type.toUpperCase()} • {drawerTicket.entity_id}
+                  </span>
+                </div>
+              )}
+
+              {drawerTicket.description && (
+                <div>
+                  <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">
+                    Description
+                  </span>
+                  <p className="text-xs text-slate-700 bg-slate-50 p-3 rounded-lg border border-slate-200 whitespace-pre-wrap">
+                    {drawerTicket.description}
+                  </p>
+                </div>
+              )}
+
+              <div className="pt-4 border-t border-slate-200">
+                <Link
+                  href={`/tickets/${drawerTicket.id}`}
+                  className="w-full flex items-center justify-center gap-2 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm"
+                >
+                  <span>Open Full Ticket Workspace</span>
+                  <ExternalLink className="w-4 h-4" />
+                </Link>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
