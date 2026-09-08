@@ -220,6 +220,8 @@ services:
       JAEGER_HOST: jaeger
       CLAMAV_HOST: clamav
       CLAMAV_PORT: 3310
+      CELERY_BROKER_URL: amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASSWORD:-${RABBITMQ_PASS:-guest}}@rabbitmq:5672/%2Fprocurement
+      CELERY_RESULT_BACKEND: redis://redis:6379/3
     ports:
       - "8080:8000"
     volumes:
@@ -258,6 +260,8 @@ services:
       IS_CELERY_WORKER: "true"
       REDIS_URL: redis://redis:6379/0
       RABBITMQ_URL: amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASSWORD:-${RABBITMQ_PASS:-guest}}@rabbitmq:5672/%2Fprocurement
+      CELERY_BROKER_URL: amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASSWORD:-${RABBITMQ_PASS:-guest}}@rabbitmq:5672/%2Fprocurement
+      CELERY_RESULT_BACKEND: redis://redis:6379/3
       MINIO_ENDPOINT: minio:9000
       JAEGER_HOST: jaeger
     volumes:
@@ -284,6 +288,8 @@ services:
       IS_CELERY_WORKER: "true"
       REDIS_URL: redis://redis:6379/0
       RABBITMQ_URL: amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASSWORD:-${RABBITMQ_PASS:-guest}}@rabbitmq:5672/%2Fprocurement
+      CELERY_BROKER_URL: amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASSWORD:-${RABBITMQ_PASS:-guest}}@rabbitmq:5672/%2Fprocurement
+      CELERY_RESULT_BACKEND: redis://redis:6379/3
       MINIO_ENDPOINT: minio:9000
       JAEGER_HOST: jaeger
     volumes:
