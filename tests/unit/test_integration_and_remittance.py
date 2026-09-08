@@ -63,6 +63,7 @@ async def test_vendor_bulk_category_mapping():
     items = [BulkVendorCategoryMappingItem(vendor_id=v_id, category_ids=[cat_id1])]
 
     db = AsyncMock()
+    db.add = MagicMock()
     res = await service.bulk_map_categories(db, items, actor_id, org_id)
 
     assert res.total_processed == 1
@@ -111,6 +112,7 @@ async def test_integration_trigger_sync():
     service.audit.log = AsyncMock()
 
     db = AsyncMock()
+    db.add = MagicMock()
     # Mock db.execute returning empty lists for queries
     mock_scalars = MagicMock()
     mock_scalars.all.return_value = []

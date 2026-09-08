@@ -68,7 +68,7 @@ async def test_compute_breach_at():
 def test_compute_status_within_sla():
     """Elapsed time < 50% should be WITHIN_SLA."""
     service = TicketSLAService()
-    now = datetime.utcnow()
+    now = datetime.now(UTC)
     created_at = now - timedelta(hours=1)
     breach_at = created_at + timedelta(hours=10)  # 10% elapsed
     status = service.compute_status(breach_at, created_at)
@@ -78,7 +78,7 @@ def test_compute_status_within_sla():
 def test_compute_status_at_risk():
     """Elapsed time >= 50% but < 100% should be AT_RISK."""
     service = TicketSLAService()
-    now = datetime.utcnow()
+    now = datetime.now(UTC)
     created_at = now - timedelta(hours=6)
     breach_at = created_at + timedelta(hours=10)  # 60% elapsed
     status = service.compute_status(breach_at, created_at)
@@ -88,7 +88,7 @@ def test_compute_status_at_risk():
 def test_compute_status_breached():
     """Elapsed time >= 100% should be BREACHED."""
     service = TicketSLAService()
-    now = datetime.utcnow()
+    now = datetime.now(UTC)
     created_at = now - timedelta(hours=12)
     breach_at = created_at + timedelta(hours=10)  # 120% elapsed
     status = service.compute_status(breach_at, created_at)

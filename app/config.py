@@ -248,6 +248,14 @@ class Settings(BaseSettings):
     DEFAULT_PAYMENT_TERMS_NET_DAYS: int = 30
     IDEMPOTENCY_MEMORY_CACHE_MAX_ENTRIES: int = 10000
 
+    # Ticket System Rules
+    TICKET_COMMENT_EDIT_WINDOW_SECONDS: int = 900
+    TICKET_REOPEN_MAX_DAYS: int = 30
+    TICKET_REOPEN_REASON_MIN_LENGTH: int = 5
+    TICKET_AUTO_CLOSE_RESOLVED_DAYS: int = 3
+    TICKET_AUTO_CLOSE_PENDING_RESPONSE_DAYS: int = 7
+    TICKET_DEFAULT_ROUND_ROBIN_DUE_DAYS: int = 3
+
     # Celery schedule overrides (seconds)
     CELERY_UNMAPPED_SLA_CHECK_SECONDS: int = 900
     CELERY_INVOICE_AGING_CHECK_SECONDS: int = 14400
@@ -258,6 +266,7 @@ class Settings(BaseSettings):
     CELERY_AUCTION_WARNING_SECONDS: float = 10.0
     CELERY_AUCTION_REMINDER_SECONDS: float = 60.0
     CELERY_INTEGRATION_JOB_SECONDS: float = 60.0
+    CELERY_TICKET_DUE_DATE_CHECK_SECONDS: int = 3600
 @lru_cache
 def get_settings() -> Settings:
     return Settings()

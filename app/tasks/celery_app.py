@@ -62,6 +62,7 @@ celery_app.conf.task_routes = {
     'app.tasks.analytics.*': {'queue': 'analytics'},
     'app.tasks.maintenance.*': {'queue': 'maintenance'},
     'app.tasks.critical.*': {'queue': 'critical'},
+    'app.tasks.ticket_sla.*': {'queue': 'critical'},
     '*': {'queue': 'default'},
 }
 
@@ -145,6 +146,10 @@ celery_app.conf.beat_schedule = {
     'send-ticket-digest': {
         'task': 'app.tasks.ticket_sla.send_ticket_digest',
         'schedule': crontab(hour=8, minute=0),
+    },
+    'check-ticket-due-dates': {
+        'task': 'app.tasks.ticket_sla.check_ticket_due_dates',
+        'schedule': settings.CELERY_TICKET_DUE_DATE_CHECK_SECONDS,
     },
 }
 celery_app.conf.timezone = 'UTC'

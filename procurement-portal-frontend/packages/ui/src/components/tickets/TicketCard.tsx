@@ -3,7 +3,7 @@
 import React from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { MessageSquare, Paperclip, User, GripVertical } from "lucide-react";
+import { MessageSquare, Paperclip, User, GripVertical, Calendar } from "lucide-react";
 import type { TicketListResponse, TicketPriority } from "@procurement/types";
 import { TicketSLAIndicator } from "./TicketSLAIndicator";
 
@@ -99,6 +99,19 @@ export function TicketCard({ ticket, onSelect, draggable = true }: TicketCardPro
             <span className="flex items-center gap-1">
               <Paperclip className="w-3.5 h-3.5 text-slate-400" />
               <span>{(ticket as any).attachment_count}</span>
+            </span>
+          )}
+          {ticket.due_date && (
+            <span
+              className={`flex items-center gap-1 text-[11px] font-medium px-1.5 py-0.5 rounded ${
+                new Date(ticket.due_date) < new Date() && !["RESOLVED", "CLOSED"].includes(ticket.status)
+                  ? "text-rose-700 bg-rose-50 border border-rose-200 font-semibold"
+                  : "text-slate-600 bg-slate-100"
+              }`}
+              title={`Due Date: ${ticket.due_date}`}
+            >
+              <Calendar className="w-3 h-3 text-slate-400" />
+              <span>{ticket.due_date}</span>
             </span>
           )}
         </div>

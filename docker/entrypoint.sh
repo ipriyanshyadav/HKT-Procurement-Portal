@@ -50,6 +50,8 @@ if [ "${SEED_ON_STARTUP:-false}" = "true" ]; then
   python scripts/seed_demo_notifications.py
   echo "Seeding catalog items..."
   python scripts/seed_catalog_items.py
+  echo "Seeding tickets..."
+  python scripts/seed_tickets.py
   echo "Creating superadmin..."
   python scripts/create_superadmin.py
 fi

@@ -12,9 +12,11 @@ from app.core.exceptions import NotFoundError, ForbiddenError
 from app.core.responses import APIResponse, PaginationMeta, created_response, success_response
 from app.db.enums import AuditEntityTypeEnum
 from app.db.session import get_db
+from decimal import Decimal
 from app.modules.audit.models import AuditLog
 from app.modules.requisition.models import Requisition
 from app.modules.requisition.schemas import (
+    BudgetCheckResult,
     PRApprovalAction,
     PRConvertToPORequest,
     PRCreateRequest,
@@ -72,6 +74,27 @@ async def bulk_create_requisitions(
         created_prs.append(pr)
     await db.commit()
     return created_response([PRDetailResponse.model_validate(p) for p in created_prs])
+
+
+@router.get("/budget-check", response_model=APIResponse[BudgetCheckResult])
+async def check_budget_availability(
+    cost_center_id: UUID = Query(..., description="Cost center UUID"),
+    amount: Decimal = Query(..., ge=0, description="Estimated total amount to check"),
+    business_unit_id: Optional[UUID] = Query(None, description="Optional Business Unit UUID"),
+    category_id: Optional[UUID] = Query(None, description="Optional Category UUID"),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Pre-flight real-time check of budget availability before PR submission."""
+    result = await requisition_service.check_budget_preflight(
+        db,
+        cost_center_id=cost_center_id,
+        amount=amount,
+        org_id=current_user.org_id,
+        bu_id=business_unit_id,
+        category_id=category_id,
+    )
+    return success_response(result)
 
 
 @router.get("", response_model=APIResponse[List[PRListResponse]])

@@ -1,4 +1,5 @@
 from __future__ import annotations
+import asyncio
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, APIRouter
 from sqlalchemy import text
@@ -113,6 +114,12 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.debug(f"Elasticsearch cleanup: {e}")
     try:
+        from app.modules.ticket.search_service import ticket_search_service
+        await ticket_search_service.close()
+        logger.info("Closed Elasticsearch ticket search connection")
+    except Exception as e:
+        logger.debug(f"Ticket search cleanup: {e}")
+    try:
         from app.core.redis_client import close_redis_pools
         await close_redis_pools()
         logger.info("Closed Redis connection pools")
@@ -203,7 +210,7 @@ def create_app() -> FastAPI:
 
         try:
             client = _get_minio_health_client()
-            client.list_buckets()
+            await asyncio.to_thread(client.list_buckets)
             checks["minio"] = "ok"
         except Exception:
             checks["minio"] = "failed"

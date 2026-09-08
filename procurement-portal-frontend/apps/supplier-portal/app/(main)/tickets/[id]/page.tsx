@@ -11,6 +11,7 @@ import {
   Loader2,
   Paperclip,
   Download,
+  Calendar,
 } from "lucide-react";
 import {
   useTicket,
@@ -22,6 +23,8 @@ import {
   TicketSLAIndicator,
   TicketCommentBox,
   TicketCommentFeed,
+  TicketLinkedIssues,
+  TicketCustomFieldsPanel,
 } from "@procurement/ui";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -110,6 +113,12 @@ export default function SupplierTicketDetailPage() {
             <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700">
               {ticket.status}
             </span>
+            {ticket.due_date && (
+              <span className="text-xs font-medium px-2 py-0.5 rounded bg-slate-100 text-slate-700 flex items-center gap-1 border border-slate-200">
+                <Calendar className="w-3 h-3 text-slate-500" />
+                <span>Target Due: {ticket.due_date}</span>
+              </span>
+            )}
           </div>
 
           <TicketSLAIndicator
@@ -219,6 +228,12 @@ export default function SupplierTicketDetailPage() {
           </div>
         )}
       </div>
+
+      {/* Linked Queries / Issues */}
+      <TicketLinkedIssues ticketId={ticketId} canLink={false} />
+
+      {/* Custom Fields */}
+      <TicketCustomFieldsPanel ticketId={ticketId} />
 
       {/* Discussion & Responses */}
       <div className="bg-white rounded-xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-6">

@@ -57,6 +57,7 @@ class TestDocumentService:
     async def test_upload_clean_file_success(self):
         service = DocumentService()
         db = AsyncMock()
+        db.add = MagicMock()
         data = b"%PDF-1.7 sample data"
         org_id = uuid4()
         entity_id = uuid4()
@@ -88,6 +89,7 @@ class TestDocumentService:
     async def test_upload_spec17_async_scan(self):
         service = DocumentService()
         db = AsyncMock()
+        db.add = MagicMock()
         mock_repo = AsyncMock()
         mock_repo.find_latest.return_value = None
         service.repo = mock_repo
@@ -123,6 +125,7 @@ class TestDocumentService:
     async def test_upload_spec17_version_increments(self):
         service = DocumentService()
         db = AsyncMock()
+        db.add = MagicMock()
         org_id = uuid4()
         entity_id = uuid4()
 
@@ -225,6 +228,7 @@ class TestDocumentService:
     async def test_get_presigned_url_success(self):
         service = DocumentService()
         db = AsyncMock()
+        db.add = MagicMock()
         doc_mock = MagicMock()
         doc_mock.id = uuid4()
         doc_mock.scan_status = "CLEAN"
@@ -251,6 +255,7 @@ class TestDocumentService:
     async def test_version_history_and_soft_delete(self):
         service = DocumentService()
         db = AsyncMock()
+        db.add = MagicMock()
         mock_repo = AsyncMock()
         service.repo = mock_repo
 

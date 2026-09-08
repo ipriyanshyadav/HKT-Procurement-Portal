@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, File, Query, Request, UploadFile, status
@@ -15,6 +15,13 @@ from app.db.session import get_db
 from app.modules.document.service import document_service
 from app.modules.ticket.models import Ticket
 from app.modules.ticket.schemas import (
+    AutomationRuleCreateRequest,
+    AutomationRuleResponse,
+    AutomationRuleUpdateRequest,
+    CustomFieldDefCreateRequest,
+    CustomFieldDefResponse,
+    CustomFieldDefUpdateRequest,
+    CustomFieldValueResponse,
     TicketActivityLogResponse,
     TicketAssignRequest,
     TicketAttachmentResponse,
@@ -25,6 +32,8 @@ from app.modules.ticket.schemas import (
     TicketDetailResponse,
     TicketEscalateRequest,
     TicketFilters,
+    TicketLinkCreateRequest,
+    TicketLinkResponse,
     TicketListResponse,
     TicketReopenRequest,
     TicketResolveRequest,
@@ -49,7 +58,11 @@ def _is_supplier(current_user) -> bool:
     return bool(getattr(current_user, "is_supplier_user", False))
 
 
-def _to_detail_response(ticket: Ticket) -> TicketDetailResponse:
+def _to_detail_response(
+    ticket: Ticket,
+    links: list | None = None,
+    custom_fields: list | None = None,
+) -> TicketDetailResponse:
     from sqlalchemy import inspect as sa_inspect
     insp = sa_inspect(ticket)
     unloaded = insp.unloaded if insp is not None else set()
@@ -77,12 +90,30 @@ def _to_detail_response(ticket: Ticket) -> TicketDetailResponse:
             if getattr(att, "deleted_at", None) is None:
                 attachments.append(TicketAttachmentResponse.model_validate(att))
 
+    formatted_links = []
+    if links is not None:
+        for l in links:
+            if isinstance(l, dict):
+                formatted_links.append(TicketLinkResponse(**l))
+            else:
+                formatted_links.append(TicketLinkResponse.model_validate(l))
+
+    formatted_cfs = []
+    if custom_fields is not None:
+        for cf in custom_fields:
+            if isinstance(cf, dict):
+                formatted_cfs.append(CustomFieldValueResponse(**cf))
+            else:
+                formatted_cfs.append(CustomFieldValueResponse.model_validate(cf))
+
     base_dict = TicketListResponse.model_validate(ticket).model_dump()
     base_dict.update({
         "comments": comments,
         "watchers": watchers,
         "activity_logs": activity_logs,
         "attachments": attachments,
+        "links": formatted_links,
+        "custom_fields": formatted_cfs,
     })
     return TicketDetailResponse(**base_dict)
 
@@ -118,6 +149,109 @@ async def update_sla_configs(
     return success_response(result)
 
 
+# --- Custom Fields (Admin / Config) ---
+@router.get("/custom-fields/definitions")
+async def list_custom_field_defs(
+    ticket_type: str | None = None,
+    current_user=Depends(require_ticket_view),
+    db: AsyncSession = Depends(get_db),
+):
+    defs = await ticket_service.get_custom_field_defs(db, current_user.org_id, ticket_type)
+    return success_response([CustomFieldDefResponse.model_validate(d) for d in defs])
+
+
+@router.post("/custom-fields/definitions", status_code=status.HTTP_201_CREATED)
+async def create_custom_field_def(
+    data: CustomFieldDefCreateRequest,
+    current_user=Depends(require_permission(PermissionCode.TICKET_CONFIG_CUSTOM_FIELDS)),
+    db: AsyncSession = Depends(get_db),
+):
+    cf_def = await ticket_service.create_custom_field_def(db, data, current_user.id, current_user.org_id)
+    await db.commit()
+    await db.refresh(cf_def)
+    return created_response(CustomFieldDefResponse.model_validate(cf_def))
+
+
+@router.put("/custom-fields/definitions/{field_def_id}")
+async def update_custom_field_def(
+    field_def_id: UUID,
+    data: CustomFieldDefUpdateRequest,
+    current_user=Depends(require_permission(PermissionCode.TICKET_CONFIG_CUSTOM_FIELDS)),
+    db: AsyncSession = Depends(get_db),
+):
+    cf_def = await ticket_service.update_custom_field_def(db, field_def_id, data, current_user.id, current_user.org_id)
+    await db.commit()
+    await db.refresh(cf_def)
+    return success_response(CustomFieldDefResponse.model_validate(cf_def))
+
+
+@router.delete("/custom-fields/definitions/{field_def_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_custom_field_def(
+    field_def_id: UUID,
+    current_user=Depends(require_permission(PermissionCode.TICKET_CONFIG_CUSTOM_FIELDS)),
+    db: AsyncSession = Depends(get_db),
+):
+    await ticket_service.delete_custom_field_def(db, field_def_id, current_user.id, current_user.org_id)
+    await db.commit()
+
+
+# --- Automation Rules (Admin / Jira-style No-Code Engine) ---
+@router.get("/automation/rules")
+async def list_automation_rules(
+    current_user=Depends(require_permission(PermissionCode.TICKET_CONFIG_AUTOMATION)),
+    db: AsyncSession = Depends(get_db),
+):
+    rules = await ticket_service.get_automation_rules(db, current_user.org_id)
+    return success_response([AutomationRuleResponse.model_validate(r) for r in rules])
+
+
+@router.post("/automation/rules", status_code=status.HTTP_201_CREATED)
+async def create_automation_rule(
+    data: AutomationRuleCreateRequest,
+    current_user=Depends(require_permission(PermissionCode.TICKET_CONFIG_AUTOMATION)),
+    db: AsyncSession = Depends(get_db),
+):
+    rule = await ticket_service.create_automation_rule(db, data, current_user.id, current_user.org_id)
+    await db.commit()
+    await db.refresh(rule)
+    return created_response(AutomationRuleResponse.model_validate(rule))
+
+
+@router.put("/automation/rules/{rule_id}")
+async def update_automation_rule(
+    rule_id: UUID,
+    data: AutomationRuleUpdateRequest,
+    current_user=Depends(require_permission(PermissionCode.TICKET_CONFIG_AUTOMATION)),
+    db: AsyncSession = Depends(get_db),
+):
+    rule = await ticket_service.update_automation_rule(db, rule_id, data, current_user.id, current_user.org_id)
+    await db.commit()
+    await db.refresh(rule)
+    return success_response(AutomationRuleResponse.model_validate(rule))
+
+
+@router.delete("/automation/rules/{rule_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_automation_rule(
+    rule_id: UUID,
+    current_user=Depends(require_permission(PermissionCode.TICKET_CONFIG_AUTOMATION)),
+    db: AsyncSession = Depends(get_db),
+):
+    await ticket_service.delete_automation_rule(db, rule_id, current_user.id, current_user.org_id)
+    await db.commit()
+
+
+@router.post("/automation/rules/{rule_id}/run/{ticket_id}")
+async def run_automation_rule_manually(
+    rule_id: UUID,
+    ticket_id: UUID,
+    current_user=Depends(require_permission(PermissionCode.TICKET_CONFIG_AUTOMATION)),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await ticket_service.run_automation_rule(db, rule_id, ticket_id, current_user.id, current_user.org_id)
+    await db.commit()
+    return success_response(result)
+
+
 # --- Export ---
 @router.get("/export")
 async def export_tickets(
@@ -137,12 +271,13 @@ async def export_tickets(
             "type": str(t.ticket_type),
             "priority": str(t.priority),
             "status": str(t.status),
+            "due_date": t.due_date.isoformat() if t.due_date else "",
             "created": t.created_at.isoformat() if t.created_at else "",
         }
         for t in tickets
     ]
-    headers = ["number", "title", "type", "priority", "status", "created"]
-    filename = f"tickets_export_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}"
+    headers = ["number", "title", "type", "priority", "status", "due_date", "created"]
+    filename = f"tickets_export_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}"
     return stream_csv(headers, rows, filename)
 
 
@@ -234,6 +369,8 @@ async def list_tickets(
     entity_id: UUID | None = None,
     view_scope: str | None = None,
     tags: list[str] | None = Query(None),
+    due_date_from: str | None = None,
+    due_date_to: str | None = None,
     search: str | None = None,
     params: PaginationParams = Depends(),
     current_user=Depends(require_ticket_view),
@@ -251,6 +388,10 @@ async def list_tickets(
         )
         return success_response(results)
 
+    from datetime import date as d_date
+    parsed_due_from = d_date.fromisoformat(due_date_from) if due_date_from else None
+    parsed_due_to = d_date.fromisoformat(due_date_to) if due_date_to else None
+
     filters = TicketFilters(
         status=status_filter,
         priority=priority,
@@ -259,6 +400,8 @@ async def list_tickets(
         entity_id=entity_id,
         view_scope=view_scope,
         tags=tags,
+        due_date_from=parsed_due_from,
+        due_date_to=parsed_due_to,
         limit=params.limit,
         offset=params.offset,
     )
@@ -280,7 +423,9 @@ async def create_ticket(
     ticket = await ticket_service.create(db, data, current_user.id, current_user.org_id, portal)
     await db.commit()
     await db.refresh(ticket)
-    return created_response(_to_detail_response(ticket))
+    links = await ticket_service.get_ticket_links(db, ticket.id, current_user.org_id)
+    cfs = await ticket_service.get_ticket_custom_field_values(db, ticket.id, current_user.org_id)
+    return created_response(_to_detail_response(ticket, links=links, custom_fields=cfs))
 
 
 @router.get("/{ticket_id}", response_model=APIResponse[TicketDetailResponse])
@@ -292,7 +437,9 @@ async def get_ticket(
     ticket = await ticket_service.get_detail(
         db, ticket_id, current_user.id, current_user.org_id, _is_supplier(current_user)
     )
-    return success_response(_to_detail_response(ticket))
+    links = await ticket_service.get_ticket_links(db, ticket_id, current_user.org_id)
+    cfs = await ticket_service.get_ticket_custom_field_values(db, ticket_id, current_user.org_id)
+    return success_response(_to_detail_response(ticket, links=links, custom_fields=cfs))
 
 
 @router.put("/{ticket_id}", response_model=APIResponse[TicketDetailResponse])
@@ -305,7 +452,9 @@ async def update_ticket(
     ticket = await ticket_service.update(db, ticket_id, data, current_user.id, current_user.org_id)
     await db.commit()
     await db.refresh(ticket)
-    return success_response(_to_detail_response(ticket))
+    links = await ticket_service.get_ticket_links(db, ticket_id, current_user.org_id)
+    cfs = await ticket_service.get_ticket_custom_field_values(db, ticket_id, current_user.org_id)
+    return success_response(_to_detail_response(ticket, links=links, custom_fields=cfs))
 
 
 @router.delete("/{ticket_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -331,7 +480,9 @@ async def assign_ticket(
     )
     await db.commit()
     await db.refresh(ticket)
-    return success_response(_to_detail_response(ticket))
+    links = await ticket_service.get_ticket_links(db, ticket_id, current_user.org_id)
+    cfs = await ticket_service.get_ticket_custom_field_values(db, ticket_id, current_user.org_id)
+    return success_response(_to_detail_response(ticket, links=links, custom_fields=cfs))
 
 
 @router.post("/{ticket_id}/start-progress")
@@ -343,7 +494,9 @@ async def start_progress(
     ticket = await ticket_service.start_progress(db, ticket_id, current_user.id, current_user.org_id)
     await db.commit()
     await db.refresh(ticket)
-    return success_response(_to_detail_response(ticket))
+    links = await ticket_service.get_ticket_links(db, ticket_id, current_user.org_id)
+    cfs = await ticket_service.get_ticket_custom_field_values(db, ticket_id, current_user.org_id)
+    return success_response(_to_detail_response(ticket, links=links, custom_fields=cfs))
 
 
 @router.post("/{ticket_id}/resolve")
@@ -358,7 +511,9 @@ async def resolve_ticket(
     )
     await db.commit()
     await db.refresh(ticket)
-    return success_response(_to_detail_response(ticket))
+    links = await ticket_service.get_ticket_links(db, ticket_id, current_user.org_id)
+    cfs = await ticket_service.get_ticket_custom_field_values(db, ticket_id, current_user.org_id)
+    return success_response(_to_detail_response(ticket, links=links, custom_fields=cfs))
 
 
 @router.post("/{ticket_id}/close")
@@ -372,7 +527,9 @@ async def close_ticket(
     )
     await db.commit()
     await db.refresh(ticket)
-    return success_response(_to_detail_response(ticket))
+    links = await ticket_service.get_ticket_links(db, ticket_id, current_user.org_id)
+    cfs = await ticket_service.get_ticket_custom_field_values(db, ticket_id, current_user.org_id)
+    return success_response(_to_detail_response(ticket, links=links, custom_fields=cfs))
 
 
 @router.post("/{ticket_id}/reopen")
@@ -387,7 +544,9 @@ async def reopen_ticket(
     )
     await db.commit()
     await db.refresh(ticket)
-    return success_response(_to_detail_response(ticket))
+    links = await ticket_service.get_ticket_links(db, ticket_id, current_user.org_id)
+    cfs = await ticket_service.get_ticket_custom_field_values(db, ticket_id, current_user.org_id)
+    return success_response(_to_detail_response(ticket, links=links, custom_fields=cfs))
 
 
 @router.post("/{ticket_id}/escalate")
@@ -407,7 +566,9 @@ async def escalate_ticket(
     )
     await db.commit()
     await db.refresh(ticket)
-    return success_response(_to_detail_response(ticket))
+    links = await ticket_service.get_ticket_links(db, ticket_id, current_user.org_id)
+    cfs = await ticket_service.get_ticket_custom_field_values(db, ticket_id, current_user.org_id)
+    return success_response(_to_detail_response(ticket, links=links, custom_fields=cfs))
 
 
 @router.post("/{ticket_id}/pending-response")
@@ -419,7 +580,9 @@ async def pending_response(
     ticket = await ticket_service.set_pending_response(db, ticket_id, current_user.id, current_user.org_id)
     await db.commit()
     await db.refresh(ticket)
-    return success_response(_to_detail_response(ticket))
+    links = await ticket_service.get_ticket_links(db, ticket_id, current_user.org_id)
+    cfs = await ticket_service.get_ticket_custom_field_values(db, ticket_id, current_user.org_id)
+    return success_response(_to_detail_response(ticket, links=links, custom_fields=cfs))
 
 
 # --- Comments ---
@@ -602,3 +765,55 @@ async def remove_attachment(
         db, ticket_id, attachment_id, current_user.id, current_user.org_id
     )
     await db.commit()
+
+
+# --- Issue Links (Jira Linking) ---
+@router.get("/{ticket_id}/links")
+async def get_ticket_links(
+    ticket_id: UUID,
+    current_user=Depends(require_ticket_view),
+    db: AsyncSession = Depends(get_db),
+):
+    links = await ticket_service.get_ticket_links(db, ticket_id, current_user.org_id)
+    return success_response([TicketLinkResponse(**l) for l in links])
+
+
+@router.post("/{ticket_id}/links", status_code=status.HTTP_201_CREATED)
+async def create_ticket_link(
+    ticket_id: UUID,
+    data: TicketLinkCreateRequest,
+    current_user=Depends(require_permission(PermissionCode.TICKET_LINK)),
+    db: AsyncSession = Depends(get_db),
+):
+    link = await ticket_service.create_link(
+        db, ticket_id, data.target_ticket_id, data.link_type, current_user.id, current_user.org_id
+    )
+    await db.commit()
+    await db.refresh(link)
+    links = await ticket_service.get_ticket_links(db, ticket_id, current_user.org_id)
+    matched = next((l for l in links if l["id"] == link.id), None)
+    if matched:
+        return created_response(TicketLinkResponse(**matched))
+    return created_response(TicketLinkResponse.model_validate(link))
+
+
+@router.delete("/{ticket_id}/links/{link_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def remove_ticket_link(
+    ticket_id: UUID,
+    link_id: UUID,
+    current_user=Depends(require_permission(PermissionCode.TICKET_LINK)),
+    db: AsyncSession = Depends(get_db),
+):
+    await ticket_service.remove_link(db, ticket_id, link_id, current_user.id, current_user.org_id)
+    await db.commit()
+
+
+# --- Ticket Custom Field Values ---
+@router.get("/{ticket_id}/custom-fields")
+async def get_ticket_custom_fields(
+    ticket_id: UUID,
+    current_user=Depends(require_ticket_view),
+    db: AsyncSession = Depends(get_db),
+):
+    vals = await ticket_service.get_ticket_custom_field_values(db, ticket_id, current_user.org_id)
+    return success_response([CustomFieldValueResponse(**v) for v in vals])

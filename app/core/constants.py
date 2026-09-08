@@ -358,7 +358,7 @@ class PermissionCode:
     ADMIN_MANAGE_SYSTEM = "admin.manage_system"
     ADMIN_VIEW_HEALTH = "admin.view_health"
 
-    # Ticket (12)
+    # Ticket (15)
     TICKET_CREATE = "ticket.create"
     TICKET_VIEW_OWN = "ticket.view_own"
     TICKET_VIEW_TEAM = "ticket.view_team"
@@ -371,6 +371,9 @@ class PermissionCode:
     TICKET_ESCALATE = "ticket.escalate"
     TICKET_CONFIG_SLA = "ticket.config_sla"
     TICKET_EXPORT = "ticket.export"
+    TICKET_LINK = "ticket.link"
+    TICKET_CONFIG_CUSTOM_FIELDS = "ticket.config_custom_fields"
+    TICKET_CONFIG_AUTOMATION = "ticket.config_automation"
 
 AUDIT_INSERT_ONLY = True
 MAKER_CHECKER_ENFORCED = True

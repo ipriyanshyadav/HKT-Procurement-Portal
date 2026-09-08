@@ -64,6 +64,12 @@ dev = [
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
+filterwarnings = [
+    "error",
+    "ignore::starlette.exceptions.StarletteDeprecationWarning",
+    "ignore:The anyio.abc.BlockingPortal alias is deprecated.*:DeprecationWarning",
+    "ignore:.*unclosed .*:ResourceWarning",
+]
 markers = [
     "unit: Unit tests",
     "integration: Integration tests requiring services",

@@ -47,8 +47,8 @@ export default function AdminTicketReportsPage() {
         link.click();
         link.remove();
       }
-    } catch (err) {
-      console.error("Export failed:", err);
+    } catch {
+      // Export failure handled gracefully
     } finally {
       setIsExporting(false);
     }

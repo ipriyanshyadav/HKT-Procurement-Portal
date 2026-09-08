@@ -88,7 +88,7 @@ class TicketSearchService:
             "raised_by": str(ticket.raised_by),
             "assigned_to": str(ticket.assigned_to) if ticket.assigned_to else None,
             "comments_text": "",
-            "created_at": ticket.created_at.isoformat() if ticket.created_at else datetime.utcnow().isoformat(),
+            "created_at": ticket.created_at.isoformat() if ticket.created_at else datetime.now(UTC).isoformat(),
         }
         try:
             await client.index(index=index_name, id=str(ticket.id), document=doc)

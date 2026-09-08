@@ -990,6 +990,35 @@ class RequisitionService:
             message="Budget sufficient",
         )
 
+    async def check_budget_preflight(
+        self,
+        db: AsyncSession,
+        cost_center_id: UUID,
+        amount: Decimal,
+        org_id: UUID,
+        bu_id: Optional[UUID] = None,
+        category_id: Optional[UUID] = None,
+    ) -> BudgetCheckResult:
+        """Pre-flight check of budget availability before PR submission."""
+        try:
+            return await self._check_budget(
+                db,
+                cost_center_id=cost_center_id,
+                amount=amount,
+                org_id=org_id,
+                bu_id=bu_id,
+                category_id=category_id,
+            )
+        except AppException as exc:
+            details = exc.details or {}
+            avail = Decimal(str(details.get("available_budget", "0.0")))
+            return BudgetCheckResult(
+                status="BLOCKED",
+                available=avail,
+                requested=amount,
+                message=exc.message,
+            )
+
     async def _invalidate_pr_cache(self, org_id: UUID) -> None:
         try:
             r = get_redis_client()

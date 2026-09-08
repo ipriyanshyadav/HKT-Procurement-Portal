@@ -49,14 +49,11 @@ class TicketSLAService:
         return created_at + timedelta(hours=cfg["resolution"])
 
     def compute_status(self, sla_breach_at: datetime, created_at: datetime) -> str:
-        if sla_breach_at.tzinfo is not None:
-            now = datetime.now(UTC)
-            if created_at.tzinfo is None:
-                created_at = created_at.replace(tzinfo=UTC)
-        else:
-            now = datetime.utcnow()
-            if created_at.tzinfo is not None:
-                created_at = created_at.replace(tzinfo=None)
+        now = datetime.now(UTC)
+        if sla_breach_at.tzinfo is None:
+            sla_breach_at = sla_breach_at.replace(tzinfo=UTC)
+        if created_at.tzinfo is None:
+            created_at = created_at.replace(tzinfo=UTC)
 
         total_secs = (sla_breach_at - created_at).total_seconds()
         elapsed_secs = (now - created_at).total_seconds()

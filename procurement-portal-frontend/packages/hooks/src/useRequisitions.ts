@@ -407,3 +407,37 @@ export function useBulkCreateRequisitions() {
     },
   });
 }
+
+export interface BudgetCheckResult {
+  status: "SUFFICIENT" | "WARNING" | "BLOCKED" | string;
+  available: number | string;
+  requested: number | string;
+  message?: string | null;
+}
+
+export interface BudgetCheckParams {
+  cost_center_id?: string;
+  amount?: number;
+  business_unit_id?: string;
+  category_id?: string;
+}
+
+export function useBudgetCheck(params: BudgetCheckParams, enabled: boolean = true) {
+  return useQuery({
+    queryKey: ["requisitions", "budget-check", params],
+    queryFn: async () => {
+      const response = await apiClient.get("/requisitions/budget-check", {
+        params: {
+          cost_center_id: params.cost_center_id,
+          amount: params.amount,
+          business_unit_id: params.business_unit_id || undefined,
+          category_id: params.category_id || undefined,
+        },
+      });
+      return response.data.data as BudgetCheckResult;
+    },
+    enabled: Boolean(enabled && params.cost_center_id && params.amount !== undefined && params.amount > 0),
+    staleTime: 10_000,
+  });
+}
+

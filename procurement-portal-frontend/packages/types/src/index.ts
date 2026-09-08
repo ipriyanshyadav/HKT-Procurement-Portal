@@ -124,3 +124,124 @@ export interface TicketDashboardMetricsResponse {
   avg_resolution_hours: number;
 }
 
+export type TicketLinkType = "BLOCKS" | "IS_BLOCKED_BY" | "RELATES_TO" | "DUPLICATES" | "IS_DUPLICATED_BY" | "CLONES" | "IS_CLONED_BY";
+
+export interface TicketLinkItem {
+  id: string;
+  source_ticket_id: string;
+  target_ticket_id: string;
+  link_type: TicketLinkType | string;
+  created_by: string;
+  created_at: string;
+  target_ticket_number?: string | null;
+  target_ticket_title?: string | null;
+  target_ticket_status?: string | null;
+  target_ticket_priority?: string | null;
+}
+
+export interface TicketLinkCreatePayload {
+  target_ticket_id: string;
+  link_type: TicketLinkType | string;
+}
+
+export type CustomFieldType = "TEXT" | "NUMBER" | "DATE" | "SELECT" | "MULTI_SELECT" | "BOOLEAN";
+
+export interface CustomFieldDefItem {
+  id: string;
+  name: string;
+  field_key: string;
+  field_type: CustomFieldType | string;
+  description?: string | null;
+  is_required: boolean;
+  default_value?: string | null;
+  options: any[];
+  applies_to_ticket_types: string[];
+  created_at: string;
+}
+
+export interface CustomFieldDefCreatePayload {
+  name: string;
+  field_key: string;
+  field_type: CustomFieldType | string;
+  description?: string | null;
+  is_required?: boolean;
+  default_value?: string | null;
+  options?: any[];
+  applies_to_ticket_types?: string[];
+}
+
+export interface CustomFieldDefUpdatePayload {
+  name?: string | null;
+  description?: string | null;
+  is_required?: boolean | null;
+  default_value?: string | null;
+  options?: any[] | null;
+  applies_to_ticket_types?: string[] | null;
+}
+
+export interface CustomFieldValueRecord {
+  id: string;
+  field_def_id: string;
+  field_key?: string | null;
+  field_name?: string | null;
+  field_type?: string | null;
+  value_text?: string | null;
+  value_number?: number | null;
+  value_json?: any | null;
+}
+
+export interface CustomFieldValueInput {
+  field_def_id: string;
+  value_text?: string | null;
+  value_number?: number | null;
+  value_json?: any | null;
+}
+
+export type AutomationTriggerType = "TICKET_CREATED" | "STATUS_CHANGED" | "FIELD_CHANGED" | "SLA_BREACHED" | "SCHEDULE";
+export type AutomationTrigger = AutomationTriggerType;
+
+export type AutomationActionType =
+  | "ASSIGN_ROUND_ROBIN"
+  | "ASSIGN_BALANCED"
+  | "ASSIGN_USER"
+  | "TRANSITION_STATUS"
+  | "CHANGE_PRIORITY"
+  | "SET_DUE_DATE"
+  | "ADD_TAG"
+  | "ADD_COMMENT";
+
+export interface AutomationRuleItem {
+  id: string;
+  name: string;
+  description?: string | null;
+  is_enabled: boolean;
+  trigger_type: AutomationTriggerType | string;
+  trigger_config: Record<string, any>;
+  conditions: any[];
+  actions: any[];
+  execution_count: number;
+  last_executed_at?: string | null;
+  created_at: string;
+}
+
+export interface AutomationRuleCreatePayload {
+  name: string;
+  description?: string | null;
+  is_enabled?: boolean;
+  trigger_type: AutomationTriggerType | string;
+  trigger_config?: Record<string, any>;
+  conditions?: any[];
+  actions?: any[];
+}
+
+export interface AutomationRuleUpdatePayload {
+  name?: string | null;
+  description?: string | null;
+  is_enabled?: boolean | null;
+  trigger_type?: string | null;
+  trigger_config?: Record<string, any> | null;
+  conditions?: any[] | null;
+  actions?: any[] | null;
+}
+
+

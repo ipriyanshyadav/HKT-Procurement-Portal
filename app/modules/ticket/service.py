@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 from uuid import UUID, uuid4
 
@@ -9,22 +9,32 @@ from loguru import logger
 from sqlalchemy import func, or_, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.config import settings
 from app.core.exceptions import AppException, ForbiddenError, ValidationError
 from app.core.redis_client import RedisKeys, get_redis_client
 from app.events.publisher import OutboxPublisher
 from app.modules.audit.service import audit_service
 from app.modules.ticket.fsm import validate_ticket_transition
 from app.modules.ticket.mention_parser import MentionParser
+from app.modules.ticket.automation_engine import ticket_automation_engine
 from app.modules.ticket.models import (
     Ticket,
     TicketActivityLog,
     TicketAttachment,
+    TicketAutomationRule,
     TicketComment,
+    TicketCustomFieldDef,
+    TicketCustomFieldValue,
+    TicketLink,
     TicketSLAConfig,
     TicketWatcher,
 )
 from app.modules.ticket.repository import TicketRepository, ticket_repository
 from app.modules.ticket.schemas import (
+    AutomationRuleCreateRequest,
+    AutomationRuleUpdateRequest,
+    CustomFieldDefCreateRequest,
+    CustomFieldDefUpdateRequest,
     TicketCreateRequest,
     TicketFilters,
     TicketSLAConfigRequest,
@@ -86,6 +96,7 @@ class TicketService:
         self.publisher = TicketPublisherAdapter()
         self.audit = audit_service
         self.redis = get_redis_client()
+        self.automation = ticket_automation_engine
 
     async def create(
         self,
@@ -96,7 +107,7 @@ class TicketService:
         portal: str = "buyer",
     ) -> Ticket:
         ticket_number = await self._generate_number(db, org_id)
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         sla_breach_at = await self.sla.compute_breach_at(db, org_id, data.priority, now)
 
         ticket = Ticket(
@@ -107,6 +118,7 @@ class TicketService:
             ticket_type=data.ticket_type,
             priority=data.priority,
             category=data.category,
+            due_date=data.due_date,
             status="OPEN",
             raised_by=actor_id,
             raised_by_portal=portal,
@@ -120,6 +132,32 @@ class TicketService:
         )
         db.add(ticket)
         await db.flush()
+
+        # Custom fields
+        if getattr(data, "custom_fields", None):
+            for cf in data.custom_fields:
+                db.add(
+                    TicketCustomFieldValue(
+                        org_id=org_id,
+                        ticket_id=ticket.id,
+                        field_def_id=cf.field_def_id,
+                        value_text=cf.value_text,
+                        value_number=cf.value_number,
+                        value_json=cf.value_json,
+                    )
+                )
+
+        # Trigger Automation Rules
+        try:
+            await self.automation.trigger(
+                db,
+                "TICKET_CREATED",
+                ticket,
+                org_id,
+                {"priority": data.priority, "ticket_type": data.ticket_type, "category": data.category},
+            )
+        except Exception as e:
+            logger.warning(f"Error executing automation rules on create for ticket {ticket.id}: {e}")
 
         # Auto-watch: add raiser as watcher
         db.add(
@@ -223,7 +261,7 @@ class TicketService:
 
         # Track first response
         if ticket.assigned_to == actor_id and not ticket.first_response_at:
-            ticket.first_response_at = datetime.utcnow()
+            ticket.first_response_at = datetime.now(timezone.utc)
 
         # PENDING_RESPONSE → IN_PROGRESS when raiser replies
         if ticket.status == "PENDING_RESPONSE" and actor_id == ticket.raised_by:
@@ -300,18 +338,23 @@ class TicketService:
         if comment.author_id != actor_id:
             raise ForbiddenError("Only the comment author can edit", "NOT_COMMENT_AUTHOR")
 
-        created_dt = comment.created_at.replace(tzinfo=None) if comment.created_at.tzinfo else comment.created_at
-        elapsed = (datetime.utcnow() - created_dt).total_seconds()
-        if elapsed > 900:  # 15 minutes structural constraint per spec
+        created_dt = comment.created_at
+        if created_dt.tzinfo is None:
+            created_dt = created_dt.replace(tzinfo=timezone.utc)
+        elapsed = (datetime.now(timezone.utc) - created_dt).total_seconds()
+        if elapsed > settings.TICKET_COMMENT_EDIT_WINDOW_SECONDS:
             raise AppException(
                 message="Comments can only be edited within 15 minutes of posting",
                 code="EDIT_WINDOW_CLOSED",
                 status_code=409,
-                details={"elapsed_seconds": int(elapsed), "max_seconds": 900},
+                details={
+                    "elapsed_seconds": int(elapsed),
+                    "max_seconds": settings.TICKET_COMMENT_EDIT_WINDOW_SECONDS,
+                },
             )
 
         comment.content = content
-        comment.edited_at = datetime.utcnow()
+        comment.edited_at = datetime.now(timezone.utc)
         comment.edited_by = actor_id
         return comment
 
@@ -329,7 +372,7 @@ class TicketService:
                 "Only the author or admin can delete a comment",
                 "NOT_COMMENT_AUTHOR",
             )
-        comment.deleted_at = datetime.utcnow()
+        comment.deleted_at = datetime.now(timezone.utc)
 
     async def get_comments(
         self,
@@ -471,7 +514,7 @@ class TicketService:
         old_status = ticket.status
         ticket.status = "RESOLVED"
         ticket.resolution_note = resolution_note.strip()
-        ticket.resolved_at = datetime.utcnow()
+        ticket.resolved_at = datetime.now(timezone.utc)
 
         await self._log(
             db,
@@ -582,18 +625,20 @@ class TicketService:
 
         validate_ticket_transition(ticket.status, "REOPENED", is_supplier=is_supplier)
 
-        if not reason or len(reason.strip()) < 5:
+        if not reason or len(reason.strip()) < settings.TICKET_REOPEN_REASON_MIN_LENGTH:
             raise ValidationError(
-                "Reopen reason must be at least 5 characters",
+                f"Reopen reason must be at least {settings.TICKET_REOPEN_REASON_MIN_LENGTH} characters",
                 "REOPEN_REASON_REQUIRED",
             )
 
         if ticket.status == "CLOSED" and not await self._is_admin(db, actor_id, org_id):
-            updated_dt = ticket.updated_at.replace(tzinfo=None) if ticket.updated_at.tzinfo else ticket.updated_at
-            days_closed = (datetime.utcnow() - updated_dt).days
-            if days_closed > 30:
+            updated_dt = ticket.updated_at
+            if updated_dt.tzinfo is None:
+                updated_dt = updated_dt.replace(tzinfo=timezone.utc)
+            days_closed = (datetime.now(timezone.utc) - updated_dt).days
+            if days_closed > settings.TICKET_REOPEN_MAX_DAYS:
                 raise AppException(
-                    message="Tickets can only be reopened within 30 days of closing",
+                    message=f"Tickets can only be reopened within {settings.TICKET_REOPEN_MAX_DAYS} days of closing",
                     code="REOPEN_WINDOW_EXPIRED",
                     status_code=409,
                 )
@@ -605,7 +650,7 @@ class TicketService:
         ticket.resolution_note = None
 
         # Reset SLA breach time from now
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         ticket.sla_breach_at = await self.sla.compute_breach_at(db, org_id, ticket.priority, now)
         ticket.sla_status = "WITHIN_SLA"
 
@@ -739,7 +784,7 @@ class TicketService:
         if data.priority is not None and data.priority != ticket.priority:
             old_priority = ticket.priority
             ticket.priority = data.priority
-            now = datetime.utcnow()
+            now = datetime.now(timezone.utc)
             ticket.sla_breach_at = await self.sla.compute_breach_at(db, org_id, data.priority, now)
             await self._log(
                 db,
@@ -751,7 +796,50 @@ class TicketService:
                 new_value=data.priority,
             )
 
-        ticket.updated_at = datetime.utcnow()
+        if data.due_date is not None:
+            ticket.due_date = data.due_date
+
+        if getattr(data, "custom_fields", None) is not None:
+            for cf in data.custom_fields:
+                stmt = select(TicketCustomFieldValue).where(
+                    TicketCustomFieldValue.ticket_id == ticket_id,
+                    TicketCustomFieldValue.field_def_id == cf.field_def_id,
+                    TicketCustomFieldValue.org_id == org_id,
+                    TicketCustomFieldValue.deleted_at.is_(None),
+                )
+                res = await db.execute(stmt)
+                existing_cf = res.scalar_one_or_none()
+                if existing_cf:
+                    existing_cf.value_text = cf.value_text
+                    existing_cf.value_number = cf.value_number
+                    existing_cf.value_json = cf.value_json
+                    existing_cf.updated_at = datetime.now(timezone.utc)
+                else:
+                    db.add(
+                        TicketCustomFieldValue(
+                            org_id=org_id,
+                            ticket_id=ticket.id,
+                            field_def_id=cf.field_def_id,
+                            value_text=cf.value_text,
+                            value_number=cf.value_number,
+                            value_json=cf.value_json,
+                        )
+                    )
+
+        ticket.updated_at = datetime.now(timezone.utc)
+
+        # Trigger automation on field changed
+        try:
+            await self.automation.trigger(
+                db,
+                "FIELD_CHANGED",
+                ticket,
+                org_id,
+                {"priority": ticket.priority, "due_date": str(ticket.due_date) if ticket.due_date else None},
+            )
+        except Exception as e:
+            logger.warning(f"Error executing automation rules on update for ticket {ticket.id}: {e}")
+
         return ticket
 
     async def soft_delete(
@@ -762,7 +850,7 @@ class TicketService:
         org_id: UUID,
     ) -> None:
         ticket = await self.repo.get(db, ticket_id, org_id)
-        ticket.deleted_at = datetime.utcnow()
+        ticket.deleted_at = datetime.now(timezone.utc)
         await self._log(db, ticket_id, actor_id, org_id, "TICKET_DELETED")
 
     async def get_list(
@@ -813,6 +901,10 @@ class TicketService:
             query = query.where(Ticket.created_at >= filters.date_from)
         if filters.date_to:
             query = query.where(Ticket.created_at <= filters.date_to)
+        if getattr(filters, "due_date_from", None):
+            query = query.where(Ticket.due_date >= filters.due_date_from)
+        if getattr(filters, "due_date_to", None):
+            query = query.where(Ticket.due_date <= filters.due_date_to)
 
         count = (await db.execute(select(func.count()).select_from(query.subquery()))).scalar() or 0
         result = await db.execute(
@@ -943,7 +1035,7 @@ class TicketService:
     ) -> None:
         watcher = await self.repo.get_watcher(db, ticket_id, user_id, org_id)
         if watcher:
-            watcher.deleted_at = datetime.utcnow()
+            watcher.deleted_at = datetime.now(timezone.utc)
             await self._log(
                 db,
                 ticket_id,
@@ -1000,7 +1092,7 @@ class TicketService:
         res = await db.execute(stmt)
         att = res.scalar_one_or_none()
         if att:
-            att.deleted_at = datetime.utcnow()
+            att.deleted_at = datetime.now(timezone.utc)
             await self._log(
                 db,
                 ticket_id,
@@ -1032,7 +1124,7 @@ class TicketService:
                 existing.escalation_hours = cfg.escalation_hours
                 existing.escalate_to_role = cfg.escalate_to_role
                 existing.version += 1
-                existing.updated_at = datetime.utcnow()
+                existing.updated_at = datetime.now(timezone.utc)
                 results.append(existing)
             else:
                 new_cfg = TicketSLAConfig(
@@ -1057,13 +1149,343 @@ class TicketService:
         )
         return results
 
+    # --- Ticket Links (Jira Issue Linking) ---
+    async def create_link(
+        self,
+        db: AsyncSession,
+        ticket_id: UUID,
+        target_ticket_id: UUID,
+        link_type: str,
+        actor_id: UUID,
+        org_id: UUID,
+    ) -> TicketLink:
+        if ticket_id == target_ticket_id:
+            raise ValidationError("Cannot link a ticket to itself", "SELF_LINK_NOT_ALLOWED")
+
+        source_ticket = await self.repo.get(db, ticket_id, org_id)
+        target_ticket = await self.repo.get(db, target_ticket_id, org_id)
+
+        # Check existing link
+        stmt = select(TicketLink).where(
+            TicketLink.source_ticket_id == ticket_id,
+            TicketLink.target_ticket_id == target_ticket_id,
+            TicketLink.link_type == link_type,
+            TicketLink.org_id == org_id,
+            TicketLink.deleted_at.is_(None),
+        )
+        res = await db.execute(stmt)
+        existing = res.scalar_one_or_none()
+        if existing:
+            return existing
+
+        link = TicketLink(
+            org_id=org_id,
+            source_ticket_id=ticket_id,
+            target_ticket_id=target_ticket_id,
+            link_type=link_type,
+            created_by=actor_id,
+        )
+        db.add(link)
+        await self._log(
+            db,
+            ticket_id,
+            actor_id,
+            org_id,
+            "LINK_ADDED",
+            new_value=f"{link_type} -> {target_ticket.ticket_number}",
+        )
+        await self.publisher.publish(
+            db,
+            "procurement.ticket",
+            "ticket.link.created",
+            {
+                "source_ticket_id": str(ticket_id),
+                "target_ticket_id": str(target_ticket_id),
+                "link_type": link_type,
+                "created_by": str(actor_id),
+                "org_id": str(org_id),
+            },
+            org_id,
+        )
+        return link
+
+    async def remove_link(
+        self,
+        db: AsyncSession,
+        ticket_id: UUID,
+        link_id: UUID,
+        actor_id: UUID,
+        org_id: UUID,
+    ) -> None:
+        link = await self.repo.get_link(db, link_id, org_id)
+        if link.source_ticket_id != ticket_id and link.target_ticket_id != ticket_id:
+            raise ForbiddenError("Link does not belong to this ticket", "LINK_NOT_FOUND")
+        link.deleted_at = datetime.now(timezone.utc)
+        await self._log(
+            db,
+            ticket_id,
+            actor_id,
+            org_id,
+            "LINK_REMOVED",
+            old_value=f"{link.link_type} -> {link.target_ticket_id}",
+        )
+
+    async def get_ticket_links(
+        self,
+        db: AsyncSession,
+        ticket_id: UUID,
+        org_id: UUID,
+    ) -> list[dict[str, Any]]:
+        links = await self.repo.get_links(db, ticket_id, org_id)
+        results: list[dict[str, Any]] = []
+        if not links:
+            return results
+
+        inverse_map = {
+            "BLOCKS": "IS_BLOCKED_BY",
+            "IS_BLOCKED_BY": "BLOCKS",
+            "DUPLICATES": "IS_DUPLICATED_BY",
+            "IS_DUPLICATED_BY": "DUPLICATES",
+            "CLONES": "IS_CLONED_BY",
+            "IS_CLONED_BY": "CLONES",
+            "RELATES_TO": "RELATES_TO",
+        }
+
+        # Batch fetch all target/source tickets in 1 query to prevent N+1 queries
+        other_ids = [
+            l.target_ticket_id if l.source_ticket_id == ticket_id else l.source_ticket_id
+            for l in links
+        ]
+        target_map = {}
+        if hasattr(self.repo, "get_by_ids"):
+            try:
+                targets = await self.repo.get_by_ids(db, other_ids, org_id)
+                target_map = {t.id: t for t in targets}
+            except Exception:
+                target_map = {}
+
+        for l in links:
+            is_source = (l.source_ticket_id == ticket_id)
+            target_id = l.target_ticket_id if is_source else l.source_ticket_id
+            target = target_map.get(target_id)
+            if target is None:
+                try:
+                    target = await self.repo.get(db, target_id, org_id)
+                except Exception:
+                    target = None
+
+            link_type = l.link_type if is_source else inverse_map.get(l.link_type, l.link_type)
+            results.append({
+                "id": l.id,
+                "source_ticket_id": l.source_ticket_id if is_source else l.target_ticket_id,
+                "target_ticket_id": l.target_ticket_id if is_source else l.source_ticket_id,
+                "link_type": link_type,
+                "created_by": l.created_by,
+                "created_at": l.created_at,
+                "target_ticket_number": getattr(target, "ticket_number", "UNKNOWN") if target else "UNKNOWN",
+                "target_ticket_title": getattr(target, "title", "Unknown Ticket") if target else "Unknown Ticket",
+                "target_ticket_status": getattr(target, "status", "UNKNOWN") if target else "UNKNOWN",
+                "target_ticket_priority": getattr(target, "priority", "UNKNOWN") if target else "UNKNOWN",
+            })
+        return results
+
+    # --- Custom Fields ---
+    async def create_custom_field_def(
+        self,
+        db: AsyncSession,
+        data: CustomFieldDefCreateRequest,
+        actor_id: UUID,
+        org_id: UUID,
+    ) -> TicketCustomFieldDef:
+        existing = await self.repo.get_custom_field_def_by_key(db, data.field_key, org_id)
+        if existing:
+            raise ValidationError(f"Field key '{data.field_key}' already exists", "FIELD_KEY_EXISTS")
+
+        cf_def = TicketCustomFieldDef(
+            org_id=org_id,
+            name=data.name,
+            field_key=data.field_key,
+            field_type=data.field_type,
+            description=data.description,
+            is_required=data.is_required,
+            default_value=data.default_value,
+            options=data.options or [],
+            applies_to_ticket_types=data.applies_to_ticket_types or [],
+            created_by=actor_id,
+        )
+        db.add(cf_def)
+        await self.audit.log(
+            db,
+            "TICKET_CUSTOM_FIELD_DEF",
+            cf_def.id,
+            "CUSTOM_FIELD_DEF_CREATED",
+            actor_id,
+            org_id,
+            new_values={"key": data.field_key, "type": data.field_type},
+        )
+        return cf_def
+
+    async def update_custom_field_def(
+        self,
+        db: AsyncSession,
+        field_def_id: UUID,
+        data: CustomFieldDefUpdateRequest,
+        actor_id: UUID,
+        org_id: UUID,
+    ) -> TicketCustomFieldDef:
+        cf_def = await self.repo.get_custom_field_def(db, field_def_id, org_id)
+        if data.name is not None:
+            cf_def.name = data.name
+        if data.description is not None:
+            cf_def.description = data.description
+        if data.is_required is not None:
+            cf_def.is_required = data.is_required
+        if data.default_value is not None:
+            cf_def.default_value = data.default_value
+        if data.options is not None:
+            cf_def.options = data.options
+        if data.applies_to_ticket_types is not None:
+            cf_def.applies_to_ticket_types = data.applies_to_ticket_types
+        cf_def.updated_at = datetime.now(timezone.utc)
+        return cf_def
+
+    async def delete_custom_field_def(
+        self,
+        db: AsyncSession,
+        field_def_id: UUID,
+        actor_id: UUID,
+        org_id: UUID,
+    ) -> None:
+        cf_def = await self.repo.get_custom_field_def(db, field_def_id, org_id)
+        cf_def.deleted_at = datetime.now(timezone.utc)
+
+    async def get_custom_field_defs(
+        self,
+        db: AsyncSession,
+        org_id: UUID,
+        ticket_type: str | None = None,
+    ) -> list[TicketCustomFieldDef]:
+        defs = await self.repo.get_custom_field_defs(db, org_id, ticket_type)
+        return list(defs)
+
+    async def get_ticket_custom_field_values(
+        self,
+        db: AsyncSession,
+        ticket_id: UUID,
+        org_id: UUID,
+    ) -> list[dict[str, Any]]:
+        vals = await self.repo.get_custom_field_values(db, ticket_id, org_id)
+        results = []
+        for v in vals:
+            results.append({
+                "id": v.id,
+                "field_def_id": v.field_def_id,
+                "field_key": v.field_def.field_key if v.field_def else None,
+                "field_name": v.field_def.name if v.field_def else None,
+                "field_type": str(v.field_def.field_type) if v.field_def else None,
+                "value_text": v.value_text,
+                "value_number": float(v.value_number) if v.value_number is not None else None,
+                "value_json": v.value_json,
+            })
+        return results
+
+    # --- Automation Rules (Jira No-Code Automation) ---
+    async def create_automation_rule(
+        self,
+        db: AsyncSession,
+        data: AutomationRuleCreateRequest,
+        actor_id: UUID,
+        org_id: UUID,
+    ) -> TicketAutomationRule:
+        rule = TicketAutomationRule(
+            org_id=org_id,
+            name=data.name,
+            description=data.description,
+            is_enabled=data.is_enabled,
+            trigger_type=data.trigger_type,
+            trigger_config=data.trigger_config or {},
+            conditions=data.conditions or [],
+            actions=data.actions or [],
+            created_by=actor_id,
+        )
+        db.add(rule)
+        await self.audit.log(
+            db,
+            "TICKET_AUTOMATION_RULE",
+            rule.id,
+            "AUTOMATION_RULE_CREATED",
+            actor_id,
+            org_id,
+            new_values={"name": data.name, "trigger": data.trigger_type},
+        )
+        return rule
+
+    async def update_automation_rule(
+        self,
+        db: AsyncSession,
+        rule_id: UUID,
+        data: AutomationRuleUpdateRequest,
+        actor_id: UUID,
+        org_id: UUID,
+    ) -> TicketAutomationRule:
+        rule = await self.repo.get_automation_rule(db, rule_id, org_id)
+        if data.name is not None:
+            rule.name = data.name
+        if data.description is not None:
+            rule.description = data.description
+        if data.is_enabled is not None:
+            rule.is_enabled = data.is_enabled
+        if data.trigger_type is not None:
+            rule.trigger_type = data.trigger_type
+        if data.trigger_config is not None:
+            rule.trigger_config = data.trigger_config
+        if data.conditions is not None:
+            rule.conditions = data.conditions
+        if data.actions is not None:
+            rule.actions = data.actions
+        rule.updated_at = datetime.now(timezone.utc)
+        return rule
+
+    async def delete_automation_rule(
+        self,
+        db: AsyncSession,
+        rule_id: UUID,
+        actor_id: UUID,
+        org_id: UUID,
+    ) -> None:
+        rule = await self.repo.get_automation_rule(db, rule_id, org_id)
+        rule.deleted_at = datetime.now(timezone.utc)
+
+    async def get_automation_rules(
+        self,
+        db: AsyncSession,
+        org_id: UUID,
+    ) -> list[TicketAutomationRule]:
+        rules = await self.repo.get_automation_rules(db, org_id, only_enabled=False)
+        return list(rules)
+
+    async def run_automation_rule(
+        self,
+        db: AsyncSession,
+        rule_id: UUID,
+        ticket_id: UUID,
+        actor_id: UUID,
+        org_id: UUID,
+    ) -> dict[str, Any]:
+        rule = await self.repo.get_automation_rule(db, rule_id, org_id)
+        ticket = await self.repo.get(db, ticket_id, org_id)
+        results = await self.automation._execute_actions(db, rule, ticket, org_id)
+        rule.execution_count += 1
+        rule.last_executed_at = datetime.now(timezone.utc)
+        return {"rule_id": str(rule.id), "ticket_id": str(ticket.id), "actions": results}
+
     async def _generate_number(self, db: AsyncSession, org_id: UUID) -> str:
         from app.modules.organization.models import Organization
         org = await db.get(Organization, org_id)
         raw_name = org.name if org and org.name else "HKT"
         clean_code = "".join(c for c in raw_name.upper() if c.isalpha())[:3]
         code = clean_code.ljust(3, "X") if len(clean_code) < 3 else clean_code[:3]
-        year = datetime.utcnow().year
+        year = datetime.now(timezone.utc).year
         seq = f"seq_tkt_{code.lower()}_{year}"
 
         for attempt in range(3):
@@ -1075,7 +1497,7 @@ class TicketService:
             except Exception:
                 if attempt == 2:
                     raise
-        return None
+        raise RuntimeError(f"Failed to generate unique ticket sequence number for org {org_id} after multiple attempts")
 
     async def _log(
         self,

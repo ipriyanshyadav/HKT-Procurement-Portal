@@ -46,6 +46,21 @@ class BaseRepository(Generic[ModelType]):
         result = await db.execute(stmt)
         return list(result.scalars().all())
 
+    async def get_by_ids(
+        self,
+        db: AsyncSession,
+        ids: list[UUID],
+        org_id: UUID,
+        include_deleted: bool = False,
+    ) -> List[ModelType]:
+        if not ids:
+            return []
+        stmt = select(self.model).where(self.model.id.in_(ids), self.model.org_id == org_id)
+        if not include_deleted and hasattr(self.model, "deleted_at"):
+            stmt = stmt.where(self.model.deleted_at.is_(None))
+        result = await db.execute(stmt)
+        return list(result.scalars().all())
+
     async def soft_delete(self, db: AsyncSession, id: UUID, org_id: UUID) -> None:
         now = datetime.now(timezone.utc)
         stmt = (

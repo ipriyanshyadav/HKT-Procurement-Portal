@@ -111,6 +111,7 @@ services:
 
   clamav:
     image: clamav/clamav:1.4-debian
+    restart: unless-stopped
     container_name: procurement_clamav
     ports:
       - "3310:3310"
@@ -124,6 +125,7 @@ services:
 
   jaeger:
     image: jaegertracing/all-in-one:1.57
+    restart: unless-stopped
     container_name: procurement_jaeger
     ports:
       - "4317:4317"
@@ -135,6 +137,7 @@ services:
 
   prometheus:
     image: prom/prometheus:v2.52.0
+    restart: unless-stopped
     container_name: procurement_prometheus
     ports:
       - "9090:9090"
@@ -146,6 +149,7 @@ services:
 
   grafana:
     image: grafana/grafana:10.4.0
+    restart: unless-stopped
     container_name: procurement_grafana
     ports:
       - "3003:3000"
@@ -178,6 +182,7 @@ services:
 
   elasticsearch:
     image: elasticsearch:8.14.0
+    restart: unless-stopped
     container_name: procurement_elasticsearch
     environment:
       - discovery.type=single-node
@@ -189,6 +194,12 @@ services:
       - elasticsearch_data:/usr/share/elasticsearch/data
     networks:
       - procurement_net
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:9200/_cat/health | grep -q 'green\\|yellow'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   api:
     build:
@@ -299,6 +310,12 @@ services:
       NODE_ENV: production
     networks:
       - procurement_net
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/ || exit 0"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
     depends_on:
       api:
         condition: service_healthy
@@ -320,6 +337,12 @@ services:
       NODE_ENV: production
     networks:
       - procurement_net
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3001/ || exit 0"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
     depends_on:
       api:
         condition: service_healthy
@@ -341,6 +364,12 @@ services:
       NODE_ENV: production
     networks:
       - procurement_net
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3002/ || exit 0"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
     depends_on:
       api:
         condition: service_healthy

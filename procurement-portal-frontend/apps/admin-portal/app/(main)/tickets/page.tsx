@@ -13,6 +13,8 @@ import {
   Timer,
   CheckSquare,
   Square,
+  Zap,
+  FormInput,
 } from "lucide-react";
 import { useTickets, useBulkStatusTickets, useBulkAssignTickets } from "@procurement/hooks";
 import { TicketSLAIndicator } from "@procurement/ui";
@@ -77,19 +79,33 @@ export default function AdminTicketsPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <Link
+            href="/tickets/automation"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-amber-800 bg-amber-50 border border-amber-200 rounded-lg hover:bg-amber-100 transition-colors shadow-sm"
+          >
+            <Zap className="w-3.5 h-3.5 text-amber-600 fill-amber-600" />
+            <span>Automation Rules</span>
+          </Link>
+          <Link
+            href="/tickets/custom-fields"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors shadow-sm"
+          >
+            <FormInput className="w-3.5 h-3.5 text-slate-500" />
+            <span>Custom Fields</span>
+          </Link>
           <Link
             href="/tickets/dashboard"
-            className="inline-flex items-center gap-2 px-3.5 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors shadow-sm"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors shadow-sm"
           >
-            <BarChart3 className="w-4 h-4 text-slate-500" />
+            <BarChart3 className="w-3.5 h-3.5 text-slate-500" />
             <span>SLA Dashboard</span>
           </Link>
           <Link
             href="/tickets/sla-config"
-            className="inline-flex items-center gap-2 px-3.5 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
           >
-            <Timer className="w-4 h-4" />
+            <Timer className="w-3.5 h-3.5" />
             <span>Configure SLAs</span>
           </Link>
         </div>

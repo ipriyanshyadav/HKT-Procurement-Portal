@@ -1,13 +1,14 @@
 "use client";
 
 import React, { useState } from "react";
-import { X, AlertCircle, Loader2 } from "lucide-react";
-import { useCreateTicket } from "@procurement/hooks";
+import { X, AlertCircle, Loader2, Calendar, Sliders } from "lucide-react";
+import { useCreateTicket, useCustomFieldDefs } from "@procurement/hooks";
 import type {
   TicketType,
   TicketPriority,
   TicketCreateRequest,
   TicketDetailResponse,
+  CustomFieldDefItem,
 } from "@procurement/types";
 
 interface CreateTicketModalProps {
@@ -47,12 +48,15 @@ export function CreateTicketModal({
   const [title, setTitle] = useState("");
   const [ticketType, setTicketType] = useState<TicketType>("GENERAL");
   const [priority, setPriority] = useState<TicketPriority>("MEDIUM");
+  const [dueDate, setDueDate] = useState("");
   const [description, setDescription] = useState("");
   const [entityType, setEntityType] = useState(initialEntityType || "");
   const [entityId, setEntityId] = useState(initialEntityId || "");
+  const [customFieldValues, setCustomFieldValues] = useState<Record<string, any>>({});
   const [error, setError] = useState<string | null>(null);
 
   const createMutation = useCreateTicket();
+  const { data: customFieldDefs = [] } = useCustomFieldDefs();
 
   if (!isOpen) return null;
 
@@ -63,12 +67,38 @@ export function CreateTicketModal({
       return;
     }
 
+    // Validate required custom fields
+    for (const def of customFieldDefs) {
+      if (def.is_required && (customFieldValues[def.id] === undefined || customFieldValues[def.id] === "")) {
+        setError(`Custom field "${def.name}" is required.`);
+        return;
+      }
+    }
+
     setError(null);
     try {
+      const cfPayload: any[] = [];
+      for (const [defId, val] of Object.entries(customFieldValues)) {
+        if (val === "" || val === null || val === undefined) continue;
+        const def = customFieldDefs.find((d) => d.id === defId);
+        if (!def) continue;
+        if (def.field_type === "NUMBER") {
+          cfPayload.push({ field_def_id: defId, value_number: Number(val) });
+        } else if (def.field_type === "BOOLEAN") {
+          cfPayload.push({ field_def_id: defId, value_json: Boolean(val) });
+        } else if (def.field_type === "MULTI_SELECT") {
+          const arr = typeof val === "string" ? val.split(",").map((s) => s.trim()).filter(Boolean) : val;
+          cfPayload.push({ field_def_id: defId, value_json: arr });
+        } else {
+          cfPayload.push({ field_def_id: defId, value_text: String(val) });
+        }
+      }
+
       const payload: TicketCreateRequest = {
         title: title.trim(),
         ticket_type: ticketType,
         priority,
+        due_date: dueDate || undefined,
         description:
           description.trim().length >= 20
             ? description.trim()
@@ -76,6 +106,7 @@ export function CreateTicketModal({
         entity_type: entityType.trim() || undefined,
         entity_id: entityId.trim() || undefined,
         is_private: false,
+        custom_fields: cfPayload.length > 0 ? cfPayload : undefined,
       };
 
       const result = await createMutation.mutateAsync(payload);
@@ -84,6 +115,8 @@ export function CreateTicketModal({
       // Reset
       setTitle("");
       setDescription("");
+      setDueDate("");
+      setCustomFieldValues({});
     } catch (err: any) {
       setError(err?.response?.data?.message || err?.message || "Failed to create ticket");
     }
@@ -202,6 +235,122 @@ export function CreateTicketModal({
               />
             </div>
           </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">
+              Target Due Date (Optional)
+            </label>
+            <div className="relative">
+              <input
+                type="date"
+                value={dueDate}
+                onChange={(e) => setDueDate(e.target.value)}
+                className="w-full text-sm px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white"
+              />
+            </div>
+          </div>
+
+          {customFieldDefs && customFieldDefs.length > 0 && (
+            <div className="pt-3 border-t border-slate-200 space-y-3">
+              <div className="flex items-center gap-1.5">
+                <Sliders className="w-3.5 h-3.5 text-indigo-600" />
+                <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                  Custom Fields ({customFieldDefs.length})
+                </span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {customFieldDefs.map((def: CustomFieldDefItem) => {
+                  const val = customFieldValues[def.id] ?? "";
+                  return (
+                    <div key={def.id}>
+                      <label className="block text-xs font-semibold text-slate-700 mb-1">
+                        {def.name} {def.is_required && <span className="text-rose-500">*</span>}
+                      </label>
+                      {def.field_type === "TEXT" && (
+                        <input
+                          type="text"
+                          required={def.is_required}
+                          value={val}
+                          onChange={(e) =>
+                            setCustomFieldValues({ ...customFieldValues, [def.id]: e.target.value })
+                          }
+                          placeholder={`Enter ${def.name}`}
+                          className="w-full text-xs px-2.5 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                        />
+                      )}
+                      {def.field_type === "NUMBER" && (
+                        <input
+                          type="number"
+                          required={def.is_required}
+                          value={val}
+                          onChange={(e) =>
+                            setCustomFieldValues({ ...customFieldValues, [def.id]: Number(e.target.value) })
+                          }
+                          placeholder="0"
+                          className="w-full text-xs px-2.5 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                        />
+                      )}
+                      {def.field_type === "DATE" && (
+                        <input
+                          type="date"
+                          required={def.is_required}
+                          value={val}
+                          onChange={(e) =>
+                            setCustomFieldValues({ ...customFieldValues, [def.id]: e.target.value })
+                          }
+                          className="w-full text-xs px-2.5 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                        />
+                      )}
+                      {def.field_type === "SELECT" && (
+                        <select
+                          required={def.is_required}
+                          value={val}
+                          onChange={(e) =>
+                            setCustomFieldValues({ ...customFieldValues, [def.id]: e.target.value })
+                          }
+                          className="w-full text-xs px-2.5 py-2 border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                        >
+                          <option value="">Select an option</option>
+                          {def.options?.map((opt: any, i: number) => (
+                            <option key={i} value={String(opt)}>
+                              {String(opt)}
+                            </option>
+                          ))}
+                        </select>
+                      )}
+                      {def.field_type === "BOOLEAN" && (
+                        <div className="flex items-center gap-2 pt-2">
+                          <input
+                            type="checkbox"
+                            id={`check-${def.id}`}
+                            checked={Boolean(val)}
+                            onChange={(e) =>
+                              setCustomFieldValues({ ...customFieldValues, [def.id]: e.target.checked })
+                            }
+                            className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 w-4 h-4"
+                          />
+                          <label htmlFor={`check-${def.id}`} className="text-xs text-slate-700">
+                            Yes / Enabled
+                          </label>
+                        </div>
+                      )}
+                      {def.field_type === "MULTI_SELECT" && (
+                        <input
+                          type="text"
+                          value={val}
+                          onChange={(e) =>
+                            setCustomFieldValues({ ...customFieldValues, [def.id]: e.target.value })
+                          }
+                          placeholder="Comma-separated selections"
+                          className="w-full text-xs px-2.5 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                        />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           <div className="pt-4 border-t border-slate-200 flex items-center justify-end gap-3">
             <button

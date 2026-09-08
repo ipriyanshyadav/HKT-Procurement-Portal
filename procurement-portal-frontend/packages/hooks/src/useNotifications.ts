@@ -98,8 +98,8 @@ export function useNotifications() {
               addNotification(notification);
               queryClient.invalidateQueries({ queryKey: ["notifications"] });
             }
-          } catch (err) {
-            console.error("[useNotifications] Error parsing message:", err);
+          } catch {
+            // Ignored invalid JSON payloads
           }
         };
 
@@ -115,12 +115,11 @@ export function useNotifications() {
           }
         };
 
-        ws.onerror = (err) => {
-          console.debug("[useNotifications] WebSocket error", err);
+        ws.onerror = () => {
           ws.close();
         };
-      } catch (err) {
-        console.error("[useNotifications] Failed to establish WebSocket connection", err);
+      } catch {
+        // WebSocket connection retry handled by reconnect logic
       }
     }
 

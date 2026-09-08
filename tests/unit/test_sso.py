@@ -40,6 +40,7 @@ class TestSSOUserProvisioning:
     @pytest.mark.asyncio
     async def test_provision_new_sso_user_with_requestor_role(self):
         db = AsyncMock()
+        db.add = MagicMock()
         org_id = uuid4()
         sso_result = SSOResult(
             email="newuser@enterprise.com",
@@ -75,6 +76,7 @@ class TestSSOUserProvisioning:
     @pytest.mark.asyncio
     async def test_login_existing_active_sso_user(self):
         db = AsyncMock()
+        db.add = MagicMock()
         org_id = uuid4()
         existing_user = MagicMock(spec=User)
         existing_user.id = uuid4()
@@ -107,6 +109,7 @@ class TestSSOUserProvisioning:
     @pytest.mark.asyncio
     async def test_reject_inactive_sso_user(self):
         db = AsyncMock()
+        db.add = MagicMock()
         org_id = uuid4()
         inactive_user = MagicMock(spec=User)
         inactive_user.id = uuid4()

@@ -1,13 +1,16 @@
 from __future__ import annotations
 
-from datetime import datetime  # noqa: TC002
+from datetime import date, datetime  # noqa: TC002
+from typing import Any
 from uuid import UUID, uuid4
 
 from sqlalchemy import (
     Boolean,
+    Date,
     DateTime,
     ForeignKey,
     Integer,
+    Numeric,
     String,
     Text,
     UniqueConstraint,
@@ -16,7 +19,7 @@ from sqlalchemy import (
 from sqlalchemy import (
     Enum as SAEnum,
 )
-from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -87,6 +90,7 @@ class Ticket(BaseModel):
     reopen_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     tags: Mapped[list[str]] = mapped_column(ARRAY(String), default=list, nullable=False)
     is_private: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    due_date: Mapped[date | None] = mapped_column(Date, nullable=True)
 
     comments: Mapped[list[TicketComment]] = relationship(
         back_populates="ticket", lazy="selectin", cascade="all, delete-orphan"
@@ -99,6 +103,26 @@ class Ticket(BaseModel):
     )
     attachments: Mapped[list[TicketAttachment]] = relationship(
         back_populates="ticket", lazy="selectin", cascade="all, delete-orphan"
+    )
+    outgoing_links: Mapped[list[TicketLink]] = relationship(
+        "TicketLink",
+        foreign_keys="TicketLink.source_ticket_id",
+        back_populates="source_ticket",
+        lazy="selectin",
+        cascade="all, delete-orphan",
+    )
+    incoming_links: Mapped[list[TicketLink]] = relationship(
+        "TicketLink",
+        foreign_keys="TicketLink.target_ticket_id",
+        back_populates="target_ticket",
+        lazy="selectin",
+        cascade="all, delete-orphan",
+    )
+    custom_field_values: Mapped[list[TicketCustomFieldValue]] = relationship(
+        "TicketCustomFieldValue",
+        back_populates="ticket",
+        lazy="selectin",
+        cascade="all, delete-orphan",
     )
 
 
@@ -188,3 +212,125 @@ class TicketSLAConfig(BaseModel):
     escalate_to_role: Mapped[str | None] = mapped_column(String(100), nullable=True)
 
     __table_args__ = (UniqueConstraint("org_id", "priority", name="uq_ticket_sla_config_org_priority"),)
+
+
+class TicketLink(BaseModel):
+    __tablename__ = "ticket_links"
+
+    source_ticket_id: Mapped[UUID] = mapped_column(
+        PGUUID(as_uuid=True), ForeignKey("tickets.id", ondelete="CASCADE"), nullable=False
+    )
+    target_ticket_id: Mapped[UUID] = mapped_column(
+        PGUUID(as_uuid=True), ForeignKey("tickets.id", ondelete="CASCADE"), nullable=False
+    )
+    link_type: Mapped[str] = mapped_column(
+        SAEnum(
+            "BLOCKS",
+            "IS_BLOCKED_BY",
+            "RELATES_TO",
+            "DUPLICATES",
+            "IS_DUPLICATED_BY",
+            "CLONES",
+            "IS_CLONED_BY",
+            name="ticket_link_type_enum",
+            create_type=False,
+        ),
+        nullable=False,
+    )
+    created_by: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+
+    source_ticket: Mapped[Ticket] = relationship(
+        "Ticket", foreign_keys=[source_ticket_id], back_populates="outgoing_links"
+    )
+    target_ticket: Mapped[Ticket] = relationship(
+        "Ticket", foreign_keys=[target_ticket_id], back_populates="incoming_links"
+    )
+
+    __table_args__ = (
+        UniqueConstraint(
+            "source_ticket_id",
+            "target_ticket_id",
+            "link_type",
+            name="uq_ticket_links_source_target_type",
+        ),
+    )
+
+
+class TicketCustomFieldDef(BaseModel):
+    __tablename__ = "ticket_custom_field_defs"
+
+    name: Mapped[str] = mapped_column(String(100), nullable=False)
+    field_key: Mapped[str] = mapped_column(String(100), nullable=False)
+    field_type: Mapped[str] = mapped_column(
+        SAEnum(
+            "TEXT",
+            "NUMBER",
+            "DATE",
+            "SELECT",
+            "MULTI_SELECT",
+            "BOOLEAN",
+            name="custom_field_type_enum",
+            create_type=False,
+        ),
+        nullable=False,
+    )
+    description: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    is_required: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    default_value: Mapped[str | None] = mapped_column(Text, nullable=True)
+    options: Mapped[list[Any]] = mapped_column(JSONB, default=list, nullable=False)
+    applies_to_ticket_types: Mapped[list[str]] = mapped_column(
+        ARRAY(String), default=list, nullable=False
+    )
+    created_by: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+
+    __table_args__ = (
+        UniqueConstraint("org_id", "field_key", name="uq_ticket_custom_field_defs_org_key"),
+    )
+
+
+class TicketCustomFieldValue(BaseModel):
+    __tablename__ = "ticket_custom_field_values"
+
+    ticket_id: Mapped[UUID] = mapped_column(
+        PGUUID(as_uuid=True), ForeignKey("tickets.id", ondelete="CASCADE"), nullable=False
+    )
+    field_def_id: Mapped[UUID] = mapped_column(
+        PGUUID(as_uuid=True), ForeignKey("ticket_custom_field_defs.id", ondelete="CASCADE"), nullable=False
+    )
+    value_text: Mapped[str | None] = mapped_column(Text, nullable=True)
+    value_number: Mapped[float | None] = mapped_column(Numeric(15, 4), nullable=True)
+    value_json: Mapped[Any | None] = mapped_column(JSONB, nullable=True)
+
+    ticket: Mapped[Ticket] = relationship("Ticket", back_populates="custom_field_values")
+    field_def: Mapped[TicketCustomFieldDef] = relationship("TicketCustomFieldDef", lazy="joined")
+
+    __table_args__ = (
+        UniqueConstraint("ticket_id", "field_def_id", name="uq_ticket_custom_field_values_ticket_field"),
+    )
+
+
+class TicketAutomationRule(BaseModel):
+    __tablename__ = "ticket_automation_rules"
+
+    name: Mapped[str] = mapped_column(String(150), nullable=False)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    is_enabled: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    trigger_type: Mapped[str] = mapped_column(
+        SAEnum(
+            "TICKET_CREATED",
+            "STATUS_CHANGED",
+            "FIELD_CHANGED",
+            "SLA_BREACHED",
+            "SCHEDULE",
+            name="automation_trigger_enum",
+            create_type=False,
+        ),
+        nullable=False,
+    )
+    trigger_config: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict, nullable=False)
+    conditions: Mapped[list[dict[str, Any]]] = mapped_column(JSONB, default=list, nullable=False)
+    actions: Mapped[list[dict[str, Any]]] = mapped_column(JSONB, default=list, nullable=False)
+    execution_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    last_executed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_by: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+

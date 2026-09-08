@@ -2,7 +2,16 @@
 
 import React from "react";
 import Link from "next/link";
-import { useCategoryTree } from "@procurement/hooks";
+import {
+  useCategoryTree,
+  useCurrencies,
+  usePaymentTerms,
+  useTaxCodes,
+  useCostCenters,
+  useCatalogItems,
+  useBusinessUnits,
+  useSystemHealth,
+} from "@procurement/hooks";
 import {
   PageHeader,
   HeroKPIStrip,
@@ -27,18 +36,26 @@ interface CategoryNode {
 
 export default function AdminDashboardPage() {
   const { data: categories, isLoading: isCategoriesLoading } = useCategoryTree();
+  const { data: currencies = [], isLoading: isCurrenciesLoading } = useCurrencies();
+  const { data: paymentTerms = [], isLoading: isPaymentTermsLoading } = usePaymentTerms();
+  const { data: taxCodes = [], isLoading: isTaxCodesLoading } = useTaxCodes();
+  const { data: costCenters = [], isLoading: isCostCentersLoading } = useCostCenters();
+  const { data: catalogItems = [], isLoading: isCatalogItemsLoading } = useCatalogItems();
+  const { data: businessUnits = [] } = useBusinessUnits();
+  const { data: healthData } = useSystemHealth();
 
   const countCategories = (nodes: CategoryNode[]): number => {
     if (!nodes) return 0;
     return nodes.reduce((acc, node) => acc + 1 + countCategories(node.children || []), 0);
   };
 
-  const totalCategories = categories ? countCategories(categories as CategoryNode[]) : 4;
+  const totalCategories = categories ? countCategories(categories as CategoryNode[]) : 0;
+  const healthScore = healthData?.status === "ok" ? 100 : healthData?.status === "degraded" ? 75 : healthData?.status === "failed" ? 0 : 100;
 
   const kpiItems = [
-    { value: 100, label: "System Health", suffix: "%", sublabel: "FastAPI · PostgreSQL 16 · Redis" },
-    { value: isCategoriesLoading ? 4 : totalCategories, label: "Master Categories", sublabel: "UNSPSC Taxonomies" },
-    { value: 1, label: "Active Tenant", sublabel: "Default Enterprise Org" },
+    { value: healthScore, label: "System Health", suffix: "%", sublabel: "FastAPI · PostgreSQL 16 · Redis" },
+    { value: isCategoriesLoading ? 0 : totalCategories, label: "Master Categories", sublabel: "UNSPSC Taxonomies" },
+    { value: businessUnits.length > 0 ? businessUnits.length : 1, label: "Active Business Units", sublabel: "Enterprise Tenant Units" },
     { value: 100, label: "RBAC Security", suffix: "%", sublabel: "RS256 JWT & MFA Active" },
   ];
 
@@ -47,7 +64,7 @@ export default function AdminDashboardPage() {
       name: "Category Taxonomy",
       code: "SPEC_24.1",
       description: "Hierarchical UNSPSC commodity classification and spend thresholds",
-      count: totalCategories,
+      count: isCategoriesLoading ? 0 : totalCategories,
       unit: "categories",
       status: "ACTIVE",
       href: "/master-data/categories",
@@ -58,52 +75,52 @@ export default function AdminDashboardPage() {
       name: "Currencies & Exchange Rates",
       code: "SPEC_24.2",
       description: "ISO 4217 currencies and daily exchange rate tables",
-      count: 5,
+      count: isCurrenciesLoading ? 0 : currencies.length,
       unit: "currencies",
       status: "ACTIVE",
-      href: "/master-data/import",
-      actionLabel: "Import CSV",
+      href: "/master-data/currencies",
+      actionLabel: "Manage",
       icon: <Layers className="w-5 h-5 text-indigo-500" />,
     },
     {
       name: "Payment Terms",
       code: "SPEC_24.3",
       description: "Net payment intervals and cash discount schedules",
-      count: 4,
+      count: isPaymentTermsLoading ? 0 : paymentTerms.length,
       unit: "terms",
       status: "ACTIVE",
-      href: "/master-data/import",
-      actionLabel: "Import CSV",
+      href: "/master-data/payment-terms",
+      actionLabel: "Manage",
       icon: <Layers className="w-5 h-5 text-sky-500" />,
     },
     {
       name: "Tax Codes & HSN",
       code: "SPEC_24.4",
       description: "GST/VAT tax percentage rates and jurisdiction mappings",
-      count: 4,
+      count: isTaxCodesLoading ? 0 : taxCodes.length,
       unit: "codes",
       status: "ACTIVE",
-      href: "/master-data/import",
-      actionLabel: "Import CSV",
+      href: "/master-data/tax-codes",
+      actionLabel: "Manage",
       icon: <Layers className="w-5 h-5 text-emerald-500" />,
     },
     {
       name: "Cost Centers",
       code: "SPEC_24.5",
       description: "ERP cost center allocation codes and department hierarchy",
-      count: 12,
+      count: isCostCentersLoading ? 0 : costCenters.length,
       unit: "centers",
       status: "ACTIVE",
-      href: "/master-data/import",
-      actionLabel: "Import CSV",
+      href: "/master-data/locations",
+      actionLabel: "Manage",
       icon: <Building2 className="w-5 h-5 text-amber-500" />,
     },
     {
-      name: "General Ledger (GL) Accounts",
+      name: "Item Catalog & Inventory",
       code: "SPEC_24.6",
-      description: "Chart of accounts and financial expense posting rules",
-      count: 18,
-      unit: "accounts",
+      description: "Standard master items and commodity inventory catalog",
+      count: isCatalogItemsLoading ? 0 : (Array.isArray(catalogItems) ? catalogItems.length : 0),
+      unit: "items",
       status: "ACTIVE",
       href: "/master-data/import",
       actionLabel: "Import CSV",

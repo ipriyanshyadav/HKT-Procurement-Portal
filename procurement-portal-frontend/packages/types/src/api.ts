@@ -5423,6 +5423,95 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/tickets/custom-fields/definitions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Custom Field Defs */
+        get: operations["list_custom_field_defs_api_v1_tickets_custom_fields_definitions_get"];
+        put?: never;
+        /** Create Custom Field Def */
+        post: operations["create_custom_field_def_api_v1_tickets_custom_fields_definitions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tickets/custom-fields/definitions/{field_def_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Update Custom Field Def */
+        put: operations["update_custom_field_def_api_v1_tickets_custom_fields_definitions__field_def_id__put"];
+        post?: never;
+        /** Delete Custom Field Def */
+        delete: operations["delete_custom_field_def_api_v1_tickets_custom_fields_definitions__field_def_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tickets/automation/rules": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Automation Rules */
+        get: operations["list_automation_rules_api_v1_tickets_automation_rules_get"];
+        put?: never;
+        /** Create Automation Rule */
+        post: operations["create_automation_rule_api_v1_tickets_automation_rules_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tickets/automation/rules/{rule_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Update Automation Rule */
+        put: operations["update_automation_rule_api_v1_tickets_automation_rules__rule_id__put"];
+        post?: never;
+        /** Delete Automation Rule */
+        delete: operations["delete_automation_rule_api_v1_tickets_automation_rules__rule_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tickets/automation/rules/{rule_id}/run/{ticket_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Run Automation Rule Manually */
+        post: operations["run_automation_rule_manually_api_v1_tickets_automation_rules__rule_id__run__ticket_id__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/tickets/export": {
         parameters: {
             query?: never;
@@ -5782,6 +5871,58 @@ export interface paths {
         post?: never;
         /** Remove Attachment */
         delete: operations["remove_attachment_api_v1_tickets__ticket_id__attachments__attachment_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tickets/{ticket_id}/links": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Ticket Links */
+        get: operations["get_ticket_links_api_v1_tickets__ticket_id__links_get"];
+        put?: never;
+        /** Create Ticket Link */
+        post: operations["create_ticket_link_api_v1_tickets__ticket_id__links_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tickets/{ticket_id}/links/{link_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove Ticket Link */
+        delete: operations["remove_ticket_link_api_v1_tickets__ticket_id__links__link_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tickets/{ticket_id}/custom-fields": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Ticket Custom Fields */
+        get: operations["get_ticket_custom_fields_api_v1_tickets__ticket_id__custom_fields_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -6770,6 +6911,55 @@ export interface components {
              */
             rfq_id: string;
             config: components["schemas"]["AuctionConfig"];
+        };
+        /** AutomationRuleCreateRequest */
+        AutomationRuleCreateRequest: {
+            /** Name */
+            name: string;
+            /** Description */
+            description?: string | null;
+            /**
+             * Is Enabled
+             * @default true
+             */
+            is_enabled: boolean;
+            /** Trigger Type */
+            trigger_type: string;
+            /** Trigger Config */
+            trigger_config?: {
+                [key: string]: unknown;
+            };
+            /** Conditions */
+            conditions?: {
+                [key: string]: unknown;
+            }[];
+            /** Actions */
+            actions?: {
+                [key: string]: unknown;
+            }[];
+        };
+        /** AutomationRuleUpdateRequest */
+        AutomationRuleUpdateRequest: {
+            /** Name */
+            name?: string | null;
+            /** Description */
+            description?: string | null;
+            /** Is Enabled */
+            is_enabled?: boolean | null;
+            /** Trigger Type */
+            trigger_type?: string | null;
+            /** Trigger Config */
+            trigger_config?: {
+                [key: string]: unknown;
+            } | null;
+            /** Conditions */
+            conditions?: {
+                [key: string]: unknown;
+            }[] | null;
+            /** Actions */
+            actions?: {
+                [key: string]: unknown;
+            }[] | null;
         };
         /** AwardApprovalRequest */
         AwardApprovalRequest: {
@@ -8023,6 +8213,82 @@ export interface components {
             exchange_rate_to_base?: number | string | null;
             /** Is Active */
             is_active?: boolean | null;
+        };
+        /** CustomFieldDefCreateRequest */
+        CustomFieldDefCreateRequest: {
+            /** Name */
+            name: string;
+            /** Field Key */
+            field_key: string;
+            /** Field Type */
+            field_type: string;
+            /** Description */
+            description?: string | null;
+            /**
+             * Is Required
+             * @default false
+             */
+            is_required: boolean;
+            /** Default Value */
+            default_value?: string | null;
+            /** Options */
+            options?: unknown[];
+            /** Applies To Ticket Types */
+            applies_to_ticket_types?: string[];
+        };
+        /** CustomFieldDefUpdateRequest */
+        CustomFieldDefUpdateRequest: {
+            /** Name */
+            name?: string | null;
+            /** Description */
+            description?: string | null;
+            /** Is Required */
+            is_required?: boolean | null;
+            /** Default Value */
+            default_value?: string | null;
+            /** Options */
+            options?: unknown[] | null;
+            /** Applies To Ticket Types */
+            applies_to_ticket_types?: string[] | null;
+        };
+        /** CustomFieldValueItem */
+        CustomFieldValueItem: {
+            /**
+             * Field Def Id
+             * Format: uuid
+             */
+            field_def_id: string;
+            /** Value Text */
+            value_text?: string | null;
+            /** Value Number */
+            value_number?: number | null;
+            /** Value Json */
+            value_json?: unknown | null;
+        };
+        /** CustomFieldValueResponse */
+        CustomFieldValueResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Field Def Id
+             * Format: uuid
+             */
+            field_def_id: string;
+            /** Field Key */
+            field_key?: string | null;
+            /** Field Name */
+            field_name?: string | null;
+            /** Field Type */
+            field_type?: string | null;
+            /** Value Text */
+            value_text?: string | null;
+            /** Value Number */
+            value_number?: number | null;
+            /** Value Json */
+            value_json?: unknown | null;
         };
         /** DelegationRuleCreateRequest */
         DelegationRuleCreateRequest: {
@@ -10982,6 +11248,8 @@ export interface components {
             priority: string;
             /** Category */
             category?: string | null;
+            /** Due Date */
+            due_date?: string | null;
             /** Entity Type */
             entity_type?: string | null;
             /** Entity Id */
@@ -10995,6 +11263,8 @@ export interface components {
              * @default false
              */
             is_private: boolean | null;
+            /** Custom Fields */
+            custom_fields?: components["schemas"]["CustomFieldValueItem"][] | null;
         };
         /** TicketDetailResponse */
         TicketDetailResponse: {
@@ -11017,6 +11287,8 @@ export interface components {
             status: string;
             /** Category */
             category?: string | null;
+            /** Due Date */
+            due_date?: string | null;
             /**
              * Raised By
              * Format: uuid
@@ -11072,6 +11344,10 @@ export interface components {
             activity_logs?: components["schemas"]["TicketActivityLogResponse"][];
             /** Attachments */
             attachments?: components["schemas"]["TicketAttachmentResponse"][];
+            /** Links */
+            links?: components["schemas"]["TicketLinkResponse"][];
+            /** Custom Fields */
+            custom_fields?: components["schemas"]["CustomFieldValueResponse"][];
         };
         /** TicketEscalateRequest */
         TicketEscalateRequest: {
@@ -11079,6 +11355,54 @@ export interface components {
             reason: string;
             /** Escalate To User Id */
             escalate_to_user_id?: string | null;
+        };
+        /** TicketLinkCreateRequest */
+        TicketLinkCreateRequest: {
+            /**
+             * Target Ticket Id
+             * Format: uuid
+             */
+            target_ticket_id: string;
+            /** Link Type */
+            link_type: string;
+        };
+        /** TicketLinkResponse */
+        TicketLinkResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Source Ticket Id
+             * Format: uuid
+             */
+            source_ticket_id: string;
+            /**
+             * Target Ticket Id
+             * Format: uuid
+             */
+            target_ticket_id: string;
+            /** Link Type */
+            link_type: string;
+            /**
+             * Created By
+             * Format: uuid
+             */
+            created_by: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Target Ticket Number */
+            target_ticket_number?: string | null;
+            /** Target Ticket Title */
+            target_ticket_title?: string | null;
+            /** Target Ticket Status */
+            target_ticket_status?: string | null;
+            /** Target Ticket Priority */
+            target_ticket_priority?: string | null;
         };
         /** TicketListResponse */
         TicketListResponse: {
@@ -11101,6 +11425,8 @@ export interface components {
             status: string;
             /** Category */
             category?: string | null;
+            /** Due Date */
+            due_date?: string | null;
             /**
              * Raised By
              * Format: uuid
@@ -11191,10 +11517,14 @@ export interface components {
             priority?: string | null;
             /** Category */
             category?: string | null;
+            /** Due Date */
+            due_date?: string | null;
             /** Tags */
             tags?: string[] | null;
             /** Is Private */
             is_private?: boolean | null;
+            /** Custom Fields */
+            custom_fields?: components["schemas"]["CustomFieldValueItem"][] | null;
         };
         /** TicketWatcherRequest */
         TicketWatcherRequest: {
@@ -22047,6 +22377,283 @@ export interface operations {
             };
         };
     };
+    list_custom_field_defs_api_v1_tickets_custom_fields_definitions_get: {
+        parameters: {
+            query?: {
+                ticket_type?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_custom_field_def_api_v1_tickets_custom_fields_definitions_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CustomFieldDefCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_custom_field_def_api_v1_tickets_custom_fields_definitions__field_def_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                field_def_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CustomFieldDefUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_custom_field_def_api_v1_tickets_custom_fields_definitions__field_def_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                field_def_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_automation_rules_api_v1_tickets_automation_rules_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    create_automation_rule_api_v1_tickets_automation_rules_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AutomationRuleCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_automation_rule_api_v1_tickets_automation_rules__rule_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                rule_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AutomationRuleUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_automation_rule_api_v1_tickets_automation_rules__rule_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                rule_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    run_automation_rule_manually_api_v1_tickets_automation_rules__rule_id__run__ticket_id__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                rule_id: string;
+                ticket_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     export_tickets_api_v1_tickets_export_get: {
         parameters: {
             query?: {
@@ -22230,6 +22837,8 @@ export interface operations {
                 entity_id?: string | null;
                 view_scope?: string | null;
                 tags?: string[] | null;
+                due_date_from?: string | null;
+                due_date_to?: string | null;
                 search?: string | null;
                 page?: number;
                 page_size?: number;
@@ -22972,6 +23581,133 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_ticket_links_api_v1_tickets__ticket_id__links_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                ticket_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_ticket_link_api_v1_tickets__ticket_id__links_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                ticket_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TicketLinkCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    remove_ticket_link_api_v1_tickets__ticket_id__links__link_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                ticket_id: string;
+                link_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_ticket_custom_fields_api_v1_tickets__ticket_id__custom_fields_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                ticket_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
             };
             /** @description Validation Error */
             422: {

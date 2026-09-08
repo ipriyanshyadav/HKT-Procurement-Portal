@@ -19,9 +19,14 @@ import {
   UserPlus,
   Loader2,
   Users,
+  Calendar,
+  Edit2,
+  Check,
+  X,
 } from "lucide-react";
 import {
   useTicket,
+  useUpdateTicket,
   useStartTicketProgress,
   useSetTicketPendingResponse,
   useResolveTicket,
@@ -38,6 +43,8 @@ import {
   TicketSLAIndicator,
   TicketCommentBox,
   TicketCommentFeed,
+  TicketLinkedIssues,
+  TicketCustomFieldsPanel,
 } from "@procurement/ui";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -59,7 +66,10 @@ export default function AdminTicketDetailPage() {
   const [showReopenModal, setShowReopenModal] = useState(false);
   const [assigneeInput, setAssigneeInput] = useState("");
   const [showAssignModal, setShowAssignModal] = useState(false);
+  const [isEditingDueDate, setIsEditingDueDate] = useState(false);
+  const [newDueDate, setNewDueDate] = useState("");
 
+  const updateTicket = useUpdateTicket();
   const startProgress = useStartTicketProgress();
   const setPending = useSetTicketPendingResponse();
   const resolve = useResolveTicket();
@@ -229,6 +239,12 @@ export default function AdminTicketDetailPage() {
             )}
           </div>
 
+          {/* Jira-Style Linked Issues */}
+          <TicketLinkedIssues ticketId={ticketId} />
+
+          {/* Custom Fields (EAV) */}
+          <TicketCustomFieldsPanel ticketId={ticketId} />
+
           {/* Attachments Section */}
           {Boolean(ticket.attachments?.length) && (
             <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-3">
@@ -395,6 +411,84 @@ export default function AdminTicketDetailPage() {
                 >
                   {ticket.assigned_to ? "Reassign" : "Assign"}
                 </button>
+              </div>
+
+              <div className="pt-2">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-slate-400 block">Due Date</span>
+                  {!isEditingDueDate && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setNewDueDate(ticket.due_date || "");
+                        setIsEditingDueDate(true);
+                      }}
+                      className="text-xs text-blue-600 hover:underline font-medium flex items-center gap-1"
+                    >
+                      <Edit2 className="w-2.5 h-2.5" />
+                      <span>{ticket.due_date ? "Edit" : "+ Set"}</span>
+                    </button>
+                  )}
+                </div>
+
+                {isEditingDueDate ? (
+                  <div className="flex items-center gap-1.5 pt-0.5">
+                    <input
+                      type="date"
+                      value={newDueDate}
+                      onChange={(e) => setNewDueDate(e.target.value)}
+                      className="text-xs p-1 border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 bg-white"
+                    />
+                    <button
+                      type="button"
+                      disabled={updateTicket.isPending}
+                      onClick={async () => {
+                        await updateTicket.mutateAsync({
+                          id: ticketId,
+                          data: { due_date: newDueDate || undefined },
+                        });
+                        setIsEditingDueDate(false);
+                        refetch();
+                      }}
+                      className="p-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded"
+                      title="Save"
+                    >
+                      <Check className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setIsEditingDueDate(false)}
+                      className="p-1 text-slate-400 hover:text-slate-600 rounded"
+                      title="Cancel"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ) : ticket.due_date ? (
+                  <div className="flex items-center gap-1.5 font-medium">
+                    <Calendar className="w-3.5 h-3.5 text-slate-500" />
+                    <span
+                      className={
+                        new Date(ticket.due_date).setHours(23, 59, 59, 999) < Date.now() &&
+                        ticket.status !== "RESOLVED" &&
+                        ticket.status !== "CLOSED"
+                          ? "text-rose-600 font-semibold"
+                          : "text-slate-800"
+                      }
+                    >
+                      {ticket.due_date}
+                    </span>
+                    {new Date(ticket.due_date).setHours(23, 59, 59, 999) < Date.now() &&
+                      ticket.status !== "RESOLVED" &&
+                      ticket.status !== "CLOSED" && (
+                        <span className="text-[10px] bg-rose-100 text-rose-700 font-bold px-1.5 py-0.5 rounded">
+                          OVERDUE
+                        </span>
+                      )}
+                  </div>
+                ) : (
+                  <span className="text-slate-400 italic">Not set</span>
+                )}
               </div>
 
               <div className="pt-2">

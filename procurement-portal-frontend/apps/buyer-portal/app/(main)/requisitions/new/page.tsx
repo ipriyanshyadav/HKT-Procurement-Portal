@@ -6,6 +6,7 @@ import Link from "next/link";
 import {
   useCreateRequisition,
   useSubmitRequisition,
+  useBudgetCheck,
   useBusinessUnits,
   useCostCenters,
   useUoms,
@@ -146,6 +147,13 @@ export default function NewRequisitionPage() {
     (acc, curr) => acc + (curr.estimated_total || curr.quantity * curr.estimated_unit_price || 0),
     0
   );
+
+  const { data: budgetCheck } = useBudgetCheck({
+    cost_center_id: costCenterId || undefined,
+    amount: estimatedTotal,
+    business_unit_id: businessUnitId || undefined,
+    category_id: categoryId || undefined,
+  });
 
   const handleAddLine = () => {
     setLines((prev) => [
@@ -461,8 +469,8 @@ export default function NewRequisitionPage() {
         <div className="space-y-6">
           <BudgetIndicator
             estimatedTotal={estimatedTotal}
-            availableBudget={500000}
-            budgetStatus="SUFFICIENT"
+            availableBudget={budgetCheck ? Number(budgetCheck.available) : null}
+            budgetStatus={budgetCheck ? budgetCheck.status : "NOT_CHECKED"}
             currency={currency}
           />
 
@@ -470,6 +478,11 @@ export default function NewRequisitionPage() {
             <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wider">
               Submission Actions
             </h3>
+            {budgetCheck?.status === "BLOCKED" && (
+              <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-lg">
+                ⚠️ {budgetCheck.message || "Estimated amount exceeds available budget for this cost center."}
+              </div>
+            )}
             <p className="text-xs text-gray-500">
               Saving as draft allows editing anytime. Submitting routes the PR through automated approval rules.
             </p>

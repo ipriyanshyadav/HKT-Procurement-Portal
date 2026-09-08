@@ -25,6 +25,15 @@ import type {
   TicketType,
   TicketPriority,
   TicketStatus,
+  TicketLinkItem,
+  TicketLinkCreatePayload,
+  CustomFieldDefItem,
+  CustomFieldDefCreatePayload,
+  CustomFieldDefUpdatePayload,
+  CustomFieldValueRecord,
+  AutomationRuleItem,
+  AutomationRuleCreatePayload,
+  AutomationRuleUpdatePayload,
 } from "@procurement/types";
 
 export interface TicketFilterParams {
@@ -413,3 +422,171 @@ export function useBulkStatusTickets() {
     },
   });
 }
+
+// --- Issue Linking Hooks (Jira-style Links) ---
+export function useTicketLinks(ticketId?: string) {
+  return useQuery({
+    queryKey: ["tickets", ticketId, "links"],
+    queryFn: async () => {
+      const res = await apiClient.get(`/tickets/${ticketId}/links`);
+      return (res.data?.data ?? []) as TicketLinkItem[];
+    },
+    enabled: Boolean(ticketId),
+  });
+}
+
+export function useCreateTicketLink() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ ticketId, data }: { ticketId: string; data: TicketLinkCreatePayload }) => {
+      const res = await apiClient.post(`/tickets/${ticketId}/links`, data);
+      return res.data?.data ?? res.data;
+    },
+    onSuccess: (_, { ticketId }) => {
+      queryClient.invalidateQueries({ queryKey: ["tickets", ticketId, "links"] });
+      queryClient.invalidateQueries({ queryKey: ["tickets", ticketId] });
+    },
+  });
+}
+
+export function useRemoveTicketLink() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ ticketId, linkId }: { ticketId: string; linkId: string }) => {
+      const res = await apiClient.delete(`/tickets/${ticketId}/links/${linkId}`);
+      return res.data;
+    },
+    onSuccess: (_, { ticketId }) => {
+      queryClient.invalidateQueries({ queryKey: ["tickets", ticketId, "links"] });
+      queryClient.invalidateQueries({ queryKey: ["tickets", ticketId] });
+    },
+  });
+}
+
+// --- Custom Fields Hooks ---
+export function useCustomFieldDefs(ticketType?: string) {
+  return useQuery({
+    queryKey: ["tickets", "custom-field-defs", ticketType],
+    queryFn: async () => {
+      const res = await apiClient.get("/tickets/custom-fields/definitions", {
+        params: ticketType ? { ticket_type: ticketType } : undefined,
+      });
+      return (res.data?.data ?? []) as CustomFieldDefItem[];
+    },
+  });
+}
+
+export function useCreateCustomFieldDef() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: CustomFieldDefCreatePayload) => {
+      const res = await apiClient.post("/tickets/custom-fields/definitions", data);
+      return res.data?.data ?? res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tickets", "custom-field-defs"] });
+    },
+  });
+}
+
+export function useUpdateCustomFieldDef() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ fieldDefId, data }: { fieldDefId: string; data: CustomFieldDefUpdatePayload }) => {
+      const res = await apiClient.put(`/tickets/custom-fields/definitions/${fieldDefId}`, data);
+      return res.data?.data ?? res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tickets", "custom-field-defs"] });
+    },
+  });
+}
+
+export function useDeleteCustomFieldDef() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (fieldDefId: string) => {
+      const res = await apiClient.delete(`/tickets/custom-fields/definitions/${fieldDefId}`);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tickets", "custom-field-defs"] });
+    },
+  });
+}
+
+export function useTicketCustomFields(ticketId?: string) {
+  return useQuery({
+    queryKey: ["tickets", ticketId, "custom-fields"],
+    queryFn: async () => {
+      const res = await apiClient.get(`/tickets/${ticketId}/custom-fields`);
+      return (res.data?.data ?? []) as CustomFieldValueRecord[];
+    },
+    enabled: Boolean(ticketId),
+  });
+}
+
+// --- Automation Rules Hooks ---
+export function useAutomationRules() {
+  return useQuery({
+    queryKey: ["tickets", "automation-rules"],
+    queryFn: async () => {
+      const res = await apiClient.get("/tickets/automation/rules");
+      return (res.data?.data ?? []) as AutomationRuleItem[];
+    },
+  });
+}
+
+export function useCreateAutomationRule() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: AutomationRuleCreatePayload) => {
+      const res = await apiClient.post("/tickets/automation/rules", data);
+      return res.data?.data ?? res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tickets", "automation-rules"] });
+    },
+  });
+}
+
+export function useUpdateAutomationRule() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ ruleId, data }: { ruleId: string; data: AutomationRuleUpdatePayload }) => {
+      const res = await apiClient.put(`/tickets/automation/rules/${ruleId}`, data);
+      return res.data?.data ?? res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tickets", "automation-rules"] });
+    },
+  });
+}
+
+export function useDeleteAutomationRule() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (ruleId: string) => {
+      const res = await apiClient.delete(`/tickets/automation/rules/${ruleId}`);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tickets", "automation-rules"] });
+    },
+  });
+}
+
+export function useRunAutomationRule() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ ruleId, ticketId }: { ruleId: string; ticketId: string }) => {
+      const res = await apiClient.post(`/tickets/automation/rules/${ruleId}/run/${ticketId}`);
+      return res.data?.data ?? res.data;
+    },
+    onSuccess: (_, { ticketId }) => {
+      queryClient.invalidateQueries({ queryKey: ["tickets", ticketId] });
+      queryClient.invalidateQueries({ queryKey: ["tickets", "automation-rules"] });
+    },
+  });
+}
+

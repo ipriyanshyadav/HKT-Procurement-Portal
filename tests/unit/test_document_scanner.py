@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import subprocess
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 import pytest
 
@@ -166,7 +166,9 @@ class TestClamAVScanner:
         scanner_inst = ClamAVScanner(enabled=True)
         mock_reader = AsyncMock()
         mock_reader.read.return_value = b"PONG\x00"
-        mock_writer = AsyncMock()
+        mock_writer = MagicMock()
+        mock_writer.drain = AsyncMock()
+        mock_writer.wait_closed = AsyncMock()
 
         with patch("asyncio.open_connection", return_value=(mock_reader, mock_writer)):
             assert await scanner_inst.ping() is True
@@ -190,7 +192,9 @@ class TestClamAVScanner:
         scanner_inst = ClamAVScanner(enabled=True)
         mock_reader = AsyncMock()
         mock_reader.read.return_value = b"stream: OK\x00"
-        mock_writer = AsyncMock()
+        mock_writer = MagicMock()
+        mock_writer.drain = AsyncMock()
+        mock_writer.wait_closed = AsyncMock()
 
         with patch("asyncio.open_connection", return_value=(mock_reader, mock_writer)):
             is_clean, detail = await scanner_inst.scan_bytes(b"safe data content")
@@ -202,7 +206,9 @@ class TestClamAVScanner:
         scanner_inst = ClamAVScanner(enabled=True)
         mock_reader = AsyncMock()
         mock_reader.read.return_value = b"stream: Eicar-Signature FOUND\x00"
-        mock_writer = AsyncMock()
+        mock_writer = MagicMock()
+        mock_writer.drain = AsyncMock()
+        mock_writer.wait_closed = AsyncMock()
 
         with patch("asyncio.open_connection", return_value=(mock_reader, mock_writer)):
             is_clean, detail = await scanner_inst.scan_bytes(b"X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*")

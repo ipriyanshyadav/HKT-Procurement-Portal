@@ -74,6 +74,7 @@ class TestCategoryService:
         service = CategoryService(repo=repo)
 
         mock_db = AsyncMock()
+        mock_db.add = MagicMock()
         req = CategoryCreateRequest(code="IT", name="Information Technology")
 
         with patch("app.modules.master_data.category.service.audit_service.log", AsyncMock()):
@@ -99,6 +100,7 @@ class TestCategoryService:
         service._get_depth = AsyncMock(return_value=1)
 
         mock_db = AsyncMock()
+        mock_db.add = MagicMock()
         req = CategoryCreateRequest(code="HW", name="Hardware", parent_id=parent_id)
 
         with patch("app.modules.master_data.category.service.audit_service.log", AsyncMock()):
@@ -235,6 +237,7 @@ class TestCurrencyService:
         service = CurrencyService(repo=repo)
 
         mock_db = AsyncMock()
+        mock_db.add = MagicMock()
         req = CurrencyCreateRequest(code="USD", name="US Dollar", symbol="$", exchange_rate_to_base=Decimal("83.5"))
 
         with patch("app.modules.master_data.currency.service.audit_service.log", AsyncMock()):
@@ -280,6 +283,7 @@ class TestPaymentTermsService:
         service = PaymentTermsService(repo=repo)
 
         mock_db = AsyncMock()
+        mock_db.add = MagicMock()
         req = PaymentTermCreateRequest(
             code="NET30",
             name="Net 30 Days",
@@ -294,6 +298,7 @@ class TestPaymentTermsService:
         assert pt.code == "NET30"
         assert pt.net_days == 30
         assert pt.discount_days == 10
+        mock_db.add.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_discount_days_greater_than_net_days_rejected(self, org_id, user_id):
@@ -326,6 +331,7 @@ class TestTaxService:
         service = TaxService(repo=repo)
 
         mock_db = AsyncMock()
+        mock_db.add = MagicMock()
         req = TaxCreateRequest(
             code="GST18",
             name="Goods and Services Tax 18%",

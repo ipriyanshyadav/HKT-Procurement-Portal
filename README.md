@@ -567,12 +567,34 @@ docker compose logs -f -t
 | A-26-10 | SLA computed on calendar hours in Phase 1; business-hours-aware SLA explicitly deferred to Phase 2 | MEDIUM |
 | A-26-11 | Entity link stored as advisory soft FK (entity_type VARCHAR + entity_id UUID + entity_number VARCHAR) | LOW |
 | A-26-12 | portal claim added to JWT access token (values: buyer/supplier/admin) for session isolation across portals | MEDIUM |
+| A-26-13 | Due date stored as DATE in DB, nullable; approaching alert triggered 24h prior to due date | LOW |
+| A-26-14 | Ticket linking uses ticket_links table with ENUM types (BLOCKS, IS_BLOCKED_BY, RELATES_TO, DUPLICATES, IS_DUPLICATED_BY, CLONES, IS_CLONED_BY); bidirectional query support | LOW |
+| A-26-15 | Custom fields use EAV schema (ticket_custom_field_defs + ticket_custom_field_values) supporting TEXT, NUMBER, DATE, SELECT, MULTI_SELECT, BOOLEAN | MEDIUM |
+| A-26-16 | Automation engine uses ticket_automation_rules with event triggers, conditions JSON, and actions JSON executing via Celery and service hooks | MEDIUM |
+| A-26-17 | Round-robin assignee pointer persisted via Redis INCR per rule; balanced workload selects user with lowest count of active tickets | LOW |
+| A-OPT-1 | N+1 ticket link queries eliminated using batch repository get_by_ids lookup | LOW |
+| A-OPT-2 | MinIO S3 bucket health inspection wrapped in asyncio.to_thread to prevent ASGI event loop blocking | LOW |
+| A-OPT-3 | Backend and Celery containers initialized with tini PID 1 for signal propagation and zombie process prevention | LOW |
+| A-OPT-4 | Next.js standalone runner containers configured with HOSTNAME 0.0.0.0 for reliable container network binding | LOW |
 
 ---
 
 ## Current Session State
-- **Planned**: SPEC_26 Ticket & Query Management System end-to-end implementation and relational demo seeding.
-- **Implemented**: 6 models, 7 migrations (0028-0034), 7-state FSM, SLA engine, MentionParser, ES/SQL search, 30+ endpoints, Celery tasks, RabbitMQ topology, 13 portal pages (including Admin Ticket Detail page at `/tickets/[id]`), and relational ticket seeding (`scripts/seed_tickets.py`).
-- **Tested**: 63 ticket tests green (86.42% module coverage); all 46 baseline integration/security tests green (109 total); E2E verification across Buyer, Supplier, and Admin portals verified; Docker image rebuild & container recreation verified.
-- **Next**: Phase 1 MVP production deployment and documentation.
+- **Planned**: Resolve audit findings: (1) Dynamic master data & telemetry wiring for Admin Dashboard (`SPEC_24`), (2) Real-time pre-flight budget availability check endpoint and buyer UI indicator (`SPEC_10`).
+- **Implemented**: Added `GET /api/v1/requisitions/budget-check` & `check_budget_preflight` in Requisition module; exported `useBudgetCheck` hook; wired dynamic live budget indicator into `/requisitions/new`; wired dynamic live queries (`useCategoryTree`, `useCurrencies`, `usePaymentTerms`, `useTaxCodes`, `useCostCenters`, `useCatalogItems`, `useBusinessUnits`, `useSystemHealth`) into Admin `/dashboard`; updated `docs/PROCUREMENT_PORTAL_AUDIT_REPORT.md` to 100% resolution.
+- **Tested**: 436/436 backend unit tests passing (including 5 new tests in `test_requisition_budget_check.py`); all 7 frontend packages passing TypeScript typecheck.
+- **Next**: Ready for full deployment, staging execution, or user-guided feature scenarios.
+
+### 📊 SPEC Audit: Module 26 Jira Enhancements (2026-09-08)
+```
+MODULE | REQUIREMENT | STATUS | ARTIFACT / CODE
+26.1 | Due Date field & Approaching Alerts | [DONE] | app/modules/ticket/models.py, app/tasks/ticket_sla.py, TicketCard.tsx
+26.2 | Bidirectional Issue Linking | [DONE] | TicketLink, TicketLinkedIssues.tsx, router.py
+26.3 | Custom Fields (EAV) | [DONE] | TicketCustomFieldDef/Value, TicketCustomFieldsPanel.tsx, admin-portal/custom-fields
+26.4 | Automation Rules Engine | [DONE] | TicketAutomationEngine, automation_engine.py, admin-portal/automation
+26.5 | Round-Robin Auto-Assignment (Redis INCR) | [DONE] | automation_engine.py, test_ticket_jira_features.py
+26.6 | Balanced Workload Auto-Assignment | [DONE] | repository.py, automation_engine.py
+26.7 | RBAC Permissions (link, config_fields, config_automation) | [DONE] | 0039_ticket_jira_permissions.py, router.py
+OVERALL: 7/7 (100%) | BACKEND 100% | FRONTEND 100% | TESTS 100%
+```
 

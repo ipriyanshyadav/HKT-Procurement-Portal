@@ -1,18 +1,40 @@
-node_modules
-**/node_modules
-**/__pycache__
-**/.next
-**/.turbo
+# Git and Agent metadata
 .git
+.gitignore
+.agents
+graphify-out
+
+# Python virtual environment and caches
 .venv
-keys/*.pem
-*.pem
+venv
+ENV
+__pycache__
 *.pyc
+*.pyo
+*.pyd
 .pytest_cache
 .coverage
 htmlcov
-reports
-test-results
-playwright-report
-procurement-portal-frontend
+coverage.xml
 
+# Node and frontend
+node_modules
+procurement-portal-frontend/node_modules
+procurement-portal-frontend/apps/*/node_modules
+procurement-portal-frontend/packages/*/node_modules
+procurement-portal-frontend/apps/*/.next
+procurement-portal-frontend/packages/*/dist
+
+# Logs and runtime databases
+*.log
+celerybeat-schedule*
+*.sqlite3
+
+# Test and Playwright reports
+playwright-report
+test-results
+
+# IDE and OS files
+.DS_Store
+.vscode
+.idea
