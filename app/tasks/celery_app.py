@@ -2,6 +2,7 @@ from __future__ import annotations
 from urllib.parse import urlparse, urlunparse
 from celery import Celery
 from kombu import Queue
+from celery.schedules import crontab
 from app.config import settings
 
 def _get_result_backend_url(redis_url: str | None, db_index: int) -> str | None:
@@ -39,6 +40,7 @@ celery_app = Celery(
         'app.tasks.integration_jobs',
         'app.tasks.analytics_refresh',
         'app.tasks.scheduled_reports',
+        'app.tasks.ticket_sla',
     ],
 )
 celery_app.conf.broker_url = settings.RABBITMQ_URL
@@ -131,6 +133,18 @@ celery_app.conf.beat_schedule = {
     'generate-daily-analytics-report': {
         'task': 'app.tasks.analytics.generate_daily_report',
         'schedule': settings.CELERY_DAILY_REPORT_SECONDS,
+    },
+    'check-ticket-sla-timers': {
+        'task': 'app.tasks.ticket_sla.check_ticket_sla_timers',
+        'schedule': settings.CELERY_SLA_CHECK_MINUTES * 60,
+    },
+    'auto-close-idle-tickets': {
+        'task': 'app.tasks.ticket_sla.auto_close_idle_tickets',
+        'schedule': crontab(hour=1, minute=0),
+    },
+    'send-ticket-digest': {
+        'task': 'app.tasks.ticket_sla.send_ticket_digest',
+        'schedule': crontab(hour=8, minute=0),
     },
 }
 celery_app.conf.timezone = 'UTC'

@@ -22,8 +22,16 @@ from app.modules.user.models import User
 router = APIRouter(tags=["Auth"])
 
 
-def _get_portal(request: Request) -> Optional[str]:
+def _get_portal(request: Request, body_portal: Optional[str] = None) -> str:
+    if body_portal and body_portal.strip().lower() in ("buyer", "supplier", "admin"):
+        return body_portal.strip().lower()
     portal = request.headers.get("x-portal-id", "").strip().lower()
+    if not portal:
+        path = request.url.path.lower()
+        if "/supplier" in path:
+            portal = "supplier"
+        elif "/admin" in path:
+            portal = "admin"
     if not portal:
         origin = request.headers.get("origin") or request.headers.get("referer") or ""
         if ":3001" in origin:
@@ -32,7 +40,7 @@ def _get_portal(request: Request) -> Optional[str]:
             portal = "admin"
         elif ":3000" in origin:
             portal = "buyer"
-    return portal if portal in ("buyer", "supplier", "admin") else None
+    return portal if portal in ("buyer", "supplier", "admin") else "buyer"
 
 
 def _get_cookie_key(portal: Optional[str]) -> str:
@@ -72,7 +80,7 @@ async def login(
         valid_bot = await auth_service.verify_turnstile(data.turnstile_token, remote_ip)
         if not valid_bot:
             raise AppException("Anti-bot verification failed", "BOT_VERIFICATION_FAILED")
-    portal = _get_portal(request)
+    portal = _get_portal(request, data.portal)
     cookie_key = _get_cookie_key(portal)
     result = await auth_service.login(db, data.email, data.password, data.org_id, portal_type=portal)
     await db.commit()

@@ -24,6 +24,7 @@ class NotificationConsumer:
         "q.notification.sms",
         "q.notification.inapp",
         "q.notification.digest",
+        "q.ticket.events",
     ]
 
     def __init__(
@@ -70,6 +71,8 @@ class NotificationConsumer:
                     await self.inapp_channel.send(user_id=user_id, notification=body)
                 elif routing_key.startswith("notification.digest") or "digest" in routing_key:
                     logger.info(f"[NotificationConsumer] Queued digest item for user {body.get('user_id')}")
+                elif routing_key.startswith("ticket.") or "ticket" in routing_key:
+                    await self._handle_ticket_notification(body, routing_key)
 
                 # Persist notification in DB if user_id and org_id are provided
                 await self._persist_notification(body, routing_key)
@@ -121,5 +124,72 @@ class NotificationConsumer:
                 await db.commit()
         except Exception as err:
             logger.debug(f"[NotificationConsumer] Could not persist notification: {err}")
+
+    async def _handle_ticket_notification(self, body: dict, routing_key: str) -> None:
+        event_type = routing_key.replace("ticket.", "")
+        ticket_number = body.get("ticket_number", "Ticket")
+        org_id_str = body.get("org_id")
+        org_id = UUID(org_id_str) if org_id_str else None
+        ticket_id = body.get("ticket_id")
+
+        recipients: list[UUID] = []
+        if event_type == "mention":
+            recipients = [UUID(uid) for uid in body.get("mentioned_user_ids", [])]
+            title = f"You were mentioned in ticket {ticket_number}"
+            template_code = "TICKET_MENTION_NOTIFICATION"
+        elif event_type == "assigned":
+            if body.get("assigned_to"):
+                recipients = [UUID(body["assigned_to"])]
+            title = f"Ticket {ticket_number} assigned to you"
+            template_code = "TICKET_ASSIGNED_NOTIFICATION"
+        elif event_type == "created":
+            if body.get("assigned_to"):
+                recipients = [UUID(body["assigned_to"])]
+            title = f"Ticket {ticket_number} created"
+            template_code = "TICKET_CREATED_NOTIFICATION"
+        elif event_type == "commented":
+            title = f"New comment on ticket {ticket_number}"
+            template_code = "TICKET_COMMENT_NOTIFICATION"
+            if body.get("created_by") and body.get("created_by") != body.get("author_id"):
+                recipients.append(UUID(body["created_by"]))
+        elif event_type == "resolved":
+            title = f"Ticket {ticket_number} resolved"
+            template_code = "TICKET_RESOLVED_NOTIFICATION"
+            if body.get("created_by"):
+                recipients.append(UUID(body["created_by"]))
+        elif event_type == "reopened":
+            title = f"Ticket {ticket_number} reopened"
+            template_code = "TICKET_REOPENED_NOTIFICATION"
+            if body.get("assigned_to"):
+                recipients.append(UUID(body["assigned_to"]))
+        elif event_type == "escalated":
+            title = f"Ticket {ticket_number} escalated"
+            template_code = "TICKET_ESCALATED_NOTIFICATION"
+            if body.get("assigned_to"):
+                recipients.append(UUID(body["assigned_to"]))
+        elif event_type == "sla_breach":
+            title = f"SLA breach warning on ticket {ticket_number}"
+            template_code = "TICKET_SLA_BREACH_ALERT"
+            if body.get("assigned_to"):
+                recipients.append(UUID(body["assigned_to"]))
+        else:
+            title = f"Update on ticket {ticket_number}"
+            template_code = "TICKET_CREATED_NOTIFICATION"
+
+        for recipient_id in recipients:
+            notif_data = {
+                "user_id": str(recipient_id),
+                "org_id": str(org_id) if org_id else None,
+                "title": title,
+                "body": f"Ticket {ticket_number}: {title}",
+                "entity_type": "ticket",
+                "entity_id": ticket_id,
+                "template_code": template_code,
+            }
+            try:
+                await self.inapp_channel.send(user_id=recipient_id, notification=notif_data)
+            except Exception as e:
+                logger.warning(f"[NotificationConsumer] In-app ticket notification failed: {e}")
+            await self._persist_notification(notif_data, routing_key="notification.inapp")
 
 notification_consumer = NotificationConsumer()

@@ -78,6 +78,7 @@ async def get_current_user(
     await session_repository.update_activity(db, session.id, now)
     request.state.user = user
     request.state.org_id = org_id
+    request.state.portal = payload.get("portal", "buyer")
     return user
 
 

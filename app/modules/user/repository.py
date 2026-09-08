@@ -67,6 +67,27 @@ class UserRepository(BaseRepository[User]):
         result = await db.execute(stmt)
         return result.scalar_one_or_none()
 
+    async def find_by_username_or_email_prefix(
+        self, db: AsyncSession, username: str, org_id: UUID
+    ) -> Optional[User]:
+        from sqlalchemy import or_, func
+        clean = username.strip()
+        stmt = select(User).where(
+            User.org_id == org_id,
+            User.deleted_at.is_(None),
+            or_(
+                User.email.ilike(f"{clean}@%"),
+                User.email.ilike(f"{clean}%"),
+                User.first_name.ilike(clean),
+                func.concat(User.first_name, User.last_name).ilike(clean.replace("_", "").replace(".", "")),
+                func.concat(User.first_name, "_", User.last_name).ilike(clean),
+                func.concat(User.first_name, ".", User.last_name).ilike(clean),
+                User.employee_id.ilike(clean),
+            )
+        )
+        result = await db.execute(stmt)
+        return result.scalars().first()
+
 
 class DelegationRepository(BaseRepository[DelegationRule]):
     def __init__(self) -> None:

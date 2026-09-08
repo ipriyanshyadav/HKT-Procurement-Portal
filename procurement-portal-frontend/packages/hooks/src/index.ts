@@ -147,4 +147,5 @@ export * from "./useNotifications";
 export * from "./useAnalytics";
 export * from "./useAuditLogs";
 export * from "./useSystemHealth";
+export * from "./useTickets";
 

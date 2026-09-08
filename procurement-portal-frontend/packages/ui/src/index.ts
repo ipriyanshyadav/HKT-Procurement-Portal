@@ -186,3 +186,6 @@ export { PunchOutModal } from "./PunchOutModal";
 export type { PunchOutModalProps } from "./PunchOutModal";
 export { SplitScreenViewer } from "./SplitScreenViewer";
 export type { SplitScreenViewerProps, DocumentItem } from "./SplitScreenViewer";
+
+// Ticket & Query Management Components (SPEC_26)
+export * from "./components/tickets";

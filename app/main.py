@@ -39,6 +39,7 @@ import app.modules.document.models  # noqa: F401
 import app.modules.notification.models  # noqa: F401
 import app.modules.audit.models  # noqa: F401
 import app.modules.integration.models  # noqa: F401
+import app.modules.ticket.models  # noqa: F401
 
 # Placeholder routers for dynamic import or manual definition
 from app.modules.organization.router import router as organization_router
@@ -68,6 +69,7 @@ from app.modules.sourcing.auction import auction_router
 from app.modules.bid.auction_router import router as live_auction_router
 from app.modules.bid.auction_ws import auction_ws_endpoint
 from app.modules.notification.websocket import notification_ws_endpoint
+from app.modules.ticket.router import router as ticket_router
 
 _minio_health_client = None
 
@@ -248,7 +250,10 @@ def create_app() -> FastAPI:
     api_router.include_router(analytics_router, prefix="/analytics")
     api_router.include_router(admin_router, prefix="/admin")
     api_router.include_router(auth_router, prefix="/auth")
+    api_router.include_router(auth_router, prefix="/supplier/auth")
+    api_router.include_router(auth_router, prefix="/admin/auth")
     api_router.include_router(auction_router)
+    api_router.include_router(ticket_router, prefix="/tickets")
 
     app.include_router(api_router)
     app.include_router(live_auction_router, prefix="/api/v1")

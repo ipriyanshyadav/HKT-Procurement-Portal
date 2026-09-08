@@ -28,6 +28,7 @@ def create_access_token(
     is_supplier_user: bool,
     vendor_id: Optional[UUID],
     jti: str,
+    portal: str = "buyer",
 ) -> str:
     now = datetime.now(timezone.utc)
     expire = now + timedelta(minutes=settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -42,6 +43,7 @@ def create_access_token(
         "is_supplier_user": is_supplier_user,
         "vendor_id": str(vendor_id) if vendor_id else None,
         "jti": jti,
+        "portal": portal,
         "iat": int(now.timestamp()),
         "exp": int(expire.timestamp()),
         "kid": settings.JWT_KEY_ID,

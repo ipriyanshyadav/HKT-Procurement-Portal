@@ -9,6 +9,7 @@ class LoginRequest(BaseModel):
     password: str
     org_id: Optional[UUID] = None
     turnstile_token: Optional[str] = None
+    portal: Optional[str] = None
 
 
 class TurnstileVerifyRequest(BaseModel):

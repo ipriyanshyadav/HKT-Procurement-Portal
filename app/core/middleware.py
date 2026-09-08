@@ -46,13 +46,27 @@ class LoggingContextMiddleware:
             await self.app(scope, receive, send)
             return
 
-        state = scope.get("state", {})
+        state = scope.setdefault("state", {})
         request_id = state.get("request_id", "")
         trace_id = get_current_trace_id()
         user_id = getattr(state, "user_id", "") if not isinstance(state, dict) else state.get("user_id", "")
         org_id = getattr(state, "org_id", "") if not isinstance(state, dict) else state.get("org_id", "")
 
-        with logger.contextualize(request_id=request_id, trace_id=trace_id, user_id=str(user_id or ""), org_id=str(org_id or "")):
+        # Extract portal from decoded JWT payload
+        portal = "buyer"
+        headers = Headers(scope=scope)
+        auth_header = headers.get("authorization") or ""
+        if auth_header.startswith("Bearer "):
+            token = auth_header[7:].strip()
+            try:
+                from jose import jwt as jose_jwt
+                unverified = jose_jwt.get_unverified_claims(token)
+                portal = unverified.get("portal", "buyer")
+            except Exception:
+                portal = "buyer"
+        state["portal"] = portal
+
+        with logger.contextualize(request_id=request_id, trace_id=trace_id, user_id=str(user_id or ""), org_id=str(org_id or ""), portal=portal):
             await self.app(scope, receive, send)
 
 

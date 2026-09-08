@@ -37,6 +37,7 @@ EXCHANGES = [
     "procurement.integration.inbound",
     "procurement.admin",
     "procurement.alert",
+    "procurement.ticket",
     "procurement.dlx",
 ]
 
@@ -53,6 +54,7 @@ QUEUES = [
     ("q.workflow.events", "procurement.workflow", "workflow.*"),
     ("q.alert.critical", "procurement.alert", "alert.*"),
     ("q.audit.write", "procurement.audit", "audit.*"),
+    ("q.ticket.events", "procurement.ticket", "ticket.*", "q.dlq.ticket"),
 ]
 
 DLQ_TTL_MS = int(os.environ.get("DLQ_TTL_MS", "604800000"))
@@ -84,8 +86,9 @@ async def setup_rabbitmq() -> None:
 
         dlx = exchange_refs["procurement.dlx"]
 
-        for queue_name, exchange_name, routing_key in QUEUES:
-            dlq_name = f"q.dlq.{queue_name.removeprefix('q.')}"
+        for item in QUEUES:
+            queue_name, exchange_name, routing_key = item[0], item[1], item[2]
+            dlq_name = item[3] if len(item) > 3 else f"q.dlq.{queue_name.removeprefix('q.')}"
 
             dlq = await channel.declare_queue(
                 dlq_name,

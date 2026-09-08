@@ -109,7 +109,8 @@ class AuthService:
             mfa_token = create_mfa_token(user.id, mfa_jti)
             return LoginResult(mfa_required=True, mfa_token=mfa_token)
 
-        result = await self._issue_tokens(db, user, org_id)
+        portal = portal_type or ("supplier" if user.is_supplier_user else "buyer")
+        result = await self._issue_tokens(db, user, org_id, portal=portal)
         await audit_service.log(
             db,
             entity_type="USER",
@@ -180,7 +181,8 @@ class AuthService:
         if old_session:
             await session_repository.revoke(db, old_session.id, "TOKEN_ROTATED")
 
-        result = await self._issue_tokens(db, user, org_id)
+        portal = portal_type or ("supplier" if user.is_supplier_user else "buyer")
+        result = await self._issue_tokens(db, user, org_id, portal=portal)
 
         # Store in rotation grace period cache (10 seconds)
         try:
@@ -280,7 +282,8 @@ class AuthService:
         if not user:
             raise AuthenticationError("User not found")
 
-        result = await self._issue_tokens(db, user, user.org_id)
+        portal = "supplier" if user.is_supplier_user else "buyer"
+        result = await self._issue_tokens(db, user, user.org_id, portal=portal)
         await audit_service.log(
             db,
             entity_type="USER",
@@ -355,7 +358,7 @@ class AuthService:
         )
 
     async def _issue_tokens(
-        self, db: AsyncSession, user: User, org_id: UUID
+        self, db: AsyncSession, user: User, org_id: UUID, portal: str = "buyer"
     ) -> LoginResult:
         roles = await role_repository.get_user_role_codes(db, user.id, org_id)
 
@@ -377,6 +380,7 @@ class AuthService:
             user.id, org_id, user.email, roles,
             bu_scope, cat_scope, plant_scope,
             user.is_supplier_user, user.vendor_id, session_jti,
+            portal=portal,
         )
         refresh_token = create_refresh_token(user.id, org_id, session_jti)
 

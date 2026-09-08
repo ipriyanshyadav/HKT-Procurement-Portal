@@ -358,5 +358,19 @@ class PermissionCode:
     ADMIN_MANAGE_SYSTEM = "admin.manage_system"
     ADMIN_VIEW_HEALTH = "admin.view_health"
 
+    # Ticket (12)
+    TICKET_CREATE = "ticket.create"
+    TICKET_VIEW_OWN = "ticket.view_own"
+    TICKET_VIEW_TEAM = "ticket.view_team"
+    TICKET_VIEW_ALL = "ticket.view_all"
+    TICKET_ASSIGN = "ticket.assign"
+    TICKET_RESOLVE = "ticket.resolve"
+    TICKET_CLOSE = "ticket.close"
+    TICKET_REOPEN = "ticket.reopen"
+    TICKET_ADD_INTERNAL = "ticket.add_internal_note"
+    TICKET_ESCALATE = "ticket.escalate"
+    TICKET_CONFIG_SLA = "ticket.config_sla"
+    TICKET_EXPORT = "ticket.export"
+
 AUDIT_INSERT_ONLY = True
 MAKER_CHECKER_ENFORCED = True

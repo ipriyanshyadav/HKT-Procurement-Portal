@@ -386,6 +386,141 @@ TEMPLATES_DATA = [
         "body": "Buyer answered question: '{{question_summary}}'",
         "variables": ["rfq_number", "question_summary", "rfq_id"],
     },
+    # 35. Ticket Created
+    {
+        "code": "TICKET_CREATED_NOTIFICATION",
+        "channel": NotificationChannelEnum.EMAIL,
+        "subject": "New Ticket Created: {{ticket_number}} - {{title}}",
+        "body": "Ticket {{ticket_number}} has been created with priority {{priority}}.\nTitle: {{title}}\nView ticket: {{portal_url}}/tickets/{{ticket_id}}",
+        "variables": ["ticket_number", "title", "priority", "portal_url", "ticket_id"],
+    },
+    {
+        "code": "TICKET_CREATED_NOTIFICATION",
+        "channel": NotificationChannelEnum.IN_APP,
+        "subject": "New Ticket Created",
+        "body": "Ticket {{ticket_number}} ({{title}}) has been created.",
+        "variables": ["ticket_number", "title", "ticket_id"],
+    },
+    # 36. Ticket Comment
+    {
+        "code": "TICKET_COMMENT_NOTIFICATION",
+        "channel": NotificationChannelEnum.EMAIL,
+        "subject": "New Comment on Ticket {{ticket_number}}",
+        "body": "A new comment was added to ticket {{ticket_number}} by {{author_name}}:\n\n{{comment_preview}}\n\nView discussion: {{portal_url}}/tickets/{{ticket_id}}",
+        "variables": ["ticket_number", "author_name", "comment_preview", "portal_url", "ticket_id"],
+    },
+    {
+        "code": "TICKET_COMMENT_NOTIFICATION",
+        "channel": NotificationChannelEnum.IN_APP,
+        "subject": "New Comment on Ticket",
+        "body": "New comment on ticket {{ticket_number}} by {{author_name}}.",
+        "variables": ["ticket_number", "author_name", "ticket_id"],
+    },
+    # 37. Ticket Assigned
+    {
+        "code": "TICKET_ASSIGNED_NOTIFICATION",
+        "channel": NotificationChannelEnum.EMAIL,
+        "subject": "Ticket Assigned: {{ticket_number}} - {{title}}",
+        "body": "You have been assigned to ticket {{ticket_number}} ({{title}}).\nPriority: {{priority}}\nView ticket: {{portal_url}}/tickets/{{ticket_id}}",
+        "variables": ["ticket_number", "title", "priority", "portal_url", "ticket_id"],
+    },
+    {
+        "code": "TICKET_ASSIGNED_NOTIFICATION",
+        "channel": NotificationChannelEnum.IN_APP,
+        "subject": "Ticket Assigned to You",
+        "body": "Ticket {{ticket_number}} ({{title}}) assigned to you.",
+        "variables": ["ticket_number", "title", "ticket_id"],
+    },
+    # 38. Ticket Resolved
+    {
+        "code": "TICKET_RESOLVED_NOTIFICATION",
+        "channel": NotificationChannelEnum.EMAIL,
+        "subject": "Ticket Resolved: {{ticket_number}}",
+        "body": "Ticket {{ticket_number}} has been marked as resolved.\nResolution note: {{resolution_notes}}\nIf unsatisfied, you may reopen it within 72 hours.",
+        "variables": ["ticket_number", "resolution_notes", "ticket_id"],
+    },
+    {
+        "code": "TICKET_RESOLVED_NOTIFICATION",
+        "channel": NotificationChannelEnum.IN_APP,
+        "subject": "Ticket Resolved",
+        "body": "Ticket {{ticket_number}} has been resolved.",
+        "variables": ["ticket_number", "ticket_id"],
+    },
+    # 39. Ticket Reopened
+    {
+        "code": "TICKET_REOPENED_NOTIFICATION",
+        "channel": NotificationChannelEnum.EMAIL,
+        "subject": "Ticket Reopened: {{ticket_number}}",
+        "body": "Ticket {{ticket_number}} has been reopened.\nReason: {{reopen_reason}}\nView ticket: {{portal_url}}/tickets/{{ticket_id}}",
+        "variables": ["ticket_number", "reopen_reason", "portal_url", "ticket_id"],
+    },
+    {
+        "code": "TICKET_REOPENED_NOTIFICATION",
+        "channel": NotificationChannelEnum.IN_APP,
+        "subject": "Ticket Reopened",
+        "body": "Ticket {{ticket_number}} was reopened: {{reopen_reason}}.",
+        "variables": ["ticket_number", "reopen_reason", "ticket_id"],
+    },
+    # 40. Ticket SLA Breach Alert
+    {
+        "code": "TICKET_SLA_BREACH_ALERT",
+        "channel": NotificationChannelEnum.EMAIL,
+        "subject": "URGENT: SLA Breach Warning for Ticket {{ticket_number}}",
+        "body": "Ticket {{ticket_number}} has reached or is approaching its {{breach_type}} SLA threshold.\nCurrent status: {{status}}\nPlease respond immediately: {{portal_url}}/tickets/{{ticket_id}}",
+        "variables": ["ticket_number", "breach_type", "status", "portal_url", "ticket_id"],
+    },
+    {
+        "code": "TICKET_SLA_BREACH_ALERT",
+        "channel": NotificationChannelEnum.IN_APP,
+        "subject": "Ticket SLA Alert",
+        "body": "Ticket {{ticket_number}} has an SLA warning/breach ({{breach_type}}).",
+        "variables": ["ticket_number", "breach_type", "ticket_id"],
+    },
+    # 41. Ticket Escalated
+    {
+        "code": "TICKET_ESCALATED_NOTIFICATION",
+        "channel": NotificationChannelEnum.EMAIL,
+        "subject": "Ticket Escalated: {{ticket_number}}",
+        "body": "Ticket {{ticket_number}} has been escalated.\nReason: {{escalation_reason}}\nView ticket: {{portal_url}}/tickets/{{ticket_id}}",
+        "variables": ["ticket_number", "escalation_reason", "portal_url", "ticket_id"],
+    },
+    {
+        "code": "TICKET_ESCALATED_NOTIFICATION",
+        "channel": NotificationChannelEnum.IN_APP,
+        "subject": "Ticket Escalated",
+        "body": "Ticket {{ticket_number}} was escalated: {{escalation_reason}}.",
+        "variables": ["ticket_number", "escalation_reason", "ticket_id"],
+    },
+    # 42. Ticket Mention
+    {
+        "code": "TICKET_MENTION_NOTIFICATION",
+        "channel": NotificationChannelEnum.EMAIL,
+        "subject": "You were mentioned in Ticket {{ticket_number}}",
+        "body": "You were mentioned in ticket {{ticket_number}} by {{author_name}}:\n\n{{comment_preview}}\n\nView comment: {{portal_url}}/tickets/{{ticket_id}}",
+        "variables": ["ticket_number", "author_name", "comment_preview", "portal_url", "ticket_id"],
+    },
+    {
+        "code": "TICKET_MENTION_NOTIFICATION",
+        "channel": NotificationChannelEnum.IN_APP,
+        "subject": "Mentioned in Ticket",
+        "body": "{{author_name}} mentioned you in ticket {{ticket_number}}.",
+        "variables": ["ticket_number", "author_name", "ticket_id"],
+    },
+    # 43. Ticket Daily Digest
+    {
+        "code": "TICKET_DAILY_DIGEST",
+        "channel": NotificationChannelEnum.EMAIL,
+        "subject": "Ticket Daily Digest - {{digest_date}}",
+        "body": "Here is your daily ticket summary:\n- Open Tickets: {{open_count}}\n- Pending Response: {{pending_count}}\n- SLA Breached: {{breached_count}}\n\nView all: {{portal_url}}/tickets",
+        "variables": ["digest_date", "open_count", "pending_count", "breached_count", "portal_url"],
+    },
+    {
+        "code": "TICKET_DAILY_DIGEST",
+        "channel": NotificationChannelEnum.IN_APP,
+        "subject": "Daily Ticket Summary",
+        "body": "Open: {{open_count}}, Pending: {{pending_count}}, SLA Breached: {{breached_count}}.",
+        "variables": ["open_count", "pending_count", "breached_count"],
+    },
 ]
 
 async def seed_templates():

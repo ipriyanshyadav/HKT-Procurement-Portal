@@ -9,15 +9,11 @@ const LOCAL_SPEC = join(dirname(new URL(import.meta.url).pathname), "..", "..", 
 async function generateTypes(): Promise<void> {
   try {
     let ast;
-    try {
+    if (existsSync(LOCAL_SPEC)) {
+      const spec = JSON.parse(readFileSync(LOCAL_SPEC, "utf-8"));
+      ast = await openapiTS(spec);
+    } else {
       ast = await openapiTS(new URL(`${API_URL}/api/v1/openapi.json`));
-    } catch (netErr) {
-      if (existsSync(LOCAL_SPEC)) {
-        const spec = JSON.parse(readFileSync(LOCAL_SPEC, "utf-8"));
-        ast = await openapiTS(spec);
-      } else {
-        throw netErr;
-      }
     }
     const output = astToString(ast);
     mkdirSync(dirname(OUTPUT_PATH), { recursive: true });

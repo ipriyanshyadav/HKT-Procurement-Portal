@@ -4,7 +4,7 @@ import React, { ReactNode } from "react";
 import { useAuthInit, useCurrentUser, useLogout } from "@procurement/hooks";
 import { useAuthStore } from "@procurement/stores";
 import { AppShell, NotificationBell } from "@procurement/ui";
-import { Building2, FileCheck, UserPlus, Gavel, Package, Receipt, CreditCard, AlertCircle } from "lucide-react";
+import { Building2, FileCheck, UserPlus, Gavel, Package, Receipt, CreditCard, AlertCircle, LifeBuoy } from "lucide-react";
 
 export default function SupplierMainLayout({ children }: { children: ReactNode }) {
   const { isInitializing } = useAuthInit();
@@ -72,6 +72,12 @@ export default function SupplierMainLayout({ children }: { children: ReactNode }
       href: "/register",
       icon: <UserPlus className="w-4 h-4" />,
       section: "Onboarding",
+    },
+    {
+      label: "Queries & Support",
+      href: "/tickets",
+      icon: <LifeBuoy className="w-4 h-4" />,
+      section: "Support",
     },
   ];
 
