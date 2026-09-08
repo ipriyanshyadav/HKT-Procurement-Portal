@@ -240,6 +240,16 @@ routes:
         config:
           minute: 100
           
+  - name: tickets-route
+    service: api
+    strip_path: false
+    paths:
+      - /api/v1/tickets
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 200
+          
   - name: health-route
     service: api
     strip_path: false
