@@ -10,10 +10,10 @@ All three portals run simultaneously with seeded test roles. Access them directl
 
 | Portal | Local URL | Primary Users | Demo Account | Password | Assigned Roles |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Buyer Portal** | [http://localhost:3000](http://localhost:3000) | Procurement Team (PRs, RFQs, Bids) | `buyer@procurement.com` | `Buyer123456!@#` | `REQUESTOR`, `BUYER`, `PROCUREMENT_OFFICER` |
+| **Buyer Portal** | [http://localhost:3000](http://localhost:3000) | Procurement Team (PRs, RFQs, Bids, Tickets) | `buyer@procurement.com` | `Buyer123456!@#` | `REQUESTOR`, `BUYER`, `PROCUREMENT_OFFICER` |
 | **Buyer Portal (Approver)** | [http://localhost:3000](http://localhost:3000) | Approvers & Leadership (Sign-offs) | `approver@procurement.com` | `Approver123!@#` | `APPROVER`, `PROCUREMENT_HEAD`, `FINANCE_MANAGER` |
-| **Supplier Portal** | [http://localhost:3001](http://localhost:3001) | External Vendors (Bids, Invoices) | `supplier@acme.com` | `Supplier123456!@#` | `SUPPLIER` (Acme Tech Solutions) |
-| **Admin Portal** | [http://localhost:3002](http://localhost:3002) | System Administrators (Master Data) | `admin@procurement.com` | `Admin123456!@#` | `SUPERADMIN`, `ORG_ADMIN`, `PROCUREMENT_MANAGER` |
+| **Supplier Portal** | [http://localhost:3001](http://localhost:3001) | External Vendors (Bids, Invoices, Queries) | `supplier@acme.com` | `Supplier123456!@#` | `SUPPLIER` (Acme Tech Solutions) |
+| **Admin Portal** | [http://localhost:3002](http://localhost:3002) | System Administrators (Master Data, SLAs, Tickets) | `admin@procurement.com` | `Admin123456!@#` | `SUPERADMIN`, `ORG_ADMIN`, `PROCUREMENT_MANAGER` |
 
 > 🔑 **Organization ID for all logins:** `00000000-0000-0000-0000-000000000001` (Default Organization)
 >
@@ -273,14 +273,14 @@ docker compose -f docker/docker-compose.yml logs <service-name>
 ### Step 5 — Database Migrations & Messaging Setup
 
 ```bash
-# 1. Apply all 38 database migrations
+# 1. Apply all 45 database migrations
 alembic upgrade head
 # Expected output ends with:
-# INFO  [alembic.runtime.migration] Running upgrade ... -> 0037_trgm_search_indexes
+# INFO  [alembic.runtime.migration] Running upgrade ... -> 0034_ticket_permissions
 
 # 2. Verify migration head
 alembic current
-# Expected: 0037_trgm_search_indexes (head)
+# Expected: 0034_ticket_permissions (head)
 
 # 3. Setup RabbitMQ topology & MinIO buckets
 python3 scripts/rabbitmq_setup.py
@@ -493,7 +493,7 @@ docker compose logs -f -t
 | Domain | Technology | Key Highlights |
 | :--- | :--- | :--- |
 | **API & Core** | FastAPI 0.115+, Python 3.14, Uvicorn | Async ASGI, Pydantic v2 validation |
-| **Database & ORM** | SQLAlchemy 2.0 (asyncpg), Alembic, PostgreSQL 16 | 37 migrations, connection pooling, RLS |
+| **Database & ORM** | SQLAlchemy 2.0 (asyncpg), Alembic, PostgreSQL 16 | 45 migrations, connection pooling, RLS |
 | **Asynchronous Jobs** | Celery 5.4 + Beat, RabbitMQ 3.13, Redis 7 | Event outbox pattern, scheduled tasks |
 | **API Gateway** | Kong 3.7 (DB-less declarative) | Centralized rate limiting, CORS, routing |
 | **Storage & Security** | MinIO S3, ClamAV, RS256 JWT, TOTP MFA, AES-256 | Presigned URLs, antivirus scanning |
@@ -555,6 +555,18 @@ docker compose logs -f -t
 | A-PERF-8 | Evaluation comparative statement PDF generation uses batch vendor querying (Vendor.id.in_) to eliminate N+1 query loop | LOW |
 | A-SEC-1 | Reverse auction WebSocket /ws requires authenticated JWT token via get_current_user_ws and binds counter-bids to verified identity | MEDIUM |
 | A-DOCKER-1 | Frontend Dockerfiles run as unprivileged nextjs:nodejs user and ignore node_modules, .next, .turbo via .dockerignore | LOW |
+| A-26-1 | @mention autocomplete fetches GET /api/v1/users?search={q}&active=true; results cached client-side 60s; only same-org users returned | LOW |
+| A-26-2 | Markdown rendered client-side via react-markdown + remark-gfm; avoids latency on comment fetch | LOW |
+| A-26-3 | ES search uses multi_match on title(x3), ticket_number(x5), description(x2), comments_text, entity_number(x4), tags with operator=or, min_score=0.3 | LOW |
+| A-26-4 | Kanban drag uses @dnd-kit/core + @dnd-kit/sortable for React 18+ App Router compatibility | LOW |
+| A-26-5 | Ticket sequence seq_tkt_{org_code}_{year} created with CREATE SEQUENCE IF NOT EXISTS inside transaction with unique retry | MEDIUM |
+| A-26-6 | is_private enforced at SQL WHERE clause level: (is_private = FALSE OR raised_by = :actor OR assigned_to = :actor OR :is_admin = TRUE) | HIGH |
+| A-26-7 | Comment 15-min edit enforced: elapsed seconds > 900 raises EDIT_WINDOW_CLOSED | LOW |
+| A-26-8 | Supplier internal note filter: GET comments endpoint filters out is_internal=True rows at DB query level for supplier tokens | MEDIUM |
+| A-26-9 | RESOLVED auto-close after 3 days; PENDING_RESPONSE auto-close after 7 days checked daily by Celery beat | LOW |
+| A-26-10 | SLA computed on calendar hours in Phase 1; business-hours-aware SLA explicitly deferred to Phase 2 | MEDIUM |
+| A-26-11 | Entity link stored as advisory soft FK (entity_type VARCHAR + entity_id UUID + entity_number VARCHAR) | LOW |
+| A-26-12 | portal claim added to JWT access token (values: buyer/supplier/admin) for session isolation across portals | MEDIUM |
 
 ---
 

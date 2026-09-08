@@ -22,11 +22,11 @@ from app.modules.user.models import User
 router = APIRouter(tags=["Auth"])
 
 
-def _get_portal(request: Request, body_portal: Optional[str] = None) -> str:
+def _get_portal(request: Request, body_portal: Optional[str] = None) -> Optional[str]:
     if body_portal and body_portal.strip().lower() in ("buyer", "supplier", "admin"):
         return body_portal.strip().lower()
     portal = request.headers.get("x-portal-id", "").strip().lower()
-    if not portal:
+    if not portal and hasattr(request, "url") and hasattr(request.url, "path"):
         path = request.url.path.lower()
         if "/supplier" in path:
             portal = "supplier"
@@ -40,7 +40,7 @@ def _get_portal(request: Request, body_portal: Optional[str] = None) -> str:
             portal = "admin"
         elif ":3000" in origin:
             portal = "buyer"
-    return portal if portal in ("buyer", "supplier", "admin") else "buyer"
+    return portal if portal in ("buyer", "supplier", "admin") else None
 
 
 def _get_cookie_key(portal: Optional[str]) -> str:

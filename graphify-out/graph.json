@@ -56381,7 +56381,7 @@
       "node_kind": "heading",
       "norm_label": "current session state",
       "source_file": "README.md",
-      "source_location": "L561"
+      "source_location": "L573"
     },
     {
       "id": "readme_full_stack_verification_checklist",
@@ -276371,7 +276371,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L561",
+      "source_location": "L573",
       "weight": 1.0
     },
     {
@@ -335812,5 +335812,5 @@
       "source_file": "specs/SPEC_04_AUTH_SECURITY.md"
     }
   ],
-  "built_at_commit": "4ade1c54cff68314d91531d418b1e556c138e765"
+  "built_at_commit": "fd16c5c08b8523557fd5db10a911b62f28f98291"
 }
