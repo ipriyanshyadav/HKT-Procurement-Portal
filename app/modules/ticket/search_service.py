@@ -53,6 +53,14 @@ class TicketSearchService:
                 return None
         return self._es
 
+    async def close(self) -> None:
+        if self._es is not None:
+            try:
+                await self._es.close()
+            except Exception as e:
+                logger.debug("Error closing Elasticsearch client: {}", e)
+            self._es = None
+
     def _get_index_name(self, dt: datetime | None = None) -> str:
         d = dt or datetime.now(UTC)
         return f"tickets-{d.strftime('%Y.%m')}"
@@ -154,16 +162,18 @@ class TicketSearchService:
 
             if not is_admin and actor_id:
                 # Suppress private tickets not owned/assigned to actor
-                must_clauses.append({
-                    "bool": {
-                        "should": [
-                            {"term": {"is_private": False}},
-                            {"term": {"raised_by": str(actor_id)}},
-                            {"term": {"assigned_to": str(actor_id)}},
-                        ],
-                        "minimum_should_match": 1,
+                must_clauses.append(
+                    {
+                        "bool": {
+                            "should": [
+                                {"term": {"is_private": False}},
+                                {"term": {"raised_by": str(actor_id)}},
+                                {"term": {"assigned_to": str(actor_id)}},
+                            ],
+                            "minimum_should_match": 1,
+                        }
                     }
-                })
+                )
 
             if filters.get("status"):
                 must_clauses.append({"term": {"status": filters["status"]}})
@@ -242,29 +252,31 @@ class TicketSearchService:
 
         results = []
         for t in rows:
-            results.append({
-                "ticket_id": str(t.id),
-                "org_id": str(t.org_id),
-                "ticket_number": t.ticket_number,
-                "title": t.title,
-                "description": t.description,
-                "ticket_type": str(t.ticket_type),
-                "priority": str(t.priority),
-                "status": str(t.status),
-                "category": t.category,
-                "entity_type": t.entity_type,
-                "entity_id": str(t.entity_id) if t.entity_id else None,
-                "entity_number": t.entity_number,
-                "tags": list(t.tags or []),
-                "is_private": bool(t.is_private),
-                "raised_by": str(t.raised_by),
-                "assigned_to": str(t.assigned_to) if t.assigned_to else None,
-                "created_at": t.created_at.isoformat() if t.created_at else None,
-                "highlights": {
-                    "title": [t.title] if query.lower() in t.title.lower() else [],
-                    "description": [t.description] if query.lower() in t.description.lower() else [],
-                },
-            })
+            results.append(
+                {
+                    "ticket_id": str(t.id),
+                    "org_id": str(t.org_id),
+                    "ticket_number": t.ticket_number,
+                    "title": t.title,
+                    "description": t.description,
+                    "ticket_type": str(t.ticket_type),
+                    "priority": str(t.priority),
+                    "status": str(t.status),
+                    "category": t.category,
+                    "entity_type": t.entity_type,
+                    "entity_id": str(t.entity_id) if t.entity_id else None,
+                    "entity_number": t.entity_number,
+                    "tags": list(t.tags or []),
+                    "is_private": bool(t.is_private),
+                    "raised_by": str(t.raised_by),
+                    "assigned_to": str(t.assigned_to) if t.assigned_to else None,
+                    "created_at": t.created_at.isoformat() if t.created_at else None,
+                    "highlights": {
+                        "title": [t.title] if query.lower() in t.title.lower() else [],
+                        "description": [t.description] if query.lower() in t.description.lower() else [],
+                    },
+                }
+            )
         return results
 
     async def _sql_fallback_search(
@@ -280,4 +292,3 @@ class TicketSearchService:
             return await self._execute_sql_search(db, org_id, query, filters, actor_id, is_admin)
         async with async_session_factory() as session:
             return await self._execute_sql_search(session, org_id, query, filters, actor_id, is_admin)
-

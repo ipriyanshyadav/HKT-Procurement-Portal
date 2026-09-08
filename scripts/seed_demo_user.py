@@ -12,45 +12,53 @@ Seeds:
 - Sample Unmapped PR Exception
 Safe and idempotent.
 """
+
 from __future__ import annotations
 
 import asyncio
 import logging
 import os
 import sys
+from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal
-from datetime import datetime, date, timezone, timedelta
 from uuid import UUID, uuid4
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from sqlalchemy import select, and_, text
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import and_, select, text
 
-from app.db.session import async_session, engine
+from app.core.encryption import encrypt_field
 from app.core.security import hash_password
 from app.db.enums import (
-    UserStatusEnum, VendorStatusEnum, PrStatusEnum, PrSourceEnum,
-    ProcurementTypeEnum, UnmappedPrStatusEnum,
-    RfqStatusEnum, RfqTypeEnum, SourcingTypeEnum, EvaluationTypeEnum,
-    BidStatusEnum, PoStatusEnum, InvoiceStatusEnum, PaymentStatusEnum,
+    BidStatusEnum,
+    EvaluationTypeEnum,
+    IntegrationJobStatusEnum,
+    InvoiceStatusEnum,
+    PaymentStatusEnum,
+    PoStatusEnum,
+    ProcurementTypeEnum,
+    PrSourceEnum,
+    PrStatusEnum,
+    RfqStatusEnum,
+    RfqTypeEnum,
+    SourcingTypeEnum,
+    UnmappedPrStatusEnum,
+    UserStatusEnum,
+    VendorStatusEnum,
 )
-from app.modules.organization.models import (
-    Organization, LegalEntity, BusinessUnit, Plant, Department, CostCenter
-)
-from app.modules.master_data.models import Category, DeliveryLocation, UomMaster, PaymentTerm
-from app.modules.user.models import User, Role, UserRoleAssignment
-from app.modules.vendor.models import Vendor
-from app.modules.requisition.models import Requisition, RequisitionLine, UnmappedPrException
-from app.modules.sourcing.models import Rfq, RfqLot, RfqLine, RfqParticipant, RfqClarification
-from app.modules.bid.models import BidResponse, BidLineResponse, LiveAuction, AuctionParticipant
-from app.modules.purchase_order.models import PurchaseOrder, PoLine
+from app.db.session import async_session, engine
+from app.modules.bid.models import AuctionParticipant, BidLineResponse, BidResponse, LiveAuction
 from app.modules.grn.models import GoodsReceiptNote, GrnLine
-from app.modules.invoice.models import Invoice, InvoiceLine, InvoiceMatchResult
-from app.modules.payment.models import PaymentRecord
 from app.modules.integration.models import IntegrationJob, ScheduledJobRun
-from app.db.enums import IntegrationJobStatusEnum
-from app.core.encryption import encrypt_field
+from app.modules.invoice.models import Invoice, InvoiceLine, InvoiceMatchResult
+from app.modules.master_data.models import Category, DeliveryLocation, PaymentTerm, UomMaster
+from app.modules.organization.models import BusinessUnit, CostCenter, Department, LegalEntity, Organization, Plant
+from app.modules.payment.models import PaymentRecord
+from app.modules.purchase_order.models import PoLine, PurchaseOrder
+from app.modules.requisition.models import Requisition, RequisitionLine, UnmappedPrException
+from app.modules.sourcing.models import Rfq, RfqClarification, RfqLine, RfqLot, RfqParticipant
+from app.modules.user.models import Role, User, UserRoleAssignment
+from app.modules.vendor.models import Vendor
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -87,10 +95,13 @@ async def seed_demo():
             uom_ea_id = uom_row[0]
         else:
             uom_ea_id = uuid4()
-            await db.execute(text("""
+            await db.execute(
+                text("""
                 INSERT INTO uom_master (id, org_id, code, name, is_active, version)
                 VALUES (:id, :org_id, 'EA', 'Each', true, 1)
-            """), {"id": uom_ea_id, "org_id": DEFAULT_ORG_ID})
+            """),
+                {"id": uom_ea_id, "org_id": DEFAULT_ORG_ID},
+            )
 
         # 2. Legal Entity
         res = await db.execute(select(LegalEntity).where(LegalEntity.org_id == DEFAULT_ORG_ID))
@@ -207,7 +218,9 @@ async def seed_demo():
             ("CAT-CLOUD", "Cloud & Network Services", "CAT-IT", 2),
         ]
         for code, name, parent_code, lvl in cat_defs:
-            res = await db.execute(select(Category).where(and_(Category.org_id == DEFAULT_ORG_ID, Category.code == code)))
+            res = await db.execute(
+                select(Category).where(and_(Category.org_id == DEFAULT_ORG_ID, Category.code == code))
+            )
             cat = res.scalar_one_or_none()
             if not cat:
                 parent_id = categories[parent_code].id if parent_code else None
@@ -254,7 +267,9 @@ async def seed_demo():
 
         created_users = {}
         for uconf in users_config:
-            res = await db.execute(select(User).where(and_(User.org_id == DEFAULT_ORG_ID, User.email == uconf["email"])))
+            res = await db.execute(
+                select(User).where(and_(User.org_id == DEFAULT_ORG_ID, User.email == uconf["email"]))
+            )
             user = res.scalar_one_or_none()
             if not user:
                 user = User(
@@ -327,22 +342,25 @@ async def seed_demo():
             },
         ]
         for vdata in vendors_data:
-            res = await db.execute(select(Vendor).where(and_(Vendor.org_id == DEFAULT_ORG_ID, Vendor.vendor_code == vdata["vendor_code"])))
+            res = await db.execute(
+                select(Vendor).where(and_(Vendor.org_id == DEFAULT_ORG_ID, Vendor.vendor_code == vdata["vendor_code"]))
+            )
             vendor = res.scalar_one_or_none()
             if not vendor:
-                vendor = Vendor(
-                    org_id=DEFAULT_ORG_ID,
-                    **vdata
-                )
+                vendor = Vendor(org_id=DEFAULT_ORG_ID, **vdata)
                 db.add(vendor)
                 logger.info("Created Vendor: %s", vdata["company_name"])
 
         # 10.1 Supplier Demo User & Role Permissions
-        res = await db.execute(select(Vendor).where(and_(Vendor.org_id == DEFAULT_ORG_ID, Vendor.vendor_code == "V-10001")))
+        res = await db.execute(
+            select(Vendor).where(and_(Vendor.org_id == DEFAULT_ORG_ID, Vendor.vendor_code == "V-10001"))
+        )
         acme_vendor = res.scalar_one_or_none()
         if acme_vendor:
             supplier_email = "supplier@acme.com"
-            res = await db.execute(select(User).where(and_(User.org_id == DEFAULT_ORG_ID, User.email == supplier_email)))
+            res = await db.execute(
+                select(User).where(and_(User.org_id == DEFAULT_ORG_ID, User.email == supplier_email))
+            )
             supplier_user = res.scalar_one_or_none()
             if not supplier_user:
                 supplier_user = User(
@@ -384,10 +402,23 @@ async def seed_demo():
 
                 # Ensure SUPPLIER role has supplier permissions
                 supplier_perms = [
-                    "vendor.view_own", "rfq.view_own", "bid.submit", "bid.view_own", "bid.revise",
-                    "bid.withdraw", "invoice.submit", "invoice.view_own", "po.acknowledge",
-                    "po.view_own", "grn.view_own", "document.upload", "document.view_own",
-                    "notification.view_own", "user.view_own", "user.update_own", "contract.view_own",
+                    "vendor.view_own",
+                    "rfq.view_own",
+                    "bid.submit",
+                    "bid.view_own",
+                    "bid.revise",
+                    "bid.withdraw",
+                    "invoice.submit",
+                    "invoice.view_own",
+                    "po.acknowledge",
+                    "po.view_own",
+                    "grn.view_own",
+                    "document.upload",
+                    "document.view_own",
+                    "notification.view_own",
+                    "user.view_own",
+                    "user.update_own",
+                    "contract.view_own",
                     "master.view",
                 ]
                 for pcode in supplier_perms:
@@ -395,16 +426,19 @@ async def seed_demo():
                     perm_row = res.fetchone()
                     if perm_row:
                         perm_id = perm_row[0]
-                        await db.execute(text("""
+                        await db.execute(
+                            text("""
                             INSERT INTO role_permissions (id, org_id, role_id, permission_id)
                             VALUES (:id, :org_id, :role_id, :permission_id)
                             ON CONFLICT (org_id, role_id, permission_id) DO NOTHING
-                        """), {
-                            "id": uuid4(),
-                            "org_id": DEFAULT_ORG_ID,
-                            "role_id": sup_role.id,
-                            "permission_id": perm_id,
-                        })
+                        """),
+                            {
+                                "id": uuid4(),
+                                "org_id": DEFAULT_ORG_ID,
+                                "role_id": sup_role.id,
+                                "permission_id": perm_id,
+                            },
+                        )
 
         # 11. Sample Requisitions
         buyer_user = created_users["buyer@procurement.com"]
@@ -424,7 +458,7 @@ async def seed_demo():
                         "quantity": Decimal("10.00"),
                         "estimated_unit_price": Decimal("240000.00"),
                     }
-                ]
+                ],
             },
             {
                 "pr_number": "PR-IT-2026-000002",
@@ -441,7 +475,7 @@ async def seed_demo():
                         "quantity": Decimal("6.00"),
                         "estimated_unit_price": Decimal("250000.00"),
                     }
-                ]
+                ],
             },
             {
                 "pr_number": "PR-IT-2026-000003",
@@ -458,12 +492,16 @@ async def seed_demo():
                         "quantity": Decimal("1.00"),
                         "estimated_unit_price": Decimal("350000.00"),
                     }
-                ]
+                ],
             },
         ]
 
         for pr_data in pr_samples:
-            res = await db.execute(select(Requisition).where(and_(Requisition.org_id == DEFAULT_ORG_ID, Requisition.pr_number == pr_data["pr_number"])))
+            res = await db.execute(
+                select(Requisition).where(
+                    and_(Requisition.org_id == DEFAULT_ORG_ID, Requisition.pr_number == pr_data["pr_number"])
+                )
+            )
             pr = res.scalar_one_or_none()
             if not pr:
                 lines = pr_data.pop("lines")
@@ -480,7 +518,7 @@ async def seed_demo():
                     procurement_type=ProcurementTypeEnum.CAPEX if pr_data["is_capex"] else ProcurementTypeEnum.OPEX,
                     delivery_location_id=loc.id,
                     required_by_date=date.today() + timedelta(days=30),
-                    **pr_data
+                    **pr_data,
                 )
                 db.add(pr)
                 await db.flush()
@@ -493,13 +531,17 @@ async def seed_demo():
                         uom_id=uom_ea_id,
                         delivery_location_id=loc.id,
                         required_by_date=date.today() + timedelta(days=30),
-                        **line
+                        **line,
                     )
                     db.add(pr_line)
                 logger.info("Created Requisition: %s (%s)", pr.pr_number, pr.title)
 
         # 12. Sample Unmapped PR Exception
-        res = await db.execute(select(Requisition).where(and_(Requisition.org_id == DEFAULT_ORG_ID, Requisition.pr_number == "PR-ERP-2026-UNMAPPED01")))
+        res = await db.execute(
+            select(Requisition).where(
+                and_(Requisition.org_id == DEFAULT_ORG_ID, Requisition.pr_number == "PR-ERP-2026-UNMAPPED01")
+            )
+        )
         unmapped_req = res.scalar_one_or_none()
         if not unmapped_req:
             unmapped_req = Requisition(
@@ -545,7 +587,7 @@ async def seed_demo():
                     "cost_center": {"value": "CC-OLD-999", "reason": "Cost center deactivated in FY26"},
                 },
                 status=UnmappedPrStatusEnum.PENDING,
-                sla_deadline=datetime.now(timezone.utc) + timedelta(hours=8),
+                sla_deadline=datetime.now(UTC) + timedelta(hours=8),
                 sla_breach_level=0,
                 proposed_mappings={
                     "suggested_category": "CAT-CLOUD",
@@ -560,8 +602,10 @@ async def seed_demo():
         res = await db.execute(select(Rfq).where(Rfq.org_id == DEFAULT_ORG_ID))
         existing_rfq = res.scalars().first()
         if not existing_rfq:
-            now = datetime.now(timezone.utc)
-            res = await db.execute(select(Vendor).where(and_(Vendor.org_id == DEFAULT_ORG_ID, Vendor.vendor_code == "V-10002")))
+            now = datetime.now(UTC)
+            res = await db.execute(
+                select(Vendor).where(and_(Vendor.org_id == DEFAULT_ORG_ID, Vendor.vendor_code == "V-10002"))
+            )
             gc_vendor = res.scalar_one_or_none()
 
             # RFQ 1: Published Limited Tender with invited participants and clarifications
@@ -819,7 +863,7 @@ async def seed_demo():
                 lot1 = res_lot.scalars().first()
                 lot_id_str = str(lot1.id) if lot1 else str(uuid4())
 
-                now_utc = datetime.now(timezone.utc)
+                now_utc = datetime.now(UTC)
                 rfq1.bidding_mode = "LIVE_AUCTION"
                 auction = LiveAuction(
                     id=uuid4(),
@@ -851,9 +895,7 @@ async def seed_demo():
                 await db.flush()
 
                 # Add participants from RFQ
-                res_parts = await db.execute(
-                    select(RfqParticipant).where(RfqParticipant.rfq_id == rfq1.id)
-                )
+                res_parts = await db.execute(select(RfqParticipant).where(RfqParticipant.rfq_id == rfq1.id))
                 rfq_participants = res_parts.scalars().all()
                 for p in rfq_participants:
                     db.add(
@@ -868,7 +910,11 @@ async def seed_demo():
                 logger.info(f"Created Demo Live Auction: {auction.id} (OPEN)")
 
         # 14. Seed Demo Purchase Orders, GRN, and Invoices
-        res_po = await db.execute(select(PurchaseOrder).where(and_(PurchaseOrder.org_id == DEFAULT_ORG_ID, PurchaseOrder.po_number == "PO-2026-000001")))
+        res_po = await db.execute(
+            select(PurchaseOrder).where(
+                and_(PurchaseOrder.org_id == DEFAULT_ORG_ID, PurchaseOrder.po_number == "PO-2026-000001")
+            )
+        )
         existing_po = res_po.scalar_one_or_none()
         if not existing_po:
             res_uom = await db.execute(select(UomMaster).where(UomMaster.code == "EA"))
@@ -880,7 +926,7 @@ async def seed_demo():
             pterm_id = pterm.id if pterm else None
 
             today = date.today()
-            now_utc = datetime.now(timezone.utc)
+            now_utc = datetime.now(UTC)
 
             # PO-1: High-Performance Developer Laptops
             po1 = PurchaseOrder(
@@ -981,7 +1027,7 @@ async def seed_demo():
                 match_status="MATCHED",
                 payment_status=PaymentStatusEnum.PENDING,
                 paid_amount=Decimal("0.0"),
-                created_by=supplier_user.id if 'supplier_user' in locals() and supplier_user else buyer_user.id,
+                created_by=supplier_user.id if "supplier_user" in locals() and supplier_user else buyer_user.id,
             )
             db.add(inv1)
             await db.flush()
@@ -1082,20 +1128,36 @@ async def seed_demo():
             logger.info("Created Demo Purchase Order: PO-2026-000002")
 
         # 15. Seed Demo Integration Jobs & Scheduled Runs (idempotent)
-        if 'po1' not in locals() or not po1:
-            res_po1 = await db.execute(select(PurchaseOrder).where(and_(PurchaseOrder.org_id == DEFAULT_ORG_ID, PurchaseOrder.po_number == "PO-2026-000001")))
+        if "po1" not in locals() or not po1:
+            res_po1 = await db.execute(
+                select(PurchaseOrder).where(
+                    and_(PurchaseOrder.org_id == DEFAULT_ORG_ID, PurchaseOrder.po_number == "PO-2026-000001")
+                )
+            )
             po1 = res_po1.scalars().first()
-        if 'po2' not in locals() or not po2:
-            res_po2 = await db.execute(select(PurchaseOrder).where(and_(PurchaseOrder.org_id == DEFAULT_ORG_ID, PurchaseOrder.po_number == "PO-2026-000002")))
+        if "po2" not in locals() or not po2:
+            res_po2 = await db.execute(
+                select(PurchaseOrder).where(
+                    and_(PurchaseOrder.org_id == DEFAULT_ORG_ID, PurchaseOrder.po_number == "PO-2026-000002")
+                )
+            )
             po2 = res_po2.scalars().first()
-        if 'grn1' not in locals() or not grn1:
-            res_grn = await db.execute(select(GoodsReceiptNote).where(and_(GoodsReceiptNote.org_id == DEFAULT_ORG_ID, GoodsReceiptNote.grn_number == "GRN-2026-000001")))
+        if "grn1" not in locals() or not grn1:
+            res_grn = await db.execute(
+                select(GoodsReceiptNote).where(
+                    and_(GoodsReceiptNote.org_id == DEFAULT_ORG_ID, GoodsReceiptNote.grn_number == "GRN-2026-000001")
+                )
+            )
             grn1 = res_grn.scalars().first()
-        if 'inv1' not in locals() or not inv1:
-            res_inv = await db.execute(select(Invoice).where(and_(Invoice.org_id == DEFAULT_ORG_ID, Invoice.invoice_number == "INV-2026-000001")))
+        if "inv1" not in locals() or not inv1:
+            res_inv = await db.execute(
+                select(Invoice).where(
+                    and_(Invoice.org_id == DEFAULT_ORG_ID, Invoice.invoice_number == "INV-2026-000001")
+                )
+            )
             inv1 = res_inv.scalars().first()
 
-        now_utc = datetime.now(timezone.utc)
+        now_utc = datetime.now(UTC)
         today = date.today()
         res_int = await db.execute(select(IntegrationJob).where(IntegrationJob.org_id == DEFAULT_ORG_ID))
         existing_jobs = res_int.scalars().all()
@@ -1264,7 +1326,6 @@ async def seed_demo():
             )
             db.add(job_d365)
 
-
             # 15.7 Scheduled Job Runs (Cron telemetry)
             runs = [
                 ScheduledJobRun(
@@ -1311,6 +1372,15 @@ async def seed_demo():
 
         await db.commit()
         logger.info("Demo data seeding completed successfully!")
+
+    # Seed demo relational tickets across Buyer, Supplier, and Admin portals
+    try:
+        from scripts.seed_tickets import seed_tickets
+
+        await seed_tickets()
+        logger.info("Demo tickets seeding completed successfully!")
+    except Exception as e:
+        logger.warning("Demo tickets seeding skipped or failed: %s", e)
 
     await engine.dispose()
 

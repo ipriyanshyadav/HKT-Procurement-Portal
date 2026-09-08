@@ -552,7 +552,7 @@ docker compose logs -f -t
 ---
 
 ## Current Session State
-- **Planned**: SPEC_26 Ticket & Query Management System end-to-end implementation across backend, frontend, infrastructure, and tests.
-- **Implemented**: 6 models, 7 migrations (0028-0034), 7-state FSM, SLA engine, MentionParser, ES/SQL search, 30+ endpoints, Celery tasks, RabbitMQ topology, TanStack hooks, shared UI components, and 12 portal pages (Buyer, Supplier, Admin).
-- **Tested**: 63 ticket tests green (86.42% module coverage); all 46 baseline integration/security tests green (109 total); turbo typecheck and build 100% clean across 9 frontend packages.
-- **Next**: Tag v1.0.0-mvp-with-tickets and prepare release artifacts.
+- **Planned**: SPEC_26 Ticket & Query Management System end-to-end implementation and relational demo seeding.
+- **Implemented**: 6 models, 7 migrations (0028-0034), 7-state FSM, SLA engine, MentionParser, ES/SQL search, 30+ endpoints, Celery tasks, RabbitMQ topology, 12 portal pages, and relational ticket seeding (`scripts/seed_tickets.py`) wired into `seed_demo_user.py`.
+- **Tested**: 63 ticket tests green (86.42% module coverage); all 46 baseline integration/security tests green (109 total); E2E verification across Buyer, Supplier, and Admin portals verified.
+- **Next**: Phase 1 MVP production deployment and documentation.
