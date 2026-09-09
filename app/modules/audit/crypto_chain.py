@@ -10,8 +10,8 @@ from uuid import UUID
 GENESIS_HASH = "0000000000000000000000000000000000000000000000000000000000000000"
 
 
-def compute_payload_fingerprint(data: Optional[Dict[str, Any]]) -> str:
-    """Generate deterministic SHA-256 fingerprint of JSON-serializable dictionary."""
+def compute_payload_digest(data: Optional[Dict[str, Any]]) -> str:
+    """Generate deterministic SHA-256 digest of JSON-serializable dictionary."""
     if not data:
         return "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"  # sha256("")
     try:
@@ -36,7 +36,7 @@ def compute_record_hash(
     Compute cryptographic SHA-256 chain hash for an audit record.
     Ensures tamper-evident chain of custody where any modification or deletion invalidates successor blocks.
     """
-    payload_hash = compute_payload_fingerprint(payload_data)
+    payload_hash = compute_payload_digest(payload_data)
     actor_str = str(actor_id) if actor_id else "SYSTEM"
 
     canonical_string = (

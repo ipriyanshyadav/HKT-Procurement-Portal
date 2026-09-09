@@ -14,7 +14,7 @@ from app.db.session import get_db
 from app.main import app
 from app.modules.audit.crypto_chain import (
     GENESIS_HASH,
-    compute_payload_fingerprint,
+    compute_payload_digest,
     compute_record_hash,
     resolve_ip_geolocation,
     verify_audit_log_chain,
@@ -216,10 +216,10 @@ class TestCryptoAuditTrailChaining:
         assert public_geo["is_internal"] is False
         assert public_geo["country"] == "IN"
 
-    def test_compliance_fingerprint_generation(self):
+    def test_compliance_digest_generation(self):
         sample_logs = {"id": "1", "action": "PO_APPROVED"}
-        fp1 = compute_payload_fingerprint(sample_logs)
-        fp2 = compute_payload_fingerprint(sample_logs)
+        fp1 = compute_payload_digest(sample_logs)
+        fp2 = compute_payload_digest(sample_logs)
         assert fp1 == fp2
         assert len(fp1) == 64
 

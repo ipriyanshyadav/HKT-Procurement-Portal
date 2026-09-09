@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import Optional
 from uuid import UUID
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, and_, or_
+from sqlalchemy import select, and_, or_, func
 from app.db.repository_base import BaseRepository
 from app.modules.user.models import Role, UserRoleAssignment, RolePermission, Permission
 
