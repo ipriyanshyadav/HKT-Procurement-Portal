@@ -4,7 +4,7 @@ import React, { ReactNode } from "react";
 import { useAuthInit, useCurrentUser, useLogout } from "@procurement/hooks";
 import { useAuthStore } from "@procurement/stores";
 import { AppShell, NotificationBell } from "@procurement/ui";
-import { ShoppingCart, CheckSquare, FileQuestion, Users, FileText, FileCheck, Package, Receipt, CreditCard, Truck, AlertCircle, BarChart2, PieChart, Award, LifeBuoy, Kanban, UserCheck, Ticket } from "lucide-react";
+import { ShoppingCart, CheckSquare, FileQuestion, Users, FileText, FileCheck, Package, Receipt, CreditCard, Truck, AlertCircle, BarChart2, PieChart, Award, LifeBuoy, Kanban, UserCheck, Ticket, ShieldAlert } from "lucide-react";
 
 export default function BuyerMainLayout({ children }: { children: ReactNode }) {
   const { isInitializing } = useAuthInit();
@@ -89,6 +89,12 @@ export default function BuyerMainLayout({ children }: { children: ReactNode }) {
       label: "Vendors",
       href: "/vendors",
       icon: <Users className="w-4 h-4" />,
+      section: "Sourcing",
+    },
+    {
+      label: "Vendor Risk & ESG",
+      href: "/vendors/risk",
+      icon: <ShieldAlert className="w-4 h-4" />,
       section: "Sourcing",
     },
     {

@@ -9,7 +9,7 @@ import {
   BulkVendorCategoryMappingResponse,
 } from "@procurement/hooks";
 import { VendorStatusBadge, PermissionGuard, Button } from "@procurement/ui";
-import { ArrowRight, FileSpreadsheet, UploadCloud, CheckCircle2, AlertCircle, X } from "lucide-react";
+import { ArrowRight, FileSpreadsheet, UploadCloud, CheckCircle2, AlertCircle, X, ShieldAlert } from "lucide-react";
 
 export default function VendorsListPage() {
   const [page, setPage] = useState(1);
@@ -102,6 +102,13 @@ export default function VendorsListPage() {
           </p>
         </div>
         <div className="flex items-center gap-3">
+          <Link
+            href="/vendors/risk"
+            className="inline-flex items-center gap-2 px-3.5 py-2 border border-slate-200 dark:border-white/15 bg-white dark:bg-[#1C1C1F] hover:bg-slate-50 dark:hover:bg-[#252529] text-slate-700 dark:text-slate-200 text-sm font-semibold rounded-lg shadow-sm transition-colors"
+          >
+            <ShieldAlert className="w-4 h-4 text-amber-500" />
+            <span>Risk & ESG Dashboard</span>
+          </Link>
           <button
             type="button"
             onClick={() => {

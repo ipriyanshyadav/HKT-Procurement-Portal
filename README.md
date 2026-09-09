@@ -650,7 +650,8 @@ RSK.1 | Vendor Financial & ESG Risk Assessment DB & Model    | [DONE] | 0040_ven
 RSK.2 | Composite Risk Score Calculation & 4-Tier Bucketing   | [DONE] | vendor/service.py, schemas.py, repository.py
 RSK.3 | Organization-Wide Vendor Risk Monitoring Dashboard   | [DONE] | vendor/service.py, router.py, test_vendor_scorecard_and_risk_spec21.py
 RSK.4 | Buyer Portal Apple Dark Surface Risk Profile Card     | [DONE] | buyer-portal/vendors/[id]/page.tsx, useVendors.ts
-OVERALL: 8/8 (100%) | BACKEND 100% | FRONTEND 100% | TESTS 100%
+RSK.5 | Org-Wide Vendor Risk & ESG Intelligence Dashboard Page| [DONE] | buyer-portal/vendors/risk/page.tsx, layout.tsx, useVendors.ts
+OVERALL: 9/9 (100%) | BACKEND 100% | FRONTEND 100% | TESTS 100%
 ```
 
 ### 📊 SPEC Audit: Advanced Workflow Rules & Delegation (2026-09-09)
