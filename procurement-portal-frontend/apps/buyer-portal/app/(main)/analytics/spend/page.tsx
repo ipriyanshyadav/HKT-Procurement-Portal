@@ -4,12 +4,13 @@ import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import {
   useAllSpend,
+  useSpendCube,
   downloadAnalyticsExport,
   SpendCategoryItem,
   SpendVendorItem,
   SpendBUItem,
 } from "@procurement/hooks";
-import { SpendChart, BreakdownType } from "@procurement/ui";
+import { SpendChart, BreakdownType, SpendCubeVisualizer } from "@procurement/ui";
 import {
   PieChart as RechartsPieChart,
   Pie,
@@ -27,6 +28,7 @@ import {
   Building2,
   Users,
   Layers,
+  BarChart2,
   Filter,
 } from "lucide-react";
 
@@ -42,11 +44,16 @@ const PIE_COLORS = [
 ];
 
 export default function SpendAnalyticsPage() {
+  const [viewMode, setViewMode] = useState<"cube" | "standard">("cube");
   const [fiscalYear, setFiscalYear] = useState<string>("2026");
   const [breakdown, setBreakdown] = useState<BreakdownType>("category");
   const [isExporting, setIsExporting] = useState<boolean>(false);
 
   const { data: spendData, isLoading, error } = useAllSpend({
+    fiscal_year: fiscalYear,
+  });
+
+  const { data: spendCubeData, isLoading: isSpendCubeLoading } = useSpendCube({
     fiscal_year: fiscalYear,
   });
 
@@ -239,27 +246,65 @@ export default function SpendAnalyticsPage() {
         </div>
       </div>
 
-      {/* Main Bar Chart with Breakdown Switching */}
-      <SpendChart
-        title={`Spend Breakdown (${breakdown === "category" ? "By Category" : breakdown === "bu" ? "By Business Unit" : "By Vendor"})`}
-        description={`Interactive expenditure visualizer for FY ${fiscalYear}`}
-        data={chartData}
-        currency="$"
-        activeBreakdown={breakdown}
-        onBreakdownChange={(newBreakdown) => setBreakdown(newBreakdown)}
-        height={360}
-      />
+      {/* Mode Switcher */}
+      <div className="flex items-center justify-between border-b border-neutral-200/80 dark:border-neutral-800/80 pb-4">
+        <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-neutral-100 dark:bg-neutral-800/80 border border-neutral-200/50 dark:border-neutral-700/50">
+          <button
+            type="button"
+            onClick={() => setViewMode("cube")}
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+              viewMode === "cube"
+                ? "bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white shadow-sm"
+                : "text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
+            }`}
+          >
+            <Layers className="w-3.5 h-3.5" />
+            Spend Cube & Pareto 80/20
+          </button>
+          <button
+            type="button"
+            onClick={() => setViewMode("standard")}
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+              viewMode === "standard"
+                ? "bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white shadow-sm"
+                : "text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
+            }`}
+          >
+            <BarChart2 className="w-3.5 h-3.5" />
+            Standard Spend Charts
+          </button>
+        </div>
+      </div>
 
-      {/* Distribution & Top Spender Grid */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        {/* BU Spend Distribution (Pie) */}
-        <div className="rounded-2xl border border-neutral-200/80 dark:border-neutral-800/80 bg-white dark:bg-neutral-900 p-6 shadow-sm">
-          <h3 className="text-lg font-semibold tracking-tight text-neutral-900 dark:text-white">
-            Business Unit Spend Distribution
-          </h3>
-          <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
-            Percentage allocation across organizational divisions
-          </p>
+      {viewMode === "cube" ? (
+        <SpendCubeVisualizer
+          data={spendCubeData}
+          isLoading={isSpendCubeLoading}
+          currency="$"
+        />
+      ) : (
+        <>
+          {/* Main Bar Chart with Breakdown Switching */}
+          <SpendChart
+            title={`Spend Breakdown (${breakdown === "category" ? "By Category" : breakdown === "bu" ? "By Business Unit" : "By Vendor"})`}
+            description={`Interactive expenditure visualizer for FY ${fiscalYear}`}
+            data={chartData}
+            currency="$"
+            activeBreakdown={breakdown}
+            onBreakdownChange={(newBreakdown) => setBreakdown(newBreakdown)}
+            height={360}
+          />
+
+          {/* Distribution & Top Spender Grid */}
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            {/* BU Spend Distribution (Pie) */}
+            <div className="rounded-2xl border border-neutral-200/80 dark:border-neutral-800/80 bg-white dark:bg-neutral-900 p-6 shadow-sm">
+              <h3 className="text-lg font-semibold tracking-tight text-neutral-900 dark:text-white">
+                Business Unit Spend Distribution
+              </h3>
+              <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
+                Percentage allocation across organizational divisions
+              </p>
 
           {buPieData.length === 0 ? (
             <div className="h-64 flex items-center justify-center text-sm text-neutral-400">
@@ -362,6 +407,8 @@ export default function SpendAnalyticsPage() {
           </div>
         </div>
       </div>
-    </div>
-  );
+    </>
+  )}
+</div>
+);
 }

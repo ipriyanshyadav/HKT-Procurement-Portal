@@ -202,3 +202,13 @@ export type { SplitScreenViewerProps, DocumentItem } from "./SplitScreenViewer";
 
 // Ticket & Query Management Components (SPEC_26)
 export * from "./components/tickets";
+
+// Analytics & Spend Cube Components (SPEC_25)
+export { SpendCubeVisualizer } from "./components/SpendCubeVisualizer";
+export type { SpendCubeVisualizerProps, SpendCubeTab } from "./components/SpendCubeVisualizer";
+export { MaverickSpendTable } from "./components/MaverickSpendTable";
+export type { MaverickSpendTableProps } from "./components/MaverickSpendTable";
+export { CustomReportBuilder } from "./components/CustomReportBuilder";
+export type { CustomReportBuilderProps } from "./components/CustomReportBuilder";
+export { ComplianceReportsView } from "./components/ComplianceReportsView";
+export type { ComplianceReportsViewProps, ComplianceTab } from "./components/ComplianceReportsView";

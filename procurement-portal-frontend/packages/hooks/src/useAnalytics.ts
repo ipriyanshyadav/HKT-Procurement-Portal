@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiClient } from "@procurement/utils";
 
 export interface ProcurementKPIs {
@@ -68,11 +68,22 @@ export interface SavingsAnalysisData {
   }>;
 }
 
+export interface ApprovalBottleneckItem {
+  assigned_role: string;
+  approver_name?: string;
+  avg_turnaround_hours: number;
+  p95_turnaround_hours: number;
+  total_tasks: number;
+  sla_breaches: number;
+  is_bottleneck: boolean;
+}
+
 export interface CycleTimeData {
   pr_to_po_avg_days: number;
   rfq_to_award_avg_days: number;
   pr_to_po_by_category: Array<{ category_name: string; avg_days: number; count: number }>;
   rfq_to_award_by_category: Array<{ category_name: string; avg_days: number; count: number }>;
+  approval_bottlenecks?: ApprovalBottleneckItem[];
 }
 
 export interface VendorScorecardItem {
@@ -120,6 +131,191 @@ export interface InvoiceAnalyticsData {
   paid_count: number;
   overdue_count: number;
   avg_payment_days: number;
+}
+
+// Spend Cube
+export interface SpendCubeCategoryItem {
+  category_id?: string;
+  category_name: string;
+  total_spend: number;
+  po_count: number;
+  capex_spend: number;
+  opex_spend: number;
+  percentage: number;
+}
+
+export interface SpendCubeBUItem {
+  business_unit_id?: string;
+  bu_name: string;
+  bu_code: string;
+  total_spend: number;
+  po_count: number;
+  capex_spend: number;
+  opex_spend: number;
+  percentage: number;
+}
+
+export interface ParetoVendorItem {
+  vendor_id: string;
+  vendor_name: string;
+  vendor_code: string;
+  total_spend: number;
+  po_count: number;
+  cumulative_spend: number;
+  cumulative_percentage: number;
+  pareto_tier: "TOP_80" | "LONG_TAIL";
+}
+
+export interface ParetoSummary {
+  total_vendors: number;
+  top_vendors_count: number;
+  top_vendors_spend_pct: number;
+  tail_vendors_count: number;
+  tail_vendors_spend_pct: number;
+}
+
+export interface SpendCubeData {
+  total_spend: number;
+  capex_spend: number;
+  opex_spend: number;
+  capex_percentage: number;
+  opex_percentage: number;
+  by_category: SpendCubeCategoryItem[];
+  by_bu: SpendCubeBUItem[];
+  pareto_vendors: ParetoVendorItem[];
+  pareto_summary: ParetoSummary;
+}
+
+// Maverick Spend
+export interface MaverickPOItem {
+  po_id: string;
+  po_number: string;
+  vendor_name: string;
+  category_name: string;
+  bu_name: string;
+  total_value: number;
+  created_at: string;
+  risk_level: "HIGH" | "MEDIUM" | "LOW";
+}
+
+export interface MaverickCategoryBreakdown {
+  category_name: string;
+  maverick_spend: number;
+  compliant_spend: number;
+  total_spend: number;
+  leakage_rate: number;
+  risk_level: "HIGH" | "MEDIUM" | "LOW";
+}
+
+export interface MaverickBUBreakdown {
+  bu_name: string;
+  maverick_spend: number;
+  total_spend: number;
+  leakage_rate: number;
+}
+
+export interface MaverickSpendData {
+  total_po_spend: number;
+  contracted_spend: number;
+  sourced_spend: number;
+  maverick_spend: number;
+  leakage_rate: number;
+  total_po_count: number;
+  maverick_po_count: number;
+  compliant_po_count: number;
+  by_category: MaverickCategoryBreakdown[];
+  by_bu: MaverickBUBreakdown[];
+  uncontracted_pos: MaverickPOItem[];
+}
+
+// Custom Report Builder
+export interface CustomReportFilter {
+  field: string;
+  operator: "eq" | "neq" | "gt" | "gte" | "lt" | "lte" | "like" | "in";
+  value: any;
+}
+
+export interface CustomReportSort {
+  field: string;
+  direction?: "asc" | "desc";
+}
+
+export interface CustomReportRequest {
+  name: string;
+  dimensions: string[];
+  metrics: string[];
+  filters?: CustomReportFilter[];
+  sort?: CustomReportSort[];
+  page?: number;
+  page_size?: number;
+}
+
+export interface CustomReportData {
+  name: string;
+  dimensions: string[];
+  metrics: string[];
+  total_records: number;
+  page: number;
+  page_size: number;
+  data: Record<string, any>[];
+}
+
+// Compliance Audit Reports
+export interface EmergencyRFQItem {
+  id: string;
+  rfq_number: string;
+  title: string;
+  category_name: string;
+  bu_name: string;
+  estimated_value: number;
+  justification?: string;
+  published_at?: string;
+  status: string;
+}
+
+export interface SingleVendorRFQItem {
+  id: string;
+  rfq_number: string;
+  title: string;
+  category_name: string;
+  bu_name: string;
+  estimated_value: number;
+  single_vendor_justification?: string;
+  created_at: string;
+  status: string;
+}
+
+export interface ForceApproveItem {
+  id: string;
+  entity_type: string;
+  entity_id: string;
+  actor_email?: string;
+  action: string;
+  created_at: string;
+  reason?: string;
+}
+
+export interface SoDViolationItem {
+  id: string;
+  entity_type: string;
+  entity_id: string;
+  actor_email?: string;
+  action: string;
+  created_at: string;
+  details?: Record<string, any>;
+}
+
+export interface ComplianceAuditData {
+  emergency_rfqs: EmergencyRFQItem[];
+  single_vendor_rfqs: SingleVendorRFQItem[];
+  force_approves: ForceApproveItem[];
+  sod_violations: SoDViolationItem[];
+  summary: {
+    emergency_rfq_count: number;
+    single_vendor_count: number;
+    force_approve_count: number;
+    sod_violation_count: number;
+  };
 }
 
 export interface AnalyticsDashboardData {
@@ -237,6 +433,50 @@ export function useInvoiceAnalytics(params?: { business_unit_id?: string }) {
     queryFn: async () => {
       const res = await apiClient.get("/analytics/invoices", { params });
       return res.data.data as InvoiceAnalyticsData;
+    },
+  });
+}
+
+export function useSpendCube(params?: { fiscal_year?: string; business_unit_id?: string }) {
+  return useQuery({
+    queryKey: ["analytics", "spend-cube", params],
+    queryFn: async () => {
+      const res = await apiClient.get("/analytics/spend-cube", { params });
+      return res.data.data as SpendCubeData;
+    },
+  });
+}
+
+export function useMaverickSpend(params?: { fiscal_year?: string; business_unit_id?: string; limit?: number }) {
+  return useQuery({
+    queryKey: ["analytics", "maverick-spend", params],
+    queryFn: async () => {
+      const res = await apiClient.get("/analytics/maverick-spend", { params });
+      return res.data.data as MaverickSpendData;
+    },
+  });
+}
+
+export function useComplianceAuditReports(params?: {
+  report_type?: string;
+  fiscal_year?: string;
+  page?: number;
+  page_size?: number;
+}) {
+  return useQuery({
+    queryKey: ["analytics", "compliance-reports", params],
+    queryFn: async () => {
+      const res = await apiClient.get("/analytics/compliance-reports", { params });
+      return res.data.data as ComplianceAuditData;
+    },
+  });
+}
+
+export function useExecuteCustomReport() {
+  return useMutation({
+    mutationFn: async (payload: CustomReportRequest) => {
+      const res = await apiClient.post("/analytics/reports", payload);
+      return res.data.data as CustomReportData;
     },
   });
 }

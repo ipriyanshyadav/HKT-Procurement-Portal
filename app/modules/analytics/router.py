@@ -11,6 +11,13 @@ from app.config import settings
 from app.core.responses import success_response
 from app.db.session import get_db
 from app.modules.analytics.export_service import analytics_export_service
+from app.modules.analytics.schemas import (
+    ComplianceAuditResponse,
+    CustomReportRequest,
+    CustomReportResponse,
+    MaverickSpendResponse,
+    SpendCubeResponse,
+)
 from app.modules.analytics.service import analytics_service
 from app.modules.user.models import User
 from app.core.streaming import stream_csv, stream_pdf, generate_table_pdf
@@ -100,6 +107,35 @@ async def get_spend(
     return success_response(data)
 
 
+# 2a. Spend Cube (Multi-dimensional slicing & Pareto 80/20)
+@router.get("/spend-cube")
+async def get_spend_cube(
+    fiscal_year: Optional[str] = Query(None),
+    current_user: User = Depends(get_current_user),
+    user_bu_scope: List[UUID] = Depends(get_user_bu_scope),
+    db: AsyncSession = Depends(get_db),
+):
+    data = await analytics_service.get_spend_cube(
+        db, current_user.org_id, fiscal_year, user_bu_scope
+    )
+    return success_response(data)
+
+
+# 2b. Maverick Spend Identification
+@router.get("/maverick-spend")
+async def get_maverick_spend(
+    fiscal_year: Optional[str] = Query(None),
+    limit: int = Query(50, ge=1, le=200),
+    current_user: User = Depends(get_current_user),
+    user_bu_scope: List[UUID] = Depends(get_user_bu_scope),
+    db: AsyncSession = Depends(get_db),
+):
+    data = await analytics_service.get_maverick_spend(
+        db, current_user.org_id, fiscal_year, user_bu_scope, limit=limit
+    )
+    return success_response(data)
+
+
 # 3. Savings analysis
 @router.get("/savings")
 async def get_savings(
@@ -176,6 +212,36 @@ async def get_compliance(
 ):
     data = await analytics_service.get_compliance_dashboard(
         db, current_user.org_id
+    )
+    return success_response(data)
+
+
+# 8b. Compliance Audit Reports (Emergency RFQs, Single-Vendor, Force-Approvals, SoD Violations)
+@router.get("/compliance-reports")
+async def get_compliance_reports(
+    report_type: Optional[str] = Query(None),
+    fiscal_year: Optional[str] = Query(None),
+    page: int = Query(1, ge=1),
+    page_size: int = Query(50, ge=1, le=100),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    data = await analytics_service.get_compliance_audit_reports(
+        db, current_user.org_id, report_type=report_type, fiscal_year=fiscal_year, page=page, page_size=page_size
+    )
+    return success_response(data)
+
+
+# 8c. Custom Report Builder Query Engine
+@router.post("/reports")
+async def execute_custom_report(
+    req: CustomReportRequest,
+    current_user: User = Depends(get_current_user),
+    user_bu_scope: List[UUID] = Depends(get_user_bu_scope),
+    db: AsyncSession = Depends(get_db),
+):
+    data = await analytics_service.execute_custom_report(
+        db, current_user.org_id, req, user_bu_scope=user_bu_scope
     )
     return success_response(data)
 

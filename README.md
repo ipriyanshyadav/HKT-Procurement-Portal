@@ -609,20 +609,40 @@ docker compose logs -f -t
 | A-CON-4 | Contract amendments increment version counter, record immutable JSONB pre-change snapshots with field diffs, and update live contract parameters upon manager approval | LOW |
 | A-CON-5 | Contract authoring wizard provides multi-step setup across General Info, Template Clauses, Rate Card lines, Milestone schedules, and Auto-Renewal configuration | LOW |
 | A-CON-6 | Multi-portal Apple design calibration extends across Buyer Portal contracts suite and introduces dedicated Supplier Portal contracts view (/contracts, /contracts/[id]) with strict vendor isolation | LOW |
+| A-ANA-1 | Spend Cube multi-dimensional analysis computes breakdowns across Category, BU, and Supplier Pareto (cumulative spend % curve) with CAPEX vs OPEX bifurcation | LOW |
+| A-ANA-2 | Maverick spend identifies purchase orders created without linked rate contracts or formal competitive sourcing, calculating spend leakage rate and category risk | LOW |
+| A-ANA-3 | Sourcing savings discovery computes budget vs. awarded L1 value; cycle time analytics isolates PR-to-PO, RFQ-to-Award, and role-based approval turnaround bottlenecks | LOW |
+| A-ANA-4 | Custom report builder enables dynamic dimension grouping, multi-metric aggregations, filter predicates, and pagination with instant CSV and Excel export | LOW |
+| A-ANA-5 | Compliance audit suite consolidates emergency RFQs, sole-source justifications, admin workflow force-approvals, and segregation-of-duties attempts from audit logs | LOW |
+| A-ANA-6 | Analytics dashboards leverage Apple dark surface design tokens (#1C1C1F, #252529) with interactive Recharts visualizers and tabular drill-downs | LOW |
 
 
 ---
 
 ### Current Session State
-- **Planned**: Contract Management & Authoring (Contract lifecycle FSM, milestone tracking, rate cards with spend ceiling, amendment versioning, multi-portal suite).
+- **Planned**: Analytics & Spend Cube (SPEC_25: Spend Cube visualizer, Pareto 80/20, Maverick Spend discovery, Custom Report Builder, Compliance Audit Reports).
 - **Implemented**:
-  - Full Lifecycle FSM (`DRAFT` ➔ `PENDING_REVIEW` ➔ `APPROVED` ➔ `PENDING_ESIGN` ➔ `ACTIVE` ➔ `EXPIRED`/`TERMINATED`) with dedicated endpoints (`/submit-review`, `/approve`, `/return`, `/activate`, `/terminate`).
-  - Contract Milestones CRUD & Completion (`MilestoneTracker.tsx`, `/milestones`, `/milestones/{id}/complete`) with role filter chips, completion notes, and supplier isolation.
-  - Rate Cards & Spend Ceiling Utilization (`RateCardTable.tsx`, `/lines`) with drawdown meter, warning threshold (>90%), and CSV export.
-  - Amendment Versioning (`ContractAmendmentHistory.tsx`, `/amend`) with side-by-side before/after diff audit table and immutable pre-change snapshot preview.
-  - Multi-Portal Suite: Buyer contract authoring & workspace overhaul (`buyer-portal/contracts`, `[id]`); dedicated Supplier Portal contract suite (`supplier-portal/contracts`, `[id]`) with strict vendor isolation.
-- **Tested**: 12/12 backend contract integration tests passed in 2.88s; `pnpm run typecheck` passed (0 errors across 9 monorepo packages); zero dead code / console.log.
-- **Next**: Analytics & Spend Cube or next high-priority functional workflow.
+  - Interactive Spend Cube Visualizer (`SpendCubeVisualizer.tsx`, `/api/v1/analytics/spend-cube`) supporting multi-dimensional slicing across Category, Business Unit, Supplier Pareto 80/20 with cumulative % curve & tier assignments (`TOP_80` vs `LONG_TAIL`), and CAPEX vs OPEX split.
+  - Maverick Spend Identification (`MaverickSpendTable.tsx`, `/api/v1/analytics/maverick-spend`) calculating spend leakage rate %, risk level tiers, and uncontracted PO drill-down with CSV export.
+  - Custom Report Builder (`CustomReportBuilder.tsx`, `/api/v1/analytics/reports`) dynamic query aggregator with whitelisted dimensions, multi-metric calculations, safe parameterized filter predicates, pagination, and instant CSV/XLSX downloads.
+  - Compliance Audit Suite (`ComplianceReportsView.tsx`, `/api/v1/analytics/compliance-reports`) consolidating Emergency RFQs (24h window), Single-Vendor justifications, Admin Force-Approvals, and SoD Violations.
+  - Sourcing Savings & Cycle Time Bottleneck Analytics: Budget vs. awarded L1 value savings and role-based approval turnaround (>24h SLA breach bottleneck highlights).
+  - Multi-Portal Integration: 5-tab workspace overhaul in `buyer-portal/analytics` and embedded Spend Cube view mode in `buyer-portal/analytics/spend`.
+- **Tested**: 12/12 backend analytics integration tests passed in 2.69s; 439/439 unit tests passed in 10.00s; `pnpm run typecheck` passed (0 errors across 9 monorepo packages); zero dead code / console.log.
+- **Next**: Next functional module: ERP & Payment Gateways (SPEC_20) or Enterprise Notifications & Audit Trail (SPEC_16 & SPEC_22).
+
+### 📊 SPEC Audit: Analytics & Spend Cube (2026-09-09)
+```
+MODULE | SPEC REQUIREMENT | STATUS | ARTIFACT / CODE
+ANA.1 | Multi-Dimensional Spend Cube Visualizer (Category/BU/Type) | [DONE] | SpendCubeVisualizer.tsx, router.py, service.py
+ANA.2 | Supplier Pareto 80/20 Analysis & Cumulative Spend Curve   | [DONE] | SpendCubeVisualizer.tsx, service.py, test_analytics.py
+ANA.3 | Maverick Spend Detection & Spend Leakage Rate Calculation   | [DONE] | MaverickSpendTable.tsx, service.py, test_analytics.py
+ANA.4 | Sourcing Savings Discovery & Role Approval Bottlenecks      | [DONE] | service.py, test_analytics.py, KPICard.tsx
+ANA.5 | Custom Report Builder with Dynamic Dimensions & Metrics     | [DONE] | CustomReportBuilder.tsx, router.py, service.py
+ANA.6 | Compliance Audit Suite (Emergency/Single/Force/SoD)         | [DONE] | ComplianceReportsView.tsx, router.py, service.py
+ANA.7 | Multi-Portal Apple Design Calibration & CSV/Excel Exports   | [DONE] | buyer-portal/analytics/page.tsx, spend/page.tsx
+OVERALL: 7/7 (100%) | BACKEND 100% | FRONTEND 100% | TESTS 100%
+```
 
 ### 📊 SPEC Audit: Contract Management & Authoring (2026-09-09)
 ```
