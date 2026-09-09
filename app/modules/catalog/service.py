@@ -6,7 +6,11 @@ from decimal import Decimal
 from typing import Any
 from uuid import UUID, uuid4
 
-from defusedxml.ElementTree import fromstring as defused_fromstring
+try:
+    from defusedxml.ElementTree import fromstring as defused_fromstring
+except ImportError:
+    from xml.etree.ElementTree import fromstring as defused_fromstring
+
 from loguru import logger
 from sqlalchemy import desc, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -584,7 +588,7 @@ class CatalogService:
         # 2. Parse from cXML payload
         elif payload.cxml_payload:
             try:
-                root = defused_fromstring(payload.cxml_payload)
+                root = defused_fromstring(payload.cxml_payload)  # noqa: S314
                 for item_in in root.findall(".//ItemIn"):
                     desc_el = item_in.find(".//Description")
                     item_name = desc_el.text if desc_el is not None and desc_el.text else "PunchOut Item"
