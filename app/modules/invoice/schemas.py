@@ -141,3 +141,42 @@ class InvoiceDisputeRequest(BaseModel):
 
 class InvoiceRejectRequest(BaseModel):
     rejection_reason: str = Field(..., min_length=3)
+
+
+class AdvancedReconciliationRequest(BaseModel):
+    match_mode: str = Field(default="FOUR_WAY", description="THREE_WAY or FOUR_WAY")
+    price_tolerance_pct: float = Field(default=2.0, ge=0.0, le=20.0)
+    quantity_tolerance_pct: float = Field(default=5.0, ge=0.0, le=20.0)
+    auto_approve_if_matched: bool = Field(default=True)
+
+
+class ReconciliationDiscrepancyItem(BaseModel):
+    line_number: int
+    item_description: str
+    po_unit_price: float
+    invoice_unit_price: float
+    price_variance_pct: float
+    po_quantity: float
+    grn_received_quantity: float
+    quality_inspected_quantity: float
+    invoice_quantity: float
+    quantity_variance_pct: float
+    status: str
+    reasons: list[str]
+    suggested_credit_note_amount: float
+
+
+class AdvancedReconciliationResponse(BaseModel):
+    invoice_id: UUID
+    invoice_number: str
+    match_mode: str
+    price_tolerance_pct: float
+    quantity_tolerance_pct: float
+    overall_status: str
+    matched_lines_count: int
+    discrepancy_lines_count: int
+    total_invoice_amount: float
+    suggested_credit_note_total: float
+    auto_approved: bool
+    line_details: list[ReconciliationDiscrepancyItem]
+    reconciliation_timestamp: datetime

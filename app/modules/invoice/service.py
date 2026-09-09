@@ -14,7 +14,7 @@ Implements:
 """
 from __future__ import annotations
 
-from datetime import date, datetime, timedelta, timezone
+from datetime import UTC, date, datetime, timedelta, timezone
 from decimal import Decimal
 from typing import Any, Dict, List, Optional, Tuple
 from uuid import UUID
@@ -34,9 +34,12 @@ from app.modules.grn.repository import grn_repository
 from app.modules.invoice.models import Invoice, InvoiceLine, InvoiceMatchResult
 from app.modules.invoice.repository import InvoiceRepository, invoice_repository
 from app.modules.invoice.schemas import (
+    AdvancedReconciliationRequest,
+    AdvancedReconciliationResponse,
     EligibleLineResponse,
     InvoiceFilterParams,
     InvoiceSubmitRequest,
+    ReconciliationDiscrepancyItem,
 )
 from app.modules.master_data.models import HolidayMaster, PaymentTerm
 from app.modules.master_data.payment_terms.repository import (
@@ -659,6 +662,149 @@ class InvoiceService:
 
         await db.commit()
         return await self.get(db, invoice.id, org_id)
+
+    async def perform_advanced_reconciliation(
+        self,
+        db: AsyncSession,
+        invoice_id: UUID,
+        payload: AdvancedReconciliationRequest,
+        actor_id: UUID,
+        org_id: UUID,
+    ) -> AdvancedReconciliationResponse:
+        invoice = await self.get(db, invoice_id, org_id)
+        from app.modules.purchase_order.repository import purchase_order_repository
+        po = await purchase_order_repository.get(db, invoice.po_id, org_id)
+        if not po:
+            raise NotFoundError("PurchaseOrder", str(invoice.po_id))
+
+        po_lines_map = {line.id: line for line in getattr(po, "lines", [])}
+
+        line_details: list[ReconciliationDiscrepancyItem] = []
+        matched_count = 0
+        discrepancy_count = 0
+        total_credit_memo = Decimal("0.00")
+
+        from app.modules.grn.models import GrnLine
+
+        for inv_line in invoice.lines:
+            po_line = po_lines_map.get(inv_line.po_line_id)
+            reasons: list[str] = []
+            suggested_credit = Decimal("0.00")
+
+            po_price = float(po_line.unit_price) if po_line else 0.0
+            po_qty = float(getattr(po_line, "ordered_quantity", getattr(po_line, "quantity", 0.0))) if po_line else 0.0
+            inv_price = float(inv_line.unit_price)
+            inv_qty = float(inv_line.quantity)
+
+            # GRN receipts
+            grn_stmt = select(
+                func.coalesce(func.sum(GrnLine.received_quantity), 0),
+                func.coalesce(func.sum(GrnLine.accepted_quantity), 0),
+                func.coalesce(func.sum(GrnLine.rejected_quantity), 0),
+            ).where(GrnLine.po_line_id == inv_line.po_line_id)
+            grn_row = (await db.execute(grn_stmt)).first()
+            grn_received = float(grn_row[0]) if grn_row else 0.0
+            grn_accepted = float(grn_row[1]) if grn_row else 0.0
+            grn_rejected = float(grn_row[2]) if grn_row else 0.0
+
+            # Price check
+            price_variance_pct = 0.0
+            if po_price > 0:
+                price_variance_pct = round(((inv_price - po_price) / po_price) * 100.0, 2)
+                if abs(price_variance_pct) > payload.price_tolerance_pct:
+                    reasons.append(f"Price exceeds PO rate by {price_variance_pct}% (tolerance: ±{payload.price_tolerance_pct}%)")
+                    if inv_price > po_price:
+                        suggested_credit += Decimal(str(round((inv_price - po_price) * inv_qty, 2)))
+
+            # Quantity check
+            qty_variance_pct = 0.0
+            benchmark_qty = grn_accepted if payload.match_mode == "FOUR_WAY" else (grn_received if grn_received > 0 else po_qty)
+            if benchmark_qty > 0:
+                qty_variance_pct = round(((inv_qty - benchmark_qty) / benchmark_qty) * 100.0, 2)
+                if abs(qty_variance_pct) > payload.quantity_tolerance_pct:
+                    reasons.append(f"Invoiced quantity exceeds received count by {qty_variance_pct}% (tolerance: ±{payload.quantity_tolerance_pct}%)")
+                    if inv_qty > benchmark_qty:
+                        suggested_credit += Decimal(str(round((inv_qty - benchmark_qty) * inv_price, 2)))
+
+            # 4-Way Quality Check
+            if payload.match_mode == "FOUR_WAY" and grn_rejected > 0:
+                reasons.append(f"Quality rejection detected: {grn_rejected} units rejected at dock")
+                suggested_credit += Decimal(str(round(grn_rejected * inv_price, 2)))
+
+            is_matched = len(reasons) == 0
+            if is_matched:
+                matched_count += 1
+                status = "MATCHED"
+            else:
+                discrepancy_count += 1
+                status = "VARIANCE_DETECTED"
+                total_credit_memo += suggested_credit
+
+            line_details.append(
+                ReconciliationDiscrepancyItem(
+                    line_number=inv_line.line_number,
+                    item_description=inv_line.item_description,
+                    po_unit_price=po_price,
+                    invoice_unit_price=inv_price,
+                    price_variance_pct=price_variance_pct,
+                    po_quantity=po_qty,
+                    grn_received_quantity=grn_received,
+                    quality_inspected_quantity=grn_accepted,
+                    invoice_quantity=inv_qty,
+                    quantity_variance_pct=qty_variance_pct,
+                    status=status,
+                    reasons=reasons,
+                    suggested_credit_note_amount=float(suggested_credit),
+                )
+            )
+
+        overall_status = "FULLY_MATCHED" if discrepancy_count == 0 else "VARIANCE_DETECTED"
+        auto_approved = False
+        if overall_status == "FULLY_MATCHED" and payload.auto_approve_if_matched:
+            invoice.match_status = "MATCHED"
+            invoice.status = InvoiceStatusEnum.APPROVED
+            auto_approved = True
+        elif overall_status == "VARIANCE_DETECTED":
+            invoice.match_status = "DISCREPANCY"
+
+        await db.commit()
+        await db.refresh(invoice)
+
+        return AdvancedReconciliationResponse(
+            invoice_id=invoice.id,
+            invoice_number=invoice.invoice_number,
+            match_mode=payload.match_mode,
+            price_tolerance_pct=payload.price_tolerance_pct,
+            quantity_tolerance_pct=payload.quantity_tolerance_pct,
+            overall_status=overall_status,
+            matched_lines_count=matched_count,
+            discrepancy_lines_count=discrepancy_count,
+            total_invoice_amount=float(invoice.total_amount),
+            suggested_credit_note_total=float(total_credit_memo),
+            auto_approved=auto_approved,
+            line_details=line_details,
+            reconciliation_timestamp=datetime.now(UTC),
+        )
+
+    async def get_reconciliation_dashboard(
+        self, db: AsyncSession, org_id: UUID
+    ) -> dict[str, Any]:
+        stmt = select(Invoice).where(Invoice.org_id == org_id)
+        invoices = list((await db.execute(stmt)).scalars().all())
+
+        matched = [i for i in invoices if i.match_status == "MATCHED"]
+        discrepant = [i for i in invoices if i.match_status == "DISCREPANCY"]
+        unmatched = [i for i in invoices if i.match_status not in ("MATCHED", "DISCREPANCY")]
+
+        return {
+            "total_invoices": len(invoices),
+            "fully_matched_count": len(matched),
+            "discrepancy_count": len(discrepant),
+            "unprocessed_count": len(unmatched),
+            "match_rate_pct": round((len(matched) / len(invoices) * 100.0) if invoices else 100.0, 1),
+            "total_matched_value": float(sum(i.total_amount for i in matched)),
+            "total_at_risk_value": float(sum(i.total_amount for i in discrepant)),
+        }
 
 
 invoice_service = InvoiceService()

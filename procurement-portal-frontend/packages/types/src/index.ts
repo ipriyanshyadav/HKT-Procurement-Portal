@@ -948,3 +948,53 @@ export interface AsnDispatchComplianceResult {
   e_way_bill: EWayBill;
 }
 
+// Advanced 3-Way & 4-Way Invoice Reconciliation (SPEC_15)
+export interface AdvancedReconciliationRequest {
+  match_mode?: 'THREE_WAY' | 'FOUR_WAY';
+  price_tolerance_pct?: number;
+  quantity_tolerance_pct?: number;
+  auto_approve_if_matched?: boolean;
+}
+
+export interface ReconciliationDiscrepancyItem {
+  line_number: number;
+  item_description: string;
+  po_unit_price: number;
+  invoice_unit_price: number;
+  price_variance_pct: number;
+  po_quantity: number;
+  grn_received_quantity: number;
+  quality_inspected_quantity: number;
+  invoice_quantity: number;
+  quantity_variance_pct: number;
+  status: 'MATCHED' | 'VARIANCE_DETECTED' | string;
+  reasons: string[];
+  suggested_credit_note_amount: number;
+}
+
+export interface AdvancedReconciliationResponse {
+  invoice_id: string;
+  invoice_number: string;
+  match_mode: string;
+  price_tolerance_pct: number;
+  quantity_tolerance_pct: number;
+  overall_status: 'FULLY_MATCHED' | 'VARIANCE_DETECTED' | string;
+  matched_lines_count: number;
+  discrepancy_lines_count: number;
+  total_invoice_amount: number;
+  suggested_credit_note_total: number;
+  auto_approved: boolean;
+  line_details: ReconciliationDiscrepancyItem[];
+  reconciliation_timestamp: string;
+}
+
+export interface ReconciliationDashboardStats {
+  total_invoices: number;
+  fully_matched_count: number;
+  discrepancy_count: number;
+  unprocessed_count: number;
+  match_rate_pct: number;
+  total_matched_value: number;
+  total_at_risk_value: number;
+}
+

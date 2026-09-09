@@ -237,3 +237,6 @@ export { EInvoiceComplianceViewer } from "./components/EInvoiceComplianceViewer"
 // Dynamic Live Auction Engine (SPEC_11B)
 export { LiveAuctionRoom } from "./components/LiveAuctionRoom";
 export { LiveAuctionList } from "./components/LiveAuctionList";
+
+// Automated 3-Way & 4-Way Invoice Reconciliation (SPEC_15)
+export { InvoiceReconciliationWorkbench } from "./components/InvoiceReconciliationWorkbench";

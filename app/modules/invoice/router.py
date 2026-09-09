@@ -25,6 +25,8 @@ from app.core.exceptions import ValidationError
 from app.core.responses import APIResponse, PaginationMeta, created_response, success_response
 from app.db.session import get_db
 from app.modules.invoice.schemas import (
+    AdvancedReconciliationRequest,
+    AdvancedReconciliationResponse,
     EligibleLineResponse,
     InvoiceDisputeRequest,
     InvoiceFilterParams,
@@ -280,6 +282,15 @@ async def get_eligible_lines(
     return success_response(data=lines, meta=meta)
 
 
+@router.get("/reconciliation/dashboard", response_model=APIResponse[dict[str, Any]])
+async def get_reconciliation_dashboard(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_any_permission([PermissionCode.INVOICE_VIEW_OWN, PermissionCode.INVOICE_VIEW_ALL])),
+):
+    data = await invoice_service.get_reconciliation_dashboard(db, current_user.org_id)
+    return success_response(data=data)
+
+
 @router.post("", response_model=APIResponse[InvoiceResponse], status_code=status.HTTP_201_CREATED)
 async def submit_invoice(
     request: InvoiceSubmitRequest,
@@ -350,6 +361,21 @@ async def match_invoice(
     await db.commit()
     updated = await invoice_service.get(db, invoice_id, org_id)
     return success_response(data=_to_invoice_response(updated))
+
+
+@router.post("/{invoice_id}/advanced-reconcile", response_model=APIResponse[AdvancedReconciliationResponse])
+@router.post("/{invoice_id}/reconcile", response_model=APIResponse[AdvancedReconciliationResponse])
+async def reconcile_invoice(
+    invoice_id: UUID,
+    payload: Optional[AdvancedReconciliationRequest] = None,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_permission(PermissionCode.INVOICE_MATCH)),
+):
+    request_payload = payload or AdvancedReconciliationRequest()
+    result = await invoice_service.perform_advanced_reconciliation(
+        db, invoice_id, request_payload, current_user.id, current_user.org_id
+    )
+    return success_response(data=result)
 
 
 @router.post("/{invoice_id}/approve", response_model=APIResponse[InvoiceResponse])
