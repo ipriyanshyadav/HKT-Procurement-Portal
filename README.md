@@ -24,11 +24,12 @@ All three portals run simultaneously with seeded test roles. Access them directl
 ---
 
 ## Current Session State
-- **Completed (Option A)**: Advance Shipping Notices (ASN) & Warehouse Barcode Intake fully implemented & verified.
-  - Backend: DB migration `0041_advance_shipping_notices.py`, `app/modules/asn` (models, schemas, repo, service, router), mounted at `/api/v1/asns`.
-  - Frontend: `packages/hooks/src/useAsns.ts`, Supplier Portal ASN list/wizard/packing slip, Buyer Portal dock intake scanner (`/grn/scan`).
-  - Tests: `test_asn_and_warehouse_intake.py` (4/4 passed), full unit suite (439/439 passed), `turbo typecheck` (0 errors).
-- **Next Up**: Option B (Multi-Tenant Active Company Switcher & Cross-Tenant Rollup), followed by Option C and Option D.
+- **Completed (Option A)**: Advance Shipping Notices (ASN) & Warehouse Barcode Intake fully implemented & verified (`17b65f9`).
+- **Completed (Option B)**: Multi-Tenant Active Company Switcher & Cross-Tenant Rollup fully implemented & verified.
+  - Backend: Migration `0042_multi_tenant_company.py` (`user_company_access`, `active_legal_entity_id`), `company_switcher_service.py`, endpoints `GET /tenant/accessible-companies`, `POST /tenant/switch-context`, `GET /tenant/cross-tenant-rollup`.
+  - Frontend: `packages/hooks/src/useTenantSwitcher.ts`, `CompanySwitcher` component in `@procurement/ui`, Group Spend Rollup cockpit (`/analytics/rollup`), Buyer layout navigation and action pill.
+  - Tests: `test_multi_tenant_company_switcher.py` (4/4 passed), full integration suite (8/8 passed), unit suite (439/439 passed), `turbo typecheck` (0 errors).
+- **Next Up**: Option C (Developer Platform & API Key Management), followed by Option D (Enterprise Compliance & Security Posture Dashboard).
 
 ---
 

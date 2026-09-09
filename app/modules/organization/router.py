@@ -27,8 +27,13 @@ from app.modules.organization.schemas import (
     PlantCreateRequest,
     PlantResponse,
     PlantUpdateRequest,
+    CompanyContextResponse,
+    SwitchCompanyContextRequest,
+    SwitchCompanyContextResponse,
+    CrossTenantRollupResponse,
 )
 from app.modules.organization.service import organization_service
+from app.modules.organization.company_switcher_service import company_switcher_service
 from app.modules.user.models import User
 
 router = APIRouter(tags=["Organization"])
@@ -443,4 +448,44 @@ async def delete_cost_center(
     """Soft-delete a cost center."""
     await organization_service.delete_cost_center(db, id, current_user.org_id)
     return success_response({"deleted": True, "id": str(id)})
+
+
+# ============================================================================
+# Multi-Tenant Active Company Switcher & Cross-Tenant Rollup
+# ============================================================================
+
+@router.get("/tenant/accessible-companies", response_model=APIResponse[list[CompanyContextResponse]])
+@router.get("/organizations/accessible-companies", response_model=APIResponse[list[CompanyContextResponse]])
+async def get_accessible_companies(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Get list of operating legal entities and companies accessible to the current user."""
+    companies = await company_switcher_service.get_accessible_companies(db, current_user)
+    meta = PaginationMeta(total=len(companies), page=1, page_size=len(companies) or 20)
+    return success_response(companies, meta=meta)
+
+
+@router.post("/tenant/switch-context", response_model=APIResponse[SwitchCompanyContextResponse])
+@router.post("/organizations/switch-context", response_model=APIResponse[SwitchCompanyContextResponse])
+async def switch_company_context(
+    payload: SwitchCompanyContextRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Switch active operating company context and receive refreshed JWT."""
+    result = await company_switcher_service.switch_company_context(db, current_user, payload)
+    return success_response(result)
+
+
+@router.get("/tenant/cross-tenant-rollup", response_model=APIResponse[CrossTenantRollupResponse])
+@router.get("/organizations/cross-tenant-rollup", response_model=APIResponse[CrossTenantRollupResponse])
+async def get_cross_tenant_rollup(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Get group-wide cross-tenant spend rollup, multi-entity vendor overlaps, and cycle times."""
+    rollup = await company_switcher_service.get_cross_tenant_rollup(db, current_user)
+    return success_response(rollup)
+
 

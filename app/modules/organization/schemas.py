@@ -335,3 +335,77 @@ class CostCenterResponse(BaseModel):
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 
+
+# ============================================================================
+# Multi-Tenant Active Company Switcher & Cross-Tenant Rollup Schemas
+# ============================================================================
+
+class CompanyContextResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    org_id: UUID
+    name: str
+    code: Optional[str] = None
+    registration_number: str
+    country_code: str
+    currency: str = "INR"
+    gstin: Optional[str] = None
+    business_unit_count: int = 0
+    is_active_context: bool = False
+
+
+class SwitchCompanyContextRequest(BaseModel):
+    target_legal_entity_id: UUID
+    target_org_id: Optional[UUID] = None
+
+
+class SwitchCompanyContextResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    active_company: CompanyContextResponse
+    user_id: UUID
+    email: str
+
+
+class EntityRollupItem(BaseModel):
+    entity_id: UUID
+    entity_name: str
+    country_code: str
+    spend: Decimal
+    po_count: int
+    average_po_value: Decimal
+    spend_percentage: float
+    pr_to_po_cycle_days: float
+    invoice_processing_days: float
+    discount_capture_rate: float
+
+
+class VendorOverlapItem(BaseModel):
+    vendor_id: UUID
+    vendor_name: str
+    entity_count: int
+    entity_names: list[str]
+    total_group_spend: Decimal
+    po_count: int
+    consolidation_opportunity: str
+
+
+class CategoryRollupItem(BaseModel):
+    category_name: str
+    spend: Decimal
+    spend_percentage: float
+
+
+class CrossTenantRollupResponse(BaseModel):
+    total_spend: Decimal
+    total_po_count: int
+    total_pr_count: int
+    active_vendors_count: int
+    total_entities_count: int
+    group_currency: str
+    entities: list[EntityRollupItem]
+    vendor_overlaps: list[VendorOverlapItem]
+    top_categories: list[CategoryRollupItem]
+
+

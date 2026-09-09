@@ -3,8 +3,8 @@
 import React, { ReactNode } from "react";
 import { useAuthInit, useCurrentUser, useLogout } from "@procurement/hooks";
 import { useAuthStore } from "@procurement/stores";
-import { AppShell, NotificationBell } from "@procurement/ui";
-import { ShoppingCart, CheckSquare, FileQuestion, Users, FileText, FileCheck, Package, Receipt, CreditCard, Truck, AlertCircle, BarChart2, PieChart, Award, LifeBuoy, Kanban, UserCheck, Ticket, ShieldAlert, Barcode } from "lucide-react";
+import { AppShell, CompanySwitcher, NotificationBell } from "@procurement/ui";
+import { ShoppingCart, CheckSquare, FileQuestion, Users, FileText, FileCheck, Package, Receipt, CreditCard, Truck, AlertCircle, BarChart2, PieChart, Award, LifeBuoy, Kanban, UserCheck, Ticket, ShieldAlert, Barcode, Globe } from "lucide-react";
 
 export default function BuyerMainLayout({ children }: { children: ReactNode }) {
   const { isInitializing } = useAuthInit();
@@ -122,6 +122,12 @@ export default function BuyerMainLayout({ children }: { children: ReactNode }) {
       section: "Analytics",
     },
     {
+      label: "Group Spend Rollup",
+      href: "/analytics/rollup",
+      icon: <Globe className="w-4 h-4" />,
+      section: "Analytics",
+    },
+    {
       label: "All Tickets",
       href: "/tickets",
       icon: <LifeBuoy className="w-4 h-4" />,
@@ -156,7 +162,12 @@ export default function BuyerMainLayout({ children }: { children: ReactNode }) {
       navItems={navItems}
       user={user}
       onLogout={() => logoutMutation.mutate()}
-      actions={<NotificationBell />}
+      actions={
+        <div className="flex items-center gap-2">
+          <CompanySwitcher />
+          <NotificationBell />
+        </div>
+      }
     >
       {children}
     </AppShell>

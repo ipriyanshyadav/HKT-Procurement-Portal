@@ -214,3 +214,7 @@ export { CustomReportBuilder } from "./components/CustomReportBuilder";
 export type { CustomReportBuilderProps } from "./components/CustomReportBuilder";
 export { ComplianceReportsView } from "./components/ComplianceReportsView";
 export type { ComplianceReportsViewProps, ComplianceTab } from "./components/ComplianceReportsView";
+
+// Multi-Tenant Company Switcher
+export { CompanySwitcher } from "./components/CompanySwitcher";
+export type { CompanySwitcherProps } from "./components/CompanySwitcher";

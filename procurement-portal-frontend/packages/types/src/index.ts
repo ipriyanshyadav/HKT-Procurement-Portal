@@ -386,3 +386,75 @@ export interface AsnFastGrnRequest {
   challan_number?: string;
   notes?: string;
 }
+
+// ============================================================================
+// Multi-Tenant Company Switcher & Cross-Tenant Rollup Types
+// ============================================================================
+
+export interface CompanyContextResponse {
+  id: string;
+  org_id: string;
+  name: string;
+  code?: string | null;
+  registration_number: string;
+  country_code: string;
+  currency: string;
+  gstin?: string | null;
+  business_unit_count: number;
+  is_active_context: boolean;
+}
+
+export interface SwitchCompanyContextRequest {
+  target_legal_entity_id: string;
+  target_org_id?: string | null;
+}
+
+export interface SwitchCompanyContextResponse {
+  access_token: string;
+  token_type: string;
+  active_company: CompanyContextResponse;
+  user_id: string;
+  email: string;
+}
+
+export interface EntityRollupItem {
+  entity_id: string;
+  entity_name: string;
+  country_code: string;
+  spend: number;
+  po_count: number;
+  average_po_value: number;
+  spend_percentage: number;
+  pr_to_po_cycle_days: number;
+  invoice_processing_days: number;
+  discount_capture_rate: number;
+}
+
+export interface VendorOverlapItem {
+  vendor_id: string;
+  vendor_name: string;
+  entity_count: number;
+  entity_names: string[];
+  total_group_spend: number;
+  po_count: number;
+  consolidation_opportunity: string;
+}
+
+export interface CategoryRollupItem {
+  category_name: string;
+  spend: number;
+  spend_percentage: number;
+}
+
+export interface CrossTenantRollupResponse {
+  total_spend: number;
+  total_po_count: number;
+  total_pr_count: number;
+  active_vendors_count: number;
+  total_entities_count: number;
+  group_currency: string;
+  entities: EntityRollupItem[];
+  vendor_overlaps: VendorOverlapItem[];
+  top_categories: CategoryRollupItem[];
+}
+

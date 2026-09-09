@@ -99,3 +99,17 @@ class Department(BaseModel):
     business_unit_id: Mapped[UUID] = mapped_column(ForeignKey("business_units.id"), nullable=False)
     head_user_id: Mapped[Optional[UUID]] = mapped_column(nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+
+
+class UserCompanyAccess(Base):
+    __tablename__ = "user_company_access"
+
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    org_id: Mapped[UUID] = mapped_column(ForeignKey("organizations.id"), nullable=False)
+    user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"), nullable=False)
+    target_org_id: Mapped[UUID] = mapped_column(ForeignKey("organizations.id"), nullable=False)
+    legal_entity_id: Mapped[Optional[UUID]] = mapped_column(ForeignKey("legal_entities.id"), nullable=True)
+    role_code: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
+    is_default: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(server_default=func.now(), nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now(), nullable=False)

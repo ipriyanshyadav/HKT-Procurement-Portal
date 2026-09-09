@@ -161,3 +161,4 @@ export * from "./useAuditLogs";
 export * from "./useSystemHealth";
 export * from "./useTickets";
 export * from "./useAsns";
+export * from "./useTenantSwitcher";

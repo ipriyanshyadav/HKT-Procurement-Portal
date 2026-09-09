@@ -14,6 +14,7 @@ from app.modules.organization.models import (
     LegalEntity,
     Organization,
     Plant,
+    UserCompanyAccess,
 )
 
 
@@ -231,10 +232,59 @@ class OrganizationRepository(BaseRepository[Organization]):
         return result.scalar_one_or_none()
 
 
+class UserCompanyAccessRepository(BaseRepository[UserCompanyAccess]):
+    def __init__(self) -> None:
+        super().__init__(UserCompanyAccess)
+
+    async def list_by_user(
+        self,
+        db: AsyncSession,
+        user_id: UUID,
+    ) -> List[UserCompanyAccess]:
+        stmt = (
+            select(UserCompanyAccess)
+            .where(UserCompanyAccess.user_id == user_id)
+            .order_by(UserCompanyAccess.created_at.asc())
+        )
+        result = await db.execute(stmt)
+        return list(result.scalars().all())
+
+    async def get_access(
+        self,
+        db: AsyncSession,
+        user_id: UUID,
+        target_org_id: UUID,
+        legal_entity_id: Optional[UUID] = None,
+    ) -> Optional[UserCompanyAccess]:
+        stmt = select(UserCompanyAccess).where(
+            UserCompanyAccess.user_id == user_id,
+            UserCompanyAccess.target_org_id == target_org_id,
+        )
+        if legal_entity_id is not None:
+            stmt = stmt.where(UserCompanyAccess.legal_entity_id == legal_entity_id)
+        result = await db.execute(stmt)
+        return result.scalar_one_or_none()
+
+    async def check_entity_access(
+        self,
+        db: AsyncSession,
+        user_id: UUID,
+        legal_entity_id: UUID,
+    ) -> bool:
+        stmt = select(UserCompanyAccess).where(
+            UserCompanyAccess.user_id == user_id,
+            UserCompanyAccess.legal_entity_id == legal_entity_id,
+        )
+        result = await db.execute(stmt)
+        return result.scalar_one_or_none() is not None
+
+
 legal_entity_repository = LegalEntityRepository()
 business_unit_repository = BusinessUnitRepository()
 plant_repository = PlantRepository()
 department_repository = DepartmentRepository()
 cost_center_repository = CostCenterRepository()
 organization_repository = OrganizationRepository()
+user_company_access_repository = UserCompanyAccessRepository()
+
 

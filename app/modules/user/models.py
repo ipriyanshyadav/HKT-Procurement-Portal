@@ -67,6 +67,7 @@ class User(BaseModel):
     sso_subject_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     is_supplier_user: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     vendor_id: Mapped[Optional[UUID]] = mapped_column(ForeignKey("vendors.id"), nullable=True)
+    active_legal_entity_id: Mapped[Optional[UUID]] = mapped_column(ForeignKey("legal_entities.id"), nullable=True)
     created_by: Mapped[Optional[UUID]] = mapped_column(nullable=True)
     updated_by: Mapped[Optional[UUID]] = mapped_column(nullable=True)
 
