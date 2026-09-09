@@ -1,6 +1,7 @@
 from __future__ import annotations
+
 import math
-from typing import Optional, List
+from decimal import Decimal
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query, Request, status
@@ -10,47 +11,42 @@ from app.auth.dependencies import get_current_user, require_permission
 from app.auth.service import auth_service
 from app.core.constants import PermissionCode
 from app.core.exceptions import AppException, ForbiddenError, NotFoundError
-from app.core.responses import APIResponse, PaginationMeta, created_response, success_response
+from app.core.responses import PaginationMeta, created_response, success_response
+from app.core.streaming import generate_table_pdf, stream_csv, stream_pdf
 from app.db.session import get_db
 from app.modules.user.models import User
-from app.modules.vendor.models import Vendor
-from decimal import Decimal
 from app.modules.vendor.schemas import (
+    BulkVendorCategoryMappingRequest,
     DuplicateCheckRequest,
-    DuplicateCheckResult,
     PennyTestConfirmRequest,
     VendorBankAccountCreateRequest,
-    VendorBankAccountResponse,
     VendorBlacklistConfirmRequest,
     VendorBlacklistInitiateRequest,
     VendorCategoriesUpdateRequest,
     VendorCategoryMappingResponse,
     VendorContactResponse,
-    VendorDetailResponse,
     VendorDocumentCreateRequest,
     VendorDocumentResponse,
     VendorInviteRequest,
+    VendorKYCReviewRequest,
     VendorQualifyRequest,
     VendorRegistrationRequest,
-    VendorRejectRequest,
     VendorReinstateRequest,
+    VendorRejectRequest,
     VendorResponse,
     VendorResubmissionRequest,
-    VendorScorecardResponse,
-    VendorScorecardUpdateRequest,
-    VendorScorecardCalculateRequest,
     VendorRiskAssessmentResponse,
     VendorRiskAssessmentUpdateRequest,
     VendorRiskDashboardResponse,
+    VendorScorecardCalculateRequest,
+    VendorScorecardResponse,
+    VendorScorecardUpdateRequest,
+    VendorSelfRegistrationRequest,
     VendorSubmitRequest,
     VendorSuspendRequest,
     VendorUpdateRequest,
-    BulkVendorCategoryMappingRequest,
-    BulkVendorCategoryMappingResponse,
 )
-from app.core.streaming import stream_csv, stream_pdf, generate_table_pdf
 from app.modules.vendor.service import vendor_service
-
 
 router = APIRouter(tags=["Vendor"])
 
@@ -94,9 +90,53 @@ async def register_vendor_with_token(
     return success_response(VendorResponse.model_validate(vendor).model_dump())
 
 
+@router.post("/self-register", status_code=status.HTTP_201_CREATED)
+async def self_register_vendor(
+    data: VendorSelfRegistrationRequest,
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+):
+    """Public self-service supplier onboarding & automated KYC verification."""
+    if data.turnstile_token:
+        remote_ip = request.client.host if request.client else None
+        valid_bot = await auth_service.verify_turnstile(data.turnstile_token, remote_ip)
+        if not valid_bot:
+            raise AppException("Anti-bot verification failed", "BOT_VERIFICATION_FAILED")
+    result = await vendor_service.self_register_vendor(db, data)
+    return created_response(result)
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Buyer Portal Endpoints (Vendor Admin / Procurement Team)
 # ─────────────────────────────────────────────────────────────────────────────
+
+@router.get("/onboarding/pending", status_code=status.HTTP_200_OK)
+async def list_pending_onboarding_applications(
+    skip: int = Query(0, ge=0),
+    limit: int = Query(50, ge=1, le=100),
+    current_user: User = Depends(require_permission(PermissionCode.VENDOR_VIEW_ALL)),
+    db: AsyncSession = Depends(get_db),
+):
+    """List pending supplier onboarding and KYC verification applications."""
+    apps = await vendor_service.list_pending_onboarding(
+        db, current_user.org_id, skip=skip, limit=limit
+    )
+    return success_response(apps)
+
+
+@router.post("/onboarding/{app_id}/review", status_code=status.HTTP_200_OK)
+async def review_onboarding_application(
+    app_id: UUID,
+    review_data: VendorKYCReviewRequest,
+    current_user: User = Depends(require_permission(PermissionCode.VENDOR_QUALIFY)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Compliance / Buyer review and approval/rejection of vendor onboarding application."""
+    res = await vendor_service.review_onboarding_application(
+        db, app_id, current_user.org_id, current_user.id, review_data
+    )
+    return success_response(res)
+
 
 @router.post("/invite", status_code=status.HTTP_201_CREATED)
 async def invite_vendor(
@@ -120,9 +160,9 @@ async def invite_vendor(
 
 @router.get("", status_code=status.HTTP_200_OK)
 async def list_vendors(
-    status: Optional[str] = Query(None),
-    category_id: Optional[UUID] = Query(None),
-    search: Optional[str] = Query(None),
+    status: str | None = Query(None),
+    category_id: UUID | None = Query(None),
+    search: str | None = Query(None),
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     sort_by: str = Query("created_at"),
@@ -161,9 +201,9 @@ async def list_vendors(
 
 @router.get("/export/csv")
 async def export_vendors_csv(
-    status: Optional[str] = Query(None),
-    category_id: Optional[UUID] = Query(None),
-    search: Optional[str] = Query(None),
+    status: str | None = Query(None),
+    category_id: UUID | None = Query(None),
+    search: str | None = Query(None),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -197,9 +237,9 @@ async def export_vendors_csv(
 
 @router.get("/export/pdf")
 async def export_vendors_pdf(
-    status: Optional[str] = Query(None),
-    category_id: Optional[UUID] = Query(None),
-    search: Optional[str] = Query(None),
+    status: str | None = Query(None),
+    category_id: UUID | None = Query(None),
+    search: str | None = Query(None),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -415,7 +455,7 @@ async def update_vendor(
 @router.post("/{id}/submit", status_code=status.HTTP_200_OK)
 async def submit_vendor(
     id: UUID,
-    data: Optional[VendorSubmitRequest] = None,
+    data: VendorSubmitRequest | None = None,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -431,7 +471,7 @@ async def submit_vendor(
 @router.post("/{id}/qualify", status_code=status.HTTP_200_OK)
 async def qualify_vendor(
     id: UUID,
-    data: Optional[VendorQualifyRequest] = None,
+    data: VendorQualifyRequest | None = None,
     current_user: User = Depends(require_permission(PermissionCode.VENDOR_QUALIFY)),
     db: AsyncSession = Depends(get_db),
 ):
@@ -521,7 +561,7 @@ async def suspend_vendor(
 @router.post("/{id}/reinstate", status_code=status.HTTP_200_OK)
 async def reinstate_vendor(
     id: UUID,
-    data: Optional[VendorReinstateRequest] = None,
+    data: VendorReinstateRequest | None = None,
     current_user: User = Depends(require_permission(PermissionCode.VENDOR_REINSTATE)),
     db: AsyncSession = Depends(get_db),
 ):
@@ -558,7 +598,7 @@ async def initiate_blacklist(
 @router.post("/{id}/confirm-blacklist", status_code=status.HTTP_200_OK)
 async def confirm_blacklist(
     id: UUID,
-    data: Optional[VendorBlacklistConfirmRequest] = None,
+    data: VendorBlacklistConfirmRequest | None = None,
     current_user: User = Depends(require_permission(PermissionCode.VENDOR_BLACKLIST_APPROVE)),
     db: AsyncSession = Depends(get_db),
 ):
@@ -601,7 +641,7 @@ async def get_vendor_scorecard(
 @router.post("/{id}/scorecard", status_code=status.HTTP_200_OK)
 async def update_vendor_scorecard(
     id: UUID,
-    data: Optional[VendorScorecardUpdateRequest] = None,
+    data: VendorScorecardUpdateRequest | None = None,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -619,7 +659,7 @@ async def update_vendor_scorecard(
 @router.post("/{id}/scorecard/calculate", status_code=status.HTTP_200_OK)
 async def calculate_vendor_scorecard_endpoint(
     id: UUID,
-    data: Optional[VendorScorecardCalculateRequest] = None,
+    data: VendorScorecardCalculateRequest | None = None,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):

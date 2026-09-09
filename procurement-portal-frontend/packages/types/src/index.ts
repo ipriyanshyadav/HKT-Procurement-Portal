@@ -1168,4 +1168,134 @@ export interface RunFailoverDrillPayload {
   target_rto_minutes?: number;
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Supplier Self-Onboarding & KYC (SPEC_07)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface VendorSelfRegistrationPayload {
+  org_id: string;
+  company_name: string;
+  legal_name?: string;
+  primary_email: string;
+  primary_phone?: string;
+  pan?: string;
+  gstin?: string;
+  cin?: string;
+  duns_number?: string;
+  website?: string;
+  address_line1?: string;
+  address_line2?: string;
+  city?: string;
+  state?: string;
+  postal_code?: string;
+  country_code?: string;
+  contact_name: string;
+  contact_designation?: string;
+  contact_phone?: string;
+  bank_account_holder?: string;
+  bank_name?: string;
+  branch_name?: string;
+  account_number?: string;
+  ifsc_code?: string;
+  category_ids?: string[];
+  coi_declared?: boolean;
+  turnstile_token?: string;
+}
+
+export interface VendorKYCReviewPayload {
+  action: 'APPROVE' | 'REJECT';
+  review_notes?: string;
+  assigned_category_ids?: string[];
+}
+
+export interface VendorOnboardingApplication {
+  id: string;
+  org_id: string;
+  vendor_id: string;
+  application_number: string;
+  status: 'SUBMITTED' | 'UNDER_REVIEW' | 'APPROVED' | 'REJECTED' | 'RESUBMISSION_REQUESTED' | string;
+  gstin_verified: boolean;
+  pan_verified: boolean;
+  penny_drop_verified: boolean;
+  kyc_risk_tier: 'LOW' | 'MEDIUM' | 'HIGH' | string;
+  submitted_payload: Record<string, any>;
+  review_notes?: string | null;
+  reviewed_by?: string | null;
+  reviewed_at?: string | null;
+  created_at: string;
+  company_name?: string;
+  primary_email?: string;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Maverick Spend AI & Spend Cube (SPEC_25)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface MaverickSpendCluster {
+  id: string;
+  org_id: string;
+  cluster_type: 'RETROACTIVE_PO' | 'SPLIT_PURCHASE_ORDER' | 'OFF_CONTRACT_LEAKAGE' | 'PRICE_VARIANCE_DISPERSION' | string;
+  cluster_title: string;
+  severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL' | string;
+  affected_spend: number;
+  potential_savings: number;
+  affected_entity_ids: string[];
+  root_cause_analysis: string;
+  ai_recommendation: string;
+  status: 'DETECTED' | 'INVESTIGATING' | 'RESOLVED' | 'FALSE_POSITIVE' | string;
+  created_at: string;
+}
+
+export interface MaverickClusterResponse {
+  total_clusters: number;
+  critical_count: number;
+  high_count: number;
+  total_leaked_spend: number;
+  projected_savings_recovery: number;
+  clusters: MaverickSpendCluster[];
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Multi-ERP Bi-Directional Sync Gateway (SPEC_20)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface ERPEntityMapping {
+  id: string;
+  org_id: string;
+  erp_system: 'SAP_S4HANA' | 'NETSUITE' | 'ORACLE_CLOUD' | string;
+  entity_type: 'PURCHASE_ORDER' | 'INVOICE' | 'VENDOR' | 'GOODS_RECEIPT' | string;
+  internal_id: string;
+  external_id: string;
+  sync_direction: 'OUTBOUND' | 'INBOUND' | string;
+  sync_status: 'SUCCESS' | 'PENDING' | 'FAILED' | 'DEAD_LETTER' | string;
+  retry_count: number;
+  last_error?: string | null;
+  idoc_number?: string | null;
+  payload_checksum?: string | null;
+  reconciliation_hash?: string | null;
+  metadata_json: Record<string, any>;
+  last_synced_at: string;
+  created_at: string;
+}
+
+export interface ERPSyncTriggerPayload {
+  erp_system: string;
+  entity_type: string;
+  internal_id: string;
+  force_retry?: boolean;
+}
+
+export interface ERPReconciliationReport {
+  org_id: string;
+  erp_system?: string | null;
+  total_mapped_entities: number;
+  success_count: number;
+  pending_count: number;
+  failed_count: number;
+  dead_letter_count: number;
+  parity_percentage: number;
+  recent_mappings: ERPEntityMapping[];
+  dead_letter_queue: ERPEntityMapping[];
+}
+
 

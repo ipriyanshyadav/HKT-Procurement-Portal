@@ -24,23 +24,22 @@ All three portals run simultaneously with seeded test roles. Access them directl
 ---
 
 ## Current Session State
-- **Completed (Option A)**: Advance Shipping Notices (ASN) & Warehouse Barcode Intake fully implemented & verified (`17b65f9`).
-- **Completed (Option B)**: Multi-Tenant Active Company Switcher & Cross-Tenant Rollup fully implemented & verified (`3aa671a`).
-- **Completed (Option C)**: Developer Platform & API Key Management fully implemented & verified (`04492e3`).
-- **Completed (Option D)**: Enterprise Compliance & Security Posture Dashboard fully implemented & verified (`f54668b`).
-- **Completed (SPEC_14 & Enterprise Extensions)**:
-  1. **Catalog Management & PunchOut Marketplace Engine (`SPEC_14`)**:
-     - Backend: Migration `0045_punchout_and_catalog.py`, `app/modules/catalog` (cXML 1.2 & OCI 4.0 punchout sessions, internal catalog with parametric faceted search, tier volume discounting, shopping cart lifecycle, and 1-click cart-to-PR checkout). Mounted at `/api/v1/catalog`.
-     - Frontend: `useCatalogMarketplace.ts`, `CatalogMarketplace` component, Buyer Portal page (`/marketplace`).
-  2. **AI-Powered Autonomous Sourcing & Negotiation Copilot**:
-     - Backend: Migration `0046_ai_sourcing_copilot.py`, `app/modules/ai_sourcing` (Smart RFQ lot synthesis, historical pricing anomaly flags, autonomous tail-spend negotiation bot with dynamic concession strategies, supplier radar scoring matrix across Quality, ESG, Lead Time, Price Competitiveness). Mounted at `/api/v1/ai-sourcing`.
-     - Frontend: `useAISourcing.ts`, `AISourcingCopilot` component, Buyer Portal page (`/rfqs/copilot`).
-  3. **Government E-Invoicing & E-Way Bill Integration (India GST & Global Peppol)**:
-     - Backend: Migration `0047_einvoice_and_ewaybill.py`, `app/modules/einvoicing` (Rule 48(4) 64-character SHA-256 IRN hash, signed QR code generation, 24-hr cancellation window, E-Way Bill transit passes with Rule 138(10) distance validity calculation 1d/200km, ASN 1-click dispatch compliance pack generator, and Peppol BIS Billing 3.0 UBL 2.1 XML exporter). Mounted at `/api/v1/einvoicing`.
-     - Frontend: `useEInvoicing.ts`, `EInvoiceComplianceViewer` component, Buyer Portal (`/invoices/einvoice`) & Supplier Portal (`/asns/einvoice`) pages.
-- **Verification**: All 11 integration tests passing (`test_catalog_marketplace_and_punchout.py`, `test_ai_autonomous_sourcing.py`, `test_einvoicing_and_ewaybill.py`), ruff clean, `turbo typecheck` passing with 0 errors across 9 packages.
-
-
+- **Completed (Enterprise Expansion — Options 1, 3, 4 & SPEC_17)**:
+  1. **Option 1: External Supplier Self-Onboarding & KYC Registration Portal (`SPEC_07`)**:
+     - Backend: Migration `0050_enterprise_expansion.py`, `app/modules/vendor` (`VendorOnboardingApplication`, GSTIN/PAN validation, statutory ₹1.00 penny-drop check, auto-provisioning of `SUPPLIER` credentials upon dual-party compliance approval).
+     - Frontend: `useVendorOnboarding.ts`, `VendorOnboardingWorkbench` component, Buyer Portal (`/vendors/onboarding`) & Supplier Portal (`/register`).
+     - Tests: `test_supplier_self_onboarding_spec07.py` (2/2 passing).
+  2. **Option 3: Real-Time Spend Cube & Maverick Spend AI Intelligence (`SPEC_25`)**:
+     - Backend: `MaverickSpendCluster` model, `app/modules/analytics` (`detect_maverick_clusters` scanning Retroactive POs, Split Orders under ₹50k, Off-Contract Leakage, and Price Variance Dispersion >15%, cluster triage and resolution).
+     - Frontend: `useMaverickIntelligence.ts`, `MaverickIntelligenceWorkbench` component, integrated into Buyer Portal (`/analytics`).
+     - Tests: `test_maverick_spend_intelligence_spec25.py` (1/1 passing).
+  3. **Option 4: Multi-ERP Bi-Directional Sync Gateway (`SPEC_20`)**:
+     - Backend: `ERPEntityMapping` model, `app/modules/integration` (SAP S/4HANA IDoc ORDERS05/INVOIC02 & NetSuite SuiteTalk REST adapters, SHA-256 idempotent checksums, 3-tier Dead Letter Queue with force-retry, and system parity reconciliation).
+     - Frontend: `useERPGateway.ts`, `ERPGatewayReconciliationConsole` component, Admin Portal (`/integrations/erp`).
+     - Tests: `test_multi_erp_gateway_spec20.py` (1/1 passing).
+  4. **Performance Baseline (`SPEC_17`)**:
+     - Automated k6 load benchmarks in `tests/performance/k6_baselines.js` passing with 0.00% errors and 78.44ms p(95) latency (threshold < 500ms).
+- **Verification**: All 4 integration suites passing, 6/6 scorecard regression tests passing, `turbo typecheck` clean across all 9 packages with 0 errors, `graphify update .` synced.
 
 ---
 

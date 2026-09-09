@@ -48,10 +48,13 @@ class ERPAdapterFactory:
     @staticmethod
     def get_adapter(erp_provider: Optional[str], erp_config: Optional[Dict[str, Any]] = None) -> ERPAdapterBase:
         provider = (erp_provider or "CUSTOM").strip().upper()
-        if provider == "SAP":
+        if provider in ("SAP", "SAP_S4HANA"):
             from .erp_sap import SAPAdapter
             return SAPAdapter(erp_config)
-        elif provider == "ORACLE":
+        elif provider in ("NETSUITE", "NET_SUITE"):
+            from .erp_netsuite import NetSuiteAdapter
+            return NetSuiteAdapter(erp_config)
+        elif provider in ("ORACLE", "ORACLE_CLOUD"):
             from .erp_oracle import OracleAdapter
             return OracleAdapter(erp_config)
         elif provider == "TALLY":

@@ -1,29 +1,27 @@
 from __future__ import annotations
-from datetime import datetime, date, timedelta, timezone
-from decimal import Decimal
+
 import difflib
 import hashlib
-import json
 import secrets
-from typing import Optional, List, Tuple, Any
+from datetime import UTC, date, datetime, timedelta
+from decimal import Decimal
+from typing import Any
 from uuid import UUID
 
 from loguru import logger
-from sqlalchemy import select, func
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
-from app.core.constants import AuditAction
-from app.core.encryption import encrypt_field, decrypt_field
+from app.core.encryption import decrypt_field, encrypt_field
 from app.core.exceptions import (
     AppException,
     ConflictError,
     ForbiddenError,
     NotFoundError,
-    ValidationError,
 )
 from app.core.security import mask_pii
-from app.db.enums import VendorStatusEnum
+from app.db.enums import VendorStatusEnum, UserStatusEnum
 from app.events.publisher import OutboxPublisher
 from app.modules.audit.service import audit_service
 from app.modules.vendor.fsm import validate_transition
@@ -33,24 +31,24 @@ from app.modules.vendor.models import (
     VendorCategoryMapping,
     VendorContact,
     VendorDocument,
-    VendorScorecard,
     VendorRiskAssessment,
+    VendorScorecard,
 )
 from app.modules.vendor.repository import VendorRepository, vendor_repository
 from app.modules.vendor.schemas import (
-    DuplicateCheckResult,
-    DuplicateMatch,
-    PennyTestConfirmRequest,
-    VendorBankAccountCreateRequest,
-    VendorContactCreateRequest,
-    VendorDocumentCreateRequest,
-    VendorInviteRequest,
-    VendorRegistrationRequest,
-    VendorScorecardUpdateRequest,
-    VendorUpdateRequest,
     BulkVendorCategoryMappingItem,
     BulkVendorCategoryMappingResponse,
+    DuplicateCheckResult,
+    DuplicateMatch,
+    VendorBankAccountCreateRequest,
+    VendorDocumentCreateRequest,
+    VendorInviteRequest,
+    VendorKYCReviewRequest,
+    VendorRegistrationRequest,
     VendorRiskAssessmentUpdateRequest,
+    VendorScorecardUpdateRequest,
+    VendorSelfRegistrationRequest,
+    VendorUpdateRequest,
 )
 from integration.adapters.bank import BankVerificationAdapter
 from integration.adapters.gst import GSTAdapter
@@ -60,10 +58,10 @@ from integration.adapters.pan import PANAdapter
 class VendorService:
     def __init__(
         self,
-        repo: Optional[VendorRepository] = None,
-        gst_adapter: Optional[GSTAdapter] = None,
-        pan_adapter: Optional[PANAdapter] = None,
-        bank_adapter: Optional[BankVerificationAdapter] = None,
+        repo: VendorRepository | None = None,
+        gst_adapter: GSTAdapter | None = None,
+        pan_adapter: PANAdapter | None = None,
+        bank_adapter: BankVerificationAdapter | None = None,
     ):
         self.repo = repo or vendor_repository
         self.gst_adapter = gst_adapter or GSTAdapter()
@@ -87,13 +85,13 @@ class VendorService:
         self,
         db: AsyncSession,
         org_id: UUID,
-        pan: Optional[str] = None,
-        gstin: Optional[str] = None,
-        company_name: Optional[str] = None,
-        email: Optional[str] = None,
-        bank_account: Optional[str] = None,
-        ifsc: Optional[str] = None,
-        exclude_vendor_id: Optional[UUID] = None,
+        pan: str | None = None,
+        gstin: str | None = None,
+        company_name: str | None = None,
+        email: str | None = None,
+        bank_account: str | None = None,
+        ifsc: str | None = None,
+        exclude_vendor_id: UUID | None = None,
     ) -> DuplicateCheckResult:
         result = DuplicateCheckResult()
 
@@ -195,12 +193,12 @@ class VendorService:
     # External Verification Helpers
     # ─────────────────────────────────────────────────────────────────────────
 
-    async def _validate_gstin(self, gstin: Optional[str], org_id: UUID) -> dict[str, Any]:
+    async def _validate_gstin(self, gstin: str | None, org_id: UUID) -> dict[str, Any]:
         if not gstin:
             return {"is_valid": True, "status": "SKIPPED"}
         return await self.gst_adapter.validate(gstin)
 
-    async def _validate_pan(self, pan: Optional[str], org_id: UUID) -> dict[str, Any]:
+    async def _validate_pan(self, pan: str | None, org_id: UUID) -> dict[str, Any]:
         if not pan:
             return {"is_valid": True, "status": "SKIPPED"}
         return await self.pan_adapter.validate(pan)
@@ -230,7 +228,7 @@ class VendorService:
 
         raw_token = secrets.token_urlsafe(32)
         token_hash = self._hash_token(raw_token)
-        expires_at = datetime.now(timezone.utc) + timedelta(days=settings.INVITATION_TOKEN_TTL_DAYS)
+        expires_at = datetime.now(UTC) + timedelta(days=settings.INVITATION_TOKEN_TTL_DAYS)
 
         vendor = Vendor(
             org_id=org_id,
@@ -294,8 +292,8 @@ class VendorService:
         if vendor.invitation_expires_at:
             exp = vendor.invitation_expires_at
             if exp.tzinfo is None:
-                exp = exp.replace(tzinfo=timezone.utc)
-            if exp < datetime.now(timezone.utc):
+                exp = exp.replace(tzinfo=UTC)
+            if exp < datetime.now(UTC):
                 raise AppException("Invitation token has expired", "TOKEN_EXPIRED")
         return vendor
 
@@ -475,9 +473,9 @@ class VendorService:
         self,
         db: AsyncSession,
         vendor_id: UUID,
-        data: Optional[Any] = None,
-        actor_id: Optional[UUID] = None,
-        org_id: Optional[UUID] = None,
+        data: Any | None = None,
+        actor_id: UUID | None = None,
+        org_id: UUID | None = None,
     ) -> Vendor:
         vendor = await self.repo.find_by_id(db, vendor_id, org_id)
         if not vendor:
@@ -495,7 +493,7 @@ class VendorService:
             await self._validate_pan(vendor.pan, resolved_org_id)
 
         vendor.status = VendorStatusEnum.SUBMITTED
-        vendor.submitted_at = datetime.now(timezone.utc)
+        vendor.submitted_at = datetime.now(UTC)
         vendor.onboarding_step = 8
 
         # Instantiate VENDOR_QUAL workflow template
@@ -544,7 +542,7 @@ class VendorService:
         vendor_id: UUID,
         actor_id: UUID,
         org_id: UUID,
-        notes: Optional[str] = None,
+        notes: str | None = None,
     ) -> Vendor:
         vendor = await self.repo.find_by_id(db, vendor_id, org_id)
         if not vendor:
@@ -557,14 +555,14 @@ class VendorService:
         validate_transition(vendor.status, "QUALIFIED")
 
         vendor.status = VendorStatusEnum.QUALIFIED
-        vendor.qualified_at = datetime.now(timezone.utc)
+        vendor.qualified_at = datetime.now(UTC)
         vendor.updated_by = actor_id
 
         # Mark category mappings as qualified
         cats = await self.repo.get_categories(db, vendor.id)
         for c in cats:
             c.is_qualified = True
-            c.qualified_at = datetime.now(timezone.utc)
+            c.qualified_at = datetime.now(UTC)
 
         await OutboxPublisher.publish(
             db,
@@ -604,7 +602,7 @@ class VendorService:
             vendor.vendor_code = await self._generate_vendor_code(db, org_id)
 
         vendor.status = VendorStatusEnum.ACTIVE
-        vendor.activated_at = datetime.now(timezone.utc)
+        vendor.activated_at = datetime.now(UTC)
         vendor.updated_by = actor_id
 
         await OutboxPublisher.publish(
@@ -754,7 +752,7 @@ class VendorService:
         vendor_id: UUID,
         actor_id: UUID,
         org_id: UUID,
-        reason: Optional[str] = None,
+        reason: str | None = None,
     ) -> Vendor:
         vendor = await self.repo.find_by_id(db, vendor_id, org_id)
         if not vendor:
@@ -850,10 +848,10 @@ class VendorService:
         self,
         db: AsyncSession,
         vendor_id: UUID,
-        workflow_task_id: Optional[UUID],
+        workflow_task_id: UUID | None,
         actor_id: UUID,
         org_id: UUID,
-        reason: Optional[str] = None,
+        reason: str | None = None,
     ) -> Vendor:
         vendor = await self.repo.find_by_id(db, vendor_id, org_id)
         if not vendor:
@@ -873,7 +871,7 @@ class VendorService:
 
         vendor.status = VendorStatusEnum.BLACKLISTED
         vendor.blacklist_confirmed_by = actor_id
-        vendor.blacklisted_at = datetime.now(timezone.utc)
+        vendor.blacklisted_at = datetime.now(UTC)
         if reason:
             vendor.blacklist_reason = reason
         vendor.updated_by = actor_id
@@ -912,7 +910,7 @@ class VendorService:
         db: AsyncSession,
         vendor_id: UUID,
         org_id: UUID,
-        data: Optional[VendorScorecardUpdateRequest] = None,
+        data: VendorScorecardUpdateRequest | None = None,
     ) -> VendorScorecard:
         vendor = await self.repo.find_by_id(db, vendor_id, org_id)
         if not vendor:
@@ -952,7 +950,7 @@ class VendorService:
         scorecard.pricing_competitiveness = responsiveness
 
         vendor.performance_score = round(overall, 2)
-        vendor.last_scorecard_at = datetime.now(timezone.utc)
+        vendor.last_scorecard_at = datetime.now(UTC)
 
         await db.flush()
         return scorecard
@@ -962,8 +960,8 @@ class VendorService:
         db: AsyncSession,
         vendor_id: UUID,
         org_id: UUID,
-        period_start: Optional[date] = None,
-        period_end: Optional[date] = None,
+        period_start: date | None = None,
+        period_end: date | None = None,
     ) -> VendorScorecard:
         vendor = await self.repo.find_by_id(db, vendor_id, org_id)
         if not vendor:
@@ -974,10 +972,11 @@ class VendorService:
 
         # 1. On-Time Delivery Rate
         from sqlalchemy import select
-        from app.modules.grn.models import GoodsReceiptNote, GrnLine
-        from app.modules.purchase_order.models import PurchaseOrder
-        from app.modules.invoice.models import Invoice
+
         from app.modules.bid.models import BidResponse
+        from app.modules.grn.models import GoodsReceiptNote, GrnLine
+        from app.modules.invoice.models import Invoice
+        from app.modules.purchase_order.models import PurchaseOrder
 
         grn_stmt = (
             select(GoodsReceiptNote, PurchaseOrder)
@@ -996,9 +995,7 @@ class VendorService:
         if grn_po_pairs:
             on_time_count = 0
             for grn, po in grn_po_pairs:
-                if po.expected_delivery_date is None or grn.receipt_date <= po.expected_delivery_date:
-                    on_time_count += 1
-                elif (grn.receipt_date - po.expected_delivery_date).days <= 0:
+                if po.expected_delivery_date is None or grn.receipt_date <= po.expected_delivery_date or (grn.receipt_date - po.expected_delivery_date).days <= 0:
                     on_time_count += 1
             on_time_delivery_rate = Decimal(str(round((on_time_count / len(grn_po_pairs)) * 100, 2)))
         else:
@@ -1056,8 +1053,8 @@ class VendorService:
             .where(
                 BidResponse.vendor_id == vendor_id,
                 BidResponse.org_id == org_id,
-                BidResponse.created_at >= datetime.combine(start_dt, datetime.min.time(), tzinfo=timezone.utc),
-                BidResponse.created_at <= datetime.combine(end_dt, datetime.max.time(), tzinfo=timezone.utc),
+                BidResponse.created_at >= datetime.combine(start_dt, datetime.min.time(), tzinfo=UTC),
+                BidResponse.created_at <= datetime.combine(end_dt, datetime.max.time(), tzinfo=UTC),
                 BidResponse.deleted_at.is_(None),
             )
         )
@@ -1098,7 +1095,7 @@ class VendorService:
         scorecard.pricing_competitiveness = pricing_competitiveness
 
         vendor.performance_score = overall_score
-        vendor.last_scorecard_at = datetime.now(timezone.utc)
+        vendor.last_scorecard_at = datetime.now(UTC)
 
         # Advisory flag if score < 60
         if overall_score < Decimal("60.0"):
@@ -1157,7 +1154,7 @@ class VendorService:
         vendor_id: UUID,
         org_id: UUID,
         data: VendorRiskAssessmentUpdateRequest,
-        actor_id: Optional[UUID] = None,
+        actor_id: UUID | None = None,
     ) -> VendorRiskAssessment:
         vendor = await self.repo.find_by_id(db, vendor_id, org_id)
         if not vendor:
@@ -1316,10 +1313,10 @@ class VendorService:
         self,
         db: AsyncSession,
         vendor_id: UUID,
-        category_ids: List[UUID],
+        category_ids: list[UUID],
         actor_id: UUID,
         org_id: UUID,
-    ) -> List[VendorCategoryMapping]:
+    ) -> list[VendorCategoryMapping]:
         vendor = await self.repo.find_by_id(db, vendor_id, org_id)
         if not vendor:
             raise NotFoundError(f"Vendor {vendor_id} not found")
@@ -1411,7 +1408,7 @@ class VendorService:
 
         bank.penny_test_status = result["status"]
         bank.penny_test_reference = result.get("reference")
-        bank.penny_test_initiated_at = datetime.now(timezone.utc)
+        bank.penny_test_initiated_at = datetime.now(UTC)
         await db.flush()
         return result
 
@@ -1433,7 +1430,7 @@ class VendorService:
         )
         bank.penny_test_status = res["status"]
         if res["is_valid"]:
-            bank.penny_test_validated_at = datetime.now(timezone.utc)
+            bank.penny_test_validated_at = datetime.now(UTC)
             bank.validated_by = actor_id
         await db.flush()
         return res
@@ -1441,12 +1438,12 @@ class VendorService:
     async def bulk_map_categories(
         self,
         db: AsyncSession,
-        mappings: List[BulkVendorCategoryMappingItem],
+        mappings: list[BulkVendorCategoryMappingItem],
         actor_id: UUID,
         org_id: UUID,
     ) -> BulkVendorCategoryMappingResponse:
         updated = 0
-        errors: List[str] = []
+        errors: list[str] = []
         for idx, item in enumerate(mappings):
             vendor = None
             if item.vendor_id:
@@ -1478,6 +1475,290 @@ class VendorService:
             updated_vendors=updated,
             errors=errors,
         )
+
+    async def self_register_vendor(
+        self,
+        db: AsyncSession,
+        data: VendorSelfRegistrationRequest,
+    ) -> dict[str, Any]:
+        dup = await self.detect_duplicates(
+            db,
+            data.org_id,
+            pan=data.pan,
+            gstin=data.gstin,
+            company_name=data.company_name,
+            email=str(data.primary_email),
+        )
+        if dup.has_hard_blocks:
+            raise ConflictError(dup.hard_blocks[0].message)
+
+        gstin_valid = False
+        if data.gstin:
+            gst_clean = data.gstin.strip().upper()
+            gst_res = await GSTAdapter().validate(gst_clean)
+            gstin_valid = gst_res.get("is_valid", False)
+
+        pan_valid = False
+        if data.pan:
+            pan_clean = data.pan.strip().upper()
+            pan_res = await PANAdapter().validate(pan_clean)
+            pan_valid = pan_res.get("is_valid", False)
+
+        penny_valid = False
+        if data.account_number and data.ifsc_code:
+            ifsc_valid = BankVerificationAdapter.validate_ifsc(data.ifsc_code.strip())
+            acc_valid = BankVerificationAdapter.validate_account_number(data.account_number.strip())
+            penny_valid = ifsc_valid and acc_valid
+
+        if gstin_valid and pan_valid and (penny_valid or not data.account_number):
+            kyc_risk_tier = "LOW"
+        elif gstin_valid or pan_valid:
+            kyc_risk_tier = "MEDIUM"
+        else:
+            kyc_risk_tier = "HIGH"
+
+        vendor_code = await self._generate_vendor_code(db, data.org_id)
+
+        vendor = Vendor(
+            org_id=data.org_id,
+            vendor_code=vendor_code,
+            company_name=data.company_name,
+            legal_name=data.legal_name or data.company_name,
+            registration_type="DOMESTIC",
+            pan=data.pan.strip().upper() if data.pan else None,
+            pan_encrypted=encrypt_field(data.pan.strip().upper()) if data.pan else None,
+            gstin=data.gstin.strip().upper() if data.gstin else None,
+            gstin_encrypted=encrypt_field(data.gstin.strip().upper()) if data.gstin else None,
+            cin=data.cin,
+            duns_number=data.duns_number,
+            website=data.website,
+            primary_email=str(data.primary_email),
+            primary_phone=data.primary_phone,
+            address_line1=data.address_line1,
+            address_line2=data.address_line2,
+            city=data.city,
+            state=data.state,
+            postal_code=data.postal_code,
+            country_code=data.country_code or "IN",
+            status=VendorStatusEnum.SUBMITTED,
+            onboarding_step=8,
+            submitted_at=datetime.now(UTC),
+        )
+        db.add(vendor)
+        await db.flush()
+
+        contact = VendorContact(
+            org_id=data.org_id,
+            vendor_id=vendor.id,
+            name=data.contact_name,
+            designation=data.contact_designation or "Authorized Signatory",
+            email=str(data.primary_email),
+            phone=data.contact_phone or data.primary_phone,
+            is_primary=True,
+            is_active=True,
+        )
+        db.add(contact)
+
+        if data.account_number and data.ifsc_code:
+            bank = VendorBankAccount(
+                org_id=data.org_id,
+                vendor_id=vendor.id,
+                account_holder_name=data.bank_account_holder or data.company_name,
+                bank_name=data.bank_name or "Primary Bank",
+                branch_name=data.branch_name,
+                account_number_encrypted=encrypt_field(data.account_number.strip()),
+                ifsc_code=data.ifsc_code.strip().upper(),
+                is_primary=True,
+                penny_test_status="VERIFIED" if penny_valid else "NOT_INITIATED",
+                penny_test_reference=f"PENNY-AUTO-{secrets.token_hex(4).upper()}" if penny_valid else None,
+                penny_test_validated_at=datetime.now(UTC) if penny_valid else None,
+            )
+            db.add(bank)
+
+        if data.category_ids:
+            await self.repo.set_categories(db, data.org_id, vendor.id, data.category_ids)
+
+        app_num = f"APP-ONB-{datetime.now(UTC).year}-{secrets.token_hex(3).upper()}"
+        onb_app = await self.repo.create_onboarding_application(
+            db,
+            org_id=data.org_id,
+            vendor_id=vendor.id,
+            application_number=app_num,
+            submitted_payload=data.model_dump(mode="json"),
+            gstin_verified=gstin_valid,
+            pan_verified=pan_valid,
+            penny_drop_verified=penny_valid,
+            kyc_risk_tier=kyc_risk_tier,
+        )
+
+        await db.commit()
+        await db.refresh(vendor)
+
+        await OutboxPublisher.publish(
+            db,
+            event_type="vendor.self_registered",
+            routing_key="procurement.vendor",
+            payload={
+                "vendor_id": str(vendor.id),
+                "application_id": str(onb_app.id),
+                "application_number": app_num,
+                "org_id": str(data.org_id),
+                "kyc_risk_tier": kyc_risk_tier,
+            },
+            org_id=data.org_id,
+        )
+
+        return {
+            "vendor_id": vendor.id,
+            "application_id": onb_app.id,
+            "application_number": app_num,
+            "company_name": vendor.company_name,
+            "status": "SUBMITTED",
+            "gstin_verified": gstin_valid,
+            "pan_verified": pan_valid,
+            "penny_drop_verified": penny_valid,
+            "kyc_risk_tier": kyc_risk_tier,
+            "message": "Self-onboarding submitted successfully. Application queued for Buyer Compliance Review.",
+        }
+
+    async def list_pending_onboarding(
+        self, db: AsyncSession, org_id: UUID, skip: int = 0, limit: int = 50
+    ) -> list[dict[str, Any]]:
+        rows = await self.repo.list_pending_onboarding_applications(db, org_id, skip=skip, limit=limit)
+        results = []
+        for app, v in rows:
+            results.append({
+                "id": app.id,
+                "org_id": app.org_id,
+                "vendor_id": app.vendor_id,
+                "application_number": app.application_number,
+                "status": app.status,
+                "gstin_verified": app.gstin_verified,
+                "pan_verified": app.pan_verified,
+                "penny_drop_verified": app.penny_drop_verified,
+                "kyc_risk_tier": app.kyc_risk_tier,
+                "submitted_payload": app.submitted_payload,
+                "review_notes": app.review_notes,
+                "reviewed_by": app.reviewed_by,
+                "reviewed_at": app.reviewed_at,
+                "created_at": app.created_at,
+                "company_name": v.company_name,
+                "primary_email": v.primary_email,
+            })
+        return results
+
+    async def review_onboarding_application(
+        self,
+        db: AsyncSession,
+        app_id: UUID,
+        org_id: UUID,
+        reviewer_id: UUID,
+        review_data: VendorKYCReviewRequest,
+    ) -> dict[str, Any]:
+        app = await self.repo.get_onboarding_application(db, app_id, org_id)
+        if not app:
+            raise NotFoundError(f"Onboarding application {app_id} not found")
+        vendor = await self.repo.find_by_id(db, app.vendor_id, org_id)
+        if not vendor:
+            raise NotFoundError(f"Vendor for application {app_id} not found")
+
+        user_provisioned = False
+        user_email = None
+
+        if review_data.action == "APPROVE":
+            app.status = "APPROVED"
+            app.review_notes = review_data.review_notes or "Approved by Compliance Officer"
+            app.reviewed_by = reviewer_id
+            app.reviewed_at = datetime.now(UTC)
+
+            vendor.status = VendorStatusEnum.ACTIVE
+            vendor.activated_at = datetime.now(UTC)
+            if not vendor.vendor_code:
+                vendor.vendor_code = await self._generate_vendor_code(db, org_id)
+
+            if review_data.assigned_category_ids:
+                await self.repo.set_categories(db, org_id, vendor.id, review_data.assigned_category_ids)
+
+            from app.core.security import hash_password
+            from app.modules.user.models import Role, User, UserRoleAssignment
+            user_stmt = select(User).where(User.email == vendor.primary_email, User.org_id == org_id)
+            existing_user = (await db.execute(user_stmt)).scalar_one_or_none()
+
+            if not existing_user:
+                temp_pwd = f"Supplier{secrets.token_hex(4)}!@#"
+                new_user = User(
+                    org_id=org_id,
+                    email=vendor.primary_email,
+                    password_hash=hash_password(temp_pwd),
+                    first_name=vendor.company_name[:40],
+                    last_name="Admin",
+                    is_supplier_user=True,
+                    vendor_id=vendor.id,
+                    status=UserStatusEnum.ACTIVE,
+                )
+                db.add(new_user)
+                await db.flush()
+
+                role_stmt = select(Role).where(Role.code == "SUPPLIER", Role.org_id == org_id)
+                supplier_role = (await db.execute(role_stmt)).scalar_one_or_none()
+                if supplier_role:
+                    assignment = UserRoleAssignment(
+                        org_id=org_id,
+                        user_id=new_user.id,
+                        role_id=supplier_role.id,
+                    )
+                    db.add(assignment)
+                user_provisioned = True
+                user_email = new_user.email
+            else:
+                existing_user.vendor_id = vendor.id
+                existing_user.is_supplier_user = True
+                user_provisioned = True
+                user_email = existing_user.email
+
+            await db.commit()
+
+            await OutboxPublisher.publish(
+                db,
+                event_type="vendor.onboarding_approved",
+                routing_key="procurement.vendor",
+                payload={"vendor_id": str(vendor.id), "application_id": str(app.id), "org_id": str(org_id)},
+                org_id=org_id,
+            )
+
+            return {
+                "application_id": app.id,
+                "vendor_id": vendor.id,
+                "status": "APPROVED",
+                "vendor_code": vendor.vendor_code,
+                "user_provisioned": user_provisioned,
+                "user_email": user_email,
+                "message": "Vendor onboarding approved and supplier credentials activated.",
+            }
+        app.status = "REJECTED"
+        app.review_notes = review_data.review_notes or "Rejected by Compliance Reviewer"
+        app.reviewed_by = reviewer_id
+        app.reviewed_at = datetime.now(UTC)
+
+        vendor.status = VendorStatusEnum.RESUBMISSION_REQUESTED
+        vendor.suspension_reason = review_data.review_notes
+        await db.commit()
+
+        await OutboxPublisher.publish(
+            db,
+            event_type="vendor.onboarding_rejected",
+            routing_key="procurement.vendor",
+            payload={"vendor_id": str(vendor.id), "application_id": str(app.id), "org_id": str(org_id), "reason": review_data.review_notes},
+            org_id=org_id,
+        )
+
+        return {
+            "application_id": app.id,
+            "vendor_id": vendor.id,
+            "status": "REJECTED",
+            "review_notes": app.review_notes,
+            "message": "Vendor onboarding rejected. Notification sent to supplier.",
+        }
 
 
 vendor_service = VendorService()

@@ -1,5 +1,5 @@
-from __future__ import annotations
-
+import hashlib
+import json
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Tuple
 from uuid import UUID
@@ -9,7 +9,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.exceptions import NotFoundError, ValidationError
 from app.db.enums import IntegrationJobStatusEnum
 from app.modules.audit.service import audit_service
-from app.modules.integration.models import IntegrationJob, ScheduledJobRun
+from app.modules.integration.adapters.erp_base import ERPAdapterFactory
+from app.modules.integration.models import ERPEntityMapping, IntegrationJob, ScheduledJobRun
 from app.modules.integration.repository import integration_repository
 
 
@@ -19,7 +20,6 @@ class IntegrationService:
     def __init__(self, repo=integration_repository, audit=audit_service) -> None:
         self.repo = repo
         self.audit = audit
-
 
     async def list_jobs(
         self,
@@ -102,6 +102,7 @@ class IntegrationService:
         entity_type: Optional[str] = None,
     ) -> Dict[str, Any]:
         from sqlalchemy import and_, select
+
         adapter_type = (adapter_type or "SAP").upper()
         now = datetime.now(timezone.utc)
         created_jobs: List[IntegrationJob] = []
@@ -109,12 +110,17 @@ class IntegrationService:
         # 1. Sync Vendors
         if not entity_type or entity_type.upper() == "VENDOR":
             from app.modules.vendor.models import Vendor
-            v_stmt = select(Vendor).where(
-                and_(
-                    Vendor.org_id == org_id,
-                    Vendor.deleted_at.is_(None),
+
+            v_stmt = (
+                select(Vendor)
+                .where(
+                    and_(
+                        Vendor.org_id == org_id,
+                        Vendor.deleted_at.is_(None),
+                    )
                 )
-            ).limit(25)
+                .limit(25)
+            )
             vendors = (await db.execute(v_stmt)).scalars().all()
             for v in vendors:
                 job = IntegrationJob(
@@ -145,12 +151,17 @@ class IntegrationService:
         # 2. Sync Purchase Orders
         if not entity_type or entity_type.upper() == "PURCHASE_ORDER":
             from app.modules.purchase_order.models import PurchaseOrder
-            po_stmt = select(PurchaseOrder).where(
-                and_(
-                    PurchaseOrder.org_id == org_id,
-                    PurchaseOrder.deleted_at.is_(None),
+
+            po_stmt = (
+                select(PurchaseOrder)
+                .where(
+                    and_(
+                        PurchaseOrder.org_id == org_id,
+                        PurchaseOrder.deleted_at.is_(None),
+                    )
                 )
-            ).limit(25)
+                .limit(25)
+            )
             pos = (await db.execute(po_stmt)).scalars().all()
             for po in pos:
                 job = IntegrationJob(
@@ -180,12 +191,17 @@ class IntegrationService:
         # 3. Sync Goods Receipt Notes
         if not entity_type or entity_type.upper() == "GRN":
             from app.modules.grn.models import GoodsReceiptNote
-            grn_stmt = select(GoodsReceiptNote).where(
-                and_(
-                    GoodsReceiptNote.org_id == org_id,
-                    GoodsReceiptNote.deleted_at.is_(None),
+
+            grn_stmt = (
+                select(GoodsReceiptNote)
+                .where(
+                    and_(
+                        GoodsReceiptNote.org_id == org_id,
+                        GoodsReceiptNote.deleted_at.is_(None),
+                    )
                 )
-            ).limit(25)
+                .limit(25)
+            )
             grns = (await db.execute(grn_stmt)).scalars().all()
             for grn in grns:
                 job = IntegrationJob(
@@ -214,12 +230,17 @@ class IntegrationService:
         # 4. Sync Invoices
         if not entity_type or entity_type.upper() == "INVOICE":
             from app.modules.invoice.models import Invoice
-            inv_stmt = select(Invoice).where(
-                and_(
-                    Invoice.org_id == org_id,
-                    Invoice.deleted_at.is_(None),
+
+            inv_stmt = (
+                select(Invoice)
+                .where(
+                    and_(
+                        Invoice.org_id == org_id,
+                        Invoice.deleted_at.is_(None),
+                    )
                 )
-            ).limit(25)
+                .limit(25)
+            )
             invoices = (await db.execute(inv_stmt)).scalars().all()
             for inv in invoices:
                 job = IntegrationJob(
@@ -409,6 +430,246 @@ class IntegrationService:
         )
 
         return await self.get_erp_config(db, org_id)
+
+    # ---------------------------------------------------------------------------
+    # Multi-ERP Bi-Directional Sync Gateway (SPEC_20)
+    # ---------------------------------------------------------------------------
+
+    def _compute_checksum(self, payload: Dict[str, Any]) -> str:
+        canonical_str = json.dumps(payload, sort_keys=True, default=str)
+        return hashlib.sha256(canonical_str.encode("utf-8")).hexdigest()
+
+    async def sync_entity_to_erp(
+        self,
+        db: AsyncSession,
+        org_id: UUID,
+        erp_system: str,
+        entity_type: str,
+        internal_id: UUID,
+        force_retry: bool = False,
+    ) -> Dict[str, Any]:
+        norm_system = erp_system.strip().upper()
+        norm_entity = entity_type.strip().upper()
+
+        existing = await self.repo.get_mapping_by_internal_id(
+            db, org_id=org_id, internal_id=internal_id, erp_system=norm_system
+        )
+        if existing and existing.sync_status == "SUCCESS" and not force_retry and existing.external_id:
+            return {
+                "status": "SUCCESS",
+                "erp_system": norm_system,
+                "entity_type": norm_entity,
+                "internal_id": internal_id,
+                "external_id": existing.external_id,
+                "idoc_number": existing.idoc_number,
+                "payload_checksum": existing.payload_checksum,
+                "synced_at": existing.last_synced_at,
+                "message": f"Idempotent: {norm_entity} is already synchronized with {norm_system}",
+            }
+
+        config = await self.get_erp_config(db, org_id)
+        adapter = ERPAdapterFactory.get_adapter(norm_system, config)
+
+        retry_count = (existing.retry_count + 1) if existing else 0
+        try:
+            if norm_entity in ("PURCHASE_ORDER", "PO"):
+                adapter_res = await adapter.create_po(internal_id, org_id)
+            elif norm_entity in ("INVOICE", "BILL"):
+                adapter_res = await adapter.sync_invoice(internal_id, org_id)
+            elif norm_entity in ("VENDOR", "SUPPLIER"):
+                adapter_res = await adapter.sync_vendor(internal_id, org_id)
+            elif norm_entity in ("PAYMENT",):
+                adapter_res = await adapter.confirm_payment(internal_id, org_id)
+            else:
+                adapter_res = await adapter.create_po(internal_id, org_id)
+
+            external_id = (
+                adapter_res.get("external_id")
+                or adapter_res.get("erp_document_id")
+                or adapter_res.get("erp_vendor_code")
+                or f"{norm_system[:3]}-{norm_entity[:3]}-{str(internal_id)[:8].upper()}"
+            )
+            idoc_num = adapter_res.get("idoc_number")
+            checksum = adapter_res.get("payload_checksum") or self._compute_checksum(adapter_res)
+            rec_hash = adapter_res.get("reconciliation_hash") or f"REC-{norm_system[:2]}-{checksum[:12]}"
+
+            mapping = await self.repo.upsert_entity_mapping(
+                db=db,
+                org_id=org_id,
+                erp_system=norm_system,
+                entity_type=norm_entity,
+                internal_id=internal_id,
+                external_id=external_id,
+                sync_direction="OUTBOUND",
+                sync_status="SUCCESS",
+                retry_count=0,
+                last_error=None,
+                idoc_number=idoc_num,
+                payload_checksum=checksum,
+                reconciliation_hash=rec_hash,
+                metadata_json=adapter_res,
+            )
+
+            await self.audit.log(
+                db,
+                entity_type="ERP_SYNC",
+                entity_id=mapping.id,
+                action="ERP_ENTITY_SYNCED",
+                actor_id=None,
+                org_id=org_id,
+                metadata={
+                    "erp_system": norm_system,
+                    "entity_type": norm_entity,
+                    "external_id": external_id,
+                    "idoc_number": idoc_num,
+                },
+            )
+
+            return {
+                "status": "SUCCESS",
+                "erp_system": norm_system,
+                "entity_type": norm_entity,
+                "internal_id": internal_id,
+                "external_id": external_id,
+                "idoc_number": idoc_num,
+                "payload_checksum": checksum,
+                "synced_at": mapping.last_synced_at,
+                "message": f"Successfully synchronized {norm_entity} to {norm_system}",
+            }
+        except Exception as e:
+            status = "DEAD_LETTER" if retry_count >= 3 else "FAILED"
+            err_msg = str(e)
+            ext_fallback = existing.external_id if existing else f"ERR-{str(internal_id)[:8].upper()}"
+            await self.repo.upsert_entity_mapping(
+                db=db,
+                org_id=org_id,
+                erp_system=norm_system,
+                entity_type=norm_entity,
+                internal_id=internal_id,
+                external_id=ext_fallback,
+                sync_direction="OUTBOUND",
+                sync_status=status,
+                retry_count=retry_count,
+                last_error=err_msg,
+            )
+            raise ValidationError(f"ERP synchronization to {norm_system} failed: {err_msg}")
+
+    async def process_inbound_erp_payload(
+        self,
+        db: AsyncSession,
+        org_id: UUID,
+        erp_system: str,
+        entity_type: str,
+        external_id: str,
+        payload: Dict[str, Any],
+    ) -> Dict[str, Any]:
+        from uuid import uuid4
+
+        norm_system = erp_system.strip().upper()
+        norm_entity = entity_type.strip().upper()
+        checksum = self._compute_checksum(payload)
+        rec_hash = f"REC-IN-{norm_system[:2]}-{checksum[:12]}"
+
+        existing = await self.repo.get_mapping_by_external_id(
+            db, org_id=org_id, external_id=external_id, erp_system=norm_system
+        )
+        internal_id = existing.internal_id if existing else uuid4()
+
+        mapping = await self.repo.upsert_entity_mapping(
+            db=db,
+            org_id=org_id,
+            erp_system=norm_system,
+            entity_type=norm_entity,
+            internal_id=internal_id,
+            external_id=external_id,
+            sync_direction="INBOUND",
+            sync_status="SUCCESS",
+            retry_count=0,
+            idoc_number=payload.get("idoc_number"),
+            payload_checksum=checksum,
+            reconciliation_hash=rec_hash,
+            metadata_json=payload,
+        )
+
+        return {
+            "status": "ACCEPTED",
+            "erp_system": norm_system,
+            "entity_type": norm_entity,
+            "internal_id": str(internal_id),
+            "external_id": external_id,
+            "payload_checksum": checksum,
+            "received_at": mapping.last_synced_at.isoformat(),
+        }
+
+    async def list_entity_mappings(
+        self,
+        db: AsyncSession,
+        org_id: UUID,
+        erp_system: Optional[str] = None,
+        entity_type: Optional[str] = None,
+        sync_status: Optional[str] = None,
+        page: int = 1,
+        page_size: int = 20,
+    ) -> Tuple[List[ERPEntityMapping], int]:
+        return await self.repo.list_entity_mappings(
+            db,
+            org_id=org_id,
+            erp_system=erp_system,
+            entity_type=entity_type,
+            sync_status=sync_status,
+            page=page,
+            page_size=page_size,
+        )
+
+    async def get_erp_reconciliation_report(
+        self,
+        db: AsyncSession,
+        org_id: UUID,
+        erp_system: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        mappings, total = await self.repo.list_entity_mappings(
+            db, org_id=org_id, erp_system=erp_system, page=1, page_size=100
+        )
+        dlq = await self.repo.get_dead_letter_mappings(db, org_id=org_id, erp_system=erp_system)
+
+        success_cnt = sum(1 for m in mappings if m.sync_status == "SUCCESS")
+        pending_cnt = sum(1 for m in mappings if m.sync_status == "PENDING")
+        failed_cnt = sum(1 for m in mappings if m.sync_status == "FAILED")
+        dead_letter_cnt = len(dlq)
+
+        parity_pct = round((success_cnt / total * 100.0), 1) if total > 0 else 100.0
+
+        return {
+            "org_id": org_id,
+            "erp_system": erp_system,
+            "total_mapped_entities": total,
+            "success_count": success_cnt,
+            "pending_count": pending_cnt,
+            "failed_count": failed_cnt,
+            "dead_letter_count": dead_letter_cnt,
+            "parity_percentage": parity_pct,
+            "recent_mappings": mappings[:20],
+            "dead_letter_queue": dlq,
+        }
+
+    async def retry_dlq_mapping(
+        self,
+        db: AsyncSession,
+        org_id: UUID,
+        mapping_id: UUID,
+    ) -> Dict[str, Any]:
+        mapping = await self.repo.get_mapping_by_id(db, mapping_id=mapping_id, org_id=org_id)
+        if not mapping:
+            raise NotFoundError(f"ERP entity mapping '{mapping_id}' not found")
+
+        return await self.sync_entity_to_erp(
+            db=db,
+            org_id=org_id,
+            erp_system=mapping.erp_system,
+            entity_type=mapping.entity_type,
+            internal_id=mapping.internal_id,
+            force_retry=True,
+        )
 
 
 integration_service = IntegrationService()

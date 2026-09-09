@@ -247,3 +247,15 @@ export type { ContractRedlineStudioProps } from "./components/ContractRedlineStu
 
 // Automated Disaster Recovery Orchestrator & PITR Backup Drills (SPEC_21/SPEC_22)
 export { DisasterRecoveryConsole } from "./components/DisasterRecoveryConsole";
+
+// External Supplier Self-Onboarding & KYC Compliance Workbench (SPEC_07)
+export { VendorOnboardingWorkbench } from "./components/VendorOnboardingWorkbench";
+
+// Real-Time Spend Cube & Maverick Spend AI Intelligence (SPEC_25)
+export { MaverickIntelligenceWorkbench } from "./components/MaverickIntelligenceWorkbench";
+export type { MaverickIntelligenceWorkbenchProps } from "./components/MaverickIntelligenceWorkbench";
+
+// Multi-ERP Bi-Directional Sync Gateway (SPEC_20)
+export { ERPGatewayReconciliationConsole } from "./components/ERPGatewayReconciliationConsole";
+export type { ERPGatewayReconciliationConsoleProps } from "./components/ERPGatewayReconciliationConsole";
+

@@ -2,6 +2,7 @@
 Integration module router.
 Endpoints for managing integrations, monitoring sync jobs, retrying failures, and viewing run metrics.
 """
+
 from __future__ import annotations
 
 import math
@@ -19,6 +20,10 @@ from app.modules.integration.schemas import (
     BankPennyDropRequest,
     ERPConfigResponse,
     ERPConfigUpdateRequest,
+    ERPEntityMappingResponse,
+    ERPReconciliationReportResponse,
+    ERPSyncTriggerRequest,
+    ERPSyncTriggerResponse,
     GSTVerificationRequest,
     InboundSyncRequest,
     IntegrationJobResponse,
@@ -169,9 +174,7 @@ async def retry_integration_job(
     db: AsyncSession = Depends(get_db),
 ):
     """Manually trigger a retry for a failed or stalled integration job."""
-    j = await integration_service.retry_job(
-        db, job_id=job_id, actor_id=current_user.id, org_id=current_user.org_id
-    )
+    j = await integration_service.retry_job(db, job_id=job_id, actor_id=current_user.id, org_id=current_user.org_id)
     await db.commit()
     return success_response(
         data=IntegrationJobResponse(
@@ -334,6 +337,7 @@ async def verify_bank_penny_drop(
 ):
     """Initiate statutory bank account penny drop test (₹1.00 credit) to confirm beneficiary account."""
     from uuid import uuid4
+
     v_id = payload.vendor_id or uuid4()
     result = await bank_adapter.initiate_penny_test(
         vendor_id=v_id,
@@ -360,6 +364,7 @@ async def inbound_erp_sync(
 ):
     """Process inbound synchronization payload pushed from SAP / Oracle / Tally ERP systems."""
     from datetime import datetime, timezone
+
     result = {
         "status": "ACCEPTED",
         "provider": payload.provider,
@@ -370,3 +375,115 @@ async def inbound_erp_sync(
     }
     return success_response(data=result)
 
+
+# ---------------------------------------------------------------------------
+# Multi-ERP Bi-Directional Sync Gateway (SPEC_20)
+# ---------------------------------------------------------------------------
+
+
+@router.get("/erp-gateway/mappings", response_model=APIResponse[List[ERPEntityMappingResponse]])
+async def list_erp_mappings(
+    erp_system: Optional[str] = Query(None, description="Filter by ERP (SAP_S4HANA, NETSUITE, ORACLE_CLOUD)"),
+    entity_type: Optional[str] = Query(None, description="Filter by entity (PURCHASE_ORDER, INVOICE, VENDOR)"),
+    sync_status: Optional[str] = Query(None, description="Filter by status (SUCCESS, PENDING, FAILED, DEAD_LETTER)"),
+    page: int = Query(1, ge=1),
+    page_size: int = Query(20, ge=1, le=100),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """List bi-directional ERP entity mappings with sync statuses and checksums."""
+    mappings, total = await integration_service.list_entity_mappings(
+        db,
+        org_id=current_user.org_id,
+        erp_system=erp_system,
+        entity_type=entity_type,
+        sync_status=sync_status,
+        page=page,
+        page_size=page_size,
+    )
+    meta = PaginationMeta(
+        total=total,
+        page=page,
+        page_size=page_size,
+        total_pages=math.ceil(total / page_size) if page_size > 0 else 1,
+    )
+    return success_response(data=[ERPEntityMappingResponse.model_validate(m) for m in mappings], meta=meta)
+
+
+@router.post("/erp-gateway/sync", response_model=APIResponse[ERPSyncTriggerResponse])
+async def trigger_erp_sync(
+    payload: ERPSyncTriggerRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Trigger outbound synchronization of a specific entity (PO, Invoice, Vendor) to ERP."""
+    result = await integration_service.sync_entity_to_erp(
+        db=db,
+        org_id=current_user.org_id,
+        erp_system=payload.erp_system,
+        entity_type=payload.entity_type,
+        internal_id=payload.internal_id,
+        force_retry=payload.force_retry,
+    )
+    await db.commit()
+    return success_response(data=ERPSyncTriggerResponse(**result))
+
+
+@router.post("/erp-gateway/inbound")
+async def inbound_gateway_sync(
+    payload: InboundSyncRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Process inbound synchronization payload from external ERP webhook/integration agent."""
+    from uuid import uuid4
+
+    ext_id = str(payload.data.get("external_id") or payload.data.get("id") or uuid4().hex[:12])
+    result = await integration_service.process_inbound_erp_payload(
+        db=db,
+        org_id=current_user.org_id,
+        erp_system=payload.provider,
+        entity_type=payload.entity_type,
+        external_id=ext_id,
+        payload=payload.data,
+    )
+    await db.commit()
+    return success_response(data=result)
+
+
+@router.get("/erp-gateway/reconciliation", response_model=APIResponse[ERPReconciliationReportResponse])
+async def get_erp_reconciliation(
+    erp_system: Optional[str] = Query(None, description="Optional ERP system filter"),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Generate system parity reconciliation report across ERP mappings, sync statuses, and Dead Letter Queue."""
+    report = await integration_service.get_erp_reconciliation_report(
+        db, org_id=current_user.org_id, erp_system=erp_system
+    )
+    return success_response(
+        data=ERPReconciliationReportResponse(
+            org_id=report["org_id"],
+            erp_system=report["erp_system"],
+            total_mapped_entities=report["total_mapped_entities"],
+            success_count=report["success_count"],
+            pending_count=report["pending_count"],
+            failed_count=report["failed_count"],
+            dead_letter_count=report["dead_letter_count"],
+            parity_percentage=report["parity_percentage"],
+            recent_mappings=[ERPEntityMappingResponse.model_validate(m) for m in report["recent_mappings"]],
+            dead_letter_queue=[ERPEntityMappingResponse.model_validate(m) for m in report["dead_letter_queue"]],
+        )
+    )
+
+
+@router.post("/erp-gateway/mappings/{mapping_id}/retry")
+async def retry_erp_mapping(
+    mapping_id: UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Force re-trigger an ERP synchronization for a failed or Dead Letter record."""
+    result = await integration_service.retry_dlq_mapping(db, org_id=current_user.org_id, mapping_id=mapping_id)
+    await db.commit()
+    return success_response(data=result)

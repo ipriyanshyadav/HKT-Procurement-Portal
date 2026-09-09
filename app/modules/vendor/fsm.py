@@ -1,8 +1,7 @@
 from __future__ import annotations
-from typing import Union
+
 from app.core.exceptions import ConflictError
 from app.db.enums import VendorStatus
-
 
 VENDOR_FSM: dict[str, list[str]] = {
     "INVITED":                  ["REGISTRATION_IN_PROGRESS", "DEACTIVATED"],
@@ -28,7 +27,7 @@ class InvalidStatusTransitionError(ConflictError):
         self.code = "INVALID_STATUS_TRANSITION"
 
 
-def validate_transition(current: Union[str, VendorStatus], target: Union[str, VendorStatus]) -> None:
+def validate_transition(current: str | VendorStatus, target: str | VendorStatus) -> None:
     current_val = current.value if isinstance(current, VendorStatus) else str(current)
     target_val = target.value if isinstance(target, VendorStatus) else str(target)
     allowed = VENDOR_FSM.get(current_val, [])

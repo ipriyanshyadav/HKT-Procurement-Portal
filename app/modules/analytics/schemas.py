@@ -218,3 +218,32 @@ class ComplianceAuditResponse(BaseModel):
     force_approves: List[ForceApproveItem]
     sod_violations: List[SoDViolationItem]
     summary: Dict[str, int]
+
+
+class MaverickClusterItem(BaseModel):
+    id: UUID
+    cluster_type: str
+    cluster_title: str
+    severity: str
+    affected_spend: float
+    potential_savings: float
+    affected_entity_ids: List[Any]
+    root_cause_analysis: str
+    ai_recommendation: str
+    status: str
+    created_at: datetime
+
+
+class MaverickClusterResponse(BaseModel):
+    total_clusters: int
+    critical_count: int
+    high_count: int
+    total_leaked_spend: float
+    projected_savings_recovery: float
+    clusters: List[MaverickClusterItem]
+
+
+class ClusterStatusUpdateRequest(BaseModel):
+    status: str
+    notes: Optional[str] = None
+

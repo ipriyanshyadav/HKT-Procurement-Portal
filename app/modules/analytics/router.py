@@ -12,9 +12,11 @@ from app.core.responses import success_response
 from app.db.session import get_db
 from app.modules.analytics.export_service import analytics_export_service
 from app.modules.analytics.schemas import (
+    ClusterStatusUpdateRequest,
     ComplianceAuditResponse,
     CustomReportRequest,
     CustomReportResponse,
+    MaverickClusterResponse,
     MaverickSpendResponse,
     SpendCubeResponse,
 )
@@ -81,9 +83,7 @@ async def get_dashboard(
     user_bu_scope: List[UUID] = Depends(get_user_bu_scope),
     db: AsyncSession = Depends(get_db),
 ):
-    data = await analytics_service.get_dashboard(
-        db, current_user.org_id, fiscal_year, user_bu_scope
-    )
+    data = await analytics_service.get_dashboard(db, current_user.org_id, fiscal_year, user_bu_scope)
     return success_response(data)
 
 
@@ -101,9 +101,7 @@ async def get_spend(
             db, current_user.org_id, fiscal_year, user_bu_scope, group_by=group_by
         )
     else:
-        data = await analytics_service.get_all_spend(
-            db, current_user.org_id, fiscal_year, user_bu_scope
-        )
+        data = await analytics_service.get_all_spend(db, current_user.org_id, fiscal_year, user_bu_scope)
     return success_response(data)
 
 
@@ -115,9 +113,7 @@ async def get_spend_cube(
     user_bu_scope: List[UUID] = Depends(get_user_bu_scope),
     db: AsyncSession = Depends(get_db),
 ):
-    data = await analytics_service.get_spend_cube(
-        db, current_user.org_id, fiscal_year, user_bu_scope
-    )
+    data = await analytics_service.get_spend_cube(db, current_user.org_id, fiscal_year, user_bu_scope)
     return success_response(data)
 
 
@@ -130,8 +126,46 @@ async def get_maverick_spend(
     user_bu_scope: List[UUID] = Depends(get_user_bu_scope),
     db: AsyncSession = Depends(get_db),
 ):
-    data = await analytics_service.get_maverick_spend(
-        db, current_user.org_id, fiscal_year, user_bu_scope, limit=limit
+    data = await analytics_service.get_maverick_spend(db, current_user.org_id, fiscal_year, user_bu_scope, limit=limit)
+    return success_response(data)
+
+
+@router.get("/maverick-spend/clusters")
+async def get_maverick_clusters(
+    status: Optional[str] = Query(
+        None, description="Filter by status (DETECTED, INVESTIGATING, RESOLVED, FALSE_POSITIVE)"
+    ),
+    cluster_type: Optional[str] = Query(None, description="Filter by cluster type"),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Retrieve AI-identified Maverick Spend Anomaly Clusters for the organization."""
+    data = await analytics_service.get_maverick_clusters(
+        db, current_user.org_id, status=status, cluster_type=cluster_type
+    )
+    return success_response(data)
+
+
+@router.post("/maverick-spend/detect-anomalies")
+async def detect_maverick_anomalies(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Run real-time anomaly detection scan across POs, invoices, contracts, and line items."""
+    data = await analytics_service.detect_maverick_clusters(db, current_user.org_id)
+    return success_response(data)
+
+
+@router.post("/maverick-spend/clusters/{cluster_id}/status")
+async def update_maverick_cluster_status(
+    cluster_id: UUID,
+    payload: ClusterStatusUpdateRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Update triage or resolution status for a specific Maverick Spend cluster."""
+    data = await analytics_service.update_maverick_cluster_status(
+        db, cluster_id=cluster_id, org_id=current_user.org_id, status=payload.status
     )
     return success_response(data)
 
@@ -144,9 +178,7 @@ async def get_savings(
     user_bu_scope: List[UUID] = Depends(get_user_bu_scope),
     db: AsyncSession = Depends(get_db),
 ):
-    data = await analytics_service.get_savings_analysis(
-        db, current_user.org_id, fiscal_year, user_bu_scope
-    )
+    data = await analytics_service.get_savings_analysis(db, current_user.org_id, fiscal_year, user_bu_scope)
     return success_response(data)
 
 
@@ -158,9 +190,7 @@ async def get_cycle_times(
     user_bu_scope: List[UUID] = Depends(get_user_bu_scope),
     db: AsyncSession = Depends(get_db),
 ):
-    data = await analytics_service.get_cycle_time_analysis(
-        db, current_user.org_id, fiscal_year, user_bu_scope
-    )
+    data = await analytics_service.get_cycle_time_analysis(db, current_user.org_id, fiscal_year, user_bu_scope)
     return success_response(data)
 
 
@@ -198,9 +228,7 @@ async def get_sla_compliance(
     user_bu_scope: List[UUID] = Depends(get_user_bu_scope),
     db: AsyncSession = Depends(get_db),
 ):
-    data = await analytics_service.get_sla_compliance(
-        db, current_user.org_id, user_bu_scope
-    )
+    data = await analytics_service.get_sla_compliance(db, current_user.org_id, user_bu_scope)
     return success_response(data)
 
 
@@ -210,9 +238,7 @@ async def get_compliance(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    data = await analytics_service.get_compliance_dashboard(
-        db, current_user.org_id
-    )
+    data = await analytics_service.get_compliance_dashboard(db, current_user.org_id)
     return success_response(data)
 
 
@@ -240,9 +266,7 @@ async def execute_custom_report(
     user_bu_scope: List[UUID] = Depends(get_user_bu_scope),
     db: AsyncSession = Depends(get_db),
 ):
-    data = await analytics_service.execute_custom_report(
-        db, current_user.org_id, req, user_bu_scope=user_bu_scope
-    )
+    data = await analytics_service.execute_custom_report(db, current_user.org_id, req, user_bu_scope=user_bu_scope)
     return success_response(data)
 
 
@@ -252,9 +276,7 @@ async def get_unmapped_prs(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    data = await analytics_service.get_unmapped_pr_analytics(
-        db, current_user.org_id
-    )
+    data = await analytics_service.get_unmapped_pr_analytics(db, current_user.org_id)
     return success_response(data)
 
 
@@ -265,9 +287,7 @@ async def get_invoices(
     user_bu_scope: List[UUID] = Depends(get_user_bu_scope),
     db: AsyncSession = Depends(get_db),
 ):
-    data = await analytics_service.get_invoice_analytics(
-        db, current_user.org_id, user_bu_scope
-    )
+    data = await analytics_service.get_invoice_analytics(db, current_user.org_id, user_bu_scope)
     return success_response(data)
 
 
@@ -291,13 +311,13 @@ async def get_export_csv(
             db, current_user.org_id, vendor_id=None, user_bu_scope=user_bu_scope
         )
     else:
-        kpis = await analytics_service.get_procurement_kpis(
-            db, current_user.org_id, fiscal_year, user_bu_scope
-        )
+        kpis = await analytics_service.get_procurement_kpis(db, current_user.org_id, fiscal_year, user_bu_scope)
         data = [{"metric": k, "value": v} for k, v in kpis.items()]
 
     headers = list(data[0].keys()) if data and isinstance(data[0], dict) else ["key", "value"]
-    return stream_csv(headers=headers, rows=data or [], filename=f"analytics_{report_type}_{current_user.org_id.hex[:6]}")
+    return stream_csv(
+        headers=headers, rows=data or [], filename=f"analytics_{report_type}_{current_user.org_id.hex[:6]}"
+    )
 
 
 @router.get("/export/pdf")
@@ -321,9 +341,7 @@ async def get_export_pdf(
         )
         title = "Vendor Performance Report"
     else:
-        kpis = await analytics_service.get_procurement_kpis(
-            db, current_user.org_id, fiscal_year, user_bu_scope
-        )
+        kpis = await analytics_service.get_procurement_kpis(db, current_user.org_id, fiscal_year, user_bu_scope)
         data = [{"metric": k, "value": v} for k, v in kpis.items()]
         title = "Procurement KPIs Summary Report"
 
@@ -350,14 +368,10 @@ async def export_csv(
                 db, current_user.org_id, vendor_id=None, user_bu_scope=user_bu_scope
             )
         elif req.report_type == "kpis":
-            kpis = await analytics_service.get_procurement_kpis(
-                db, current_user.org_id, req.fiscal_year, user_bu_scope
-            )
+            kpis = await analytics_service.get_procurement_kpis(db, current_user.org_id, req.fiscal_year, user_bu_scope)
             data = [{"metric": k, "value": v} for k, v in kpis.items()]
     filename = req.filename or f"analytics_export_{current_user.org_id.hex[:6]}.csv"
-    return await analytics_export_service.export_csv(
-        data or [], columns=req.columns, filename=filename
-    )
+    return await analytics_export_service.export_csv(data or [], columns=req.columns, filename=filename)
 
 
 # 12. Ad-hoc Excel export
@@ -379,9 +393,7 @@ async def export_excel(
                 db, current_user.org_id, vendor_id=None, user_bu_scope=user_bu_scope
             )
         elif req.report_type == "kpis":
-            kpis = await analytics_service.get_procurement_kpis(
-                db, current_user.org_id, req.fiscal_year, user_bu_scope
-            )
+            kpis = await analytics_service.get_procurement_kpis(db, current_user.org_id, req.fiscal_year, user_bu_scope)
             data = [{"metric": k, "value": v} for k, v in kpis.items()]
     filename = req.filename or f"analytics_export_{current_user.org_id.hex[:6]}.xlsx"
     return await analytics_export_service.export_excel(

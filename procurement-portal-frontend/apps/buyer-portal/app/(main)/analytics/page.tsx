@@ -14,6 +14,7 @@ import {
   KPICard,
   SpendCubeVisualizer,
   MaverickSpendTable,
+  MaverickIntelligenceWorkbench,
   CustomReportBuilder,
   ComplianceReportsView,
 } from "@procurement/ui";
@@ -513,11 +514,14 @@ export default function BuyerAnalyticsDashboardPage() {
 
       {/* Tab 3: Maverick Spend Discovery */}
       {activeTab === "maverick" && (
-        <MaverickSpendTable
-          data={maverickData}
-          isLoading={isMaverickLoading}
-          currency="$"
-        />
+        <div className="space-y-6">
+          <MaverickIntelligenceWorkbench currency="$" />
+          <MaverickSpendTable
+            data={maverickData}
+            isLoading={isMaverickLoading}
+            currency="$"
+          />
+        </div>
       )}
 
       {/* Tab 4: Custom Report Builder */}
