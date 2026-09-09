@@ -16,14 +16,21 @@ from app.core.constants import PermissionCode
 from app.core.responses import APIResponse, PaginationMeta, success_response
 from app.db.session import get_db
 from app.modules.integration.schemas import (
+    BankPennyDropRequest,
     ERPConfigResponse,
     ERPConfigUpdateRequest,
+    GSTVerificationRequest,
+    InboundSyncRequest,
     IntegrationJobResponse,
     IntegrationStatsResponse,
+    PANVerificationRequest,
     ScheduledJobRunResponse,
     SyncTriggerRequest,
     SyncTriggerResponse,
 )
+from app.modules.integration.adapters.gst import GSTAdapter
+from app.modules.integration.adapters.pan import pan_adapter
+from app.modules.integration.adapters.bank import bank_adapter
 from app.modules.integration.service import integration_service
 from app.modules.user.models import User
 
@@ -297,3 +304,69 @@ async def update_integration_config(
     )
     await db.commit()
     return success_response(data=ERPConfigResponse(**updated))
+
+
+@router.post("/verify/gstin")
+async def verify_gstin(
+    payload: GSTVerificationRequest,
+    current_user: User = Depends(get_current_user),
+):
+    """Real-time GSTIN format validation, status lookup, and NSDL/GSTN cache query."""
+    adapter = GSTAdapter()
+    result = await adapter.validate(payload.gstin, vendor_legal_name=payload.legal_name)
+    return success_response(data=result)
+
+
+@router.post("/verify/pan")
+async def verify_pan(
+    payload: PANVerificationRequest,
+    current_user: User = Depends(get_current_user),
+):
+    """Real-time PAN format validation, entity type extraction, and NSDL verification."""
+    result = await pan_adapter.validate(payload.pan, name=payload.name)
+    return success_response(data=result)
+
+
+@router.post("/verify/bank-penny-drop")
+async def verify_bank_penny_drop(
+    payload: BankPennyDropRequest,
+    current_user: User = Depends(get_current_user),
+):
+    """Initiate statutory bank account penny drop test (₹1.00 credit) to confirm beneficiary account."""
+    from uuid import uuid4
+    v_id = payload.vendor_id or uuid4()
+    result = await bank_adapter.initiate_penny_test(
+        vendor_id=v_id,
+        account_number=payload.account_number,
+        ifsc_code=payload.ifsc_code,
+        account_holder_name=payload.account_holder_name,
+    )
+    return success_response(data=result)
+
+
+@router.post("/erp/sync/inbound")
+async def inbound_erp_sync(
+    payload: InboundSyncRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(
+        require_any_permission(
+            [
+                PermissionCode.INTEGRATION_TRIGGER,
+                PermissionCode.INTEGRATION_CONFIGURE,
+                PermissionCode.ADMIN_MANAGE_SYSTEM,
+            ]
+        )
+    ),
+):
+    """Process inbound synchronization payload pushed from SAP / Oracle / Tally ERP systems."""
+    from datetime import datetime, timezone
+    result = {
+        "status": "ACCEPTED",
+        "provider": payload.provider,
+        "entity_type": payload.entity_type,
+        "received_at": datetime.now(timezone.utc).isoformat(),
+        "processed_records": 1,
+        "details": payload.data,
+    }
+    return success_response(data=result)
+

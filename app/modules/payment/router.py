@@ -15,7 +15,7 @@ from decimal import Decimal
 from typing import Any, List, Optional
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, Header, Query, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.dependencies import get_current_user, require_any_permission, require_permission
@@ -32,6 +32,7 @@ from app.modules.payment.schemas import (
     DisputeResponse,
     ErpPaymentWebhookRequest,
     PaymentFilterParams,
+    PaymentLiveExecuteRequest,
     PaymentProcessRequest,
     PaymentRecordResponse,
     PaymentScheduleRequest,
@@ -252,6 +253,54 @@ async def erp_payment_webhook(
     Inbound webhook from external ERP system recording payment settlement.
     """
     result = await payment_service.process_erp_webhook(db, request)
+    return success_response(data=result)
+
+
+@router.post("/{payment_id}/execute-live", response_model=APIResponse[PaymentRecordResponse])
+async def execute_live_payment(
+    payment_id: UUID,
+    request: PaymentLiveExecuteRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_permission(PermissionCode.PAYMENT_PROCESS)),
+):
+    """
+    Execute live electronic payment disbursement via Razorpay Payouts or Direct Bank NEFT/RTGS rails.
+    """
+    payment = await payment_service.execute_live_payment(
+        db,
+        payment_id=payment_id,
+        method=request.method,
+        actor_id=current_user.id,
+        org_id=current_user.org_id,
+        bank_account_id=request.bank_account_id,
+        notes=request.notes,
+    )
+    inv = await invoice_repository.get_with_relations(db, payment.invoice_id, current_user.org_id)
+    v = await vendor_repository.find_by_id(db, payment.vendor_id, current_user.org_id)
+    return success_response(
+        data=_to_payment_response(
+            payment,
+            invoice_number=inv.invoice_number if inv else None,
+            vendor_name=v.company_name if v else None,
+        )
+    )
+
+
+@router.post("/webhooks/razorpay")
+async def razorpay_payment_webhook(
+    request: Request,
+    x_razorpay_signature: Optional[str] = Header(None, alias="x-razorpay-signature"),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Inbound Razorpay webhook with cryptographic HMAC-SHA256 signature verification.
+    """
+    raw_body = await request.body()
+    result = await payment_service.process_razorpay_webhook(
+        db,
+        raw_body=raw_body,
+        signature_header=x_razorpay_signature or "",
+    )
     return success_response(data=result)
 
 

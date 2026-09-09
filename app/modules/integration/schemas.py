@@ -85,3 +85,35 @@ class ERPConfigUpdateRequest(BaseModel):
     allowed_domains: List[str] = []
     is_enabled: bool = True
 
+
+class GSTVerificationRequest(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    gstin: str
+    legal_name: Optional[str] = None
+
+
+class PANVerificationRequest(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    pan: str
+    name: Optional[str] = None
+
+
+class BankPennyDropRequest(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    vendor_id: Optional[UUID] = None
+    account_number: str
+    ifsc_code: str
+    account_holder_name: str
+
+
+class InboundSyncRequest(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    provider: str = "SAP"
+    entity_type: str
+    data: Dict[str, Any]
+
+

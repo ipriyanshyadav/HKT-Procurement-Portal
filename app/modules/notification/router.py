@@ -17,6 +17,7 @@ from app.modules.notification.schemas import (
     NotificationTemplateUpdateRequest,
     NotificationTemplatePreviewRequest,
     NotificationTemplatePreviewResponse,
+    NotificationSendRequest,
 )
 from app.modules.notification.service import notification_service
 from app.modules.notification.websocket import ws_manager
@@ -218,6 +219,52 @@ async def delete_notification_template(
         db, template_id=template_id, org_id=current_user.org_id
     )
     return success_response(data={"message": "Notification template deleted successfully"})
+    
+@router.post("/dispatch-test", summary="Dispatch notification test event")
+async def dispatch_test_notification(
+    body: NotificationSendRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Test trigger immediate in-app and email notification dispatch for a user."""
+    notifs = await notification_service.dispatch(
+        db,
+        user_id=body.user_id,
+        org_id=current_user.org_id,
+        notification_type=body.notification_type,
+        title=body.title,
+        body=body.body,
+        entity_type=body.entity_type,
+        entity_id=body.entity_id,
+        to_email=current_user.email if body.user_id == current_user.id else None,
+        context=body.context,
+    )
+    await db.commit()
+    return success_response(
+        data=[
+            NotificationResponse(
+                id=n.id,
+                org_id=n.org_id,
+                user_id=n.user_id,
+                notification_type=n.notification_type,
+                channel=n.channel,
+                title=n.title,
+                body=n.body,
+                entity_type=n.entity_type,
+                entity_id=n.entity_id,
+                status=n.status,
+                sent_at=n.sent_at,
+                delivered_at=n.delivered_at,
+                read_at=n.read_at,
+                error_message=n.error_message,
+                retry_count=n.retry_count,
+                created_at=n.created_at,
+                is_read=n.read_at is not None,
+            ).model_dump()
+            for n in notifs
+        ],
+        meta=PaginationMeta(total=len(notifs), page=1, page_size=len(notifs) or 1),
+    )
 
 @router.websocket("/ws")
 async def notification_ws(

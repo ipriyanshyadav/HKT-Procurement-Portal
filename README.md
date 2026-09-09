@@ -615,21 +615,52 @@ docker compose logs -f -t
 | A-ANA-4 | Custom report builder enables dynamic dimension grouping, multi-metric aggregations, filter predicates, and pagination with instant CSV and Excel export | LOW |
 | A-ANA-5 | Compliance audit suite consolidates emergency RFQs, sole-source justifications, admin workflow force-approvals, and segregation-of-duties attempts from audit logs | LOW |
 | A-ANA-6 | Analytics dashboards leverage Apple dark surface design tokens (#1C1C1F, #252529) with interactive Recharts visualizers and tabular drill-downs | LOW |
+| A-ERP-1 | Tally XML integration conforms to standard Tally 9/Prime Import Data envelopes for Sundry Creditors Ledger, Purchase Voucher, and Payment Voucher posting | LOW |
+| A-ERP-2 | Razorpay payouts use bank account transfer (NEFT/RTGS/IMPS) with HMAC-SHA256 signature verification over raw bytes for inbound webhooks | LOW |
+| A-ERP-3 | Statutory PAN 4th-character entity mapping classifies Company (C), Individual (P), Trust (T), Firm (F); Bank penny drop checks ₹1.00 credit confirmation | LOW |
+| A-AUD-1 | Immutable audit log chain of custody hashes canonical strings with previous block's SHA-256 hash stored in non-null metadata JSONB to eliminate table locks or schema migrations | LOW |
+| A-AUD-2 | Client IP addresses are resolved via ipaddress module differentiating intranet / RFC-1918 LANs from public internet ingress addresses | LOW |
+| A-NOT-1 | NotificationToast container renders floating Apple dark-glassmorphism stack with auto-dismiss timers, action deep-links, and category icons | LOW |
 
 
 ---
 
 ### Current Session State
-- **Planned**: Analytics & Spend Cube (SPEC_25: Spend Cube visualizer, Pareto 80/20, Maverick Spend discovery, Custom Report Builder, Compliance Audit Reports).
+- **Planned**: ERP & Payment Gateways (SPEC_20 & SPEC_15) and Enterprise Notifications & Security Audit Trail (SPEC_16 & SPEC_22).
 - **Implemented**:
-  - Interactive Spend Cube Visualizer (`SpendCubeVisualizer.tsx`, `/api/v1/analytics/spend-cube`) supporting multi-dimensional slicing across Category, Business Unit, Supplier Pareto 80/20 with cumulative % curve & tier assignments (`TOP_80` vs `LONG_TAIL`), and CAPEX vs OPEX split.
-  - Maverick Spend Identification (`MaverickSpendTable.tsx`, `/api/v1/analytics/maverick-spend`) calculating spend leakage rate %, risk level tiers, and uncontracted PO drill-down with CSV export.
-  - Custom Report Builder (`CustomReportBuilder.tsx`, `/api/v1/analytics/reports`) dynamic query aggregator with whitelisted dimensions, multi-metric calculations, safe parameterized filter predicates, pagination, and instant CSV/XLSX downloads.
-  - Compliance Audit Suite (`ComplianceReportsView.tsx`, `/api/v1/analytics/compliance-reports`) consolidating Emergency RFQs (24h window), Single-Vendor justifications, Admin Force-Approvals, and SoD Violations.
-  - Sourcing Savings & Cycle Time Bottleneck Analytics: Budget vs. awarded L1 value savings and role-based approval turnaround (>24h SLA breach bottleneck highlights).
-  - Multi-Portal Integration: 5-tab workspace overhaul in `buyer-portal/analytics` and embedded Spend Cube view mode in `buyer-portal/analytics/spend`.
-- **Tested**: 12/12 backend analytics integration tests passed in 2.69s; 439/439 unit tests passed in 10.00s; `pnpm run typecheck` passed (0 errors across 9 monorepo packages); zero dead code / console.log.
-- **Next**: Next functional module: ERP & Payment Gateways (SPEC_20) or Enterprise Notifications & Audit Trail (SPEC_16 & SPEC_22).
+  - Bidirectional ERP Synchronizers (`TallyXMLAdapter`, `SAPAdapter`, `ERPAdapterFactory`): Tally XML envelopes for Sundry Creditors Ledger, Purchase Order voucher, Purchase invoice, and Payment voucher; SAP NetWeaver RFC/BAPI simulation (`execute_bapi`, `bapi_po_create1`, `bapi_incominginvoice_create`).
+  - Live Payment Execution & Webhook Verification (`RazorpayPaymentAdapter`, `/api/v1/payments/{id}/execute-live`, `/api/v1/payments/webhooks/razorpay`): Live bank disbursement via NEFT/RTGS/IMPS and HMAC-SHA256 raw byte signature validation for automated invoice settlement.
+  - Statutory Verification Suite (`PANAdapter`, `BankVerificationAdapter`, `/api/v1/integrations/verify/*`): Real-time PAN format & entity classification, IFSC structure validation, and bank account penny drop deposit test (₹1.00).
+  - Cryptographic Tamper-Evident Audit Trail (`app/modules/audit/crypto_chain.py`, `/api/v1/audit/*`): Chronological SHA-256 block chaining, client IP geolocation resolution, integrity verification endpoint, and compliance report exporter (JSON & CSV).
+  - Real-Time Multi-Channel Notification Center: Added `POST /api/v1/notifications/dispatch-test` endpoint, created Apple dark glassmorphism `NotificationToast.tsx` and `NotificationToastContainer` with category icons, auto-dismiss, and export across shared packages.
+- **Tested**: 34/34 integration tests passed (20 SPEC_20 tests in 1.27s, 14 SPEC_16/22 tests in 1.28s); 439/439 unit tests passed in 9.86s; `pnpm run typecheck` passed (0 errors across 9 monorepo packages); zero dead code / console.log.
+- **Next**: Workflow engine advanced branching & multi-entity delegation or Supplier Performance Scorecards & Risk Assessment.
+
+### 📊 SPEC Audit: ERP & Payment Gateways (2026-09-09)
+```
+MODULE | SPEC REQUIREMENT | STATUS | ARTIFACT / CODE
+ERP.1 | Tally ERP XML Envelope Translation & Posting       | [DONE] | erp_tally.py, erp_base.py, test_erp_and_payment_spec20.py
+ERP.2 | SAP RFC / NetWeaver BAPI Simulation & Execution   | [DONE] | erp_sap.py, test_erp_and_payment_spec20.py
+ERP.3 | Statutory GSTIN & PAN Verification Adapters       | [DONE] | pan.py, gst.py, router.py, test_erp_and_payment_spec20.py
+ERP.4 | Statutory Bank Account Penny Drop Deposit (₹1.00)  | [DONE] | bank.py, router.py, test_erp_and_payment_spec20.py
+ERP.5 | Inbound ERP Webhook Synchronization Endpoint       | [DONE] | router.py, schemas.py, test_erp_and_payment_spec20.py
+PAY.1 | Live Payout Execution Rail (NEFT/RTGS/IMPS)        | [DONE] | razorpay_adapter.py, payment/service.py, router.py
+PAY.2 | HMAC-SHA256 Webhook Signature & Auto-Settlement   | [DONE] | razorpay_adapter.py, router.py, test_erp_and_payment_spec20.py
+OVERALL: 7/7 (100%) | BACKEND 100% | FRONTEND 100% | TESTS 100%
+```
+
+### 📊 SPEC Audit: Enterprise Notifications & Audit Trail (2026-09-09)
+```
+MODULE | SPEC REQUIREMENT | STATUS | ARTIFACT / CODE
+AUD.1 | Cryptographic SHA-256 Tamper-Evident Chain Chaining | [DONE] | crypto_chain.py, audit/service.py, test_notifications_and_audit_spec16_22.py
+AUD.2 | Client IP Geolocation Resolution (LAN vs Public)     | [DONE] | crypto_chain.py, audit/service.py, test_notifications_and_audit_spec16_22.py
+AUD.3 | Audit Log Retrieval & Filtering API Endpoints        | [DONE] | audit/router.py, audit/service.py, main.py
+AUD.4 | Audit Chain Integrity Verification Endpoint           | [DONE] | audit/router.py, crypto_chain.py, test_notifications_and_audit_spec16_22.py
+AUD.5 | Compliance Export with SHA-256 Digest (JSON & CSV)   | [DONE] | audit/router.py, audit/service.py, test_notifications_and_audit_spec16_22.py
+NOT.1 | Real-time Multi-Channel Event Dispatch & Bypass Rules| [DONE] | notification/router.py, notification/service.py
+NOT.2 | Apple Glassmorphism Toast Floating Center Component  | [DONE] | NotificationToast.tsx, packages/ui/src/index.ts
+OVERALL: 7/7 (100%) | BACKEND 100% | FRONTEND 100% | TESTS 100%
+```
 
 ### 📊 SPEC Audit: Analytics & Spend Cube (2026-09-09)
 ```

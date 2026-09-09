@@ -54,6 +54,9 @@ class ERPAdapterFactory:
         elif provider == "ORACLE":
             from .erp_oracle import OracleAdapter
             return OracleAdapter(erp_config)
+        elif provider == "TALLY":
+            from .erp_tally import TallyXMLAdapter
+            return TallyXMLAdapter(erp_config)
         else:
             from .erp_custom import CustomERPAdapter
             return CustomERPAdapter(erp_config)

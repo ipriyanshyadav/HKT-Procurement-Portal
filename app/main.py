@@ -71,6 +71,7 @@ from app.modules.bid.auction_router import router as live_auction_router
 from app.modules.bid.auction_ws import auction_ws_endpoint
 from app.modules.notification.websocket import notification_ws_endpoint
 from app.modules.ticket.router import router as ticket_router
+from app.modules.audit.router import router as audit_router
 
 _minio_health_client = None
 
@@ -261,6 +262,7 @@ def create_app() -> FastAPI:
     api_router.include_router(auth_router, prefix="/admin/auth")
     api_router.include_router(auction_router)
     api_router.include_router(ticket_router, prefix="/tickets")
+    api_router.include_router(audit_router, prefix="/audit")
 
     app.include_router(api_router)
     app.include_router(live_auction_router, prefix="/api/v1")
