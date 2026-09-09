@@ -351,7 +351,7 @@ class WorkflowEngine:
             instance.org_id,
         )
         approvers = await self._apply_delegation(
-            db, approvers, instance.org_id, entity_type=instance.entity_type
+            db, approvers, instance.org_id, entity_type=instance.entity_type, entity_context=entity_context
         )
         instance.current_step_number = step["step_number"]
         await self.create_tasks_for_step(db, instance, step, approvers)
@@ -559,9 +559,12 @@ class WorkflowEngine:
         approvers: list[User],
         org_id: UUID,
         entity_type: Optional[str] = None,
+        entity_context: Optional[dict[str, Any]] = None,
     ) -> list[User]:
         """Replace delegating users with their delegates (checked at task creation time).
-        Supports multi-entity scoping based on DelegationRule.entity_types.
+
+        Supports multi-entity scoping, maximum financial threshold, BU scoping,
+        and Segregation of Duties (SoD maker-checker) bypass prevention.
         """
         from sqlalchemy import text
 
@@ -584,12 +587,34 @@ class WorkflowEngine:
             "AWARD_RECOMMENDATION": {"ARN", "AWARD", "AWARD_RECOMMENDATION"},
         }
 
+        # Calculate entity value if available for threshold checking
+        entity_amount = 0.0
+        if entity_context:
+            try:
+                entity_amount = float(
+                    entity_context.get("total_amount")
+                    or entity_context.get("amount")
+                    or entity_context.get("estimated_value")
+                    or entity_context.get("total_value")
+                    or 0.0
+                )
+            except (ValueError, TypeError):
+                entity_amount = 0.0
+
+        # Disallowed users for SoD guard (maker cannot be approver)
+        forbidden_delegates: set[str] = set()
+        if entity_context:
+            for key in ("created_by", "submitted_by", "requester_id"):
+                val = entity_context.get(key)
+                if val:
+                    forbidden_delegates.add(str(val))
+
         for approver in approvers:
             delegate_found = None
             try:
                 delegation_stmt = text(
                     """
-                    SELECT delegate_id, entity_types FROM delegation_rules
+                    SELECT delegate_id, entity_types, max_amount_threshold, bu_ids FROM delegation_rules
                     WHERE delegator_id = :delegator_id
                       AND org_id = :org_id
                       AND is_active = TRUE
@@ -604,7 +629,7 @@ class WorkflowEngine:
                     {
                         "delegator_id": str(approver.id),
                         "org_id": str(org_id),
-                        "now": now.isoformat(),
+                        "now": now,
                     },
                 )
                 rows = res.fetchall()
@@ -614,6 +639,35 @@ class WorkflowEngine:
             for row in rows:
                 rule_delegate_id = row[0] if isinstance(row[0], UUID) else UUID(str(row[0]))
                 rule_entities = row[1] if len(row) > 1 and row[1] is not None else []
+                rule_max_threshold = row[2] if len(row) > 2 and row[2] is not None else None
+                rule_bu_ids = row[3] if len(row) > 3 and row[3] is not None else []
+
+                # Guard 1: Circular / Self-delegation prevention
+                if rule_delegate_id == approver.id:
+                    continue
+
+                # Guard 2: Segregation of Duties (SoD) — delegate cannot be the creator/requester of this document
+                if str(rule_delegate_id) in forbidden_delegates:
+                    continue
+
+                # Guard 3: Maximum amount authority threshold
+                if rule_max_threshold is not None:
+                    try:
+                        max_limit = float(rule_max_threshold)
+                        if entity_amount > max_limit:
+                            # Document value exceeds delegate's financial authority limit
+                            continue
+                    except (ValueError, TypeError):
+                        pass
+
+                # Guard 4: Business Unit scoping
+                if rule_bu_ids and entity_context:
+                    entity_bu = str(entity_context.get("business_unit_id") or entity_context.get("bu_id") or "")
+                    if entity_bu:
+                        allowed_bus = [str(b) for b in rule_bu_ids] if isinstance(rule_bu_ids, list) else []
+                        if allowed_bus and entity_bu not in allowed_bus:
+                            continue
+
                 if isinstance(rule_entities, str):
                     import json
                     try:

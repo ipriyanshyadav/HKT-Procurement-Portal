@@ -128,6 +128,31 @@ class DelegationRepository(BaseRepository[DelegationRule]):
         res = await db.execute(stmt)
         return res.scalar_one_or_none()
 
+    async def check_circular_delegation(
+        self,
+        db: AsyncSession,
+        delegator_id: UUID,
+        delegate_id: UUID,
+        org_id: UUID,
+        valid_from: Any,
+        valid_until: Any,
+    ) -> bool:
+        from app.modules.user.models import DelegationRule
+        stmt = select(DelegationRule).where(
+            and_(
+                DelegationRule.delegator_id == delegator_id,
+                DelegationRule.delegate_id == delegate_id,
+                DelegationRule.org_id == org_id,
+                DelegationRule.is_active.is_(True),
+                DelegationRule.deleted_at.is_(None),
+                DelegationRule.valid_from <= valid_until,
+                DelegationRule.valid_until >= valid_from,
+            )
+        )
+        res = await db.execute(stmt)
+        val = res.scalar_one_or_none()
+        return isinstance(val, DelegationRule)
+
 
 user_repository = UserRepository()
 delegation_repository = DelegationRepository()

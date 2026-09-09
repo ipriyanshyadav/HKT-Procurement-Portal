@@ -24,22 +24,18 @@ All three portals run simultaneously with seeded test roles. Access them directl
 ---
 
 ## Current Session State
-- **Completed (Enterprise Expansion — Options 1, 3, 4 & SPEC_17)**:
-  1. **Option 1: External Supplier Self-Onboarding & KYC Registration Portal (`SPEC_07`)**:
-     - Backend: Migration `0050_enterprise_expansion.py`, `app/modules/vendor` (`VendorOnboardingApplication`, GSTIN/PAN validation, statutory ₹1.00 penny-drop check, auto-provisioning of `SUPPLIER` credentials upon dual-party compliance approval).
-     - Frontend: `useVendorOnboarding.ts`, `VendorOnboardingWorkbench` component, Buyer Portal (`/vendors/onboarding`) & Supplier Portal (`/register`).
-     - Tests: `test_supplier_self_onboarding_spec07.py` (2/2 passing).
-  2. **Option 3: Real-Time Spend Cube & Maverick Spend AI Intelligence (`SPEC_25`)**:
-     - Backend: `MaverickSpendCluster` model, `app/modules/analytics` (`detect_maverick_clusters` scanning Retroactive POs, Split Orders under ₹50k, Off-Contract Leakage, and Price Variance Dispersion >15%, cluster triage and resolution).
-     - Frontend: `useMaverickIntelligence.ts`, `MaverickIntelligenceWorkbench` component, integrated into Buyer Portal (`/analytics`).
-     - Tests: `test_maverick_spend_intelligence_spec25.py` (1/1 passing).
-  3. **Option 4: Multi-ERP Bi-Directional Sync Gateway (`SPEC_20`)**:
-     - Backend: `ERPEntityMapping` model, `app/modules/integration` (SAP S/4HANA IDoc ORDERS05/INVOIC02 & NetSuite SuiteTalk REST adapters, SHA-256 idempotent checksums, 3-tier Dead Letter Queue with force-retry, and system parity reconciliation).
-     - Frontend: `useERPGateway.ts`, `ERPGatewayReconciliationConsole` component, Admin Portal (`/integrations/erp`).
-     - Tests: `test_multi_erp_gateway_spec20.py` (1/1 passing).
-  4. **Performance Baseline (`SPEC_17`)**:
-     - Automated k6 load benchmarks in `tests/performance/k6_baselines.js` passing with 0.00% errors and 78.44ms p(95) latency (threshold < 500ms).
-- **Verification**: All 4 integration suites passing, 6/6 scorecard regression tests passing, `turbo typecheck` clean across all 9 packages with 0 errors, `graphify update .` synced.
+- **Completed (Enterprise Expansion — Carbon ESG & Approval Delegation Matrix)**:
+  1. **Automated Carbon ESG Footprint Calculator (`SPEC_07` / `SPEC_25`)**:
+     - Backend: Migration `0051_carbon_esg_and_delegation_matrix.py`, tables `carbon_emission_factors` and `supplier_esg_metrics`. `CarbonESGService` provides Scope 1, 2, 3 GHG protocol supply chain emissions calculation based on spend-category emission factors, supplier ESG league table with composite score (0-100) and AAA-CCC rating badges, Net-Zero 2030 trajectory path, and decarbonization recommendations. Endpoints: `/api/v1/analytics/esg/footprint`, `/recalculate`, `/emission-factors`, and `/supplier-scorecards`.
+     - Frontend: `useCarbonFootprint`, `useRecalculateCarbonFootprint`, `useSupplierESGScorecards`, `CarbonESGDashboard` component with KPI summary strips, Scope 1/2/3 distribution, category breakdowns, supplier rating tiers, and Net-Zero trajectory; integrated into Buyer Portal (`/analytics` under the "Carbon & ESG Intelligence" tab).
+     - Tests: `test_carbon_esg_calculator_spec25.py` (100% passing).
+  2. **Advanced Multi-Tier Approval Delegation Matrix & SoD Guards (`SPEC_06`)**:
+     - Backend: Altered `delegation_rules` with `max_amount_threshold` (Numeric 18,2) and `bu_ids` (JSONB). `WorkflowEngine._apply_delegation` enhanced with strict Segregation of Duties (SoD maker-checker guard preventing delegation to document creator/submitter), threshold checks, BU scoping, and circular delegation prevention (`CIRCULAR_DELEGATION_PROHIBITED`). Endpoints: `/api/v1/users/me/delegations` and `/api/v1/users/delegations/matrix`.
+     - Frontend: `useMyDelegations`, `useOrgDelegationMatrix`, `useCreateDelegation`, `useRevokeDelegation`, `ApprovalDelegationWorkbench` component with active delegations, org-wide governance matrix, creation modal with threshold inputs, and instant revocation; integrated into Buyer Portal (`/tasks/delegation` and linked in `/tasks` and sidebar).
+     - Tests: `test_approval_delegation_matrix_spec06.py` (100% passing).
+  3. **Option 1 (Supplier Self-Onboarding SPEC_07), Option 3 (Maverick Spend AI SPEC_25), Option 4 (Multi-ERP Gateway SPEC_20), & Performance Baseline (`SPEC_17`)**:
+     - All previously implemented modules verified live and operational.
+- **Verification**: All 389 integration tests passing (100%), `turbo typecheck` clean across all 9 packages with 0 errors, `graphify update .` synced.
 
 ---
 

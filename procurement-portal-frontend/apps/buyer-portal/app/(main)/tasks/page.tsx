@@ -207,12 +207,20 @@ export default function TasksPage() {
         </div>
 
         <div className="flex items-center gap-3">
+          <Link
+            href="/tasks/delegation"
+            className="inline-flex items-center gap-2 px-3.5 py-2 text-sm font-medium text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/60 rounded-xl hover:bg-indigo-100 dark:hover:bg-indigo-900/50 shadow-xs transition-colors"
+          >
+            <ShieldCheck className="w-4 h-4 text-indigo-600" />
+            Delegation & SoD Matrix
+          </Link>
+
           <button
             onClick={() => setShowDelegationModal(true)}
             className="inline-flex items-center gap-2 px-3.5 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 shadow-xs transition-colors"
           >
             <UserCheck className="w-4 h-4 text-indigo-600" />
-            Out of Office / Delegations
+            Quick Out of Office
             {delegations.some((d) => d.is_active) && (
               <span className="inline-block w-2 h-2 rounded-full bg-emerald-500" title="Active delegation enabled" />
             )}

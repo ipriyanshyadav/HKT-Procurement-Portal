@@ -259,3 +259,8 @@ export type { MaverickIntelligenceWorkbenchProps } from "./components/MaverickIn
 export { ERPGatewayReconciliationConsole } from "./components/ERPGatewayReconciliationConsole";
 export type { ERPGatewayReconciliationConsoleProps } from "./components/ERPGatewayReconciliationConsole";
 
+// Automated Carbon & ESG Scope 1, 2, 3 Footprint Calculator (SPEC_25 / SPEC_07)
+export { CarbonESGDashboard } from "./analytics/CarbonESGDashboard";
+
+// Advanced Multi-Tier Approval Delegation Matrix & SoD Workbench (SPEC_06)
+export { ApprovalDelegationWorkbench } from "./workflow/ApprovalDelegationWorkbench";

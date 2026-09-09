@@ -71,6 +71,8 @@ filterwarnings = [
     "ignore:The anyio.abc.BlockingPortal alias is deprecated.*:DeprecationWarning",
     "ignore:.*unclosed .*:ResourceWarning",
     "ignore:coroutine 'AsyncMockMixin.*' was never awaited:RuntimeWarning",
+    "ignore:coroutine 'Connection._cancel' was never awaited:RuntimeWarning",
+    "ignore:.*Connection._cancel.*:pytest.PytestUnraisableExceptionWarning",
 ]
 markers = [
     "unit: Unit tests",

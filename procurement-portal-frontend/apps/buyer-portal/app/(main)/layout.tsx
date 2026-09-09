@@ -116,6 +116,12 @@ export default function BuyerMainLayout({ children }: { children: ReactNode }) {
       section: "Workflow",
     },
     {
+      label: "Delegation Matrix",
+      href: "/tasks/delegation",
+      icon: <UserCheck className="w-4 h-4 text-indigo-500" />,
+      section: "Workflow",
+    },
+    {
       label: "Unmapped PRs",
       href: "/unmapped-prs",
       icon: <FileQuestion className="w-4 h-4" />,

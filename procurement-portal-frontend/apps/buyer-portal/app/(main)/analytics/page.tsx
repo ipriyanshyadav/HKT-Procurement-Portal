@@ -17,6 +17,7 @@ import {
   MaverickIntelligenceWorkbench,
   CustomReportBuilder,
   ComplianceReportsView,
+  CarbonESGDashboard,
 } from "@procurement/ui";
 import {
   TrendingUp,
@@ -34,9 +35,10 @@ import {
   Award,
   Layers,
   BarChart3,
+  Leaf,
 } from "lucide-react";
 
-type AnalyticsTab = "overview" | "spend_cube" | "maverick" | "reports" | "compliance";
+type AnalyticsTab = "overview" | "spend_cube" | "maverick" | "reports" | "compliance" | "carbon_esg";
 
 export default function BuyerAnalyticsDashboardPage() {
   const [activeTab, setActiveTab] = useState<AnalyticsTab>("overview");
@@ -236,6 +238,22 @@ export default function BuyerAnalyticsDashboardPage() {
         >
           <ShieldAlert className="w-3.5 h-3.5" />
           Compliance Audit Suite
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab("carbon_esg")}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
+            activeTab === "carbon_esg"
+              ? "bg-emerald-600 text-white shadow-sm shadow-emerald-500/20"
+              : "text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
+          }`}
+        >
+          <Leaf className="w-3.5 h-3.5 text-emerald-500" />
+          Carbon & ESG Intelligence
+          <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300 font-bold">
+            Net-Zero 2030
+          </span>
         </button>
       </div>
 
@@ -538,6 +556,11 @@ export default function BuyerAnalyticsDashboardPage() {
           isLoading={isComplianceLoading}
           currency="$"
         />
+      )}
+
+      {/* Tab 6: Carbon & ESG Scope 1, 2, 3 Intelligence */}
+      {activeTab === "carbon_esg" && (
+        <CarbonESGDashboard />
       )}
     </div>
   );

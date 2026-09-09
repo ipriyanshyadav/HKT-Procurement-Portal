@@ -173,4 +173,7 @@ export * from "./useDisasterRecovery";
 export * from "./useVendorOnboarding";
 export * from "./useMaverickIntelligence";
 export * from "./useERPGateway";
+export * from "./useESGAnalytics";
+export * from "./useApprovalDelegations";
+
 

@@ -247,3 +247,111 @@ class ClusterStatusUpdateRequest(BaseModel):
     status: str
     notes: Optional[str] = None
 
+
+# ---------------------------------------------------------------------------
+# Carbon ESG Footprint & Supplier ESG Schemas
+# ---------------------------------------------------------------------------
+
+class CategoryEmissionFactorItem(BaseModel):
+    id: UUID
+    category_id: Optional[UUID] = None
+    category_name: str
+    scope1_factor: float
+    scope2_factor: float
+    scope3_factor: float
+    currency: str
+    data_source: str
+    effective_year: int
+
+
+class CategoryEmissionFactorCreate(BaseModel):
+    category_id: Optional[UUID] = None
+    category_name: str
+    scope1_factor: float = Field(0.05, ge=0.0)
+    scope2_factor: float = Field(0.12, ge=0.0)
+    scope3_factor: float = Field(0.65, ge=0.0)
+    currency: str = "INR"
+    data_source: str = "GHG_PROTOCOL_DEFRA_2026"
+    effective_year: int = 2026
+
+
+class SupplierESGScorecardItem(BaseModel):
+    id: UUID
+    vendor_id: UUID
+    vendor_name: str
+    vendor_code: str
+    environmental_score: float
+    social_score: float
+    governance_score: float
+    composite_esg_score: float
+    esg_rating: str
+    carbon_intensity_kg_per_spend: float
+    sbti_committed: bool
+    net_zero_target_year: Optional[int] = None
+    iso_14001_certified: bool
+    renewable_energy_pct: float
+    last_audit_date: Optional[datetime] = None
+    audit_notes: Optional[str] = None
+
+
+class SupplierESGScorecardUpdate(BaseModel):
+    environmental_score: Optional[float] = Field(None, ge=0.0, le=100.0)
+    social_score: Optional[float] = Field(None, ge=0.0, le=100.0)
+    governance_score: Optional[float] = Field(None, ge=0.0, le=100.0)
+    esg_rating: Optional[str] = None
+    carbon_intensity_kg_per_spend: Optional[float] = Field(None, ge=0.0)
+    sbti_committed: Optional[bool] = None
+    net_zero_target_year: Optional[int] = None
+    iso_14001_certified: Optional[bool] = None
+    renewable_energy_pct: Optional[float] = Field(None, ge=0.0, le=100.0)
+    audit_notes: Optional[str] = None
+
+
+class CarbonCategoryBreakdown(BaseModel):
+    category_name: str
+    spend: float
+    scope1_co2e_tonnes: float
+    scope2_co2e_tonnes: float
+    scope3_co2e_tonnes: float
+    total_co2e_tonnes: float
+    emission_intensity: float
+    percentage_of_total: float
+
+
+class SupplierCarbonLeagueItem(BaseModel):
+    vendor_id: UUID
+    vendor_name: str
+    total_spend: float
+    scope3_co2e_tonnes: float
+    esg_rating: str
+    composite_esg_score: float
+    sbti_committed: bool
+    iso_14001_certified: bool
+    risk_level: str
+
+
+class NetZeroTrajectoryYear(BaseModel):
+    year: int
+    target_co2e_tonnes: float
+    projected_co2e_tonnes: float
+    actual_co2e_tonnes: Optional[float] = None
+
+
+class CarbonFootprintResponse(BaseModel):
+    total_co2e_tonnes: float
+    scope1_co2e_tonnes: float
+    scope2_co2e_tonnes: float
+    scope3_co2e_tonnes: float
+    scope1_pct: float
+    scope2_pct: float
+    scope3_pct: float
+    total_evaluated_spend: float
+    avg_carbon_intensity_kg_per_spend: float
+    high_risk_supplier_count: int
+    sbti_compliant_spend_pct: float
+    category_breakdown: List[CarbonCategoryBreakdown]
+    supplier_league_table: List[SupplierCarbonLeagueItem]
+    net_zero_trajectory: List[NetZeroTrajectoryYear]
+    decarbonization_recommendations: List[str]
+
+

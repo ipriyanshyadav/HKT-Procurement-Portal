@@ -1,8 +1,10 @@
 from __future__ import annotations
 from datetime import datetime, timezone
-from typing import Optional, List
+from decimal import Decimal
+from typing import Optional, List, Any
 from uuid import UUID, uuid4
 from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from pydantic import BaseModel, EmailStr
 
@@ -28,6 +30,8 @@ class DelegationRuleCreateRequest(BaseModel):
     valid_from: datetime
     valid_until: datetime
     entity_types: Optional[list[str]] = None
+    max_amount_threshold: Optional[float] = None
+    bu_ids: Optional[list[UUID]] = None
 
 
 class DelegationRuleResponse(BaseModel):
@@ -41,6 +45,8 @@ class DelegationRuleResponse(BaseModel):
     valid_from: datetime
     valid_until: datetime
     entity_types: list[str] = []
+    max_amount_threshold: Optional[float] = None
+    bu_ids: list[Any] = []
     is_active: bool
     created_at: Optional[datetime] = None
 
@@ -209,6 +215,49 @@ async def list_my_delegations(
                 valid_from=rule.valid_from,
                 valid_until=rule.valid_until,
                 entity_types=rule.entity_types or [],
+                max_amount_threshold=float(rule.max_amount_threshold) if rule.max_amount_threshold is not None else None,
+                bu_ids=rule.bu_ids or [],
+                is_active=rule.is_active,
+                created_at=rule.created_at or datetime.now(timezone.utc),
+            )
+        )
+    return success_response(response_items)
+
+
+@router.get("/delegations/matrix", response_model=APIResponse[list[DelegationRuleResponse]])
+async def list_org_delegation_matrix(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """GET /api/v1/users/delegations/matrix — list all active delegation rules in org for governance audit."""
+    stmt = (
+        select(DelegationRule, User)
+        .join(User, User.id == DelegationRule.delegate_id)
+        .where(
+            DelegationRule.org_id == current_user.org_id,
+            DelegationRule.is_active.is_(True),
+            DelegationRule.deleted_at.is_(None),
+        )
+        .order_by(DelegationRule.created_at.desc())
+    )
+    res = await db.execute(stmt)
+    items = res.all()
+    response_items = []
+    for rule, delegate in items:
+        response_items.append(
+            DelegationRuleResponse(
+                id=rule.id,
+                org_id=rule.org_id,
+                delegator_id=rule.delegator_id,
+                delegate_id=rule.delegate_id,
+                delegate_name=f"{delegate.first_name} {delegate.last_name}".strip() or delegate.email,
+                delegate_email=delegate.email,
+                reason=rule.reason,
+                valid_from=rule.valid_from,
+                valid_until=rule.valid_until,
+                entity_types=rule.entity_types or [],
+                max_amount_threshold=float(rule.max_amount_threshold) if rule.max_amount_threshold is not None else None,
+                bu_ids=rule.bu_ids or [],
                 is_active=rule.is_active,
                 created_at=rule.created_at or datetime.now(timezone.utc),
             )
@@ -222,7 +271,7 @@ async def create_my_delegation(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """POST /api/v1/users/me/delegations — create a new delegation / out-of-office rule."""
+    """POST /api/v1/users/me/delegations — create a new delegation / out-of-office rule with SoD guards."""
     if data.delegate_id == current_user.id:
         raise AppException("Cannot delegate approvals to yourself", "INVALID_DELEGATE")
 
@@ -233,6 +282,21 @@ async def create_my_delegation(
     if data.valid_until <= data.valid_from:
         raise AppException("valid_until must be after valid_from", "INVALID_DATE_RANGE")
 
+    # Guard: Circular delegation prevention (delegate already has active delegation to current user)
+    has_circular = await delegation_repository.check_circular_delegation(
+        db,
+        delegator_id=data.delegate_id,
+        delegate_id=current_user.id,
+        org_id=current_user.org_id,
+        valid_from=data.valid_from,
+        valid_until=data.valid_until,
+    )
+    if has_circular:
+        raise AppException(
+            "Circular delegation prohibited: Selected delegate already has an active delegation rule assigned to you during this period",
+            "CIRCULAR_DELEGATION_PROHIBITED",
+        )
+
     rule = DelegationRule(
         id=uuid4(),
         org_id=current_user.org_id,
@@ -242,6 +306,8 @@ async def create_my_delegation(
         valid_from=data.valid_from,
         valid_until=data.valid_until,
         entity_types=data.entity_types or ["PR", "PO", "INVOICE", "RFQ", "ARN"],
+        max_amount_threshold=Decimal(str(data.max_amount_threshold)) if data.max_amount_threshold is not None else None,
+        bu_ids=[str(b) for b in data.bu_ids] if data.bu_ids else [],
         is_active=True,
         created_by=current_user.id,
     )
@@ -262,6 +328,7 @@ async def create_my_delegation(
             "reason": rule.reason,
             "valid_from": rule.valid_from.isoformat(),
             "valid_until": rule.valid_until.isoformat(),
+            "max_amount_threshold": float(rule.max_amount_threshold) if rule.max_amount_threshold is not None else None,
         },
     )
 
@@ -277,6 +344,8 @@ async def create_my_delegation(
             valid_from=rule.valid_from,
             valid_until=rule.valid_until,
             entity_types=rule.entity_types or [],
+            max_amount_threshold=float(rule.max_amount_threshold) if rule.max_amount_threshold is not None else None,
+            bu_ids=rule.bu_ids or [],
             is_active=rule.is_active,
             created_at=rule.created_at or datetime.now(timezone.utc),
         )

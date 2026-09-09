@@ -241,3 +241,10 @@ async def client(db: AsyncSession) -> AsyncGenerator[AsyncClient, None]:
     async with AsyncClient(transport=transport, base_url="http://test") as ac:
         yield ac
     app.dependency_overrides.pop(get_db, None)
+
+
+@pytest.fixture(autouse=True)
+def _clean_dependency_overrides():
+    from app.main import app
+    yield
+    app.dependency_overrides.clear()

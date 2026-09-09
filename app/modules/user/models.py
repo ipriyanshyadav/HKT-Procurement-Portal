@@ -1,10 +1,11 @@
 from __future__ import annotations
 from datetime import datetime
-from typing import Optional, List
+from decimal import Decimal
+from typing import Optional, List, Any
 from uuid import UUID, uuid4
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import String, Boolean, Integer, ForeignKey, Text, CHAR, DateTime
-from sqlalchemy.dialects.postgresql import ARRAY, INET
+from sqlalchemy import String, Boolean, Integer, ForeignKey, Text, CHAR, DateTime, Numeric
+from sqlalchemy.dialects.postgresql import ARRAY, INET, JSONB
 from sqlalchemy.sql import func
 from app.db.base import BaseModel, Base
 from app.db.enums import UserStatusEnum, USER_STATUS_PG
@@ -144,5 +145,7 @@ class DelegationRule(BaseModel):
     valid_from: Mapped[datetime] = mapped_column(nullable=False)
     valid_until: Mapped[datetime] = mapped_column(nullable=False)
     entity_types: Mapped[List[str]] = mapped_column(ARRAY(Text), default=list, nullable=False)
+    max_amount_threshold: Mapped[Optional[Decimal]] = mapped_column(Numeric(18, 2), nullable=True)
+    bu_ids: Mapped[List[Any]] = mapped_column(JSONB, default=list, nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     created_by: Mapped[Optional[UUID]] = mapped_column(nullable=True)

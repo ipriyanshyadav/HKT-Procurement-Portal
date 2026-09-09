@@ -10,8 +10,12 @@ from app.auth.dependencies import get_current_user
 from app.config import settings
 from app.core.responses import success_response
 from app.db.session import get_db
+from app.modules.analytics.esg_service import carbon_esg_service
 from app.modules.analytics.export_service import analytics_export_service
 from app.modules.analytics.schemas import (
+    CarbonFootprintResponse,
+    CategoryEmissionFactorCreate,
+    CategoryEmissionFactorItem,
     ClusterStatusUpdateRequest,
     ComplianceAuditResponse,
     CustomReportRequest,
@@ -19,6 +23,8 @@ from app.modules.analytics.schemas import (
     MaverickClusterResponse,
     MaverickSpendResponse,
     SpendCubeResponse,
+    SupplierESGScorecardItem,
+    SupplierESGScorecardUpdate,
 )
 from app.modules.analytics.service import analytics_service
 from app.modules.user.models import User
@@ -399,3 +405,74 @@ async def export_excel(
     return await analytics_export_service.export_excel(
         data or [], sheet_name=req.sheet_name or "Analytics", filename=filename
     )
+
+
+# ---------------------------------------------------------------------------
+# 13. Carbon ESG Footprint & Supplier Intelligence Endpoints
+# ---------------------------------------------------------------------------
+
+@router.get("/esg/footprint")
+async def get_carbon_esg_footprint(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    """GET /api/v1/analytics/esg/footprint — get full Scope 1, 2, 3 carbon footprint,
+
+    category breakdowns, supplier league table, and net-zero pathway.
+    """
+    res = await carbon_esg_service.calculate_carbon_footprint(db, current_user.org_id)
+    return success_response(res.model_dump())
+
+
+@router.post("/esg/recalculate")
+async def recalculate_carbon_footprint(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    """POST /api/v1/analytics/esg/recalculate — trigger fresh calculation of carbon emissions."""
+    res = await carbon_esg_service.calculate_carbon_footprint(db, current_user.org_id)
+    return success_response(res.model_dump())
+
+
+@router.get("/esg/emission-factors")
+async def list_carbon_emission_factors(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    """GET /api/v1/analytics/esg/emission-factors — list category carbon emission factors."""
+    res = await carbon_esg_service.get_emission_factors(db, current_user.org_id)
+    return success_response([f.model_dump() for f in res])
+
+
+@router.post("/esg/emission-factors")
+async def save_carbon_emission_factor(
+    payload: CategoryEmissionFactorCreate,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    """POST /api/v1/analytics/esg/emission-factors — configure category emission factors."""
+    res = await carbon_esg_service.save_emission_factor(db, current_user.org_id, payload)
+    return success_response(res.model_dump())
+
+
+@router.get("/esg/supplier-scorecards")
+async def list_supplier_esg_scorecards(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    """GET /api/v1/analytics/esg/supplier-scorecards — list supplier ESG scorecards."""
+    res = await carbon_esg_service.get_supplier_scorecards(db, current_user.org_id)
+    return success_response([s.model_dump() for s in res])
+
+
+@router.put("/esg/supplier-scorecards/{vendor_id}")
+async def update_supplier_esg_scorecard(
+    vendor_id: UUID,
+    payload: SupplierESGScorecardUpdate,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    """PUT /api/v1/analytics/esg/supplier-scorecards/{vendor_id} — update a vendor's ESG scores."""
+    res = await carbon_esg_service.update_supplier_scorecard(db, current_user.org_id, vendor_id, payload)
+    return success_response(res.model_dump())
+

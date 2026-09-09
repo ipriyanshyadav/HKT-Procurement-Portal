@@ -1298,4 +1298,143 @@ export interface ERPReconciliationReport {
   dead_letter_queue: ERPEntityMapping[];
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Carbon ESG Footprint Calculator & Intelligence (SPEC_07 / SPEC_25)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface CategoryEmissionFactorItem {
+  id: string;
+  category_id?: string | null;
+  category_name: string;
+  scope1_factor: number;
+  scope2_factor: number;
+  scope3_factor: number;
+  currency: string;
+  data_source: string;
+  effective_year: number;
+}
+
+export interface CategoryEmissionFactorCreate {
+  category_id?: string | null;
+  category_name: string;
+  scope1_factor?: number;
+  scope2_factor?: number;
+  scope3_factor?: number;
+  currency?: string;
+  data_source?: string;
+  effective_year?: number;
+}
+
+export interface SupplierESGScorecardItem {
+  id: string;
+  vendor_id: string;
+  vendor_name: string;
+  vendor_code: string;
+  environmental_score: number;
+  social_score: number;
+  governance_score: number;
+  composite_esg_score: number;
+  esg_rating: 'AAA' | 'AA' | 'A' | 'BBB' | 'BB' | 'B' | 'CCC' | string;
+  carbon_intensity_kg_per_spend: number;
+  sbti_committed: boolean;
+  net_zero_target_year?: number | null;
+  iso_14001_certified: boolean;
+  renewable_energy_pct: number;
+  last_audit_date?: string | null;
+  audit_notes?: string | null;
+}
+
+export interface SupplierESGScorecardUpdate {
+  environmental_score?: number;
+  social_score?: number;
+  governance_score?: number;
+  esg_rating?: string;
+  carbon_intensity_kg_per_spend?: number;
+  sbti_committed?: boolean;
+  net_zero_target_year?: number | null;
+  iso_14001_certified?: boolean;
+  renewable_energy_pct?: number;
+  audit_notes?: string;
+}
+
+export interface CarbonCategoryBreakdown {
+  category_name: string;
+  spend: number;
+  scope1_co2e_tonnes: number;
+  scope2_co2e_tonnes: number;
+  scope3_co2e_tonnes: number;
+  total_co2e_tonnes: number;
+  emission_intensity: number;
+  percentage_of_total: number;
+}
+
+export interface SupplierCarbonLeagueItem {
+  vendor_id: string;
+  vendor_name: string;
+  total_spend: number;
+  scope3_co2e_tonnes: number;
+  esg_rating: string;
+  composite_esg_score: number;
+  sbti_committed: boolean;
+  iso_14001_certified: boolean;
+  risk_level: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL' | string;
+}
+
+export interface NetZeroTrajectoryYear {
+  year: number;
+  target_co2e_tonnes: number;
+  projected_co2e_tonnes: number;
+  actual_co2e_tonnes?: number | null;
+}
+
+export interface CarbonFootprintResponse {
+  total_co2e_tonnes: number;
+  scope1_co2e_tonnes: number;
+  scope2_co2e_tonnes: number;
+  scope3_co2e_tonnes: number;
+  scope1_pct: number;
+  scope2_pct: number;
+  scope3_pct: number;
+  total_evaluated_spend: number;
+  avg_carbon_intensity_kg_per_spend: number;
+  high_risk_supplier_count: number;
+  sbti_compliant_spend_pct: number;
+  category_breakdown: CarbonCategoryBreakdown[];
+  supplier_league_table: SupplierCarbonLeagueItem[];
+  net_zero_trajectory: NetZeroTrajectoryYear[];
+  decarbonization_recommendations: string[];
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Multi-Tier Approval Delegation Matrix (SPEC_06)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface DelegationRuleResponse {
+  id: string;
+  org_id: string;
+  delegator_id: string;
+  delegate_id: string;
+  delegate_name?: string | null;
+  delegate_email?: string | null;
+  reason: string;
+  valid_from: string;
+  valid_until: string;
+  entity_types: string[];
+  max_amount_threshold?: number | null;
+  bu_ids: string[];
+  is_active: boolean;
+  created_at?: string | null;
+}
+
+export interface DelegationRuleCreateRequest {
+  delegate_id: string;
+  reason: string;
+  valid_from: string;
+  valid_until: string;
+  entity_types?: string[];
+  max_amount_threshold?: number | null;
+  bu_ids?: string[];
+}
+
+
 

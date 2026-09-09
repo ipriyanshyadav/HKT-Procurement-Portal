@@ -91,6 +91,8 @@ class TestSourcingRouter:
         rfq.cancelled_at = None
         rfq.cancel_reason = None
         rfq.source_pr_id = None
+        rfq.bidding_mode = "SEALED"
+        rfq.auction_config = None
         rfq.created_by = user_id
         rfq.created_at = datetime.now(timezone.utc)
         rfq.updated_at = datetime.now(timezone.utc)
