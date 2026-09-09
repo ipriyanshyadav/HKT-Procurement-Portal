@@ -164,4 +164,6 @@ export * from "./useAsns";
 export * from "./useTenantSwitcher";
 export * from "./useDeveloperPlatform";
 export * from "./useCompliancePosture";
-
+export * from "./useCatalogMarketplace";
+export * from "./useAISourcing";
+export * from "./useEInvoicing";

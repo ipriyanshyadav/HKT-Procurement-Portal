@@ -27,12 +27,18 @@ All three portals run simultaneously with seeded test roles. Access them directl
 - **Completed (Option A)**: Advance Shipping Notices (ASN) & Warehouse Barcode Intake fully implemented & verified (`17b65f9`).
 - **Completed (Option B)**: Multi-Tenant Active Company Switcher & Cross-Tenant Rollup fully implemented & verified (`3aa671a`).
 - **Completed (Option C)**: Developer Platform & API Key Management fully implemented & verified (`04492e3`).
-- **Completed (Option D)**: Enterprise Compliance & Security Posture Dashboard fully implemented & verified:
-  - Backend: Migration `0044_compliance_posture.py` (`compliance_policies`, `compliance_scans`, `compliance_findings`), `app/modules/compliance` (models, schemas, repository, service, router), endpoints at `/api/v1/compliance` (`/latest`, `/scan`, `/scans`, `/scans/{id}`, `/scans/{id}/attestation`, `/policies`, `/policies/{id}`).
-  - Multi-framework evaluation across live DB state: ISO 27001 (user access, role segregation), SOC 2 Type II (tamper-evident SHA-256 audit chain verification, immutable logging), DPDP Act 2023 (PAN/GSTIN tokenization, penny-drop bank masking), and CVC Guidelines (sole-source justifications, 3-quote rule).
-  - Cryptographic attestation engine generating verifiable SHA-256 certificates with digital signatures (`ATTEST-HKT-*`).
-  - Frontend: `useCompliancePosture.ts`, `CompliancePostureDashboard` component in `@procurement/ui`, Admin and Buyer Portal pages (`/compliance`), layout navigation items.
-  - Verification: 16/16 integration tests passing across all 4 modules (`test_asn_and_warehouse_intake.py`, `test_multi_tenant_company_switcher.py`, `test_developer_platform.py`, `test_compliance_posture.py`), monorepo `turbo typecheck` 0 errors.
+- **Completed (Option D)**: Enterprise Compliance & Security Posture Dashboard fully implemented & verified (`f54668b`).
+- **Completed (SPEC_14 & Enterprise Extensions)**:
+  1. **Catalog Management & PunchOut Marketplace Engine (`SPEC_14`)**:
+     - Backend: Migration `0045_punchout_and_catalog.py`, `app/modules/catalog` (cXML 1.2 & OCI 4.0 punchout sessions, internal catalog with parametric faceted search, tier volume discounting, shopping cart lifecycle, and 1-click cart-to-PR checkout). Mounted at `/api/v1/catalog`.
+     - Frontend: `useCatalogMarketplace.ts`, `CatalogMarketplace` component, Buyer Portal page (`/marketplace`).
+  2. **AI-Powered Autonomous Sourcing & Negotiation Copilot**:
+     - Backend: Migration `0046_ai_sourcing_copilot.py`, `app/modules/ai_sourcing` (Smart RFQ lot synthesis, historical pricing anomaly flags, autonomous tail-spend negotiation bot with dynamic concession strategies, supplier radar scoring matrix across Quality, ESG, Lead Time, Price Competitiveness). Mounted at `/api/v1/ai-sourcing`.
+     - Frontend: `useAISourcing.ts`, `AISourcingCopilot` component, Buyer Portal page (`/rfqs/copilot`).
+  3. **Government E-Invoicing & E-Way Bill Integration (India GST & Global Peppol)**:
+     - Backend: Migration `0047_einvoice_and_ewaybill.py`, `app/modules/einvoicing` (Rule 48(4) 64-character SHA-256 IRN hash, signed QR code generation, 24-hr cancellation window, E-Way Bill transit passes with Rule 138(10) distance validity calculation 1d/200km, ASN 1-click dispatch compliance pack generator, and Peppol BIS Billing 3.0 UBL 2.1 XML exporter). Mounted at `/api/v1/einvoicing`.
+     - Frontend: `useEInvoicing.ts`, `EInvoiceComplianceViewer` component, Buyer Portal (`/invoices/einvoice`) & Supplier Portal (`/asns/einvoice`) pages.
+- **Verification**: All 11 integration tests passing (`test_catalog_marketplace_and_punchout.py`, `test_ai_autonomous_sourcing.py`, `test_einvoicing_and_ewaybill.py`), ruff clean, `turbo typecheck` passing with 0 errors across 9 packages.
 
 
 

@@ -630,5 +630,321 @@ export interface ComplianceAttestation {
   compliance_status: string;
 }
 
+// Catalog & PunchOut Marketplace Engine (SPEC_14)
+export interface CatalogTierPricing {
+  id: string;
+  min_quantity: number;
+  unit_price: number;
+  contract_id?: string | null;
+}
 
+export interface CatalogItem {
+  id: string;
+  code: string;
+  name: string;
+  description?: string | null;
+  category_id: string;
+  category_name?: string | null;
+  uom_id: string;
+  uom_code?: string | null;
+  standard_price: number;
+  currency: string;
+  hsn_code?: string | null;
+  image_url?: string | null;
+  brand?: string | null;
+  manufacturer?: string | null;
+  lead_time_days: number;
+  min_order_qty: number;
+  specifications: Record<string, any>;
+  is_contract_item: boolean;
+  is_punchout: boolean;
+  tiers: CatalogTierPricing[];
+}
+
+export interface CatalogFacetOption {
+  value: string;
+  count: number;
+}
+
+export interface CatalogSearchResponse {
+  items: CatalogItem[];
+  total: number;
+  page: number;
+  page_size: number;
+  total_pages: number;
+  facets: {
+    categories?: CatalogFacetOption[];
+    brands?: CatalogFacetOption[];
+  };
+}
+
+export interface CartItem {
+  id: string;
+  cart_id: string;
+  item_id?: string | null;
+  item_code: string;
+  item_name: string;
+  quantity: number;
+  unit_price: number;
+  total_price: number;
+  currency: string;
+  punchout_payload?: Record<string, any> | null;
+  created_at: string;
+}
+
+export interface UserCart {
+  id: string;
+  org_id: string;
+  user_id: string;
+  currency: string;
+  status: string;
+  subtotal: number;
+  total_items: number;
+  items: CartItem[];
+}
+
+export interface CartItemAddPayload {
+  item_id?: string;
+  item_code: string;
+  item_name: string;
+  quantity: number;
+  unit_price?: number;
+  currency?: string;
+  punchout_payload?: Record<string, any>;
+}
+
+export interface CartCheckoutPayload {
+  title: string;
+  business_unit_id?: string;
+  plant_id?: string;
+  department_id?: string;
+  delivery_location_id?: string;
+  notes?: string;
+}
+
+export interface CartCheckoutResult {
+  pr_id: string;
+  pr_number: string;
+  title: string;
+  total_value: number;
+  currency: string;
+  line_count: number;
+  status: string;
+}
+
+export interface PunchoutConfig {
+  id: string;
+  org_id: string;
+  supplier_name: string;
+  protocol: 'CXML' | 'OCI';
+  inbound_url: string;
+  shared_secret: string;
+  sender_identity: string;
+  buyer_identity: string;
+  vendor_id?: string | null;
+  logo_url?: string | null;
+  is_active: boolean;
+  created_at?: string;
+}
+
+export interface PunchoutLaunchResult {
+  session_id: string;
+  session_token: string;
+  supplier_name: string;
+  protocol: string;
+  redirect_url: string;
+  form_params: Record<string, string>;
+}
+
+// AI-Powered Autonomous Sourcing & Negotiation Copilot
+export interface AiRfqDraft {
+  id: string;
+  org_id: string;
+  pr_id?: string | null;
+  rfq_title: string;
+  target_category_id?: string | null;
+  lots: Array<{
+    lot_number: number;
+    lot_name: string;
+    item_code: string;
+    quantity: number;
+    estimated_unit_price: number;
+    estimated_total: number;
+    benchmark_price: number;
+    variance_pct: number;
+    anomaly_detected: boolean;
+  }>;
+  anomaly_flags: Array<{
+    item_description: string;
+    proposed_unit_price: number;
+    benchmark_price: number;
+    variance_pct: number;
+    flag_type: string;
+    explanation: string;
+  }>;
+  estimated_total_value: number;
+  status: 'DRAFT' | 'CONVERTED' | 'DISMISSED' | string;
+  converted_rfq_id?: string | null;
+  created_at: string;
+}
+
+export interface ConvertDraftToRfqResult {
+  rfq_id: string;
+  rfq_number: string;
+  title: string;
+  status: string;
+  lot_count: number;
+  estimated_value: number;
+}
+
+export interface NegotiationRound {
+  id: string;
+  session_id: string;
+  round_number: number;
+  bidder_type: 'VENDOR' | 'AI_BOT' | string;
+  offer_price: number;
+  counter_offer_price?: number | null;
+  concession_amount: number;
+  rationale: string;
+  response_payload: Record<string, any>;
+  created_at: string;
+}
+
+export interface NegotiationSession {
+  id: string;
+  org_id: string;
+  rfq_id?: string | null;
+  vendor_id: string;
+  vendor_name?: string | null;
+  item_description: string;
+  initial_quote_price: number;
+  target_price: number;
+  max_acceptable_price: number;
+  current_bid_price: number;
+  bot_status: 'ACTIVE' | 'CONCLUDED_SUCCESS' | 'CONCLUDED_WALKAWAY' | 'PAUSED' | string;
+  current_round: number;
+  max_rounds: number;
+  savings_achieved: number;
+  concession_strategy: 'AGGRESSIVE' | 'BALANCED' | 'COLLABORATIVE' | string;
+  rounds: NegotiationRound[];
+  created_at: string;
+}
+
+export interface SupplierRadarScore {
+  id: string;
+  org_id: string;
+  vendor_id: string;
+  vendor_name?: string | null;
+  category_id?: string | null;
+  category_name?: string | null;
+  overall_fit_score: number;
+  quality_score: number;
+  esg_score: number;
+  lead_time_score: number;
+  price_competitiveness_score: number;
+  recommendation_tier: 'PREFERRED' | 'RECOMMENDED' | 'ACCEPTABLE' | 'HIGH_RISK' | string;
+  insights: {
+    strengths?: string[];
+    risk_factors?: string[];
+    recommended_negotiation_headroom_pct?: number;
+  };
+  calculated_at: string;
+}
+
+export interface StartNegotiationPayload {
+  vendor_id: string;
+  item_description: string;
+  initial_quote_price: number;
+  target_price: number;
+  max_acceptable_price: number;
+  rfq_id?: string;
+  concession_strategy?: 'AGGRESSIVE' | 'BALANCED' | 'COLLABORATIVE';
+}
+
+export interface SubmitCounterPayload {
+  session_id: string;
+  vendor_counter_price: number;
+  vendor_message?: string;
+}
+
+// ==========================================
+// E-Invoicing & E-Way Bill (NIC GST & Peppol)
+// ==========================================
+
+export interface EInvoice {
+  id: string;
+  org_id: string;
+  invoice_id?: string | null;
+  asn_id?: string | null;
+  seller_gstin: string;
+  buyer_gstin: string;
+  doc_number: string;
+  doc_type: string;
+  financial_year: string;
+  irn: string;
+  ack_number: string;
+  ack_date: string;
+  total_invoice_value: number;
+  total_tax_value: number;
+  signed_invoice: string;
+  signed_qr_code: string;
+  status: 'GENERATED' | 'CANCELLED' | string;
+  cancellation_reason?: string | null;
+  peppol_xml?: string | null;
+  created_at: string;
+}
+
+export interface EWayBill {
+  id: string;
+  org_id: string;
+  e_invoice_id?: string | null;
+  asn_id?: string | null;
+  ewb_number: string;
+  ewb_date: string;
+  valid_until: string;
+  transporter_id?: string | null;
+  transporter_name?: string | null;
+  vehicle_number: string;
+  distance_km: number;
+  from_pincode: string;
+  to_pincode: string;
+  status: 'ACTIVE' | 'CANCELLED' | 'EXPIRED' | string;
+  created_at: string;
+}
+
+export interface GenerateEInvoicePayload {
+  seller_gstin: string;
+  buyer_gstin: string;
+  doc_number: string;
+  doc_type?: string;
+  total_invoice_value: number;
+  total_tax_value?: number;
+  invoice_id?: string;
+  asn_id?: string;
+  items?: Array<Record<string, any>>;
+}
+
+export interface CancelEInvoicePayload {
+  irn: string;
+  cancellation_reason: string;
+  cancellation_remarks?: string;
+}
+
+export interface GenerateEWayBillPayload {
+  vehicle_number: string;
+  from_pincode: string;
+  to_pincode: string;
+  distance_km: number;
+  transporter_id?: string;
+  transporter_name?: string;
+  e_invoice_id?: string;
+  asn_id?: string;
+}
+
+export interface AsnDispatchComplianceResult {
+  asn_id: string;
+  asn_number: string;
+  e_invoice: EInvoice;
+  e_way_bill: EWayBill;
+}
 

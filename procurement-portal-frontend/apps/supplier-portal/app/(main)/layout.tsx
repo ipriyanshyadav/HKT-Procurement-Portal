@@ -50,6 +50,12 @@ export default function SupplierMainLayout({ children }: { children: ReactNode }
       section: "Finance",
     },
     {
+      label: "E-Invoicing & E-Way Bills",
+      href: "/asns/einvoice",
+      icon: <FileText className="w-4 h-4 text-emerald-400" />,
+      section: "Finance",
+    },
+    {
       label: "Dispute Inbox",
       href: "/invoices/disputes",
       icon: <AlertCircle className="w-4 h-4" />,

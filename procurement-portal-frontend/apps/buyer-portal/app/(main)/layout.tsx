@@ -4,7 +4,7 @@ import React, { ReactNode } from "react";
 import { useAuthInit, useCurrentUser, useLogout } from "@procurement/hooks";
 import { useAuthStore } from "@procurement/stores";
 import { AppShell, CompanySwitcher, NotificationBell } from "@procurement/ui";
-import { ShoppingCart, CheckSquare, FileQuestion, Users, FileText, FileCheck, Package, Receipt, CreditCard, Truck, AlertCircle, BarChart2, PieChart, Award, LifeBuoy, Kanban, UserCheck, Ticket, ShieldAlert, Barcode, Globe, ShieldCheck } from "lucide-react";
+import { ShoppingCart, CheckSquare, FileQuestion, Users, FileText, FileCheck, Package, Receipt, CreditCard, Truck, AlertCircle, BarChart2, PieChart, Award, LifeBuoy, Kanban, UserCheck, Ticket, ShieldAlert, Barcode, Globe, ShieldCheck, Sparkles } from "lucide-react";
 
 export default function BuyerMainLayout({ children }: { children: ReactNode }) {
   const { isInitializing } = useAuthInit();
@@ -32,6 +32,12 @@ export default function BuyerMainLayout({ children }: { children: ReactNode }) {
       section: "Purchasing",
     },
     {
+      label: "Marketplace & Catalogs",
+      href: "/marketplace",
+      icon: <Package className="w-4 h-4" />,
+      section: "Purchasing",
+    },
+    {
       label: "Purchase Orders",
       href: "/purchase-orders",
       icon: <Package className="w-4 h-4" />,
@@ -56,6 +62,12 @@ export default function BuyerMainLayout({ children }: { children: ReactNode }) {
       section: "Purchasing",
     },
     {
+      label: "E-Invoicing & E-Way Bills",
+      href: "/invoices/einvoice",
+      icon: <FileText className="w-4 h-4 text-emerald-400" />,
+      section: "Purchasing",
+    },
+    {
       label: "Dispute Inbox",
       href: "/invoices/disputes",
       icon: <AlertCircle className="w-4 h-4" />,
@@ -66,6 +78,12 @@ export default function BuyerMainLayout({ children }: { children: ReactNode }) {
       href: "/payments",
       icon: <CreditCard className="w-4 h-4" />,
       section: "Purchasing",
+    },
+    {
+      label: "AI Sourcing Copilot",
+      href: "/rfqs/copilot",
+      icon: <Sparkles className="w-4 h-4 text-purple-400" />,
+      section: "Sourcing",
     },
     {
       label: "RFQs & Tenders",

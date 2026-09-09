@@ -47,16 +47,19 @@ from app.core.telemetry import setup_telemetry
 from app.modules.admin.router import router as admin_router
 from app.modules.analytics.router import router as analytics_router
 from app.modules.approval_rules.router import router as approval_rules_router
+from app.modules.ai_sourcing.router import router as ai_sourcing_router
 from app.modules.asn.router import router as asn_router
 from app.modules.audit.router import router as audit_router
 from app.modules.award.router import router as award_router
 from app.modules.bid.auction_router import router as live_auction_router
 from app.modules.bid.auction_ws import auction_ws_endpoint
 from app.modules.bid.router import router as bid_router
+from app.modules.catalog.router import router as catalog_router
 from app.modules.compliance.router import router as compliance_router
 from app.modules.contract.router import router as contract_router
 from app.modules.developer.router import router as developer_router
 from app.modules.document.router import router as document_router
+from app.modules.einvoicing.router import router as einvoicing_router
 from app.modules.evaluation.router import router as evaluation_router
 from app.modules.grn.router import router as grn_router
 from app.modules.integration.router import router as integration_router
@@ -283,6 +286,9 @@ def create_app() -> FastAPI:
     api_router.include_router(developer_router, prefix="/developer")
     api_router.include_router(audit_router, prefix="/audit")
     api_router.include_router(compliance_router, prefix="/compliance")
+    api_router.include_router(catalog_router, prefix="/catalog")
+    api_router.include_router(ai_sourcing_router, prefix="/ai-sourcing")
+    api_router.include_router(einvoicing_router, prefix="/einvoicing")
 
     app.include_router(api_router)
     app.include_router(live_auction_router, prefix="/api/v1")

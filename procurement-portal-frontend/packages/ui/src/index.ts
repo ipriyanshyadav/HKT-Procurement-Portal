@@ -225,4 +225,11 @@ export { DeveloperPlatformDashboard } from "./components/DeveloperPlatformDashbo
 // Enterprise Compliance & Security Posture Dashboard
 export { CompliancePostureDashboard } from "./components/CompliancePostureDashboard";
 
+// Catalog & PunchOut Marketplace (SPEC_14)
+export { CatalogMarketplace } from "./components/CatalogMarketplace";
 
+// AI-Powered Autonomous Sourcing & Negotiation Copilot
+export { AISourcingCopilot } from "./components/AISourcingCopilot";
+
+// Government E-Invoicing & E-Way Bill Integration (India GST & Global Peppol)
+export { EInvoiceComplianceViewer } from "./components/EInvoiceComplianceViewer";
