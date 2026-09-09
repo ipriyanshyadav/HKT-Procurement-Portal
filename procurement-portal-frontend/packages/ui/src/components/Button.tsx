@@ -3,9 +3,11 @@
 import React, { forwardRef, ButtonHTMLAttributes, ReactNode } from 'react';
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'ghost' | 'destructive' | 'icon';
+  variant?: 'primary' | 'secondary' | 'ghost' | 'destructive' | 'danger' | 'outline' | 'icon';
   size?: 'sm' | 'md' | 'lg';
   icon?: ReactNode;
+  leftIcon?: ReactNode;
+  rightIcon?: ReactNode;
   children?: ReactNode;
   loading?: boolean;
 }
@@ -16,6 +18,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       variant = 'primary',
       size = 'md',
       icon,
+      leftIcon,
+      rightIcon,
       children,
       loading = false,
       disabled,
@@ -26,16 +30,16 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     let variantClass = 'btn-primary';
-    if (variant === 'secondary') variantClass = 'btn-secondary';
+    if (variant === 'secondary' || variant === 'outline') variantClass = 'btn-secondary';
     else if (variant === 'ghost') variantClass = 'btn-ghost';
-    else if (variant === 'destructive') variantClass = 'btn-destructive';
+    else if (variant === 'destructive' || variant === 'danger') variantClass = 'btn-destructive';
     else if (variant === 'icon') variantClass = 'btn-icon';
 
-    let sizeClass = '';
-    if (variant !== 'icon') {
-      if (size === 'sm') sizeClass = '!py-1.5 !px-3.5 !text-xs';
-      else if (size === 'lg') sizeClass = '!py-3 !px-6 !text-base';
-    }
+    let sizeClass = 'btn-md';
+    if (size === 'sm') sizeClass = 'btn-sm';
+    else if (size === 'lg') sizeClass = 'btn-lg';
+
+    const effectiveLeftIcon = leftIcon || icon;
 
     return (
       <button
@@ -48,9 +52,10 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {loading ? (
           <span className="inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin mr-1.5" />
         ) : (
-          icon && <span className="inline-flex items-center">{icon}</span>
+          effectiveLeftIcon && <span className="inline-flex items-center mr-1.5">{effectiveLeftIcon}</span>
         )}
         {children}
+        {rightIcon && <span className="inline-flex items-center ml-1.5">{rightIcon}</span>}
       </button>
     );
   }

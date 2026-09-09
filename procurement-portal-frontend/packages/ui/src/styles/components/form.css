@@ -5,13 +5,13 @@
   font-size: 14px;
   font-family: inherit;
   color: var(--apple-label-primary);
-  background: var(--apple-fill-quaternary);
-  border: 0.5px solid var(--apple-separator);
+  background: var(--apple-bg-primary);
+  border: 1px solid var(--apple-separator);
   border-radius: 8px;
   outline: none;
   transition: border-color 200ms var(--apple-ease),
               box-shadow 200ms var(--apple-ease),
-              background 200ms var(--apple-ease);
+              background-color 200ms var(--apple-ease);
   appearance: none;
 }
 
@@ -22,29 +22,35 @@
 .apple-input:focus {
   background: var(--apple-bg-primary);
   border-color: var(--apple-blue);
-  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.20);
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.25);
 }
 
 .dark .apple-input,
 .theme-apple-dark .apple-input,
 [data-theme='apple-dark'] .apple-input {
-  background: rgba(118, 118, 128, 0.16);
-  border-color: rgba(255, 255, 255, 0.10);
+  background: var(--apple-bg-well);
+  border-color: var(--apple-separator);
   color: #FFFFFF;
+}
+
+.dark .apple-input::placeholder,
+.theme-apple-dark .apple-input::placeholder,
+[data-theme='apple-dark'] .apple-input::placeholder {
+  color: var(--apple-label-tertiary);
 }
 
 .dark .apple-input:focus,
 .theme-apple-dark .apple-input:focus,
 [data-theme='apple-dark'] .apple-input:focus {
-  background: rgba(44, 44, 46, 0.8);
+  background: #2C2C32;
   border-color: var(--apple-blue);
 }
 
 .dark .apple-select,
 .theme-apple-dark .apple-select,
-[data-theme='apple-dark'] .apple-select {
-  background-color: rgba(118, 118, 128, 0.16);
-  border-color: rgba(255, 255, 255, 0.10);
+[data-theme='apple-select'] .apple-select {
+  background-color: var(--apple-bg-well);
+  border-color: var(--apple-separator);
   color: #FFFFFF;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23AEAEB2' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
 }
@@ -52,7 +58,7 @@
 .dark .apple-select:focus,
 .theme-apple-dark .apple-select:focus,
 [data-theme='apple-dark'] .apple-select:focus {
-  background-color: rgba(44, 44, 46, 0.8);
+  background-color: #2C2C32;
   border-color: var(--apple-blue);
 }
 
@@ -92,8 +98,8 @@
   font-size: 14px;
   font-family: inherit;
   color: var(--apple-label-primary);
-  background-color: var(--apple-fill-quaternary);
-  border: 0.5px solid var(--apple-separator);
+  background-color: var(--apple-bg-primary);
+  border: 1px solid var(--apple-separator);
   border-radius: 8px;
   outline: none;
   appearance: none;
@@ -106,7 +112,7 @@
 
 .apple-select:focus {
   border-color: var(--apple-blue);
-  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.20);
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.25);
 }
 
 /* Toggle / Checkbox */

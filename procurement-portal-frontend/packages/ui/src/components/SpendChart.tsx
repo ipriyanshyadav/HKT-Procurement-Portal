@@ -112,11 +112,11 @@ export function SpendChart({
         </div>
 
         {showBreakdownSelector && onBreakdownChange && (
-          <div className="inline-flex rounded-xl bg-neutral-100 dark:bg-neutral-800 p-1 self-start sm:self-auto">
+          <div className="flex w-full sm:w-auto items-center min-w-[320px] rounded-xl bg-neutral-100 dark:bg-neutral-800 p-1 self-stretch sm:self-auto gap-1 shadow-xs">
             <button
               type="button"
               onClick={() => onBreakdownChange('category')}
-              className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
+              className={`flex-1 py-2 px-4 text-xs font-semibold rounded-lg transition-all text-center justify-center flex items-center ${
                 activeBreakdown === 'category'
                   ? 'bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white shadow-sm'
                   : 'text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white'
@@ -127,7 +127,7 @@ export function SpendChart({
             <button
               type="button"
               onClick={() => onBreakdownChange('bu')}
-              className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
+              className={`flex-1 py-2 px-4 text-xs font-semibold rounded-lg transition-all text-center justify-center flex items-center ${
                 activeBreakdown === 'bu'
                   ? 'bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white shadow-sm'
                   : 'text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white'
@@ -138,7 +138,7 @@ export function SpendChart({
             <button
               type="button"
               onClick={() => onBreakdownChange('vendor')}
-              className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
+              className={`flex-1 py-2 px-4 text-xs font-semibold rounded-lg transition-all text-center justify-center flex items-center ${
                 activeBreakdown === 'vendor'
                   ? 'bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white shadow-sm'
                   : 'text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white'

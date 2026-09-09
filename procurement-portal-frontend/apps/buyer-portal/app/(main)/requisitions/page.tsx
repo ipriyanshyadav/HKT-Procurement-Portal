@@ -106,11 +106,11 @@ export default function RequisitionsListPage() {
       <div className="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 space-y-4">
         <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
           {/* Scope Segmented Control */}
-          <div className="flex bg-gray-100 dark:bg-slate-800 p-1 rounded-lg">
+          <div className="flex w-full md:w-auto min-w-[360px] bg-gray-100 dark:bg-slate-800 p-1.5 rounded-xl gap-1">
             <button
               type="button"
               onClick={() => { setScope("mine"); setPage(1); }}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
+              className={`flex-1 px-3 py-2 text-xs font-semibold rounded-lg text-center justify-center flex items-center transition-all ${
                 scope === "mine" ? "bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm" : "text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white"
               }`}
             >
@@ -119,7 +119,7 @@ export default function RequisitionsListPage() {
             <button
               type="button"
               onClick={() => { setScope("bu"); setPage(1); }}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
+              className={`flex-1 px-3 py-2 text-xs font-semibold rounded-lg text-center justify-center flex items-center transition-all ${
                 scope === "bu" ? "bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm" : "text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white"
               }`}
             >
@@ -128,7 +128,7 @@ export default function RequisitionsListPage() {
             <button
               type="button"
               onClick={() => { setScope("all"); setPage(1); }}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
+              className={`flex-1 px-3 py-2 text-xs font-semibold rounded-lg text-center justify-center flex items-center transition-all ${
                 scope === "all" ? "bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm" : "text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white"
               }`}
             >

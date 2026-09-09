@@ -2,7 +2,15 @@ import { useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@procurement/utils";
 import { useAuthStore, useNotificationStore } from "@procurement/stores";
-import type { NotificationItem, NotificationPreference } from "@procurement/types";
+import type {
+  NotificationItem,
+  NotificationPreference,
+  NotificationTemplateItem,
+  NotificationTemplateCreatePayload,
+  NotificationTemplateUpdatePayload,
+  NotificationTemplatePreviewPayload,
+  NotificationTemplatePreviewResult,
+} from "@procurement/types";
 
 export interface NotificationsListResponse {
   data: NotificationItem[];
@@ -226,3 +234,118 @@ export function useUpdateNotificationPreferences() {
     },
   });
 }
+
+export interface NotificationTemplatesResponse {
+  data: NotificationTemplateItem[];
+  meta: {
+    page: number;
+    page_size: number;
+    total: number;
+    total_pages: number;
+  };
+}
+
+export function useNotificationTemplates(params?: {
+  channel?: string;
+  language?: string;
+  search?: string;
+  is_active?: boolean;
+  page?: number;
+  page_size?: number;
+}) {
+  return useQuery({
+    queryKey: ["notificationTemplates", params],
+    queryFn: async () => {
+      const res = await apiClient.get<NotificationTemplatesResponse>("/notifications/templates", {
+        params: {
+          channel: params?.channel || undefined,
+          language: params?.language || undefined,
+          search: params?.search || undefined,
+          is_active: params?.is_active !== undefined ? params.is_active : undefined,
+          page: params?.page || 1,
+          page_size: params?.page_size || 50,
+        },
+      });
+      return res.data;
+    },
+  });
+}
+
+export function useNotificationTemplate(templateId?: string) {
+  return useQuery({
+    queryKey: ["notificationTemplate", templateId],
+    queryFn: async () => {
+      if (!templateId) return null;
+      const res = await apiClient.get<{ data: NotificationTemplateItem }>(`/notifications/templates/${templateId}`);
+      return res.data.data;
+    },
+    enabled: !!templateId,
+  });
+}
+
+export function useCreateNotificationTemplate() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (payload: NotificationTemplateCreatePayload) => {
+      const res = await apiClient.post<{ data: NotificationTemplateItem }>("/notifications/templates", payload);
+      return res.data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notificationTemplates"] });
+    },
+  });
+}
+
+export function useUpdateNotificationTemplate() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      templateId,
+      payload,
+    }: {
+      templateId: string;
+      payload: NotificationTemplateUpdatePayload;
+    }) => {
+      const res = await apiClient.put<{ data: NotificationTemplateItem }>(
+        `/notifications/templates/${templateId}`,
+        payload
+      );
+      return res.data.data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["notificationTemplates"] });
+      queryClient.invalidateQueries({ queryKey: ["notificationTemplate", variables.templateId] });
+    },
+  });
+}
+
+export function useDeleteNotificationTemplate() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (templateId: string) => {
+      const res = await apiClient.delete<{ data: { message: string } }>(
+        `/notifications/templates/${templateId}`
+      );
+      return res.data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notificationTemplates"] });
+    },
+  });
+}
+
+export function usePreviewNotificationTemplate() {
+  return useMutation({
+    mutationFn: async (payload: NotificationTemplatePreviewPayload) => {
+      const res = await apiClient.post<{ data: NotificationTemplatePreviewResult }>(
+        "/notifications/templates/preview",
+        payload
+      );
+      return res.data.data;
+    },
+  });
+}
+

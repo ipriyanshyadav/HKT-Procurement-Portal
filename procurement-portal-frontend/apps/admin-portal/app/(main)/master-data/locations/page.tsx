@@ -7,16 +7,24 @@ import {
   useCreateLocation,
   useUpdateLocation,
   useDeleteLocation,
+  usePlants,
   type DeliveryLocation,
 } from "@procurement/hooks";
 import { Badge, Button, PermissionGuard } from "@procurement/ui";
-import { MapPin, Plus, Search, Edit2, Trash2, ArrowLeft } from "lucide-react";
+import { MapPin, Plus, Search, Edit2, Trash2, ArrowLeft, Factory } from "lucide-react";
 
 export default function DeliveryLocationsManagementPage() {
   const { data: locations = [], isLoading, error } = useDeliveryLocations({ active_only: false });
+  const { data: plants = [] } = usePlants({ active_only: false });
   const createMutation = useCreateLocation();
   const updateMutation = useUpdateLocation();
   const deleteMutation = useDeleteLocation();
+
+  const plantMap = useMemo(() => {
+    const map = new Map<string, string>();
+    plants.forEach((p) => map.set(p.id, `${p.name} (${p.code})`));
+    return map;
+  }, [plants]);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
@@ -249,8 +257,17 @@ export default function DeliveryLocationsManagementPage() {
                     <td className="px-4 py-3 font-mono text-gray-600 dark:text-neutral-400">
                       {item.country_code}
                     </td>
-                    <td className="px-4 py-3 font-mono text-gray-500 dark:text-neutral-500">
-                      {item.plant_id || "—"}
+                    <td className="px-4 py-3 text-xs">
+                      {item.plant_id ? (
+                        <div className="flex items-center gap-1 text-gray-700 dark:text-gray-300">
+                          <Factory className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                          <span className="truncate max-w-[140px]" title={plantMap.get(item.plant_id) || item.plant_id}>
+                            {plantMap.get(item.plant_id) || item.plant_id}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-gray-400 font-mono">—</span>
+                      )}
                     </td>
                     <td className="px-4 py-3">
                       <Badge variant={item.is_active ? "approved" : "draft"}>
@@ -416,15 +433,20 @@ export default function DeliveryLocationsManagementPage() {
                 </div>
                 <div>
                   <label className="block font-medium text-gray-700 dark:text-neutral-300 mb-1">
-                    Plant ID (Optional)
+                    Associated Plant / Facility (Optional)
                   </label>
-                  <input
-                    type="text"
+                  <select
                     value={plantId}
                     onChange={(e) => setPlantId(e.target.value)}
-                    placeholder="e.g. 1001"
-                    className="w-full border border-gray-300 dark:border-neutral-700 rounded-md px-3 py-1.5 font-mono uppercase bg-gray-50 dark:bg-neutral-800 text-gray-900 dark:text-white"
-                  />
+                    className="w-full border border-gray-300 dark:border-neutral-700 rounded-md px-3 py-1.5 bg-gray-50 dark:bg-neutral-800 text-gray-900 dark:text-white"
+                  >
+                    <option value="">None / Standalone Dock</option>
+                    {plants.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name} ({p.code})
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
 

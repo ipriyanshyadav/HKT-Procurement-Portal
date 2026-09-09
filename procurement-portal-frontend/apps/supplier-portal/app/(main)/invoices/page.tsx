@@ -139,45 +139,45 @@ export default function SupplierInvoicesPage() {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
-        <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-xs">
+        <div className="bg-white dark:bg-[#1C1C1F] p-4 rounded-2xl border border-slate-200 dark:border-white/15 shadow-sm">
           <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Submitted</span>
-          <p className="text-2xl font-bold text-slate-900 dark:text-white mt-1">{kpis.total}</p>
+          <p className="text-2xl font-bold font-mono text-slate-900 dark:text-white mt-1">{kpis.total}</p>
         </div>
-        <div className="bg-blue-50/50 dark:bg-blue-950/30 backdrop-blur-md p-4 rounded-2xl border border-blue-200/80 dark:border-blue-800/60 shadow-xs">
-          <span className="text-xs font-semibold uppercase tracking-wider text-blue-700 dark:text-blue-300">Under Review</span>
-          <p className="text-2xl font-bold text-blue-900 dark:text-blue-200 mt-1">{kpis.submitted}</p>
+        <div className="bg-white dark:bg-[#1C1C1F] p-4 rounded-2xl border border-slate-200 dark:border-white/15 shadow-sm">
+          <span className="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">Under Review</span>
+          <p className="text-2xl font-bold font-mono text-blue-600 dark:text-blue-400 mt-1">{kpis.submitted}</p>
         </div>
-        <div className="bg-emerald-50/50 dark:bg-emerald-950/30 backdrop-blur-md p-4 rounded-2xl border border-emerald-200/80 dark:border-emerald-800/60 shadow-xs">
-          <span className="text-xs font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-300">Approved</span>
-          <p className="text-2xl font-bold text-emerald-900 dark:text-emerald-200 mt-1">{kpis.approved}</p>
+        <div className="bg-white dark:bg-[#1C1C1F] p-4 rounded-2xl border border-slate-200 dark:border-white/15 shadow-sm">
+          <span className="text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Approved</span>
+          <p className="text-2xl font-bold font-mono text-emerald-600 dark:text-emerald-400 mt-1">{kpis.approved}</p>
         </div>
-        <div className="bg-purple-50/50 dark:bg-purple-950/30 backdrop-blur-md p-4 rounded-2xl border border-purple-200/80 dark:border-purple-800/60 shadow-xs">
-          <span className="text-xs font-semibold uppercase tracking-wider text-purple-700 dark:text-purple-300">Settled / Paid</span>
-          <p className="text-2xl font-bold text-purple-900 dark:text-purple-200 mt-1">{kpis.paid}</p>
+        <div className="bg-white dark:bg-[#1C1C1F] p-4 rounded-2xl border border-slate-200 dark:border-white/15 shadow-sm">
+          <span className="text-xs font-semibold uppercase tracking-wider text-purple-600 dark:text-purple-400">Settled / Paid</span>
+          <p className="text-2xl font-bold font-mono text-purple-600 dark:text-purple-400 mt-1">{kpis.paid}</p>
         </div>
-        <div className="bg-rose-50/50 dark:bg-rose-950/30 backdrop-blur-md p-4 rounded-2xl border border-rose-200/80 dark:border-rose-800/60 shadow-xs">
-          <span className="text-xs font-semibold uppercase tracking-wider text-rose-700 dark:text-rose-300">Disputed</span>
-          <p className="text-2xl font-bold text-rose-900 dark:text-rose-200 mt-1">{kpis.disputed}</p>
+        <div className="bg-white dark:bg-[#1C1C1F] p-4 rounded-2xl border border-slate-200 dark:border-white/15 shadow-sm">
+          <span className="text-xs font-semibold uppercase tracking-wider text-rose-600 dark:text-rose-400">Disputed</span>
+          <p className="text-2xl font-bold font-mono text-rose-600 dark:text-rose-400 mt-1">{kpis.disputed}</p>
         </div>
       </div>
 
       {/* Search & Filters */}
-      <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md rounded-2xl border border-slate-200/80 dark:border-slate-800/80 p-4 shadow-xs flex flex-col sm:flex-row gap-3 items-center justify-between">
+      <div className="bg-white dark:bg-[#1C1C1F] rounded-2xl border border-slate-200 dark:border-white/15 p-4 shadow-sm flex flex-col sm:flex-row gap-3 items-center justify-between">
         <div className="relative w-full sm:w-80">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+          <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400 dark:text-slate-500" />
           <input
             type="text"
             placeholder="Search invoice number..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 border border-slate-200 dark:border-slate-700 rounded-xl text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full pl-9 pr-4 py-2 border border-slate-200 dark:border-white/15 rounded-xl text-sm bg-white dark:bg-[#252529] text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
         </div>
 
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="w-full sm:w-auto px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl text-sm bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="w-full sm:w-auto px-3 py-2 border border-slate-200 dark:border-white/15 rounded-xl text-sm bg-white dark:bg-[#252529] text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
         >
           <option value="">All Statuses</option>
           <option value="SUBMITTED">Submitted</option>
@@ -189,13 +189,13 @@ export default function SupplierInvoicesPage() {
       </div>
 
       {/* Table */}
-      <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md rounded-2xl border border-slate-200/80 dark:border-slate-800/80 overflow-hidden shadow-xs">
+      <div className="bg-white dark:bg-[#1C1C1F] rounded-2xl border border-slate-200 dark:border-white/15 overflow-hidden shadow-sm">
         {isLoading ? (
-          <div className="py-16 text-center text-slate-400">Loading your invoices...</div>
+          <div className="py-16 text-center text-slate-400 dark:text-slate-500">Loading your invoices...</div>
         ) : isError ? (
           <div className="py-16 text-center text-rose-500">Failed to load invoices.</div>
         ) : invoices.length === 0 ? (
-          <div className="py-16 text-center text-slate-400 space-y-3">
+          <div className="py-16 text-center text-slate-400 dark:text-slate-500 space-y-3">
             <Receipt className="h-10 w-10 mx-auto text-slate-300 dark:text-slate-600" />
             <p className="text-slate-500 dark:text-slate-400">No invoices submitted yet.</p>
             <Link
@@ -208,8 +208,8 @@ export default function SupplierInvoicesPage() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-800 text-xs">
-              <thead className="bg-slate-50/80 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 font-semibold uppercase tracking-wider">
+            <table className="min-w-full divide-y divide-slate-100 dark:divide-white/10 text-xs">
+              <thead className="bg-slate-50 dark:bg-[#252529] text-slate-600 dark:text-slate-300 font-semibold uppercase tracking-wider border-b border-slate-200 dark:border-white/10">
                 <tr>
                   <th className="py-3.5 pl-4 pr-3 text-left">Invoice Ref</th>
                   <th className="px-3 py-3.5 text-left">Your Invoice # / FY</th>
@@ -220,12 +220,17 @@ export default function SupplierInvoicesPage() {
                   <th className="px-3 py-3.5 text-left">Payment Due Date</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800 bg-white dark:bg-slate-900">
+              <tbody className="divide-y divide-slate-100 dark:divide-white/10 bg-white dark:bg-[#1C1C1F]">
                 {invoices.map((inv: InvoiceResponse) => (
-                  <tr key={inv.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
+                  <tr key={inv.id} className="hover:bg-slate-50 dark:hover:bg-white/[0.04] transition-colors">
                     <td className="py-3.5 pl-4 pr-3 font-semibold text-slate-900 dark:text-white">
-                      {inv.invoice_number}
-                      <div className="text-[11px] text-slate-400 dark:text-slate-500 font-mono mt-0.5">
+                      <Link
+                        href={`/invoices/${inv.id}`}
+                        className="hover:text-indigo-600 dark:hover:text-indigo-400 hover:underline"
+                      >
+                        {inv.invoice_number}
+                      </Link>
+                      <div className="text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">
                         {inv.invoice_date}
                       </div>
                     </td>
@@ -236,9 +241,12 @@ export default function SupplierInvoicesPage() {
                     </td>
 
                     <td className="px-3 py-3.5">
-                      <div className="font-medium text-indigo-600 dark:text-indigo-400">
+                      <Link
+                        href={`/purchase-orders/${inv.po_id}`}
+                        className="font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 hover:underline"
+                      >
                         {inv.po_number || inv.po_id.slice(0, 8)}
-                      </div>
+                      </Link>
                     </td>
 
                     <td className="px-3 py-3.5 text-right font-mono font-bold text-slate-900 dark:text-white">

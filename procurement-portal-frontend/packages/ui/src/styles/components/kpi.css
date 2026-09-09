@@ -7,7 +7,8 @@
   border-radius: 12px;
   overflow: hidden;
   margin: 20px 0;
-  border: 0.5px solid var(--apple-separator);
+  border: 1px solid var(--apple-separator);
+  box-shadow: var(--apple-card-shadow);
 }
 
 .kpi-item {
@@ -36,5 +37,5 @@
 .dark .kpi-item,
 .theme-apple-dark .kpi-item,
 [data-theme='apple-dark'] .kpi-item {
-  background: var(--apple-bg-secondary);
+  background: var(--apple-bg-card);
 }

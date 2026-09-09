@@ -14,6 +14,7 @@ from app.db.session import get_db
 from app.modules.user.models import User, DelegationRule
 from app.modules.user.repository import user_repository, delegation_repository
 from app.modules.user.role_repository import role_repository
+from app.modules.user.session_repository import session_repository
 from app.modules.audit.service import audit_service
 from app.core.constants import PermissionCode
 from app.db.enums import UserStatusEnum
@@ -85,6 +86,34 @@ class UserUpdateRequest(BaseModel):
 
 class AssignRoleRequest(BaseModel):
     role_code: str
+
+
+class RoleCreateRequest(BaseModel):
+    code: str
+    name: str
+    description: Optional[str] = None
+    is_supplier_role: bool = False
+    permission_codes: Optional[list[str]] = None
+
+
+class RoleUpdateRequest(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    is_active: Optional[bool] = None
+
+
+class RolePermissionsUpdateRequest(BaseModel):
+    permission_codes: list[str]
+
+
+class ToggleRolePermissionRequest(BaseModel):
+    role_code: str
+    permission_code: str
+    granted: bool
+
+
+class RevokeSessionRequest(BaseModel):
+    reason: Optional[str] = "Revoked by Administrator"
 
 
 @router.get("/me")
@@ -310,27 +339,345 @@ async def list_roles(
     current_user: User = Depends(require_permission(PermissionCode.USER_VIEW_ALL)),
     db: AsyncSession = Depends(get_db),
 ) -> dict:
-    """GET /api/v1/users/roles — list available roles in the organization."""
-    from sqlalchemy import select
-    from app.modules.user.models import Role
-    stmt = select(Role).where(
-        Role.org_id == current_user.org_id,
-        Role.is_active.is_(True),
-        Role.deleted_at.is_(None),
-    )
-    res = await db.execute(stmt)
-    roles = res.scalars().all()
-    roles_data = [
-        {
-            "id": str(r.id),
-            "code": r.code,
-            "name": r.name,
-            "description": r.description,
-        }
-        for r in roles
-    ]
+    """GET /api/v1/users/roles — list available roles with descriptions, access scope, and permissions."""
+    roles_data = await role_repository.get_roles_with_permissions(db, current_user.org_id)
     meta = PaginationMeta(total=len(roles_data), page=1, page_size=len(roles_data) or 20)
     return success_response(roles_data, meta=meta)
+
+
+@router.post("/roles")
+async def create_role(
+    data: RoleCreateRequest,
+    current_user: User = Depends(require_permission(PermissionCode.USER_MANAGE_PERMISSIONS)),
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    """POST /api/v1/users/roles — create a new role with description and permissions."""
+    from sqlalchemy import select
+    from app.modules.user.models import Role, RolePermission, Permission
+
+    code = data.code.strip().upper()
+    stmt = select(Role).where(
+        Role.code == code,
+        Role.org_id == current_user.org_id,
+        Role.deleted_at.is_(None),
+    )
+    existing = (await db.execute(stmt)).scalar_one_or_none()
+    if existing:
+        raise AppException(f"Role code '{code}' already exists", "CONFLICT")
+
+    role = Role(
+        org_id=current_user.org_id,
+        code=code,
+        name=data.name.strip(),
+        description=data.description,
+        is_system_role=False,
+        is_supplier_role=data.is_supplier_role,
+        is_active=True,
+    )
+    db.add(role)
+    await db.flush()
+
+    if data.permission_codes:
+        for p_code in data.permission_codes:
+            perm_stmt = select(Permission).where(Permission.code == p_code)
+            perm = (await db.execute(perm_stmt)).scalar_one_or_none()
+            if perm:
+                db.add(RolePermission(
+                    org_id=current_user.org_id,
+                    role_id=role.id,
+                    permission_id=perm.id,
+                    granted_by=current_user.id,
+                ))
+        await db.flush()
+
+    await audit_service.log(
+        db,
+        entity_type="ROLE",
+        entity_id=role.id,
+        action="CREATED",
+        actor_id=current_user.id,
+        org_id=current_user.org_id,
+        metadata={"code": role.code, "name": role.name},
+    )
+    await db.commit()
+    return created_response({"id": str(role.id), "code": role.code, "name": role.name})
+
+
+@router.get("/roles/{role_id}")
+async def get_role(
+    role_id: UUID,
+    current_user: User = Depends(require_permission(PermissionCode.USER_VIEW_ALL)),
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    """GET /api/v1/users/roles/{role_id} — get detailed role metadata and its assigned permissions."""
+    from sqlalchemy import select
+    from app.modules.user.models import Role, RolePermission, Permission
+
+    stmt = select(Role).where(
+        Role.id == role_id,
+        Role.deleted_at.is_(None),
+    )
+    role = (await db.execute(stmt)).scalar_one_or_none()
+    if not role:
+        raise AppException("Role not found", "NOT_FOUND")
+
+    perm_stmt = (
+        select(Permission)
+        .join(RolePermission, RolePermission.permission_id == Permission.id)
+        .where(RolePermission.role_id == role.id)
+        .order_by(Permission.module.asc(), Permission.code.asc())
+    )
+    perms = (await db.execute(perm_stmt)).scalars().all()
+
+    return success_response({
+        "id": str(role.id),
+        "code": role.code,
+        "name": role.name,
+        "description": role.description or "",
+        "is_system_role": role.is_system_role,
+        "is_supplier_role": role.is_supplier_role,
+        "is_active": role.is_active,
+        "permissions": [
+            {
+                "id": str(p.id),
+                "code": p.code,
+                "name": p.name,
+                "module": p.module,
+                "description": p.description or "",
+            }
+            for p in perms
+        ],
+    })
+
+
+@router.put("/roles/{role_id}")
+async def update_role(
+    role_id: UUID,
+    data: RoleUpdateRequest,
+    current_user: User = Depends(require_permission(PermissionCode.USER_MANAGE_PERMISSIONS)),
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    """PUT /api/v1/users/roles/{role_id} — update role details."""
+    from sqlalchemy import select
+    from app.modules.user.models import Role
+
+    stmt = select(Role).where(Role.id == role_id, Role.deleted_at.is_(None))
+    role = (await db.execute(stmt)).scalar_one_or_none()
+    if not role:
+        raise AppException("Role not found", "NOT_FOUND")
+
+    if data.name is not None:
+        role.name = data.name.strip()
+    if data.description is not None:
+        role.description = data.description
+    if data.is_active is not None:
+        role.is_active = data.is_active
+
+    await audit_service.log(
+        db,
+        entity_type="ROLE",
+        entity_id=role.id,
+        action="UPDATED",
+        actor_id=current_user.id,
+        org_id=current_user.org_id,
+        metadata={"name": role.name, "is_active": role.is_active},
+    )
+    await db.commit()
+    return success_response({"id": str(role.id), "message": "Role updated successfully"})
+
+
+@router.put("/roles/{role_id}/permissions")
+async def update_role_permissions(
+    role_id: UUID,
+    data: RolePermissionsUpdateRequest,
+    current_user: User = Depends(require_permission(PermissionCode.USER_MANAGE_PERMISSIONS)),
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    """PUT /api/v1/users/roles/{role_id}/permissions — batch update permissions assigned to a role."""
+    from sqlalchemy import select, delete
+    from app.modules.user.models import Role, RolePermission, Permission
+
+    stmt = select(Role).where(Role.id == role_id, Role.deleted_at.is_(None))
+    role = (await db.execute(stmt)).scalar_one_or_none()
+    if not role:
+        raise AppException("Role not found", "NOT_FOUND")
+
+    await db.execute(delete(RolePermission).where(RolePermission.role_id == role.id))
+
+    if data.permission_codes:
+        perms_stmt = select(Permission).where(Permission.code.in_(data.permission_codes))
+        perms = (await db.execute(perms_stmt)).scalars().all()
+        for p in perms:
+            db.add(RolePermission(
+                org_id=role.org_id,
+                role_id=role.id,
+                permission_id=p.id,
+                granted_by=current_user.id,
+            ))
+
+    await audit_service.log(
+        db,
+        entity_type="ROLE",
+        entity_id=role.id,
+        action="PERMISSIONS_UPDATED",
+        actor_id=current_user.id,
+        org_id=current_user.org_id,
+        metadata={"role_code": role.code, "permissions_count": len(data.permission_codes)},
+    )
+    await db.commit()
+    return success_response({"message": f"Updated permissions for role '{role.code}'"})
+
+
+@router.get("/permissions")
+async def list_permissions(
+    module: Optional[str] = Query(None, description="Module filter, e.g. PR, RFQ, USER"),
+    search: Optional[str] = Query(None, description="Search in permission code, name, description"),
+    current_user: User = Depends(require_permission(PermissionCode.USER_VIEW_ALL)),
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    """GET /api/v1/users/permissions — full catalog of system permissions."""
+    perms_data = await role_repository.get_all_permissions(
+        db, current_user.org_id, module=module, search=search
+    )
+    meta = PaginationMeta(total=len(perms_data), page=1, page_size=len(perms_data) or 200)
+    return success_response(perms_data, meta=meta)
+
+
+@router.get("/role-permissions/matrix")
+async def get_role_permissions_matrix(
+    current_user: User = Depends(require_permission(PermissionCode.USER_VIEW_ALL)),
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    """GET /api/v1/users/role-permissions/matrix — RBAC matrix mapping permissions to roles."""
+    matrix_data = await role_repository.get_permissions_matrix(db, current_user.org_id)
+    return success_response(matrix_data)
+
+
+@router.post("/role-permissions/toggle")
+async def toggle_role_permission(
+    data: ToggleRolePermissionRequest,
+    current_user: User = Depends(require_permission(PermissionCode.USER_MANAGE_PERMISSIONS)),
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    """POST /api/v1/users/role-permissions/toggle — toggle a permission on a role."""
+    changed = await role_repository.toggle_role_permission(
+        db,
+        current_user.org_id,
+        data.role_code,
+        data.permission_code,
+        data.granted,
+        current_user.id,
+    )
+    await audit_service.log(
+        db,
+        entity_type="ROLE_PERMISSION",
+        entity_id=current_user.id,
+        action="PERMISSION_TOGGLED",
+        actor_id=current_user.id,
+        org_id=current_user.org_id,
+        metadata={
+            "role_code": data.role_code,
+            "permission_code": data.permission_code,
+            "granted": data.granted,
+        },
+    )
+    return success_response({"changed": changed, "granted": data.granted})
+
+
+@router.get("/sessions")
+async def list_sessions(
+    active_only: bool = Query(False, description="Filter for active, unexpired sessions"),
+    search: Optional[str] = Query(None, description="Search by user email, name, or IP"),
+    page: int = Query(1, ge=1),
+    page_size: int = Query(50, ge=1, le=100),
+    current_user: User = Depends(require_permission(PermissionCode.USER_VIEW_ALL)),
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    """GET /api/v1/users/sessions — list user sessions across the organization."""
+    now = datetime.now(timezone.utc)
+    sessions_with_users, total = await session_repository.list_sessions(
+        db,
+        current_user.org_id,
+        active_only=active_only,
+        search=search,
+        page=page,
+        page_size=page_size,
+    )
+    items = []
+    for sess, u in sessions_with_users:
+        is_active = not sess.is_revoked and sess.expires_at > now
+        items.append({
+            "id": str(sess.id),
+            "user_id": str(u.id),
+            "user_email": u.email,
+            "user_name": f"{u.first_name} {u.last_name}".strip(),
+            "token_jti": sess.token_jti,
+            "ip_address": str(sess.ip_address) if sess.ip_address else "127.0.0.1",
+            "user_agent": sess.user_agent or "Unknown Client",
+            "created_at": sess.created_at.isoformat() if sess.created_at else None,
+            "last_activity_at": sess.last_activity_at.isoformat() if sess.last_activity_at else None,
+            "expires_at": sess.expires_at.isoformat() if sess.expires_at else None,
+            "is_revoked": sess.is_revoked,
+            "revoked_reason": sess.revoked_reason,
+            "is_active": is_active,
+        })
+    meta = PaginationMeta(
+        total=total,
+        page=page,
+        page_size=page_size,
+        total_pages=(total + page_size - 1) // page_size or 1,
+    )
+    return success_response(items, meta=meta)
+
+
+@router.post("/sessions/{session_id}/revoke")
+async def revoke_session(
+    session_id: UUID,
+    data: Optional[RevokeSessionRequest] = None,
+    current_user: User = Depends(require_permission(PermissionCode.USER_UPDATE_ALL)),
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    """POST /api/v1/users/sessions/{session_id}/revoke — force-revoke an active user session."""
+    reason = data.reason if data and data.reason else "Revoked by Administrator"
+    sess = await session_repository.get_by_id(db, session_id)
+    if not sess:
+        raise AppException("Session not found", "NOT_FOUND")
+
+    await session_repository.revoke(db, session_id, reason)
+    await audit_service.log(
+        db,
+        entity_type="USER_SESSION",
+        entity_id=session_id,
+        action="SESSION_REVOKED",
+        actor_id=current_user.id,
+        org_id=current_user.org_id,
+        metadata={"user_id": str(sess.user_id), "reason": reason},
+    )
+    await db.commit()
+    return success_response({"message": "Session successfully revoked"})
+
+
+@router.post("/sessions/user/{user_id}/revoke-all")
+async def revoke_all_user_sessions(
+    user_id: UUID,
+    data: Optional[RevokeSessionRequest] = None,
+    current_user: User = Depends(require_permission(PermissionCode.USER_UPDATE_ALL)),
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    """POST /api/v1/users/sessions/user/{user_id}/revoke-all — force-revoke all active sessions for a user."""
+    reason = data.reason if data and data.reason else "All sessions revoked by Administrator"
+    await session_repository.revoke_all(db, user_id, current_user.org_id, reason)
+    await audit_service.log(
+        db,
+        entity_type="USER_SESSION",
+        entity_id=user_id,
+        action="ALL_SESSIONS_REVOKED",
+        actor_id=current_user.id,
+        org_id=current_user.org_id,
+        metadata={"user_id": str(user_id), "reason": reason},
+    )
+    await db.commit()
+    return success_response({"message": "All active sessions revoked for user"})
 
 
 @router.post("/")

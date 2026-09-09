@@ -1,4 +1,4 @@
-from __future__ import annotations
+from datetime import datetime, timezone, timedelta
 from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 import pytest
@@ -38,6 +38,7 @@ def client(mock_user):
         mock.execute = AsyncMock(return_value=mock_res)
         mock.commit = AsyncMock()
         mock.flush = AsyncMock()
+        mock.refresh = AsyncMock()
         yield mock
 
     app.dependency_overrides[get_db] = _fake_db
@@ -288,4 +289,168 @@ class TestUserRouter:
             res_del = client.delete(f"/api/v1/users/me/delegations/{rule.id}")
             assert res_del.status_code == 200
             assert rule.is_active is False
+
+    def test_create_role(self, client, mock_user):
+        mock_res = MagicMock()
+        mock_res.scalar_one_or_none.return_value = None
+
+        async def _fake_db():
+            mock = AsyncMock()
+            mock.execute = AsyncMock(return_value=mock_res)
+            mock.flush = AsyncMock()
+            mock.commit = AsyncMock()
+            mock.add = MagicMock()
+            yield mock
+
+        app.dependency_overrides[get_db] = _fake_db
+        with patch("app.modules.user.router.audit_service.log", new_callable=AsyncMock):
+            res = client.post(
+                "/api/v1/users/roles",
+                json={
+                    "code": "CUSTOM_ROLE",
+                    "name": "Custom Role",
+                    "description": "Role for testing",
+                    "permission_codes": ["pr.create"],
+                },
+            )
+            assert res.status_code in (200, 201)
+            assert res.json()["data"]["code"] == "CUSTOM_ROLE"
+
+    def test_get_role(self, client, mock_user):
+        role_id = uuid4()
+        role = Role(id=role_id, org_id=mock_user.org_id, code="ADMIN", name="Admin", description="Admin role")
+        mock_res = MagicMock()
+        mock_res.scalar_one_or_none.return_value = role
+        mock_res.scalars.return_value.all.return_value = []
+
+        async def _fake_db():
+            mock = AsyncMock()
+            mock.execute = AsyncMock(return_value=mock_res)
+            yield mock
+
+        app.dependency_overrides[get_db] = _fake_db
+        res = client.get(f"/api/v1/users/roles/{role_id}")
+        assert res.status_code == 200
+        assert res.json()["data"]["code"] == "ADMIN"
+
+    def test_update_role(self, client, mock_user):
+        role_id = uuid4()
+        role = Role(id=role_id, org_id=mock_user.org_id, code="ADMIN", name="Admin", description="Admin role")
+        mock_res = MagicMock()
+        mock_res.scalar_one_or_none.return_value = role
+
+        async def _fake_db():
+            mock = AsyncMock()
+            mock.execute = AsyncMock(return_value=mock_res)
+            mock.commit = AsyncMock()
+            yield mock
+
+        app.dependency_overrides[get_db] = _fake_db
+        with patch("app.modules.user.router.audit_service.log", new_callable=AsyncMock):
+            res = client.put(
+                f"/api/v1/users/roles/{role_id}",
+                json={"name": "Admin New", "description": "Updated description"},
+            )
+            assert res.status_code == 200
+            assert role.name == "Admin New"
+
+    def test_update_role_permissions(self, client, mock_user):
+        role_id = uuid4()
+        role = Role(id=role_id, org_id=mock_user.org_id, code="ADMIN", name="Admin")
+        mock_res = MagicMock()
+        mock_res.scalar_one_or_none.return_value = role
+        mock_res.scalars.return_value.all.return_value = []
+
+        async def _fake_db():
+            mock = AsyncMock()
+            mock.execute = AsyncMock(return_value=mock_res)
+            mock.commit = AsyncMock()
+            mock.add = MagicMock()
+            yield mock
+
+        app.dependency_overrides[get_db] = _fake_db
+        with patch("app.modules.user.router.audit_service.log", new_callable=AsyncMock):
+            res = client.put(
+                f"/api/v1/users/roles/{role_id}/permissions",
+                json={"permission_codes": ["pr.create", "pr.approve"]},
+            )
+            assert res.status_code == 200
+
+    def test_list_permissions(self, client):
+        perms = [
+            {"id": str(uuid4()), "code": "pr.create", "name": "Create PR", "module": "PR", "description": "Desc", "assigned_roles": ["BUYER"]}
+        ]
+        with patch("app.modules.user.router.role_repository.get_all_permissions", new_callable=AsyncMock, return_value=perms):
+            res = client.get("/api/v1/users/permissions")
+            assert res.status_code == 200
+            assert len(res.json()["data"]) == 1
+            assert res.json()["data"][0]["code"] == "pr.create"
+
+    def test_get_role_permissions_matrix(self, client):
+        matrix_data = {
+            "roles": [{"id": str(uuid4()), "code": "BUYER", "name": "Buyer", "is_system_role": True, "is_supplier_role": False}],
+            "permissions": [{"id": str(uuid4()), "code": "pr.create", "name": "Create PR", "module": "PR"}],
+            "matrix": {"BUYER": ["pr.create"]},
+        }
+        with patch("app.modules.user.router.role_repository.get_permissions_matrix", new_callable=AsyncMock, return_value=matrix_data):
+            res = client.get("/api/v1/users/role-permissions/matrix")
+            assert res.status_code == 200
+            assert "BUYER" in res.json()["data"]["matrix"]
+
+    def test_toggle_role_permission(self, client):
+        with patch("app.modules.user.router.role_repository.toggle_role_permission", new_callable=AsyncMock, return_value=True), \
+             patch("app.modules.user.router.audit_service.log", new_callable=AsyncMock):
+            res = client.post(
+                "/api/v1/users/role-permissions/toggle",
+                json={"role_code": "BUYER", "permission_code": "pr.create", "granted": True},
+            )
+            assert res.status_code == 200
+            assert res.json()["data"]["granted"] is True
+
+    def test_list_sessions(self, client, mock_user):
+        from app.modules.user.models import UserSession
+        session_obj = MagicMock(spec=UserSession)
+        session_obj.id = uuid4()
+        session_obj.user_id = mock_user.id
+        session_obj.token_jti = "token-jti-123"
+        session_obj.ip_address = "127.0.0.1"
+        session_obj.user_agent = "Mozilla/5.0"
+        session_obj.created_at = datetime.now(timezone.utc)
+        session_obj.last_activity_at = datetime.now(timezone.utc)
+        session_obj.expires_at = datetime.now(timezone.utc) + timedelta(hours=8)
+        session_obj.is_revoked = False
+        session_obj.revoked_reason = None
+
+        with patch("app.modules.user.router.session_repository.list_sessions", new_callable=AsyncMock, return_value=([(session_obj, mock_user)], 1)):
+            res = client.get("/api/v1/users/sessions")
+            assert res.status_code == 200
+            data = res.json()["data"]
+            assert len(data) == 1
+            assert data[0]["token_jti"] == "token-jti-123"
+            assert data[0]["user_email"] == mock_user.email
+
+    def test_revoke_session(self, client):
+        session_id = uuid4()
+        from app.modules.user.models import UserSession
+        session_obj = MagicMock(spec=UserSession)
+        session_obj.id = session_id
+        session_obj.user_id = uuid4()
+
+        with patch("app.modules.user.router.session_repository.get_by_id", new_callable=AsyncMock, return_value=session_obj), \
+             patch("app.modules.user.router.session_repository.revoke", new_callable=AsyncMock), \
+             patch("app.modules.user.router.audit_service.log", new_callable=AsyncMock):
+            res = client.post(
+                f"/api/v1/users/sessions/{session_id}/revoke",
+                json={"reason": "Compromised credential"},
+            )
+            assert res.status_code == 200
+            assert res.json()["data"]["message"] == "Session successfully revoked"
+
+    def test_revoke_all_user_sessions(self, client):
+        user_id = uuid4()
+        with patch("app.modules.user.router.session_repository.revoke_all", new_callable=AsyncMock), \
+             patch("app.modules.user.router.audit_service.log", new_callable=AsyncMock):
+            res = client.post(f"/api/v1/users/sessions/user/{user_id}/revoke-all")
+            assert res.status_code == 200
+            assert res.json()["data"]["message"] == "All active sessions revoked for user"
 

@@ -86,6 +86,8 @@ class RfqService:
             lot_participation_mode=data.lot_participation_mode,
             is_emergency=(data.rfq_type == RFQType.EMERGENCY.value),
             source_pr_id=data.source_pr_id,
+            bidding_mode=data.bidding_mode or "SEALED",
+            auction_config=data.auction_config,
             created_by=actor_id,
             updated_by=actor_id,
             linked_pr_ids=[data.source_pr_id] if data.source_pr_id else [],

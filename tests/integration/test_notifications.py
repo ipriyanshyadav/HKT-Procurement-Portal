@@ -454,3 +454,103 @@ async def test_notification_router_crud():
     finally:
         app.dependency_overrides.pop(get_db, None)
         app.dependency_overrides.pop(get_current_user, None)
+
+
+@pytest.mark.asyncio
+async def test_notification_templates_crud_and_preview():
+    """Test full CRUD, search, filter, and Jinja2 preview for notification templates."""
+    org_id = uuid4()
+    user_id = uuid4()
+
+    async with get_test_db_session() as db:
+        user = await create_test_org_and_user(db, org_id, user_id)
+
+    async def override_get_db():
+        async with get_test_db_session() as session:
+            yield session
+
+    async def override_get_current_user():
+        return user
+
+    app.dependency_overrides[get_db] = override_get_db
+    app.dependency_overrides[get_current_user] = override_get_current_user
+
+    try:
+        transport = httpx.ASGITransport(app=app)
+        async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+            # 1. Preview Jinja2 template
+            preview_payload = {
+                "subject_template": "Action Required: {{ doc_type }} {{ doc_id }}",
+                "body_template": "Hello {{ user_name }},\n\nYour {{ doc_type }} {{ doc_id }} requires approval.\nClick here: {{ link }}",
+                "context": {
+                    "doc_type": "PO",
+                    "doc_id": "PO-1002",
+                    "user_name": "Bob Smith",
+                    "link": "https://portal.com/po/1002",
+                },
+            }
+            res_preview = await client.post("/api/v1/notifications/templates/preview", json=preview_payload)
+            assert res_preview.status_code == 200
+            preview_data = res_preview.json()["data"]
+            assert preview_data["rendered_subject"] == "Action Required: PO PO-1002"
+            assert "Hello Bob Smith" in preview_data["rendered_body"]
+            assert "PO PO-1002 requires approval" in preview_data["rendered_body"]
+            assert sorted(preview_data["detected_variables"]) == ["doc_id", "doc_type", "link", "user_name"]
+
+            # 2. Create template
+            create_payload = {
+                "template_code": "test_pr_approval_notice",
+                "channel": "EMAIL",
+                "language": "en",
+                "subject_template": "Approval Notice for {{ pr_number }}",
+                "body_template": "PR {{ pr_number }} was submitted for {{ amount }}.",
+                "variables": ["pr_number", "amount"],
+                "is_active": True,
+            }
+            res_create = await client.post("/api/v1/notifications/templates", json=create_payload)
+            assert res_create.status_code == 200
+            created_tmpl = res_create.json()["data"]
+            tmpl_id = created_tmpl["id"]
+            assert created_tmpl["template_code"] == "test_pr_approval_notice"
+            assert created_tmpl["channel"] == "EMAIL"
+            assert created_tmpl["is_active"] is True
+
+            # 3. Duplicate rejection (Conflict 409)
+            res_dup = await client.post("/api/v1/notifications/templates", json=create_payload)
+            assert res_dup.status_code == 409
+
+            # 4. List templates with filter & search
+            res_list = await client.get("/api/v1/notifications/templates?search=test_pr&channel=EMAIL")
+            assert res_list.status_code == 200
+            list_data = res_list.json()["data"]
+            assert len(list_data) == 1
+            assert list_data[0]["id"] == tmpl_id
+
+            # 5. Get template by ID
+            res_get = await client.get(f"/api/v1/notifications/templates/{tmpl_id}")
+            assert res_get.status_code == 200
+            assert res_get.json()["data"]["id"] == tmpl_id
+
+            # 6. Update template
+            update_payload = {
+                "subject_template": "Updated Subject for {{ pr_number }}",
+                "body_template": "New Body for {{ pr_number }} worth {{ amount }} {{ currency }}.",
+                "is_active": False,
+            }
+            res_update = await client.put(f"/api/v1/notifications/templates/{tmpl_id}", json=update_payload)
+            assert res_update.status_code == 200
+            updated_data = res_update.json()["data"]
+            assert updated_data["subject_template"] == "Updated Subject for {{ pr_number }}"
+            assert updated_data["is_active"] is False
+
+            # 7. Delete template (soft delete)
+            res_delete = await client.delete(f"/api/v1/notifications/templates/{tmpl_id}")
+            assert res_delete.status_code == 200
+
+            # 8. Verify 404 after deletion
+            res_after_del = await client.get(f"/api/v1/notifications/templates/{tmpl_id}")
+            assert res_after_del.status_code == 404
+    finally:
+        app.dependency_overrides.pop(get_db, None)
+        app.dependency_overrides.pop(get_current_user, None)
+

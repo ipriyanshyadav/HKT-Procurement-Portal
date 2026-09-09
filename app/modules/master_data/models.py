@@ -7,6 +7,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import String, Boolean, Numeric, Integer, Date, ForeignKey, CHAR
 from sqlalchemy.dialects.postgresql import ARRAY
 from app.db.base import BaseModel
+from app.db.enums import DocumentCategoryEnum, DOCUMENT_CATEGORY_PG
 
 class Category(BaseModel):
     __tablename__ = "categories"
@@ -106,6 +107,10 @@ class DocumentType(BaseModel):
 
     code: Mapped[str] = mapped_column(String(50), nullable=False)
     name: Mapped[str] = mapped_column(String(200), nullable=False)
+    category: Mapped[DocumentCategoryEnum] = mapped_column(
+        DOCUMENT_CATEGORY_PG, default=DocumentCategoryEnum.COMPLIANCE, nullable=False
+    )
+    is_mandatory: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     is_mandatory_for_vendor: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     has_expiry_date: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     validity_alert_days: Mapped[int] = mapped_column(Integer, default=30, nullable=False)

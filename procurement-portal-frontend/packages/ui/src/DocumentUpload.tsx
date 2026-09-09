@@ -172,29 +172,29 @@ export function DocumentUpload({
     switch (status) {
       case "CLEAN":
         return (
-          <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+          <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
             ClamAV Clean
           </span>
         );
       case "PENDING":
         return (
-          <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
-            <Loader2 className="w-3.5 h-3.5 text-amber-500 animate-spin" />
+          <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60">
+            <Loader2 className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400 animate-spin" />
             Scan Pending
           </span>
         );
       case "INFECTED":
         return (
-          <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full bg-rose-50 text-rose-700 border border-rose-200">
-            <ShieldAlert className="w-3.5 h-3.5 text-rose-500" />
+          <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-900/60">
+            <ShieldAlert className="w-3.5 h-3.5 text-rose-500 dark:text-rose-400" />
             Quarantined (Malware)
           </span>
         );
       default:
         return (
-          <span className="inline-flex items-center gap-1.5 text-xs font-medium px-2 py-0.5 rounded bg-gray-100 text-gray-600">
-            <Clock className="w-3 h-3 text-gray-400" />
+          <span className="inline-flex items-center gap-1.5 text-xs font-medium px-2 py-0.5 rounded bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-white/10">
+            <Clock className="w-3.5 h-3.5 text-slate-400" />
             {status}
           </span>
         );
@@ -203,7 +203,7 @@ export function DocumentUpload({
 
   return (
     <div className={`space-y-3 ${className}`}>
-      {label && <label className="block text-sm font-semibold text-gray-800 tracking-tight">{label}</label>}
+      {label && <label className="block text-sm font-semibold text-slate-900 dark:text-white tracking-tight">{label}</label>}
 
       {/* Upload Dropzone */}
       <div
@@ -213,8 +213,8 @@ export function DocumentUpload({
         onClick={() => fileInputRef.current?.click()}
         className={`relative border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer transition-all duration-200 ${
           isDragOver
-            ? "border-blue-500 bg-blue-50/60 scale-[1.01]"
-            : "border-gray-200 hover:border-gray-300 hover:bg-gray-50/50 bg-white"
+            ? "border-blue-500 bg-blue-50/60 dark:bg-blue-950/30 scale-[1.01]"
+            : "border-slate-200 dark:border-white/15 hover:border-slate-300 dark:hover:border-white/25 hover:bg-slate-50/50 dark:hover:bg-white/[0.03] bg-white dark:bg-[#1C1C1F]"
         }`}
       >
         <input
@@ -226,7 +226,7 @@ export function DocumentUpload({
         />
 
         <div className="flex flex-col items-center justify-center space-y-2">
-          <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 shadow-sm">
+          <div className="w-12 h-12 rounded-full bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-900/40 flex items-center justify-center text-blue-600 dark:text-blue-400 shadow-xs">
             {uploadMutation.isPending ? (
               <Loader2 className="w-6 h-6 animate-spin" />
             ) : (
@@ -234,17 +234,17 @@ export function DocumentUpload({
             )}
           </div>
           <div>
-            <p className="text-sm font-medium text-gray-800">
+            <p className="text-sm font-medium text-slate-800 dark:text-slate-200">
               {uploadMutation.isPending ? "Uploading & Enqueuing Scan..." : "Click to browse or drop file"}
             </p>
-            <p className="text-xs text-gray-500 mt-0.5">{description}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{description}</p>
           </div>
         </div>
       </div>
 
       {/* Error alert */}
       {errorMessage && (
-        <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs flex items-center gap-2">
+        <div className="p-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 rounded-xl text-rose-700 dark:text-rose-300 text-xs flex items-center gap-2">
           <AlertTriangle className="w-4 h-4 shrink-0 text-rose-500" />
           <span>{errorMessage}</span>
         </div>
@@ -252,15 +252,15 @@ export function DocumentUpload({
 
       {/* Active Document Card */}
       {localDoc && (
-        <div className="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm space-y-3">
+        <div className="bg-white dark:bg-[#1C1C1F] border border-slate-200 dark:border-white/15 rounded-2xl p-4 shadow-sm space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-gray-600">
+              <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-[#252529] border border-slate-200 dark:border-white/10 flex items-center justify-center text-slate-600 dark:text-slate-300">
                 <FileText className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-sm font-semibold text-gray-900 truncate max-w-xs">{localDoc.original_filename}</p>
-                <div className="flex items-center gap-2 text-xs text-gray-500">
+                <p className="text-sm font-semibold text-slate-900 dark:text-white truncate max-w-xs">{localDoc.original_filename}</p>
+                <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
                   <span>{formatBytes(localDoc.file_size_bytes)}</span>
                   <span>•</span>
                   <span>v{localDoc.current_version || 1}</span>
@@ -277,24 +277,24 @@ export function DocumentUpload({
                 onClick={handleDownload}
                 icon={<Download className="w-3.5 h-3.5" />}
               >
-                Download
+                {localDoc.scan_status === "INFECTED" ? "Quarantined" : "Download"}
               </Button>
               <Button
                 size="sm"
                 variant="ghost"
                 onClick={handleDelete}
-                icon={<Trash2 className="w-3.5 h-3.5 text-rose-500" />}
+                icon={<Trash2 className="w-3.5 h-3.5 text-rose-500 hover:text-rose-600" />}
               />
             </div>
           </div>
 
           {/* Infected alert banner */}
           {localDoc.scan_status === "INFECTED" && (
-            <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-800 flex items-start gap-2">
-              <ShieldAlert className="w-4 h-4 text-rose-600 mt-0.5 shrink-0" />
+            <div className="p-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 rounded-xl text-xs text-rose-800 dark:text-rose-300 flex items-start gap-2">
+              <ShieldAlert className="w-4 h-4 text-rose-600 dark:text-rose-400 mt-0.5 shrink-0" />
               <div>
                 <p className="font-semibold">Security Alert: Threat Flagged by ClamAV</p>
-                <p className="text-rose-600 mt-0.5">
+                <p className="text-rose-600 dark:text-rose-400 mt-0.5">
                   This document has been quarantined. Downloads are disabled to safeguard organizational assets.
                 </p>
               </div>
@@ -302,42 +302,42 @@ export function DocumentUpload({
           )}
 
           {/* Version History Accordion */}
-          <div className="border-t border-gray-100 pt-2">
+          <div className="border-t border-slate-100 dark:border-white/10 pt-2">
             <button
               type="button"
               onClick={() => setShowVersions(!showVersions)}
-              className="w-full flex items-center justify-between text-xs font-semibold text-gray-600 hover:text-gray-900 py-1 transition-colors"
+              className="w-full flex items-center justify-between text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white py-1 transition-colors"
             >
               <span className="flex items-center gap-1.5">
-                <History className="w-3.5 h-3.5 text-gray-500" />
+                <History className="w-3.5 h-3.5 text-slate-500" />
                 Version History ({versions?.length || 1})
               </span>
               {showVersions ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
             </button>
 
             {showVersions && (
-              <div className="mt-2 space-y-2 pl-2 border-l-2 border-gray-100">
+              <div className="mt-2 space-y-2 pl-2 border-l-2 border-slate-100 dark:border-white/10">
                 {versionsLoading ? (
-                  <p className="text-xs text-gray-400 py-1">Loading version history...</p>
+                  <p className="text-xs text-slate-400 py-1">Loading version history...</p>
                 ) : versions && versions.length > 0 ? (
                   versions.map((v: DocumentVersionItem) => (
-                    <div key={v.id} className="flex items-center justify-between text-xs py-1 text-gray-600">
+                    <div key={v.id} className="flex items-center justify-between text-xs py-1 text-slate-600 dark:text-slate-300">
                       <div className="flex items-center gap-2">
                         <Badge variant={v.version_number === localDoc.current_version ? "approved" : "default"}>
                           v{v.version_number}
                         </Badge>
-                        <span className="font-mono text-gray-500">{formatBytes(v.file_size_bytes)}</span>
-                        <span className="text-gray-400 text-[11px]">
+                        <span className="font-mono text-slate-500 dark:text-slate-400">{formatBytes(v.file_size_bytes)}</span>
+                        <span className="text-slate-400 dark:text-slate-500 text-[11px]">
                           {new Date(v.created_at).toLocaleDateString()}
                         </span>
                       </div>
-                      <span className="text-[10px] font-mono text-gray-400 truncate max-w-[120px]" title={v.sha256_hash}>
+                      <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500 truncate max-w-[120px]" title={v.sha256_hash}>
                         {v.sha256_hash.slice(0, 10)}...
                       </span>
                     </div>
                   ))
                 ) : (
-                  <p className="text-xs text-gray-400 py-1">No previous versions.</p>
+                  <p className="text-xs text-slate-400 py-1">No previous versions.</p>
                 )}
               </div>
             )}

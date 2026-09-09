@@ -67,6 +67,7 @@ export function DocumentList({
   const deleteMutation = useDeleteDocument();
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [selectedDocType, setSelectedDocType] = useState(defaultDocumentType);
+  const [uploadExpiryDate, setUploadExpiryDate] = useState("");
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
   const docList = documents || [];
@@ -124,29 +125,29 @@ export function DocumentList({
     switch (status) {
       case "CLEAN":
         return (
-          <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
-            <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+          <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
             Clean
           </span>
         );
       case "PENDING":
         return (
-          <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800">
-            <Loader2 className="w-3 h-3 text-amber-600 animate-spin" />
+          <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/50 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60">
+            <Loader2 className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 animate-spin" />
             Scanning
           </span>
         );
       case "INFECTED":
         return (
-          <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 rounded-full bg-red-100 text-red-800">
-            <ShieldAlert className="w-3 h-3 text-red-600" />
+          <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-0.5 rounded-full bg-rose-100 dark:bg-rose-950/50 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-900/60">
+            <ShieldAlert className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" />
             Quarantined
           </span>
         );
       default:
         return (
-          <span className="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded bg-gray-100 text-gray-700">
-            <Clock className="w-3 h-3 text-gray-500" />
+          <span className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-white/10">
+            <Clock className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
             {status}
           </span>
         );
@@ -155,7 +156,7 @@ export function DocumentList({
 
   const renderExpiryBadge = (expiryDate?: string | null) => {
     if (!expiryDate) {
-      return <span className="text-xs text-gray-400">Non-expiring</span>;
+      return <span className="text-xs text-slate-400 dark:text-slate-500">Non-expiring</span>;
     }
     const today = new Date();
     const expiry = new Date(expiryDate);
@@ -163,36 +164,36 @@ export function DocumentList({
 
     if (diffDays < 0) {
       return (
-        <span className="inline-flex items-center gap-1 text-xs font-semibold text-rose-600 font-mono">
-          <AlertCircle className="w-3 h-3" />
+        <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-rose-600 dark:text-rose-400 font-mono">
+          <AlertCircle className="w-3.5 h-3.5" />
           Expired ({expiryDate})
         </span>
       );
     }
     if (diffDays <= 30) {
       return (
-        <span className="inline-flex items-center gap-1 text-xs font-semibold text-amber-600 font-mono">
-          <Clock className="w-3 h-3" />
+        <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-600 dark:text-amber-400 font-mono">
+          <Clock className="w-3.5 h-3.5" />
           Expires in {diffDays}d
         </span>
       );
     }
     return (
-      <span className="inline-flex items-center gap-1 text-xs text-gray-600 font-mono">
-        <Calendar className="w-3 h-3 text-gray-400" />
+      <span className="inline-flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-300 font-mono">
+        <Calendar className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
         {expiryDate}
       </span>
     );
   };
 
   return (
-    <div className={`bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden ${className}`}>
+    <div className={`bg-white dark:bg-[#1C1C1F] border border-slate-200 dark:border-white/15 rounded-2xl shadow-sm overflow-hidden ${className}`}>
       {/* Card Header */}
-      <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <FileText className="w-5 h-5 text-gray-600" />
-          <h3 className="text-base font-bold text-gray-900">{title}</h3>
-          <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 font-mono">
+      <div className="px-6 py-4 border-b border-slate-100 dark:border-white/10 flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
+          <FileText className="w-5 h-5 text-slate-600 dark:text-slate-400" />
+          <h3 className="text-base font-bold text-slate-900 dark:text-white">{title}</h3>
+          <span className="text-xs px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300 font-mono font-medium">
             {docList.length}
           </span>
         </div>
@@ -209,18 +210,18 @@ export function DocumentList({
 
       {/* Body */}
       {isLoading ? (
-        <div className="p-8 text-center text-sm text-gray-500 flex items-center justify-center gap-2">
-          <Loader2 className="w-4 h-4 animate-spin text-gray-400" />
+        <div className="p-8 text-center text-sm text-slate-500 dark:text-slate-400 flex items-center justify-center gap-2">
+          <Loader2 className="w-4 h-4 animate-spin text-blue-600 dark:text-blue-400" />
           Loading documents...
         </div>
       ) : docList.length === 0 ? (
         <div className="p-10 text-center space-y-2">
-          <div className="w-12 h-12 rounded-full bg-gray-100 mx-auto flex items-center justify-center text-gray-400">
+          <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-[#252529] mx-auto flex items-center justify-center text-slate-400 dark:text-slate-500">
             <FileText className="w-6 h-6" />
           </div>
-          <p className="text-sm font-semibold text-gray-800">No documents attached</p>
-          <p className="text-xs text-gray-500 max-w-sm mx-auto">
-            Upload supporting artifacts such as specifications, certificates, or compliance files.
+          <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">No documents attached</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
+            Upload supporting artifacts such as specifications, statutory certificates, or compliance files.
           </p>
           {allowUpload && (
             <Button
@@ -236,28 +237,28 @@ export function DocumentList({
         </div>
       ) : (
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm text-gray-600">
-            <thead className="bg-gray-50 text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-200">
+          <table className="w-full text-left text-sm text-slate-600 dark:text-slate-300">
+            <thead className="bg-slate-50 dark:bg-[#252529] text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider border-b border-slate-200 dark:border-white/10">
               <tr>
-                <th className="px-6 py-3">Document</th>
-                <th className="px-6 py-3">Type</th>
-                <th className="px-6 py-3">Scan Status</th>
-                <th className="px-6 py-3">Compliance Expiry</th>
-                <th className="px-6 py-3">Uploaded</th>
-                <th className="px-6 py-3 text-right">Actions</th>
+                <th className="px-6 py-3.5">Document</th>
+                <th className="px-6 py-3.5">Type</th>
+                <th className="px-6 py-3.5">Scan Status</th>
+                <th className="px-6 py-3.5">Compliance Expiry</th>
+                <th className="px-6 py-3.5">Uploaded</th>
+                <th className="px-6 py-3.5 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-slate-100 dark:divide-white/10 bg-white dark:bg-[#1C1C1F]">
               {docList.map((doc: DocumentItem) => (
-                <tr key={doc.id} className="hover:bg-gray-50/50 transition-colors">
+                <tr key={doc.id} className="hover:bg-slate-50/50 dark:hover:bg-white/[0.03] transition-colors">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs">
-                        PDF
+                      <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-900/40 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-xs">
+                        {doc.original_filename.split(".").pop()?.toUpperCase() || "DOC"}
                       </div>
                       <div>
-                        <p className="font-semibold text-gray-900 truncate max-w-xs">{doc.original_filename}</p>
-                        <p className="text-xs text-gray-400">
+                        <p className="font-semibold text-slate-900 dark:text-white truncate max-w-xs">{doc.original_filename}</p>
+                        <p className="text-xs text-slate-400 dark:text-slate-500">
                           {formatBytes(doc.file_size_bytes)} • v{doc.current_version || 1}
                         </p>
                       </div>
@@ -268,7 +269,7 @@ export function DocumentList({
                   </td>
                   <td className="px-6 py-4">{renderScanStatusBadge(doc.scan_status)}</td>
                   <td className="px-6 py-4">{renderExpiryBadge(doc.compliance_expiry)}</td>
-                  <td className="px-6 py-4 text-xs text-gray-500">
+                  <td className="px-6 py-4 text-xs text-slate-500 dark:text-slate-400">
                     {new Date(doc.created_at).toLocaleDateString()}
                   </td>
                   <td className="px-6 py-4 text-right">
@@ -286,13 +287,13 @@ export function DocumentList({
                           )
                         }
                       >
-                        Download
+                        {doc.scan_status === "INFECTED" ? "Quarantined" : "Download"}
                       </Button>
                       <Button
                         size="sm"
                         variant="ghost"
                         onClick={() => handleDelete(doc.id)}
-                        icon={<Trash2 className="w-3.5 h-3.5 text-rose-500" />}
+                        icon={<Trash2 className="w-3.5 h-3.5 text-rose-500 hover:text-rose-600" />}
                       />
                     </div>
                   </td>
@@ -312,13 +313,13 @@ export function DocumentList({
         >
           <div className="p-2 space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                 Document Type *
               </label>
               <select
                 value={selectedDocType}
                 onChange={(e) => setSelectedDocType(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                className="w-full px-3 py-2 border border-slate-200 dark:border-white/15 rounded-xl text-sm bg-white dark:bg-[#252529] text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
               >
                 {STANDARD_DOCUMENT_TYPES.map((dt) => (
                   <option key={dt.code} value={dt.code}>
@@ -327,12 +328,30 @@ export function DocumentList({
                 ))}
               </select>
             </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                Compliance Expiry Date (Optional)
+              </label>
+              <input
+                type="date"
+                value={uploadExpiryDate}
+                onChange={(e) => setUploadExpiryDate(e.target.value)}
+                className="w-full px-3 py-2 border border-slate-200 dark:border-white/15 rounded-xl text-sm bg-white dark:bg-[#252529] text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:outline-none font-mono"
+              />
+              <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1">
+                For statutory certificates (e.g. GSTIN, MSME, ISO), specify certificate validity date.
+              </p>
+            </div>
+
             <DocumentUpload
               entityType={entityType}
               entityId={entityId}
               documentType={selectedDocType}
+              complianceExpiry={uploadExpiryDate || undefined}
               onUploadSuccess={() => {
                 setShowUploadModal(false);
+                setUploadExpiryDate("");
                 refetch();
               }}
             />

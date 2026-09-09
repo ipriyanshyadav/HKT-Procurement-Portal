@@ -2,7 +2,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Optional, List, Tuple
 from uuid import UUID
-from sqlalchemy import select, update, func, and_
+from sqlalchemy import select, update, func, and_, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.enums import NotificationChannelEnum, NotificationStatusEnum
@@ -277,6 +277,122 @@ class NotificationTemplateRepository:
             stmt = stmt.where(NotificationTemplate.org_id == org_id)
         result = await db.execute(stmt)
         return list(result.scalars().all())
+
+    async def get_by_id(
+        self,
+        db: AsyncSession,
+        template_id: UUID,
+        org_id: Optional[UUID] = None,
+    ) -> Optional[NotificationTemplate]:
+        stmt = select(NotificationTemplate).where(
+            NotificationTemplate.id == template_id,
+            NotificationTemplate.deleted_at.is_(None),
+        )
+        if org_id:
+            stmt = stmt.where(NotificationTemplate.org_id == org_id)
+        res = await db.execute(stmt)
+        return res.scalar_one_or_none()
+
+    async def list_templates_paginated(
+        self,
+        db: AsyncSession,
+        org_id: Optional[UUID] = None,
+        channel: Optional[NotificationChannelEnum] = None,
+        language: Optional[str] = None,
+        search: Optional[str] = None,
+        is_active: Optional[bool] = None,
+        page: int = 1,
+        page_size: int = 50,
+    ) -> tuple[List[NotificationTemplate], int]:
+        stmt = select(NotificationTemplate).where(NotificationTemplate.deleted_at.is_(None))
+        if org_id:
+            stmt = stmt.where(NotificationTemplate.org_id == org_id)
+        if channel:
+            stmt = stmt.where(NotificationTemplate.channel == channel)
+        if language:
+            stmt = stmt.where(NotificationTemplate.language == language)
+        if is_active is not None:
+            stmt = stmt.where(NotificationTemplate.is_active == is_active)
+        if search:
+            search_filter = f"%{search}%"
+            stmt = stmt.where(
+                or_(
+                    NotificationTemplate.template_code.ilike(search_filter),
+                    NotificationTemplate.subject_template.ilike(search_filter),
+                    NotificationTemplate.body_template.ilike(search_filter),
+                )
+            )
+
+        # Count total
+        count_stmt = select(func.count()).select_from(stmt.subquery())
+        total_res = await db.execute(count_stmt)
+        total = total_res.scalar() or 0
+
+        # Pagination and order
+        stmt = stmt.order_by(NotificationTemplate.template_code.asc(), NotificationTemplate.channel.asc())
+        stmt = stmt.offset((page - 1) * page_size).limit(page_size)
+        res = await db.execute(stmt)
+        items = list(res.scalars().all())
+        return items, total
+
+    async def create_template(
+        self,
+        db: AsyncSession,
+        org_id: UUID,
+        template_code: str,
+        channel: NotificationChannelEnum,
+        language: str,
+        subject_template: Optional[str],
+        body_template: str,
+        variables: List[str],
+        is_active: bool = True,
+    ) -> NotificationTemplate:
+        tmpl = NotificationTemplate(
+            org_id=org_id,
+            template_code=template_code,
+            channel=channel,
+            language=language,
+            subject_template=subject_template,
+            body_template=body_template,
+            variables=variables,
+            is_active=is_active,
+        )
+        db.add(tmpl)
+        await db.flush()
+        return tmpl
+
+    async def update_template(
+        self,
+        db: AsyncSession,
+        template: NotificationTemplate,
+        language: Optional[str] = None,
+        subject_template: Optional[str] = None,
+        body_template: Optional[str] = None,
+        variables: Optional[List[str]] = None,
+        is_active: Optional[bool] = None,
+    ) -> NotificationTemplate:
+        if language is not None:
+            template.language = language
+        if subject_template is not None:
+            template.subject_template = subject_template
+        if body_template is not None:
+            template.body_template = body_template
+        if variables is not None:
+            template.variables = variables
+        if is_active is not None:
+            template.is_active = is_active
+        template.updated_at = datetime.now(timezone.utc)
+        await db.flush()
+        return template
+
+    async def delete_template(
+        self,
+        db: AsyncSession,
+        template: NotificationTemplate,
+    ) -> None:
+        template.deleted_at = datetime.now(timezone.utc)
+        template.is_active = False
+        await db.flush()
 
     async def upsert_template(
         self,

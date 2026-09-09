@@ -179,16 +179,16 @@ export default function TaxCodesManagementPage() {
       </div>
 
       {/* Tax Type Filter Tabs */}
-      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 border-b border-gray-200 dark:border-neutral-800">
+      <div className="w-full flex items-center gap-1.5 p-1.5 bg-neutral-100 dark:bg-neutral-900/60 rounded-2xl border border-neutral-200/80 dark:border-neutral-800 overflow-x-auto shadow-xs">
         {TAX_TYPES.map((type) => (
           <button
             key={type}
             type="button"
             onClick={() => setSelectedType(type)}
-            className={`px-3 py-1.5 text-xs font-medium rounded-md whitespace-nowrap transition-colors ${
+            className={`flex-1 min-w-[90px] flex items-center justify-center py-2.5 px-3 text-xs sm:text-sm font-semibold rounded-xl whitespace-nowrap text-center transition-all ${
               selectedType === type
-                ? "bg-blue-600 text-white shadow-sm"
-                : "text-gray-600 dark:text-neutral-400 hover:bg-gray-100 dark:hover:bg-neutral-800"
+                ? "bg-blue-600 text-white shadow-sm shadow-blue-500/20"
+                : "text-neutral-600 dark:text-neutral-400 hover:bg-neutral-200/60 dark:hover:bg-neutral-800"
             }`}
           >
             {type === "ALL" ? "All Tax Types" : type}

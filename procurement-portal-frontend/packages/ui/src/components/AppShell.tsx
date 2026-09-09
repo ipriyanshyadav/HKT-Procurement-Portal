@@ -3,6 +3,7 @@
 import React, { ReactNode, useState, useEffect } from 'react';
 import { Navbar, NavItem, UserProfile } from './Navbar';
 import { Sidebar, SidebarItemData, SidebarMode } from './Sidebar';
+import { PageTransition } from './PageTransition';
 
 export interface AppShellProps {
   portalName?: string;
@@ -69,7 +70,7 @@ export function AppShell({
   }
 
   return (
-    <div className="min-h-screen flex flex-col relative antialiased transition-colors duration-250 bg-[var(--apple-bg-secondary)] text-[var(--apple-label-primary)]">
+    <div className="min-h-screen flex flex-col relative antialiased transition-colors duration-250 bg-[var(--apple-bg-canvas)] text-[var(--apple-label-primary)]">
       {/* Top Apple Frosted Navbar */}
       <Navbar
         portalName={portalName}
@@ -101,7 +102,7 @@ export function AppShell({
           className={`flex-1 transition-[margin] duration-250 min-w-0 w-full ${mainMarginClass}`}
         >
           <div className="w-full px-4 sm:px-6 md:px-8 lg:px-10 py-6 pb-20 md:pb-10">
-            {children}
+            <PageTransition>{children}</PageTransition>
           </div>
         </main>
       </div>

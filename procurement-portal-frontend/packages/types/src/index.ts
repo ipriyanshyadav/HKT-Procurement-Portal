@@ -1,7 +1,9 @@
 export * from "./api";
 import type { components } from "./api";
 
-export type POResponse = components["schemas"]["POResponse"];
+export type POResponse = components["schemas"]["POResponse"] & {
+  source_pr_id?: string | null;
+};
 export type POLineResponse = components["schemas"]["POLineResponse"];
 export type POCreateRequest = components["schemas"]["POCreateRequest"];
 export type POLineCreate = components["schemas"]["POLineCreate"];
@@ -61,6 +63,30 @@ export interface NotificationPreference {
   quiet_hours_start?: string | null;
   quiet_hours_end?: string | null;
 }
+
+export interface NotificationTemplateItem {
+  id: string;
+  org_id?: string | null;
+  template_code: string;
+  channel: 'EMAIL' | 'SMS' | 'IN_APP' | 'WHATSAPP' | 'DIGEST';
+  language: string;
+  subject_template?: string | null;
+  body_template: string;
+  variables: string[];
+  is_active: boolean;
+  created_at?: string | null;
+  updated_at?: string | null;
+}
+
+export type NotificationTemplateCreatePayload = components["schemas"]["NotificationTemplateCreateRequest"];
+export type NotificationTemplateUpdatePayload = components["schemas"]["NotificationTemplateUpdateRequest"];
+export type NotificationTemplatePreviewPayload = components["schemas"]["NotificationTemplatePreviewRequest"];
+export interface NotificationTemplatePreviewResult {
+  rendered_subject?: string | null;
+  rendered_body: string;
+  detected_variables: string[];
+}
+
 
 export type TicketType = "RFQ_QUERY" | "INVOICE_DISPUTE" | "PO_QUERY" | "CONTRACT_QUERY" | "VENDOR_ONBOARDING" | "TECHNICAL_SUPPORT" | "GENERAL";
 export type TicketPriority = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
@@ -243,5 +269,33 @@ export interface AutomationRuleUpdatePayload {
   conditions?: any[] | null;
   actions?: any[] | null;
 }
+
+// ============================================================================
+// Organization Structure Types
+// ============================================================================
+
+export type OrganizationResponse = components["schemas"]["OrganizationResponse"];
+export type OrganizationUpdateRequest = components["schemas"]["OrganizationUpdateRequest"];
+
+export type LegalEntityResponse = components["schemas"]["LegalEntityResponse"];
+export type LegalEntityCreateRequest = components["schemas"]["LegalEntityCreateRequest"];
+export type LegalEntityUpdateRequest = components["schemas"]["LegalEntityUpdateRequest"];
+
+export type BusinessUnitResponse = components["schemas"]["BusinessUnitResponse"];
+export type BusinessUnitCreateRequest = components["schemas"]["BusinessUnitCreateRequest"];
+export type BusinessUnitUpdateRequest = components["schemas"]["BusinessUnitUpdateRequest"];
+
+export type PlantResponse = components["schemas"]["PlantResponse"];
+export type PlantCreateRequest = components["schemas"]["PlantCreateRequest"];
+export type PlantUpdateRequest = components["schemas"]["PlantUpdateRequest"];
+
+export type DepartmentResponse = components["schemas"]["DepartmentResponse"];
+export type DepartmentCreateRequest = components["schemas"]["DepartmentCreateRequest"];
+export type DepartmentUpdateRequest = components["schemas"]["DepartmentUpdateRequest"];
+
+export type CostCenterResponse = components["schemas"]["CostCenterResponse"];
+export type CostCenterCreateRequest = components["schemas"]["CostCenterCreateRequest"];
+export type CostCenterUpdateRequest = components["schemas"]["CostCenterUpdateRequest"];
+
 
 

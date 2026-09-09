@@ -195,7 +195,7 @@ export function SplitScreenViewer({
       </div>
 
       {/* Document Selector Tabs */}
-      <div className="px-4 py-2 bg-slate-100/60 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 flex items-center gap-2 overflow-x-auto">
+      <div className="w-full px-4 py-2 bg-slate-100/60 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 flex items-center gap-2 overflow-x-auto">
         {activeDocs.map((doc, idx) => (
           <button
             key={doc.id || idx}
@@ -204,14 +204,14 @@ export function SplitScreenViewer({
               setSelectedDocIndex(idx);
               handleReset();
             }}
-            className={`inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+            className={`flex-1 min-w-[120px] inline-flex items-center justify-center gap-2 px-3 py-2 text-xs font-semibold rounded-lg transition-all text-center ${
               selectedDocIndex === idx
                 ? "bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-xs border border-slate-200 dark:border-slate-700"
                 : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
             }`}
           >
             {getDocIcon(doc.document_type)}
-            <span className="truncate max-w-[150px]">{doc.name}</span>
+            <span className="truncate max-w-[180px]">{doc.name}</span>
           </button>
         ))}
       </div>

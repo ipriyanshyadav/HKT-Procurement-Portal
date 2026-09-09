@@ -21,10 +21,16 @@ import {
   Cpu,
   BarChart3,
   ShieldCheck,
+  Shield,
   Activity,
   LifeBuoy,
   Timer,
   FileSpreadsheet,
+  Layers,
+  Factory,
+  Package,
+  Truck,
+  BellRing,
 } from "lucide-react";
 
 export default function AdminMainLayout({ children }: { children: ReactNode }) {
@@ -59,9 +65,27 @@ export default function AdminMainLayout({ children }: { children: ReactNode }) {
       section: "Overview",
     },
     {
-      label: "Users & Roles",
+      label: "Operating Structure",
+      href: "/organization/structure",
+      icon: <Layers className="w-4 h-4" />,
+      section: "Enterprise Structure",
+    },
+    {
+      label: "Facilities & Logistics",
+      href: "/organization/facilities",
+      icon: <Factory className="w-4 h-4" />,
+      section: "Enterprise Structure",
+    },
+    {
+      label: "Users & Sessions",
       href: "/users",
       icon: <Users className="w-4 h-4" />,
+      section: "Access & Security",
+    },
+    {
+      label: "Roles & RBAC",
+      href: "/roles",
+      icon: <Shield className="w-4 h-4" />,
       section: "Access & Security",
     },
     {
@@ -83,6 +107,12 @@ export default function AdminMainLayout({ children }: { children: ReactNode }) {
       section: "Governance",
     },
     {
+      label: "Notification Templates",
+      href: "/notifications/templates",
+      icon: <BellRing className="w-4 h-4" />,
+      section: "Governance",
+    },
+    {
       label: "Master Data Hub",
       href: "/master-data",
       icon: <Database className="w-4 h-4" />,
@@ -92,6 +122,12 @@ export default function AdminMainLayout({ children }: { children: ReactNode }) {
       label: "Categories",
       href: "/master-data/categories",
       icon: <FolderTree className="w-4 h-4" />,
+      section: "Master Data",
+    },
+    {
+      label: "Item Catalog",
+      href: "/master-data/items",
+      icon: <Package className="w-4 h-4" />,
       section: "Master Data",
     },
     {
@@ -116,6 +152,12 @@ export default function AdminMainLayout({ children }: { children: ReactNode }) {
       label: "Tax Codes",
       href: "/master-data/tax-codes",
       icon: <Percent className="w-4 h-4" />,
+      section: "Master Data",
+    },
+    {
+      label: "Incoterms",
+      href: "/master-data/incoterms",
+      icon: <Truck className="w-4 h-4" />,
       section: "Master Data",
     },
     {

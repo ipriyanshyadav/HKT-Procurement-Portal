@@ -1,16 +1,17 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, List, Optional
 from uuid import UUID, uuid4
 
 from fastapi import APIRouter, Body, Depends, File, Query, UploadFile, status
-from pydantic import BaseModel
-from sqlalchemy import select
+from pydantic import BaseModel, Field
+from sqlalchemy import and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.dependencies import get_current_user, get_optional_current_user, require_permission
 from app.core.constants import DEFAULT_ORG_ID, PermissionCode
+from app.core.exceptions import ConflictError, NotFoundError
 from app.core.responses import APIResponse, PaginationMeta, created_response, success_response
 from app.db.session import get_db
 from app.modules.master_data.category.service import (
@@ -77,10 +78,24 @@ class IncotermResponse(BaseModel):
     risk_transfer_point: str
     is_active: bool
     version: int
-    created_at: datetime
-    updated_at: datetime
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
 
     model_config = {"from_attributes": True}
+
+
+class IncotermCreateRequest(BaseModel):
+    code: str = Field(..., min_length=1, max_length=20)
+    name: str = Field(..., min_length=1, max_length=100)
+    edition_year: int = Field(default=2020)
+    risk_transfer_point: str = Field(..., min_length=1, max_length=500)
+
+
+class IncotermUpdateRequest(BaseModel):
+    name: Optional[str] = Field(default=None, min_length=1, max_length=100)
+    edition_year: Optional[int] = Field(default=None)
+    risk_transfer_point: Optional[str] = Field(default=None, min_length=1, max_length=500)
+    is_active: Optional[bool] = None
 
 
 # -----------------------------------------------------------------------------
@@ -323,25 +338,120 @@ async def delete_payment_term(
 
 @router.get("/incoterms")
 async def list_incoterms(
+    active_only: bool = Query(default=True),
     current_user: User = Depends(require_permission(PermissionCode.MASTER_VIEW)),
     db: AsyncSession = Depends(get_db),
 ):
-    """List Incoterms 2020 standard codes."""
-    stmt = (
-        select(Incoterm)
-        .where(
-            Incoterm.org_id == current_user.org_id,
-            Incoterm.deleted_at.is_(None),
-            Incoterm.is_active.is_(True),
-        )
-        .order_by(Incoterm.code.asc())
-    )
+    """List Incoterms standard codes."""
+    conditions = [
+        Incoterm.org_id == current_user.org_id,
+        Incoterm.deleted_at.is_(None),
+    ]
+    if active_only:
+        conditions.append(Incoterm.is_active.is_(True))
+
+    stmt = select(Incoterm).where(and_(*conditions)).order_by(Incoterm.code.asc())
     result = await db.execute(stmt)
     incoterms = result.scalars().all()
     return success_response(
         [IncotermResponse.model_validate(i) for i in incoterms],
         meta=PaginationMeta(total=len(incoterms), page=1, page_size=len(incoterms) or 20),
     )
+
+
+@router.post("/incoterms", status_code=status.HTTP_201_CREATED)
+async def create_incoterm(
+    data: IncotermCreateRequest,
+    current_user: User = Depends(require_permission(PermissionCode.MASTER_CREATE)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Create a new Incoterm record."""
+    norm_code = data.code.strip().upper()
+    existing = await db.execute(
+        select(Incoterm).where(
+            Incoterm.org_id == current_user.org_id,
+            Incoterm.code == norm_code,
+            Incoterm.deleted_at.is_(None),
+        )
+    )
+    if existing.scalar_one_or_none():
+        raise ConflictError(f"Incoterm with code '{norm_code}' already exists")
+
+    now = datetime.now(timezone.utc)
+    incoterm = Incoterm(
+        id=uuid4(),
+        org_id=current_user.org_id,
+        code=norm_code,
+        name=data.name.strip(),
+        edition_year=data.edition_year,
+        risk_transfer_point=data.risk_transfer_point.strip(),
+        is_active=True,
+        version=1,
+        created_at=now,
+        updated_at=now,
+    )
+    db.add(incoterm)
+    await db.commit()
+    await db.refresh(incoterm)
+    return created_response(IncotermResponse.model_validate(incoterm))
+
+
+@router.put("/incoterms/{id}")
+async def update_incoterm(
+    id: UUID,
+    data: IncotermUpdateRequest,
+    current_user: User = Depends(require_permission(PermissionCode.MASTER_UPDATE)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Update an Incoterm record."""
+    result = await db.execute(
+        select(Incoterm).where(
+            Incoterm.id == id,
+            Incoterm.org_id == current_user.org_id,
+            Incoterm.deleted_at.is_(None),
+        )
+    )
+    incoterm = result.scalar_one_or_none()
+    if not incoterm:
+        raise NotFoundError("Incoterm not found")
+
+    if data.name is not None:
+        incoterm.name = data.name.strip()
+    if data.edition_year is not None:
+        incoterm.edition_year = data.edition_year
+    if data.risk_transfer_point is not None:
+        incoterm.risk_transfer_point = data.risk_transfer_point.strip()
+    if data.is_active is not None:
+        incoterm.is_active = data.is_active
+
+    incoterm.version += 1
+    await db.commit()
+    await db.refresh(incoterm)
+    return success_response(IncotermResponse.model_validate(incoterm))
+
+
+@router.delete("/incoterms/{id}", status_code=status.HTTP_200_OK)
+async def delete_incoterm(
+    id: UUID,
+    current_user: User = Depends(require_permission(PermissionCode.MASTER_DELETE)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Soft-delete an Incoterm."""
+    result = await db.execute(
+        select(Incoterm).where(
+            Incoterm.id == id,
+            Incoterm.org_id == current_user.org_id,
+            Incoterm.deleted_at.is_(None),
+        )
+    )
+    incoterm = result.scalar_one_or_none()
+    if not incoterm:
+        raise NotFoundError("Incoterm not found")
+
+    incoterm.deleted_at = datetime.now(timezone.utc)
+    incoterm.is_active = False
+    await db.commit()
+    return success_response({"message": "Incoterm deleted successfully"})
 
 
 # -----------------------------------------------------------------------------

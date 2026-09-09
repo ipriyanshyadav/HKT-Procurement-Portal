@@ -122,9 +122,9 @@ export function NotificationCenter() {
       </div>
 
       {/* Control Bar: Filter Tabs + Search */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-6">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
         {/* Tabs */}
-        <div className="flex items-center gap-1 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
+        <div className="flex-1 flex items-center gap-1.5 p-1.5 bg-neutral-100 dark:bg-neutral-800/60 rounded-xl border border-neutral-200/60 dark:border-neutral-800 overflow-x-auto scrollbar-none">
           {[
             { id: "ALL", label: "All" },
             { id: "UNREAD", label: `Unread (${unreadCount})` },
@@ -140,10 +140,10 @@ export function NotificationCenter() {
                 setActiveTab(tab.id as FilterTab);
                 setPage(1);
               }}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
+              className={`flex-1 min-w-[90px] py-2 px-3 rounded-lg text-xs font-medium whitespace-nowrap text-center justify-center flex items-center transition-all ${
                 activeTab === tab.id
-                  ? "bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900 shadow-sm"
-                  : "text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                  ? "bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900 shadow-sm font-semibold"
+                  : "text-neutral-600 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-700"
               }`}
             >
               {tab.label}

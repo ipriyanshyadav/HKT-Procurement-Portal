@@ -576,25 +576,100 @@ docker compose logs -f -t
 | A-OPT-2 | MinIO S3 bucket health inspection wrapped in asyncio.to_thread to prevent ASGI event loop blocking | LOW |
 | A-OPT-3 | Backend and Celery containers initialized with tini PID 1 for signal propagation and zombie process prevention | LOW |
 | A-OPT-4 | Next.js standalone runner containers configured with HOSTNAME 0.0.0.0 for reliable container network binding | LOW |
+| A-27-1 | Organization structure models (LegalEntity, BusinessUnit, Plant, Department, CostCenter) are scoped to org_id with unique code/registration constraints matching SPEC_03 | LOW |
+| A-27-2 | Admin portal provides dedicated management pages under /organization/... with full CRUD and integrates with /master-data/locations for delivery locations | LOW |
+| A-27-3 | Organization profile is viewable and editable by tenant administrators via GET/PATCH /api/v1/organizations/me and /organization | LOW |
+| A-27-4 | Plants and Delivery Locations maintain bidirectional referential links (Plant.default_delivery_location_id <-> DeliveryLocation.plant_id) | LOW |
+| A-24-4 | Item master frontend in Admin Portal (/master-data/items) provides full enterprise CRUD (search, category/status filters, pagination, create/edit modals, soft delete) | LOW |
+| A-24-5 | Incoterms frontend in Admin Portal (/master-data/incoterms) provides CRUD and active state toggles backed by standardized REST endpoints | LOW |
+| A-24-6 | Master Data Hub (/master-data) surfaces Item Master Catalog and Incoterms 2020 cards with live record counters | LOW |
+| A-24-7 | IncotermSelect component in @procurement/ui unifies dynamic Incoterm selection across buyer and supplier portals | LOW |
+| A-16-1 | Notification template endpoints require authentication, tenant isolation, and Jinja2 rendering | LOW |
+| A-16-2 | Admin portal route /notifications/templates provides multi-channel template studio with live preview | LOW |
+| A-DESIGN-SYS-1 | Light & Dark theme tokens calibrated for WCAG AA contrast (crisper hairlines 0.12/0.14, high-contrast labels, tiered dark surfaces #0D0D0F -> #1C1C1F -> #242428 -> #2E2E34) | LOW |
+| A-DESIGN-SYS-2 | Tabs component augmented with subtab and underline variants, size scales (sm/md), auto-width, and dedicated SubTabs component for nested navigation hierarchy | LOW |
+| A-DESIGN-SYS-3 | Table component & CSS enhanced with distinct header partition, clear cell padding, crisp 1px row borders, and non-overlapping hover states | LOW |
+| A-DESIGN-SYS-4 | Button system standardized with explicit height scales (32px sm, 40px md, 48px lg), distinct secondary/ghost borders, and WCAG AA contrast in both themes | LOW |
+| A-DESIGN-SYS-5 | Dark mode Tailwind color overrides in apple-base.css calibrated to high-contrast legible values (eliminating unreadable 38% opacity muted text) | LOW |
+| A-DESIGN-SYS-6 | All three portals updated to use structured design system components, unified subtabs, and consistent object partitioning | LOW |
+| A-ONBOARD-1 | Supplier KYC verification status overview consolidates PAN, GSTIN, Bank Penny Drop, and MSME into high-visibility compliance status chips on the Profile page | LOW |
+| A-ONBOARD-2 | Bank penny drop verification normalizes both SUCCESS and VALIDATED to verified state, and PENDING / PENNY_TEST_INITIATED to awaiting verification | LOW |
+| A-DOC-1 | Statutory document types encompass 11 canonical categories with standard template generation and client-side download capability | LOW |
+| A-DOC-2 | ClamAV scan statuses (CLEAN, PENDING, INFECTED) block download at both client button state and backend API presigned URL boundary (403 Forbidden) | MEDIUM |
+| A-MATCH-1 | Line-level 3-way match displays PO line vs. GRN accepted quantity vs. Invoiced quantity with ±2% quantity tolerance and ±0.5% price tolerance | LOW |
+| A-MATCH-2 | Supplier portal exposes /invoices/[id] detail view mirroring buyer 3-way match breakdown so vendors can inspect discrepancy reasons and upload attachments | LOW |
+| A-TKT-1 | Kanban board drag-and-drop transitions tickets across 5 columns (OPEN, IN_PROGRESS, PENDING_RESPONSE, RESOLVED, CLOSED) with column counters, Apple-styled draggable cards, and drop zones | LOW |
+| A-TKT-2 | SLA breach countdown computes dynamic time-remaining with live visual tiers (<1h pulsing, <=4h at-risk, >4h on-track, overdue formatted as "Breached by Xh") | LOW |
+| A-TKT-3 | @mentions in ticket comments are parsed via MentionParser into mentioned_users, auto-registered as watchers, and rendered as stylized interactive pill badges | LOW |
+| A-TKT-4 | Internal notes (is_internal=True) are isolated strictly for Buyer & Admin users via database queries and role permissions, styled with high-contrast amber theme and lock badge | LOW |
+| A-TKT-5 | Bidirectional issue linking supports relational types (BLOCKS, IS_BLOCKED_BY, RELATES_TO, DUPLICATES, CLONES) with an interactive ticket search selector to pick by ticket number or title | LOW |
 
 ---
 
-## Current Session State
-- **Planned**: Resolve audit findings: (1) Dynamic master data & telemetry wiring for Admin Dashboard (`SPEC_24`), (2) Real-time pre-flight budget availability check endpoint and buyer UI indicator (`SPEC_10`).
-- **Implemented**: Added `GET /api/v1/requisitions/budget-check` & `check_budget_preflight` in Requisition module; exported `useBudgetCheck` hook; wired dynamic live budget indicator into `/requisitions/new`; wired dynamic live queries (`useCategoryTree`, `useCurrencies`, `usePaymentTerms`, `useTaxCodes`, `useCostCenters`, `useCatalogItems`, `useBusinessUnits`, `useSystemHealth`) into Admin `/dashboard`; updated `docs/PROCUREMENT_PORTAL_AUDIT_REPORT.md` to 100% resolution.
-- **Tested**: 436/436 backend unit tests passing (including 5 new tests in `test_requisition_budget_check.py`); all 7 frontend packages passing TypeScript typecheck.
-- **Next**: Ready for full deployment, staging execution, or user-guided feature scenarios.
+### Current Session State
+- **Planned**: Enterprise Ticketing & SLAs (Kanban board, SLA breach countdowns, @mention parser, internal/external comment threading, bidirectional issue linking).
+- **Implemented**:
+  - Interactive 5-column Kanban board with DnD, real-time counters, search, priority filter (`TicketCard.tsx`, `buyer-portal/.../board`, `admin-portal/.../board`).
+  - Dynamic SLA countdowns with real-time visual alert tiers (<1h pulsing, ≤4h, ≤24h, breached by Xh) & progress bar (`TicketSLAIndicator.tsx`).
+  - @mention parser (`MentionParser`), auto-watcher registration, code-safe markdown pill chips (`TicketCommentFeed.tsx`, `TicketCommentBox.tsx`).
+  - Internal vs. external comment isolation (amber lock badge, strict backend query filtering, 15-minute edit window).
+  - Bidirectional issue linking with interactive ticket search selector across 7 relationship types (`TicketLinkedIssues.tsx`).
+  - Detail views for Buyer, Admin, Supplier with FSM transitions, resolution review, 5-star CSAT rating modal, and Custom Fields (EAV) panel.
+- **Tested**: 68/68 backend ticket tests passed; 439/439 global backend tests passed; `pnpm run typecheck` passed (0 errors across 9 packages).
+- **Next**: Contract Management & Authoring or Analytics & Spend Cube.
 
-### 📊 SPEC Audit: Module 26 Jira Enhancements (2026-09-08)
+### 📊 SPEC Audit: Enterprise Ticketing & SLAs (2026-09-09)
 ```
-MODULE | REQUIREMENT | STATUS | ARTIFACT / CODE
-26.1 | Due Date field & Approaching Alerts | [DONE] | app/modules/ticket/models.py, app/tasks/ticket_sla.py, TicketCard.tsx
-26.2 | Bidirectional Issue Linking | [DONE] | TicketLink, TicketLinkedIssues.tsx, router.py
-26.3 | Custom Fields (EAV) | [DONE] | TicketCustomFieldDef/Value, TicketCustomFieldsPanel.tsx, admin-portal/custom-fields
-26.4 | Automation Rules Engine | [DONE] | TicketAutomationEngine, automation_engine.py, admin-portal/automation
-26.5 | Round-Robin Auto-Assignment (Redis INCR) | [DONE] | automation_engine.py, test_ticket_jira_features.py
-26.6 | Balanced Workload Auto-Assignment | [DONE] | repository.py, automation_engine.py
-26.7 | RBAC Permissions (link, config_fields, config_automation) | [DONE] | 0039_ticket_jira_permissions.py, router.py
+MODULE | SPEC REQUIREMENT | STATUS | ARTIFACT / CODE
+TKT.1 | Interactive 5-Column Kanban Board & Filters      | [DONE] | TicketCard.tsx, buyer/admin board pages
+TKT.2 | Dynamic SLA Breach Countdowns & Visual Tiers     | [DONE] | TicketSLAIndicator.tsx, test_ticket_sla_service.py
+TKT.3 | @mention Parser & Auto-Watcher Registration      | [DONE] | MentionParser, TicketCommentFeed.tsx, test_ticket_mention_parser.py
+TKT.4 | Internal Comment Threading & Supplier Isolation  | [DONE] | TicketCommentFeed.tsx, test_ticket_service.py
+TKT.5 | Bidirectional Issue Linking & Search Selector    | [DONE] | TicketLinkedIssues.tsx, test_ticket_jira_features.py
+TKT.6 | Multi-Portal Lifecycle FSM & CSAT Rating Modal   | [DONE] | buyer/admin/supplier tickets/[id], test_ticket_fsm.py
+TKT.7 | Custom Fields (EAV) Panel & Dynamic Schema       | [DONE] | TicketCustomFieldsPanel.tsx, test_ticket_jira_features.py
 OVERALL: 7/7 (100%) | BACKEND 100% | FRONTEND 100% | TESTS 100%
+```
+
+
+### 📊 SPEC Audit: Supplier Onboarding & Compliance (2026-09-09)
+```
+MODULE | SPEC REQUIREMENT | STATUS | ARTIFACT / CODE
+ONB.1 | Vendor Registration, KYC & Penny Drop Status   | [DONE] | supplier-portal/profile/page.tsx, test_vendor.py
+ONB.2 | Statutory Tax Identifiers (PAN/GSTIN/CIN/DUNS)  | [DONE] | vendor/schemas.py, buyer-portal/vendors/[id]
+ONB.3 | Multi-State Vendor Lifecycle & FSM Actions     | [DONE] | vendor/service.py, buyer-portal/vendors/[id]
+DOC.1 | 11 Statutory Document Upload & Expiry Tracking  | [DONE] | DocumentList.tsx, ComplianceExpiryAlert.tsx
+DOC.2 | ClamAV Antivirus Scanning & Download Blocking   | [DONE] | scanner.py, test_document_scanner.py
+INV.1 | Line-Level Invoice 3-Way Matching Engine       | [DONE] | ThreeWayMatchResult.tsx, invoice/service.py
+INV.2 | Quantity (±2%) & Price (±0.5%) Tolerances      | [DONE] | test_invoice_payment.py, ThreeWayMatchResult
+INV.3 | Statutory TDS & Business Day Payment Schedule  | [DONE] | PaymentSchedule.tsx, test_invoice_payment.py
+INV.4 | Supplier Invoice Detail View & Dispute Links   | [DONE] | supplier-portal/invoices/[id]/page.tsx
+OVERALL: 9/9 (100%) | BACKEND 100% | FRONTEND 100% | TESTS 100%
+```
+
+### 📊 SPEC Audit: RFQ & Reverse Auction Bidding (2026-09-09)
+```
+MODULE | SPEC REQUIREMENT | STATUS | ARTIFACT / CODE
+RFQ.1 | Emergency vs Standard RFQ (24h vs 72h window)  | [DONE] | rfqs/new/page.tsx, schemas.py
+RFQ.2 | Cryptographically Sealed Bids (AES-256 at rest) | [DONE] | supplier-portal/.../bid/page.tsx, test_rfq.py
+RFQ.3 | Dual-Authorization Bid Opening Ceremony        | [DONE] | rfqs/[id]/open-bids/page.tsx, BidSealedIndicator
+AUC.1 | Real-time WebSocket Live Reverse Auction       | [DONE] | useAuctionSocket.ts, buyer/supplier auction rooms
+AUC.2 | Anti-Sniping Dynamic Extensions (+10m triggers) | [DONE] | test_auction_tasks.py, PriceLeaderboard.tsx
+AUC.3 | Automated Confidential Proxy Floor Bidding     | [DONE] | test_auction_permissions.py, BidEntryPanel
+EVAL.1| L1 Comparative Statement & Landed Cost Discovery| [DONE] | ComparativeStatementTable.tsx, evaluation/page.tsx
+EVAL.2| Evaluation Versions & Regret Letter Dispatch    | [DONE] | cs_service.py, evaluation/page.tsx
+OVERALL: 8/8 (100%) | BACKEND 100% | FRONTEND 100% | TESTS 100%
+```
+
+### 📊 SPEC Audit: Requisition-to-PO Workflow (2026-09-09)
+```
+MODULE | SPEC REQUIREMENT | STATUS | ARTIFACT / CODE
+PR.1 | PR Creation, Submission & Multi-Tier Approvals | [DONE] | requisition/service.py, tasks/page.tsx
+PR.2 | Budget Check & Hard Block Gate                 | [DONE] | test_requisition.py, BudgetIndicator.tsx
+PR.3 | PR Splitting & Merging with Line Allocations   | [DONE] | test_split_pr, requisitions/[id]/page.tsx
+PR.4 | Auto-Conversion of Approved PR to PO          | [DONE] | convert_to_po, purchase-orders/[id]/page.tsx
+PR.5 | Bidirectional PR <-> PO Linkage & Navigation   | [DONE] | POResponse.source_pr_id, PO success banner
+PO.1 | Vendor Acknowledgement / Rejection / Amendment | [DONE] | supplier-portal/purchase-orders/[id]/page.tsx
+OVERALL: 6/6 (100%) | BACKEND 100% | FRONTEND 100% | TESTS 100%
 ```
 

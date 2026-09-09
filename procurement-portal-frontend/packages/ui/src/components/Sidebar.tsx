@@ -3,7 +3,7 @@
 import React, { ReactNode, useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ChevronRight, PanelLeft } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 
 export type SidebarMode = 'pinned' | 'minimized' | 'auto-hide';
 
@@ -148,59 +148,6 @@ export function Sidebar({
           aria-label="Main Navigation"
           aria-expanded={effectivelyExpanded}
         >
-          {/* Header with Mode Options: Pinned / Minimized / Auto-hide */}
-          <div className="flex items-center justify-between px-2.5 py-1.5 mb-2 border-b border-neutral-200/60 dark:border-neutral-800/60 min-h-[36px]">
-            <div className="flex items-center gap-1.5 text-[11px] font-semibold tracking-wider text-neutral-400 dark:text-neutral-500 uppercase overflow-hidden">
-              <PanelLeft className="w-3.5 h-3.5 flex-shrink-0" />
-              {effectivelyExpanded && <span>Navigation</span>}
-            </div>
-
-            {effectivelyExpanded && onModeChange && (
-              <div
-                className="flex items-center bg-black/5 dark:bg-white/10 rounded-lg p-0.5 text-[10px]"
-                role="radiogroup"
-                aria-label="Sidebar Display Mode"
-              >
-                <button
-                  type="button"
-                  title="Pinned: Keep sidebar always open"
-                  onClick={() => onModeChange('pinned')}
-                  className={`px-1.5 py-0.5 rounded-md transition-all ${
-                    mode === 'pinned'
-                      ? 'bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white font-medium shadow-sm'
-                      : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
-                  }`}
-                >
-                  Pin
-                </button>
-                <button
-                  type="button"
-                  title="Minimized: Compact icon rail (hover to expand)"
-                  onClick={() => onModeChange('minimized')}
-                  className={`px-1.5 py-0.5 rounded-md transition-all ${
-                    mode === 'minimized'
-                      ? 'bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white font-medium shadow-sm'
-                      : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
-                  }`}
-                >
-                  Mini
-                </button>
-                <button
-                  type="button"
-                  title="Auto-hide: Completely hidden (hover edge to expand)"
-                  onClick={() => onModeChange('auto-hide')}
-                  className={`px-1.5 py-0.5 rounded-md transition-all ${
-                    mode === 'auto-hide'
-                      ? 'bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white font-medium shadow-sm'
-                      : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
-                  }`}
-                >
-                  Auto
-                </button>
-              </div>
-            )}
-          </div>
-
           <div className="flex-1 flex flex-col gap-1 overflow-y-auto overflow-x-hidden">
             {sections.map((section, sIdx) => (
               <div key={sIdx} className="mb-2">

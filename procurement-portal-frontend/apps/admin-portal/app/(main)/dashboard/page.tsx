@@ -111,20 +111,31 @@ export default function AdminDashboardPage() {
       count: isCostCentersLoading ? 0 : costCenters.length,
       unit: "centers",
       status: "ACTIVE",
-      href: "/master-data/locations",
+      href: "/organization/structure?tab=cost-centers",
       actionLabel: "Manage",
       icon: <Building2 className="w-5 h-5 text-amber-500" />,
     },
     {
-      name: "Item Catalog & Inventory",
+      name: "Business Units",
       code: "SPEC_24.6",
+      description: "Operational operating divisions and corporate branches",
+      count: businessUnits.length,
+      unit: "units",
+      status: "ACTIVE",
+      href: "/organization/structure?tab=business-units",
+      actionLabel: "Manage",
+      icon: <Layers className="w-5 h-5 text-purple-500" />,
+    },
+    {
+      name: "Item Catalog & Inventory",
+      code: "SPEC_24.7",
       description: "Standard master items and commodity inventory catalog",
       count: isCatalogItemsLoading ? 0 : (Array.isArray(catalogItems) ? catalogItems.length : 0),
       unit: "items",
       status: "ACTIVE",
       href: "/master-data/import",
       actionLabel: "Import CSV",
-      icon: <Layers className="w-5 h-5 text-purple-500" />,
+      icon: <Layers className="w-5 h-5 text-emerald-500" />,
     },
   ];
 
@@ -237,7 +248,14 @@ export default function AdminDashboardPage() {
 
         <Card
           title="Tenant & Security"
-          subtitle="Multi-tenant isolation & cryptographic tokens"
+          subtitle="Multi-tenant isolation & enterprise structure"
+          action={
+            <Link href="/organization">
+              <Button variant="ghost" size="sm" icon={<ArrowUpRight className="w-3.5 h-3.5" />}>
+                Manage
+              </Button>
+            </Link>
+          }
         >
           <div className="flex items-center gap-4 py-2">
             <div className="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-900/30 flex items-center justify-center text-amber-600 dark:text-amber-400">

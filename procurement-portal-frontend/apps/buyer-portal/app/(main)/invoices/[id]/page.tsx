@@ -11,7 +11,7 @@ import {
   useMatchInvoice,
   usePayments,
 } from "@procurement/hooks";
-import { ThreeWayMatchResult, PaymentSchedule, DocumentList, PermissionGuard, SplitScreenViewer } from "@procurement/ui";
+import { ThreeWayMatchResult, PaymentSchedule, DocumentList, PermissionGuard, SplitScreenViewer, Button } from "@procurement/ui";
 import {
   ArrowLeft,
   Receipt,
@@ -55,7 +55,7 @@ export default function InvoiceDetailPage() {
   if (isLoading) {
     return (
       <div className="py-24 text-center text-slate-400">
-        <Receipt className="h-10 w-10 mx-auto text-slate-300 animate-pulse mb-3" />
+        <Receipt className="h-10 w-10 mx-auto text-slate-300 dark:text-slate-600 animate-pulse mb-3" />
         Loading invoice and match results...
       </div>
     );
@@ -69,7 +69,7 @@ export default function InvoiceDetailPage() {
         <div className="mt-4">
           <Link
             href="/invoices"
-            className="text-sm font-medium text-indigo-600 hover:text-indigo-800"
+            className="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300"
           >
             ← Back to Invoices
           </Link>
@@ -133,7 +133,7 @@ export default function InvoiceDetailPage() {
       </div>
 
       {/* Invoice Header Card */}
-      <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md rounded-2xl border border-slate-200/80 dark:border-slate-800 p-6 shadow-xs">
+      <div className="bg-white/80 dark:bg-[#1C1C1F] backdrop-blur-md rounded-2xl border border-slate-200/80 dark:border-white/15 p-6 shadow-xs">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
           <div>
             <div className="flex items-center gap-3">
@@ -189,50 +189,48 @@ export default function InvoiceDetailPage() {
 
           {/* Action Buttons */}
           <div className="flex flex-wrap items-center gap-3">
-            <button
+            <Button
               type="button"
+              variant={splitScreenActive ? "primary" : "secondary"}
               onClick={() => setSplitScreenActive((prev) => !prev)}
-              className={`inline-flex items-center gap-2 px-3.5 py-2 text-sm font-semibold rounded-xl border transition-all ${
-                splitScreenActive
-                  ? "bg-blue-600 border-blue-600 text-white shadow-xs"
-                  : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-blue-300"
-              }`}
+              leftIcon={<Columns className="h-4 w-4" />}
             >
-              <Columns className="h-4 w-4" />
-              <span>{splitScreenActive ? "Exit Split View" : "Split Screen Viewer"}</span>
-            </button>
+              {splitScreenActive ? "Exit Split View" : "Split Screen Viewer"}
+            </Button>
 
             {isPendingApproval && (
               <>
                 <PermissionGuard permission="invoice.approve">
-                  <button
+                  <Button
                     onClick={handleApprove}
                     disabled={approveMutation.isPending}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-xl shadow-xs transition-colors disabled:opacity-50"
+                    variant="primary"
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white border-transparent"
+                    leftIcon={<CheckCircle2 className="h-4 w-4" />}
                   >
-                    <CheckCircle2 className="h-4 w-4" />
                     {approveMutation.isPending ? "Approving..." : "Approve Invoice"}
-                  </button>
+                  </Button>
                 </PermissionGuard>
 
                 <PermissionGuard permission="invoice.dispute">
-                  <button
+                  <Button
                     onClick={() => setDisputeModalOpen(true)}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-amber-50 dark:bg-amber-950/30 hover:bg-amber-100 dark:hover:bg-amber-950/50 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 text-sm font-medium rounded-xl transition-colors"
+                    variant="secondary"
+                    className="bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800 hover:bg-amber-100 dark:hover:bg-amber-950/50"
+                    leftIcon={<AlertTriangle className="h-4 w-4" />}
                   >
-                    <AlertTriangle className="h-4 w-4" />
                     Raise Dispute
-                  </button>
+                  </Button>
                 </PermissionGuard>
 
                 <PermissionGuard permission="invoice.reject">
-                  <button
+                  <Button
                     onClick={() => setRejectModalOpen(true)}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-rose-950/20 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-rose-600 dark:text-rose-300 border border-rose-200 dark:border-rose-900/40 text-sm font-medium rounded-xl transition-colors"
+                    variant="danger"
+                    leftIcon={<XCircle className="h-4 w-4" />}
                   >
-                    <XCircle className="h-4 w-4" />
                     Reject
-                  </button>
+                  </Button>
                 </PermissionGuard>
               </>
             )}
@@ -267,8 +265,8 @@ export default function InvoiceDetailPage() {
           <PaymentSchedule invoice={invoice} paymentRecord={paymentRecord} />
 
           {/* Line Items Table */}
-          <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md rounded-2xl border border-slate-200/80 dark:border-slate-800 overflow-hidden shadow-xs">
-            <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 flex items-center justify-between">
+          <div className="bg-white/80 dark:bg-[#1C1C1F] backdrop-blur-md rounded-2xl border border-slate-200/80 dark:border-white/15 overflow-hidden shadow-xs">
+            <div className="px-5 py-4 border-b border-slate-100 dark:border-white/10 bg-slate-50/50 dark:bg-[#252529] flex items-center justify-between">
               <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Invoiced Line Items</h3>
               <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
                 Subtotal: {invoice.currency} {Number(invoice.subtotal).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
@@ -276,8 +274,8 @@ export default function InvoiceDetailPage() {
             </div>
 
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-800 text-xs">
-                <thead className="bg-slate-50/80 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 font-semibold uppercase tracking-wider">
+              <table className="min-w-full divide-y divide-slate-200 dark:divide-white/10 text-xs">
+                <thead className="bg-slate-50/80 dark:bg-[#252529] text-slate-600 dark:text-slate-300 font-semibold uppercase tracking-wider">
                   <tr>
                     <th className="py-3 pl-4 pr-3 text-left">Line #</th>
                     <th className="px-3 py-3 text-left">Description</th>
@@ -288,9 +286,9 @@ export default function InvoiceDetailPage() {
                     <th className="py-3 pl-3 pr-4 text-right">Line Total</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-800 bg-white dark:bg-slate-900">
+                <tbody className="divide-y divide-slate-100 dark:divide-white/10 bg-white dark:bg-[#1C1C1F]">
                   {(invoice.lines || []).map((line) => (
-                    <tr key={line.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
+                    <tr key={line.id} className="hover:bg-slate-50/50 dark:hover:bg-white/[0.04] transition-colors">
                       <td className="py-3 pl-4 pr-3 text-slate-500 dark:text-slate-400 font-mono">
                         {line.line_number}
                       </td>
@@ -344,8 +342,8 @@ export default function InvoiceDetailPage() {
 
       {/* Reject Modal */}
       {rejectModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-200 dark:border-slate-800">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 dark:bg-black/70 backdrop-blur-sm p-4">
+          <div className="bg-white dark:bg-[#1C1C1F] rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-200 dark:border-white/15">
             <h3 className="text-lg font-bold text-slate-900 dark:text-white">Reject Invoice</h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
               Provide a mandatory justification reason for canceling this invoice.
@@ -357,23 +355,23 @@ export default function InvoiceDetailPage() {
                 placeholder="Reason for rejection..."
                 value={rejectReason}
                 onChange={(e) => setRejectReason(e.target.value)}
-                className="w-full p-3 border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
+                className="w-full p-3 border border-slate-200 dark:border-white/15 bg-slate-50 dark:bg-[#252529] text-slate-900 dark:text-white rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
               />
               <div className="flex justify-end gap-3">
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
                   onClick={() => setRejectModalOpen(false)}
-                  className="px-4 py-2 text-sm text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-white"
                 >
                   Cancel
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
                   disabled={rejectMutation.isPending}
-                  className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-sm font-medium rounded-xl shadow-xs transition-colors"
+                  variant="danger"
                 >
                   {rejectMutation.isPending ? "Rejecting..." : "Confirm Rejection"}
-                </button>
+                </Button>
               </div>
             </form>
           </div>
@@ -382,8 +380,8 @@ export default function InvoiceDetailPage() {
 
       {/* Dispute Modal */}
       {disputeModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-200 dark:border-slate-800">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 dark:bg-black/70 backdrop-blur-sm p-4">
+          <div className="bg-white dark:bg-[#1C1C1F] rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-200 dark:border-white/15">
             <h3 className="text-lg font-bold text-slate-900 dark:text-white">Raise Invoice Dispute</h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
               Open a structured dispute thread with the vendor for resolution.
@@ -396,7 +394,7 @@ export default function InvoiceDetailPage() {
                 <select
                   value={disputeReasonCode}
                   onChange={(e) => setDisputeReasonCode(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3 py-2 border border-slate-200 dark:border-white/15 rounded-xl text-sm bg-white dark:bg-[#252529] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 >
                   <option value="PRICE_MISMATCH">PRICE_MISMATCH</option>
                   <option value="QUANTITY_MISMATCH">QUANTITY_MISMATCH</option>
@@ -417,25 +415,26 @@ export default function InvoiceDetailPage() {
                   placeholder="Explain the specific issue with the invoice lines..."
                   value={disputeDescription}
                   onChange={(e) => setDisputeDescription(e.target.value)}
-                  className="w-full p-3 border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full p-3 border border-slate-200 dark:border-white/15 bg-slate-50 dark:bg-[#252529] text-slate-900 dark:text-white rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
 
               <div className="flex justify-end gap-3">
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
                   onClick={() => setDisputeModalOpen(false)}
-                  className="px-4 py-2 text-sm text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-white"
                 >
                   Cancel
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
                   disabled={disputeMutation.isPending}
-                  className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium rounded-xl shadow-xs transition-colors"
+                  variant="primary"
+                  className="bg-amber-600 hover:bg-amber-700 text-white border-transparent"
                 >
                   {disputeMutation.isPending ? "Submitting..." : "Submit Dispute"}
-                </button>
+                </Button>
               </div>
             </form>
           </div>

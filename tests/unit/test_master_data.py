@@ -516,3 +516,63 @@ class TestMasterDataImportService:
         assert job.job_type == "CATEGORY_IMPORT"
         assert len(job.request_payload["rows"]) == 2
         mock_task.assert_called_once()
+
+
+# =============================================================================
+# 10. Incoterms Router Tests
+# =============================================================================
+
+
+class TestIncotermEndpoints:
+    def test_incoterm_create_request_validation(self):
+        from app.modules.master_data.router import IncotermCreateRequest, IncotermUpdateRequest
+        req = IncotermCreateRequest(
+            code="DDP",
+            name="Delivered Duty Paid",
+            edition_year=2020,
+            risk_transfer_point="Buyer designated premises",
+        )
+        assert req.code == "DDP"
+        assert req.edition_year == 2020
+
+        upd = IncotermUpdateRequest(name="Updated DDP", is_active=False)
+        assert upd.name == "Updated DDP"
+        assert upd.is_active is False
+
+    @pytest.mark.asyncio
+    async def test_create_incoterm_conflict(self, org_id, user_id):
+        from app.modules.master_data.router import IncotermCreateRequest, create_incoterm
+        mock_user = MagicMock(id=user_id, org_id=org_id)
+        mock_db = AsyncMock()
+        mock_res = MagicMock()
+        mock_res.scalar_one_or_none.return_value = MagicMock()  # existing found
+        mock_db.execute.return_value = mock_res
+
+        req = IncotermCreateRequest(
+            code="FOB",
+            name="Free on Board",
+            risk_transfer_point="Port of origin",
+        )
+        with pytest.raises(ConflictError):
+            await create_incoterm(req, mock_user, mock_db)
+
+    @pytest.mark.asyncio
+    async def test_create_incoterm_success(self, org_id, user_id):
+        from app.modules.master_data.router import IncotermCreateRequest, create_incoterm
+        mock_user = MagicMock(id=user_id, org_id=org_id)
+        mock_db = AsyncMock()
+        mock_res = MagicMock()
+        mock_res.scalar_one_or_none.return_value = None  # no existing
+        mock_db.execute.return_value = mock_res
+
+        req = IncotermCreateRequest(
+            code="CIF",
+            name="Cost, Insurance and Freight",
+            edition_year=2020,
+            risk_transfer_point="Ship rail at destination port",
+        )
+        res = await create_incoterm(req, mock_user, mock_db)
+        assert res["data"].code == "CIF"
+        mock_db.add.assert_called_once()
+        mock_db.commit.assert_called_once()
+

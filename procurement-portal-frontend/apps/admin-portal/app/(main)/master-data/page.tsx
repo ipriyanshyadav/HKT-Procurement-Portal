@@ -13,6 +13,9 @@ import {
   FileUp,
   ArrowRight,
   Database,
+  Building2,
+  Package,
+  Truck,
 } from "lucide-react";
 import {
   useCategories,
@@ -22,6 +25,9 @@ import {
   useTaxCodes,
   useDeliveryLocations,
   useHolidays,
+  useLegalEntities,
+  useCatalogItems,
+  useIncoterms,
 } from "@procurement/hooks";
 import { Badge, Button } from "@procurement/ui";
 
@@ -34,8 +40,19 @@ export default function MasterDataHubPage() {
   const { data: taxCodes } = useTaxCodes({ active_only: false });
   const { data: locations } = useDeliveryLocations({ active_only: false });
   const { data: holidays } = useHolidays(currentYear);
+  const { data: legalEntities } = useLegalEntities();
+  const { data: catalogItems } = useCatalogItems({ active_only: false });
+  const { data: incoterms } = useIncoterms({ active_only: false });
 
   const entities = [
+    {
+      title: "Organization & Structure",
+      description: "Operating business units, manufacturing plants, departments & cost centers.",
+      href: "/organization/structure",
+      count: legalEntities?.length ?? 0,
+      icon: <Building2 className="w-5 h-5 text-indigo-500" />,
+      badge: "Enterprise",
+    },
     {
       title: "Category Hierarchy",
       description: "5-level taxonomy with UNSPSC mapping for sourcing and spend analytics.",
@@ -79,7 +96,7 @@ export default function MasterDataHubPage() {
     {
       title: "Delivery Locations & Plants",
       description: "Warehouse facilities, manufacturing plants, logistics hubs, and PIN postal codes.",
-      href: "/master-data/locations",
+      href: "/organization/facilities",
       count: locations?.length ?? 0,
       icon: <MapPin className="w-5 h-5 text-indigo-500" />,
       badge: "Logistics",
@@ -91,6 +108,22 @@ export default function MasterDataHubPage() {
       count: holidays?.length ?? 0,
       icon: <Calendar className="w-5 h-5 text-cyan-500" />,
       badge: `${currentYear} Active`,
+    },
+    {
+      title: "Item Master Catalog",
+      description: "Standardized catalog goods and services, benchmark pricing, UNSPSC taxonomy, and PunchOut stores.",
+      href: "/master-data/items",
+      count: catalogItems?.length ?? 0,
+      icon: <Package className="w-5 h-5 text-teal-500" />,
+      badge: "Catalog",
+    },
+    {
+      title: "Incoterms 2020",
+      description: "ICC standardized terms defining freight, customs clearance, insurance, and risk division points.",
+      href: "/master-data/incoterms",
+      count: incoterms?.length ?? 0,
+      icon: <Truck className="w-5 h-5 text-sky-500" />,
+      badge: "ICC 2020",
     },
     {
       title: "CSV Bulk Import Engine",

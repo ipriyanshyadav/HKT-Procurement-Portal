@@ -69,6 +69,7 @@ filterwarnings = [
     "ignore::starlette.exceptions.StarletteDeprecationWarning",
     "ignore:The anyio.abc.BlockingPortal alias is deprecated.*:DeprecationWarning",
     "ignore:.*unclosed .*:ResourceWarning",
+    "ignore:coroutine 'AsyncMockMixin.*' was never awaited:RuntimeWarning",
 ]
 markers = [
     "unit: Unit tests",

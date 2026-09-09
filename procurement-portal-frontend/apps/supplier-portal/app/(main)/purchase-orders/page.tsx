@@ -167,54 +167,54 @@ export default function SupplierPurchaseOrdersPage() {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+        <div className="bg-white dark:bg-[#1C1C1F] p-4 rounded-xl border border-slate-200 dark:border-white/15 shadow-sm">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider">
             <span>Total Orders</span>
             <FileText className="h-4 w-4 text-slate-400" />
           </div>
-          <div className="mt-2 text-2xl font-bold text-slate-900 dark:text-white">{kpis.total}</div>
+          <div className="mt-2 text-2xl font-bold font-mono text-slate-900 dark:text-white">{kpis.total}</div>
         </div>
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+        <div className="bg-white dark:bg-[#1C1C1F] p-4 rounded-xl border border-slate-200 dark:border-white/15 shadow-sm">
           <div className="flex items-center justify-between text-amber-600 dark:text-amber-400 text-xs font-semibold uppercase tracking-wider">
             <span>Action Required</span>
             <Clock className="h-4 w-4 text-amber-500" />
           </div>
-          <div className="mt-2 text-2xl font-bold text-amber-600 dark:text-amber-400">{kpis.pendingAck}</div>
-          <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1">Pending your acknowledgment</p>
+          <div className="mt-2 text-2xl font-bold font-mono text-amber-600 dark:text-amber-400">{kpis.pendingAck}</div>
+          <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 font-medium">Pending your acknowledgment</p>
         </div>
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+        <div className="bg-white dark:bg-[#1C1C1F] p-4 rounded-xl border border-slate-200 dark:border-white/15 shadow-sm">
           <div className="flex items-center justify-between text-emerald-600 dark:text-emerald-400 text-xs font-semibold uppercase tracking-wider">
             <span>Acknowledged / Active</span>
             <CheckCircle2 className="h-4 w-4 text-emerald-500" />
           </div>
-          <div className="mt-2 text-2xl font-bold text-emerald-600 dark:text-emerald-400">{kpis.acknowledged}</div>
+          <div className="mt-2 text-2xl font-bold font-mono text-emerald-600 dark:text-emerald-400">{kpis.acknowledged}</div>
         </div>
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+        <div className="bg-white dark:bg-[#1C1C1F] p-4 rounded-xl border border-slate-200 dark:border-white/15 shadow-sm">
           <div className="flex items-center justify-between text-indigo-600 dark:text-indigo-400 text-xs font-semibold uppercase tracking-wider">
             <span>Fulfilled / Closed</span>
             <Truck className="h-4 w-4 text-indigo-500" />
           </div>
-          <div className="mt-2 text-2xl font-bold text-indigo-600 dark:text-indigo-400">{kpis.completed}</div>
+          <div className="mt-2 text-2xl font-bold font-mono text-indigo-600 dark:text-indigo-400">{kpis.completed}</div>
         </div>
       </div>
 
       {/* Search and Filters */}
-      <div className="flex flex-col sm:flex-row items-center gap-3 bg-white dark:bg-slate-900 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+      <div className="flex flex-col sm:flex-row items-center gap-3 bg-white dark:bg-[#1C1C1F] p-3.5 rounded-xl border border-slate-200 dark:border-white/15 shadow-sm">
         <div className="relative flex-1 w-full">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 dark:text-slate-500" />
           <input
             type="text"
             placeholder="Search by PO number or title..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-colors"
+            className="w-full pl-9 pr-4 py-2 border border-slate-200 dark:border-white/15 rounded-lg text-sm bg-slate-50 dark:bg-[#252529] text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:bg-white dark:focus:bg-[#252529] focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-colors"
           />
         </div>
         <div className="flex items-center gap-2 w-full sm:w-auto">
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="w-full sm:w-auto px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm bg-slate-50 dark:bg-slate-800 focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium text-slate-700 dark:text-slate-200"
+            className="w-full sm:w-auto px-3 py-2 border border-slate-200 dark:border-white/15 rounded-lg text-sm bg-slate-50 dark:bg-[#252529] focus:bg-white dark:focus:bg-[#252529] focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium text-slate-700 dark:text-slate-200"
           >
             <option value="">All Orders</option>
             <option value="SENT_TO_VENDOR">Pending My Acknowledgment</option>
@@ -228,12 +228,12 @@ export default function SupplierPurchaseOrdersPage() {
       </div>
 
       {/* Purchase Orders List */}
-      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+      <div className="bg-white dark:bg-[#1C1C1F] rounded-xl border border-slate-200 dark:border-white/15 shadow-sm overflow-hidden">
         {isLoading ? (
           <div className="p-8 text-center text-slate-500 dark:text-slate-400">
             <div className="animate-pulse space-y-3">
-              <div className="h-6 bg-slate-100 dark:bg-slate-800 rounded w-1/3 mx-auto"></div>
-              <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-1/2 mx-auto"></div>
+              <div className="h-6 bg-slate-100 dark:bg-white/10 rounded w-1/3 mx-auto"></div>
+              <div className="h-4 bg-slate-100 dark:bg-white/10 rounded w-1/2 mx-auto"></div>
             </div>
           </div>
         ) : isError ? (
@@ -242,27 +242,27 @@ export default function SupplierPurchaseOrdersPage() {
             <p className="font-semibold">Failed to load purchase orders</p>
             <button
               onClick={() => refetch()}
-              className="mt-2 text-sm text-emerald-600 hover:underline font-medium"
+              className="mt-2 text-sm text-emerald-600 dark:text-emerald-400 hover:underline font-medium"
             >
               Try again
             </button>
           </div>
         ) : purchaseOrders.length === 0 ? (
           <div className="p-12 text-center text-slate-500">
-            <Package className="h-10 w-10 mx-auto mb-3 text-slate-300" />
-            <h3 className="text-base font-semibold text-slate-800">No purchase orders found</h3>
-            <p className="text-sm mt-1 max-w-sm mx-auto text-slate-500">
+            <Package className="h-10 w-10 mx-auto mb-3 text-slate-300 dark:text-slate-600" />
+            <h3 className="text-base font-semibold text-slate-800 dark:text-slate-200">No purchase orders found</h3>
+            <p className="text-sm mt-1 max-w-sm mx-auto text-slate-500 dark:text-slate-400">
               Orders released to your organization will appear here for acknowledgment and fulfillment.
             </p>
           </div>
         ) : (
-          <div className="divide-y divide-slate-100 dark:divide-slate-800">
+          <div className="divide-y divide-slate-100 dark:divide-white/10">
             {purchaseOrders.map((po) => {
               const isExpanded = expandedPoId === po.id;
               const isPendingAck = po.status === "SENT_TO_VENDOR" || po.status === "RELEASED";
 
               return (
-                <div key={po.id} className="p-5 hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors space-y-4">
+                <div key={po.id} className="p-5 hover:bg-slate-50/50 dark:hover:bg-white/[0.04] transition-colors space-y-4">
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
                       <div className="flex items-center gap-2.5">
@@ -314,7 +314,7 @@ export default function SupplierPurchaseOrdersPage() {
                               );
                               setAmendmentModalOpen(true);
                             }}
-                            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 border border-indigo-200 dark:border-indigo-800 bg-white dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 text-xs font-semibold rounded-lg shadow-sm transition-colors"
+                            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 border border-indigo-200 dark:border-indigo-800 bg-white dark:bg-[#252529] hover:bg-indigo-50 dark:hover:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 text-xs font-semibold rounded-lg shadow-sm transition-colors"
                           >
                             <Edit3 className="h-4 w-4" />
                             Request Amendment
@@ -324,7 +324,7 @@ export default function SupplierPurchaseOrdersPage() {
                               setSelectedPO(po);
                               setRejectModalOpen(true);
                             }}
-                            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 border border-rose-200 dark:border-rose-800 bg-white dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-rose-700 dark:text-rose-300 text-xs font-semibold rounded-lg shadow-sm transition-colors"
+                            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 border border-rose-200 dark:border-rose-800 bg-white dark:bg-[#252529] hover:bg-rose-50 dark:hover:bg-rose-950/40 text-rose-700 dark:text-rose-300 text-xs font-semibold rounded-lg shadow-sm transition-colors"
                           >
                             <XCircle className="h-4 w-4" />
                             Reject
@@ -335,7 +335,7 @@ export default function SupplierPurchaseOrdersPage() {
                       <button
                         onClick={() => handleDownloadPDF(po.id)}
                         disabled={downloadPDFMutation.isPending}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-medium rounded-lg shadow-sm transition-colors disabled:opacity-50"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-slate-200 dark:border-white/15 bg-white dark:bg-[#252529] hover:bg-slate-50 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 text-xs font-medium rounded-lg shadow-sm transition-colors disabled:opacity-50"
                         title="Download official PO document"
                       >
                         <Download className="h-3.5 w-3.5 text-slate-500 dark:text-slate-400" />
@@ -344,7 +344,7 @@ export default function SupplierPurchaseOrdersPage() {
 
                       <button
                         onClick={() => setExpandedPoId(isExpanded ? null : po.id)}
-                        className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                        className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/10 rounded-lg transition-colors"
                       >
                         {isExpanded ? "Hide Lines" : "View Lines"}
                         {isExpanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
@@ -354,9 +354,9 @@ export default function SupplierPurchaseOrdersPage() {
 
                   {/* Expandable Line Items Table */}
                   {isExpanded && po.lines && (
-                    <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800 overflow-x-auto">
-                      <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-800 text-xs text-left">
-                        <thead className="bg-slate-50 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 font-semibold">
+                    <div className="mt-3 pt-3 border-t border-slate-100 dark:border-white/10 overflow-x-auto">
+                      <table className="min-w-full divide-y divide-slate-200 dark:divide-white/10 text-xs text-left">
+                        <thead className="bg-slate-50 dark:bg-[#252529] text-slate-600 dark:text-slate-300 font-semibold border-b border-slate-200 dark:border-white/10">
                           <tr>
                             <th className="px-3 py-2">#</th>
                             <th className="px-3 py-2">Item Description</th>
@@ -367,7 +367,7 @@ export default function SupplierPurchaseOrdersPage() {
                             <th className="px-3 py-2 text-right">Open Qty</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-100 dark:divide-slate-800 bg-white dark:bg-slate-900">
+                        <tbody className="divide-y divide-slate-100 dark:divide-white/10 bg-white dark:bg-[#1C1C1F]">
                           {po.lines.map((l) => (
                             <tr key={l.id}>
                               <td className="px-3 py-2 font-medium text-slate-500 dark:text-slate-400">{l.line_number}</td>
@@ -375,7 +375,7 @@ export default function SupplierPurchaseOrdersPage() {
                               <td className="px-3 py-2 text-right font-mono">{l.ordered_quantity}</td>
                               <td className="px-3 py-2 text-right font-mono">{formatCurrency(l.unit_price, po.currency)}</td>
                               <td className="px-3 py-2 text-right font-mono font-medium">{formatCurrency(l.total_price, po.currency)}</td>
-                              <td className="px-3 py-2 text-right font-mono text-green-700 dark:text-green-400">{l.received_quantity}</td>
+                              <td className="px-3 py-2 text-right font-mono text-emerald-700 dark:text-emerald-400">{l.received_quantity}</td>
                               <td className="px-3 py-2 text-right font-mono text-amber-700 dark:text-amber-400">{l.open_quantity}</td>
                             </tr>
                           ))}

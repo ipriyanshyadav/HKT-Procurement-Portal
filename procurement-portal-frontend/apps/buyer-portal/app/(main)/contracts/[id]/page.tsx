@@ -15,7 +15,7 @@ import {
   ContractLine,
   ContractAmendment,
 } from "@procurement/hooks";
-import { ContractExpiryCountdown, MilestoneTracker, DocumentList, PermissionGuard } from "@procurement/ui";
+import { ContractExpiryCountdown, MilestoneTracker, DocumentList, PermissionGuard, UnderlineTabs } from "@procurement/ui";
 import {
   FileText,
   Clock,
@@ -346,69 +346,20 @@ export default function ContractWorkspacePage() {
       </div>
 
       {/* Tabs Navigation */}
-      <div className="border-b border-slate-200 dark:border-slate-800">
-        <nav className="flex space-x-6">
-          <button
-            onClick={() => setActiveTab("overview")}
-            className={`pb-3 text-sm font-semibold border-b-2 transition-colors ${
-              activeTab === "overview"
-                ? "border-indigo-600 text-indigo-600 dark:text-indigo-400"
-                : "border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400"
-            }`}
-          >
-            Overview & SLAs
-          </button>
-          <button
-            onClick={() => setActiveTab("scorecard")}
-            className={`pb-3 text-sm font-semibold border-b-2 transition-colors ${
-              activeTab === "scorecard"
-                ? "border-indigo-600 text-indigo-600 dark:text-indigo-400"
-                : "border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400"
-            }`}
-          >
-            Performance Scorecard
-          </button>
-          <button
-            onClick={() => setActiveTab("lines")}
-            className={`pb-3 text-sm font-semibold border-b-2 transition-colors ${
-              activeTab === "lines"
-                ? "border-indigo-600 text-indigo-600 dark:text-indigo-400"
-                : "border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400"
-            }`}
-          >
-            Schedule of Rates ({lines.length})
-          </button>
-          <button
-            onClick={() => setActiveTab("milestones")}
-            className={`pb-3 text-sm font-semibold border-b-2 transition-colors ${
-              activeTab === "milestones"
-                ? "border-indigo-600 text-indigo-600 dark:text-indigo-400"
-                : "border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400"
-            }`}
-          >
-            Milestones ({milestones.length})
-          </button>
-          <button
-            onClick={() => setActiveTab("amendments")}
-            className={`pb-3 text-sm font-semibold border-b-2 transition-colors ${
-              activeTab === "amendments"
-                ? "border-indigo-600 text-indigo-600 dark:text-indigo-400"
-                : "border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400"
-            }`}
-          >
-            Amendments ({amendments.length})
-          </button>
-          <button
-            onClick={() => setActiveTab("esign")}
-            className={`pb-3 text-sm font-semibold border-b-2 transition-colors ${
-              activeTab === "esign"
-                ? "border-indigo-600 text-indigo-600 dark:text-indigo-400"
-                : "border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400"
-            }`}
-          >
-            eSign & Audit ({signingLogs.length})
-          </button>
-        </nav>
+      <div className="w-full">
+        <UnderlineTabs
+          tabs={[
+            { id: "overview", label: "Overview & SLAs" },
+            { id: "scorecard", label: "Performance Scorecard" },
+            { id: "lines", label: "Schedule of Rates", badge: lines.length },
+            { id: "milestones", label: "Milestones", badge: milestones.length },
+            { id: "amendments", label: "Amendments", badge: amendments.length },
+            { id: "esign", label: "eSign & Audit", badge: signingLogs.length },
+          ]}
+          activeTab={activeTab}
+          onChange={(id) => setActiveTab(id as any)}
+          ariaLabel="Contract Tabs"
+        />
       </div>
 
       {/* Tab 1: Overview & SLAs */}

@@ -66,6 +66,8 @@ export interface Rfq {
   bid_close_at?: string | null;
   bid_validity_days: number;
   is_multi_lot: boolean;
+  bidding_mode?: string;
+  auction_config?: Record<string, any> | null;
   amendment_count: number;
   created_at: string;
   updated_at: string;

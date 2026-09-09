@@ -176,6 +176,18 @@ DEFAULT_HOLIDAYS = [
     {"name": "Christmas", "holiday_date": date(2026, 12, 25)},
 ]
 
+DEFAULT_CATEGORIES = [
+    {"code": "CAT-IT", "name": "Information Technology", "parent_code": None, "level": 1},
+    {"code": "CAT-HW", "name": "Hardware & Compute", "parent_code": "CAT-IT", "level": 2},
+    {"code": "CAT-SW", "name": "Software & SaaS Licenses", "parent_code": "CAT-IT", "level": 2},
+    {"code": "CAT-CLOUD", "name": "Cloud & Network Services", "parent_code": "CAT-IT", "level": 2},
+    {"code": "CAT-NET", "name": "Networking & Telecom", "parent_code": "CAT-IT", "level": 2},
+    {"code": "CAT-FAC", "name": "Facilities & Office Supplies", "parent_code": None, "level": 1},
+    {"code": "CAT-FURN", "name": "Furniture & Workstations", "parent_code": "CAT-FAC", "level": 2},
+    {"code": "CAT-ELEC", "name": "Electrical & Maintenance", "parent_code": "CAT-FAC", "level": 2},
+    {"code": "CAT-LOG", "name": "Logistics & Transportation", "parent_code": None, "level": 1},
+]
+
 # Role-permission mappings: role_code -> list of permission codes granted
 ROLE_PERMISSIONS: dict[str, list[str]] = {
     "REQUESTOR": [
@@ -184,6 +196,7 @@ ROLE_PERMISSIONS: dict[str, list[str]] = {
         PermissionCode.DOCUMENT_UPLOAD, PermissionCode.DOCUMENT_VIEW_OWN,
         PermissionCode.NOTIFICATION_VIEW_OWN, PermissionCode.ANALYTICS_VIEW_DASHBOARD,
         PermissionCode.MASTER_VIEW,
+        PermissionCode.TICKET_CREATE, PermissionCode.TICKET_VIEW_OWN,
     ],
     "APPROVER": [
         PermissionCode.PR_VIEW_BU, PermissionCode.PR_APPROVE, PermissionCode.PR_REJECT,
@@ -191,6 +204,8 @@ ROLE_PERMISSIONS: dict[str, list[str]] = {
         PermissionCode.DOCUMENT_VIEW_OWN, PermissionCode.NOTIFICATION_VIEW_OWN,
         PermissionCode.ANALYTICS_VIEW_DASHBOARD, PermissionCode.WORKFLOW_VIEW,
         PermissionCode.MASTER_VIEW,
+        PermissionCode.TICKET_CREATE, PermissionCode.TICKET_VIEW_TEAM, PermissionCode.TICKET_VIEW_ALL,
+        PermissionCode.TICKET_ASSIGN, PermissionCode.TICKET_RESOLVE, PermissionCode.TICKET_REOPEN,
     ],
     "PROCUREMENT_OFFICER": [
         PermissionCode.PR_VIEW_ALL, PermissionCode.PR_APPROVE, PermissionCode.PR_REJECT,
@@ -208,6 +223,9 @@ ROLE_PERMISSIONS: dict[str, list[str]] = {
         PermissionCode.LIVE_AUCTION_CREATE, PermissionCode.LIVE_AUCTION_CANCEL,
         PermissionCode.LIVE_AUCTION_MONITOR, PermissionCode.LIVE_AUCTION_RELEASE_RESULTS,
         PermissionCode.MASTER_VIEW,
+        PermissionCode.TICKET_CREATE, PermissionCode.TICKET_VIEW_TEAM, PermissionCode.TICKET_VIEW_ALL,
+        PermissionCode.TICKET_ASSIGN, PermissionCode.TICKET_RESOLVE, PermissionCode.TICKET_REOPEN,
+        PermissionCode.TICKET_ADD_INTERNAL, PermissionCode.TICKET_LINK,
     ],
     "BUYER": [
         PermissionCode.PR_VIEW_ALL, PermissionCode.PR_APPROVE, PermissionCode.PR_REJECT,
@@ -225,6 +243,9 @@ ROLE_PERMISSIONS: dict[str, list[str]] = {
         PermissionCode.LIVE_AUCTION_CREATE, PermissionCode.LIVE_AUCTION_CANCEL,
         PermissionCode.LIVE_AUCTION_MONITOR, PermissionCode.LIVE_AUCTION_RELEASE_RESULTS,
         PermissionCode.MASTER_VIEW,
+        PermissionCode.TICKET_CREATE, PermissionCode.TICKET_VIEW_TEAM, PermissionCode.TICKET_VIEW_ALL,
+        PermissionCode.TICKET_ASSIGN, PermissionCode.TICKET_RESOLVE, PermissionCode.TICKET_REOPEN,
+        PermissionCode.TICKET_ADD_INTERNAL, PermissionCode.TICKET_LINK,
     ],
     "PROCUREMENT_MANAGER": [
         PermissionCode.PR_VIEW_ALL, PermissionCode.PR_APPROVE, PermissionCode.PR_REJECT,
@@ -246,6 +267,10 @@ ROLE_PERMISSIONS: dict[str, list[str]] = {
         PermissionCode.MASTER_VIEW,
         PermissionCode.LIVE_AUCTION_CREATE, PermissionCode.LIVE_AUCTION_CANCEL,
         PermissionCode.LIVE_AUCTION_MONITOR, PermissionCode.LIVE_AUCTION_RELEASE_RESULTS,
+        PermissionCode.TICKET_CREATE, PermissionCode.TICKET_VIEW_ALL, PermissionCode.TICKET_ASSIGN,
+        PermissionCode.TICKET_RESOLVE, PermissionCode.TICKET_CLOSE, PermissionCode.TICKET_REOPEN,
+        PermissionCode.TICKET_ESCALATE, PermissionCode.TICKET_ADD_INTERNAL, PermissionCode.TICKET_LINK,
+        PermissionCode.TICKET_EXPORT,
     ],
     "PROCUREMENT_HEAD": [
         PermissionCode.PR_VIEW_ALL, PermissionCode.PR_APPROVE, PermissionCode.PR_REJECT,
@@ -271,6 +296,10 @@ ROLE_PERMISSIONS: dict[str, list[str]] = {
         PermissionCode.ORG_VIEW, PermissionCode.ORG_VIEW_AUDIT,
         PermissionCode.LIVE_AUCTION_CREATE, PermissionCode.LIVE_AUCTION_CANCEL,
         PermissionCode.LIVE_AUCTION_MONITOR, PermissionCode.LIVE_AUCTION_RELEASE_RESULTS,
+        PermissionCode.TICKET_CREATE, PermissionCode.TICKET_VIEW_ALL, PermissionCode.TICKET_ASSIGN,
+        PermissionCode.TICKET_RESOLVE, PermissionCode.TICKET_CLOSE, PermissionCode.TICKET_REOPEN,
+        PermissionCode.TICKET_ESCALATE, PermissionCode.TICKET_ADD_INTERNAL, PermissionCode.TICKET_LINK,
+        PermissionCode.TICKET_EXPORT,
     ],
     "FINANCE_CONTROLLER": [
         PermissionCode.PR_VIEW_ALL, PermissionCode.PR_APPROVE,
@@ -334,6 +363,11 @@ ROLE_PERMISSIONS: dict[str, list[str]] = {
         PermissionCode.ORG_VIEW, PermissionCode.ORG_UPDATE, PermissionCode.ORG_MANAGE_SETTINGS, PermissionCode.ORG_VIEW_AUDIT,
         PermissionCode.LIVE_AUCTION_CREATE, PermissionCode.LIVE_AUCTION_CANCEL,
         PermissionCode.LIVE_AUCTION_MONITOR, PermissionCode.LIVE_AUCTION_RELEASE_RESULTS,
+        PermissionCode.TICKET_CREATE, PermissionCode.TICKET_VIEW_ALL, PermissionCode.TICKET_ASSIGN,
+        PermissionCode.TICKET_RESOLVE, PermissionCode.TICKET_CLOSE, PermissionCode.TICKET_REOPEN,
+        PermissionCode.TICKET_ESCALATE, PermissionCode.TICKET_ADD_INTERNAL, PermissionCode.TICKET_CONFIG_SLA,
+        PermissionCode.TICKET_EXPORT, PermissionCode.TICKET_LINK, PermissionCode.TICKET_CONFIG_CUSTOM_FIELDS,
+        PermissionCode.TICKET_CONFIG_AUTOMATION,
     ],
     "SOURCING_MANAGER": [
         PermissionCode.RFQ_CREATE, PermissionCode.RFQ_VIEW_ALL, PermissionCode.RFQ_PUBLISH,
@@ -375,6 +409,7 @@ ROLE_PERMISSIONS: dict[str, list[str]] = {
         PermissionCode.USER_VIEW_OWN, PermissionCode.USER_UPDATE_OWN,
         PermissionCode.CONTRACT_VIEW_OWN,
         PermissionCode.MASTER_VIEW,
+        PermissionCode.TICKET_CREATE, PermissionCode.TICKET_VIEW_OWN,
     ],
     "SUPPLIER_ADMIN": [
         PermissionCode.VENDOR_VIEW_OWN,
@@ -389,6 +424,7 @@ ROLE_PERMISSIONS: dict[str, list[str]] = {
         PermissionCode.USER_VIEW_OWN, PermissionCode.USER_UPDATE_OWN,
         PermissionCode.CONTRACT_VIEW_OWN,
         PermissionCode.MASTER_VIEW,
+        PermissionCode.TICKET_CREATE, PermissionCode.TICKET_VIEW_OWN,
     ],
     "SUPPLIER_USER": [
         PermissionCode.VENDOR_VIEW_OWN,
@@ -403,6 +439,7 @@ ROLE_PERMISSIONS: dict[str, list[str]] = {
         PermissionCode.USER_VIEW_OWN,
         PermissionCode.CONTRACT_VIEW_OWN,
         PermissionCode.MASTER_VIEW,
+        PermissionCode.TICKET_CREATE, PermissionCode.TICKET_VIEW_OWN,
     ],
     "SUPERADMIN": [
         # Full system access - all permissions except permanently denied
@@ -415,6 +452,11 @@ ROLE_PERMISSIONS: dict[str, list[str]] = {
         PermissionCode.ADMIN_MANAGE_SYSTEM, PermissionCode.ADMIN_VIEW_HEALTH,
         PermissionCode.MASTER_VIEW, PermissionCode.MASTER_CREATE, PermissionCode.MASTER_UPDATE,
         PermissionCode.MASTER_DELETE, PermissionCode.MASTER_IMPORT, PermissionCode.MASTER_EXPORT,
+        PermissionCode.TICKET_CREATE, PermissionCode.TICKET_VIEW_ALL, PermissionCode.TICKET_ASSIGN,
+        PermissionCode.TICKET_RESOLVE, PermissionCode.TICKET_CLOSE, PermissionCode.TICKET_REOPEN,
+        PermissionCode.TICKET_ESCALATE, PermissionCode.TICKET_ADD_INTERNAL, PermissionCode.TICKET_CONFIG_SLA,
+        PermissionCode.TICKET_EXPORT, PermissionCode.TICKET_LINK, PermissionCode.TICKET_CONFIG_CUSTOM_FIELDS,
+        PermissionCode.TICKET_CONFIG_AUTOMATION,
     ],
     "ORG_ADMIN": [
         PermissionCode.ORG_VIEW, PermissionCode.ORG_UPDATE, PermissionCode.ORG_MANAGE_SETTINGS, PermissionCode.ORG_VIEW_AUDIT,
@@ -425,6 +467,11 @@ ROLE_PERMISSIONS: dict[str, list[str]] = {
         PermissionCode.ANALYTICS_VIEW_DASHBOARD, PermissionCode.ANALYTICS_VIEW_REPORTS,
         PermissionCode.WORKFLOW_VIEW, PermissionCode.WORKFLOW_CREATE, PermissionCode.WORKFLOW_UPDATE,
         PermissionCode.RULES_VIEW, PermissionCode.RULES_CREATE,
+        PermissionCode.TICKET_CREATE, PermissionCode.TICKET_VIEW_ALL, PermissionCode.TICKET_ASSIGN,
+        PermissionCode.TICKET_RESOLVE, PermissionCode.TICKET_CLOSE, PermissionCode.TICKET_REOPEN,
+        PermissionCode.TICKET_ESCALATE, PermissionCode.TICKET_ADD_INTERNAL, PermissionCode.TICKET_CONFIG_SLA,
+        PermissionCode.TICKET_EXPORT, PermissionCode.TICKET_LINK, PermissionCode.TICKET_CONFIG_CUSTOM_FIELDS,
+        PermissionCode.TICKET_CONFIG_AUTOMATION,
     ],
 }
 
@@ -463,7 +510,7 @@ async def seed_data() -> None:
 
         logger.info("Seeded %d permissions", len(perm_code_to_id))
 
-        # 2. Ensure system org exists (FK required by roles.org_id)
+        # 2. Ensure system org and default org exist (FK required by roles.org_id)
         SYSTEM_ORG_ID = "00000000-0000-0000-0000-000000000000"
         DEFAULT_ORG_ID = "00000000-0000-0000-0000-000000000001"
         await session.execute(text("""
@@ -471,6 +518,11 @@ async def seed_data() -> None:
             VALUES (:id, 'System Organization', 'System Organization', 'IN', 1)
             ON CONFLICT (id) DO NOTHING
         """), {"id": SYSTEM_ORG_ID})
+        await session.execute(text("""
+            INSERT INTO organizations (id, name, legal_name, country_code, version)
+            VALUES (:id, 'Default Organization', 'Default Organization Private Limited', 'IN', 1)
+            ON CONFLICT (id) DO NOTHING
+        """), {"id": DEFAULT_ORG_ID})
 
         target_org_ids = [SYSTEM_ORG_ID, DEFAULT_ORG_ID]
 
@@ -548,6 +600,42 @@ async def seed_data() -> None:
         """), {"id": DEFAULT_ORG_ID})
 
         for target_org in [SYSTEM_ORG_ID, DEFAULT_ORG_ID]:
+            # Seed Categories (Level 1 first, then children)
+            for cat in DEFAULT_CATEGORIES:
+                if cat["parent_code"] is None:
+                    await session.execute(text("""
+                        INSERT INTO categories (id, org_id, code, name, parent_id, level, is_active, version)
+                        VALUES (:id, :org_id, :code, :name, NULL, :level, true, 1)
+                        ON CONFLICT (org_id, code) DO NOTHING
+                    """), {
+                        "id": str(uuid4()),
+                        "org_id": target_org,
+                        "code": cat["code"],
+                        "name": cat["name"],
+                        "level": cat["level"],
+                    })
+
+            for cat in DEFAULT_CATEGORIES:
+                if cat["parent_code"] is not None:
+                    p_res = await session.execute(
+                        text("SELECT id FROM categories WHERE org_id = :org_id AND code = :code"),
+                        {"org_id": target_org, "code": cat["parent_code"]}
+                    )
+                    p_row = p_res.fetchone()
+                    parent_id = str(p_row[0]) if p_row else None
+                    await session.execute(text("""
+                        INSERT INTO categories (id, org_id, code, name, parent_id, level, is_active, version)
+                        VALUES (:id, :org_id, :code, :name, :parent_id, :level, true, 1)
+                        ON CONFLICT (org_id, code) DO NOTHING
+                    """), {
+                        "id": str(uuid4()),
+                        "org_id": target_org,
+                        "code": cat["code"],
+                        "name": cat["name"],
+                        "parent_id": parent_id,
+                        "level": cat["level"],
+                    })
+
             # Seed UOMs
             for uom in DEFAULT_UOMS:
                 await session.execute(text("""

@@ -107,6 +107,7 @@ class POResponse(BaseModel):
     title: str
     vendor_id: UUID
     vendor_name: Optional[str] = None
+    source_pr_id: Optional[UUID] = None
     rfq_id: Optional[UUID] = None
     arn_id: Optional[UUID] = None
     contract_id: Optional[UUID] = None

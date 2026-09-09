@@ -54,10 +54,10 @@ export const PRLineItemTable: React.FC<PRLineItemTableProps> = ({
   const totalValue = lines.reduce((acc, curr) => acc + (curr.estimated_total || curr.quantity * curr.estimated_unit_price || 0), 0);
 
   return (
-    <div className="w-full border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm">
+    <div className="w-full apple-table-container border border-slate-200/80 dark:border-white/10 rounded-xl overflow-hidden bg-white dark:bg-[#1C1C1E] shadow-xs">
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200 text-sm text-left">
-          <thead className="bg-gray-50 text-gray-700 font-semibold uppercase text-xs tracking-wider">
+        <table className="min-w-full divide-y divide-slate-200/80 dark:divide-white/10 text-sm text-left">
+          <thead className="bg-slate-50/80 dark:bg-[#252529] text-slate-500 dark:text-slate-400 font-medium text-xs">
             <tr>
               <th scope="col" className="px-4 py-3 w-12 text-center">#</th>
               <th scope="col" className="px-4 py-3">Description</th>
@@ -70,17 +70,17 @@ export const PRLineItemTable: React.FC<PRLineItemTableProps> = ({
               {editable && <th scope="col" className="px-4 py-3 text-right">Actions</th>}
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100 text-gray-800">
+          <tbody className="divide-y divide-slate-100 dark:divide-white/5 text-slate-800 dark:text-slate-200">
             {lines.length === 0 ? (
               <tr>
-                <td colSpan={editable ? 9 : 8} className="text-center py-8 text-gray-400">
+                <td colSpan={editable ? 9 : 8} className="text-center py-8 text-slate-400 dark:text-slate-500">
                   No line items added yet.
                 </td>
               </tr>
             ) : (
               lines.map((line, idx) => (
-                <tr key={line.line_number || idx} className="hover:bg-gray-50/75 transition-colors">
-                  <td className="px-4 py-3 text-center font-medium text-gray-500">
+                <tr key={line.line_number || idx} className="hover:bg-slate-50/60 dark:hover:bg-white/[0.03] transition-colors">
+                  <td className="px-4 py-3 text-center font-medium text-slate-400 dark:text-slate-500">
                     {line.line_number || idx + 1}
                   </td>
                   <td className="px-4 py-3">
@@ -90,20 +90,20 @@ export const PRLineItemTable: React.FC<PRLineItemTableProps> = ({
                         value={line.item_description}
                         onChange={(e) => handleUpdate(idx, "item_description", e.target.value)}
                         placeholder="Item description..."
-                        className="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:outline-none"
+                        className="w-full px-2.5 py-1 text-xs border border-slate-200 dark:border-white/15 rounded-lg bg-slate-50/50 dark:bg-white/5 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:outline-none transition-all"
                       />
                     ) : (
-                      <span className="font-medium text-gray-900">{line.item_description}</span>
+                      <span className="font-medium text-slate-900 dark:text-slate-100">{line.item_description}</span>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-gray-600 font-mono text-xs">
+                  <td className="px-4 py-3 text-slate-500 dark:text-slate-400 font-mono text-xs">
                     {editable ? (
                       <input
                         type="text"
                         value={line.item_code || ""}
                         onChange={(e) => handleUpdate(idx, "item_code", e.target.value)}
                         placeholder="Optional code"
-                        className="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:outline-none"
+                        className="w-full px-2.5 py-1 text-xs border border-slate-200 dark:border-white/15 rounded-lg bg-slate-50/50 dark:bg-white/5 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:outline-none transition-all"
                       />
                     ) : (
                       line.item_code || "—"
@@ -114,7 +114,7 @@ export const PRLineItemTable: React.FC<PRLineItemTableProps> = ({
                       <select
                         value={line.uom_id}
                         onChange={(e) => handleUpdate(idx, "uom_id", e.target.value)}
-                        className="w-28 px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:outline-none bg-white text-xs"
+                        className="w-28 px-2 py-1 border border-slate-200 dark:border-white/15 rounded-lg bg-slate-50/50 dark:bg-[#252529] text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:outline-none text-xs"
                       >
                         {uoms.map((u) => (
                           <option key={u.id} value={u.id}>
@@ -123,7 +123,7 @@ export const PRLineItemTable: React.FC<PRLineItemTableProps> = ({
                         ))}
                       </select>
                     ) : (
-                      <span className="text-gray-700 text-xs">
+                      <span className="text-slate-600 dark:text-slate-300 text-xs">
                         {uoms?.find((u) => u.id === line.uom_id)?.code || line.uom_id || "—"}
                       </span>
                     )}
@@ -136,10 +136,12 @@ export const PRLineItemTable: React.FC<PRLineItemTableProps> = ({
                         step="any"
                         value={line.quantity}
                         onChange={(e) => handleUpdate(idx, "quantity", parseFloat(e.target.value) || 0)}
-                        className="w-24 text-right px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:outline-none"
+                        className="w-24 text-right px-2.5 py-1 text-xs border border-slate-200 dark:border-white/15 rounded-lg bg-slate-50/50 dark:bg-white/5 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:outline-none transition-all"
                       />
                     ) : (
-                      Number(line.quantity).toLocaleString()
+                      <span className="text-slate-900 dark:text-slate-100 font-medium">
+                        {Number(line.quantity).toLocaleString()}
+                      </span>
                     )}
                   </td>
                   <td className="px-4 py-3 text-right">
@@ -150,22 +152,24 @@ export const PRLineItemTable: React.FC<PRLineItemTableProps> = ({
                         step="any"
                         value={line.estimated_unit_price}
                         onChange={(e) => handleUpdate(idx, "estimated_unit_price", parseFloat(e.target.value) || 0)}
-                        className="w-28 text-right px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:outline-none"
+                        className="w-28 text-right px-2.5 py-1 text-xs border border-slate-200 dark:border-white/15 rounded-lg bg-slate-50/50 dark:bg-white/5 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:outline-none transition-all"
                       />
                     ) : (
-                      Number(line.estimated_unit_price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                      <span className="text-slate-700 dark:text-slate-300 font-mono text-xs">
+                        {Number(line.estimated_unit_price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </span>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-right font-medium text-gray-900">
+                  <td className="px-4 py-3 text-right font-semibold text-slate-900 dark:text-slate-100 font-mono text-xs">
                     {(line.estimated_total ?? (line.quantity * line.estimated_unit_price)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </td>
-                  <td className="px-4 py-3 text-gray-600 text-xs">
+                  <td className="px-4 py-3 text-slate-500 dark:text-slate-400 text-xs">
                     {editable ? (
                       <input
                         type="date"
                         value={line.required_by_date || ""}
                         onChange={(e) => handleUpdate(idx, "required_by_date", e.target.value)}
-                        className="px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:outline-none"
+                        className="px-2.5 py-1 text-xs border border-slate-200 dark:border-white/15 rounded-lg bg-slate-50/50 dark:bg-white/5 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:outline-none transition-all"
                       />
                     ) : (
                       line.required_by_date || "—"
@@ -192,12 +196,12 @@ export const PRLineItemTable: React.FC<PRLineItemTableProps> = ({
               ))
             )}
           </tbody>
-          <tfoot className="bg-gray-50/80 font-semibold border-t border-gray-200">
+          <tfoot className="bg-slate-50/70 dark:bg-[#252529]/80 font-semibold border-t border-slate-200/80 dark:border-white/10">
             <tr>
-              <td colSpan={editable ? 6 : 5} className="px-4 py-3 text-right text-gray-600">
+              <td colSpan={editable ? 6 : 5} className="px-4 py-3 text-right text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider">
                 Estimated Total:
               </td>
-              <td className="px-4 py-3 text-right text-base text-blue-600 font-bold">
+              <td className="px-4 py-3 text-right text-base text-blue-600 dark:text-blue-400 font-bold font-mono">
                 {currency} {totalValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </td>
               <td colSpan={editable ? 2 : 1}></td>

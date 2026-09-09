@@ -75,14 +75,14 @@ export function TicketCommentBox({
     >
       <div className="p-3">
         <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-1.5 text-xs">
+          <div className="flex items-center gap-1 text-xs w-48 sm:w-56 p-1 bg-slate-100 dark:bg-slate-800 rounded-lg">
             <button
               type="button"
               onClick={() => setPreviewMode(false)}
-              className={`px-2.5 py-1 rounded font-medium transition-colors ${
+              className={`flex-1 py-1.5 px-3 rounded-md font-medium transition-all text-center justify-center flex items-center ${
                 !previewMode
-                  ? "bg-slate-100 text-slate-900"
-                  : "text-slate-500 hover:text-slate-800"
+                  ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs"
+                  : "text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white"
               }`}
             >
               Write
@@ -90,10 +90,10 @@ export function TicketCommentBox({
             <button
               type="button"
               onClick={() => setPreviewMode(true)}
-              className={`px-2.5 py-1 rounded font-medium transition-colors ${
+              className={`flex-1 py-1.5 px-3 rounded-md font-medium transition-all text-center justify-center flex items-center ${
                 previewMode
-                  ? "bg-slate-100 text-slate-900"
-                  : "text-slate-500 hover:text-slate-800"
+                  ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs"
+                  : "text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white"
               }`}
             >
               Preview

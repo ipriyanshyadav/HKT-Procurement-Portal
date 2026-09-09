@@ -19,6 +19,9 @@ export type { CurrencySelectProps, CurrencyOption } from "./CurrencySelect";
 export { PaymentTermsSelect } from "./PaymentTermsSelect";
 export type { PaymentTermsSelectProps, PaymentTermOption } from "./PaymentTermsSelect";
 
+export { IncotermSelect } from "./IncotermSelect";
+export type { IncotermSelectProps, IncotermOption } from "./IncotermSelect";
+
 export { VendorStatusBadge } from "./VendorStatusBadge";
 export type { VendorStatus } from "./VendorStatusBadge";
 
@@ -109,8 +112,8 @@ export type { KPIItemProps, HeroKPIStripProps, KPICardProps } from "./components
 export { SpendChart } from "./components/SpendChart";
 export type { SpendChartProps, SpendItem, BreakdownType } from "./components/SpendChart";
 
-export { Tabs, RadixTabs, TabsList, TabsTrigger, TabsContent } from "./components/Tabs";
-export type { TabsProps, TabOption } from "./components/Tabs";
+export { Tabs, SubTabs, UnderlineTabs, RadixTabs, TabsList, TabsTrigger, TabsContent } from "./components/Tabs";
+export type { TabsProps, TabOption, TabsVariant, TabsSize } from "./components/Tabs";
 
 export { Skeleton } from "./components/Skeleton";
 export type { SkeletonProps } from "./components/Skeleton";
@@ -127,6 +130,12 @@ export type { SidebarProps, SidebarItemData, SidebarMode } from "./components/Si
 
 export { AppShell } from "./components/AppShell";
 export type { AppShellProps } from "./components/AppShell";
+
+export { PageTransition } from "./components/PageTransition";
+export type { PageTransitionProps } from "./components/PageTransition";
+
+export { VirtualTable } from "./components/VirtualTable";
+export type { VirtualTableProps, VirtualTableColumn } from "./components/VirtualTable";
 
 // Interaction Hooks
 export { useAppleReveal } from "./hooks/useAppleReveal";
