@@ -258,3 +258,20 @@ class ContractTemplateResponse(BaseModel):
     template_content: Dict[str, Any]
     is_active: bool
     created_at: datetime
+
+
+class ContractReviewSubmitRequest(BaseModel):
+    comment: Optional[str] = None
+
+
+class ContractApproveRequest(BaseModel):
+    comment: Optional[str] = None
+
+
+class ContractReturnRequest(BaseModel):
+    reason: str
+
+
+class ContractTerminateRequest(BaseModel):
+    reason: str
+

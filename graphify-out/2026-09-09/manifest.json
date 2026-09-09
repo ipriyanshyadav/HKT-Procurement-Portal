@@ -948,8 +948,8 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/types/src/api.ts": {
-    "mtime": 1788941669.416883,
-    "seen": 1788941739.6165388,
+    "mtime": 1788958267.7656524,
+    "seen": 1788958327.993303,
     "ast_hash": "78361e250bde117fcfd1a864cd6243cb",
     "semantic_hash": ""
   },
@@ -1482,9 +1482,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1788941297.0006337,
-    "seen": 1788941739.624299,
-    "ast_hash": "70d4bd8974b64bafeb17cba35068646c",
+    "mtime": 1788957229.692515,
+    "seen": 1788958327.998205,
+    "ast_hash": "f168ac2d2ad800d7c6307df0c5ff0cf0",
     "semantic_hash": ""
   },
   "graphify_diff_20260904_014322.txt": {
@@ -5112,8 +5112,8 @@
     "semantic_hash": ""
   },
   "app/modules/ticket/schemas.py": {
-    "mtime": 1788867714.46276,
-    "seen": 1788870391.1521459,
+    "mtime": 1788942222.7844663,
+    "seen": 1788958327.985396,
     "ast_hash": "425678c606377334520b042539b1f626",
     "semantic_hash": ""
   },
@@ -5148,9 +5148,9 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/admin-portal/app/(main)/tickets/page.tsx": {
-    "mtime": 1788902421.427877,
-    "seen": 1788902584.8968089,
-    "ast_hash": "c42f6f3c3c148b8318af08e6775a4750",
+    "mtime": 1788958251.9272716,
+    "seen": 1788958327.988238,
+    "ast_hash": "1ebbc61ea95a679de94fb9cc7a7aee52",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/admin-portal/app/(main)/tickets/reports/page.tsx": {
@@ -5166,9 +5166,9 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/buyer-portal/app/(main)/tickets/[id]/page.tsx": {
-    "mtime": 1788867714.4961553,
-    "seen": 1788870391.152266,
-    "ast_hash": "1965ef1f17c35f21f77a79f49c4a0a24",
+    "mtime": 1788958137.9912496,
+    "seen": 1788958327.98986,
+    "ast_hash": "a0e5745b1f9931ab97866d5c15425427",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/buyer-portal/app/(main)/tickets/assigned/page.tsx": {
@@ -5178,9 +5178,9 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/buyer-portal/app/(main)/tickets/board/page.tsx": {
-    "mtime": 1788902460.7456658,
-    "seen": 1788902584.898873,
-    "ast_hash": "37fd6fc90df072efe2ba25100246e5dd",
+    "mtime": 1788957281.0741904,
+    "seen": 1788958327.989892,
+    "ast_hash": "40c5e4b81de41cc1766296fdea51cec8",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/buyer-portal/app/(main)/tickets/my/page.tsx": {
@@ -5196,9 +5196,9 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/supplier-portal/app/(main)/tickets/[id]/page.tsx": {
-    "mtime": 1788867714.4972632,
-    "seen": 1788870391.1522958,
-    "ast_hash": "75ab8b7c76e73c08e0345a478e7dbc28",
+    "mtime": 1788958167.3303523,
+    "seen": 1788958327.990928,
+    "ast_hash": "eaa6bcc9020c9cd03744928c1e34f626",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/supplier-portal/app/(main)/tickets/new/page.tsx": {
@@ -5280,27 +5280,27 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/ui/src/components/tickets/TicketCard.tsx": {
-    "mtime": 1788867714.5011055,
-    "seen": 1788870391.15242,
-    "ast_hash": "1e9736830040ab3a719d172c2ad88134",
+    "mtime": 1788957259.8719704,
+    "seen": 1788958327.994875,
+    "ast_hash": "2918054c2117daf0a9a06d38914b910b",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/ui/src/components/tickets/TicketCommentBox.tsx": {
-    "mtime": 1788902381.293014,
-    "seen": 1788902584.9051242,
-    "ast_hash": "500e6892bbe535f7ec8ad5166e144d7d",
+    "mtime": 1788957399.4675815,
+    "seen": 1788958327.994876,
+    "ast_hash": "9271206c3ca80bb26e170811c7b0d4a5",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/ui/src/components/tickets/TicketCommentFeed.tsx": {
-    "mtime": 1788867714.5013192,
-    "seen": 1788870391.1524212,
-    "ast_hash": "c6495d15974588df9162730e1ccddfcc",
+    "mtime": 1788957381.7764761,
+    "seen": 1788958327.994878,
+    "ast_hash": "9e1aa1f37ce0ce8669127f1fb2d0388a",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/ui/src/components/tickets/TicketSLAIndicator.tsx": {
-    "mtime": 1788867714.5016484,
-    "seen": 1788870391.152423,
-    "ast_hash": "d3aa3ce6f9ace8a1d0dfc999e8b7d279",
+    "mtime": 1788957247.6070137,
+    "seen": 1788958327.994882,
+    "ast_hash": "d31a8a77a539b8f8cfb992672c09a56a",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/ui/src/components/tickets/index.ts": {
@@ -5364,9 +5364,9 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/admin-portal/app/(main)/tickets/[id]/page.tsx": {
-    "mtime": 1788867714.4943593,
-    "seen": 1788870391.152218,
-    "ast_hash": "12efcfcc0c05194c5b2f00fca692edea",
+    "mtime": 1788958228.2557402,
+    "seen": 1788958327.988141,
+    "ast_hash": "d0d1bd6f631fee17950a82d1099beb75",
     "semantic_hash": ""
   },
   "alembic/versions/0038_ticket_jira_schema.py": {
@@ -5400,15 +5400,15 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/ui/src/components/tickets/TicketCustomFieldsPanel.tsx": {
-    "mtime": 1788867714.5014434,
-    "seen": 1788870391.152422,
-    "ast_hash": "c6bd232adf49ea3bbb9f988e53eb30ea",
+    "mtime": 1788958093.5607746,
+    "seen": 1788958327.99488,
+    "ast_hash": "c9141a63edfdffc9fd113c079af1c7c7",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/ui/src/components/tickets/TicketLinkedIssues.tsx": {
-    "mtime": 1788867714.5015597,
-    "seen": 1788870391.152423,
-    "ast_hash": "11364fe8414e0fa38f3153485bb1487d",
+    "mtime": 1788958077.5101473,
+    "seen": 1788958327.994881,
+    "ast_hash": "47fa921b31e4a89612af4a7563af5437",
     "semantic_hash": ""
   },
   "tests/unit/test_ticket_jira_features.py": {
@@ -5571,6 +5571,12 @@
     "mtime": 1788941625.6387079,
     "seen": 1788941739.612608,
     "ast_hash": "472aab375192391023e1795e09f28c78",
+    "semantic_hash": ""
+  },
+  "procurement-portal-frontend/apps/admin-portal/app/(main)/tickets/board/page.tsx": {
+    "mtime": 1788958259.9500399,
+    "seen": 1788958327.9881752,
+    "ast_hash": "da7b3aa2ef6b2c67b7de5c8ec48e9da3",
     "semantic_hash": ""
   }
 }

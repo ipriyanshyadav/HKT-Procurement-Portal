@@ -603,20 +603,39 @@ docker compose logs -f -t
 | A-TKT-3 | @mentions in ticket comments are parsed via MentionParser into mentioned_users, auto-registered as watchers, and rendered as stylized interactive pill badges | LOW |
 | A-TKT-4 | Internal notes (is_internal=True) are isolated strictly for Buyer & Admin users via database queries and role permissions, styled with high-contrast amber theme and lock badge | LOW |
 | A-TKT-5 | Bidirectional issue linking supports relational types (BLOCKS, IS_BLOCKED_BY, RELATES_TO, DUPLICATES, CLONES) with an interactive ticket search selector to pick by ticket number or title | LOW |
+| A-CON-1 | Contract lifecycle FSM supports DRAFT -> PENDING_REVIEW -> APPROVED -> PENDING_ESIGN -> ACTIVE -> EXPIRED/TERMINATED with dedicated transition endpoints and strict supplier read-only boundary on approvals | LOW |
+| A-CON-2 | Contract milestones track deliverables with status (PENDING, COMPLETED, OVERDUE), responsible party (BUYER vs SUPPLIER), milestone weights, and completion notes for both buyer and supplier completion | LOW |
+| A-CON-3 | Rate card lines support contracted quantities or open-ended rate catalog items with unit rates, HSN codes, and live rate contract spend ceiling utilization tracking | LOW |
+| A-CON-4 | Contract amendments increment version counter, record immutable JSONB pre-change snapshots with field diffs, and update live contract parameters upon manager approval | LOW |
+| A-CON-5 | Contract authoring wizard provides multi-step setup across General Info, Template Clauses, Rate Card lines, Milestone schedules, and Auto-Renewal configuration | LOW |
+| A-CON-6 | Multi-portal Apple design calibration extends across Buyer Portal contracts suite and introduces dedicated Supplier Portal contracts view (/contracts, /contracts/[id]) with strict vendor isolation | LOW |
+
 
 ---
 
 ### Current Session State
-- **Planned**: Enterprise Ticketing & SLAs (Kanban board, SLA breach countdowns, @mention parser, internal/external comment threading, bidirectional issue linking).
+- **Planned**: Contract Management & Authoring (Contract lifecycle FSM, milestone tracking, rate cards with spend ceiling, amendment versioning, multi-portal suite).
 - **Implemented**:
-  - Interactive 5-column Kanban board with DnD, real-time counters, search, priority filter (`TicketCard.tsx`, `buyer-portal/.../board`, `admin-portal/.../board`).
-  - Dynamic SLA countdowns with real-time visual alert tiers (<1h pulsing, ≤4h, ≤24h, breached by Xh) & progress bar (`TicketSLAIndicator.tsx`).
-  - @mention parser (`MentionParser`), auto-watcher registration, code-safe markdown pill chips (`TicketCommentFeed.tsx`, `TicketCommentBox.tsx`).
-  - Internal vs. external comment isolation (amber lock badge, strict backend query filtering, 15-minute edit window).
-  - Bidirectional issue linking with interactive ticket search selector across 7 relationship types (`TicketLinkedIssues.tsx`).
-  - Detail views for Buyer, Admin, Supplier with FSM transitions, resolution review, 5-star CSAT rating modal, and Custom Fields (EAV) panel.
-- **Tested**: 68/68 backend ticket tests passed; 439/439 global backend tests passed; `pnpm run typecheck` passed (0 errors across 9 packages).
-- **Next**: Contract Management & Authoring or Analytics & Spend Cube.
+  - Full Lifecycle FSM (`DRAFT` ➔ `PENDING_REVIEW` ➔ `APPROVED` ➔ `PENDING_ESIGN` ➔ `ACTIVE` ➔ `EXPIRED`/`TERMINATED`) with dedicated endpoints (`/submit-review`, `/approve`, `/return`, `/activate`, `/terminate`).
+  - Contract Milestones CRUD & Completion (`MilestoneTracker.tsx`, `/milestones`, `/milestones/{id}/complete`) with role filter chips, completion notes, and supplier isolation.
+  - Rate Cards & Spend Ceiling Utilization (`RateCardTable.tsx`, `/lines`) with drawdown meter, warning threshold (>90%), and CSV export.
+  - Amendment Versioning (`ContractAmendmentHistory.tsx`, `/amend`) with side-by-side before/after diff audit table and immutable pre-change snapshot preview.
+  - Multi-Portal Suite: Buyer contract authoring & workspace overhaul (`buyer-portal/contracts`, `[id]`); dedicated Supplier Portal contract suite (`supplier-portal/contracts`, `[id]`) with strict vendor isolation.
+- **Tested**: 12/12 backend contract integration tests passed in 2.88s; `pnpm run typecheck` passed (0 errors across 9 monorepo packages); zero dead code / console.log.
+- **Next**: Analytics & Spend Cube or next high-priority functional workflow.
+
+### 📊 SPEC Audit: Contract Management & Authoring (2026-09-09)
+```
+MODULE | SPEC REQUIREMENT | STATUS | ARTIFACT / CODE
+CON.1 | Contract Lifecycle FSM & Status Transitions        | [DONE] | fsm.py, router.py, buyer-portal/contracts/[id]
+CON.2 | Direct Activation & Cause-Based Termination Flows  | [DONE] | router.py, buyer-portal/contracts/[id], test_contract.py
+CON.3 | Milestone Tracking, Weighting & Vendor Completion  | [DONE] | MilestoneTracker.tsx, router.py, service.py
+CON.4 | Rate Card Line Item CRUD & Ceiling Drawdown Meter  | [DONE] | RateCardTable.tsx, router.py, test_contract.py
+CON.5 | Amendment Lineage, Pre-Change Snapshot & Diff View | [DONE] | ContractAmendmentHistory.tsx, test_contract.py
+CON.6 | Multi-Signatory eSign (Digio/DocuSign) Integration | [DONE] | router.py, buyer/supplier contracts/[id]
+CON.7 | Supplier Portal Contracts Suite & Vendor Isolation | [DONE] | supplier-portal/contracts, test_contract.py
+OVERALL: 7/7 (100%) | BACKEND 100% | FRONTEND 100% | TESTS 100%
+```
 
 ### 📊 SPEC Audit: Enterprise Ticketing & SLAs (2026-09-09)
 ```

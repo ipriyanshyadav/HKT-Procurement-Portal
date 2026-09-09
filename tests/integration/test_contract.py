@@ -600,3 +600,248 @@ async def test_contract_expiry_celery_task(org_id):
         assert stats["alerts_sent"] >= 1
         assert stats["renewals_processed"] >= 1
         assert stats["expired_count"] >= 1
+
+
+@pytest.mark.asyncio
+async def test_contract_lifecycle_endpoints_review_approve_activate_terminate():
+    """Test full contract lifecycle: DRAFT -> PENDING_REVIEW -> APPROVED -> ACTIVE -> TERMINATED."""
+    org_id = uuid4()
+    async with TestSession() as db:
+        fix = await create_contract_fixtures(db, org_id)
+
+        req = ContractCreateRequest(
+            title="Lifecycle Contract",
+            vendor_id=fix["vendor_id"],
+            contract_type="RATE_CONTRACT",
+            currency="INR",
+            total_value=Decimal("500000.00"),
+            start_date=date.today(),
+            end_date=date.today() + timedelta(days=365),
+            business_unit_id=fix["bu_id"],
+            category_id=fix["cat_id"],
+        )
+        contract = await contract_service.create_contract(
+            db, data=req, actor_id=fix["buyer_id"], org_id=org_id
+        )
+        assert contract.status == "DRAFT"
+
+        # 1. Submit for review -> PENDING_REVIEW
+        c_review = await contract_service.update_status(
+            db,
+            contract_id=contract.id,
+            new_status="PENDING_REVIEW",
+            actor_id=fix["buyer_id"],
+            org_id=org_id,
+            notes="Ready for managerial review",
+        )
+        assert c_review.status == "PENDING_REVIEW"
+
+        # 2. Approve -> APPROVED
+        c_approved = await contract_service.update_status(
+            db,
+            contract_id=contract.id,
+            new_status="APPROVED",
+            actor_id=fix["buyer_id"],
+            org_id=org_id,
+            notes="Commercial terms approved",
+        )
+        assert c_approved.status == "APPROVED"
+
+        # 3. Direct Activate -> ACTIVE
+        c_active = await contract_service.update_status(
+            db,
+            contract_id=contract.id,
+            new_status="ACTIVE",
+            actor_id=fix["buyer_id"],
+            org_id=org_id,
+            notes="Activated by manager",
+        )
+        assert c_active.status == "ACTIVE"
+
+        # 4. Terminate -> TERMINATED
+        c_term = await contract_service.update_status(
+            db,
+            contract_id=contract.id,
+            new_status="TERMINATED",
+            actor_id=fix["buyer_id"],
+            org_id=org_id,
+            notes="Mutual early termination",
+        )
+        assert c_term.status == "TERMINATED"
+
+
+@pytest.mark.asyncio
+async def test_contract_lines_and_milestones_addition():
+    """Test dynamic addition of milestones and rate card catalog lines to an active contract."""
+    org_id = uuid4()
+    async with TestSession() as db:
+        fix = await create_contract_fixtures(db, org_id)
+
+        req = ContractCreateRequest(
+            title="Dynamic Contract",
+            vendor_id=fix["vendor_id"],
+            contract_type="RATE_CONTRACT",
+            currency="INR",
+            total_value=Decimal("200000.00"),
+            start_date=date.today(),
+            end_date=date.today() + timedelta(days=180),
+            business_unit_id=fix["bu_id"],
+            category_id=fix["cat_id"],
+        )
+        contract = await contract_service.create_contract(
+            db, data=req, actor_id=fix["buyer_id"], org_id=org_id
+        )
+
+        # Add milestone
+        m_req = ContractMilestoneCreate(
+            title="Phase 1 Architectural Blueprint",
+            description="Initial architectural design signoff",
+            due_date=date.today() + timedelta(days=30),
+            responsible_party="BUYER",
+            milestone_weight=Decimal("25.00"),
+        )
+        milestone = await contract_service.add_milestone(
+            db,
+            contract_id=contract.id,
+            data=m_req,
+            actor_id=fix["buyer_id"],
+            org_id=org_id,
+        )
+        assert milestone.title == "Phase 1 Architectural Blueprint"
+        assert milestone.status == "PENDING"
+
+        # Complete milestone
+        completed = await contract_service.complete_milestone_by_id(
+            db,
+            milestone_id=milestone.id,
+            notes="Design reviewed and accepted",
+            actor_id=fix["buyer_id"],
+            org_id=org_id,
+        )
+        assert completed.status == "COMPLETED"
+
+        # Add line item
+        line_req = ContractLineCreate(
+            line_number=1,
+            item_description="Senior Cloud Architect Consultation",
+            uom_id=fix["uom_id"],
+            contracted_quantity=Decimal("100.00"),
+            unit_rate=Decimal("1500.00"),
+            hsn_code="998313",
+        )
+        line = await contract_service.add_line(
+            db,
+            contract_id=contract.id,
+            data=line_req,
+            actor_id=fix["buyer_id"],
+            org_id=org_id,
+        )
+        assert line.item_description == "Senior Cloud Architect Consultation"
+        assert line.unit_rate == Decimal("1500.00")
+
+        # Delete line item in draft contract
+        await contract_service.delete_line(
+            db,
+            contract_id=contract.id,
+            line_id=line.id,
+            actor_id=fix["buyer_id"],
+            org_id=org_id,
+        )
+        remaining = await contract_repository.get_line(db, line.id, contract.id, org_id)
+        assert remaining is None
+
+
+@pytest.mark.asyncio
+async def test_contract_vendor_isolation_and_supplier_milestone():
+    """Test supplier isolation: vendor can only access own contracts and complete assigned milestones."""
+    org_id = uuid4()
+    async with TestSession() as db:
+        fix = await create_contract_fixtures(db, org_id)
+
+        other_vendor_id = uuid4()
+        await db.execute(
+            text("""
+            INSERT INTO vendors (id, org_id, vendor_code, company_name, primary_email, status, version)
+            VALUES (:id, :org_id, :code, 'Beta Corp', :email, 'ACTIVE', 1) ON CONFLICT (id) DO NOTHING
+            """),
+            {"id": other_vendor_id, "org_id": org_id, "code": f"V{other_vendor_id.hex[:4]}", "email": "beta@test.com"},
+        )
+
+        # Contract for Alpha Vendor
+        req = ContractCreateRequest(
+            title="Alpha Contract",
+            vendor_id=fix["vendor_id"],
+            contract_type="RATE_CONTRACT",
+            currency="INR",
+            total_value=Decimal("150000.00"),
+            start_date=date.today(),
+            end_date=date.today() + timedelta(days=90),
+            business_unit_id=fix["bu_id"],
+            category_id=fix["cat_id"],
+        )
+        contract = await contract_service.create_contract(
+            db, data=req, actor_id=fix["buyer_id"], org_id=org_id
+        )
+
+        # Add Supplier Milestone
+        supplier_m = await contract_service.add_milestone(
+            db,
+            contract_id=contract.id,
+            data=ContractMilestoneCreate(
+                title="Security Compliance Attestation",
+                due_date=date.today() + timedelta(days=15),
+                responsible_party="SUPPLIER",
+            ),
+            actor_id=fix["buyer_id"],
+            org_id=org_id,
+        )
+
+        # Add Buyer Milestone
+        buyer_m = await contract_service.add_milestone(
+            db,
+            contract_id=contract.id,
+            data=ContractMilestoneCreate(
+                title="PO Issuance",
+                due_date=date.today() + timedelta(days=5),
+                responsible_party="BUYER",
+            ),
+            actor_id=fix["buyer_id"],
+            org_id=org_id,
+        )
+
+        # 1. Supplier completing supplier milestone -> SUCCESS
+        completed_supplier_m = await contract_service.complete_milestone_by_id(
+            db,
+            milestone_id=supplier_m.id,
+            notes="SOC2 report submitted",
+            actor_id=fix["buyer_id"],
+            org_id=org_id,
+            vendor_id=fix["vendor_id"],
+        )
+        assert completed_supplier_m.status == "COMPLETED"
+
+        # 2. Supplier trying to complete buyer milestone -> FORBIDDEN
+        with pytest.raises(AppException) as exc_buyer_m:
+            await contract_service.complete_milestone_by_id(
+                db,
+                milestone_id=buyer_m.id,
+                notes="Supplier tried to approve buyer task",
+                actor_id=fix["buyer_id"],
+                org_id=org_id,
+                vendor_id=fix["vendor_id"],
+            )
+        assert "Milestone is assigned to Buyer" in str(exc_buyer_m.value)
+
+        # 3. Another vendor trying to complete alpha vendor's milestone -> FORBIDDEN
+        with pytest.raises(AppException) as exc_other_v:
+            await contract_service.complete_milestone_by_id(
+                db,
+                milestone_id=supplier_m.id,
+                notes="Rogue vendor call",
+                actor_id=fix["buyer_id"],
+                org_id=org_id,
+                vendor_id=other_vendor_id,
+            )
+        assert "Vendor does not own this contract" in str(exc_other_v.value)
+
+

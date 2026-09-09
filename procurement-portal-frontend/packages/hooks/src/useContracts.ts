@@ -230,3 +230,105 @@ export function useUpdateContractUtilization() {
     },
   });
 }
+
+export function useActivateContract() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ contractId, notes }: { contractId: string; notes?: string }) => {
+      const res = await apiClient.post(`/contracts/${contractId}/activate`, { notes });
+      return res.data.data as Contract;
+    },
+    onSuccess: (_, { contractId }) => {
+      queryClient.invalidateQueries({ queryKey: ["contracts"] });
+      queryClient.invalidateQueries({ queryKey: ["contracts", contractId] });
+    },
+  });
+}
+
+export function useTerminateContract() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ contractId, reason }: { contractId: string; reason: string }) => {
+      const res = await apiClient.post(`/contracts/${contractId}/terminate`, { reason });
+      return res.data.data as Contract;
+    },
+    onSuccess: (_, { contractId }) => {
+      queryClient.invalidateQueries({ queryKey: ["contracts"] });
+      queryClient.invalidateQueries({ queryKey: ["contracts", contractId] });
+    },
+  });
+}
+
+export function useCreateMilestone() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      contractId,
+      data,
+    }: {
+      contractId: string;
+      data: {
+        title: string;
+        description?: string;
+        due_date: string;
+        responsible_party: "BUYER" | "SUPPLIER" | "VENDOR" | "BOTH" | string;
+        milestone_weight?: number;
+      };
+    }) => {
+      const res = await apiClient.post(`/contracts/${contractId}/milestones`, data);
+      return res.data.data as ContractMilestone;
+    },
+    onSuccess: (_, { contractId }) => {
+      queryClient.invalidateQueries({ queryKey: ["contracts"] });
+      queryClient.invalidateQueries({ queryKey: ["contracts", contractId] });
+    },
+  });
+}
+
+export function useAddContractLine() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      contractId,
+      data,
+    }: {
+      contractId: string;
+      data: {
+        line_number: number;
+        item_description: string;
+        uom_id: string;
+        contracted_quantity?: number;
+        unit_rate: number;
+        hsn_code?: string;
+      };
+    }) => {
+      const res = await apiClient.post(`/contracts/${contractId}/lines`, data);
+      return res.data.data as ContractLine;
+    },
+    onSuccess: (_, { contractId }) => {
+      queryClient.invalidateQueries({ queryKey: ["contracts"] });
+      queryClient.invalidateQueries({ queryKey: ["contracts", contractId] });
+    },
+  });
+}
+
+export function useDeleteContractLine() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      contractId,
+      lineId,
+    }: {
+      contractId: string;
+      lineId: string;
+    }) => {
+      const res = await apiClient.delete(`/contracts/${contractId}/lines/${lineId}`);
+      return res.data.data;
+    },
+    onSuccess: (_, { contractId }) => {
+      queryClient.invalidateQueries({ queryKey: ["contracts"] });
+      queryClient.invalidateQueries({ queryKey: ["contracts", contractId] });
+    },
+  });
+}
+

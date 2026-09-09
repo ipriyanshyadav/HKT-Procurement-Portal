@@ -161,6 +161,10 @@ export { ContractExpiryCountdown } from "./ContractExpiryCountdown";
 export type { ContractExpiryCountdownProps } from "./ContractExpiryCountdown";
 export { MilestoneTracker } from "./MilestoneTracker";
 export type { MilestoneTrackerProps, MilestoneItem } from "./MilestoneTracker";
+export { RateCardTable } from "./RateCardTable";
+export type { RateCardTableProps, RateCardLineItem } from "./RateCardTable";
+export { ContractAmendmentHistory } from "./ContractAmendmentHistory";
+export type { ContractAmendmentHistoryProps, AmendmentItem } from "./ContractAmendmentHistory";
 
 // Purchase Order & GRN Components (SPEC_14)
 export { DeliveryScheduleTable } from "./DeliveryScheduleTable";

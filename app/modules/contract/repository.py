@@ -169,6 +169,34 @@ class ContractRepository:
         res = await db.execute(stmt)
         return list(res.scalars().all())
 
+    # --- Lines / Rate Card ---
+    async def create_line(self, db: AsyncSession, line: ContractLine) -> ContractLine:
+        db.add(line)
+        await db.flush()
+        return line
+
+    async def get_line(
+        self,
+        db: AsyncSession,
+        line_id: UUID,
+        contract_id: UUID,
+        org_id: UUID,
+    ) -> Optional[ContractLine]:
+        stmt = select(ContractLine).where(
+            and_(
+                ContractLine.id == line_id,
+                ContractLine.contract_id == contract_id,
+                ContractLine.org_id == org_id,
+                ContractLine.deleted_at.is_(None),
+            )
+        )
+        res = await db.execute(stmt)
+        return res.scalar_one_or_none()
+
+    async def delete_line(self, db: AsyncSession, line: ContractLine) -> None:
+        await db.delete(line)
+        await db.flush()
+
     # --- Milestones ---
     async def create_milestone(
         self,
@@ -196,6 +224,23 @@ class ContractRepository:
         )
         res = await db.execute(stmt)
         return res.scalar_one_or_none()
+
+    async def get_milestone_by_id(
+        self,
+        db: AsyncSession,
+        milestone_id: UUID,
+        org_id: Optional[UUID] = None,
+    ) -> Optional[ContractMilestone]:
+        filters = [
+            ContractMilestone.id == milestone_id,
+            ContractMilestone.deleted_at.is_(None),
+        ]
+        if org_id:
+            filters.append(ContractMilestone.org_id == org_id)
+        stmt = select(ContractMilestone).where(and_(*filters))
+        res = await db.execute(stmt)
+        return res.scalar_one_or_none()
+
 
     async def get_milestones(
         self,

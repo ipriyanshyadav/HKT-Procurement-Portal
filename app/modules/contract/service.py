@@ -11,7 +11,7 @@ import io
 from datetime import date, datetime, timedelta, timezone
 from decimal import Decimal
 from typing import Any, Dict, List, Optional, Tuple
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from loguru import logger
 from minio import Minio
@@ -40,6 +40,8 @@ from app.modules.contract.schemas import (
     ContractAmendRequest,
     ContractCreateRequest,
     ContractFromAwardRequest,
+    ContractLineCreate,
+    ContractMilestoneCreate,
     EsignWebhookPayload,
 )
 from app.modules.evaluation.repository import award_repository
@@ -859,6 +861,152 @@ class ContractService:
             metadata={"milestone_id": str(milestone_id), "title": milestone.title},
         )
         return milestone
+
+    async def complete_milestone_by_id(
+        self,
+        db: AsyncSession,
+        milestone_id: UUID,
+        notes: Optional[str],
+        actor_id: UUID,
+        org_id: UUID,
+        vendor_id: Optional[UUID] = None,
+    ) -> ContractMilestone:
+        """Complete a contract milestone with vendor access validation."""
+        milestone = await self.repo.get_milestone_by_id(db, milestone_id, org_id)
+        if not milestone:
+            raise NotFoundError("Contract milestone not found")
+
+        if vendor_id:
+            contract = await self.repo.get(db, milestone.contract_id, org_id)
+            if not contract or contract.vendor_id != vendor_id:
+                raise AppException("FORBIDDEN", "Vendor does not own this contract")
+            if milestone.responsible_party not in ("SUPPLIER", "VENDOR", "BOTH"):
+                raise AppException("FORBIDDEN", "Milestone is assigned to Buyer, not Supplier")
+
+        milestone.status = "COMPLETED"
+        milestone.completed_at = datetime.now(timezone.utc)
+        milestone.completion_notes = notes
+
+        await db.flush()
+        await self.audit.log(
+            db,
+            "CONTRACT",
+            milestone.contract_id,
+            "CONTRACT_MILESTONE_COMPLETED",
+            actor_id,
+            org_id,
+            metadata={"milestone_id": str(milestone_id), "title": milestone.title},
+        )
+        return milestone
+
+    async def add_milestone(
+        self,
+        db: AsyncSession,
+        contract_id: UUID,
+        data: ContractMilestoneCreate,
+        actor_id: UUID,
+        org_id: UUID,
+    ) -> ContractMilestone:
+        """Add a new milestone/obligation to an existing contract."""
+        contract = await self.repo.get(db, contract_id, org_id)
+        if not contract:
+            raise NotFoundError("Contract not found")
+        if contract.status in ("TERMINATED", "EXPIRED", "CANCELLED"):
+            raise AppException("CONTRACT_CLOSED", f"Cannot add milestones to {contract.status} contract")
+
+        milestone = ContractMilestone(
+            id=uuid4(),
+            org_id=org_id,
+            contract_id=contract_id,
+            title=data.title,
+            description=data.description,
+            due_date=data.due_date,
+            responsible_party=data.responsible_party,
+            responsible_user_id=data.responsible_user_id,
+            milestone_weight=data.milestone_weight,
+            status="PENDING",
+        )
+        created = await self.repo.create_milestone(db, milestone)
+        await self.audit.log(
+            db,
+            "CONTRACT",
+            contract_id,
+            "CONTRACT_MILESTONE_ADDED",
+            actor_id,
+            org_id,
+            metadata={"milestone_id": str(created.id), "title": created.title},
+        )
+        return created
+
+    async def add_line(
+        self,
+        db: AsyncSession,
+        contract_id: UUID,
+        data: ContractLineCreate,
+        actor_id: UUID,
+        org_id: UUID,
+    ) -> ContractLine:
+        """Add a rate card catalog line to an existing contract."""
+        contract = await self.repo.get(db, contract_id, org_id)
+        if not contract:
+            raise NotFoundError("Contract not found")
+        if contract.status in ("TERMINATED", "EXPIRED", "CANCELLED"):
+            raise AppException("CONTRACT_CLOSED", f"Cannot add lines to {contract.status} contract")
+
+        line = ContractLine(
+            id=uuid4(),
+            org_id=org_id,
+            contract_id=contract_id,
+            line_number=data.line_number,
+            item_description=data.item_description,
+            uom_id=data.uom_id,
+            contracted_quantity=data.contracted_quantity,
+            unit_rate=data.unit_rate,
+            utilized_quantity=Decimal("0.0"),
+            hsn_code=data.hsn_code,
+        )
+        created = await self.repo.create_line(db, line)
+        await self.audit.log(
+            db,
+            "CONTRACT",
+            contract_id,
+            "CONTRACT_LINE_ADDED",
+            actor_id,
+            org_id,
+            metadata={"line_id": str(created.id), "item": created.item_description},
+        )
+        return created
+
+    async def delete_line(
+        self,
+        db: AsyncSession,
+        contract_id: UUID,
+        line_id: UUID,
+        actor_id: UUID,
+        org_id: UUID,
+    ) -> None:
+        """Delete a line item from a draft contract."""
+        contract = await self.repo.get(db, contract_id, org_id)
+        if not contract:
+            raise NotFoundError("Contract not found")
+        if contract.status not in ("DRAFT", "PENDING_REVIEW"):
+            raise AppException("INVALID_STATE", f"Cannot delete lines from {contract.status} contract")
+
+        line = await self.repo.get_line(db, line_id, contract_id, org_id)
+        if not line:
+            raise NotFoundError("Contract line not found")
+
+        await self.repo.delete_line(db, line)
+        await self.audit.log(
+            db,
+            "CONTRACT",
+            contract_id,
+            "CONTRACT_LINE_DELETED",
+            actor_id,
+            org_id,
+            metadata={"line_id": str(line_id)},
+        )
+
 
     async def auto_renew_contract(
         self,

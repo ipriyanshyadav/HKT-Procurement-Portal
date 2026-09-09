@@ -21,20 +21,27 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.dependencies import get_current_user, require_any_permission, require_permission
 from app.core.constants import PermissionCode
-from app.core.exceptions import NotFoundError
+from app.core.exceptions import ForbiddenError, NotFoundError
 from app.core.responses import APIResponse, PaginationMeta, created_response, success_response
 from app.db.session import get_db
 from app.modules.contract.models import Contract
 from app.modules.contract.schemas import (
     ContractAmendRequest,
+    ContractApproveRequest,
     ContractCreateRequest,
     ContractFromAwardRequest,
+    ContractLineCreate,
+    ContractLineResponse,
     ContractListResponse,
+    ContractMilestoneCreate,
     ContractMilestoneResponse,
     ContractMilestoneUpdate,
     ContractResponse,
+    ContractReturnRequest,
+    ContractReviewSubmitRequest,
     ContractStatusUpdateRequest,
     ContractTemplateResponse,
+    ContractTerminateRequest,
     ContractUtilizationUpdateRequest,
     EsignConfirmRequest,
     EsignInitiateRequest,
@@ -76,11 +83,15 @@ async def list_contracts(
     db: AsyncSession = Depends(get_db),
 ):
     """List contracts with filters and pagination."""
+    effective_vendor_id = vendor_id
+    if current_user.vendor_id:
+        effective_vendor_id = current_user.vendor_id
+
     items, total = await contract_service.list_contracts(
         db,
         org_id=current_user.org_id,
         status=status_filter,
-        vendor_id=vendor_id,
+        vendor_id=effective_vendor_id,
         category_id=category_id,
         search=search,
         page=page,
@@ -184,7 +195,10 @@ async def get_contract_detail(
 ):
     """Get single contract details including lines, milestones, amendments, countdown."""
     contract = await contract_service.get_contract(db, contract_id, current_user.org_id)
+    if current_user.vendor_id and contract.vendor_id != current_user.vendor_id:
+        raise ForbiddenError("Access denied: You do not have permission to view this contract")
     return success_response(data=contract)
+
 
 
 # ─── eSign Integration ─────────────────────────────────────────────────────────
@@ -311,6 +325,212 @@ async def update_contract_status(
 
 
 @router.post(
+    "/{contract_id}/submit-review",
+    response_model=APIResponse[ContractResponse],
+    status_code=status.HTTP_200_OK,
+)
+async def submit_contract_for_review(
+    contract_id: UUID,
+    body: Optional[ContractReviewSubmitRequest] = None,
+    current_user: User = Depends(
+        require_any_permission([
+            PermissionCode.CONTRACT_CREATE,
+            PermissionCode.CONTRACT_VIEW_ALL,
+        ])
+    ),
+    db: AsyncSession = Depends(get_db),
+):
+    """Submit contract for managerial and legal review (DRAFT -> PENDING_REVIEW)."""
+    notes = body.comment if body else None
+    contract = await contract_service.update_status(
+        db,
+        contract_id=contract_id,
+        new_status="PENDING_REVIEW",
+        actor_id=current_user.id,
+        org_id=current_user.org_id,
+        notes=notes,
+    )
+    await db.commit()
+    return success_response(data=contract)
+
+
+@router.post(
+    "/{contract_id}/approve",
+    response_model=APIResponse[ContractResponse],
+    status_code=status.HTTP_200_OK,
+)
+async def approve_contract(
+    contract_id: UUID,
+    body: Optional[ContractApproveRequest] = None,
+    current_user: User = Depends(require_permission(PermissionCode.CONTRACT_ACTIVATE)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Approve contract (PENDING_REVIEW -> APPROVED)."""
+    notes = body.comment if body else None
+    contract = await contract_service.update_status(
+        db,
+        contract_id=contract_id,
+        new_status="APPROVED",
+        actor_id=current_user.id,
+        org_id=current_user.org_id,
+        notes=notes,
+    )
+    await db.commit()
+    return success_response(data=contract)
+
+
+@router.post(
+    "/{contract_id}/return",
+    response_model=APIResponse[ContractResponse],
+    status_code=status.HTTP_200_OK,
+)
+async def return_contract(
+    contract_id: UUID,
+    body: ContractReturnRequest,
+    current_user: User = Depends(require_permission(PermissionCode.CONTRACT_ACTIVATE)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Return contract to author for revisions (PENDING_REVIEW -> RETURNED)."""
+    contract = await contract_service.update_status(
+        db,
+        contract_id=contract_id,
+        new_status="RETURNED",
+        actor_id=current_user.id,
+        org_id=current_user.org_id,
+        notes=body.reason,
+    )
+    await db.commit()
+    return success_response(data=contract)
+
+
+@router.post(
+    "/{contract_id}/activate",
+    response_model=APIResponse[ContractResponse],
+    status_code=status.HTTP_200_OK,
+)
+async def activate_contract(
+    contract_id: UUID,
+    body: Optional[ContractStatusUpdateRequest] = None,
+    current_user: User = Depends(require_permission(PermissionCode.CONTRACT_ACTIVATE)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Directly activate an approved/executed contract (APPROVED -> ACTIVE)."""
+    notes = body.notes if body else None
+    contract = await contract_service.update_status(
+        db,
+        contract_id=contract_id,
+        new_status="ACTIVE",
+        actor_id=current_user.id,
+        org_id=current_user.org_id,
+        notes=notes,
+    )
+    await db.commit()
+    return success_response(data=contract)
+
+
+@router.post(
+    "/{contract_id}/terminate",
+    response_model=APIResponse[ContractResponse],
+    status_code=status.HTTP_200_OK,
+)
+async def terminate_contract(
+    contract_id: UUID,
+    body: ContractTerminateRequest,
+    current_user: User = Depends(require_permission(PermissionCode.CONTRACT_TERMINATE)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Terminate an active contract (ACTIVE -> TERMINATED)."""
+    contract = await contract_service.update_status(
+        db,
+        contract_id=contract_id,
+        new_status="TERMINATED",
+        actor_id=current_user.id,
+        org_id=current_user.org_id,
+        notes=body.reason,
+    )
+    await db.commit()
+    return success_response(data=contract)
+
+
+@router.post(
+    "/{contract_id}/initiate-esign",
+    response_model=APIResponse[EsignInitiateResponse],
+    status_code=status.HTTP_200_OK,
+)
+async def initiate_esign_alias(
+    contract_id: UUID,
+    body: Optional[EsignInitiateRequest] = None,
+    current_user: User = Depends(require_permission(PermissionCode.CONTRACT_ACTIVATE)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Alias for /{contract_id}/esign/initiate."""
+    provider = body.provider if body else None
+    signatories = body.signatories if body else None
+    result = await contract_service.initiate_esign(
+        db,
+        contract_id=contract_id,
+        actor_id=current_user.id,
+        org_id=current_user.org_id,
+        provider_override=provider,
+        signatories=signatories,
+    )
+    await db.commit()
+    return success_response(data=result)
+
+
+@router.post(
+    "/{contract_id}/confirm-esign",
+    response_model=APIResponse[ContractResponse],
+    status_code=status.HTTP_200_OK,
+)
+async def confirm_esign_alias(
+    contract_id: UUID,
+    body: Optional[EsignConfirmRequest] = None,
+    current_user: User = Depends(require_permission(PermissionCode.CONTRACT_ACTIVATE)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Alias for /{contract_id}/esign/confirm."""
+    doc_path = body.signed_doc_path if body else None
+    contract = await contract_service.confirm_esign_complete(
+        db,
+        contract_id=contract_id,
+        esign_doc_path=doc_path,
+        actor_id=current_user.id,
+        org_id=current_user.org_id,
+    )
+    await db.commit()
+    return success_response(data=contract)
+
+
+@router.post(
+    "/{contract_id}/milestones",
+    response_model=APIResponse[ContractMilestoneResponse],
+    status_code=status.HTTP_201_CREATED,
+)
+async def add_contract_milestone(
+    contract_id: UUID,
+    body: ContractMilestoneCreate,
+    current_user: User = Depends(
+        require_any_permission([
+            PermissionCode.CONTRACT_MANAGE_MILESTONES,
+            PermissionCode.CONTRACT_CREATE,
+        ])
+    ),
+    db: AsyncSession = Depends(get_db),
+):
+    """Add a new milestone or deliverable obligation to the contract."""
+    milestone = await contract_service.add_milestone(
+        db,
+        contract_id=contract_id,
+        data=body,
+        actor_id=current_user.id,
+        org_id=current_user.org_id,
+    )
+    await db.commit()
+    return created_response(data=milestone)
+
+
+@router.post(
     "/{contract_id}/milestones/{milestone_id}/complete",
     response_model=APIResponse[ContractMilestoneResponse],
     status_code=status.HTTP_200_OK,
@@ -319,21 +539,102 @@ async def complete_milestone(
     contract_id: UUID,
     milestone_id: UUID,
     body: Optional[ContractMilestoneUpdate] = None,
-    current_user: User = Depends(require_permission(PermissionCode.CONTRACT_MANAGE_MILESTONES)),
+    current_user: User = Depends(
+        require_any_permission([
+            PermissionCode.CONTRACT_MANAGE_MILESTONES,
+            PermissionCode.CONTRACT_VIEW_OWN,
+        ])
+    ),
     db: AsyncSession = Depends(get_db),
 ):
-    """Mark a contract milestone as completed."""
+    """Mark a contract milestone as completed (supports both buyer and supplier)."""
     notes = body.completion_notes if body else None
-    milestone = await contract_service.complete_milestone(
+    milestone = await contract_service.complete_milestone_by_id(
         db,
-        contract_id=contract_id,
         milestone_id=milestone_id,
         notes=notes,
         actor_id=current_user.id,
         org_id=current_user.org_id,
+        vendor_id=current_user.vendor_id,
     )
     await db.commit()
     return success_response(data=milestone)
+
+
+@router.post(
+    "/milestones/{milestone_id}/complete",
+    response_model=APIResponse[ContractMilestoneResponse],
+    status_code=status.HTTP_200_OK,
+)
+async def complete_milestone_direct(
+    milestone_id: UUID,
+    body: Optional[ContractMilestoneUpdate] = None,
+    current_user: User = Depends(
+        require_any_permission([
+            PermissionCode.CONTRACT_MANAGE_MILESTONES,
+            PermissionCode.CONTRACT_VIEW_OWN,
+        ])
+    ),
+    db: AsyncSession = Depends(get_db),
+):
+    """Complete milestone directly by milestone UUID."""
+    notes = body.completion_notes if body else None
+    milestone = await contract_service.complete_milestone_by_id(
+        db,
+        milestone_id=milestone_id,
+        notes=notes,
+        actor_id=current_user.id,
+        org_id=current_user.org_id,
+        vendor_id=current_user.vendor_id,
+    )
+    await db.commit()
+    return success_response(data=milestone)
+
+
+@router.post(
+    "/{contract_id}/lines",
+    response_model=APIResponse[ContractLineResponse],
+    status_code=status.HTTP_201_CREATED,
+)
+async def add_contract_line(
+    contract_id: UUID,
+    body: ContractLineCreate,
+    current_user: User = Depends(require_permission(PermissionCode.CONTRACT_CREATE)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Add a rate card catalog line item to the contract."""
+    line = await contract_service.add_line(
+        db,
+        contract_id=contract_id,
+        data=body,
+        actor_id=current_user.id,
+        org_id=current_user.org_id,
+    )
+    await db.commit()
+    return created_response(data=line)
+
+
+@router.delete(
+    "/{contract_id}/lines/{line_id}",
+    response_model=APIResponse[dict],
+    status_code=status.HTTP_200_OK,
+)
+async def delete_contract_line(
+    contract_id: UUID,
+    line_id: UUID,
+    current_user: User = Depends(require_permission(PermissionCode.CONTRACT_CREATE)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Delete a rate card line item from a draft contract."""
+    await contract_service.delete_line(
+        db,
+        contract_id=contract_id,
+        line_id=line_id,
+        actor_id=current_user.id,
+        org_id=current_user.org_id,
+    )
+    await db.commit()
+    return success_response(data={"deleted": True, "line_id": str(line_id)})
 
 
 @router.post(
@@ -356,3 +657,4 @@ async def update_utilization(
     )
     await db.commit()
     return success_response(data=contract)
+
