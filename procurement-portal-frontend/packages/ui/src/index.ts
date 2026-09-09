@@ -222,3 +222,7 @@ export type { CompanySwitcherProps } from "./components/CompanySwitcher";
 // Developer Platform & API Key Management
 export { DeveloperPlatformDashboard } from "./components/DeveloperPlatformDashboard";
 
+// Enterprise Compliance & Security Posture Dashboard
+export { CompliancePostureDashboard } from "./components/CompliancePostureDashboard";
+
+

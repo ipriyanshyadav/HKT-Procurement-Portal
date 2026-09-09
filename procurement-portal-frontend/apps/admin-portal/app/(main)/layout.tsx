@@ -96,6 +96,12 @@ export default function AdminMainLayout({ children }: { children: ReactNode }) {
       section: "Access & Security",
     },
     {
+      label: "Security & Compliance",
+      href: "/compliance",
+      icon: <ShieldCheck className="w-4 h-4 text-emerald-400" />,
+      section: "Access & Security",
+    },
+    {
       label: "Approval Rules",
       href: "/approval-rules",
       icon: <Sliders className="w-4 h-4" />,

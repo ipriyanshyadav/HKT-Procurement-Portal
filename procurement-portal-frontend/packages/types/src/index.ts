@@ -563,4 +563,72 @@ export interface DeveloperScopesResponse {
   webhook_events: DeveloperWebhookEvent[];
 }
 
+export interface CompliancePolicy {
+  id: string;
+  org_id: string;
+  code: string;
+  title: string;
+  framework: string;
+  severity: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW' | string;
+  is_enabled: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ComplianceFinding {
+  id: string;
+  scan_id: string;
+  policy_code: string;
+  title: string;
+  framework: string;
+  severity: string;
+  status: 'PASS' | 'WARN' | 'FAIL' | string;
+  score: number;
+  evidence_summary?: string | null;
+  remediation_guidance?: string | null;
+  created_at: string;
+}
+
+export interface ComplianceScan {
+  id: string;
+  org_id: string;
+  scanned_by?: string | null;
+  overall_score: number;
+  status: string;
+  total_checks: number;
+  passed_checks: number;
+  warning_checks: number;
+  failed_checks: number;
+  framework_scores: Record<string, number>;
+  summary_notes?: string | null;
+  created_at: string;
+  findings?: ComplianceFinding[];
+}
+
+export interface ComplianceScanRunRequest {
+  frameworks?: string[];
+  notes?: string;
+}
+
+export interface ComplianceAttestation {
+  attestation_id: string;
+  scan_id: string;
+  org_id: string;
+  issued_at: string;
+  issued_by_email: string;
+  overall_score: number;
+  grade: string;
+  framework_breakdown: Record<string, number>;
+  findings_count: {
+    total: number;
+    passed: number;
+    warning: number;
+    failed: number;
+  };
+  cryptographic_checksum_sha256: string;
+  digital_signature_manifest: string;
+  compliance_status: string;
+}
+
+
 

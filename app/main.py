@@ -53,6 +53,7 @@ from app.modules.award.router import router as award_router
 from app.modules.bid.auction_router import router as live_auction_router
 from app.modules.bid.auction_ws import auction_ws_endpoint
 from app.modules.bid.router import router as bid_router
+from app.modules.compliance.router import router as compliance_router
 from app.modules.contract.router import router as contract_router
 from app.modules.developer.router import router as developer_router
 from app.modules.document.router import router as document_router
@@ -281,6 +282,7 @@ def create_app() -> FastAPI:
     api_router.include_router(ticket_router, prefix="/tickets")
     api_router.include_router(developer_router, prefix="/developer")
     api_router.include_router(audit_router, prefix="/audit")
+    api_router.include_router(compliance_router, prefix="/compliance")
 
     app.include_router(api_router)
     app.include_router(live_auction_router, prefix="/api/v1")
