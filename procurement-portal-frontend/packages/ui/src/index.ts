@@ -233,3 +233,7 @@ export { AISourcingCopilot } from "./components/AISourcingCopilot";
 
 // Government E-Invoicing & E-Way Bill Integration (India GST & Global Peppol)
 export { EInvoiceComplianceViewer } from "./components/EInvoiceComplianceViewer";
+
+// Dynamic Live Auction Engine (SPEC_11B)
+export { LiveAuctionRoom } from "./components/LiveAuctionRoom";
+export { LiveAuctionList } from "./components/LiveAuctionList";
