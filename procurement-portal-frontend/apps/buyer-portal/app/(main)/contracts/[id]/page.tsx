@@ -51,6 +51,7 @@ import {
   Play,
   XOctagon,
   AlertOctagon,
+  FileSignature,
 } from "lucide-react";
 
 export default function ContractWorkspacePage() {
@@ -301,6 +302,13 @@ export default function ContractWorkspacePage() {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
+          <Link
+            href={`/contracts/${id}/redline`}
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-violet-600 hover:bg-violet-700 text-white text-xs font-semibold rounded-lg shadow-sm transition-colors"
+          >
+            <FileSignature className="w-3.5 h-3.5" />
+            Clause Redlining & eSign Studio
+          </Link>
           {contract.status === "DRAFT" && (
             <PermissionGuard permission="contract.update">
               <button

@@ -13,22 +13,25 @@ Provides REST endpoints for:
 from __future__ import annotations
 
 import math
-from typing import List, Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.auth.dependencies import get_current_user, require_any_permission, require_permission
+from app.auth.dependencies import require_any_permission, require_permission
 from app.core.constants import PermissionCode
-from app.core.exceptions import ForbiddenError, NotFoundError
+from app.core.exceptions import ForbiddenError
 from app.core.responses import APIResponse, PaginationMeta, created_response, success_response
 from app.db.session import get_db
-from app.modules.contract.models import Contract
 from app.modules.contract.schemas import (
     ContractAmendRequest,
     ContractApproveRequest,
+    ContractClauseCreate,
+    ContractClauseInstanceCreate,
+    ContractClauseInstanceResponse,
+    ContractClauseResponse,
     ContractCreateRequest,
+    ContractEsignSessionResponse,
     ContractFromAwardRequest,
     ContractLineCreate,
     ContractLineResponse,
@@ -36,6 +39,9 @@ from app.modules.contract.schemas import (
     ContractMilestoneCreate,
     ContractMilestoneResponse,
     ContractMilestoneUpdate,
+    ContractRedlineCreate,
+    ContractRedlineResponse,
+    ContractRedlineReviewRequest,
     ContractResponse,
     ContractReturnRequest,
     ContractReviewSubmitRequest,
@@ -47,6 +53,8 @@ from app.modules.contract.schemas import (
     EsignInitiateRequest,
     EsignInitiateResponse,
     EsignWebhookPayload,
+    InitiateSigningCeremonyRequest,
+    SubmitDigitalSignatureRequest,
 )
 from app.modules.contract.service import contract_service
 from app.modules.user.models import User
@@ -63,14 +71,14 @@ async def health():
 
 @router.get(
     "",
-    response_model=APIResponse[List[ContractListResponse]],
+    response_model=APIResponse[list[ContractListResponse]],
     status_code=status.HTTP_200_OK,
 )
 async def list_contracts(
-    status_filter: Optional[str] = Query(None, alias="status"),
-    vendor_id: Optional[UUID] = Query(None),
-    category_id: Optional[UUID] = Query(None),
-    search: Optional[str] = Query(None),
+    status_filter: str | None = Query(None, alias="status"),
+    vendor_id: UUID | None = Query(None),
+    category_id: UUID | None = Query(None),
+    search: str | None = Query(None),
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     current_user: User = Depends(
@@ -135,7 +143,7 @@ async def create_contract(
 )
 async def create_contract_from_award(
     arn_id: UUID,
-    body: Optional[ContractFromAwardRequest] = None,
+    body: ContractFromAwardRequest | None = None,
     current_user: User = Depends(require_permission(PermissionCode.CONTRACT_CREATE)),
     db: AsyncSession = Depends(get_db),
 ):
@@ -156,11 +164,11 @@ async def create_contract_from_award(
 
 @router.get(
     "/templates",
-    response_model=APIResponse[List[ContractTemplateResponse]],
+    response_model=APIResponse[list[ContractTemplateResponse]],
     status_code=status.HTTP_200_OK,
 )
 async def list_templates(
-    contract_type: Optional[str] = Query(None),
+    contract_type: str | None = Query(None),
     current_user: User = Depends(
         require_any_permission([
             PermissionCode.CONTRACT_VIEW_ALL,
@@ -175,6 +183,63 @@ async def list_templates(
         data=templates,
         meta=PaginationMeta(total=len(templates), page=1, page_size=len(templates) or 20),
     )
+
+
+@router.get(
+    "/clauses/library",
+    response_model=APIResponse[list[ContractClauseResponse]],
+    status_code=status.HTTP_200_OK,
+)
+async def get_clause_library(
+    category: str | None = Query(None),
+    current_user: User = Depends(
+        require_any_permission([
+            PermissionCode.CONTRACT_VIEW_ALL,
+            PermissionCode.CONTRACT_VIEW_OWN,
+            PermissionCode.CONTRACT_CREATE,
+        ])
+    ),
+    db: AsyncSession = Depends(get_db),
+):
+    """Retrieve standard legal clause library for contract redlining (SPEC_13)."""
+    clauses = await contract_service.get_clause_library(db, current_user.org_id, category)
+    return success_response(
+        data=clauses,
+        meta=PaginationMeta(total=len(clauses), page=1, page_size=len(clauses) or 50),
+    )
+
+
+@router.post(
+    "/clauses/library",
+    response_model=APIResponse[ContractClauseResponse],
+    status_code=status.HTTP_201_CREATED,
+)
+async def create_library_clause(
+    body: ContractClauseCreate,
+    current_user: User = Depends(require_permission(PermissionCode.CONTRACT_CREATE)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Add a new standard clause to the organization clause library."""
+    clause = await contract_service.create_clause(db, current_user.org_id, body)
+    return created_response(data=clause)
+
+
+@router.post(
+    "/redlines/{redline_id}/review",
+    response_model=APIResponse[ContractRedlineResponse],
+    status_code=status.HTTP_200_OK,
+)
+async def review_contract_redline(
+    redline_id: UUID,
+    body: ContractRedlineReviewRequest,
+    current_user: User = Depends(require_permission(PermissionCode.CONTRACT_AMEND)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Accept, reject, or propose alternative on a contract clause redline suggestion."""
+    redline = await contract_service.review_redline(
+        db, redline_id, current_user.org_id, current_user.id, body
+    )
+    return success_response(data=redline)
 
 
 @router.get(
@@ -210,7 +275,7 @@ async def get_contract_detail(
 )
 async def initiate_esign(
     contract_id: UUID,
-    body: Optional[EsignInitiateRequest] = None,
+    body: EsignInitiateRequest | None = None,
     current_user: User = Depends(require_permission(PermissionCode.CONTRACT_ACTIVATE)),
     db: AsyncSession = Depends(get_db),
 ):
@@ -236,7 +301,7 @@ async def initiate_esign(
 )
 async def confirm_esign(
     contract_id: UUID,
-    body: Optional[EsignConfirmRequest] = None,
+    body: EsignConfirmRequest | None = None,
     current_user: User = Depends(require_permission(PermissionCode.CONTRACT_ACTIVATE)),
     db: AsyncSession = Depends(get_db),
 ):
@@ -331,7 +396,7 @@ async def update_contract_status(
 )
 async def submit_contract_for_review(
     contract_id: UUID,
-    body: Optional[ContractReviewSubmitRequest] = None,
+    body: ContractReviewSubmitRequest | None = None,
     current_user: User = Depends(
         require_any_permission([
             PermissionCode.CONTRACT_CREATE,
@@ -361,7 +426,7 @@ async def submit_contract_for_review(
 )
 async def approve_contract(
     contract_id: UUID,
-    body: Optional[ContractApproveRequest] = None,
+    body: ContractApproveRequest | None = None,
     current_user: User = Depends(require_permission(PermissionCode.CONTRACT_ACTIVATE)),
     db: AsyncSession = Depends(get_db),
 ):
@@ -410,7 +475,7 @@ async def return_contract(
 )
 async def activate_contract(
     contract_id: UUID,
-    body: Optional[ContractStatusUpdateRequest] = None,
+    body: ContractStatusUpdateRequest | None = None,
     current_user: User = Depends(require_permission(PermissionCode.CONTRACT_ACTIVATE)),
     db: AsyncSession = Depends(get_db),
 ):
@@ -459,7 +524,7 @@ async def terminate_contract(
 )
 async def initiate_esign_alias(
     contract_id: UUID,
-    body: Optional[EsignInitiateRequest] = None,
+    body: EsignInitiateRequest | None = None,
     current_user: User = Depends(require_permission(PermissionCode.CONTRACT_ACTIVATE)),
     db: AsyncSession = Depends(get_db),
 ):
@@ -485,7 +550,7 @@ async def initiate_esign_alias(
 )
 async def confirm_esign_alias(
     contract_id: UUID,
-    body: Optional[EsignConfirmRequest] = None,
+    body: EsignConfirmRequest | None = None,
     current_user: User = Depends(require_permission(PermissionCode.CONTRACT_ACTIVATE)),
     db: AsyncSession = Depends(get_db),
 ):
@@ -538,7 +603,7 @@ async def add_contract_milestone(
 async def complete_milestone(
     contract_id: UUID,
     milestone_id: UUID,
-    body: Optional[ContractMilestoneUpdate] = None,
+    body: ContractMilestoneUpdate | None = None,
     current_user: User = Depends(
         require_any_permission([
             PermissionCode.CONTRACT_MANAGE_MILESTONES,
@@ -568,7 +633,7 @@ async def complete_milestone(
 )
 async def complete_milestone_direct(
     milestone_id: UUID,
-    body: Optional[ContractMilestoneUpdate] = None,
+    body: ContractMilestoneUpdate | None = None,
     current_user: User = Depends(
         require_any_permission([
             PermissionCode.CONTRACT_MANAGE_MILESTONES,
@@ -657,4 +722,156 @@ async def update_utilization(
     )
     await db.commit()
     return success_response(data=contract)
+
+
+# ─── Collaborative Redlining & Clause Instances ──────────────────────────────
+
+@router.get(
+    "/{contract_id}/clauses",
+    response_model=APIResponse[list[ContractClauseInstanceResponse]],
+    status_code=status.HTTP_200_OK,
+)
+async def get_contract_clauses(
+    contract_id: UUID,
+    current_user: User = Depends(
+        require_any_permission([
+            PermissionCode.CONTRACT_VIEW_ALL,
+            PermissionCode.CONTRACT_VIEW_OWN,
+        ])
+    ),
+    db: AsyncSession = Depends(get_db),
+):
+    """List instantiated legal clauses for a specific contract."""
+    clauses = await contract_service.get_contract_clause_instances(
+        db, contract_id=contract_id, org_id=current_user.org_id
+    )
+    return success_response(
+        data=clauses,
+        meta=PaginationMeta(total=len(clauses), page=1, page_size=len(clauses) or 50),
+    )
+
+
+@router.post(
+    "/{contract_id}/clauses",
+    response_model=APIResponse[ContractClauseInstanceResponse],
+    status_code=status.HTTP_201_CREATED,
+)
+async def add_contract_clause(
+    contract_id: UUID,
+    body: ContractClauseInstanceCreate,
+    current_user: User = Depends(require_permission(PermissionCode.CONTRACT_CREATE)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Instantiate and attach a clause to a contract."""
+    inst = await contract_service.instantiate_clause(
+        db, contract_id=contract_id, org_id=current_user.org_id, payload=body
+    )
+    return created_response(data=inst)
+
+
+@router.get(
+    "/{contract_id}/redlines",
+    response_model=APIResponse[list[ContractRedlineResponse]],
+    status_code=status.HTTP_200_OK,
+)
+async def get_contract_redlines(
+    contract_id: UUID,
+    current_user: User = Depends(
+        require_any_permission([
+            PermissionCode.CONTRACT_VIEW_ALL,
+            PermissionCode.CONTRACT_VIEW_OWN,
+        ])
+    ),
+    db: AsyncSession = Depends(get_db),
+):
+    """Retrieve all collaborative redline edits and track-changes proposals for a contract."""
+    redlines = await contract_service.get_contract_redlines(
+        db, contract_id=contract_id, org_id=current_user.org_id
+    )
+    return success_response(
+        data=redlines,
+        meta=PaginationMeta(total=len(redlines), page=1, page_size=len(redlines) or 50),
+    )
+
+
+@router.post(
+    "/{contract_id}/redlines",
+    response_model=APIResponse[ContractRedlineResponse],
+    status_code=status.HTTP_201_CREATED,
+)
+async def submit_contract_redline(
+    contract_id: UUID,
+    body: ContractRedlineCreate,
+    current_user: User = Depends(
+        require_any_permission([
+            PermissionCode.CONTRACT_VIEW_ALL,
+            PermissionCode.CONTRACT_VIEW_OWN,
+            PermissionCode.CONTRACT_AMEND,
+        ])
+    ),
+    db: AsyncSession = Depends(get_db),
+):
+    """Propose a clause redline diff with change rationale."""
+    redline = await contract_service.submit_redline(
+        db,
+        contract_id=contract_id,
+        org_id=current_user.org_id,
+        actor_id=current_user.id,
+        payload=body,
+    )
+    return created_response(data=redline)
+
+
+# ─── Multi-Party Signing Ceremony ─────────────────────────────────────────────
+
+@router.post(
+    "/{contract_id}/ceremony/initiate",
+    response_model=APIResponse[ContractEsignSessionResponse],
+    status_code=status.HTTP_201_CREATED,
+)
+async def initiate_signing_ceremony(
+    contract_id: UUID,
+    body: InitiateSigningCeremonyRequest | None = None,
+    current_user: User = Depends(require_permission(PermissionCode.CONTRACT_ACTIVATE)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Initiate cryptographic multi-party electronic signing ceremony with SHA-256 integrity hash."""
+    req_body = body or InitiateSigningCeremonyRequest()
+    session = await contract_service.initiate_signing_ceremony(
+        db,
+        contract_id=contract_id,
+        org_id=current_user.org_id,
+        actor_id=current_user.id,
+        payload=req_body,
+    )
+    return created_response(data=session)
+
+
+@router.post(
+    "/{contract_id}/ceremony/sign",
+    response_model=APIResponse[ContractEsignSessionResponse],
+    status_code=status.HTTP_200_OK,
+)
+async def submit_digital_signature(
+    contract_id: UUID,
+    body: SubmitDigitalSignatureRequest,
+    current_user: User = Depends(
+        require_any_permission([
+            PermissionCode.CONTRACT_VIEW_OWN,
+            PermissionCode.CONTRACT_VIEW_ALL,
+            PermissionCode.CONTRACT_ACTIVATE,
+        ])
+    ),
+    db: AsyncSession = Depends(get_db),
+):
+    """Record a cryptographic digital signature for a signer in the ceremony."""
+    session = await contract_service.submit_digital_signature(
+        db,
+        contract_id=contract_id,
+        org_id=current_user.org_id,
+        actor_id=current_user.id,
+        payload=body,
+    )
+    return success_response(data=session)
+
 

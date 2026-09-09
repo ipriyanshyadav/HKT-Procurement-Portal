@@ -120,8 +120,15 @@ export default function SupplierContractDetailPage() {
           </div>
         </div>
 
-        {/* Expiry Badge */}
+        {/* Expiry Badge & Clause Review Action */}
         <div className="flex items-center gap-3">
+          <Link
+            href={`/contracts/${id}/review`}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg shadow-sm transition-colors"
+          >
+            <FileSignature className="w-3.5 h-3.5" />
+            Clauses & Redline Review
+          </Link>
           <ContractExpiryCountdown
             endDate={contract.end_date}
             warningLevel={contract.expiry_warning_level ?? undefined}

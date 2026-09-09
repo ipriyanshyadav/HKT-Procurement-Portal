@@ -7,10 +7,12 @@ rate contract utilization with optimistic locking, milestone completion, and aut
 """
 from __future__ import annotations
 
+import difflib
+import hashlib
 import io
-from datetime import date, datetime, timedelta, timezone
+from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 from uuid import UUID, uuid4
 
 from loguru import logger
@@ -24,25 +26,34 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
 from app.core.exceptions import AppException, NotFoundError, ValidationError
+from app.db.enums import ContractStatusEnum
 from app.events.publisher import OutboxPublisher
 from app.modules.audit.service import audit_service
-from app.modules.contract.fsm import can_transition, validate_contract_transition
+from app.modules.contract.fsm import validate_contract_transition
 from app.modules.contract.models import (
     Contract,
     ContractAmendment,
-    ContractDocument,
+    ContractClause,
+    ContractClauseInstance,
+    ContractEsignSession,
     ContractLine,
     ContractMilestone,
-    ContractTemplate,
+    ContractRedline,
 )
 from app.modules.contract.repository import contract_repository
 from app.modules.contract.schemas import (
     ContractAmendRequest,
+    ContractClauseCreate,
+    ContractClauseInstanceCreate,
     ContractCreateRequest,
     ContractFromAwardRequest,
     ContractLineCreate,
     ContractMilestoneCreate,
+    ContractRedlineCreate,
+    ContractRedlineReviewRequest,
     EsignWebhookPayload,
+    InitiateSigningCeremonyRequest,
+    SubmitDigitalSignatureRequest,
 )
 from app.modules.evaluation.repository import award_repository
 from app.modules.integration.adapters.digio import digio_adapter
@@ -60,7 +71,7 @@ class ContractService:
         self.audit = audit_service
         self.digio_adapter = digio_adapter
         self.docusign_adapter = docusign_adapter
-        self._minio_client: Optional[Minio] = None
+        self._minio_client: Minio | None = None
 
     def _get_minio(self) -> Minio:
         if self._minio_client is None:
@@ -294,7 +305,7 @@ class ContractService:
         return f"{bucket_name}/{object_name}"
 
     async def _generate_contract_number(self, db: AsyncSession, org_id: UUID) -> str:
-        year = datetime.now(timezone.utc).year
+        year = datetime.now(UTC).year
         seq = await self.repo.get_next_contract_sequence(db, org_id, year)
         return f"{settings.CONTRACT_NUMBER_PREFIX}-{year}-{seq:05d}"
 
@@ -547,13 +558,13 @@ class ContractService:
         self,
         db: AsyncSession,
         org_id: UUID,
-        status: Optional[str] = None,
-        vendor_id: Optional[UUID] = None,
-        category_id: Optional[UUID] = None,
-        search: Optional[str] = None,
+        status: str | None = None,
+        vendor_id: UUID | None = None,
+        category_id: UUID | None = None,
+        search: str | None = None,
         page: int = 1,
         page_size: int = 20,
-    ) -> Tuple[List[Contract], int]:
+    ) -> tuple[list[Contract], int]:
         """List contracts with pagination and computed metadata."""
         items, total = await self.repo.list(
             db,
@@ -569,15 +580,21 @@ class ContractService:
             self._enrich_contract_metadata(c)
         return items, total
 
+    async def get(self, db: AsyncSession, contract_id: UUID, org_id: UUID) -> Contract:
+        contract = await self.repo.get(db, contract_id, org_id)
+        if not contract:
+            raise NotFoundError("Contract", str(contract_id))
+        return self._enrich_contract_metadata(contract)
+
     async def initiate_esign(
         self,
         db: AsyncSession,
         contract_id: UUID,
         actor_id: UUID,
         org_id: UUID,
-        provider_override: Optional[str] = None,
-        signatories: Optional[List[Dict[str, Any]]] = None,
-    ) -> Dict[str, Any]:
+        provider_override: str | None = None,
+        signatories: list[dict[str, Any]] | None = None,
+    ) -> dict[str, Any]:
         """Initiate eSign request (S13-06). Uploads draft to MinIO and notifies adapter."""
         contract = await self.repo.get(db, contract_id, org_id)
         if not contract:
@@ -604,7 +621,7 @@ class ContractService:
             "action": "ESIGN_INITIATED",
             "provider": provider,
             "request_id": esign_result["request_id"],
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "actor_id": str(actor_id),
         }
         signing_log = list(contract.signing_log or [])
@@ -627,7 +644,7 @@ class ContractService:
         self,
         db: AsyncSession,
         contract_id: UUID,
-        esign_doc_path: Optional[str],
+        esign_doc_path: str | None,
         actor_id: UUID,
         org_id: UUID,
     ) -> Contract:
@@ -639,14 +656,14 @@ class ContractService:
         validate_contract_transition(contract.status, "ACTIVE")
 
         contract.status = "ACTIVE"
-        contract.activated_at = datetime.now(timezone.utc)
+        contract.activated_at = datetime.now(UTC)
         if esign_doc_path:
             contract.signed_document_path = esign_doc_path
 
         log_entry = {
             "action": "ESIGN_COMPLETED",
             "provider": contract.esign_provider,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "actor_id": str(actor_id),
         }
         signing_log = list(contract.signing_log or [])
@@ -682,7 +699,7 @@ class ContractService:
         db: AsyncSession,
         payload: EsignWebhookPayload,
         org_id: UUID,
-    ) -> Optional[Contract]:
+    ) -> Contract | None:
         """Process incoming eSign provider webhook callback."""
         stmt = select(Contract).where(
             and_(
@@ -807,7 +824,7 @@ class ContractService:
         new_status: str,
         actor_id: UUID,
         org_id: UUID,
-        notes: Optional[str] = None,
+        notes: str | None = None,
     ) -> Contract:
         """General status transition validated by FSM."""
         contract = await self.repo.get(db, contract_id, org_id)
@@ -837,7 +854,7 @@ class ContractService:
         db: AsyncSession,
         contract_id: UUID,
         milestone_id: UUID,
-        notes: Optional[str],
+        notes: str | None,
         actor_id: UUID,
         org_id: UUID,
     ) -> ContractMilestone:
@@ -847,7 +864,7 @@ class ContractService:
             raise NotFoundError("Contract milestone not found")
 
         milestone.status = "COMPLETED"
-        milestone.completed_at = datetime.now(timezone.utc)
+        milestone.completed_at = datetime.now(UTC)
         milestone.completion_notes = notes
 
         await db.flush()
@@ -866,10 +883,10 @@ class ContractService:
         self,
         db: AsyncSession,
         milestone_id: UUID,
-        notes: Optional[str],
+        notes: str | None,
         actor_id: UUID,
         org_id: UUID,
-        vendor_id: Optional[UUID] = None,
+        vendor_id: UUID | None = None,
     ) -> ContractMilestone:
         """Complete a contract milestone with vendor access validation."""
         milestone = await self.repo.get_milestone_by_id(db, milestone_id, org_id)
@@ -884,7 +901,7 @@ class ContractService:
                 raise AppException("FORBIDDEN", "Milestone is assigned to Buyer, not Supplier")
 
         milestone.status = "COMPLETED"
-        milestone.completed_at = datetime.now(timezone.utc)
+        milestone.completed_at = datetime.now(UTC)
         milestone.completion_notes = notes
 
         await db.flush()
@@ -1012,7 +1029,7 @@ class ContractService:
         self,
         db: AsyncSession,
         contract: Contract,
-        actor_id: Optional[UUID] = None,
+        actor_id: UUID | None = None,
     ) -> Contract:
         """Auto-renew contract: expire original and create incremented active contract (S13-08)."""
         contract.status = "EXPIRED"
@@ -1069,7 +1086,7 @@ class ContractService:
             renewal_notice_days=contract.renewal_notice_days,
             sla_terms=contract.sla_terms or {},
             original_contract_id=contract.id,
-            activated_at=datetime.now(timezone.utc),
+            activated_at=datetime.now(UTC),
             created_by=actor_id or contract.created_by,
             updated_by=actor_id or contract.updated_by,
             lines=new_lines,
@@ -1101,5 +1118,390 @@ class ContractService:
         )
         return self._enrich_contract_metadata(new_contract)
 
+    # ------------------------------------------------------------------------
+    # SPEC_13 Clause Library, Collaborative Redlining & E-Sign Ceremony Methods
+    # ------------------------------------------------------------------------
+
+    async def seed_default_clauses(self, db: AsyncSession, org_id: UUID) -> list[ContractClause]:
+        default_clauses = [
+            {
+                "clause_code": "INDEMNITY",
+                "title": "Mutual Indemnification",
+                "category": "LEGAL",
+                "standard_text": "Each party shall defend, indemnify, and hold harmless the other party, its affiliates, and their respective directors, officers, and employees from and against any third-party claims, liabilities, damages, and reasonable legal fees arising out of gross negligence, willful misconduct, or infringement of intellectual property rights.",
+                "risk_level": "HIGH",
+                "is_mandatory": True,
+                "guidance_notes": "Standard indemnification clause required across all vendor master service agreements.",
+            },
+            {
+                "clause_code": "LIMITATION_OF_LIABILITY",
+                "title": "Limitation of Liability",
+                "category": "COMMERCIAL",
+                "standard_text": "Except for indemnification obligations and breaches of confidentiality, neither party's aggregate liability under this Agreement shall exceed the total fees paid or payable by Buyer in the twelve (12) months preceding the claim.",
+                "risk_level": "CRITICAL",
+                "is_mandatory": True,
+                "guidance_notes": "Cap set to 12 months rolling spend. Any uncapped liabilities require Legal VP signoff.",
+            },
+            {
+                "clause_code": "TERMINATION_FOR_CONVENIENCE",
+                "title": "Termination for Convenience",
+                "category": "LEGAL",
+                "standard_text": "Buyer may terminate this Agreement or any SOW hereunder for convenience upon providing thirty (30) calendar days prior written notice to Supplier without penalty or termination fee.",
+                "risk_level": "MEDIUM",
+                "is_mandatory": True,
+                "guidance_notes": "Enables early termination without vendor penalty clauses.",
+            },
+            {
+                "clause_code": "CONFIDENTIALITY_NDA",
+                "title": "Confidentiality & Non-Disclosure",
+                "category": "STANDARD",
+                "standard_text": "The receiving party agrees to hold all Confidential Information of the disclosing party in strict confidence and not to disclose such information to third parties for a period of three (3) years following termination.",
+                "risk_level": "HIGH",
+                "is_mandatory": True,
+                "guidance_notes": "Covers proprietary procurement specifications and pricing tiers.",
+            },
+            {
+                "clause_code": "IP_OWNERSHIP",
+                "title": "Intellectual Property Ownership",
+                "category": "LEGAL",
+                "standard_text": "All deliverables, bespoke custom work product, and reports created by Supplier pursuant to this Agreement shall be considered 'work made for hire' and shall belong exclusively to Buyer upon payment.",
+                "risk_level": "HIGH",
+                "is_mandatory": True,
+                "guidance_notes": "Ensures full transfer of custom software or manufacturing tooling IP.",
+            },
+            {
+                "clause_code": "GOVERNING_LAW",
+                "title": "Governing Law & Dispute Jurisdiction",
+                "category": "LEGAL",
+                "standard_text": "This Agreement shall be governed by and construed in accordance with the laws of India, and the courts of Mumbai shall have exclusive jurisdiction over any disputes arising hereunder.",
+                "risk_level": "MEDIUM",
+                "is_mandatory": True,
+                "guidance_notes": "Default jurisdiction is Mumbai, India.",
+            },
+            {
+                "clause_code": "WARRANTY_SLA",
+                "title": "Performance Warranty & SLA Guarantees",
+                "category": "COMMERCIAL",
+                "standard_text": "Supplier warrants that all goods and services supplied shall conform strictly to agreed technical specifications, be free from defects in materials and workmanship for a period of twelve (12) months from delivery, and achieve 99.9% uptime SLA.",
+                "risk_level": "HIGH",
+                "is_mandatory": True,
+                "guidance_notes": "12-month standard warranty coverage.",
+            },
+            {
+                "clause_code": "DATA_PRIVACY_DPDP",
+                "title": "Data Protection & Privacy Compliance (DPDP Act)",
+                "category": "COMPLIANCE",
+                "standard_text": "Supplier shall implement industry-standard technical and organizational security measures to protect Buyer data in full compliance with the Digital Personal Data Protection (DPDP) Act 2023 and ISO/IEC 27001 standards.",
+                "risk_level": "CRITICAL",
+                "is_mandatory": True,
+                "guidance_notes": "Statutory compliance required under Indian data privacy regulations.",
+            },
+        ]
+        clauses = []
+        for d in default_clauses:
+            clause = ContractClause(
+                org_id=org_id,
+                clause_code=d["clause_code"],
+                title=d["title"],
+                category=d["category"],
+                standard_text=d["standard_text"],
+                risk_level=d["risk_level"],
+                is_mandatory=d["is_mandatory"],
+                guidance_notes=d["guidance_notes"],
+                version=1,
+            )
+            db.add(clause)
+            clauses.append(clause)
+        await db.commit()
+        return clauses
+
+    async def get_clause_library(
+        self, db: AsyncSession, org_id: UUID, category: str | None = None
+    ) -> list[ContractClause]:
+        stmt = select(ContractClause).where(ContractClause.org_id == org_id)
+        if category:
+            stmt = stmt.where(ContractClause.category == category)
+        res = list((await db.execute(stmt)).scalars().all())
+        if not res:
+            res = await self.seed_default_clauses(db, org_id)
+        return res
+
+    async def create_clause(
+        self, db: AsyncSession, org_id: UUID, payload: ContractClauseCreate
+    ) -> ContractClause:
+        clause = ContractClause(
+            org_id=org_id,
+            clause_code=payload.clause_code.upper().replace(" ", "_"),
+            title=payload.title,
+            category=payload.category,
+            standard_text=payload.standard_text,
+            risk_level=payload.risk_level,
+            is_mandatory=payload.is_mandatory,
+            guidance_notes=payload.guidance_notes,
+            version=1,
+        )
+        db.add(clause)
+        await db.commit()
+        await db.refresh(clause)
+        return clause
+
+    async def get_contract_clause_instances(
+        self, db: AsyncSession, contract_id: UUID, org_id: UUID
+    ) -> list[ContractClauseInstance]:
+        contract = await self.get(db, contract_id, org_id)
+        stmt = (
+            select(ContractClauseInstance)
+            .where(
+                ContractClauseInstance.contract_id == contract.id,
+                ContractClauseInstance.org_id == org_id,
+            )
+            .order_by(ContractClauseInstance.order_index)
+        )
+        instances = list((await db.execute(stmt)).scalars().all())
+        if not instances:
+            lib = await self.get_clause_library(db, org_id)
+            for idx, c in enumerate(lib):
+                inst = ContractClauseInstance(
+                    org_id=org_id,
+                    contract_id=contract.id,
+                    clause_id=c.id,
+                    title=c.title,
+                    current_text=c.standard_text,
+                    original_text=c.standard_text,
+                    status="ORIGINAL",
+                    deviation_risk="LOW",
+                    order_index=idx,
+                )
+                db.add(inst)
+                instances.append(inst)
+            await db.commit()
+        return instances
+
+    async def instantiate_clause(
+        self,
+        db: AsyncSession,
+        contract_id: UUID,
+        org_id: UUID,
+        payload: ContractClauseInstanceCreate,
+    ) -> ContractClauseInstance:
+        contract = await self.get(db, contract_id, org_id)
+        inst = ContractClauseInstance(
+            org_id=org_id,
+            contract_id=contract.id,
+            clause_id=payload.clause_id,
+            title=payload.title,
+            current_text=payload.text,
+            original_text=payload.text,
+            status="ORIGINAL",
+            deviation_risk="LOW",
+            order_index=payload.order_index,
+        )
+        db.add(inst)
+        await db.commit()
+        await db.refresh(inst)
+        return inst
+
+    async def submit_redline(
+        self,
+        db: AsyncSession,
+        contract_id: UUID,
+        org_id: UUID,
+        actor_id: UUID | None,
+        payload: ContractRedlineCreate,
+    ) -> ContractRedline:
+        contract = await self.get(db, contract_id, org_id)
+
+        orig_words = payload.original_text.split()
+        prop_words = payload.proposed_text.split()
+        matcher = difflib.SequenceMatcher(None, orig_words, prop_words)
+        additions = []
+        deletions = []
+        for tag, i1, i2, j1, j2 in matcher.get_opcodes():
+            if tag in ("replace", "delete"):
+                deletions.extend(orig_words[i1:i2])
+            if tag in ("replace", "insert"):
+                additions.extend(prop_words[j1:j2])
+
+        diff_summary = {
+            "additions_count": len(additions),
+            "deletions_count": len(deletions),
+            "added_words": additions[:25],
+            "deleted_words": deletions[:25],
+            "similarity_pct": round(matcher.ratio() * 100.0, 1),
+        }
+
+        redline = ContractRedline(
+            org_id=org_id,
+            contract_id=contract.id,
+            clause_instance_id=payload.clause_instance_id,
+            author_id=actor_id,
+            author_type=payload.author_type,
+            original_text=payload.original_text,
+            proposed_text=payload.proposed_text,
+            change_rationale=payload.change_rationale,
+            diff_summary=diff_summary,
+            status="PENDING",
+        )
+        db.add(redline)
+        await db.commit()
+        await db.refresh(redline)
+        return redline
+
+    async def review_redline(
+        self,
+        db: AsyncSession,
+        redline_id: UUID,
+        org_id: UUID,
+        actor_id: UUID | None,
+        payload: ContractRedlineReviewRequest,
+    ) -> ContractRedline:
+        stmt = select(ContractRedline).where(
+            ContractRedline.id == redline_id,
+            ContractRedline.org_id == org_id,
+        )
+        redline = (await db.execute(stmt)).scalar_one_or_none()
+        if not redline:
+            raise NotFoundError("ContractRedline", str(redline_id))
+
+        redline.reviewed_by = actor_id
+        redline.reviewed_at = datetime.now(UTC)
+        redline.review_comment = payload.review_comment
+
+        if payload.action == "ACCEPT":
+            redline.status = "ACCEPTED"
+            if redline.clause_instance_id:
+                stmt_inst = select(ContractClauseInstance).where(
+                    ContractClauseInstance.id == redline.clause_instance_id
+                )
+                inst = (await db.execute(stmt_inst)).scalar_one_or_none()
+                if inst:
+                    inst.current_text = redline.proposed_text
+                    inst.status = "MODIFIED"
+                    inst.deviation_risk = "MEDIUM"
+        elif payload.action == "REJECT":
+            redline.status = "REJECTED"
+        else:
+            redline.status = "PROPOSED_ALTERNATIVE"
+
+        await db.commit()
+        await db.refresh(redline)
+        return redline
+
+    async def get_contract_redlines(
+        self, db: AsyncSession, contract_id: UUID, org_id: UUID
+    ) -> list[ContractRedline]:
+        stmt = (
+            select(ContractRedline)
+            .where(
+                ContractRedline.contract_id == contract_id,
+                ContractRedline.org_id == org_id,
+            )
+            .order_by(ContractRedline.created_at.desc())
+        )
+        return list((await db.execute(stmt)).scalars().all())
+
+    async def initiate_signing_ceremony(
+        self,
+        db: AsyncSession,
+        contract_id: UUID,
+        org_id: UUID,
+        actor_id: UUID | None,
+        payload: InitiateSigningCeremonyRequest,
+    ) -> ContractEsignSession:
+        contract = await self.get(db, contract_id, org_id)
+
+        signers = payload.signers
+        if not signers:
+            signers = [
+                {
+                    "name": "Procurement Officer",
+                    "email": "buyer@procurement.com",
+                    "role": "BUYER",
+                    "signed": False,
+                    "signed_at": None,
+                    "signature_hash": None,
+                },
+                {
+                    "name": "Vendor Legal Signatory",
+                    "email": "supplier@acme.com",
+                    "role": "SUPPLIER",
+                    "signed": False,
+                    "signed_at": None,
+                    "signature_hash": None,
+                },
+            ]
+
+        raw_manifest = f"{contract.contract_number}:{contract.title}:{contract.total_value}:{datetime.now(UTC).isoformat()}"
+        audit_hash = hashlib.sha256(raw_manifest.encode()).hexdigest()
+
+        for s in signers:
+            if "signed" not in s:
+                s["signed"] = False
+
+        session = ContractEsignSession(
+            org_id=org_id,
+            contract_id=contract.id,
+            ceremony_status="IN_PROGRESS",
+            signers=[dict(s) for s in signers],
+            audit_trail_hash=audit_hash,
+        )
+        db.add(session)
+        contract.status = ContractStatusEnum.PENDING_ESIGN
+        await db.commit()
+        await db.refresh(session)
+        return session
+
+    async def submit_digital_signature(
+        self,
+        db: AsyncSession,
+        contract_id: UUID,
+        org_id: UUID,
+        actor_id: UUID | None,
+        payload: SubmitDigitalSignatureRequest,
+    ) -> ContractEsignSession:
+        contract = await self.get(db, contract_id, org_id)
+        stmt = (
+            select(ContractEsignSession)
+            .where(
+                ContractEsignSession.contract_id == contract.id,
+                ContractEsignSession.org_id == org_id,
+            )
+            .order_by(ContractEsignSession.created_at.desc())
+        )
+        session = (await db.execute(stmt)).scalar_one_or_none()
+        if not session:
+            session = await self.initiate_signing_ceremony(
+                db, contract_id, org_id, actor_id, InitiateSigningCeremonyRequest()
+            )
+
+        all_signed = True
+        updated_signers = []
+        for s in (session.signers or []):
+            signer_copy = dict(s)
+            if signer_copy.get("email") == payload.signer_email:
+                signer_copy["signed"] = True
+                signer_copy["signed_at"] = datetime.now(UTC).isoformat()
+                signer_copy["signature_hash"] = hashlib.sha256(
+                    f"{payload.signer_email}:{payload.signature_token}:{datetime.now(UTC).isoformat()}".encode()
+                ).hexdigest()
+            if not signer_copy.get("signed"):
+                all_signed = False
+            updated_signers.append(signer_copy)
+
+        from sqlalchemy.orm.attributes import flag_modified
+        session.signers = updated_signers
+        flag_modified(session, "signers")
+
+        if all_signed:
+            session.ceremony_status = "COMPLETED"
+            session.completed_at = datetime.now(UTC)
+            contract.status = ContractStatusEnum.ACTIVE
+            contract.activated_at = datetime.now(UTC)
+
+        await db.commit()
+        await db.refresh(session)
+        return session
+
 
 contract_service = ContractService()
+

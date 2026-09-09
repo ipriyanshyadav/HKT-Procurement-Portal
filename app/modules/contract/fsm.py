@@ -8,12 +8,10 @@ Also bridges approval & execution states.
 """
 from __future__ import annotations
 
-from typing import Dict, List, Union
 from app.core.exceptions import AppException
 from app.db.enums import ContractStatusEnum
 
-
-CONTRACT_FSM: Dict[str, List[str]] = {
+CONTRACT_FSM: dict[str, list[str]] = {
     "DRAFT": ["PENDING_REVIEW", "PENDING_APPROVAL", "CANCELLED"],
     "PENDING_REVIEW": ["APPROVED", "PENDING_ESIGN", "PENDING_SIGNATURE", "RETURNED", "CANCELLED"],
     "PENDING_APPROVAL": ["APPROVED", "RETURNED", "PENDING_ESIGN", "PENDING_SIGNATURE", "CANCELLED"],
@@ -35,15 +33,15 @@ CONTRACT_FSM: Dict[str, List[str]] = {
 }
 
 
-def _normalize_status(status: Union[str, ContractStatusEnum]) -> str:
+def _normalize_status(status: str | ContractStatusEnum) -> str:
     if hasattr(status, "value"):
         return str(status.value)
     return str(status)
 
 
 def can_transition(
-    current_status: Union[str, ContractStatusEnum],
-    target_status: Union[str, ContractStatusEnum],
+    current_status: str | ContractStatusEnum,
+    target_status: str | ContractStatusEnum,
 ) -> bool:
     curr = _normalize_status(current_status)
     target = _normalize_status(target_status)
@@ -51,14 +49,14 @@ def can_transition(
     return target in allowed
 
 
-def get_allowed_transitions(current_status: Union[str, ContractStatusEnum]) -> List[str]:
+def get_allowed_transitions(current_status: str | ContractStatusEnum) -> list[str]:
     curr = _normalize_status(current_status)
     return list(CONTRACT_FSM.get(curr, []))
 
 
 def validate_contract_transition(
-    current_status: Union[str, ContractStatusEnum],
-    target_status: Union[str, ContractStatusEnum],
+    current_status: str | ContractStatusEnum,
+    target_status: str | ContractStatusEnum,
 ) -> None:
     curr = _normalize_status(current_status)
     target = _normalize_status(target_status)

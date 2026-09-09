@@ -998,3 +998,85 @@ export interface ReconciliationDashboardStats {
   total_at_risk_value: number;
 }
 
+// Contract Lifecycle Redlining & Collaborative Clause Editor (SPEC_13)
+export interface ContractClause {
+  id: string;
+  org_id: string;
+  clause_code: string;
+  title: string;
+  category: string;
+  standard_text: string;
+  risk_level: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL' | string;
+  is_mandatory: boolean;
+  guidance_notes?: string | null;
+  version: number;
+  created_at: string;
+}
+
+export interface ContractClauseInstance {
+  id: string;
+  contract_id: string;
+  clause_id?: string | null;
+  title: string;
+  current_text: string;
+  original_text: string;
+  status: 'ORIGINAL' | 'MODIFIED' | 'ACCEPTED' | 'DISPUTED' | string;
+  deviation_risk: 'LOW' | 'MEDIUM' | 'HIGH' | string;
+  order_index: number;
+}
+
+export interface ContractRedline {
+  id: string;
+  contract_id: string;
+  clause_instance_id?: string | null;
+  author_id?: string | null;
+  author_type: 'BUYER' | 'SUPPLIER' | 'LEGAL_COUNSEL' | string;
+  original_text: string;
+  proposed_text: string;
+  change_rationale: string;
+  diff_summary: {
+    additions_count: number;
+    deletions_count: number;
+    added_words?: string[];
+    deleted_words?: string[];
+    similarity_pct?: number;
+  };
+  status: 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'PROPOSED_ALTERNATIVE' | string;
+  reviewed_by?: string | null;
+  reviewed_at?: string | null;
+  review_comment?: string | null;
+  created_at: string;
+}
+
+export interface CeremonySigner {
+  name: string;
+  email: string;
+  role: 'BUYER' | 'SUPPLIER' | 'APPROVER' | string;
+  signed: boolean;
+  signed_at?: string | null;
+  signature_hash?: string | null;
+}
+
+export interface ContractEsignSession {
+  id: string;
+  contract_id: string;
+  ceremony_status: 'INITIALIZED' | 'IN_PROGRESS' | 'COMPLETED' | 'EXPIRED' | string;
+  signers: CeremonySigner[];
+  audit_trail_hash: string;
+  completed_at?: string | null;
+  created_at: string;
+}
+
+export interface ContractRedlineCreatePayload {
+  clause_instance_id?: string;
+  original_text: string;
+  proposed_text: string;
+  change_rationale: string;
+  author_type?: string;
+}
+
+export interface ContractRedlineReviewPayload {
+  action: 'ACCEPT' | 'REJECT' | 'PROPOSE_ALTERNATIVE';
+  review_comment?: string;
+}
+

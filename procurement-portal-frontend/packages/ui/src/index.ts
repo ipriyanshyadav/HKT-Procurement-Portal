@@ -240,3 +240,7 @@ export { LiveAuctionList } from "./components/LiveAuctionList";
 
 // Automated 3-Way & 4-Way Invoice Reconciliation (SPEC_15)
 export { InvoiceReconciliationWorkbench } from "./components/InvoiceReconciliationWorkbench";
+
+// Contract Lifecycle Redlining & Collaborative Clause Editor (SPEC_13)
+export { ContractRedlineStudio } from "./components/ContractRedlineStudio";
+export type { ContractRedlineStudioProps } from "./components/ContractRedlineStudio";
