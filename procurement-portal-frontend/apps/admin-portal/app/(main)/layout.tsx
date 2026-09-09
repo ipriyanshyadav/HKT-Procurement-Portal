@@ -32,6 +32,7 @@ import {
   Truck,
   BellRing,
   Terminal,
+  HardDrive,
 } from "lucide-react";
 
 export default function AdminMainLayout({ children }: { children: ReactNode }) {
@@ -201,6 +202,12 @@ export default function AdminMainLayout({ children }: { children: ReactNode }) {
       label: "System Health",
       href: "/system/health",
       icon: <Activity className="w-4 h-4" />,
+      section: "System Operations",
+    },
+    {
+      label: "DR Orchestrator",
+      href: "/system/recovery",
+      icon: <HardDrive className="w-4 h-4" />,
       section: "System Operations",
     },
     {

@@ -244,3 +244,6 @@ export { InvoiceReconciliationWorkbench } from "./components/InvoiceReconciliati
 // Contract Lifecycle Redlining & Collaborative Clause Editor (SPEC_13)
 export { ContractRedlineStudio } from "./components/ContractRedlineStudio";
 export type { ContractRedlineStudioProps } from "./components/ContractRedlineStudio";
+
+// Automated Disaster Recovery Orchestrator & PITR Backup Drills (SPEC_21/SPEC_22)
+export { DisasterRecoveryConsole } from "./components/DisasterRecoveryConsole";

@@ -58,6 +58,7 @@ from app.modules.catalog.router import router as catalog_router
 from app.modules.compliance.router import router as compliance_router
 from app.modules.contract.router import router as contract_router
 from app.modules.developer.router import router as developer_router
+from app.modules.disaster_recovery.router import router as disaster_recovery_router
 from app.modules.document.router import router as document_router
 from app.modules.einvoicing.router import router as einvoicing_router
 from app.modules.evaluation.router import router as evaluation_router
@@ -289,6 +290,7 @@ def create_app() -> FastAPI:
     api_router.include_router(catalog_router, prefix="/catalog")
     api_router.include_router(ai_sourcing_router, prefix="/ai-sourcing")
     api_router.include_router(einvoicing_router, prefix="/einvoicing")
+    api_router.include_router(disaster_recovery_router, prefix="/disaster-recovery")
 
     app.include_router(api_router)
     app.include_router(live_auction_router, prefix="/api/v1")

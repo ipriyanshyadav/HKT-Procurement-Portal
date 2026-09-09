@@ -1080,3 +1080,92 @@ export interface ContractRedlineReviewPayload {
   review_comment?: string;
 }
 
+export interface DRBackupCheckpoint {
+  id: string;
+  org_id: string;
+  checkpoint_type: string;
+  status: string;
+  storage_tier: string;
+  storage_location: string;
+  wal_start_lsn?: string | null;
+  wal_end_lsn?: string | null;
+  size_bytes: number;
+  checksum_sha256: string;
+  worm_locked: boolean;
+  worm_retention_until?: string | null;
+  metadata_json: Record<string, any>;
+  completed_at?: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DRDrillPhase {
+  phase_name: string;
+  description: string;
+  duration_seconds: number;
+  status: 'PASSED' | 'FAILED' | 'RUNNING' | string;
+  telemetry: Record<string, any>;
+}
+
+export interface DRFailoverDrill {
+  id: string;
+  org_id: string;
+  drill_code: string;
+  drill_name: string;
+  target_environment: string;
+  status: 'SCHEDULED' | 'RUNNING' | 'PASSED' | 'FAILED' | 'ABORTED' | string;
+  simulated_disaster_scenario: string;
+  target_rpo_minutes: number;
+  target_rto_minutes: number;
+  actual_rpo_minutes?: number | null;
+  actual_rto_minutes?: number | null;
+  rpo_compliant?: boolean | null;
+  rto_compliant?: boolean | null;
+  initiated_by?: string | null;
+  started_at?: string | null;
+  completed_at?: string | null;
+  drill_phases: DRDrillPhase[];
+  audit_report: {
+    compliance_standards?: string[];
+    executive_summary?: string;
+    certifier?: string;
+    signed_at?: string;
+    sha256_audit_seal?: string;
+    [key: string]: any;
+  };
+  created_at: string;
+}
+
+export interface DRPostureMetrics {
+  current_rpo_minutes: number;
+  target_rpo_minutes: number;
+  target_rto_minutes: number;
+  dr_readiness_status: 'HEALTHY' | 'WARNING' | 'CRITICAL' | string;
+  last_checkpoint_timestamp?: string | null;
+  last_verified_checksum?: string | null;
+  worm_locked_percentage: number;
+  total_checkpoints_count: number;
+  total_storage_bytes: number;
+  secondary_cluster_status: string;
+  dns_failover_ttl_seconds: number;
+  recent_drills_passed: number;
+  recent_drills_total: number;
+}
+
+export interface TriggerPITRSnapshotPayload {
+  checkpoint_type?: string;
+  storage_tier?: string;
+  worm_locked?: boolean;
+  retention_days?: number;
+  custom_tag?: string;
+}
+
+export interface RunFailoverDrillPayload {
+  drill_name: string;
+  simulated_disaster_scenario?: string;
+  target_environment?: string;
+  target_rpo_minutes?: number;
+  target_rto_minutes?: number;
+}
+
+
