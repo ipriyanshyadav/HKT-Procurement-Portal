@@ -110,6 +110,8 @@ class VendorScorecardResponse(BaseModel):
     commercial_compliance_score: Decimal
     responsiveness_score: Decimal
     overall_score: Decimal
+    quality_rejection_rate: Optional[Decimal] = None
+    pricing_competitiveness: Optional[Decimal] = None
     calculated_at: datetime
 
 
@@ -272,6 +274,7 @@ class VendorDetailResponse(VendorResponse):
     bank_accounts: List[VendorBankAccountResponse] = Field(default_factory=list)
     documents: List[VendorDocumentResponse] = Field(default_factory=list)
     scorecard: Optional[VendorScorecardResponse] = None
+    risk_assessment: Optional[VendorRiskAssessmentResponse] = None
 
 
 class BulkVendorCategoryMappingItem(BaseModel):
@@ -288,4 +291,75 @@ class BulkVendorCategoryMappingResponse(BaseModel):
     total_processed: int
     updated_vendors: int
     errors: List[str] = Field(default_factory=list)
+
+
+class VendorScorecardCalculateRequest(BaseModel):
+    period_start: Optional[date] = None
+    period_end: Optional[date] = None
+
+
+class VendorRiskAssessmentResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    vendor_id: UUID
+    financial_risk_score: Decimal
+    credit_rating: str
+    financial_stability_score: Decimal
+    liquidity_risk: str
+    bankruptcy_risk: str
+    debt_to_equity_ratio: Optional[Decimal] = None
+    esg_risk_score: Decimal
+    environmental_score: Decimal
+    social_score: Decimal
+    governance_score: Decimal
+    esg_rating: str
+    overall_risk_score: Decimal
+    risk_tier: str
+    risk_factors: List[Any] = Field(default_factory=list)
+    mitigation_actions: List[Any] = Field(default_factory=list)
+    last_assessed_at: datetime
+    assessed_by: Optional[UUID] = None
+
+
+class VendorRiskAssessmentUpdateRequest(BaseModel):
+    financial_risk_score: Optional[Decimal] = None
+    credit_rating: Optional[str] = None
+    financial_stability_score: Optional[Decimal] = None
+    liquidity_risk: Optional[str] = None
+    bankruptcy_risk: Optional[str] = None
+    debt_to_equity_ratio: Optional[Decimal] = None
+    esg_risk_score: Optional[Decimal] = None
+    environmental_score: Optional[Decimal] = None
+    social_score: Optional[Decimal] = None
+    governance_score: Optional[Decimal] = None
+    esg_rating: Optional[str] = None
+    risk_factors: Optional[List[Any]] = None
+    mitigation_actions: Optional[List[Any]] = None
+
+
+class VendorRiskSummaryItem(BaseModel):
+    vendor_id: UUID
+    vendor_code: Optional[str] = None
+    company_name: str
+    overall_risk_score: Decimal
+    risk_tier: str
+    financial_risk_score: Decimal
+    credit_rating: str
+    esg_risk_score: Decimal
+    esg_rating: str
+    performance_score: Optional[Decimal] = None
+
+
+class VendorRiskDashboardResponse(BaseModel):
+    total_vendors_monitored: int
+    low_risk_count: int
+    medium_risk_count: int
+    high_risk_count: int
+    critical_risk_count: int
+    avg_financial_risk_score: Decimal
+    avg_esg_risk_score: Decimal
+    avg_overall_risk_score: Decimal
+    high_risk_watchlist: List[VendorRiskSummaryItem] = Field(default_factory=list)
+    esg_ratings_distribution: Dict[str, int] = Field(default_factory=dict)
 

@@ -116,6 +116,9 @@ export {
   useInitiatePennyTest,
   useConfirmPennyTest,
   useBulkVendorCategoryMapping,
+  useCalculateVendorScorecard,
+  useVendorRiskDashboard,
+  useUpdateVendorRiskAssessment,
 } from "./useVendors";
 export type {
   Vendor,
@@ -123,6 +126,9 @@ export type {
   VendorBankAccount,
   VendorDocument,
   VendorScorecard,
+  VendorRiskAssessment,
+  VendorRiskSummaryItem,
+  VendorRiskDashboard,
   VendorDetail,
   VendorListParams,
   VendorInvitePayload,

@@ -34,6 +34,7 @@ from app.modules.vendor.models import (
     VendorContact,
     VendorDocument,
     VendorScorecard,
+    VendorRiskAssessment,
 )
 from app.modules.vendor.repository import VendorRepository, vendor_repository
 from app.modules.vendor.schemas import (
@@ -49,6 +50,7 @@ from app.modules.vendor.schemas import (
     VendorUpdateRequest,
     BulkVendorCategoryMappingItem,
     BulkVendorCategoryMappingResponse,
+    VendorRiskAssessmentUpdateRequest,
 )
 from integration.adapters.bank import BankVerificationAdapter
 from integration.adapters.gst import GSTAdapter
@@ -946,12 +948,312 @@ class VendorService:
                 "overall_score": round(overall, 2),
             },
         )
+        scorecard.quality_rejection_rate = round(Decimal("100.0") - quality, 2)
+        scorecard.pricing_competitiveness = responsiveness
 
         vendor.performance_score = round(overall, 2)
         vendor.last_scorecard_at = datetime.now(timezone.utc)
 
         await db.flush()
         return scorecard
+
+    async def calculate_scorecard_automated(
+        self,
+        db: AsyncSession,
+        vendor_id: UUID,
+        org_id: UUID,
+        period_start: Optional[date] = None,
+        period_end: Optional[date] = None,
+    ) -> VendorScorecard:
+        vendor = await self.repo.find_by_id(db, vendor_id, org_id)
+        if not vendor:
+            raise NotFoundError(f"Vendor {vendor_id} not found")
+
+        start_dt = period_start or (date.today() - timedelta(days=90))
+        end_dt = period_end or date.today()
+
+        # 1. On-Time Delivery Rate
+        from sqlalchemy import select
+        from app.modules.grn.models import GoodsReceiptNote, GrnLine
+        from app.modules.purchase_order.models import PurchaseOrder
+        from app.modules.invoice.models import Invoice
+        from app.modules.bid.models import BidResponse
+
+        grn_stmt = (
+            select(GoodsReceiptNote, PurchaseOrder)
+            .join(PurchaseOrder, PurchaseOrder.id == GoodsReceiptNote.po_id)
+            .where(
+                GoodsReceiptNote.vendor_id == vendor_id,
+                GoodsReceiptNote.org_id == org_id,
+                GoodsReceiptNote.receipt_date >= start_dt,
+                GoodsReceiptNote.receipt_date <= end_dt,
+                GoodsReceiptNote.deleted_at.is_(None),
+            )
+        )
+        grn_res = await db.execute(grn_stmt)
+        grn_po_pairs = list(grn_res.all())
+
+        if grn_po_pairs:
+            on_time_count = 0
+            for grn, po in grn_po_pairs:
+                if po.expected_delivery_date is None or grn.receipt_date <= po.expected_delivery_date:
+                    on_time_count += 1
+                elif (grn.receipt_date - po.expected_delivery_date).days <= 0:
+                    on_time_count += 1
+            on_time_delivery_rate = Decimal(str(round((on_time_count / len(grn_po_pairs)) * 100, 2)))
+        else:
+            on_time_delivery_rate = Decimal("100.00")
+
+        # 2. Quality Acceptance & Rejection Rate
+        grn_ids = [grn.id for grn, _ in grn_po_pairs]
+        total_received = Decimal("0.0")
+        total_accepted = Decimal("0.0")
+        total_rejected = Decimal("0.0")
+        if grn_ids:
+            line_stmt = (
+                select(GrnLine)
+                .where(
+                    GrnLine.grn_id.in_(grn_ids),
+                    GrnLine.deleted_at.is_(None),
+                )
+            )
+            line_res = await db.execute(line_stmt)
+            lines = list(line_res.scalars().all())
+            for line in lines:
+                total_received += Decimal(str(line.received_quantity or 0))
+                total_accepted += Decimal(str(line.accepted_quantity or 0))
+                total_rejected += Decimal(str(line.rejected_quantity or 0))
+
+        if total_received > Decimal("0.0"):
+            quality_acceptance_rate = Decimal(str(round(float(total_accepted / total_received) * 100, 2)))
+            quality_rejection_rate = Decimal(str(round(float(total_rejected / total_received) * 100, 2)))
+        else:
+            quality_acceptance_rate = Decimal("100.00")
+            quality_rejection_rate = Decimal("0.00")
+
+        # 3. Commercial Compliance Score (3-way matched invoices)
+        inv_stmt = (
+            select(Invoice)
+            .where(
+                Invoice.vendor_id == vendor_id,
+                Invoice.org_id == org_id,
+                Invoice.invoice_date >= start_dt,
+                Invoice.invoice_date <= end_dt,
+                Invoice.deleted_at.is_(None),
+            )
+        )
+        inv_res = await db.execute(inv_stmt)
+        invoices = list(inv_res.scalars().all())
+        if invoices:
+            matched_count = sum(1 for inv in invoices if str(getattr(inv, "match_status", "")).upper() in ("MATCHED", "3_WAY_MATCHED"))
+            commercial_compliance_score = Decimal(str(round((matched_count / len(invoices)) * 100, 2)))
+        else:
+            commercial_compliance_score = Decimal("100.00")
+
+        # 4. Responsiveness Score & Pricing Competitiveness (Bids)
+        bid_stmt = (
+            select(BidResponse)
+            .where(
+                BidResponse.vendor_id == vendor_id,
+                BidResponse.org_id == org_id,
+                BidResponse.created_at >= datetime.combine(start_dt, datetime.min.time(), tzinfo=timezone.utc),
+                BidResponse.created_at <= datetime.combine(end_dt, datetime.max.time(), tzinfo=timezone.utc),
+                BidResponse.deleted_at.is_(None),
+            )
+        )
+        bid_res = await db.execute(bid_stmt)
+        bids = list(bid_res.scalars().all())
+        if bids:
+            active_bids = sum(1 for b in bids if str(getattr(b, "status", "")).upper() not in ("INVITED", "REGRETTED"))
+            responsiveness_score = Decimal(str(round((active_bids / len(bids)) * 100, 2)))
+            pricing_competitiveness = Decimal(str(round(min(100.0, (active_bids / len(bids)) * 95.0 + 5.0), 2)))
+        else:
+            responsiveness_score = Decimal("100.00")
+            pricing_competitiveness = Decimal("100.00")
+
+        # Weighted formula per SPEC_07: 40% delivery, 30% quality, 20% commercial, 10% responsiveness
+        overall_score = round(
+            (on_time_delivery_rate * Decimal("0.40"))
+            + (quality_acceptance_rate * Decimal("0.30"))
+            + (commercial_compliance_score * Decimal("0.20"))
+            + (responsiveness_score * Decimal("0.10")),
+            2,
+        )
+
+        scorecard = await self.repo.create_scorecard(
+            db,
+            org_id=org_id,
+            vendor_id=vendor_id,
+            data={
+                "period_start": start_dt,
+                "period_end": end_dt,
+                "on_time_delivery_rate": on_time_delivery_rate,
+                "quality_acceptance_rate": quality_acceptance_rate,
+                "commercial_compliance_score": commercial_compliance_score,
+                "responsiveness_score": responsiveness_score,
+                "overall_score": overall_score,
+            },
+        )
+        scorecard.quality_rejection_rate = quality_rejection_rate
+        scorecard.pricing_competitiveness = pricing_competitiveness
+
+        vendor.performance_score = overall_score
+        vendor.last_scorecard_at = datetime.now(timezone.utc)
+
+        # Advisory flag if score < 60
+        if overall_score < Decimal("60.0"):
+            try:
+                await OutboxPublisher.publish(
+                    db,
+                    "procurement.vendor",
+                    "vendor.low_performance",
+                    {"vendor_id": str(vendor_id), "overall_score": float(overall_score)},
+                    org_id,
+                )
+            except Exception:
+                pass
+
+        await db.flush()
+        return scorecard
+
+    async def get_risk_assessment(
+        self,
+        db: AsyncSession,
+        vendor_id: UUID,
+        org_id: UUID,
+    ) -> VendorRiskAssessment:
+        vendor = await self.repo.find_by_id(db, vendor_id, org_id)
+        if not vendor:
+            raise NotFoundError(f"Vendor {vendor_id} not found")
+
+        assessment = await self.repo.get_risk_assessment(db, vendor_id, org_id)
+        if not assessment:
+            assessment = await self.repo.upsert_risk_assessment(
+                db,
+                org_id=org_id,
+                vendor_id=vendor_id,
+                data={
+                    "financial_risk_score": Decimal("15.00"),
+                    "credit_rating": "A",
+                    "financial_stability_score": Decimal("85.00"),
+                    "liquidity_risk": "LOW",
+                    "bankruptcy_risk": "LOW",
+                    "esg_risk_score": Decimal("20.00"),
+                    "environmental_score": Decimal("80.00"),
+                    "social_score": Decimal("85.00"),
+                    "governance_score": Decimal("90.00"),
+                    "esg_rating": "AVERAGE",
+                    "overall_risk_score": Decimal("18.00"),
+                    "risk_tier": "LOW",
+                    "risk_factors": ["Standard operational onboarding risk"],
+                    "mitigation_actions": ["Annual statutory document review"],
+                },
+            )
+        return assessment
+
+    async def update_risk_assessment(
+        self,
+        db: AsyncSession,
+        vendor_id: UUID,
+        org_id: UUID,
+        data: VendorRiskAssessmentUpdateRequest,
+        actor_id: Optional[UUID] = None,
+    ) -> VendorRiskAssessment:
+        vendor = await self.repo.find_by_id(db, vendor_id, org_id)
+        if not vendor:
+            raise NotFoundError(f"Vendor {vendor_id} not found")
+
+        current = await self.get_risk_assessment(db, vendor_id, org_id)
+        update_dict = data.model_dump(exclude_unset=True)
+
+        fin_risk = Decimal(str(update_dict.get("financial_risk_score", current.financial_risk_score)))
+        esg_risk = Decimal(str(update_dict.get("esg_risk_score", current.esg_risk_score)))
+        perf_score = vendor.performance_score or Decimal("100.00")
+
+        # Composite risk formula: 45% financial risk + 35% ESG risk + 20% (100 - performance score)
+        overall_risk = round(
+            (fin_risk * Decimal("0.45"))
+            + (esg_risk * Decimal("0.35"))
+            + ((Decimal("100.00") - min(Decimal("100.00"), perf_score)) * Decimal("0.20")),
+            2,
+        )
+        update_dict["overall_risk_score"] = overall_risk
+
+        if overall_risk >= Decimal("75.00"):
+            update_dict["risk_tier"] = "CRITICAL"
+        elif overall_risk >= Decimal("50.00"):
+            update_dict["risk_tier"] = "HIGH"
+        elif overall_risk >= Decimal("25.00"):
+            update_dict["risk_tier"] = "MEDIUM"
+        else:
+            update_dict["risk_tier"] = "LOW"
+
+        updated = await self.repo.upsert_risk_assessment(
+            db, org_id=org_id, vendor_id=vendor_id, data=update_dict, assessed_by=actor_id
+        )
+        return updated
+
+    async def get_risk_dashboard(
+        self,
+        db: AsyncSession,
+        org_id: UUID,
+    ) -> dict[str, Any]:
+        rows = await self.repo.list_risk_assessments(db, org_id)
+        total = len(rows)
+        low_count = sum(1 for a, _ in rows if a.risk_tier == "LOW")
+        med_count = sum(1 for a, _ in rows if a.risk_tier == "MEDIUM")
+        high_count = sum(1 for a, _ in rows if a.risk_tier == "HIGH")
+        crit_count = sum(1 for a, _ in rows if a.risk_tier == "CRITICAL")
+
+        avg_fin = (
+            round(sum(a.financial_risk_score for a, _ in rows) / total, 2)
+            if total > 0
+            else Decimal("0.00")
+        )
+        avg_esg = (
+            round(sum(a.esg_risk_score for a, _ in rows) / total, 2)
+            if total > 0
+            else Decimal("0.00")
+        )
+        avg_overall = (
+            round(sum(a.overall_risk_score for a, _ in rows) / total, 2)
+            if total > 0
+            else Decimal("0.00")
+        )
+
+        watchlist = []
+        for a, v in rows:
+            if a.risk_tier in ("HIGH", "CRITICAL") or a.overall_risk_score >= Decimal("50.00"):
+                watchlist.append({
+                    "vendor_id": v.id,
+                    "vendor_code": v.vendor_code,
+                    "company_name": v.company_name,
+                    "overall_risk_score": a.overall_risk_score,
+                    "risk_tier": a.risk_tier,
+                    "financial_risk_score": a.financial_risk_score,
+                    "credit_rating": a.credit_rating,
+                    "esg_risk_score": a.esg_risk_score,
+                    "esg_rating": a.esg_rating,
+                    "performance_score": v.performance_score,
+                })
+
+        esg_dist: dict[str, int] = {}
+        for a, _ in rows:
+            rating = a.esg_rating or "NOT_ASSESSED"
+            esg_dist[rating] = esg_dist.get(rating, 0) + 1
+
+        return {
+            "total_vendors_monitored": total,
+            "low_risk_count": low_count,
+            "medium_risk_count": med_count,
+            "high_risk_count": high_count,
+            "critical_risk_count": crit_count,
+            "avg_financial_risk_score": avg_fin,
+            "avg_esg_risk_score": avg_esg,
+            "avg_overall_risk_score": avg_overall,
+            "high_risk_watchlist": watchlist,
+            "esg_ratings_distribution": esg_dist,
+        }
 
     # ─────────────────────────────────────────────────────────────────────────
     # Sub-Entities (Categories, Bank, Documents, Contacts)
@@ -998,6 +1300,8 @@ class VendorService:
             }
             masked_banks.append(b_dict)
 
+        risk_assessment = await self.get_risk_assessment(db, vendor_id, org_id)
+
         return {
             "vendor": vendor,
             "category_ids": [c.category_id for c in categories],
@@ -1005,6 +1309,7 @@ class VendorService:
             "bank_accounts": masked_banks,
             "documents": documents,
             "scorecard": scorecard,
+            "risk_assessment": risk_assessment,
         }
 
     async def update_categories(

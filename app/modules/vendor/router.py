@@ -14,6 +14,7 @@ from app.core.responses import APIResponse, PaginationMeta, created_response, su
 from app.db.session import get_db
 from app.modules.user.models import User
 from app.modules.vendor.models import Vendor
+from decimal import Decimal
 from app.modules.vendor.schemas import (
     DuplicateCheckRequest,
     DuplicateCheckResult,
@@ -37,6 +38,10 @@ from app.modules.vendor.schemas import (
     VendorResubmissionRequest,
     VendorScorecardResponse,
     VendorScorecardUpdateRequest,
+    VendorScorecardCalculateRequest,
+    VendorRiskAssessmentResponse,
+    VendorRiskAssessmentUpdateRequest,
+    VendorRiskDashboardResponse,
     VendorSubmitRequest,
     VendorSuspendRequest,
     VendorUpdateRequest,
@@ -290,6 +295,11 @@ async def get_my_vendor_profile(
         if detail["scorecard"]
         else None
     )
+    v_dict["risk_assessment"] = (
+        VendorRiskAssessmentResponse.model_validate(detail["risk_assessment"]).model_dump()
+        if detail.get("risk_assessment")
+        else None
+    )
     return success_response(v_dict)
 
 
@@ -339,8 +349,21 @@ async def add_my_vendor_document(
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Vendor Detail & Mutation Endpoints
+# Vendor Risk Dashboard & Detail Endpoints
 # ─────────────────────────────────────────────────────────────────────────────
+
+@router.get("/risk/dashboard", status_code=status.HTTP_200_OK)
+async def get_vendor_risk_dashboard(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Financial & ESG vendor risk monitoring dashboard across organization."""
+    if current_user.is_supplier_user:
+        raise ForbiddenError("Suppliers cannot access organization risk dashboard")
+
+    data = await vendor_service.get_risk_dashboard(db, current_user.org_id)
+    return success_response(VendorRiskDashboardResponse.model_validate(data).model_dump())
+
 
 @router.get("/{id}", status_code=status.HTTP_200_OK)
 async def get_vendor_detail(
@@ -363,6 +386,11 @@ async def get_vendor_detail(
     v_dict["scorecard"] = (
         VendorScorecardResponse.model_validate(detail["scorecard"]).model_dump()
         if detail["scorecard"]
+        else None
+    )
+    v_dict["risk_assessment"] = (
+        VendorRiskAssessmentResponse.model_validate(detail["risk_assessment"]).model_dump()
+        if detail.get("risk_assessment")
         else None
     )
     return success_response(v_dict)
@@ -586,6 +614,59 @@ async def update_vendor_scorecard(
     )
     await db.commit()
     return success_response(VendorScorecardResponse.model_validate(scorecard).model_dump())
+
+
+@router.post("/{id}/scorecard/calculate", status_code=status.HTTP_200_OK)
+async def calculate_vendor_scorecard_endpoint(
+    id: UUID,
+    data: Optional[VendorScorecardCalculateRequest] = None,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Automatically calculate vendor performance scorecard from actual POs, GRNs, Invoices, and Bids."""
+    if current_user.is_supplier_user:
+        raise ForbiddenError("Suppliers cannot trigger scorecard calculation")
+
+    period_start = data.period_start if data else None
+    period_end = data.period_end if data else None
+    scorecard = await vendor_service.calculate_scorecard_automated(
+        db, id, org_id=current_user.org_id, period_start=period_start, period_end=period_end
+    )
+    await db.commit()
+    res = VendorScorecardResponse.model_validate(scorecard).model_dump()
+    res["quality_rejection_rate"] = getattr(scorecard, "quality_rejection_rate", Decimal("0.00"))
+    res["pricing_competitiveness"] = getattr(scorecard, "pricing_competitiveness", Decimal("100.00"))
+    return success_response(res)
+
+
+@router.get("/{id}/risk-assessment", status_code=status.HTTP_200_OK)
+async def get_vendor_risk_assessment_endpoint(
+    id: UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Retrieve financial and ESG risk assessment profile for a vendor."""
+    _assert_vendor_access(current_user, id)
+    assessment = await vendor_service.get_risk_assessment(db, id, current_user.org_id)
+    return success_response(VendorRiskAssessmentResponse.model_validate(assessment).model_dump())
+
+
+@router.put("/{id}/risk-assessment", status_code=status.HTTP_200_OK)
+async def update_vendor_risk_assessment_endpoint(
+    id: UUID,
+    data: VendorRiskAssessmentUpdateRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Update financial and ESG risk assessment parameters and recompute risk tier."""
+    if current_user.is_supplier_user:
+        raise ForbiddenError("Suppliers cannot modify risk assessments")
+
+    assessment = await vendor_service.update_risk_assessment(
+        db, id, current_user.org_id, data, actor_id=current_user.id
+    )
+    await db.commit()
+    return success_response(VendorRiskAssessmentResponse.model_validate(assessment).model_dump())
 
 
 @router.get("/{id}/documents", status_code=status.HTTP_200_OK)

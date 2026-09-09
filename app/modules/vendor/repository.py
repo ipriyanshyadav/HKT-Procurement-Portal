@@ -1,5 +1,6 @@
 from __future__ import annotations
 from datetime import date, datetime, timezone
+from decimal import Decimal
 from typing import Optional, List, Tuple
 from uuid import UUID
 from sqlalchemy import select, func, and_, or_, desc, asc
@@ -15,6 +16,7 @@ from app.modules.vendor.models import (
     VendorDocument,
     VendorScorecard,
     VendorErpSyncLog,
+    VendorRiskAssessment,
 )
 
 
@@ -380,6 +382,81 @@ class VendorRepository(BaseRepository[Vendor]):
         db.add(scorecard)
         await db.flush()
         return scorecard
+
+    async def get_risk_assessment(
+        self, db: AsyncSession, vendor_id: UUID, org_id: UUID
+    ) -> Optional[VendorRiskAssessment]:
+        stmt = (
+            select(VendorRiskAssessment)
+            .where(
+                VendorRiskAssessment.vendor_id == vendor_id,
+                VendorRiskAssessment.org_id == org_id,
+                VendorRiskAssessment.deleted_at.is_(None),
+            )
+            .limit(1)
+        )
+        res = await db.execute(stmt)
+        return res.scalar_one_or_none()
+
+    async def upsert_risk_assessment(
+        self,
+        db: AsyncSession,
+        org_id: UUID,
+        vendor_id: UUID,
+        data: dict,
+        assessed_by: Optional[UUID] = None,
+    ) -> VendorRiskAssessment:
+        existing = await self.get_risk_assessment(db, vendor_id, org_id)
+        if existing:
+            for key, val in data.items():
+                if val is not None and hasattr(existing, key):
+                    setattr(existing, key, val)
+            if assessed_by:
+                existing.assessed_by = assessed_by
+            existing.last_assessed_at = datetime.now(timezone.utc)
+            await db.flush()
+            return existing
+
+        assessment = VendorRiskAssessment(
+            org_id=org_id,
+            vendor_id=vendor_id,
+            financial_risk_score=data.get("financial_risk_score", Decimal("0.0")),
+            credit_rating=data.get("credit_rating", "UNRATED"),
+            financial_stability_score=data.get("financial_stability_score", Decimal("0.0")),
+            liquidity_risk=data.get("liquidity_risk", "LOW"),
+            bankruptcy_risk=data.get("bankruptcy_risk", "LOW"),
+            debt_to_equity_ratio=data.get("debt_to_equity_ratio"),
+            esg_risk_score=data.get("esg_risk_score", Decimal("0.0")),
+            environmental_score=data.get("environmental_score", Decimal("0.0")),
+            social_score=data.get("social_score", Decimal("0.0")),
+            governance_score=data.get("governance_score", Decimal("0.0")),
+            esg_rating=data.get("esg_rating", "NOT_ASSESSED"),
+            overall_risk_score=data.get("overall_risk_score", Decimal("0.0")),
+            risk_tier=data.get("risk_tier", "LOW"),
+            risk_factors=data.get("risk_factors", []),
+            mitigation_actions=data.get("mitigation_actions", []),
+            last_assessed_at=datetime.now(timezone.utc),
+            assessed_by=assessed_by,
+        )
+        db.add(assessment)
+        await db.flush()
+        return assessment
+
+    async def list_risk_assessments(
+        self, db: AsyncSession, org_id: UUID
+    ) -> List[Tuple[VendorRiskAssessment, Vendor]]:
+        stmt = (
+            select(VendorRiskAssessment, Vendor)
+            .join(Vendor, Vendor.id == VendorRiskAssessment.vendor_id)
+            .where(
+                VendorRiskAssessment.org_id == org_id,
+                VendorRiskAssessment.deleted_at.is_(None),
+                Vendor.deleted_at.is_(None),
+            )
+            .order_by(VendorRiskAssessment.overall_risk_score.desc())
+        )
+        res = await db.execute(stmt)
+        return list(res.all())
 
 
 vendor_repository = VendorRepository()

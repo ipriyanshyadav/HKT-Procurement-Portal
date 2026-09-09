@@ -75,6 +75,7 @@ markers = [
     "unit: Unit tests",
     "integration: Integration tests requiring services",
     "workflow: End-to-end workflow tests",
+    "e2e: End-to-end multi-portal persona tests",
     "security: Security-focused tests",
     "performance: Performance benchmark tests",
 ]

@@ -15,6 +15,7 @@ import {
   useVendorDetail,
   useInitiatePennyTest,
   useConfirmPennyTest,
+  useCalculateVendorScorecard,
   VendorDocument,
 } from "@procurement/hooks";
 import { ComplianceExpiryAlert, VendorStatusBadge, PermissionGuard, DocumentList, Button, Badge } from "@procurement/ui";
@@ -35,6 +36,7 @@ export default function VendorDetailPage() {
   const reinstateMutation = useReinstateVendor(vendorId);
   const initiateBlacklistMutation = useInitiateBlacklist(vendorId);
   const confirmBlacklistMutation = useConfirmBlacklist(vendorId);
+  const calculateScorecardMutation = useCalculateVendorScorecard(vendorId);
 
   // Penny-Drop Verification State
   const initiatePennyTest = useInitiatePennyTest(vendorId);
@@ -442,7 +444,27 @@ export default function VendorDetailPage() {
         <div className="space-y-6">
           {/* Performance Scorecard Card */}
           <div className="bg-white dark:bg-[#1C1C1F] p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-white/15 space-y-4">
-            <h2 className="text-base font-bold text-slate-900 dark:text-white border-b border-slate-100 dark:border-white/10 pb-3">Performance Scorecard</h2>
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-white/10 pb-3">
+              <h2 className="text-base font-bold text-slate-900 dark:text-white">Performance Scorecard</h2>
+              <PermissionGuard permission={["vendor.qualify", "vendor.activate"]}>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={calculateScorecardMutation.isPending}
+                  onClick={async () => {
+                    try {
+                      await calculateScorecardMutation.mutateAsync({});
+                      refetch();
+                    } catch (err: any) {
+                      alert(err?.response?.data?.error?.message || err.message || "Failed to calculate scorecard");
+                    }
+                  }}
+                  className="text-xs h-7 px-2.5"
+                >
+                  {calculateScorecardMutation.isPending ? "Calculating..." : "Recalculate"}
+                </Button>
+              </PermissionGuard>
+            </div>
             {vendor.scorecard ? (
               <div className="space-y-4">
                 <div className="text-center py-4 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900/40 rounded-xl">
@@ -460,6 +482,18 @@ export default function VendorDetailPage() {
                     <span className="text-slate-500 dark:text-slate-400">Quality Acceptance (30%):</span>
                     <span className="font-semibold text-slate-900 dark:text-white">{vendor.scorecard.quality_acceptance_rate}%</span>
                   </div>
+                  {vendor.scorecard.quality_rejection_rate != null && (
+                    <div className="flex justify-between text-slate-600 dark:text-slate-300">
+                      <span className="text-slate-500 dark:text-slate-400">Quality Rejection Rate:</span>
+                      <span className="font-semibold text-rose-500 dark:text-rose-400">{vendor.scorecard.quality_rejection_rate}%</span>
+                    </div>
+                  )}
+                  {vendor.scorecard.pricing_competitiveness != null && (
+                    <div className="flex justify-between text-slate-600 dark:text-slate-300">
+                      <span className="text-slate-500 dark:text-slate-400">Pricing Competitiveness:</span>
+                      <span className="font-semibold text-slate-900 dark:text-white">{vendor.scorecard.pricing_competitiveness}%</span>
+                    </div>
+                  )}
                   <div className="flex justify-between text-slate-600 dark:text-slate-300">
                     <span className="text-slate-500 dark:text-slate-400">Commercial Compliance (20%):</span>
                     <span className="font-semibold text-slate-900 dark:text-white">{vendor.scorecard.commercial_compliance_score}%</span>
@@ -472,6 +506,80 @@ export default function VendorDetailPage() {
               </div>
             ) : (
               <p className="text-sm text-slate-400 dark:text-slate-500 italic">No scorecard calculated yet.</p>
+            )}
+          </div>
+
+          {/* Financial & ESG Risk Profile Card */}
+          <div className="bg-white dark:bg-[#1C1C1F] p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-white/15 space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-white/10 pb-3">
+              <h2 className="text-base font-bold text-slate-900 dark:text-white">Financial & ESG Risk Profile</h2>
+              {vendor.risk_assessment && (
+                <span className={`px-2 py-0.5 rounded-full text-xs font-semibold border ${
+                  vendor.risk_assessment.risk_tier === "CRITICAL"
+                    ? "bg-rose-500/10 text-rose-500 border-rose-500/30"
+                    : vendor.risk_assessment.risk_tier === "HIGH"
+                    ? "bg-orange-500/10 text-orange-400 border-orange-500/30"
+                    : vendor.risk_assessment.risk_tier === "MEDIUM"
+                    ? "bg-amber-500/10 text-amber-400 border-amber-500/30"
+                    : "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
+                }`}>
+                  {vendor.risk_assessment.risk_tier} RISK
+                </span>
+              )}
+            </div>
+
+            {vendor.risk_assessment ? (
+              <div className="space-y-4">
+                <div className="text-center py-3 bg-slate-50 dark:bg-[#252529] border border-slate-200 dark:border-white/10 rounded-xl">
+                  <div className="text-2xl font-extrabold text-slate-900 dark:text-white">
+                    {vendor.risk_assessment.overall_risk_score} / 100
+                  </div>
+                  <div className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5">Composite Risk Index</div>
+                </div>
+
+                <div className="space-y-2 text-xs">
+                  <div className="font-semibold text-slate-800 dark:text-slate-200 text-xs uppercase tracking-wider mb-1">Financial Stability</div>
+                  <div className="flex justify-between text-slate-600 dark:text-slate-300">
+                    <span className="text-slate-500 dark:text-slate-400">Credit Rating:</span>
+                    <span className="font-semibold text-slate-900 dark:text-white">{vendor.risk_assessment.credit_rating}</span>
+                  </div>
+                  <div className="flex justify-between text-slate-600 dark:text-slate-300">
+                    <span className="text-slate-500 dark:text-slate-400">Financial Risk Score:</span>
+                    <span className="font-semibold text-slate-900 dark:text-white">{vendor.risk_assessment.financial_risk_score}</span>
+                  </div>
+                  <div className="flex justify-between text-slate-600 dark:text-slate-300">
+                    <span className="text-slate-500 dark:text-slate-400">Liquidity / Bankruptcy:</span>
+                    <span className="font-semibold text-slate-900 dark:text-white">{vendor.risk_assessment.liquidity_risk} / {vendor.risk_assessment.bankruptcy_risk}</span>
+                  </div>
+                </div>
+
+                <div className="space-y-2 text-xs pt-2 border-t border-slate-100 dark:border-white/10">
+                  <div className="font-semibold text-slate-800 dark:text-slate-200 text-xs uppercase tracking-wider mb-1">ESG Health</div>
+                  <div className="flex justify-between text-slate-600 dark:text-slate-300">
+                    <span className="text-slate-500 dark:text-slate-400">ESG Rating:</span>
+                    <span className="font-semibold text-emerald-500 dark:text-emerald-400">{vendor.risk_assessment.esg_rating}</span>
+                  </div>
+                  <div className="flex justify-between text-slate-600 dark:text-slate-300">
+                    <span className="text-slate-500 dark:text-slate-400">Env / Social / Gov:</span>
+                    <span className="font-semibold text-slate-900 dark:text-white">
+                      {vendor.risk_assessment.environmental_score} / {vendor.risk_assessment.social_score} / {vendor.risk_assessment.governance_score}
+                    </span>
+                  </div>
+                </div>
+
+                {vendor.risk_assessment.risk_factors && vendor.risk_assessment.risk_factors.length > 0 && (
+                  <div className="pt-2 border-t border-slate-100 dark:border-white/10 text-xs">
+                    <span className="font-semibold text-slate-800 dark:text-slate-200">Identified Risk Factors:</span>
+                    <ul className="mt-1 space-y-1 list-disc list-inside text-slate-500 dark:text-slate-400">
+                      {vendor.risk_assessment.risk_factors.map((f: any, idx: number) => (
+                        <li key={idx}>{typeof f === 'string' ? f : JSON.stringify(f)}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <p className="text-sm text-slate-400 dark:text-slate-500 italic">No risk assessment recorded yet.</p>
             )}
           </div>
 

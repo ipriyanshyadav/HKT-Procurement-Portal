@@ -621,20 +621,59 @@ docker compose logs -f -t
 | A-AUD-1 | Immutable audit log chain of custody hashes canonical strings with previous block's SHA-256 hash stored in non-null metadata JSONB to eliminate table locks or schema migrations | LOW |
 | A-AUD-2 | Client IP addresses are resolved via ipaddress module differentiating intranet / RFC-1918 LANs from public internet ingress addresses | LOW |
 | A-NOT-1 | NotificationToast container renders floating Apple dark-glassmorphism stack with auto-dismiss timers, action deep-links, and category icons | LOW |
+| A-SCR-1 | Automated scorecard weights 40% on-time delivery (GRN vs PO date), 30% quality acceptance (GRN accepted lines), 20% commercial compliance (matched invoices), 10% responsiveness/pricing (bid qualification); overall score < 60 triggers vendor.low_performance event | LOW |
+| A-RSK-1 | Vendor risk assessment calculates composite risk as 45% financial risk, 35% ESG risk, and 20% performance risk (100 - performance score); risk tiers are LOW (<25), MEDIUM (25-50), HIGH (50-75), CRITICAL (>=75) | LOW |
+| A-WFL-1 | Approval rule condition parser evaluates complex comparison operators (eq, neq, gt, gte, lt, lte, in, not_in, contains, is_true, is_false) against runtime context with priority and condition specificity tie-breaking | LOW |
+| A-WFL-2 | Delegation rules support multi-entity type scoping (PR, PO, INVOICE, RFQ, CONTRACT, ARN, or ALL) with Maker-Checker conflict avoidance | LOW |
+| A-WFL-3 | Parallel split approval convergence evaluates ALL (unanimous), ANY (first approval), MAJORITY (>50% approved), or QUORUM_N_OF_M | LOW |
 
 
 ---
 
 ### Current Session State
-- **Planned**: ERP & Payment Gateways (SPEC_20 & SPEC_15) and Enterprise Notifications & Security Audit Trail (SPEC_16 & SPEC_22).
+- **Planned**: End-to-End Persona QA (Walkthrough across Buyer, Approver, Supplier, Admin), Supplier Performance Scorecards & Risk Assessment (SPEC_21 & SPEC_07), and Advanced Workflow Rules Engine & Delegation (SPEC_04, SPEC_05, SPEC_06).
 - **Implemented**:
-  - Bidirectional ERP Synchronizers (`TallyXMLAdapter`, `SAPAdapter`, `ERPAdapterFactory`): Tally XML envelopes for Sundry Creditors Ledger, Purchase Order voucher, Purchase invoice, and Payment voucher; SAP NetWeaver RFC/BAPI simulation (`execute_bapi`, `bapi_po_create1`, `bapi_incominginvoice_create`).
-  - Live Payment Execution & Webhook Verification (`RazorpayPaymentAdapter`, `/api/v1/payments/{id}/execute-live`, `/api/v1/payments/webhooks/razorpay`): Live bank disbursement via NEFT/RTGS/IMPS and HMAC-SHA256 raw byte signature validation for automated invoice settlement.
-  - Statutory Verification Suite (`PANAdapter`, `BankVerificationAdapter`, `/api/v1/integrations/verify/*`): Real-time PAN format & entity classification, IFSC structure validation, and bank account penny drop deposit test (₹1.00).
-  - Cryptographic Tamper-Evident Audit Trail (`app/modules/audit/crypto_chain.py`, `/api/v1/audit/*`): Chronological SHA-256 block chaining, client IP geolocation resolution, integrity verification endpoint, and compliance report exporter (JSON & CSV).
-  - Real-Time Multi-Channel Notification Center: Added `POST /api/v1/notifications/dispatch-test` endpoint, created Apple dark glassmorphism `NotificationToast.tsx` and `NotificationToastContainer` with category icons, auto-dismiss, and export across shared packages.
-- **Tested**: 34/34 integration tests passed (20 SPEC_20 tests in 1.27s, 14 SPEC_16/22 tests in 1.28s); 439/439 unit tests passed in 9.86s; `pnpm run typecheck` passed (0 errors across 9 monorepo packages); zero dead code / console.log.
-- **Next**: Workflow engine advanced branching & multi-entity delegation or Supplier Performance Scorecards & Risk Assessment.
+  - Automated Scorecard Calculation & Risk Monitoring: Weighted vendor scorecard engine (40% delivery, 30% quality rejection rate, 20% 3-way match commercial compliance, 10% pricing competitiveness); outbox event alert on <60 score; financial & ESG composite risk scoring with tiering (LOW, MEDIUM, HIGH, CRITICAL); org-level risk dashboard (`/api/v1/vendors/risk/dashboard`); Buyer portal recalculate button and Apple dark surface risk card.
+  - Advanced Workflow Rules & Multi-Entity Delegation: Structured condition evaluation (`eq`, `neq`, `gt`, `gte`, `lt`, `lte`, `in`, `not_in`, `contains`, `is_true`, `is_false`) with specificity tie-breaking; approval chain resolution endpoint (`/api/v1/approval-rules/resolve-chain`); out-of-office delegation scoped to entity types (`PR`, `PO`, `INVOICE`, `RFQ`, `CONTRACT`, `ARN`) with Maker-Checker prevention; parallel split convergence (`ALL`, `ANY`, `MAJORITY`).
+  - End-to-End Persona QA & Multi-Portal Verification: Test suites verifying full Buyer, Approver, Supplier, and Admin journeys with seeded accounts and Playwright flows.
+- **Tested**: 18/18 integration/e2e tests passed (4 e2e persona tests, 6 SPEC_21 tests, 8 SPEC_04/05/06 tests); 439/439 unit tests passed; `pnpm run typecheck` passed (0 errors across 9 packages); zero dead code / console.log.
+- **Next**: Production staging deployment and smoke testing.
+
+### 📊 SPEC Audit: Supplier Performance Scorecards & Risk (2026-09-09)
+```
+MODULE | SPEC REQUIREMENT | STATUS | ARTIFACT / CODE
+SCR.1 | Automated Multi-Factor Scorecard Calculation Engine   | [DONE] | vendor/service.py, router.py, test_vendor_scorecard_and_risk_spec21.py
+SCR.2 | Quality Rejection & Pricing Competitiveness Metrics   | [DONE] | vendor/schemas.py, vendor/service.py, useVendors.ts
+SCR.3 | Low Performance Alert & Outbox Event Dispatch (<60)   | [DONE] | vendor/service.py, test_vendor_scorecard_and_risk_spec21.py
+SCR.4 | Recalculate Scorecard Buyer Portal Action & UI Flow   | [DONE] | buyer-portal/vendors/[id]/page.tsx, useVendors.ts
+RSK.1 | Vendor Financial & ESG Risk Assessment DB & Model    | [DONE] | 0040_vendor_risk_assessment.py, vendor/models.py
+RSK.2 | Composite Risk Score Calculation & 4-Tier Bucketing   | [DONE] | vendor/service.py, schemas.py, repository.py
+RSK.3 | Organization-Wide Vendor Risk Monitoring Dashboard   | [DONE] | vendor/service.py, router.py, test_vendor_scorecard_and_risk_spec21.py
+RSK.4 | Buyer Portal Apple Dark Surface Risk Profile Card     | [DONE] | buyer-portal/vendors/[id]/page.tsx, useVendors.ts
+OVERALL: 8/8 (100%) | BACKEND 100% | FRONTEND 100% | TESTS 100%
+```
+
+### 📊 SPEC Audit: Advanced Workflow Rules & Delegation (2026-09-09)
+```
+MODULE | SPEC REQUIREMENT | STATUS | ARTIFACT / CODE
+WFL.1 | Structured Multi-Criteria Rule Condition Evaluation   | [DONE] | approval_rules/service.py, test_workflow_delegation_and_split_spec04_05.py
+WFL.2 | Priority & Condition Specificity Tie-Breaking        | [DONE] | approval_rules/service.py, test_workflow_delegation_and_split_spec04_05.py
+WFL.3 | Resolve-Chain S2P Approval Pre-Flight Endpoint        | [DONE] | approval_rules/router.py, service.py, schemas.py
+WFL.4 | Out-of-Office Delegation Scoped by Entity Type        | [DONE] | workflow/service.py, test_workflow_delegation_and_split_spec04_05.py
+WFL.5 | Maker-Checker Conflict Avoidance Enforcement          | [DONE] | workflow/service.py, test_workflow_delegation_and_split_spec04_05.py
+WFL.6 | Parallel Split Convergence (ALL, ANY, MAJORITY)      | [DONE] | workflow/service.py, test_workflow_delegation_and_split_spec04_05.py
+OVERALL: 6/6 (100%) | BACKEND 100% | FRONTEND 100% | TESTS 100%
+```
+
+### 📊 SPEC Audit: End-to-End Persona QA & Multi-Portal (2026-09-09)
+```
+MODULE | SPEC REQUIREMENT | STATUS | ARTIFACT / CODE
+E2E.1 | Buyer Portal Flow (PR creation, RFQ, PO generation)   | [DONE] | test_persona_qa_walkthrough.py
+E2E.2 | Approver Portal Flow (Tasks Queue, Contract Review)   | [DONE] | test_persona_qa_walkthrough.py, approver_and_admin_flows.spec.ts
+E2E.3 | Supplier Portal Flow (Bid submission, Invoices, KYC)  | [DONE] | test_persona_qa_walkthrough.py
+E2E.4 | Admin Portal Flow (Master Data, Audit Logs, Settings)  | [DONE] | test_persona_qa_walkthrough.py, approver_and_admin_flows.spec.ts
+OVERALL: 4/4 (100%) | BACKEND 100% | FRONTEND 100% | TESTS 100%
+```
 
 ### 📊 SPEC Audit: ERP & Payment Gateways (2026-09-09)
 ```

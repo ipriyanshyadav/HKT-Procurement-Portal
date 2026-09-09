@@ -350,7 +350,9 @@ class WorkflowEngine:
             entity_context,
             instance.org_id,
         )
-        approvers = await self._apply_delegation(db, approvers, instance.org_id)
+        approvers = await self._apply_delegation(
+            db, approvers, instance.org_id, entity_type=instance.entity_type
+        )
         instance.current_step_number = step["step_number"]
         await self.create_tasks_for_step(db, instance, step, approvers)
 
@@ -556,25 +558,45 @@ class WorkflowEngine:
         db: AsyncSession,
         approvers: list[User],
         org_id: UUID,
+        entity_type: Optional[str] = None,
     ) -> list[User]:
-        """Replace delegating users with their delegates (checked at task creation time)."""
-        from sqlalchemy import and_, select, text
+        """Replace delegating users with their delegates (checked at task creation time).
+        Supports multi-entity scoping based on DelegationRule.entity_types.
+        """
+        from sqlalchemy import text
 
         now = datetime.now(timezone.utc)
         result_users: list[User] = []
 
+        alias_map = {
+            "PR": {"PR", "REQUISITION", "PURCHASE_REQUISITION"},
+            "REQUISITION": {"PR", "REQUISITION", "PURCHASE_REQUISITION"},
+            "PURCHASE_REQUISITION": {"PR", "REQUISITION", "PURCHASE_REQUISITION"},
+            "PO": {"PO", "PURCHASE_ORDER"},
+            "PURCHASE_ORDER": {"PO", "PURCHASE_ORDER"},
+            "INVOICE": {"INVOICE", "INVOICES"},
+            "INVOICES": {"INVOICE", "INVOICES"},
+            "RFQ": {"RFQ", "SOURCING"},
+            "SOURCING": {"RFQ", "SOURCING"},
+            "CONTRACT": {"CONTRACT", "CONTRACTS"},
+            "CONTRACTS": {"CONTRACT", "CONTRACTS"},
+            "ARN": {"ARN", "AWARD", "AWARD_RECOMMENDATION"},
+            "AWARD_RECOMMENDATION": {"ARN", "AWARD", "AWARD_RECOMMENDATION"},
+        }
+
         for approver in approvers:
-            row = None
+            delegate_found = None
             try:
                 delegation_stmt = text(
                     """
-                    SELECT delegate_id FROM delegation_rules
+                    SELECT delegate_id, entity_types FROM delegation_rules
                     WHERE delegator_id = :delegator_id
                       AND org_id = :org_id
                       AND is_active = TRUE
                       AND valid_from <= :now
                       AND (valid_until IS NULL OR valid_until >= :now)
-                    LIMIT 1
+                      AND deleted_at IS NULL
+                    ORDER BY created_at DESC
                     """
                 )
                 res = await db.execute(
@@ -585,16 +607,35 @@ class WorkflowEngine:
                         "now": now.isoformat(),
                     },
                 )
-                row = res.fetchone()
+                rows = res.fetchall()
             except Exception:
-                row = None
+                rows = []
 
-            if row:
+            for row in rows:
+                rule_delegate_id = row[0] if isinstance(row[0], UUID) else UUID(str(row[0]))
+                rule_entities = row[1] if len(row) > 1 and row[1] is not None else []
+                if isinstance(rule_entities, str):
+                    import json
+                    try:
+                        rule_entities = json.loads(rule_entities)
+                    except Exception:
+                        rule_entities = [rule_entities]
+
+                if not entity_type or not rule_entities or "ALL" in [str(e).upper() for e in rule_entities] or "*" in rule_entities:
+                    delegate_found = rule_delegate_id
+                    break
+
+                target_aliases = alias_map.get(entity_type.upper(), {entity_type.upper()})
+                rule_entities_upper = {str(e).upper() for e in rule_entities}
+                if bool(target_aliases & rule_entities_upper):
+                    delegate_found = rule_delegate_id
+                    break
+
+            if delegate_found:
                 try:
-                    delegate_id = row[0] if isinstance(row[0], UUID) else UUID(str(row[0]))
                     from app.modules.user.repository import user_repository as u_repo
 
-                    delegate = await u_repo.get_by_id(db, delegate_id, org_id)
+                    delegate = await u_repo.get_by_id(db, delegate_found, org_id)
                     if delegate:
                         delegate._delegated_from = approver.id  # type: ignore[attr-defined]
                         result_users.append(delegate)

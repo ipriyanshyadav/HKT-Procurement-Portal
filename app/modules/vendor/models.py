@@ -1,7 +1,7 @@
 from __future__ import annotations
 from datetime import datetime, date
 from decimal import Decimal
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 from uuid import UUID, uuid4
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import String, Boolean, Numeric, Integer, Date, ForeignKey, Text, CHAR, DateTime
@@ -164,3 +164,26 @@ class VendorErpSyncLog(Base):
     response_payload: Mapped[Optional[Dict[str, Any]]] = mapped_column(JSONB, nullable=True)
     error_message: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     synced_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+
+class VendorRiskAssessment(BaseModel):
+    __tablename__ = "vendor_risk_assessments"
+
+    vendor_id: Mapped[UUID] = mapped_column(ForeignKey("vendors.id"), nullable=False)
+    financial_risk_score: Mapped[Decimal] = mapped_column(Numeric(5, 2), default=Decimal("0.0"), nullable=False)
+    credit_rating: Mapped[str] = mapped_column(String(20), default="UNRATED", nullable=False)
+    financial_stability_score: Mapped[Decimal] = mapped_column(Numeric(5, 2), default=Decimal("0.0"), nullable=False)
+    liquidity_risk: Mapped[str] = mapped_column(String(20), default="LOW", nullable=False)
+    bankruptcy_risk: Mapped[str] = mapped_column(String(20), default="LOW", nullable=False)
+    debt_to_equity_ratio: Mapped[Optional[Decimal]] = mapped_column(Numeric(6, 2), nullable=True)
+    esg_risk_score: Mapped[Decimal] = mapped_column(Numeric(5, 2), default=Decimal("0.0"), nullable=False)
+    environmental_score: Mapped[Decimal] = mapped_column(Numeric(5, 2), default=Decimal("0.0"), nullable=False)
+    social_score: Mapped[Decimal] = mapped_column(Numeric(5, 2), default=Decimal("0.0"), nullable=False)
+    governance_score: Mapped[Decimal] = mapped_column(Numeric(5, 2), default=Decimal("0.0"), nullable=False)
+    esg_rating: Mapped[str] = mapped_column(String(20), default="NOT_ASSESSED", nullable=False)
+    overall_risk_score: Mapped[Decimal] = mapped_column(Numeric(5, 2), default=Decimal("0.0"), nullable=False)
+    risk_tier: Mapped[str] = mapped_column(String(20), default="LOW", nullable=False)
+    risk_factors: Mapped[List[Any]] = mapped_column(JSONB, default=list, nullable=False)
+    mitigation_actions: Mapped[List[Any]] = mapped_column(JSONB, default=list, nullable=False)
+    last_assessed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    assessed_by: Mapped[Optional[UUID]] = mapped_column(ForeignKey("users.id"), nullable=True)
