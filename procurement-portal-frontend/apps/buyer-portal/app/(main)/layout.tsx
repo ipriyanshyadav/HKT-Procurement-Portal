@@ -4,7 +4,7 @@ import React, { ReactNode } from "react";
 import { useAuthInit, useCurrentUser, useLogout } from "@procurement/hooks";
 import { useAuthStore } from "@procurement/stores";
 import { AppShell, NotificationBell } from "@procurement/ui";
-import { ShoppingCart, CheckSquare, FileQuestion, Users, FileText, FileCheck, Package, Receipt, CreditCard, Truck, AlertCircle, BarChart2, PieChart, Award, LifeBuoy, Kanban, UserCheck, Ticket, ShieldAlert } from "lucide-react";
+import { ShoppingCart, CheckSquare, FileQuestion, Users, FileText, FileCheck, Package, Receipt, CreditCard, Truck, AlertCircle, BarChart2, PieChart, Award, LifeBuoy, Kanban, UserCheck, Ticket, ShieldAlert, Barcode } from "lucide-react";
 
 export default function BuyerMainLayout({ children }: { children: ReactNode }) {
   const { isInitializing } = useAuthInit();
@@ -41,6 +41,12 @@ export default function BuyerMainLayout({ children }: { children: ReactNode }) {
       label: "Goods Receipts (GRN)",
       href: "/grn",
       icon: <Truck className="w-4 h-4" />,
+      section: "Purchasing",
+    },
+    {
+      label: "Barcode Dock Intake",
+      href: "/grn/scan",
+      icon: <Barcode className="w-4 h-4" />,
       section: "Purchasing",
     },
     {

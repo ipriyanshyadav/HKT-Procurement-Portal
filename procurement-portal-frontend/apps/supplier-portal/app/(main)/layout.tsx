@@ -4,7 +4,7 @@ import React, { ReactNode } from "react";
 import { useAuthInit, useCurrentUser, useLogout } from "@procurement/hooks";
 import { useAuthStore } from "@procurement/stores";
 import { AppShell, NotificationBell } from "@procurement/ui";
-import { Building2, FileCheck, UserPlus, Gavel, Package, Receipt, CreditCard, AlertCircle, LifeBuoy, FileText } from "lucide-react";
+import { Building2, FileCheck, UserPlus, Gavel, Package, Receipt, CreditCard, AlertCircle, LifeBuoy, FileText, Truck } from "lucide-react";
 
 export default function SupplierMainLayout({ children }: { children: ReactNode }) {
   const { isInitializing } = useAuthInit();
@@ -35,6 +35,12 @@ export default function SupplierMainLayout({ children }: { children: ReactNode }
       label: "Purchase Orders",
       href: "/purchase-orders",
       icon: <Package className="w-4 h-4" />,
+      section: "Orders",
+    },
+    {
+      label: "Advance Shipping (ASN)",
+      href: "/asns",
+      icon: <Truck className="w-4 h-4" />,
       section: "Orders",
     },
     {

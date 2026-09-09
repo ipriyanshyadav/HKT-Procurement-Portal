@@ -13,6 +13,7 @@ import {
   FileText,
   Filter,
   ArrowRight,
+  Barcode,
 } from "lucide-react";
 
 export default function GRNListPage() {
@@ -91,13 +92,22 @@ export default function GRNListPage() {
             Track warehouse inbound receipts, vendor delivery challans, and quality inspection statuses.
           </p>
         </div>
-        <Link
-          href="/grn/new"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium shadow-sm transition-colors self-start sm:self-auto"
-        >
-          <Plus className="h-4 w-4" />
-          Record New GRN
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/grn/scan"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-medium shadow-sm transition-colors self-start sm:self-auto"
+          >
+            <Barcode className="h-4 w-4" />
+            Fast Barcode Intake
+          </Link>
+          <Link
+            href="/grn/new"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium shadow-sm transition-colors self-start sm:self-auto"
+          >
+            <Plus className="h-4 w-4" />
+            Record New GRN
+          </Link>
+        </div>
       </div>
 
       {/* KPI Stats Strip */}

@@ -21,7 +21,14 @@ All three portals run simultaneously with seeded test roles. Access them directl
 >
 > 📘 **Git & CI/CD Guide:** [Complete Beginner Guide to Git, GitHub & Branching](docs/GIT_AND_CICD_GUIDE.md)
 >
-> 🪟 **Windows PC Guide:** [Running Docker on Windows (WSL2 Setup & Troubleshooting)](docs/WINDOWS_DOCKER_GUIDE.md)
+---
+
+## Current Session State
+- **Completed (Option A)**: Advance Shipping Notices (ASN) & Warehouse Barcode Intake fully implemented & verified.
+  - Backend: DB migration `0041_advance_shipping_notices.py`, `app/modules/asn` (models, schemas, repo, service, router), mounted at `/api/v1/asns`.
+  - Frontend: `packages/hooks/src/useAsns.ts`, Supplier Portal ASN list/wizard/packing slip, Buyer Portal dock intake scanner (`/grn/scan`).
+  - Tests: `test_asn_and_warehouse_intake.py` (4/4 passed), full unit suite (439/439 passed), `turbo typecheck` (0 errors).
+- **Next Up**: Option B (Multi-Tenant Active Company Switcher & Cross-Tenant Rollup), followed by Option C and Option D.
 
 ---
 
@@ -769,6 +776,19 @@ AUC.3 | Automated Confidential Proxy Floor Bidding     | [DONE] | test_auction_p
 EVAL.1| L1 Comparative Statement & Landed Cost Discovery| [DONE] | ComparativeStatementTable.tsx, evaluation/page.tsx
 EVAL.2| Evaluation Versions & Regret Letter Dispatch    | [DONE] | cs_service.py, evaluation/page.tsx
 OVERALL: 8/8 (100%) | BACKEND 100% | FRONTEND 100% | TESTS 100%
+```
+
+### 📊 SPEC Audit: Advance Shipping Notices (ASN) & Warehouse Barcode Intake (2026-09-09)
+```
+MODULE | SPEC REQUIREMENT | STATUS | ARTIFACT / CODE
+ASN.1 | Schema & Migration for Advance Shipping Notices & Lines | [DONE] | 0041_advance_shipping_notices.py, models.py
+ASN.2 | ASN Numbering & Over-Shipping Validation vs Open Qty   | [DONE] | asn/service.py, schemas.py, test_asn_and_warehouse_intake.py
+ASN.3 | Barcode & QR Data Payload Generation (Code-128)        | [DONE] | asn/service.py, supplier-portal/asns/[id]
+ASN.4 | Multi-Format Scan Lookup (ASN #, AWB Tracking, Code)   | [DONE] | asn/repository.py, buyer-portal/grn/scan
+ASN.5 | 1-Click Fast-Track Intake to Confirmed GRN & PO Update | [DONE] | asn/service.py, buyer-portal/grn/scan
+ASN.6 | Supplier Portal ASN Creation Wizard & Packaging Slip   | [DONE] | supplier-portal/asns/new, supplier-portal/asns/[id]
+ASN.7 | Multi-Tenant & Supplier Vendor-Isolation Protection    | [DONE] | asn/router.py, test_asn_and_warehouse_intake.py
+OVERALL: 7/7 (100%) | BACKEND 100% | FRONTEND 100% | TESTS 100%
 ```
 
 ### 📊 SPEC Audit: Requisition-to-PO Workflow (2026-09-09)

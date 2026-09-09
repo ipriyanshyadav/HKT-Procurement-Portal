@@ -948,8 +948,8 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/types/src/api.ts": {
-    "mtime": 1788963856.3966575,
-    "seen": 1788963889.879025,
+    "mtime": 1788974268.900956,
+    "seen": 1788974292.557406,
     "ast_hash": "78361e250bde117fcfd1a864cd6243cb",
     "semantic_hash": ""
   },
@@ -1482,9 +1482,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1788961672.4987059,
-    "seen": 1788963889.8839638,
-    "ast_hash": "95eb7b6bbe72d3c43469fa84fd1d7326",
+    "mtime": 1788963906.0424213,
+    "seen": 1788974292.562618,
+    "ast_hash": "731f8ca46a0139c0e19aad6819d868d9",
     "semantic_hash": ""
   },
   "graphify_diff_20260904_014322.txt": {
@@ -2070,9 +2070,9 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/buyer-portal/app/(main)/vendors/page.tsx": {
-    "mtime": 1788606795.3692884,
-    "seen": 1788608163.658283,
-    "ast_hash": "0bd80880c45067eac0344eee27ef1855",
+    "mtime": 1788974263.8618815,
+    "seen": 1788974292.554071,
+    "ast_hash": "608b969d8795041d8753c068efdc8b43",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/buyer-portal/next-env.d.ts": {
@@ -2334,9 +2334,9 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/buyer-portal/app/(main)/layout.tsx": {
-    "mtime": 1788867714.4957464,
-    "seen": 1788870391.1522508,
-    "ast_hash": "458c1fc8eadc7b8c1490a96f5e34f9cb",
+    "mtime": 1788974254.2893512,
+    "seen": 1788974292.553226,
+    "ast_hash": "01e255623912efdefef2ead92ecb96ee",
     "semantic_hash": ""
   },
   "alembic/versions/0028_fix_missing_model_columns.py": {
@@ -5721,6 +5721,12 @@
     "mtime": 1788963678.5498254,
     "seen": 1788963889.8825111,
     "ast_hash": "84cfe4dcb96df5c1789c846850f7c160",
+    "semantic_hash": ""
+  },
+  "procurement-portal-frontend/apps/buyer-portal/app/(main)/vendors/risk/page.tsx": {
+    "mtime": 1788974246.459682,
+    "seen": 1788974292.5540721,
+    "ast_hash": "a40d8b42af66685f7393aa5d4bf6dc16",
     "semantic_hash": ""
   }
 }

@@ -297,5 +297,92 @@ export type CostCenterResponse = components["schemas"]["CostCenterResponse"];
 export type CostCenterCreateRequest = components["schemas"]["CostCenterCreateRequest"];
 export type CostCenterUpdateRequest = components["schemas"]["CostCenterUpdateRequest"];
 
+// ============================================================================
+// Advance Shipping Notice (ASN) & Barcode Intake Types
+// ============================================================================
 
+export interface AsnLineResponse {
+  id: string;
+  asn_id: string;
+  po_line_id: string;
+  item_code?: string | null;
+  item_description: string;
+  uom: string;
+  ordered_quantity: string | number;
+  shipped_quantity: string | number;
+  received_quantity: string | number;
+  lot_number?: string | null;
+  serial_numbers: string[];
+  expiry_date?: string | null;
+  manufacturing_date?: string | null;
+}
 
+export interface AsnResponse {
+  id: string;
+  org_id: string;
+  asn_number: string;
+  po_id: string;
+  vendor_id: string;
+  shipment_date: string;
+  expected_delivery_date: string;
+  carrier_name: string;
+  tracking_number: string;
+  vehicle_number?: string | null;
+  driver_name?: string | null;
+  driver_phone?: string | null;
+  packaging_type: string;
+  package_count: number;
+  gross_weight_kg?: string | number | null;
+  status: string;
+  barcode_data: string;
+  notes?: string | null;
+  shipped_at?: string | null;
+  received_at?: string | null;
+  grn_id?: string | null;
+  created_at: string;
+  updated_at: string;
+  lines: AsnLineResponse[];
+  po_number?: string | null;
+  vendor_name?: string | null;
+}
+
+export interface AsnLineCreate {
+  po_line_id: string;
+  shipped_quantity: number;
+  lot_number?: string;
+  serial_numbers?: string[];
+  expiry_date?: string;
+  manufacturing_date?: string;
+}
+
+export interface AsnCreateRequest {
+  po_id: string;
+  shipment_date?: string;
+  expected_delivery_date: string;
+  carrier_name: string;
+  tracking_number: string;
+  vehicle_number?: string;
+  driver_name?: string;
+  driver_phone?: string;
+  packaging_type?: string;
+  package_count?: number;
+  gross_weight_kg?: number;
+  notes?: string;
+  lines: AsnLineCreate[];
+}
+
+export interface AsnDispatchPayload {
+  carrier_name?: string;
+  tracking_number?: string;
+  vehicle_number?: string;
+  notes?: string;
+}
+
+export interface AsnScanLookupRequest {
+  code: string;
+}
+
+export interface AsnFastGrnRequest {
+  challan_number?: string;
+  notes?: string;
+}
