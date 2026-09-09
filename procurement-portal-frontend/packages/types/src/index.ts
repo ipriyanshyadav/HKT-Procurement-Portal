@@ -458,3 +458,109 @@ export interface CrossTenantRollupResponse {
   top_categories: CategoryRollupItem[];
 }
 
+// ============================================================================
+// Developer Platform & API Key Management Types (Option C)
+// ============================================================================
+
+export interface ApiKeyCreateRequest {
+  name: string;
+  scopes: string[];
+  ip_allowlist?: string[];
+  rate_limit_rpm?: number;
+  expires_in_days?: number | null;
+}
+
+export interface ApiKeyCreatedResponse {
+  id: string;
+  name: string;
+  key_prefix: string;
+  key_secret: string;
+  scopes: string[];
+  ip_allowlist: string[];
+  rate_limit_rpm: number;
+  status: string;
+  expires_at?: string | null;
+  created_at: string;
+}
+
+export interface ApiKeyResponse {
+  id: string;
+  name: string;
+  key_prefix: string;
+  scopes: string[];
+  ip_allowlist: string[];
+  rate_limit_rpm: number;
+  status: string;
+  expires_at?: string | null;
+  last_used_at?: string | null;
+  last_used_ip?: string | null;
+  total_requests: number;
+  created_at: string;
+}
+
+export interface ApiKeyRevokeRequest {
+  reason?: string;
+}
+
+export interface WebhookSubscriptionCreateRequest {
+  endpoint_url: string;
+  description?: string;
+  subscribed_events: string[];
+}
+
+export interface WebhookSubscriptionUpdateRequest {
+  endpoint_url?: string;
+  description?: string;
+  subscribed_events?: string[];
+  is_active?: boolean;
+}
+
+export interface WebhookSubscriptionResponse {
+  id: string;
+  org_id: string;
+  endpoint_url: string;
+  secret_token: string;
+  description?: string | null;
+  subscribed_events: string[];
+  is_active: boolean;
+  failure_count: number;
+  last_delivery_at?: string | null;
+  last_delivery_status?: number | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface WebhookTestPingRequest {
+  event_type?: string;
+  custom_payload?: Record<string, unknown>;
+}
+
+export interface WebhookDeliveryResponse {
+  id: string;
+  subscription_id: string;
+  event_type: string;
+  payload: Record<string, unknown>;
+  response_status_code?: number | null;
+  execution_time_ms?: number | null;
+  is_success: boolean;
+  attempt_number: number;
+  error_message?: string | null;
+  created_at: string;
+}
+
+export interface DeveloperScope {
+  scope: string;
+  description: string;
+}
+
+export interface DeveloperWebhookEvent {
+  event: string;
+  description: string;
+}
+
+export interface DeveloperScopesResponse {
+  scopes: DeveloperScope[];
+  webhook_events: DeveloperWebhookEvent[];
+}
+
+

@@ -31,6 +31,7 @@ import {
   Package,
   Truck,
   BellRing,
+  Terminal,
 } from "lucide-react";
 
 export default function AdminMainLayout({ children }: { children: ReactNode }) {
@@ -182,6 +183,12 @@ export default function AdminMainLayout({ children }: { children: ReactNode }) {
       label: "ERP Integrations",
       href: "/integrations",
       icon: <Cpu className="w-4 h-4" />,
+      section: "System Operations",
+    },
+    {
+      label: "Developer & API Keys",
+      href: "/developer",
+      icon: <Terminal className="w-4 h-4" />,
       section: "System Operations",
     },
     {

@@ -25,11 +25,13 @@ All three portals run simultaneously with seeded test roles. Access them directl
 
 ## Current Session State
 - **Completed (Option A)**: Advance Shipping Notices (ASN) & Warehouse Barcode Intake fully implemented & verified (`17b65f9`).
-- **Completed (Option B)**: Multi-Tenant Active Company Switcher & Cross-Tenant Rollup fully implemented & verified.
-  - Backend: Migration `0042_multi_tenant_company.py` (`user_company_access`, `active_legal_entity_id`), `company_switcher_service.py`, endpoints `GET /tenant/accessible-companies`, `POST /tenant/switch-context`, `GET /tenant/cross-tenant-rollup`.
-  - Frontend: `packages/hooks/src/useTenantSwitcher.ts`, `CompanySwitcher` component in `@procurement/ui`, Group Spend Rollup cockpit (`/analytics/rollup`), Buyer layout navigation and action pill.
-  - Tests: `test_multi_tenant_company_switcher.py` (4/4 passed), full integration suite (8/8 passed), unit suite (439/439 passed), `turbo typecheck` (0 errors).
-- **Next Up**: Option C (Developer Platform & API Key Management), followed by Option D (Enterprise Compliance & Security Posture Dashboard).
+- **Completed (Option B)**: Multi-Tenant Active Company Switcher & Cross-Tenant Rollup fully implemented & verified (`3aa671a`).
+- **Completed (Option C)**: Developer Platform & API Key Management fully implemented & verified.
+  - Backend: Migration `0043_developer_api_keys.py` (`api_keys`, `webhook_subscriptions`, `webhook_deliveries`), `app/modules/developer` (models, schemas, repository, service, router), endpoints at `/api/v1/developer` (`/keys`, `/keys/{id}/revoke`, `/webhooks`, `/webhooks/{id}/test`, `/webhooks/{id}/deliveries`, `/scopes`).
+  - Frontend: `packages/hooks/src/useDeveloperPlatform.ts`, `DeveloperPlatformDashboard` component in `@procurement/ui`, Admin & Buyer Portal pages (`/developer`), layout navigation items.
+  - Tests: `test_developer_platform.py` (4/4 passed), full integration suite (12/12 passed), `turbo typecheck` (0 errors).
+- **Next Up**: Option D (Enterprise Compliance & Security Posture Dashboard).
+
 
 ---
 

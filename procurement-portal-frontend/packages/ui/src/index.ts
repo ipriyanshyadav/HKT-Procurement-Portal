@@ -218,3 +218,7 @@ export type { ComplianceReportsViewProps, ComplianceTab } from "./components/Com
 // Multi-Tenant Company Switcher
 export { CompanySwitcher } from "./components/CompanySwitcher";
 export type { CompanySwitcherProps } from "./components/CompanySwitcher";
+
+// Developer Platform & API Key Management
+export { DeveloperPlatformDashboard } from "./components/DeveloperPlatformDashboard";
+
