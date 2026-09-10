@@ -168,7 +168,11 @@ class WorkflowEngine:
                     "now": now_dt,
                 },
             )
-            delegation_rows = res.fetchall()
+            try:
+                raw_rows = res.fetchall()
+                delegation_rows = raw_rows if isinstance(raw_rows, (list, tuple)) else []
+            except Exception:
+                delegation_rows = []
             for row in delegation_rows:
                 rule_entities = row[1] if len(row) > 1 and row[1] is not None else []
                 rule_max_threshold = row[2] if len(row) > 2 and row[2] is not None else None
