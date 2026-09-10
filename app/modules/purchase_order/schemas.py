@@ -58,6 +58,7 @@ class POCreateRequest(BaseModel):
     delivery_location_id: Optional[UUID] = None
     expected_delivery_date: Optional[date] = None
     deviation_justification: Optional[str] = None
+    source_pr_id: Optional[UUID] = None
     po_type: Optional[str] = "STANDARD"
 
 

@@ -24,18 +24,34 @@ All three portals run simultaneously with seeded test roles. Access them directl
 ---
 
 ## Current Session State
-- **Completed (Enterprise Expansion — Carbon ESG & Approval Delegation Matrix)**:
-  1. **Automated Carbon ESG Footprint Calculator (`SPEC_07` / `SPEC_25`)**:
-     - Backend: Migration `0051_carbon_esg_and_delegation_matrix.py`, tables `carbon_emission_factors` and `supplier_esg_metrics`. `CarbonESGService` provides Scope 1, 2, 3 GHG protocol supply chain emissions calculation based on spend-category emission factors, supplier ESG league table with composite score (0-100) and AAA-CCC rating badges, Net-Zero 2030 trajectory path, and decarbonization recommendations. Endpoints: `/api/v1/analytics/esg/footprint`, `/recalculate`, `/emission-factors`, and `/supplier-scorecards`.
-     - Frontend: `useCarbonFootprint`, `useRecalculateCarbonFootprint`, `useSupplierESGScorecards`, `CarbonESGDashboard` component with KPI summary strips, Scope 1/2/3 distribution, category breakdowns, supplier rating tiers, and Net-Zero trajectory; integrated into Buyer Portal (`/analytics` under the "Carbon & ESG Intelligence" tab).
-     - Tests: `test_carbon_esg_calculator_spec25.py` (100% passing).
-  2. **Advanced Multi-Tier Approval Delegation Matrix & SoD Guards (`SPEC_06`)**:
-     - Backend: Altered `delegation_rules` with `max_amount_threshold` (Numeric 18,2) and `bu_ids` (JSONB). `WorkflowEngine._apply_delegation` enhanced with strict Segregation of Duties (SoD maker-checker guard preventing delegation to document creator/submitter), threshold checks, BU scoping, and circular delegation prevention (`CIRCULAR_DELEGATION_PROHIBITED`). Endpoints: `/api/v1/users/me/delegations` and `/api/v1/users/delegations/matrix`.
-     - Frontend: `useMyDelegations`, `useOrgDelegationMatrix`, `useCreateDelegation`, `useRevokeDelegation`, `ApprovalDelegationWorkbench` component with active delegations, org-wide governance matrix, creation modal with threshold inputs, and instant revocation; integrated into Buyer Portal (`/tasks/delegation` and linked in `/tasks` and sidebar).
-     - Tests: `test_approval_delegation_matrix_spec06.py` (100% passing).
-  3. **Option 1 (Supplier Self-Onboarding SPEC_07), Option 3 (Maverick Spend AI SPEC_25), Option 4 (Multi-ERP Gateway SPEC_20), & Performance Baseline (`SPEC_17`)**:
-     - All previously implemented modules verified live and operational.
-- **Verification**: All 389 integration tests passing (100%), `turbo typecheck` clean across all 9 packages with 0 errors, `graphify update .` synced.
+- **Completed (End-to-End Synchronous Connected Flow & Multi-Persona Verification)**:
+  1. **Source-to-Pay Lifecycle Synchronization**:
+     - Workflow Engine: Added `_sync_entity_on_completion` atomically synchronizing Requisitions (`PR`), Purchase Orders (`PO`), Award Recommendations (`ARN`), Comparative Statements (`CS`), Invoices, Contracts, and Vendors on approval/rejection.
+     - Sourcing & RFQ: Converting approved PRs updates status to `PRStatus.IN_SOURCING`.
+     - Award & PO: Creating PO from ARN validates approval status, propagates `source_pr_id`, transitions PR to `CONVERTED`, and creates PO in `APPROVED` state.
+     - Invoicing & 3-Way Auto-Reconciliation: Auto-approves matched invoices, safely quantizes tax deviation percentages up to 999.99%, and automatically triggers scheduled payment records.
+  2. **Multi-Persona Testing & Verification**:
+     - *Developer Persona*: Automated suite `tests/integration/test_end_to_end_connected_flow.py` covering all 15 stages end-to-end.
+     - *User Persona*: Tested maker-checker Segregation of Duties (SoD) preventing PR submitter self-approval.
+     - *QA Persona*: Tested financial threshold breaches (>50k) and business unit scoping isolation on approval delegations, plus over-shipping quantity limits and duplicate invoice fiscal-year deduplication.
+  3. **SPEC Audit**:
+```
+MODULE | SPEC | DATE
+PR & Workflow Integration [DONE] → app/modules/workflow/service.py
+Delegation Matrix & SoD [DONE] → app/modules/workflow/service.py
+RFQ Sourcing Transition [DONE] → app/modules/sourcing/service.py
+Contract-PO Linkage [DONE] → app/modules/purchase_order/service.py
+Over-shipping Guard [DONE] → app/modules/asn/service.py
+Warehouse GRN Intake [DONE] → app/modules/grn/service.py
+3-Way Match & Reconciliation [DONE] → app/modules/invoice/service.py
+Payment Settlement [DONE] → app/modules/payment/service.py
+Supplier Scorecard [DONE] → app/modules/supplier/service.py
+Carbon ESG Footprint [DONE] → app/modules/carbon_esg/service.py
+Maverick Spend AI [DONE] → app/modules/maverick/service.py
+Multi-ERP Gateway [DONE] → app/modules/erp_gateway/service.py
+OVERALL: 12/12 (100%) | BACKEND 100% | FRONTEND 100% | TESTS 100% (832/832 passing)
+```
+- **Verification**: 439 unit tests (100%), 393 integration tests (100%), `turbo typecheck` 7/7 clean across 9 packages, `graphify update .` (10,491 nodes, 28,256 edges).
 
 ---
 
@@ -640,7 +656,11 @@ docker compose logs -f -t
 | A-WFL-1 | Approval rule condition parser evaluates complex comparison operators (eq, neq, gt, gte, lt, lte, in, not_in, contains, is_true, is_false) against runtime context with priority and condition specificity tie-breaking | LOW |
 | A-WFL-2 | Delegation rules support multi-entity type scoping (PR, PO, INVOICE, RFQ, CONTRACT, ARN, or ALL) with Maker-Checker conflict avoidance | LOW |
 | A-WFL-3 | Parallel split approval convergence evaluates ALL (unanimous), ANY (first approval), MAJORITY (>50% approved), or QUORUM_N_OF_M | LOW |
-
+| A-FLOW-1 | Workflow engine advance/force-advance synchronously synchronizes underlying entity status (Requisition->APPROVED, PO->APPROVED, ARN->APPROVED, Invoice->APPROVED+payment schedule, Contract->APPROVED, Vendor->ACTIVE) within the same DB session | LOW |
+| A-FLOW-2 | Workflow engine rejection/cancellation synchronously transitions entity to REJECTED/CANCELLED, releases reserved PR budget, and logs tamper-evident audit records | LOW |
+| A-FLOW-3 | Active delegation matrix authorizes runtime delegates to act on pending tasks at execution time if validity dates, BU, financial threshold, and Maker-Checker constraints are satisfied | LOW |
+| A-FLOW-4 | Sourcing RFQ creation linked to source_pr_id transitions PR to IN_SOURCING, and PO creation from award transitions PR to CONVERTED, preserving bidirectional relational state | LOW |
+| A-FLOW-5 | Full synchronous end-to-end flow from Requisition through Approval, RFQ, Bidding, CS/Award, Contract, PO, ASN, Fast GRN, 3-Way Invoice, Payment, Scorecard, ESG, Maverick AI, and Multi-ERP Gateway operates atomically with 0 broken linkages | LOW |
 
 ---
 

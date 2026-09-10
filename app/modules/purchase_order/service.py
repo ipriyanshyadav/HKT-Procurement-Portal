@@ -148,6 +148,7 @@ class PurchaseOrderService:
             vendor_id=data.vendor_id,
             rfq_id=data.rfq_id,
             arn_id=data.arn_id,
+            source_pr_id=data.source_pr_id,
             contract_id=data.contract_id,
             status=initial_status,
             business_unit_id=data.business_unit_id,
@@ -166,6 +167,12 @@ class PurchaseOrderService:
             lines=lines_to_add,
         )
         await self.repo.create(db, po)
+        if data.source_pr_id:
+            from app.modules.requisition.repository import requisition_repository
+            from app.db.enums import PRStatus
+            source_pr = await requisition_repository.get(db, data.source_pr_id, org_id)
+            if source_pr and source_pr.status in (PRStatus.APPROVED, PRStatus.IN_SOURCING):
+                source_pr.status = PRStatus.CONVERTED
         await db.flush()
 
         # Approval Workflow
@@ -229,6 +236,11 @@ class PurchaseOrderService:
         arn = await self.award_repo.get(db, data.arn_id, org_id)
         if not arn:
             raise NotFoundError(f"Award recommendation {data.arn_id} not found")
+        if getattr(arn, "status", None) != "APPROVED":
+            raise AppException(
+                "AWARD_NOT_APPROVED",
+                "Award recommendation must be approved before generating purchase order",
+            )
 
         rfq = await self.rfq_repo.get(db, arn.rfq_id, org_id)
         if not rfq:
@@ -273,6 +285,7 @@ class PurchaseOrderService:
                 lines=lines_create,
                 rfq_id=rfq.id,
                 arn_id=arn.id,
+                source_pr_id=getattr(rfq, "source_pr_id", None),
                 plant_id=getattr(rfq, "plant_id", None),
                 payment_term_id=getattr(rfq, "payment_term_id", None),
                 incoterm_id=getattr(rfq, "incoterm_id", None),

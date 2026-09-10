@@ -37,6 +37,25 @@ from app.modules.workflow.repository import WorkflowRepository, workflow_reposit
 from app.modules.workflow.resolver import ApproverResolver
 
 
+ENTITY_ALIAS_MAP: dict[str, set[str]] = {
+    "PR": {"PR", "REQUISITION", "PURCHASE_REQUISITION"},
+    "REQUISITION": {"PR", "REQUISITION", "PURCHASE_REQUISITION"},
+    "PURCHASE_REQUISITION": {"PR", "REQUISITION", "PURCHASE_REQUISITION"},
+    "PO": {"PO", "PURCHASE_ORDER"},
+    "PURCHASE_ORDER": {"PO", "PURCHASE_ORDER"},
+    "INVOICE": {"INVOICE", "INVOICES"},
+    "INVOICES": {"INVOICE", "INVOICES"},
+    "RFQ": {"RFQ", "SOURCING"},
+    "SOURCING": {"RFQ", "SOURCING"},
+    "CONTRACT": {"CONTRACT", "CONTRACTS"},
+    "CONTRACTS": {"CONTRACT", "CONTRACTS"},
+    "ARN": {"ARN", "AWARD", "AWARD_RECOMMENDATION"},
+    "AWARD_RECOMMENDATION": {"ARN", "AWARD", "AWARD_RECOMMENDATION"},
+    "VENDOR": {"VENDOR", "VENDORS"},
+    "VENDORS": {"VENDOR", "VENDORS"},
+}
+
+
 class WorkflowEngine:
     """
     Pure-Python async workflow state machine.
@@ -51,8 +70,10 @@ class WorkflowEngine:
         publisher: WorkflowEventPublisher,
     ) -> None:
         self._repo = repo
-        self._resolver = ApproverResolver(user_repo=user_repo, group_repo=group_repo)
+        self._user_repo = user_repo
+        self._group_repo = group_repo
         self._publisher = publisher
+        self._resolver = ApproverResolver(user_repo, group_repo)
 
     # ─────────────────────────────────────────────────────────────────────────
     # Public API
@@ -120,8 +141,91 @@ class WorkflowEngine:
                 f"Task status is {task.status!r}, cannot act on it",
                 "TASK_NOT_PENDING",
             )
+        is_delegated = False
         if task.assigned_to != actor_id:
-            raise ForbiddenError("This task is not assigned to you")
+            # Check if actor_id is an active authorized delegate of task.assigned_to
+            from sqlalchemy import text
+            now_dt = datetime.now(timezone.utc)
+            delegation_stmt = text(
+                """
+                SELECT id, entity_types, max_amount_threshold, bu_ids FROM delegation_rules
+                WHERE delegator_id = :delegator_id
+                  AND delegate_id = :delegate_id
+                  AND org_id = :org_id
+                  AND is_active = TRUE
+                  AND valid_from <= :now
+                  AND (valid_until IS NULL OR valid_until >= :now)
+                  AND deleted_at IS NULL
+                ORDER BY created_at DESC
+                """
+            )
+            res = await db.execute(
+                delegation_stmt,
+                {
+                    "delegator_id": str(task.assigned_to),
+                    "delegate_id": str(actor_id),
+                    "org_id": str(org_id),
+                    "now": now_dt,
+                },
+            )
+            delegation_rows = res.fetchall()
+            for row in delegation_rows:
+                rule_entities = row[1] if len(row) > 1 and row[1] is not None else []
+                rule_max_threshold = row[2] if len(row) > 2 and row[2] is not None else None
+                rule_bu_ids = row[3] if len(row) > 3 and row[3] is not None else []
+
+                # Guard 1: SoD maker-checker — delegate cannot be document creator/requester
+                forbidden_delegates = set()
+                if instance.entity_context:
+                    for k in ("created_by", "submitted_by", "requestor_id", "buyer_id"):
+                        val = instance.entity_context.get(k)
+                        if val:
+                            forbidden_delegates.add(str(val))
+                if str(actor_id) in forbidden_delegates:
+                    continue
+
+                # Guard 2: Entity type scoping
+                if rule_entities:
+                    matched = False
+                    aliases = ENTITY_ALIAS_MAP.get(str(instance.entity_type).upper(), {str(instance.entity_type).upper()})
+                    for allowed in rule_entities:
+                        if allowed.upper() in aliases or allowed.upper() == "ALL":
+                            matched = True
+                            break
+                    if not matched:
+                        continue
+
+                # Guard 3: Maximum financial threshold
+                if rule_max_threshold is not None:
+                    try:
+                        max_limit = float(rule_max_threshold)
+                        entity_amount = float(
+                            (instance.entity_context or {}).get("total_amount")
+                            or (instance.entity_context or {}).get("amount")
+                            or (instance.entity_context or {}).get("estimated_value")
+                            or (instance.entity_context or {}).get("total_value")
+                            or 0.0
+                        )
+                        if entity_amount > max_limit:
+                            continue
+                    except (ValueError, TypeError):
+                        pass
+
+                # Guard 4: BU scoping
+                if rule_bu_ids:
+                    entity_bu = str(
+                        (instance.entity_context or {}).get("bu_id")
+                        or (instance.entity_context or {}).get("business_unit_id")
+                        or ""
+                    )
+                    if entity_bu and entity_bu not in [str(b) for b in rule_bu_ids]:
+                        continue
+
+                is_delegated = True
+                break
+
+            if not is_delegated:
+                raise ForbiddenError("This task is not assigned to you")
         if instance.status != WorkflowInstanceStatusEnum.ACTIVE:
             raise AppException(
                 f"Workflow instance status is {instance.status!r}",
@@ -146,8 +250,10 @@ class WorkflowEngine:
         }
         task.status = action_to_status.get(str(action).upper(), ApprovalTaskStatusEnum.PENDING)
         task.action = action
-        task.comment = comment
+        task.comment = f"[Delegated to {actor_id}] {comment}" if is_delegated and comment else comment
         task.acted_at = datetime.now(timezone.utc)
+        if instance.entity_context is not None:
+            instance.entity_context["last_actor_id"] = str(actor_id)
 
         await self._publisher.task_completed(
             db, task.id, instance_id, action, actor_id, comment, org_id
@@ -190,6 +296,7 @@ class WorkflowEngine:
             db, "WORKFLOW", instance_id, AuditAction.CANCELLED, actor_id, org_id,
             metadata={"reason": reason},
         )
+        await self._sync_entity_on_completion(db, instance, final_action="CANCEL")
         return instance
 
     async def pause(
@@ -385,8 +492,8 @@ class WorkflowEngine:
                 "NO_ELIGIBLE_APPROVER",
             )
 
-        group_id = uuid4() if step["step_type"] == "PARALLEL" else None
-        sla_hours: int = step["sla_hours"]
+        group_id = uuid4() if step.get("step_type") == "PARALLEL" else None
+        sla_hours: int = step.get("sla_hours", 24)
         sla_deadline = datetime.now(timezone.utc) + timedelta(hours=sla_hours)
 
         for approver in eligible:
@@ -440,6 +547,7 @@ class WorkflowEngine:
                 task.comment or "",
                 instance.org_id,
             )
+            await self._sync_entity_on_completion(db, instance, final_action=action)
             return
 
         template = await self._repo.get_template(db, instance.template_id, instance.org_id)
@@ -452,7 +560,7 @@ class WorkflowEngine:
                 "STEP_NOT_FOUND",
             )
 
-        if step["step_type"] == "PARALLEL":
+        if step.get("step_type") == "PARALLEL":
             await self._check_parallel_convergence(db, instance, step, task)
         else:
             await self._advance_to_next_step(db, instance)
@@ -484,6 +592,7 @@ class WorkflowEngine:
                 for t in group_tasks:
                     if t.status == ApprovalTaskStatusEnum.PENDING:
                         t.status = ApprovalTaskStatusEnum.CANCELLED
+                await self._sync_entity_on_completion(db, instance, final_action="REJECT")
             elif len(approved) == total:
                 await self._advance_to_next_step(db, instance)
 
@@ -503,6 +612,7 @@ class WorkflowEngine:
             elif len(rejected) >= total / 2:
                 instance.status = WorkflowInstanceStatusEnum.FAILED
                 instance.completed_at = datetime.now(timezone.utc)
+                await self._sync_entity_on_completion(db, instance, final_action="REJECT")
 
         elif convergence.startswith("QUORUM_"):
             # Format: QUORUM_N_OF_M e.g. QUORUM_2_OF_3
@@ -516,6 +626,7 @@ class WorkflowEngine:
             elif len(rejected) > total - required:
                 instance.status = WorkflowInstanceStatusEnum.FAILED
                 instance.completed_at = datetime.now(timezone.utc)
+                await self._sync_entity_on_completion(db, instance, final_action="REJECT")
 
     async def _advance_to_next_step(
         self, db: AsyncSession, instance: WorkflowInstance
@@ -548,6 +659,7 @@ class WorkflowEngine:
         await self._publisher.instance_completed(
             db, instance.id, instance.entity_type, instance.entity_id, instance.org_id
         )
+        await self._sync_entity_on_completion(db, instance, final_action="APPROVE")
 
     # ─────────────────────────────────────────────────────────────────────────
     # Delegation helpers
@@ -570,22 +682,7 @@ class WorkflowEngine:
 
         now = datetime.now(timezone.utc)
         result_users: list[User] = []
-
-        alias_map = {
-            "PR": {"PR", "REQUISITION", "PURCHASE_REQUISITION"},
-            "REQUISITION": {"PR", "REQUISITION", "PURCHASE_REQUISITION"},
-            "PURCHASE_REQUISITION": {"PR", "REQUISITION", "PURCHASE_REQUISITION"},
-            "PO": {"PO", "PURCHASE_ORDER"},
-            "PURCHASE_ORDER": {"PO", "PURCHASE_ORDER"},
-            "INVOICE": {"INVOICE", "INVOICES"},
-            "INVOICES": {"INVOICE", "INVOICES"},
-            "RFQ": {"RFQ", "SOURCING"},
-            "SOURCING": {"RFQ", "SOURCING"},
-            "CONTRACT": {"CONTRACT", "CONTRACTS"},
-            "CONTRACTS": {"CONTRACT", "CONTRACTS"},
-            "ARN": {"ARN", "AWARD", "AWARD_RECOMMENDATION"},
-            "AWARD_RECOMMENDATION": {"ARN", "AWARD", "AWARD_RECOMMENDATION"},
-        }
+        alias_map = ENTITY_ALIAS_MAP
 
         # Calculate entity value if available for threshold checking
         entity_amount = 0.0
@@ -738,6 +835,280 @@ class WorkflowEngine:
         result = await db.execute(stmt)
         for task in result.scalars().all():
             task.status = ApprovalTaskStatusEnum.CANCELLED
+
+    async def _sync_entity_on_completion(
+        self,
+        db: AsyncSession,
+        instance: WorkflowInstance,
+        final_action: str = "APPROVE",
+    ) -> None:
+        """Synchronously synchronize the underlying business entity status upon workflow completion/failure.
+
+        Ensures that when a workflow completes (e.g. from the Tasks Approver queue),
+        the underlying Requisition, Purchase Order, Award Recommendation, Invoice,
+        or Contract is immediately updated in the same DB transaction.
+        """
+        try:
+            from decimal import Decimal
+            from sqlalchemy import select
+            from app.events.publisher import OutboxPublisher
+
+            entity_type_upper = str(instance.entity_type).upper()
+            last_actor_str = (instance.entity_context or {}).get("last_actor_id")
+            last_actor_id = UUID(last_actor_str) if last_actor_str else None
+
+            # 1. Requisitions (PR)
+            if entity_type_upper in ("REQUISITION", "PR", "PURCHASE_REQUISITION"):
+                from app.modules.requisition.models import Requisition
+                from app.db.enums import PRStatus
+                stmt = select(Requisition).where(
+                    Requisition.id == instance.entity_id,
+                    Requisition.org_id == instance.org_id,
+                )
+                res = await db.execute(stmt)
+                pr = res.scalar_one_or_none()
+                if pr and isinstance(pr, Requisition):
+                    actor = last_actor_id or pr.requestor_id
+                    if final_action in ("APPROVE", "FORCE_APPROVE"):
+                        if pr.status in (PRStatus.PENDING_APPROVAL, PRStatus.SUBMITTED):
+                            pr.status = PRStatus.APPROVED
+                            pr.approved_at = datetime.now(timezone.utc)
+                            pr.updated_by = actor
+                            await db.flush()
+                            await OutboxPublisher.publish(
+                                db,
+                                "procurement.pr",
+                                "pr.approved",
+                                {"pr_id": str(pr.id), "pr_number": pr.pr_number},
+                                instance.org_id,
+                            )
+                            await audit_service.log(
+                                db,
+                                "REQUISITION",
+                                pr.id,
+                                AuditAction.APPROVED,
+                                actor,
+                                instance.org_id,
+                                new_values={"status": PRStatus.APPROVED.value, "approved_at": pr.approved_at.isoformat()},
+                            )
+                    elif final_action in ("REJECT", "RETURN", "CANCEL"):
+                        if pr.status in (PRStatus.PENDING_APPROVAL, PRStatus.SUBMITTED):
+                            pr.status = PRStatus.CANCELLED if final_action == "CANCEL" else PRStatus.REJECTED
+                            pr.budget_reserved_amount = Decimal("0.0")
+                            pr.updated_by = actor
+                            await db.flush()
+                            await OutboxPublisher.publish(
+                                db,
+                                "procurement.pr",
+                                "pr.rejected" if final_action != "CANCEL" else "pr.cancelled",
+                                {"pr_id": str(pr.id), "pr_number": pr.pr_number},
+                                instance.org_id,
+                            )
+                            await audit_service.log(
+                                db,
+                                "REQUISITION",
+                                pr.id,
+                                AuditAction.CANCELLED if final_action == "CANCEL" else AuditAction.PR_REJECTED,
+                                actor,
+                                instance.org_id,
+                                new_values={"status": pr.status.value},
+                            )
+
+            # 2. Purchase Orders (PO)
+            elif entity_type_upper in ("PO", "PURCHASE_ORDER"):
+                from app.modules.purchase_order.models import PurchaseOrder
+                from app.db.enums import POStatus
+                stmt = select(PurchaseOrder).where(
+                    PurchaseOrder.id == instance.entity_id,
+                    PurchaseOrder.org_id == instance.org_id,
+                )
+                res = await db.execute(stmt)
+                po = res.scalar_one_or_none()
+                if po and isinstance(po, PurchaseOrder):
+                    actor = last_actor_id or po.created_by
+                    if final_action in ("APPROVE", "FORCE_APPROVE"):
+                        if po.status in (POStatus.PENDING_APPROVAL, POStatus.DRAFT):
+                            po.status = POStatus.APPROVED
+                            po.updated_by = actor
+                            await db.flush()
+                            await OutboxPublisher.publish(
+                                db,
+                                "procurement.po",
+                                routing_key="po.approved",
+                                payload={"po_id": str(po.id), "po_number": po.po_number},
+                                org_id=instance.org_id,
+                            )
+                            await audit_service.log(
+                                db,
+                                "PURCHASE_ORDER",
+                                po.id,
+                                "PO_APPROVED",
+                                actor,
+                                instance.org_id,
+                            )
+                    elif final_action in ("REJECT", "RETURN", "CANCEL"):
+                        if po.status in (POStatus.PENDING_APPROVAL, POStatus.DRAFT):
+                            po.status = POStatus.CANCELLED if final_action == "CANCEL" else POStatus.REJECTED
+                            po.updated_by = actor
+                            await db.flush()
+                            await audit_service.log(
+                                db,
+                                "PURCHASE_ORDER",
+                                po.id,
+                                "PO_REJECTED",
+                                actor,
+                                instance.org_id,
+                            )
+
+            # 3. Award Recommendation (ARN) / Evaluation
+            elif entity_type_upper in ("ARN", "EVALUATION", "AWARD", "AWARD_RECOMMENDATION"):
+                from app.modules.evaluation.models import AwardRecommendation, ComparativeStatement
+                stmt = select(AwardRecommendation).where(
+                    AwardRecommendation.id == instance.entity_id,
+                    AwardRecommendation.org_id == instance.org_id,
+                )
+                res = await db.execute(stmt)
+                arn = res.scalar_one_or_none()
+                if arn and isinstance(arn, AwardRecommendation):
+                    actor = last_actor_id or arn.created_by
+                    if final_action in ("APPROVE", "FORCE_APPROVE"):
+                        arn.status = "APPROVED"
+                        arn.approved_by = actor
+                        arn.approved_at = datetime.now(timezone.utc)
+                        if arn.cs_id:
+                            cs_stmt = select(ComparativeStatement).where(
+                                ComparativeStatement.id == arn.cs_id,
+                                ComparativeStatement.org_id == instance.org_id,
+                            )
+                            cs_res = await db.execute(cs_stmt)
+                            cs = cs_res.scalar_one_or_none()
+                            if cs and isinstance(cs, ComparativeStatement):
+                                cs.status = "APPROVED"
+                                cs.approved_by = actor
+                                cs.approved_at = datetime.now(timezone.utc)
+                        await db.flush()
+                        await OutboxPublisher.publish(
+                            db,
+                            "procurement.evaluation",
+                            routing_key="evaluation.award.approved",
+                            payload={"arn_id": str(arn.id), "cs_id": str(arn.cs_id)},
+                            org_id=instance.org_id,
+                        )
+                        await audit_service.log(
+                            db,
+                            "EVALUATION",
+                            arn.id,
+                            "AWARD_APPROVED",
+                            actor,
+                            instance.org_id,
+                        )
+                    elif final_action in ("REJECT", "RETURN", "CANCEL"):
+                        arn.status = "REJECTED"
+                        await db.flush()
+                        await audit_service.log(
+                            db,
+                            "EVALUATION",
+                            arn.id,
+                            "AWARD_REJECTED",
+                            actor,
+                            instance.org_id,
+                        )
+
+            # 4. Invoices
+            elif entity_type_upper in ("INVOICE", "INVOICES"):
+                from app.modules.invoice.models import Invoice
+                from app.db.enums import InvoiceStatusEnum
+                stmt = select(Invoice).where(
+                    Invoice.id == instance.entity_id,
+                    Invoice.org_id == instance.org_id,
+                )
+                res = await db.execute(stmt)
+                invoice = res.scalar_one_or_none()
+                if invoice and isinstance(invoice, Invoice):
+                    actor = last_actor_id or invoice.created_by
+                    if final_action in ("APPROVE", "FORCE_APPROVE"):
+                        invoice.status = InvoiceStatusEnum.APPROVED
+                        invoice.updated_by = actor
+                        await db.flush()
+                        from app.modules.payment.service import payment_service
+                        try:
+                            await payment_service.create_scheduled_payment(
+                                db, invoice.id, actor, instance.org_id
+                            )
+                        except Exception as e:
+                            logger.warning(
+                                "Auto-scheduling payment for invoice {} encountered: {}",
+                                invoice.id,
+                                e,
+                            )
+                        await OutboxPublisher.publish(
+                            db,
+                            "procurement.invoice",
+                            routing_key="invoice.approved",
+                            payload={"invoice_id": str(invoice.id), "invoice_number": invoice.invoice_number},
+                            org_id=instance.org_id,
+                        )
+                        await audit_service.log(
+                            db,
+                            "INVOICE",
+                            invoice.id,
+                            "INVOICE_APPROVED",
+                            actor,
+                            instance.org_id,
+                            new_values={"status": "APPROVED"},
+                        )
+                    elif final_action in ("REJECT", "RETURN", "CANCEL"):
+                        invoice.status = InvoiceStatusEnum.REJECTED
+                        invoice.updated_by = actor
+                        await db.flush()
+                        await audit_service.log(
+                            db,
+                            "INVOICE",
+                            invoice.id,
+                            "INVOICE_REJECTED",
+                            actor,
+                            instance.org_id,
+                            new_values={"status": "REJECTED"},
+                        )
+
+            # 5. Contracts
+            elif entity_type_upper in ("CONTRACT", "CONTRACTS"):
+                from app.modules.contract.models import Contract, ContractStatusEnum
+                stmt = select(Contract).where(
+                    Contract.id == instance.entity_id,
+                    Contract.org_id == instance.org_id,
+                )
+                res = await db.execute(stmt)
+                contract = res.scalar_one_or_none()
+                if contract and isinstance(contract, Contract):
+                    actor = last_actor_id or contract.created_by
+                    if final_action in ("APPROVE", "FORCE_APPROVE"):
+                        contract.status = ContractStatusEnum.APPROVED
+                        contract.updated_by = actor
+                        await db.flush()
+                    elif final_action in ("REJECT", "RETURN", "CANCEL"):
+                        contract.status = ContractStatusEnum.TERMINATED
+                        contract.updated_by = actor
+                        await db.flush()
+
+            # 6. Vendors
+            elif entity_type_upper in ("VENDOR", "VENDORS"):
+                from app.modules.vendor.models import Vendor
+                from app.db.enums import VendorStatus
+                stmt = select(Vendor).where(
+                    Vendor.id == instance.entity_id,
+                    Vendor.org_id == instance.org_id,
+                )
+                res = await db.execute(stmt)
+                vendor = res.scalar_one_or_none()
+                if vendor and isinstance(vendor, Vendor):
+                    actor = last_actor_id or vendor.created_by
+                    if final_action in ("APPROVE", "FORCE_APPROVE"):
+                        vendor.status = VendorStatus.ACTIVE
+                        vendor.updated_by = actor
+                        await db.flush()
+        except Exception as e:
+            logger.warning("Error syncing entity on workflow completion: {}", e)
 
 
 workflow_engine = WorkflowEngine(

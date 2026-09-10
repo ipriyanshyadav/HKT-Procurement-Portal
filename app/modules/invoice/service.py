@@ -436,6 +436,16 @@ class InvoiceService:
                     "max_invoiceable": float(max_invoiceable),
                 })
 
+            if expected_tax > Decimal("0.0"):
+                tax_dev_val = min(
+                    ((tax_deviation / expected_tax) * Decimal("100")).quantize(Decimal("0.01")),
+                    Decimal("999.99"),
+                )
+            elif tax_deviation > Decimal("0.0"):
+                tax_dev_val = Decimal("100.00")
+            else:
+                tax_dev_val = Decimal("0.00")
+
             match_row = InvoiceMatchResult(
                 org_id=org_id,
                 invoice_id=invoice.id,
@@ -447,7 +457,7 @@ class InvoiceService:
                 quantity_deviation=qty_deviation,
                 po_reference_valid=po_ref_valid,
                 tax_match=tax_match,
-                tax_deviation=tax_deviation,
+                tax_deviation=tax_dev_val,
                 overall_match=overall_match,
                 mismatch_reasons=reasons if reasons else None,
                 invoice=invoice,
@@ -762,12 +772,14 @@ class InvoiceService:
         auto_approved = False
         if overall_status == "FULLY_MATCHED" and payload.auto_approve_if_matched:
             invoice.match_status = "MATCHED"
-            invoice.status = InvoiceStatusEnum.APPROVED
+            await self.approve(db, invoice.id, actor_id, org_id)
             auto_approved = True
         elif overall_status == "VARIANCE_DETECTED":
             invoice.match_status = "DISCREPANCY"
+            await db.commit()
+        else:
+            await db.commit()
 
-        await db.commit()
         await db.refresh(invoice)
 
         return AdvancedReconciliationResponse(
