@@ -144,7 +144,8 @@ class PaymentService:
         )
 
         await db.commit()
-        return payment
+        refreshed = await self.repo.get_payment(db, payment.id, org_id)
+        return refreshed or payment
 
     async def process_payment(
         self,
@@ -211,7 +212,8 @@ class PaymentService:
         )
 
         await db.commit()
-        return payment
+        refreshed = await self.repo.get_payment(db, payment_id, org_id)
+        return refreshed or payment
 
     async def process_erp_webhook(
         self,
@@ -404,7 +406,8 @@ class PaymentService:
         )
 
         await db.commit()
-        return payment
+        refreshed = await self.repo.get_payment(db, payment_id, org_id)
+        return refreshed or payment
 
     async def process_razorpay_webhook(
         self,
@@ -634,7 +637,8 @@ class PaymentService:
         )
 
         await db.commit()
-        return dispute
+        refreshed = await self.repo.get_dispute(db, dispute_id, org_id)
+        return refreshed or dispute
 
     async def list_disputes(
         self,

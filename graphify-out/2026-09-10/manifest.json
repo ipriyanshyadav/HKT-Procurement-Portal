@@ -1482,9 +1482,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1789045464.5884683,
-    "seen": 1789051036.400212,
-    "ast_hash": "54cc115c0bbc68c67ae50bf1dde6dd05",
+    "mtime": 1789053795.6371033,
+    "seen": 1789054899.720151,
+    "ast_hash": "2119465612a836b15dcf375c0e2e9654",
     "semantic_hash": ""
   },
   "graphify_diff_20260904_014322.txt": {
@@ -3996,9 +3996,9 @@
     "semantic_hash": ""
   },
   "app/modules/analytics/service.py": {
-    "mtime": 1788995032.7828534,
-    "seen": 1788995068.704283,
-    "ast_hash": "353473e7cbd8e48fe36fba4d07bd4ed0",
+    "mtime": 1789054299.9795227,
+    "seen": 1789054899.6980622,
+    "ast_hash": "81df81d4ad76c5cc397a4decdfe7d8fc",
     "semantic_hash": ""
   },
   "app/tasks/analytics_refresh.py": {
@@ -5448,9 +5448,9 @@
     "semantic_hash": ""
   },
   "scripts/clear_and_seed_all.py": {
-    "mtime": 1789045393.240093,
-    "seen": 1789045450.456446,
-    "ast_hash": "d8e310072e86399c59488254c86831a6",
+    "mtime": 1789054758.6131938,
+    "seen": 1789054899.717071,
+    "ast_hash": "48fead01ea6580759b3064fcb7d92e55",
     "semantic_hash": ""
   },
   "scripts/clear_seeded_data.py": {
@@ -5928,9 +5928,9 @@
     "semantic_hash": ""
   },
   "app/modules/compliance/repository.py": {
-    "mtime": 1788977636.3374376,
-    "seen": 1788977901.438569,
-    "ast_hash": "928a2d1bb40fc445b0070f9d075a09c3",
+    "mtime": 1789054258.9584658,
+    "seen": 1789054899.698878,
+    "ast_hash": "91aec002c0b66624cb197d0fba08a050",
     "semantic_hash": ""
   },
   "app/modules/compliance/router.py": {
@@ -6054,9 +6054,9 @@
     "semantic_hash": ""
   },
   "app/modules/catalog/router.py": {
-    "mtime": 1788982060.4401734,
-    "seen": 1788983040.228336,
-    "ast_hash": "f1f2dce5bf2049573445383e28719e2a",
+    "mtime": 1789054255.2142906,
+    "seen": 1789054899.698793,
+    "ast_hash": "03a1db0dbf421010edd6cc6aa0610f8d",
     "semantic_hash": ""
   },
   "app/modules/catalog/schemas.py": {
@@ -6597,6 +6597,12 @@
     "mtime": 1789051006.2488139,
     "seen": 1789051036.397404,
     "ast_hash": "7703dfb9eb5bd865bc865485e15f8c89",
+    "semantic_hash": ""
+  },
+  "scripts/seed_enterprise_comprehensive.py": {
+    "mtime": 1789054825.6665945,
+    "seen": 1789054899.717241,
+    "ast_hash": "8c4ad05ac788f663ef4cea1a4d3f6e55",
     "semantic_hash": ""
   }
 }

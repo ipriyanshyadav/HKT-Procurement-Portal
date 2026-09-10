@@ -276,7 +276,8 @@ async def submit_rfq(
         db, rfq_id=id, actor_id=current_user.id, org_id=current_user.org_id
     )
     await db.commit()
-    return success_response(RfqDetailResponse.model_validate(rfq))
+    full_rfq = await rfq_service.get_by_id(db, id, current_user.org_id)
+    return success_response(RfqDetailResponse.model_validate(full_rfq))
 
 
 # ─── PUBLISH ───────────────────────────────────────────────────────────────────
@@ -291,7 +292,8 @@ async def publish_rfq(
         db, rfq_id=id, actor_id=current_user.id, org_id=current_user.org_id
     )
     await db.commit()
-    return success_response(RfqDetailResponse.model_validate(rfq))
+    full_rfq = await rfq_service.get_by_id(db, id, current_user.org_id)
+    return success_response(RfqDetailResponse.model_validate(full_rfq))
 
 
 # ─── AMEND ─────────────────────────────────────────────────────────────────────
@@ -307,7 +309,8 @@ async def amend_rfq(
         db, rfq_id=id, data=data, actor_id=current_user.id, org_id=current_user.org_id
     )
     await db.commit()
-    return success_response(RfqDetailResponse.model_validate(rfq))
+    full_rfq = await rfq_service.get_by_id(db, id, current_user.org_id)
+    return success_response(RfqDetailResponse.model_validate(full_rfq))
 
 
 # ─── CANCEL ────────────────────────────────────────────────────────────────────
@@ -323,7 +326,8 @@ async def cancel_rfq(
         db, rfq_id=id, data=data, actor_id=current_user.id, org_id=current_user.org_id
     )
     await db.commit()
-    return success_response(RfqDetailResponse.model_validate(rfq))
+    full_rfq = await rfq_service.get_by_id(db, id, current_user.org_id)
+    return success_response(RfqDetailResponse.model_validate(full_rfq))
 
 
 # ─── EXTEND DEADLINE ───────────────────────────────────────────────────────────
@@ -339,12 +343,14 @@ async def extend_deadline(
         db, rfq_id=id, data=data, actor_id=current_user.id, org_id=current_user.org_id
     )
     await db.commit()
-    return success_response(RfqDetailResponse.model_validate(rfq))
+    full_rfq = await rfq_service.get_by_id(db, id, current_user.org_id)
+    return success_response(RfqDetailResponse.model_validate(full_rfq))
 
 
 # ─── PARTICIPANTS ──────────────────────────────────────────────────────────────
 
 @router.post("/{id}/add-participants", response_model=APIResponse[List[RfqParticipantResponse]])
+@router.post("/{id}/participants", response_model=APIResponse[List[RfqParticipantResponse]])
 async def add_participants(
     id: UUID,
     data: AddParticipantsRequest,

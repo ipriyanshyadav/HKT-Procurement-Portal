@@ -107,6 +107,40 @@ export function useNotifications() {
               addNotification(notification);
               queryClient.invalidateQueries({ queryKey: ["notifications"] });
 
+              // Reactively invalidate related entity queries to synchronize all open views
+              if (notification.entity_type) {
+                const ent = notification.entity_type.toLowerCase();
+                if (ent.includes("req") || ent === "pr") {
+                  queryClient.invalidateQueries({ queryKey: ["requisitions"] });
+                  queryClient.invalidateQueries({ queryKey: ["requisition"] });
+                } else if (ent.includes("task") || ent.includes("approval")) {
+                  queryClient.invalidateQueries({ queryKey: ["workflow-tasks"] });
+                  queryClient.invalidateQueries({ queryKey: ["tasks"] });
+                } else if (ent.includes("rfq") || ent.includes("sourcing") || ent.includes("bid")) {
+                  queryClient.invalidateQueries({ queryKey: ["rfqs"] });
+                  queryClient.invalidateQueries({ queryKey: ["rfq"] });
+                  queryClient.invalidateQueries({ queryKey: ["bids"] });
+                } else if (ent.includes("order") || ent.includes("po")) {
+                  queryClient.invalidateQueries({ queryKey: ["purchase-orders"] });
+                  queryClient.invalidateQueries({ queryKey: ["purchase-order"] });
+                } else if (ent.includes("asn")) {
+                  queryClient.invalidateQueries({ queryKey: ["asns"] });
+                } else if (ent.includes("grn")) {
+                  queryClient.invalidateQueries({ queryKey: ["grn"] });
+                } else if (ent.includes("invoice")) {
+                  queryClient.invalidateQueries({ queryKey: ["invoices"] });
+                  queryClient.invalidateQueries({ queryKey: ["invoice"] });
+                } else if (ent.includes("payment")) {
+                  queryClient.invalidateQueries({ queryKey: ["payments"] });
+                } else if (ent.includes("contract")) {
+                  queryClient.invalidateQueries({ queryKey: ["contracts"] });
+                } else if (ent.includes("ticket")) {
+                  queryClient.invalidateQueries({ queryKey: ["tickets"] });
+                } else if (ent.includes("master") || ent.includes("category")) {
+                  queryClient.invalidateQueries({ queryKey: ["master-data"] });
+                }
+              }
+
               // Determine semantic alert type
               let toastType: "info" | "success" | "warning" | "error" = "info";
               const norm = (notification.notification_type || "").toLowerCase();

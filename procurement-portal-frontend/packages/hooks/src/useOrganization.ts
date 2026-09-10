@@ -53,7 +53,7 @@ interface APIResponse<T> {
   timestamp?: string;
 }
 
-const ORG_STALE_TIME = 1000 * 60 * 5; // 5 minutes
+const ORG_STALE_TIME = 15 * 1000; // 15s cache time for cross-portal synchronicity
 
 // ============================================================================
 // Organization Profile
