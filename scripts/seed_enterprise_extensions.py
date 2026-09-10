@@ -52,7 +52,7 @@ from app.modules.ai_sourcing.models import (
     NegotiationSession,
     SupplierRadarScore,
 )
-from app.modules.analytics.models import MaverickSpendCluster, SupplierESGMetric
+from app.modules.analytics.models import CarbonEmissionFactor, MaverickSpendCluster, SupplierESGMetric
 from app.modules.approval_rules.models import ApprovalRule, ApprovalRuleVersion
 from app.modules.asn.models import AdvanceShippingNotice, AsnLine
 from app.modules.bid.models import (
@@ -63,7 +63,7 @@ from app.modules.bid.models import (
     LiveAuction,
 )
 from app.modules.catalog.models import CartItem, CatalogTierPricing, PunchoutConfig, PunchoutSession, UserCart
-from app.modules.compliance.models import ComplianceFinding, ComplianceScan
+from app.modules.compliance.models import ComplianceFinding, CompliancePolicy, ComplianceScan
 from app.modules.contract.models import (
     Contract,
     ContractClause,
@@ -72,7 +72,7 @@ from app.modules.contract.models import (
     ContractRedline,
     ContractTemplate,
 )
-from app.modules.developer.models import WebhookDelivery, WebhookSubscription
+from app.modules.developer.models import ApiKey, WebhookDelivery, WebhookSubscription
 from app.modules.disaster_recovery.models import DRBackupCheckpoint, DRFailoverDrill
 from app.modules.document.models import Document, DocumentVersion
 from app.modules.einvoicing.models import EInvoice, EWayBill
@@ -98,6 +98,7 @@ from app.modules.user.models import (
     UserCategoryScope,
     UserCoiDeclaration,
     UserMfa,
+    UserSession,
 )
 from app.modules.vendor.models import (
     Vendor,
@@ -1993,6 +1994,143 @@ async def _seed_extensions_internal(db: AsyncSession) -> None:
                     version=1,
                 )
             )
+
+    # API Keys
+    api_check = await db.execute(select(ApiKey).where(ApiKey.org_id == DEFAULT_ORG_ID))
+    if not api_check.scalars().first():
+        db.add(
+            ApiKey(
+                id=uuid4(),
+                org_id=DEFAULT_ORG_ID,
+                user_id=admin_user.id,
+                name="SAP S/4HANA ERP Connector Key",
+                key_prefix="ak_live_sap_",
+                key_hash="e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                scopes=["po:read", "po:write", "grn:read", "invoice:read"],
+                ip_allowlist=["10.0.0.0/8", "192.168.1.0/24"],
+                rate_limit_rpm=300,
+                status="ACTIVE",
+                expires_at=now_utc + timedelta(days=365),
+                last_used_at=now_utc - timedelta(hours=2),
+                last_used_ip="10.0.15.42",
+                total_requests=14820,
+            )
+        )
+        db.add(
+            ApiKey(
+                id=uuid4(),
+                org_id=DEFAULT_ORG_ID,
+                user_id=admin_user.id,
+                name="Warehouse Scanner Gun API Token",
+                key_prefix="ak_live_scan_",
+                key_hash="a1b2c3d4e5f67890123456789abcdef0123456789abcdef0123456789abcdef0",
+                scopes=["grn:read", "grn:write", "asn:read"],
+                ip_allowlist=["172.16.0.0/16"],
+                rate_limit_rpm=600,
+                status="ACTIVE",
+                expires_at=now_utc + timedelta(days=180),
+                last_used_at=now_utc - timedelta(minutes=15),
+                last_used_ip="172.16.20.101",
+                total_requests=5840,
+            )
+        )
+
+    # Carbon Emission Factors
+    cef_check = await db.execute(select(CarbonEmissionFactor).where(CarbonEmissionFactor.org_id == DEFAULT_ORG_ID))
+    if not cef_check.scalars().first():
+        cat_res = await db.execute(select(Category).where(Category.org_id == DEFAULT_ORG_ID))
+        for cat in cat_res.scalars().all():
+            db.add(
+                CarbonEmissionFactor(
+                    id=uuid4(),
+                    org_id=DEFAULT_ORG_ID,
+                    category_id=cat.id,
+                    category_name=cat.name,
+                    scope1_factor=Decimal("0.0450"),
+                    scope2_factor=Decimal("0.1150"),
+                    scope3_factor=Decimal("0.5800"),
+                    currency="INR",
+                    data_source="GHG_PROTOCOL_DEFRA_2026",
+                    effective_year=2026,
+                    version=1,
+                )
+            )
+
+    # Compliance Policies
+    cp_check = await db.execute(select(CompliancePolicy).where(CompliancePolicy.org_id == DEFAULT_ORG_ID))
+    if not cp_check.scalars().first():
+        policies = [
+            ("POL-ISO-01", "Access Control & Segregation of S2P Duties", "ISO_27001", "CRITICAL"),
+            ("POL-SOC-02", "Audit Trail Immutability & Hash Verification", "SOC_2", "HIGH"),
+            ("POL-DPDP-03", "Vendor Banking Data Redaction & Encryption", "DPDP", "HIGH"),
+            ("POL-CVC-04", "Tender Anti-Collusion & Reverse Auction Rules", "CVC", "CRITICAL"),
+        ]
+        for pcode, ptitle, pfw, psev in policies:
+            db.add(
+                CompliancePolicy(
+                    id=uuid4(),
+                    org_id=DEFAULT_ORG_ID,
+                    code=pcode,
+                    title=ptitle,
+                    framework=pfw,
+                    severity=psev,
+                    is_enabled=True,
+                )
+            )
+
+    # Punchout Configs & Sessions
+    po_cfg_check = await db.execute(select(PunchoutConfig).where(PunchoutConfig.org_id == DEFAULT_ORG_ID))
+    if not po_cfg_check.scalars().first() and acme_vendor:
+        p_cfg = PunchoutConfig(
+            id=uuid4(),
+            org_id=DEFAULT_ORG_ID,
+            vendor_id=acme_vendor.id,
+            supplier_name="Acme Enterprise Direct B2B Store",
+            protocol="CXML",
+            inbound_url="https://b2b.acme.example.com/cxml/punchout",
+            shared_secret="shsec_punchout_demo_987",  # noqa: S106
+            sender_identity="HKT-CORP-PROCURE",
+            buyer_identity="ACME-B2B-DIRECT",
+            is_active=True,
+            logo_url="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=100&q=80",
+        )
+        db.add(p_cfg)
+        await db.flush()
+
+        db.add(
+            PunchoutSession(
+                id=uuid4(),
+                org_id=DEFAULT_ORG_ID,
+                user_id=buyer_user.id,
+                config_id=p_cfg.id,
+                session_token="posess_99a8b7c6d5e4f3a2b1c0d9e8",  # noqa: S106
+                status="RETURNED",
+                cart_data=[
+                    {"item": "Dell PowerEdge Server R750", "quantity": 2, "unit_price": 450000.0, "currency": "INR"},
+                    {"item": "Server Rack Rail Kit 2U", "quantity": 2, "unit_price": 12500.0, "currency": "INR"},
+                ],
+                pr_id=None,
+            )
+        )
+
+    # User Sessions
+    us_check = await db.execute(select(UserSession).where(UserSession.org_id == DEFAULT_ORG_ID))
+    if not us_check.scalars().first():
+        for u, ip in [(super_admin_user, "192.168.1.10"), (admin_user, "192.168.1.11"), (buyer_user, "192.168.1.12"), (approver_user, "192.168.1.15")]:
+            if u:
+                db.add(
+                    UserSession(
+                        id=uuid4(),
+                        org_id=DEFAULT_ORG_ID,
+                        user_id=u.id,
+                        token_jti=f"jti_session_{uuid4()}",
+                        ip_address=ip,
+                        user_agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
+                        expires_at=now_utc + timedelta(days=7),
+                        last_activity_at=now_utc - timedelta(minutes=5),
+                        is_revoked=False,
+                    )
+                )
 
     await db.flush()
     logger.info("Successfully seeded all enterprise extension domains!")

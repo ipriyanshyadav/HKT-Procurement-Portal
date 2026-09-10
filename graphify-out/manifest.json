@@ -1482,9 +1482,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1789039883.8223474,
-    "seen": 1789039902.256015,
-    "ast_hash": "27ff9d4674e7b88e50de0d794b70b44b",
+    "mtime": 1789045464.5884683,
+    "seen": 1789051036.400212,
+    "ast_hash": "54cc115c0bbc68c67ae50bf1dde6dd05",
     "semantic_hash": ""
   },
   "graphify_diff_20260904_014322.txt": {
@@ -6564,9 +6564,9 @@
     "semantic_hash": ""
   },
   "tests/unit/test_superadmin_universal_access.py": {
-    "mtime": 1789037714.0467458,
-    "seen": 1789037836.181889,
-    "ast_hash": "fbb8425c35cd1dce671dbabe97832cda",
+    "mtime": 1789050581.0197985,
+    "seen": 1789051036.3997068,
+    "ast_hash": "a63f40873d91785f8e812f7b8f7204dc",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/stores/src/personas.test.ts": {
@@ -6594,9 +6594,9 @@
     "semantic_hash": ""
   },
   "scripts/seed_enterprise_extensions.py": {
-    "mtime": 1789045381.0518785,
-    "seen": 1789045450.456578,
-    "ast_hash": "b23c349ee44b35647770740332b17f82",
+    "mtime": 1789051006.2488139,
+    "seen": 1789051036.397404,
+    "ast_hash": "7703dfb9eb5bd865bc865485e15f8c89",
     "semantic_hash": ""
   }
 }
