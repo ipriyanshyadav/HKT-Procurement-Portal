@@ -5,6 +5,7 @@ import {
   apiClient,
   setAccessToken,
   getAccessToken,
+  getRefreshToken,
   subscribeTokenChange,
 } from "@procurement/utils";
 
@@ -29,6 +30,7 @@ interface LoginPayload {
 interface LoginResponse {
   data: {
     access_token?: string;
+    refresh_token?: string;
     mfa_required?: boolean;
     mfa_token?: string;
     password_expired?: boolean;
@@ -55,9 +57,9 @@ interface PermissionsResponse {
   };
 }
 
-async function syncUserProfile(token: string): Promise<CurrentUser> {
-  setAccessToken(token);
-  useAuthStore.getState().setAccessToken(token);
+async function syncUserProfile(token: string, refreshToken?: string | null): Promise<CurrentUser> {
+  setAccessToken(token, refreshToken);
+  useAuthStore.getState().setAccessToken(token, refreshToken);
   const [userRes, permsRes] = await Promise.all([
     apiClient.get<{ data: CurrentUser }>("/users/me"),
     apiClient.get<PermissionsResponse>("/users/me/permissions"),
@@ -85,32 +87,59 @@ async function syncUserProfile(token: string): Promise<CurrentUser> {
 
 export function useAuthInit() {
   const [isInitializing, setIsInitializing] = useState(true);
-  const { isAuthenticated, user } = useAuthStore();
+  const { isAuthenticated, user, accessToken } = useAuthStore();
   const queryClient = useQueryClient();
 
   useEffect(() => {
     let isMounted = true;
 
     async function init() {
-      // If already authenticated and user loaded into store, nothing to do
-      if (getAccessToken() && user) {
+      // 1. If store already has a valid token and user (rehydrated from sessionStorage),
+      // we are immediately authenticated! No blocking refresh call needed.
+      const currentToken = getAccessToken() || accessToken;
+      const currentUser = user || useAuthStore.getState().user;
+
+      if (currentToken && currentUser) {
         if (isMounted) setIsInitializing(false);
+        // Silently verify user profile in background without blocking the UI
+        try {
+          const u = await syncUserProfile(currentToken);
+          queryClient.setQueryData(["currentUser"], u);
+        } catch {
+          // Handled by Axios interceptor if 401
+        }
         return;
       }
 
+      // 2. If no tab session in sessionStorage, attempt silent refresh
       try {
-        // Attempt silent refresh via backend httpOnly cookie
-        const res = await apiClient.post<LoginResponse>("/auth/refresh");
+        const tabRefreshToken = getRefreshToken();
+        const headers: Record<string, string> = {};
+        if (tabRefreshToken) {
+          headers["X-Refresh-Token"] = tabRefreshToken;
+        }
+        const res = await apiClient.post<LoginResponse>(
+          "/auth/refresh",
+          tabRefreshToken ? { refresh_token: tabRefreshToken } : {},
+          { headers }
+        );
         const token = res.data.data?.access_token;
+        const refToken = res.data.data?.refresh_token || tabRefreshToken;
         if (token) {
-          const u = await syncUserProfile(token);
+          const u = await syncUserProfile(token, refToken);
           queryClient.setQueryData(["currentUser"], u);
         }
       } catch {
         setAccessToken(null);
         useAuthStore.getState().logout();
-        if (typeof window !== "undefined" && !window.location.pathname.startsWith("/login")) {
-          window.location.href = "/login";
+        if (
+          typeof window !== "undefined" &&
+          !window.location.pathname.startsWith("/login") &&
+          !window.location.pathname.startsWith("/register") &&
+          !window.location.pathname.startsWith("/forgot-password")
+        ) {
+          const currentPath = window.location.pathname + window.location.search;
+          window.location.href = `/login?redirect=${encodeURIComponent(currentPath)}`;
         }
       } finally {
         if (isMounted) {
@@ -139,12 +168,13 @@ export function useLogin() {
     },
     onSuccess: async (data) => {
       const { access_token, mfa_required } = data.data;
+      const refresh_token = data.data?.refresh_token;
       if (mfa_required) {
         // Caller handles MFA redirect with mfa_token from data.data.mfa_token
         return;
       }
       if (access_token) {
-        const u = await syncUserProfile(access_token);
+        const u = await syncUserProfile(access_token, refresh_token);
         queryClient.setQueryData(["currentUser"], u);
         await queryClient.invalidateQueries({ queryKey: ["currentUser"] });
       }
@@ -158,7 +188,12 @@ export function useLogout() {
 
   return useMutation({
     mutationFn: async () => {
-      await apiClient.post("/auth/logout");
+      const tabRefreshToken = getRefreshToken();
+      const headers: Record<string, string> = {};
+      if (tabRefreshToken) {
+        headers["X-Refresh-Token"] = tabRefreshToken;
+      }
+      await apiClient.post("/auth/logout", {}, { headers });
     },
     onSettled: () => {
       // Always clear local state and immediately navigate to login page
@@ -203,13 +238,22 @@ export function useRefreshToken() {
 
   return useMutation({
     mutationFn: async () => {
-      const res = await apiClient.post<{ data: { access_token: string } }>("/auth/refresh");
+      const tabRefreshToken = getRefreshToken();
+      const headers: Record<string, string> = {};
+      if (tabRefreshToken) {
+        headers["X-Refresh-Token"] = tabRefreshToken;
+      }
+      const res = await apiClient.post<{ data: { access_token: string; refresh_token?: string } }>(
+        "/auth/refresh",
+        tabRefreshToken ? { refresh_token: tabRefreshToken } : {},
+        { headers }
+      );
       return res.data;
     },
     onSuccess: async (data) => {
-      const { access_token } = data.data;
+      const { access_token, refresh_token } = data.data;
       if (access_token) {
-        const u = await syncUserProfile(access_token);
+        const u = await syncUserProfile(access_token, refresh_token);
         queryClient.setQueryData(["currentUser"], u);
       }
     },

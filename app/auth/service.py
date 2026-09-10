@@ -41,6 +41,7 @@ class LoginResult:
         else:
             data = {
                 "access_token": self.access_token,
+                "refresh_token": self.refresh_token,
                 "token_type": "bearer",
                 "expires_in": self.access_expires_in,
             }

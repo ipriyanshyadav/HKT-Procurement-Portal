@@ -1,10 +1,11 @@
 "use client";
-import { useRouter } from "next/navigation";
+
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useLogin } from "@procurement/hooks";
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { CaptchaChallenge } from "@procurement/ui";
 
 const loginSchema = z.object({
@@ -15,8 +16,14 @@ const loginSchema = z.object({
 
 type LoginForm = z.infer<typeof loginSchema>;
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectParam = searchParams.get("redirect");
+  const targetUrl =
+    redirectParam && redirectParam.startsWith("/") && !redirectParam.startsWith("//")
+      ? redirectParam
+      : "/requisitions";
   const { mutate: login, isPending, error } = useLogin();
   const [mfaToken, setMfaToken] = useState<string | null>(null);
   const [failedAttempts, setFailedAttempts] = useState(0);
@@ -52,7 +59,7 @@ export default function LoginPage() {
           setMfaToken(response.data.mfa_token);
           router.push(`/mfa?token=${encodeURIComponent(response.data.mfa_token)}`);
         } else if (response.data.access_token) {
-          router.push("/requisitions");
+          router.push(targetUrl);
         }
       },
       onError: () => {
@@ -210,3 +217,18 @@ export default function LoginPage() {
     </div>
   );
 }
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-black">
+          <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+        </div>
+      }
+    >
+      <LoginForm />
+    </Suspense>
+  );
+}
+

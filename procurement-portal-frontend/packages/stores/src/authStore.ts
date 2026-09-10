@@ -14,23 +14,76 @@ export interface CurrentUser {
   vendor_id?: string | null;
 }
 
+export interface StoredAuthSession {
+  accessToken: string;
+  refreshToken?: string | null;
+  user: CurrentUser;
+  permissions: string[];
+  orgId: string | null;
+  emulatedPersonaId?: string | null;
+}
+
+export const SESSION_STORAGE_KEY = "hkt_auth_session";
+
+export function loadSessionFromStorage(): StoredAuthSession | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = sessionStorage.getItem(SESSION_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (parsed && typeof parsed === "object" && parsed.accessToken && parsed.user) {
+      return parsed as StoredAuthSession;
+    }
+  } catch {
+    // Ignore storage parse errors
+  }
+  return null;
+}
+
+export function saveSessionToStorage(session: Partial<StoredAuthSession>): void {
+  if (typeof window === "undefined") return;
+  try {
+    const existing = loadSessionFromStorage() || ({} as StoredAuthSession);
+    const updated = { ...existing, ...session };
+    sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(updated));
+  } catch {
+    // Ignore storage write errors
+  }
+}
+
+export function clearSessionFromStorage(): void {
+  if (typeof window === "undefined") return;
+  try {
+    sessionStorage.removeItem(SESSION_STORAGE_KEY);
+    sessionStorage.removeItem("hkt_emulated_persona_id");
+  } catch {
+    // Ignore storage errors
+  }
+}
+
 export interface AuthState {
   accessToken: string | null;
+  refreshToken: string | null;
   user: CurrentUser | null;
   permissions: string[];
   orgId: string | null;
   isAuthenticated: boolean;
   emulatedPersona: EnterprisePersona | null;
-  setAccessToken: (token: string) => void;
+  setAccessToken: (token: string, refreshToken?: string | null) => void;
   setUser: (user: CurrentUser, permissions: string[]) => void;
   setEmulatedPersona: (persona: EnterprisePersona | null) => void;
   logout: () => void;
 }
 
-const getInitialEmulatedPersona = (): EnterprisePersona | null => {
+const getInitialEmulatedPersona = (savedPersonaId?: string | null): EnterprisePersona | null => {
+  if (savedPersonaId && savedPersonaId !== "superadmin") {
+    return getPersonaById(savedPersonaId) || null;
+  }
   if (typeof window !== "undefined") {
     try {
-      const savedId = localStorage.getItem("hkt_emulated_persona_id");
+      const savedId =
+        sessionStorage.getItem("hkt_emulated_persona_id") ||
+        localStorage.getItem("hkt_emulated_persona_id");
       if (savedId && savedId !== "superadmin") {
         return getPersonaById(savedId) || null;
       }
@@ -41,32 +94,56 @@ const getInitialEmulatedPersona = (): EnterprisePersona | null => {
   return null;
 };
 
-export const useAuthStore = create<AuthState>((set) => ({
-  accessToken: null,
-  user: null,
-  permissions: [],
-  orgId: null,
-  isAuthenticated: false,
-  emulatedPersona: getInitialEmulatedPersona(),
-  setAccessToken: (token: string) =>
-    set({ accessToken: token, isAuthenticated: true }),
-  setUser: (user: CurrentUser, permissions: string[]) =>
-    set({ user, permissions, orgId: user.org_id }),
+const initialSession = loadSessionFromStorage();
+
+export const useAuthStore = create<AuthState>((set, get) => ({
+  accessToken: initialSession?.accessToken || null,
+  refreshToken: initialSession?.refreshToken || null,
+  user: initialSession?.user || null,
+  permissions: initialSession?.permissions || [],
+  orgId: initialSession?.orgId || null,
+  isAuthenticated: Boolean(initialSession?.accessToken && initialSession?.user),
+  emulatedPersona: getInitialEmulatedPersona(initialSession?.emulatedPersonaId),
+  setAccessToken: (token: string, refreshToken?: string | null) => {
+    saveSessionToStorage({
+      accessToken: token,
+      ...(refreshToken !== undefined ? { refreshToken } : {}),
+    });
+    set((state) => ({
+      accessToken: token,
+      refreshToken: refreshToken !== undefined ? refreshToken : state.refreshToken,
+      isAuthenticated: true,
+    }));
+  },
+  setUser: (user: CurrentUser, permissions: string[]) => {
+    saveSessionToStorage({ user, permissions, orgId: user.org_id });
+    set({
+      user,
+      permissions,
+      orgId: user.org_id,
+      isAuthenticated: Boolean(get().accessToken),
+    });
+  },
   setEmulatedPersona: (persona: EnterprisePersona | null) => {
+    const personaId = persona && persona.id !== "superadmin" ? persona.id : null;
     if (typeof window !== "undefined") {
       try {
-        if (persona && persona.id !== "superadmin") {
-          localStorage.setItem("hkt_emulated_persona_id", persona.id);
+        if (personaId) {
+          sessionStorage.setItem("hkt_emulated_persona_id", personaId);
+          localStorage.setItem("hkt_emulated_persona_id", personaId);
         } else {
+          sessionStorage.removeItem("hkt_emulated_persona_id");
           localStorage.removeItem("hkt_emulated_persona_id");
         }
       } catch {
         // Ignore storage errors
       }
     }
+    saveSessionToStorage({ emulatedPersonaId: personaId });
     set({ emulatedPersona: persona && persona.id !== "superadmin" ? persona : null });
   },
   logout: () => {
+    clearSessionFromStorage();
     if (typeof window !== "undefined") {
       try {
         localStorage.removeItem("hkt_emulated_persona_id");
@@ -76,6 +153,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     }
     set({
       accessToken: null,
+      refreshToken: null,
       user: null,
       permissions: [],
       orgId: null,

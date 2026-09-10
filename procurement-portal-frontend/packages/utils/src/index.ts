@@ -1,1 +1,2 @@
-export { apiClient, setAccessToken, getAccessToken, API_URL, getPortalId, subscribeTokenChange } from "./api";
+export { apiClient, setAccessToken, getAccessToken, getRefreshToken, API_URL, getPortalId, subscribeTokenChange } from "./api";
+

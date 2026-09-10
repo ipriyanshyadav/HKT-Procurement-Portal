@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useLogin } from "@procurement/hooks";
 import { CaptchaChallenge } from "@procurement/ui";
 
@@ -17,8 +17,14 @@ const loginSchema = z.object({
 
 type LoginForm = z.infer<typeof loginSchema>;
 
-export default function SupplierLoginPage() {
+function SupplierLoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectParam = searchParams.get("redirect");
+  const targetUrl =
+    redirectParam && redirectParam.startsWith("/") && !redirectParam.startsWith("//")
+      ? redirectParam
+      : "/profile";
   const { mutate: login, isPending, error } = useLogin();
   const [failedAttempts, setFailedAttempts] = useState(0);
   const [captchaVerified, setCaptchaVerified] = useState(false);
@@ -51,7 +57,7 @@ export default function SupplierLoginPage() {
       {
       onSuccess: (response) => {
         if (response.data.access_token) {
-          router.push("/profile");
+          router.push(targetUrl);
         }
       },
       onError: () => {
@@ -165,3 +171,18 @@ export default function SupplierLoginPage() {
     </div>
   );
 }
+
+export default function SupplierLoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-black">
+          <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+        </div>
+      }
+    >
+      <SupplierLoginForm />
+    </Suspense>
+  );
+}
+

@@ -66,10 +66,11 @@ The platform supports strict enterprise role separation (where each user only se
 
 
 ## Current Session State
-- **Planned**: Execute complete end-to-end audit of all functionality, tabs, buttons, and containers across Buyer (:3000), Supplier (:3001), and Admin (:3002) portals; verify cross-portal real-time synchronicity; generate comprehensive architecture and workflow report.
-- **Implemented**: Optimized client-side reactive invalidation in `useNotifications.ts` for all domain entities; reduced master data stale cache window to 15s (`useMasterData.ts`, `useOrganization.ts`); fixed RFQ state machine transitions (`sourcing/fsm.py`) and router aliases (`sourcing/router.py`); fixed async relationship eager-reloads post-commit in `asn/router.py` and `payment/service.py` (eliminating `MissingGreenlet`).
-- **Verified**: Ran full 9-phase automated live verification (`scripts/verify_cross_portal_sync.py`) covering Admin Master Data -> Buyer PR -> Approver signoff -> RFQ tender -> Supplier sealed bid -> PO award & vendor acknowledgment -> ASN dispatch & warehouse fast-GRN -> Supplier E-Invoice & AP 4-way match -> Finance payment execution & remittance -> Cross-portal support ticket & SLA lifecycle (100% Passed). Full monorepo frontend typecheck clean (7/7 packages). All 17 Docker containers healthy.
-- **Artifacts**: Produced `CROSS_PORTAL_WORKFLOW_REPORT.md` and `ENTERPRISE_HANDOVER_MANUAL.md` with complete technical, managerial, and interactive workflow diagrams.
+- **Planned**: Resolve portal page refresh bouncing to `/login`; implement tab-isolated multi-user / multi-account support allowing concurrent sessions on the same portal without cross-tab session pollution or reload loss.
+- **Implemented**: Tab-scoped session storage hydration in `authStore.ts` and `api.ts`; non-blocking background rehydration in `useAuthInit`; client layout route guards in all 3 portals (`apps/*/app/(main)/layout.tsx`); non-blocking pass-through in Next.js `middleware.ts`; redirect query parameter preservation on login; header & body refresh token support in FastAPI backend (`/auth/refresh`, `_get_refresh_token_and_key`).
+- **Verified**: Playwright E2E test `multi_user_refresh_isolation.spec.ts` passed 100% live (2 browser tabs in same window logged into Sarah Jenkins and Robert Taylor refreshing independently on `/requisitions` and `/tasks` with zero session collision; two supplier accounts operating concurrently without conflict). Monorepo build and typecheck clean (7/7 packages). All 17 Docker containers healthy.
+- **Next**: Ready for user testing and deployment.
+
 
 ---
 

@@ -10,6 +10,7 @@ from app.auth.schemas import (
     MFAVerifyRequest,
     MFAConfirmRequest,
     TurnstileVerifyRequest,
+    RefreshRequest,
 )
 from app.auth.service import auth_service
 from app.auth.dependencies import get_current_user
@@ -47,10 +48,16 @@ def _get_cookie_key(portal: Optional[str]) -> str:
     return f"refresh_token_{portal}" if portal in ("buyer", "supplier", "admin") else "refresh_token"
 
 
-def _get_refresh_token_and_key(request: Request) -> tuple[str, str, Optional[str]]:
+def _get_refresh_token_and_key(
+    request: Request, body_token: Optional[str] = None
+) -> tuple[str, str, Optional[str]]:
     portal = _get_portal(request)
     cookie_key = _get_cookie_key(portal)
-    token = request.cookies.get(cookie_key)
+    token = (body_token or "").strip()
+    if not token:
+        token = request.headers.get("x-refresh-token", "").strip()
+    if not token:
+        token = request.cookies.get(cookie_key, "")
     if not token:
         for fallback_key in ("refresh_token", "refresh_token_buyer", "refresh_token_admin", "refresh_token_supplier"):
             val = request.cookies.get(fallback_key)
@@ -115,15 +122,26 @@ async def login(
 @router.post("/refresh")
 async def refresh(
     request: Request,
+    body: Optional[RefreshRequest] = None,
     db: AsyncSession = Depends(get_db),
 ) -> JSONResponse:
-    """POST /api/v1/auth/refresh — reads refresh_token from portal-scoped httpOnly cookie."""
-    refresh_token, cookie_key, portal = _get_refresh_token_and_key(request)
+    """POST /api/v1/auth/refresh — reads refresh_token from body, header, or portal-scoped httpOnly cookie."""
+    body_token = body.refresh_token if body else None
+    refresh_token, cookie_key, portal = _get_refresh_token_and_key(request, body_token=body_token)
     if not refresh_token:
-        raise AppException("Refresh token not found in cookie", "MISSING_REFRESH_TOKEN")
+        raise AppException("Refresh token not found in request or cookie", "MISSING_REFRESH_TOKEN")
     result = await auth_service.refresh_token(db, refresh_token, portal_type=portal)
     await db.commit()
-    response = JSONResponse(content={"data": {"access_token": result.access_token}})
+    response = JSONResponse(
+        content={
+            "data": {
+                "access_token": result.access_token,
+                "refresh_token": result.refresh_token,
+                "token_type": "bearer",
+                "expires_in": result.access_expires_in,
+            }
+        }
+    )
     response.set_cookie(
         key=cookie_key,
         value=result.refresh_token,

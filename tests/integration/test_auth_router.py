@@ -283,6 +283,21 @@ class TestPortalSessionScoping:
         assert key == "refresh_token"
         assert portal == "buyer"
 
+        # Explicit X-Refresh-Token header takes precedence for tab isolation
+        req = DummyRequest(
+            headers={"x-portal-id": "buyer", "x-refresh-token": "tab-specific-header-tok"},  # noqa: S105, S106
+            cookies={"refresh_token_buyer": "cookie-tok"}  # noqa: S105
+        )
+        token, key, portal = _get_refresh_token_and_key(req)
+        assert token == "tab-specific-header-tok"  # noqa: S105
+        assert key == "refresh_token_buyer"
+
+        # Explicit body_token takes highest precedence
+        token, key, portal = _get_refresh_token_and_key(req, body_token="body-tok")  # noqa: S105, S106
+        assert token == "body-tok"  # noqa: S105
+        assert key == "refresh_token_buyer"
+
+
     @pytest.mark.asyncio
     async def test_portal_boundary_enforcement_in_auth_service(self):
         from unittest.mock import AsyncMock, MagicMock, patch
