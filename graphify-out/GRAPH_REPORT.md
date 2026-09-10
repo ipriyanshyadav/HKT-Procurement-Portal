@@ -1,16 +1,16 @@
 # Graph Report - procurement-portal  (2026-09-10)
 
 ## Corpus Check
-- 1033 files · ~963,047 words
+- 1035 files · ~969,528 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 10603 nodes · 28907 edges · 589 communities (397 shown, 105 thin omitted)
+- 10668 nodes · 28972 edges · 596 communities (395 shown, 114 thin omitted)
 - Extraction: 93% EXTRACTED · 7% INFERRED · 0% AMBIGUOUS · INFERRED: 2162 edges (avg confidence: 0.9)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `e000d508`
+- Built from commit: `3914e256`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -66,7 +66,7 @@
 - devDependencies
 - dependencies
 - globalEnv
-- ValidationError
+- location/service.py
 - compilerOptions
 - hooks/package.json
 - devDependencies
@@ -76,13 +76,13 @@
 - compilerOptions
 - compilerOptions
 - compilerOptions
-- User
+- PaginationMeta
 - types/package.json
 - admin-portal/tsconfig.json
 - buyer-portal/tsconfig.json
 - supplier-portal/tsconfig.json
 - utils/package.json
-- AppException
+- .__init__
 - Plan Spec 04: Auth & Security
 - Plan Spec 08: Purchase Requisition
 - Sourcing Service
@@ -90,46 +90,46 @@
 - Implementation Prompts All Modules
 - config/package.json
 - RFQ Creation Wizard
-- vendor/router.py
+- test_end_to_end_connected_flow.py
 - utils/src/index.ts
-- workflow/router.py
-- useUsers.ts
+- AsyncSession
+- templates/page.tsx
 - Frontend Backend Wiring Guide
 - SPEC AUDIT REPORT — SPEC_01 + SPEC_02
 - Plan Spec 07: Vendor Management
-- test_auction_tasks.py
+- tasks/auction.py
 - safe_eval
 - Plan Spec 01: Project Overview & Governance
 - useContracts.ts
-- useApprovalRules.ts
+- useVendors.ts
 - decode_jwt
 - src/components/NotificationToast.tsx
 - stores/src/index.ts
-- provision_or_login_sso_user
+- sso.py
 - PermissionCode
-- test_auth_coverage.py
+- SecurityHeadersMiddleware
 - approval_rules/router.py
 - websocket.py
 - health
 - 🔄 S2P Platform Workflow Document
 - uom/service.py
 - health
-- Button
+- src/DocumentList.tsx
 - [taskId]/page.tsx
 - LiveBidService
-- db
-- payment/router.py
+- uuid4
+- useUsers.ts
 - test_requisition.py
 - test_k8s_manifests.py
-- requisition/service.py
-- document/router.py
+- organization/models.py
+- upload_document
 - generate.ts
 - WorkflowEngine
 - RfqService
 - auth/router.py
 - core/__init__.py
 - events/__init__.py
-- tax/service.py
+- AppException
 - admin/__init__.py
 - analytics/__init__.py
 - approval_rules/__init__.py
@@ -143,7 +143,7 @@
 - devDependencies
 - 3. Module-by-Module Usability, Action Buttons & API Wiring Audit
 - invoice/__init__.py
-- asyncio
+- CategoryService
 - TicketRepository
 - admin-portal/middleware.ts
 - organization/__init__.py
@@ -164,7 +164,7 @@
 - evaluation/router.py
 - IntegrationJobProcessor
 - NotFoundError
-- disaster_recovery/router.py
+- disaster_recovery/service.py
 - ForbiddenError
 - 3. Deep Feature Inventory & Implementation Audit (Plans 01 to 25)
 - RequisitionService
@@ -176,11 +176,11 @@
 - 2. Requirement-by-Requirement Traceability
 - factories/__init__.py
 - test_ticket_api.py
-- developer/router.py
-- test_integration_jobs.py
+- DeveloperService
+- modules/integration/adapters/__init__.py
 - GEMAdapter
 - ApprovalRulesRepository
-- test_observability.py
+- audit/service.py
 - 0002_create_enums.py
 - 0024_indexes.py
 - 0027_data_seed.py
@@ -194,39 +194,39 @@
 - ui/src/index.ts
 - test_vendor.py
 - Phase Breakdown
-- AuthService
+- auth/service.py
 - buyer-portal/middleware.ts
 - supplier-portal/middleware.ts
 - rabbitmq_setup.py
-- ApiKey
+- BaseRepository
 - AsyncSession
 - DisasterRecoveryConsole.tsx
-- test_vendor_workflows.py
-- BaseRepository
+- make_task
+- AsyncSession
 - TestVendorScorecardAndRiskSpec21
 - user/router.py
 - conftest.py
-- compliance/router.py
+- toggle_compliance_policy
 - Match Outcome Handling
 - ComplianceService
 - Master Data Twelve Entities Registry
 - InvoiceService
 - .patch
-- useAuction.ts
+- Button
 - test_migrations.py
-- test_ticket_service.py
-- RequisitionRepository
+- ticket/service.py
+- PaymentTermsService
 - make_rule
 - NotificationConsumer
 - ContractRepository
 - TicketSLAService
 - Enterprise Expansion Modules (Options 1, 3, 4 & SPEC_17) — Technical & Architectural Guide
-- master_data/models.py
+- PurchaseOrder
 - SPEC AUDIT: SPEC_10 RFQ Lifecycle & SPEC_11 Bid Management
 - 5. LIQUID GLASS THEME — COMPLETE IMPLEMENTATION
 - TallyXMLAdapter
-- bid/router.py
-- Ticket
+- get_bid_count
+- test_ticket_jira_features.py
 - payment_terms/__init__.py
 - minio_setup.py
 - test_workflow_engine.py
@@ -235,7 +235,7 @@
 - Procurement Portal — Apple Design System + Liquid Glass Spec
 - 0029_rfq_bid_spec10_11.py
 - 3. APPLE THEME — COMPLETE IMPLEMENTATION
-- src/useNotifications.ts
+- test_evaluation.py
 - 4. PAGE-LEVEL LAYOUTS & APPLE EFFECTS
 - SPEC 11B AUDIT REPORT — Live / Reverse Auction Bidding
 - Option D — DR Orchestrator & PITR Backup Drills (SPEC_21/22)
@@ -248,12 +248,12 @@
 - MentionParser
 - SPEC_26: Procurement Ticket & Query Management System
 - 8. MICRO-INTERACTIONS & EFFECTS CATALOG
-- buyer-portal/app/(main)/tickets/page.tsx
+- src/components/tickets/CreateTicketModal.tsx
 - scripts
 - 0028_fix_missing_model_columns.py
 - scripts
 - 1. DESIGN LANGUAGE FOUNDATIONS
-- AsyncSession
+- developer/router.py
 - 2. THEME SYSTEM ARCHITECTURE
 - .create
 - supplier-portal/package.json
@@ -261,56 +261,56 @@
 - admin-portal/tailwind.config.ts
 - dependencies
 - .create
-- PaginationMeta
+- auction_router.py
 - buyer-portal/tailwind.config.ts
 - next
-- holiday/service.py
+- .list_by_year
 - k6_baselines.js
 - supplier-portal/tailwind.config.ts
-- test_spec18_api_standards.py
+- decode_cursor
 - 10. PERFORMANCE & ACCESSIBILITY
-- ticket/service.py
+- asyncio
 - VendorRepository
 - purchase_order/router.py
 - SAPAdapter
 - hooks/src/index.ts
 - OrganizationService
 - SPEC AUDIT: PROCUREMENT APPLE DESIGN SYSTEM (LIGHT & DARK)
-- sourcing/auction.py
+- AuctionRoomManager
 - useContractRedlines.ts
-- AdvanceShippingNotice
+- useCatalogMarketplace.ts
 - CurrencyService
 - 📋 Jira Parity & Automation Engine Implementation Report
-- requisition/models.py
+- requisition/service.py
 - DigioAdapter
 - DocuSignAdapter
 - requisition/router.py
 - .create
-- Badge
+- useEvaluation.ts
 - integration/router.py
-- test_analytics.py
+- create_checkpoint
 - test_invoice_payment.py
 - LiveBidRepository
 - contract/router.py
-- analytics/router.py
+- User
 - BankVerificationAdapter
 - AnalyticsService
 - usePurchaseOrders.ts
 - admin-portal/public/manifest.json
 - SPEC AUDIT: SPEC_13 Contract Management
 - buyer-portal/public/manifest.json
-- UserSession
+- SessionRepository
 - STEP 2 — IMPLEMENT
-- analytics/schemas.py
+- buyer-portal/app/(main)/invoices/[id]/page.tsx
 - .create
 - test_contract.py
 - supplier-portal/public/manifest.json
-- grn/router.py
+- _to_asn_response
 - 🚀 Beginner's Complete Guide to Git, GitHub, Branching & CI/CD
 - catalog/service.py
-- GSTAdapter
+- ENTERPRISE_HANDOVER_MANUAL.md
 - contract/service.py
-- test_pr_workflows.py
+- TestSourcingRouter
 - seed_enterprise_extensions.py
 - SPEC_14 AUDIT REPORT — Purchase Order & GRN Modules
 - TestWorkflowRouter
@@ -318,7 +318,7 @@
 - invoice/service.py
 - useIntegrations.ts
 - ._make_pr
-- ai_sourcing/service.py
+- master_data/models.py
 - notification_digest.py
 - IntegrationService
 - .switch_company_context
@@ -340,7 +340,7 @@
 - 2. Portal-by-Portal Feature & Button Availability Audit
 - WorkflowRepository
 - SPEC AUDIT REPORT — SPEC_10 (RFQ Lifecycle) & SPEC_11 (Bid Management)
-- .log
+- encrypt_field
 - SPEC AUDIT REPORT — SPEC_07: Vendor Management
 - SPEC AUDIT REPORT — SPEC_12: Comparative Statement (CS) & Evaluation
 - SPEC AUDIT REPORT — SPEC_13: Contract Management
@@ -351,14 +351,14 @@
 - test_config.py
 - PurchaseOrderService
 - SPEC_16 AUDIT REPORT — Notification Service
-- test_end_to_end_connected_flow.py
+- purchase_order/service.py
 - package.json
 - Notification
 - test_tasks_coverage.py
 - 🛠️ Step-by-Step Local Setup
 - erp_invoice.py
 - SPEC_22 AUDIT REPORT — Observability & Monitoring
-- HRMSConsumer
+- enums.py
 - .create
 - scripts
 - UUID
@@ -393,7 +393,7 @@
 - RulesEngine
 - SafeHTTPClient
 - test_db_session.py
-- einvoicing/service.py
+- AdvanceShippingNotice
 - admin-portal/.eslintrc.json
 - EvaluationService
 - UserRepository
@@ -403,7 +403,7 @@
 - test_notifications.py
 - AsyncSession
 - supplier-portal/.eslintrc.json
-- Step 2 — Configuration & Environment Variables (`.env`)
+- asyncio
 - useLogin
 - Implementation Plan: Deep Code Analysis, Bug Fixes, Performance & Container Optimizations
 - compute_record_hash
@@ -412,7 +412,7 @@
 - OracleAdapter
 - RoleRepository
 - procurement-portal-frontend/package.json
-- enums.py
+- main.py
 - types/src/index.ts
 - 🛒 BUYER PORTAL — Complete Feature Audit
 - test_document_scanner.py
@@ -420,10 +420,10 @@
 - 0031_ticket_indexes.py
 - 0034_ticket_permissions.py
 - SPEC AUDIT REPORT — SPEC_26: Ticket & Query Management System
-- vendor/service.py
+- Enterprise Cross-Portal Synchronicity & Comprehensive Workflow Audit Report
 - 0037_trgm_search_indexes.py
 - Performance Code Optimization Audit Report
-- idempotency.py
+- 4. Step-by-Step Operational Manuals
 - 🏢 S2P Procurement Portal — Full Platform Audit Report
 - clear_and_seed_all.py
 - clsx
@@ -452,31 +452,31 @@
 - 🔁 CROSS-PORTAL SYNCHRONIZATION ANALYSIS
 - 🏭 SUPPLIER PORTAL — Complete Feature Audit
 - env.py
-- 3. Who Gets What Link? (Devs, Testers, Clients)
-- TestNotificationsMultiChannel
-- CarbonESGService
-- validate_password_strength
+- MasterDataImportService
+- TestVendorRouter
+- WebhookDeliveryService
+- hash_password
 - BankVerificationAdapter
 - document/service.py
 - BaseModel
-- TicketSearchService
+- ._sql_fallback_search
 - TestPRApprovalWorkflowDefinition
-- scheduled_reports.py
+- TestApproverResolver
 - useERPGateway.ts
 - SPEC_26 AUDIT REPORT — Ticket System & Jira Parity Engine
 - TestAuthLoginEndpoint
-- uuid4
+- sourcing/service.py
 - 🔐 Auth & Security Cross-Portal Analysis
 - ⚙️ BACKEND API — Complete Module Audit
 - get_redis_client
 - CustomERPAdapter
 - run_cross_portal_verification
-- test_compliance_posture.py
+- Incident Troubleshooting Playbook (10 Common Scenarios)
 - 📋 Issues & Observations
 - TestSessionManagement
-- stream_csv
-- HolidayRepository
-- AuditSearchQuery
+- sanitize_filename
+- holiday/service.py
+- document_scan.py
 - NetSuiteAdapter
 - 2. Test Execution & Persona Verification
 - test_owasp.py
@@ -486,16 +486,16 @@
 - AnalyticsRepository
 - validate_mime_type
 - PANAdapter
-- test_ticket_fsm.py
+- src/components/tickets/TicketCommentFeed.tsx
 - compliance/__init__.py
 - useVendorOnboarding.ts
 - ERPMaterialAdapter
-- get_audit_logs
+- TestUnmappedPRRouter
 - pytest_configure
-- update_vendor_risk_assessment_endpoint
+- TestIntegrationAndPaymentRouters
 - generate_interactive_pdf.js
 - FilterBuilder
-- seed_demo_user.py
+- seed_enterprise_comprehensive.py
 - useSwitchCompanyContext
 - test_health.py
 - catalog/__init__.py
@@ -503,20 +503,27 @@
 - .publish
 - 📘 Comprehensive Cross-Portal Feature & Workflow Manual
 - ERPVendorAdapter
-- TicketAutomationEngine
-- register_vendor_with_token
+- validate_contract_transition
+- 6. DevOps, Deployment & Disaster Recovery Runbook
 - ERPPOAdapter
 - TestAuthSchemaValidation
-- test_multi_tenant_company_switcher.py
+- test_advanced_invoice_reconciliation.py
 - WhatsAppChannel
 - UnmappedPRService
-- require_mfa_enabled
-- .estimated_value
+- TestAuthDependenciesLogic
+- async_check_compliance
 - export_service.py
 - TestSLAStatusThresholds
 - TestUserRouterEndpoints
-- .require_comment_on_reject
-- validate_invitation_token
+- test_maverick_spend_intelligence_spec25.py
+- admin_ticket_headers
+- mfa/page.tsx
+- TestPasswordPolicy
+- LoggingContextMiddleware
+- tickets/dashboard/page.tsx
+- register/page.tsx
+- test_invalid_fsm_transition
+- test_supplier_cannot_access_other_vendor
 
 ## God Nodes (most connected - your core abstractions)
 1. `User` - 566 edges
@@ -531,15 +538,15 @@
 10. `ConflictError` - 102 edges
 
 ## Surprising Connections (you probably didn't know these)
+- `test_audit_action_login_success()` --uses--> `AuditAction`  [INFERRED]
+  tests/unit/test_constants.py → app/core/constants.py
 - `test_permanently_denied_permissions()` --uses--> `PermissionCode`  [INFERRED]
   tests/unit/test_config.py → app/core/constants.py
-- `test_permission_code_attributes()` --uses--> `PermissionCode`  [INFERRED]
-  tests/unit/test_constants.py → app/core/constants.py
 - `Generic Finite State Machine Orchestrator` --conceptually_related_to--> `FSM State Synchronization Pattern`  [INFERRED]
   plans/plan_spec_05_workflow_engine.md → FRONTEND_BACKEND_WIRING_GUIDE.md
+- `test_document_upload_and_lifecycle()` --indirect_call--> `get_current_user()`  [INFERRED]
+  tests/integration/test_document.py → app/auth/dependencies.py
 - `test_notification_router_crud()` --indirect_call--> `get_current_user()`  [INFERRED]
-  tests/integration/test_notifications.py → app/auth/dependencies.py
-- `test_notification_templates_crud_and_preview()` --indirect_call--> `get_current_user()`  [INFERRED]
   tests/integration/test_notifications.py → app/auth/dependencies.py
 
 ## Import Cycles
@@ -556,7 +563,7 @@
 - **Cryptographic Sealing and Data Integrity Architecture** — specs_spec_10_rfq_lifecycle_bid_sealing_service, specs_spec_11_bid_management_bid_sha256_hash_integrity, specs_spec_17_document_management_clamav_virus_scanner, specs_spec_17_document_management_bid_document_sealing, specs_spec_23_testing_audit_validation_tests [INFERRED 0.95]
 - **Defense-in-Depth & Zero-Trust Security Architecture** — specs_spec_04_auth_security_auth_pipeline, specs_spec_04_auth_security_sod_enforcement, plans_plan_spec_20_integration_safehttpclient, plans_plan_spec_21_infrastructure_networkpolicies, plans_plan_spec_17_document_management_documentscanner [INFERRED 0.95]
 
-## Communities (589 total, 105 thin omitted)
+## Communities (596 total, 114 thin omitted)
 
 ### Community 0 - "Generic Finite State Machine Orchestrator"
 Cohesion: 0.20
@@ -655,8 +662,8 @@ Cohesion: 0.50
 Nodes (4): Standard API Response Envelope, Plan SPEC 18: API Design Standards, Dynamic SQL Filter Builder, Cursor & Offset Pagination Handler
 
 ### Community 24 - "RedisKeys"
-Cohesion: 0.08
-Nodes (34): UUID, Redis counter for monotonic bid_sequence., Cached current best (L1) bid amount per lot., RedisKeys, _async_refresh(), Fetch daily exchange rates; cache in Redis and persist to DB., asyncio, Unit tests for SPEC_11B Live Auction Bid Sequence Generation & Monotonicity.… (+26 more)
+Cohesion: 0.06
+Nodes (35): check_idempotency(), IdempotencyMiddleware, Any, Redis, Check if an idempotency key exists in Redis (or in-memory fallback)., Store idempotency key result in Redis (and in-memory fallback)., Pure ASGI idempotency middleware (no BaseHTTPMiddleware generator overhead).…, store_idempotency() (+27 more)
 
 ### Community 25 - "GitHub Actions CI/CD Pipeline"
 Cohesion: 0.50
@@ -667,8 +674,8 @@ Cohesion: 0.50
 Nodes (4): Grafana Alert Rules Suite, Grafana Procurement Dashboards, On-Call Runbooks, Prometheus Custom Procurement Metrics
 
 ### Community 44 - "ticket/router.py"
-Cohesion: 0.08
-Nodes (72): created_response(), Ticket & Query Management System (SPEC_26). Responsibility: Jira-style…, add_comment(), add_watcher(), assign_ticket(), close_ticket(), create_automation_rule(), create_custom_field_def() (+64 more)
+Cohesion: 0.06
+Nodes (91): PaginationParams, Ticket & Query Management System (SPEC_26). Responsibility: Jira-style…, add_comment(), add_watcher(), assign_ticket(), close_ticket(), create_automation_rule(), create_custom_field_def() (+83 more)
 
 ### Community 45 - "devDependencies"
 Cohesion: 0.12
@@ -694,9 +701,9 @@ Nodes (15): class-variance-authority, framer-motion, dependencies, class-varianc
 Cohesion: 0.07
 Nodes (28): dependsOn, cache, cache, persistent, cache, globalDependencies, globalEnv, $schema (+20 more)
 
-### Community 51 - "ValidationError"
-Cohesion: 0.04
-Nodes (69): AuditAction, ConflictError, ValidationError, Rules Engine Service — find_matching_rule(), detect_conflicts(),…, Goods Receipt Note (GRN) Service (SPEC_14 / SPEC_17). Handles: - Receipt of…, CategoryResponse, CategoryUpdateRequest, ErpMappingCreateRequest (+61 more)
+### Community 51 - "location/service.py"
+Cohesion: 0.08
+Nodes (27): DeliveryLocationRepository, DeliveryLocationService, LocationCreateRequest, LocationResponse, LocationUpdateRequest, AsyncSession, DeliveryLocation, field_validator (+19 more)
 
 ### Community 52 - "compilerOptions"
 Cohesion: 0.09
@@ -734,9 +741,9 @@ Nodes (15): compilerOptions, declaration, declarationMap, module, moduleResoluti
 Cohesion: 0.12
 Nodes (15): compilerOptions, declaration, declarationMap, module, moduleResolution, outDir, rootDir, sourceMap (+7 more)
 
-### Community 61 - "User"
-Cohesion: 0.08
-Nodes (66): calculate_supplier_radar_scores(), convert_draft_to_rfq(), generate_smart_rfq(), get_negotiation_session(), health(), list_negotiation_sessions(), list_smart_rfq_drafts(), list_supplier_radar_scores() (+58 more)
+### Community 61 - "PaginationMeta"
+Cohesion: 0.06
+Nodes (61): add_deprecation_headers(), date, Response, Add standard Deprecation, Sunset, and Link headers to an outgoing HTTP response., paginate_query(), Paginate query. Supports both: 1. (query, params, total_count: int) -> returns…, _filter_fields(), Links (+53 more)
 
 ### Community 62 - "types/package.json"
 Cohesion: 0.13
@@ -757,10 +764,6 @@ Nodes (14): compilerOptions, baseUrl, jsx, paths, plugins, exclude, extends, inc
 ### Community 66 - "utils/package.json"
 Cohesion: 0.14
 Nodes (13): axios, dependencies, axios, devDependencies, @types/node, typescript, @types/node, typescript (+5 more)
-
-### Community 67 - "AppException"
-Cohesion: 0.16
-Nodes (17): AppException, BusinessRuleError, NotificationDeliveryError, OptimisticLockError, Any, Exception, RateLimitError, _resolve_exc_args() (+9 more)
 
 ### Community 68 - "Plan Spec 04: Auth & Security"
 Cohesion: 0.18
@@ -790,21 +793,21 @@ Nodes (8): devDependencies, typescript, typescript, main, name, private, types, 
 Cohesion: 0.13
 Nodes (16): Bidder Eligibility Enforcement, RFQ Lot Management, RFQ Creation Wizard, RFQ Header Schema, RFQ Timeline Validation, Bid Draft Autosave, SPEC 18 API Design Specification, Next.js Admin Portal App (+8 more)
 
-### Community 75 - "vendor/router.py"
-Cohesion: 0.10
-Nodes (33): add_my_vendor_document(), bulk_category_mapping(), check_duplicates(), Run duplicate detection checks., Bulk map categories to multiple vendors via imported CSV / JSON entries., Supplier portal endpoint to attach a document for current supplier., BulkVendorCategoryMappingRequest, DuplicateCheckRequest (+25 more)
+### Community 75 - "test_end_to_end_connected_flow.py"
+Cohesion: 0.05
+Nodes (67): AuditEntityType, BidStatus, OutboxPublisher, ApprovalRule, Any, datetime, setter, UUID (+59 more)
 
 ### Community 76 - "utils/src/index.ts"
-Cohesion: 0.08
-Nodes (27): MFAForm, mfaSchema, CurrentUser, LoginPayload, LoginResponse, PermissionsResponse, syncUserProfile(), init() (+19 more)
+Cohesion: 0.09
+Nodes (24): CurrentUser, LoginPayload, LoginResponse, PermissionsResponse, syncUserProfile(), init(), useRefreshToken(), useDetectMaverickAnomalies() (+16 more)
 
-### Community 77 - "workflow/router.py"
+### Community 77 - "AsyncSession"
 Cohesion: 0.08
-Nodes (48): approve_task(), cancel_instance(), create_template(), force_advance(), get_instance(), get_my_tasks(), get_template_detail(), list_templates() (+40 more)
+Nodes (39): approve_task(), cancel_instance(), create_template(), force_advance(), get_instance(), get_my_tasks(), get_template_detail(), list_templates() (+31 more)
 
-### Community 78 - "useUsers.ts"
+### Community 78 - "templates/page.tsx"
 Cohesion: 0.05
-Nodes (55): ACTION_OPTIONS, AuditTrailPage(), ENTITY_OPTIONS, RolesManagementPage(), getTelemetryUrl(), SystemHealthDashboard(), UsersManagementPage(), STANDARD_ROLES (+47 more)
+Nodes (63): ApprovalRuleDetailPage(), ConditionRow, CreateApprovalRulePage(), ENTITY_OPTIONS, FIELD_OPTIONS, TEMPLATE_OPTIONS, ApprovalRulesListPage(), ENTITY_TABS (+55 more)
 
 ### Community 79 - "Frontend Backend Wiring Guide"
 Cohesion: 0.33
@@ -818,9 +821,9 @@ Nodes (5): OVERALL, PARTIAL items (non-blocking for SPEC_01+02 scaffold), SPEC_0
 Cohesion: 0.40
 Nodes (5): Plan Spec 07: Vendor Management, Automated Compliance & KYC Verification, Bcrypt-Hashed Invitation Token Protocol, Vendor Lifecycle FSM, Dual-Provider E-Signature Adapter
 
-### Community 82 - "test_auction_tasks.py"
-Cohesion: 0.18
-Nodes (17): close_due_auctions(), execute_proxy_bids_task(), open_scheduled_auctions(), task, Executes residual proxy bids when cascade cap was reached., Runs every 30 seconds via Celery beat. Opens SCHEDULED auctions past start time., Runs every 10 seconds. Closes OPEN/EXTENDED/CLOSING auctions past…, Runs every 10 seconds. Broadcasts AUCTION_CLOSING for auctions within 30s of… (+9 more)
+### Community 82 - "tasks/auction.py"
+Cohesion: 0.16
+Nodes (20): close_due_auctions(), execute_proxy_bids_task(), notify_auction_start_reminders(), open_scheduled_auctions(), task, Executes residual proxy bids when cascade cap was reached., Runs every 30 seconds via Celery beat. Opens SCHEDULED auctions past start time., Runs every 10 seconds. Closes OPEN/EXTENDED/CLOSING auctions past… (+12 more)
 
 ### Community 83 - "safe_eval"
 Cohesion: 0.08
@@ -831,16 +834,16 @@ Cohesion: 0.50
 Nodes (4): Plan Spec 01: Project Overview & Governance, Multi-Squad Governance Model, Procurement Portal Enterprise Scope, Superadmin Initialization Protocol
 
 ### Community 85 - "useContracts.ts"
-Cohesion: 0.06
-Nodes (45): ContractWorkspacePage(), ContractRedlinePage(), ContractsListPage(), SupplierContractDetailPage(), SupplierContractReviewPage(), SupplierContractsPage(), Contract, ContractAmendment (+37 more)
+Cohesion: 0.08
+Nodes (39): ContractWorkspacePage(), ContractRedlinePage(), ContractsListPage(), SupplierContractDetailPage(), SupplierContractReviewPage(), SupplierContractsPage(), Contract, ContractAmendment (+31 more)
 
-### Community 87 - "useApprovalRules.ts"
-Cohesion: 0.15
-Nodes (23): ApprovalRuleDetailPage(), ConditionRow, CreateApprovalRulePage(), ENTITY_OPTIONS, FIELD_OPTIONS, TEMPLATE_OPTIONS, ApprovalRulesListPage(), ENTITY_TABS (+15 more)
+### Community 87 - "useVendors.ts"
+Cohesion: 0.06
+Nodes (54): VendorDetailPage(), VendorsListPage(), VendorRiskDashboardPage(), COMPLIANCE_REQUIREMENTS, ComplianceDocType, SupplierDocumentsPage(), SupplierProfilePage(), SupplierRegistrationWizard() (+46 more)
 
 ### Community 88 - "decode_jwt"
-Cohesion: 0.05
-Nodes (36): create_access_token(), create_mfa_token(), create_refresh_token(), decode_jwt(), _load_private_key(), _load_public_key(), UUID, Read PEM key from file path. (+28 more)
+Cohesion: 0.06
+Nodes (32): create_access_token(), create_mfa_token(), create_refresh_token(), decode_jwt(), UUID, Short-lived token for MFA challenge. Contains NO roles/permissions., Decode and verify a JWT. Raises AuthenticationError on failure., Valid token → WebSocket connects and responds to ping. (+24 more)
 
 ### Community 89 - "src/components/NotificationToast.tsx"
 Cohesion: 0.09
@@ -848,19 +851,19 @@ Nodes (22): metadata, NotificationListener(), Providers(), metadata, Notificatio
 
 ### Community 90 - "stores/src/index.ts"
 Cohesion: 0.06
-Nodes (55): AdminMainLayout(), BuyerMainLayout(), SupplierMainLayout(), formatRelativeTime(), getNotificationIcon(), NotificationBell(), FilterTab, getNotificationIcon() (+47 more)
+Nodes (59): AdminMainLayout(), BuyerMainLayout(), SupplierMainLayout(), formatRelativeTime(), getNotificationIcon(), NotificationBell(), FilterTab, getNotificationIcon() (+51 more)
 
-### Community 91 - "provision_or_login_sso_user"
-Cohesion: 0.15
-Nodes (14): build_saml_settings(), get_saml_auth(), provision_or_login_sso_user(), Any, AsyncSession, Request, UUID, Just-In-Time (JIT) provisioning and authentication for SSO federated users. If… (+6 more)
+### Community 91 - "sso.py"
+Cohesion: 0.13
+Nodes (20): get, GET /api/v1/auth/sso/initiate — SAML or OIDC redirect initiation., sso_initiate(), build_oidc_auth_url(), build_saml_settings(), get_oidc_endpoints(), get_saml_auth(), handle_oidc_callback() (+12 more)
 
 ### Community 92 - "PermissionCode"
-Cohesion: 0.05
-Nodes (99): PermissionCode, CurrencyCreateRequest, CurrencyResponse, CurrencyUpdateRequest, create_category(), create_currency(), create_delivery_location(), create_holiday() (+91 more)
+Cohesion: 0.03
+Nodes (141): PermissionCode, created_response(), create_contract(), ContractCreateRequest, Create a new contract manually., create_grn(), GrnCreateRequest, PaymentTermResponse (+133 more)
 
-### Community 93 - "test_auth_coverage.py"
-Cohesion: 0.11
-Nodes (19): decrypt_totp_secret(), encrypt_totp_secret(), generate_backup_codes(), generate_totp_secret(), get_totp_uri(), Return otpauth:// URI for QR code display., Verify TOTP code. Allows 1 step drift., Generate `count` backup codes. Returns (plaintext_codes, hashed_codes) — store… (+11 more)
+### Community 93 - "SecurityHeadersMiddleware"
+Cohesion: 0.22
+Nodes (5): Pure ASGI middleware to inject security headers without BaseHTTPMiddleware…, SecurityHeadersMiddleware, Security headers middleware should add CSP header., GEMINI.md: No magic numbers in logic., TestSecurityHeaders
 
 ### Community 94 - "approval_rules/router.py"
 Cohesion: 0.12
@@ -878,40 +881,40 @@ Nodes (40): 10. Workflow 8: Vendor Onboarding, 11. Workflow 9: Support Ticket, 1
 Cohesion: 0.10
 Nodes (25): AsyncSession, model_validator, PydanticBaseModel, UomMaster, UUID, Return all non-deleted UoM records for *org_id*. When *include_inactive* is…, Fetch a non-deleted UoM by primary key and org scope. Raises…, Business-logic layer for Unit of Measure master data. Follows the router ->… (+17 more)
 
-### Community 100 - "Button"
-Cohesion: 0.05
-Nodes (32): BidDocumentsProps, ContractDocumentsProps, InvoiceDocumentsProps, PODocumentsProps, VendorDocumentsProps, DocumentItem, DocumentVersionItem, PresignedUrlData (+24 more)
+### Community 100 - "src/DocumentList.tsx"
+Cohesion: 0.06
+Nodes (25): BidDocumentsProps, ContractDocumentsProps, InvoiceDocumentsProps, PODocumentsProps, VendorDocumentsProps, DocumentItem, DocumentVersionItem, PresignedUrlData (+17 more)
 
 ### Community 101 - "[taskId]/page.tsx"
 Cohesion: 0.09
-Nodes (29): TasksPage(), ActionType, TaskDetailPage(), DelegationCreatePayload, DelegationRule, useCreateDelegation(), useDeleteDelegation, useMyDelegations() (+21 more)
+Nodes (28): TasksPage(), ActionType, TaskDetailPage(), DelegationCreatePayload, DelegationRule, useCreateDelegation(), useDeleteDelegation, useMyDelegations() (+20 more)
 
 ### Community 102 - "LiveBidService"
 Cohesion: 0.17
 Nodes (15): LiveBidService, Any, AsyncSession, AuctionConfig, datetime, Decimal, UUID, Called by Celery beat task at scheduled_start_at or manually. (+7 more)
 
-### Community 103 - "db"
+### Community 103 - "uuid4"
 Cohesion: 0.04
-Nodes (96): FastAPI, register_exception_handlers(), LoggingContextMiddleware, Pure ASGI middleware to inject security headers without BaseHTTPMiddleware…, Pure ASGI middleware to attach X-Request-ID to request state and response…, Pure ASGI middleware to inject request_id, trace_id, user_id, org_id into…, Pure ASGI middleware for high-resolution request timing and Prometheus metrics…, RequestIDMiddleware (+88 more)
+Nodes (141): BiddingMode, validate_auction_transition(), AuctionConnectionManager, Manages per-auction WebSocket connections + Redis pub/sub subscription., AuctionConfig, AuctionCreateRequest, Stored in rfq.auction_config JSONB column., ComplianceScanRunRequest (+133 more)
 
-### Community 104 - "payment/router.py"
-Cohesion: 0.11
-Nodes (39): add_dispute_message(), create_dispute(), download_remittance_pdf(), erp_payment_webhook(), execute_live_payment(), get_payment(), health(), list_disputes() (+31 more)
+### Community 104 - "useUsers.ts"
+Cohesion: 0.15
+Nodes (24): RolesManagementPage(), UsersManagementPage(), PermissionItem, RoleCreatePayload, RoleItem, RolePermissionsMatrix, RoleUpdatePayload, useAssignRole() (+16 more)
 
 ### Community 105 - "test_requisition.py"
-Cohesion: 0.14
-Nodes (32): PRStatus, InvalidPrTransitionError, PRCreateRequest, PRLineItemRequest, PRSplitItem, User Persona: Segregation of Duties (SoD) prevents PR creator self-approval and…, test_maker_checker_segregation_of_duties_flow(), create_pr_fixtures() (+24 more)
+Cohesion: 0.06
+Nodes (69): ProcurementType, PRStatus, PRCreateRequest, PRLineItemRequest, PRLineItemResponse, PRMergeRequest, PRSplitItem, PRSplitRequest (+61 more)
 
 ### Community 106 - "test_k8s_manifests.py"
 Cohesion: 0.10
 Nodes (19): Unit tests for SPEC_21 Infrastructure & Deployment Kubernetes manifests., Verify all required stateful services exist in base., Verify that k8s/base builds cleanly with kubectl kustomize., Verify production overlay includes SealedSecrets., Verify Velero backup schedule and cert-manager ClusterIssuers., Verify that all overlays build cleanly., Verify buyer, supplier, and admin portal manifests exist and configure ports., Verify HPA and PDB specs for API and Celery. (+11 more)
 
-### Community 107 - "requisition/service.py"
-Cohesion: 0.05
-Nodes (57): BusinessUnit, CostCenter, Department, LegalEntity, Organization, Plant, setter, UserCompanyAccess (+49 more)
+### Community 107 - "organization/models.py"
+Cohesion: 0.06
+Nodes (52): BusinessUnit, CostCenter, Department, LegalEntity, Organization, Plant, setter, UserCompanyAccess (+44 more)
 
-### Community 108 - "document/router.py"
-Cohesion: 0.15
+### Community 108 - "upload_document"
+Cohesion: 0.12
 Nodes (21): delete_document(), get_document_presigned_url(), get_document_versions(), health(), list_entity_documents(), AsyncSession, date, delete (+13 more)
 
 ### Community 110 - "WorkflowEngine"
@@ -923,12 +926,12 @@ Cohesion: 0.18
 Nodes (12): AsyncSession, CancelRequest, Rfq, RfqClarification, RfqParticipant, UUID, Step 1 of dual-authorization bid opening (SPEC_10 S10-07)., Step 2 of dual-authorization bid opening (SPEC_10 S10-07). (+4 more)
 
 ### Community 112 - "auth/router.py"
-Cohesion: 0.09
-Nodes (42): confirm_mfa(), enroll_mfa(), _get_cookie_key(), _get_portal(), _get_refresh_token_and_key(), login(), logout(), oidc_callback() (+34 more)
+Cohesion: 0.12
+Nodes (33): confirm_mfa(), enroll_mfa(), _get_cookie_key(), _get_portal(), _get_refresh_token_and_key(), login(), logout(), oidc_callback() (+25 more)
 
-### Community 115 - "tax/service.py"
-Cohesion: 0.07
-Nodes (30): AsyncSession, Decimal, field_validator, model_validator, TaxCode, UUID, TaxService — GST HSN/SAC codes and TDS management. Allowed tax types: GST,…, Validated payload for updating an existing TaxCode. All fields optional. (+22 more)
+### Community 115 - "AppException"
+Cohesion: 0.04
+Nodes (72): AuditAction, AppException, BusinessRuleError, ConflictError, NotificationDeliveryError, OptimisticLockError, Exception, FastAPI (+64 more)
 
 ### Community 126 - "devDependencies"
 Cohesion: 0.12
@@ -938,9 +941,9 @@ Nodes (17): devDependencies, autoprefixer, postcss, @procurement/config, tailwin
 Cohesion: 0.06
 Nodes (33): 1. Executive Summary, 2.1 Top Bar (Frosted Apple Navbar), 2.2 Sidebar Navigation (Apple Dock & Rail), 2. Navigation Shell: Top Bar & Sidebar Deep Audit, 3. Module-by-Module Usability, Action Buttons & API Wiring Audit, 4. Summary & Verification Conclusion, Comprehensive Frontend ↔ Backend Usability & Spec Verification Audit, Module 01: Project Overview & Scaffolding (`SPEC_01`) (+25 more)
 
-### Community 129 - "asyncio"
-Cohesion: 0.09
-Nodes (20): CategoryCreateRequest, CategoryRepository, CategoryService, Any, AsyncSession, Category, UUID, Returns full category tree or subtree using recursive CTE. (+12 more)
+### Community 129 - "CategoryService"
+Cohesion: 0.19
+Nodes (10): CategoryRepository, CategoryService, Any, AsyncSession, Category, UUID, Returns full category tree or subtree using recursive CTE., Converts flat CTE rows into a hierarchical tree with nested children. (+2 more)
 
 ### Community 130 - "TicketRepository"
 Cohesion: 0.16
@@ -955,20 +958,20 @@ Cohesion: 0.16
 Nodes (31): approve_award(), generate_comparative_statement(), get_award_recommendation(), get_cs_by_id(), get_latest_cs_for_rfq(), get_negotiations_for_cs(), health(), list_cs_versions() (+23 more)
 
 ### Community 161 - "IntegrationJobProcessor"
-Cohesion: 0.11
-Nodes (23): IntegrationJobProcessor, Any, AsyncSession, datetime, IntegrationJob, UUID, Core processor executing and retrying outbound/inbound integration jobs with…, Create a new integration job initialized in PENDING state. (+15 more)
+Cohesion: 0.20
+Nodes (11): IntegrationJobProcessor, Any, AsyncSession, datetime, IntegrationJob, UUID, Core processor executing and retrying outbound/inbound integration jobs with…, Create a new integration job initialized in PENDING state. (+3 more)
 
 ### Community 162 - "NotFoundError"
-Cohesion: 0.14
-Nodes (17): NotFoundError, validate_transition(), Any, AsyncSession, date, UUID, Vendor, VendorBankAccount (+9 more)
+Cohesion: 0.13
+Nodes (18): NotFoundError, InvalidStatusTransitionError, validate_transition(), Any, AsyncSession, date, UUID, Vendor (+10 more)
 
-### Community 163 - "disaster_recovery/router.py"
-Cohesion: 0.11
-Nodes (30): create_checkpoint(), dr_health(), AsyncSession, post, UUID, Trigger an on-demand PostgreSQL PITR WAL archive or MinIO WORM snapshot., Verify cryptographic SHA-256 and WORM object lock integrity of a checkpoint., Execute an automated simulated failover drill against secondary K3s cluster. (+22 more)
+### Community 163 - "disaster_recovery/service.py"
+Cohesion: 0.17
+Nodes (18): DRCheckpointCreateRequest, DRCheckpointResponse, DRFailoverDrillResponse, DRPostureMetricsResponse, RunFailoverDrillRequest, TriggerPITRSnapshotRequest, VerifyCheckpointResponse, DisasterRecoveryService (+10 more)
 
 ### Community 164 - "ForbiddenError"
-Cohesion: 0.07
-Nodes (65): ForbiddenError, activate_vendor(), add_bank_account(), add_vendor_document(), _assert_vendor_access(), calculate_vendor_scorecard_endpoint(), confirm_blacklist(), confirm_penny_test() (+57 more)
+Cohesion: 0.05
+Nodes (111): Dependency: asserts user has MFA enabled (for privileged roles)., require_mfa_enabled(), ForbiddenError, activate_vendor(), add_bank_account(), add_my_vendor_document(), add_vendor_document(), _assert_vendor_access() (+103 more)
 
 ### Community 165 - "3. Deep Feature Inventory & Implementation Audit (Plans 01 to 25)"
 Cohesion: 0.05
@@ -980,7 +983,7 @@ Nodes (8): validate_pr_transition(), AsyncSession, Decimal, Requisition, UUID, P
 
 ### Community 167 - "useAnalytics.ts"
 Cohesion: 0.04
-Nodes (72): AdminOrgAnalyticsPage(), AnalyticsTab, BuyerAnalyticsDashboardPage(), PIE_COLORS, SpendAnalyticsPage(), VendorScorecardAnalyticsPage(), AllSpendData, AnalyticsDashboardData (+64 more)
+Nodes (71): AdminOrgAnalyticsPage(), AnalyticsTab, BuyerAnalyticsDashboardPage(), PIE_COLORS, SpendAnalyticsPage(), VendorScorecardAnalyticsPage(), AllSpendData, AnalyticsDashboardData (+63 more)
 
 ### Community 168 - "🔍 Deep Code Audit & Optimization Report"
 Cohesion: 0.06
@@ -1007,14 +1010,14 @@ Cohesion: 0.19
 Nodes (37): BidFactory, BidLineFactory, ContractFactory, ContractTemplateFactory, FactoryBundle, Unified access to all model factories without hardcoded data., InvoiceFactory, InvoiceLineFactory (+29 more)
 
 ### Community 174 - "test_ticket_api.py"
+Cohesion: 0.14
+Nodes (26): AsyncClient, asyncio, Verify listing tickets with status and priority filtering., Verify updating ticket fields via PUT /api/v1/tickets/{id}., Verify end-to-end status transitions: OPEN -> IN_PROGRESS -> PENDING ->…, Verify adding, listing, editing, and deleting comments., Verify adding, listing, and removing ticket watchers., Verify activity audit log records creation event. (+18 more)
+
+### Community 175 - "DeveloperService"
 Cohesion: 0.11
-Nodes (32): admin_ticket_headers(), admin_ticket_user(), AsyncClient, asyncio, AsyncSession, fixture, Verify listing tickets with status and priority filtering., Verify updating ticket fields via PUT /api/v1/tickets/{id}. (+24 more)
+Nodes (21): ApiKeyCreatedResponse, ApiKeyResponse, DeveloperService, ApiKeyCreateRequest, AsyncSession, UUID, WebhookSubscriptionCreateRequest, WebhookSubscriptionUpdateRequest (+13 more)
 
-### Community 175 - "developer/router.py"
-Cohesion: 0.08
-Nodes (38): ApiKeyCreatedResponse, ApiKeyResponse, ApiKeyCreatedResponse, ApiKeyCreateRequest, ApiKeyResponse, ApiKeyRevokeRequest, WebhookDeliveryResponse, WebhookSubscriptionCreateRequest (+30 more)
-
-### Community 176 - "test_integration_jobs.py"
+### Community 176 - "modules/integration/adapters/__init__.py"
 Cohesion: 0.14
 Nodes (12): ABC, ERPAdapterBase, Any, UUID, Synchronize vendor master data with the ERP., Post a purchase order to the ERP., Retrieve material master information from the ERP., Notify or reconcile payment execution with the ERP. (+4 more)
 
@@ -1026,13 +1029,13 @@ Nodes (9): GEMAdapter, Any, UUID, Government e-Marketplace (GeM) async portal in
 Cohesion: 0.21
 Nodes (9): ApprovalRulesRepository, ApprovalRule, AsyncSession, datetime, UUID, Returns all active rules for entity_type and org_id that are within the…, Find rules with same entity_type and priority (conflict detection)., Return all version snapshots for a rule, newest first. (+1 more)
 
-### Community 179 - "test_observability.py"
-Cohesion: 0.09
-Nodes (22): get_metric_value(), Any, Helper for testing and programmatic metric verification. Finds a metric by name…, Unit tests for SPEC_22 Observability, Metrics, Dashboards, and Audit Search., Verify that TimingMiddleware instruments endpoints and /metrics returns…, Verify that k8s/monitoring/prometheus/rules.yaml contains ALL 15 alert rules., Verify that alertmanager routes CRITICAL->PagerDuty, WARNING->OpsGenie, and…, Verify that promtail config parses JSON and drops /health check logs. (+14 more)
+### Community 179 - "audit/service.py"
+Cohesion: 0.06
+Nodes (38): get_metric_value(), Any, Helper for testing and programmatic metric verification. Finds a metric by name…, Pure ASGI middleware to attach X-Request-ID to request state and response…, Pure ASGI middleware for high-resolution request timing and Prometheus metrics…, RequestIDMiddleware, TimingMiddleware, get_current_trace_id() (+30 more)
 
 ### Community 206 - "invoice/router.py"
-Cohesion: 0.14
-Nodes (35): approve_invoice(), dispute_invoice(), export_invoices_csv(), export_invoices_pdf(), get_eligible_lines(), get_invoice(), get_reconciliation_dashboard(), health() (+27 more)
+Cohesion: 0.18
+Nodes (27): approve_invoice(), dispute_invoice(), export_invoices_csv(), export_invoices_pdf(), get_eligible_lines(), get_invoice(), get_reconciliation_dashboard(), health() (+19 more)
 
 ### Community 207 - "SPEC_04 Audit Report — Auth, Authorization & Security"
 Cohesion: 0.33
@@ -1051,28 +1054,28 @@ Cohesion: 0.09
 Nodes (21): 10. HTTP API Endpoints, 11. LiveBidService Class, 12. SPEC_12 Integration, 1. RFQ Bidding Modes, 2. Auction Parameters Schema, 3. Auction Lifecycle FSM, 4. Database Tables (new — migration 0028), 5.1 Connection (+13 more)
 
 ### Community 211 - "AuditSearchService"
-Cohesion: 0.14
+Cohesion: 0.15
 Nodes (10): AuditSearchService, Any, Exception, setter, UUID, Index an audit log into the monthly rotated Elasticsearch index., Match either direct keyword or .keyword subfield for robust ES querying., Search audit logs using Elasticsearch with SQL database fallback. (+2 more)
 
 ### Community 212 - "TicketService"
-Cohesion: 0.14
-Nodes (8): validate_ticket_transition(), Any, AsyncSession, TicketCreateRequest, TicketSLAConfigRequest, TicketUpdateRequest, UUID, TicketService
+Cohesion: 0.09
+Nodes (21): validate_ticket_transition(), Any, AsyncSession, TicketCreateRequest, TicketSLAConfigRequest, TicketUpdateRequest, UUID, TicketService (+13 more)
 
 ### Community 213 - "ui/src/index.ts"
 Cohesion: 0.02
 Nodes (125): AuctionCountdownTimerProps, BidEntryPanel(), BidEntryPanelProps, BidSealedIndicator(), BidSealedIndicatorProps, CategoryTreeNode, CategoryTreeSelect(), CategoryTreeSelectProps (+117 more)
 
 ### Community 214 - "test_vendor.py"
-Cohesion: 0.11
-Nodes (33): VendorBankAccountCreateRequest, VendorInviteRequest, VendorRegistrationRequest, VendorScorecardUpdateRequest, create_test_doc_type(), create_test_document(), create_test_org(), create_test_user() (+25 more)
+Cohesion: 0.15
+Nodes (26): VendorBankAccountCreateRequest, VendorInviteRequest, VendorRegistrationRequest, create_test_doc_type(), create_test_document(), create_test_org(), create_test_user(), asyncio (+18 more)
 
 ### Community 215 - "Phase Breakdown"
 Cohesion: 0.14
 Nodes (13): ASSUMPTION [A-DESIGN-1], ASSUMPTION [A-DESIGN-2], ASSUMPTION [A-DESIGN-3], ASSUMPTION [A-DESIGN-4], Document References, Logged Assumptions, Phase 1: Shared Foundation (`packages/ui`), Phase 2: Admin Portal (`apps/admin-portal`) (+5 more)
 
-### Community 216 - "AuthService"
-Cohesion: 0.09
-Nodes (17): AuthService, LoginResult, AsyncSession, UUID, Verify TOTP code and mark MFA as enabled., Verifies Cloudflare Turnstile token. Returns True if valid or if Turnstile is…, AuthenticationError, asyncio (+9 more)
+### Community 216 - "auth/service.py"
+Cohesion: 0.08
+Nodes (29): decrypt_totp_secret(), encrypt_totp_secret(), generate_backup_codes(), generate_totp_secret(), get_totp_uri(), Return otpauth:// URI for QR code display., Verify TOTP code. Allows 1 step drift., Generate `count` backup codes. Returns (plaintext_codes, hashed_codes) — store… (+21 more)
 
 ### Community 217 - "buyer-portal/middleware.ts"
 Cohesion: 0.40
@@ -1086,25 +1089,25 @@ Nodes (3): AUTH_GROUP_ROUTES, config, PUBLIC_ROUTES
 Cohesion: 0.50
 Nodes (3): Idempotent RabbitMQ topology setup. Run once per environment. Safe to re-run.…, Create all exchanges, queues, DLQs, and bindings idempotently., setup_rabbitmq()
 
-### Community 220 - "ApiKey"
-Cohesion: 0.23
-Nodes (8): ApiKey, WebhookDelivery, WebhookSubscription, ApiKeyRepository, AsyncSession, UUID, WebhookDeliveryRepository, WebhookSubscriptionRepository
+### Community 220 - "BaseRepository"
+Cohesion: 0.08
+Nodes (21): BaseRepository, AsyncSession, UUID, Generic repository providing base CRUD and soft delete abstractions., Approval Rules Repository — DB queries for approval rules and versions., AsnLine, ApiKey, WebhookDelivery (+13 more)
 
 ### Community 221 - "AsyncSession"
 Cohesion: 0.22
 Nodes (9): AsyncSession, datetime, Rfq, RfqClarification, RfqParticipant, UUID, RfqClarificationRepository, RfqParticipantRepository (+1 more)
 
 ### Community 222 - "DisasterRecoveryConsole.tsx"
-Cohesion: 0.13
+Cohesion: 0.15
 Nodes (16): useDRCheckpoints(), useDRDrills(), useDRPosture(), useRunFailoverDrill(), useTriggerPITRSnapshot(), useVerifyCheckpoint(), DRBackupCheckpoint, DRFailoverDrill (+8 more)
 
-### Community 223 - "test_vendor_workflows.py"
+### Community 223 - "make_task"
 Cohesion: 0.11
-Nodes (22): build_engine(), make_task(), make_user(), ApprovalTaskStatusEnum, asyncio, UUID, Workflow tests for Vendor Management (SPEC_07). Tests cover: 1. VENDOR_QUAL…, Tests for VENDOR_QUAL qualification workflow. (+14 more)
+Nodes (21): build_engine(), make_task(), make_user(), ApprovalTaskStatusEnum, asyncio, UUID, Tests for VENDOR_QUAL qualification workflow., Verify VENDOR_QUAL template has 3 sequential steps with correct roles and… (+13 more)
 
-### Community 224 - "BaseRepository"
-Cohesion: 0.10
-Nodes (17): BaseRepository, AsyncSession, UUID, Generic repository providing base CRUD and soft delete abstractions., CartItemRepository, CatalogTierPricingRepository, PunchoutConfigRepository, PunchoutSessionRepository (+9 more)
+### Community 224 - "AsyncSession"
+Cohesion: 0.09
+Nodes (28): add_item_to_cart(), checkout_cart_to_pr(), create_punchout_config(), get_cart(), health(), launch_punchout_session(), list_punchout_configs(), process_punchout_callback() (+20 more)
 
 ### Community 225 - "TestVendorScorecardAndRiskSpec21"
 Cohesion: 0.16
@@ -1118,8 +1121,8 @@ Nodes (75): RolePermission, activate_user(), assign_user_role(), AssignRoleReque
 Cohesion: 0.11
 Nodes (32): admin_auth_headers(), admin_user(), anyio_backend(), auth_headers(), buyer_user(), _clean_dependency_overrides(), client(), org() (+24 more)
 
-### Community 228 - "compliance/router.py"
-Cohesion: 0.15
+### Community 228 - "toggle_compliance_policy"
+Cohesion: 0.12
 Nodes (22): generate_compliance_attestation(), get_compliance_scan_detail(), get_latest_compliance_scan(), health(), list_compliance_policies(), list_compliance_scans(), AsyncSession, ComplianceScanRunRequest (+14 more)
 
 ### Community 229 - "Match Outcome Handling"
@@ -1140,23 +1143,23 @@ Nodes (38): AdvancedReconciliationResponse, CSPDFGenerator, Any, Minio, UUID, Ge
 
 ### Community 233 - ".patch"
 Cohesion: 0.06
-Nodes (7): integration, TestSourcingRouter, integration, TestUserRouter, integration, TestVendorRouter, TestApprovalRulesRouter
+Nodes (27): CurrencyMaster, TaxCode, client(), _fake_db(), mock_user(), fixture, Integration tests for the Master Data Router (/api/v1/master-data). Tests all…, test_create_category_endpoint() (+19 more)
 
-### Community 234 - "useAuction.ts"
+### Community 234 - "Button"
 Cohesion: 0.05
-Nodes (58): BuyerAuctionRoomPage(), DualAuthBidOpeningPage(), RfqDetailPage(), RfqListPage(), SupplierAuctionRoomPage(), SupplierBidSubmissionPage(), SupplierRfqListPage(), APIEnvelope (+50 more)
+Nodes (59): BuyerAuctionRoomPage(), DualAuthBidOpeningPage(), RfqDetailPage(), RfqListPage(), SupplierAuctionRoomPage(), SupplierBidSubmissionPage(), SupplierRfqListPage(), APIEnvelope (+51 more)
 
 ### Community 235 - "test_migrations.py"
 Cohesion: 0.14
 Nodes (13): Integration tests for database migrations, immutability, indexes, and RLS., Verify document numbering sequences exist and generate consecutive values., Verify that migration created at least 70 tables in public schema., Verify that at least 20 ENUM types are defined., Verify that at least 40 indexes exist in public schema., Verify that audit_logs is append-only: UPDATE and DELETE are prohibited by…, Verify Row Level Security tenant isolation on vendors table., test_audit_log_immutable() (+5 more)
 
-### Community 236 - "test_ticket_service.py"
-Cohesion: 0.14
-Nodes (19): mock_deps(), asyncio, fixture, Only the comment author may edit their comment., Suppliers cannot set is_internal=True when adding comments., Tickets closed more than 30 days ago cannot be reopened by non-admin., Private tickets can only be accessed by creator, assignee, or admin., Suppliers cannot view tickets raised by other users. (+11 more)
+### Community 236 - "ticket/service.py"
+Cohesion: 0.09
+Nodes (41): Immutable — NO deleted_at, NO updated_at. Never update or delete., Ticket, TicketActivityLog, TicketAttachment, TicketComment, TicketCustomFieldDef, TicketCustomFieldValue, TicketLink (+33 more)
 
-### Community 237 - "RequisitionRepository"
-Cohesion: 0.29
-Nodes (5): AsyncSession, datetime, Requisition, UUID, RequisitionRepository
+### Community 237 - "PaymentTermsService"
+Cohesion: 0.14
+Nodes (16): PaymentTermCreateRequest, PaymentTermsService, AsyncSession, Decimal, PaymentTerm, UUID, Return all payment terms for the given org. Args: db: Active async DB session.…, Fetch a single payment term by primary key, scoped to the org. Raises:… (+8 more)
 
 ### Community 238 - "make_rule"
 Cohesion: 0.14
@@ -1178,9 +1181,9 @@ Nodes (20): Any, AsyncSession, datetime, UUID, TicketSLAService, asyncio, Verify
 Cohesion: 0.10
 Nodes (20): 1.1 Table: `vendor_onboarding_applications`, 1.2 Table: `maverick_spend_clusters`, 1.3 Table: `erp_entity_mappings`, 1. Database Migration & Schema Architecture, 2.1 Workflow & Architecture, 2.2 API Endpoints, 2.3 Portal UI, 2. Option 1: External Supplier Self-Onboarding & KYC Portal (`SPEC_07`) (+12 more)
 
-### Community 243 - "master_data/models.py"
-Cohesion: 0.07
-Nodes (42): Category, CurrencyMaster, DeliveryLocation, HolidayMaster, Incoterm, PaymentTerm, setter, SupplierCategory (+34 more)
+### Community 243 - "PurchaseOrder"
+Cohesion: 0.21
+Nodes (10): PoAmendment, PoLine, PurchaseOrder, PurchaseOrderRepository, AsyncSession, POFilterParams, UUID, Purchase Order Repository (SPEC_14). Provides database queries and transactions… (+2 more)
 
 ### Community 244 - "SPEC AUDIT: SPEC_10 RFQ Lifecycle & SPEC_11 Bid Management"
 Cohesion: 0.40
@@ -1194,13 +1197,13 @@ Nodes (13): 5.10 Liquid Glass Form Inputs, 5.11 Liquid Glass Sidebar, 5.12 Liqui
 Cohesion: 0.11
 Nodes (17): ERPAdapterFactory, Factory to instantiate the appropriate ERP adapter based on provider setting., Any, UUID, Generate and post Tally Purchase Voucher XML., Tally ERP 9 / TallyPrime XML Server Integration Adapter. Translates procurement…, Generate and post Tally Payment Voucher XML., Query Tally Stock Item XML. (+9 more)
 
-### Community 248 - "bid/router.py"
+### Community 248 - "get_bid_count"
 Cohesion: 0.18
-Nodes (19): Dependency factory: ensures user has a specific permission., require_permission(), get_bid_count(), get_bid_details(), AsyncSession, delete, get, post (+11 more)
+Nodes (16): get_bid_count(), get_bid_details(), AsyncSession, delete, get, post, put, UUID (+8 more)
 
-### Community 249 - "Ticket"
-Cohesion: 0.07
-Nodes (50): Ticket, AutomationRuleCreateRequest, AutomationRuleResponse, AutomationRuleUpdateRequest, CustomFieldDefCreateRequest, CustomFieldDefResponse, CustomFieldDefUpdateRequest, CustomFieldValueItem (+42 more)
+### Community 249 - "test_ticket_jira_features.py"
+Cohesion: 0.12
+Nodes (27): Any, AsyncSession, UUID, Evaluates and executes no-code Jira-style automation rules., Finds all active rules for this trigger and org, evaluates conditions, and runs…, TicketAutomationEngine, TicketAutomationRule, CustomFieldDefCreateRequest (+19 more)
 
 ### Community 252 - "test_workflow_engine.py"
 Cohesion: 0.12
@@ -1208,7 +1211,7 @@ Nodes (31): build_engine(), make_instance(), make_step(), make_task(), make_temp
 
 ### Community 253 - "useOrganization.ts"
 Cohesion: 0.09
-Nodes (30): OperatingStructureContent(), APIResponse, useCreateBusinessUnit(), useCreateCostCenter(), useCreateDepartment(), useDeleteBusinessUnit(), useDeleteCostCenter(), useDeleteDepartment() (+22 more)
+Nodes (29): OperatingStructureContent(), APIResponse, useCreateBusinessUnit(), useCreateCostCenter(), useCreateDepartment(), useDeleteBusinessUnit(), useDeleteCostCenter(), useDeleteDepartment() (+21 more)
 
 ### Community 254 - "Notification Service"
 Cohesion: 0.20
@@ -1222,9 +1225,9 @@ Nodes (8): 0. DOCUMENT OVERVIEW, 12. ANTIGRAVITY CLI IMPLEMENTATION PLAN PROMPT,
 Cohesion: 0.22
 Nodes (9): 3.1 Global Base Styles, 3.2 Navigation Bar (Frosted Glass Nav), 3.3 Card Component, 3.4 Button System, 3.5 Form Elements, 3.6 Status Badge / Pill, 3.7 Data Table (Apple-style), 3.8 Sidebar Navigation (+1 more)
 
-### Community 258 - "src/useNotifications.ts"
-Cohesion: 0.13
-Nodes (17): CHANNEL_CONFIG, ChannelFilter, NotificationTemplatesPage(), NotificationsListResponse, NotificationTemplatesResponse, useCreateNotificationTemplate(), useDeleteNotificationTemplate(), useNotificationTemplates() (+9 more)
+### Community 258 - "test_evaluation.py"
+Cohesion: 0.18
+Nodes (22): RfqLotCreateRequest, create_evaluation_fixtures(), asyncio, AsyncSession, UUID, Integration tests for SPEC_12 Comparative Statement & Evaluation: - S12-01 /…, Helper to create an RFQ with two lots and three submitted, unsealed bids., L1 is vendor with lowest normalized_price_inr per lot. (+14 more)
 
 ### Community 259 - "4. PAGE-LEVEL LAYOUTS & APPLE EFFECTS"
 Cohesion: 0.40
@@ -1262,9 +1265,9 @@ Nodes (41): 10. API ENDPOINTS, 11.1 Navigation (add to sidebar), 11.2 Pages, 11.
 Cohesion: 0.40
 Nodes (5): 8.1 Number Counter Animation, 8.2 Hover Parallax (Apple.com product cards), 8.3 Liquid Glass Cursor Interaction, 8.4 Page Transition, 8. MICRO-INTERACTIONS & EFFECTS CATALOG
 
-### Community 273 - "buyer-portal/app/(main)/tickets/page.tsx"
-Cohesion: 0.05
-Nodes (50): Column, AdminTicketsPage(), AdminTicketSLAConfigPage(), DEFAULT_ROWS, SLAFormRow, BuyerAssignedTicketsPage(), Column, BuyerMyRaisedTicketsPage() (+42 more)
+### Community 273 - "src/components/tickets/CreateTicketModal.tsx"
+Cohesion: 0.06
+Nodes (38): SLAFormRow, SUPPLIER_TICKET_TYPES, SupplierNewTicketPage(), CreateTicketModal(), CreateTicketModalProps, PRIORITIES, TICKET_TYPES, EntityTicketsTab() (+30 more)
 
 ### Community 274 - "scripts"
 Cohesion: 0.17
@@ -1278,9 +1281,9 @@ Nodes (8): scripts, build, dev, generate:types, lint, start, test, typecheck
 Cohesion: 0.50
 Nodes (4): 1.1 Apple Design DNA (Non-Negotiable Traits), 1.2 Apple Color Tokens, 1.3 Typography Scale, 1. DESIGN LANGUAGE FOUNDATIONS
 
-### Community 278 - "AsyncSession"
-Cohesion: 0.08
-Nodes (31): ApiKeyRevokeRequest, create_api_key(), create_webhook(), delete_webhook(), list_api_keys(), list_available_scopes(), list_webhook_deliveries(), list_webhooks() (+23 more)
+### Community 278 - "developer/router.py"
+Cohesion: 0.09
+Nodes (43): ApiKeyRevokeRequest, create_api_key(), create_webhook(), list_api_keys(), list_available_scopes(), list_webhook_deliveries(), ApiKeyCreateRequest, AsyncSession (+35 more)
 
 ### Community 279 - "2. THEME SYSTEM ARCHITECTURE"
 Cohesion: 0.50
@@ -1306,29 +1309,29 @@ Nodes (17): dependencies, next, next-intl, @procurement/types, @procurement/ui, 
 Cohesion: 0.25
 Nodes (10): Any, AsyncSession, Contract, ContractStatusEnum, ContractTemplate, UUID, Any, AsyncSession (+2 more)
 
-### Community 286 - "PaginationMeta"
-Cohesion: 0.06
-Nodes (55): Dependency factory: ensures user has AT LEAST ONE of the specified permissions., require_any_permission(), APIResponse, _filter_fields(), PaginationMeta, Any, Filter fields in a dictionary or list of dictionaries based on field_set., AuditExportRequest (+47 more)
+### Community 286 - "auction_router.py"
+Cohesion: 0.26
+Nodes (19): cancel_auction(), CancelAuctionRequest, create_auction(), get_auction(), get_bid_history(), get_leaderboard(), get_my_rank(), list_auctions() (+11 more)
 
-### Community 289 - "holiday/service.py"
-Cohesion: 0.15
-Nodes (15): HolidayCreateRequest, HolidayResponse, HolidayService, AsyncSession, date, HolidayMaster, UUID, HolidayService — manages organisational and plant-level holiday calendars.… (+7 more)
+### Community 289 - ".list_by_year"
+Cohesion: 0.26
+Nodes (8): AsyncSession, date, HolidayMaster, UUID, Soft-delete the HolidayMaster identified by *id*. Raises NotFoundError when the…, Return all non-deleted holidays for *org_id* whose holiday_date falls within…, Return all non-deleted holidays for *org_id* whose holiday_date is within…, Return True when *check_date* is a configured holiday for *org_id* (either org-…
 
 ### Community 290 - "k6_baselines.js"
 Cohesion: 0.11
 Nodes (10): approveTaskLatency, browsePRLatency, browseVendorsLatency, createPRLatency, defaultHeaders, errorRate, generateCSLatency, options (+2 more)
 
-### Community 295 - "test_spec18_api_standards.py"
-Cohesion: 0.11
-Nodes (25): add_deprecation_headers(), date, Response, Add standard Deprecation, Sunset, and Link headers to an outgoing HTTP response., decode_cursor(), encode_cursor(), paginate_query(), PaginationParams (+17 more)
+### Community 295 - "decode_cursor"
+Cohesion: 0.31
+Nodes (9): decode_cursor(), encode_cursor(), Any, Encode last seen ID (UUID, string, or dictionary) into a URL-safe base64 cursor…, Decode a URL-safe base64 cursor string back to UUID, dict, or string., test_cursor_encoding_decoding(), test_decode_cursor_empty(), test_pagination_params_defaults() (+1 more)
 
 ### Community 296 - "10. PERFORMANCE & ACCESSIBILITY"
 Cohesion: 0.67
 Nodes (3): 10.1 Performance Requirements, 10.2 Accessibility, 10. PERFORMANCE & ACCESSIBILITY
 
-### Community 297 - "ticket/service.py"
-Cohesion: 0.40
-Nodes (12): Immutable — NO deleted_at, NO updated_at. Never update or delete., TicketActivityLog, TicketAttachment, TicketAutomationRule, TicketComment, TicketCustomFieldDef, TicketCustomFieldValue, TicketLink (+4 more)
+### Community 297 - "asyncio"
+Cohesion: 0.13
+Nodes (10): AsyncSession, UUID, user_has_permission(), asyncio, AuditService.log() never commits — that's the caller's responsibility., Unknown entity type falls back to USER enum., Stub returns True for non-permanently-denied permissions., TestAuditService (+2 more)
 
 ### Community 298 - "VendorRepository"
 Cohesion: 0.14
@@ -1343,36 +1346,36 @@ Cohesion: 0.17
 Nodes (10): Any, UUID, Execute SAP RFC / BAPI function module. In live environments with PyRFC…, SAP S/4HANA and ECC ERP Adapter supporting RFC/REST and IDoc transformations., Execute SAP BAPI_PO_CREATE1 to create a Purchase Order in SAP S/4HANA/ECC., Execute SAP BAPI_INCOMINGINVOICE_CREATE to post vendor invoice into SAP AP., SAPAdapter, asyncio (+2 more)
 
 ### Community 301 - "hooks/src/index.ts"
-Cohesion: 0.03
-Nodes (140): CategoryDetailPage(), findNodeAndAncestors(), CategoriesPage(), CurrenciesManagementPage(), HolidayCalendarPage(), ENTITY_CONFIGS, EntityConfig, MasterDataEntityType (+132 more)
+Cohesion: 0.04
+Nodes (130): AdminDashboardPage(), CategoryNode, CategoryDetailPage(), findNodeAndAncestors(), CategoriesPage(), CurrenciesManagementPage(), HolidayCalendarPage(), ENTITY_CONFIGS (+122 more)
 
 ### Community 302 - "OrganizationService"
 Cohesion: 0.14
 Nodes (14): OrganizationService, AsyncSession, BusinessUnitCreateRequest, BusinessUnitUpdateRequest, CostCenterCreateRequest, CostCenterUpdateRequest, DepartmentCreateRequest, DepartmentUpdateRequest (+6 more)
 
-### Community 304 - "sourcing/auction.py"
-Cohesion: 0.13
-Nodes (20): auction_websocket(), AuctionBidRequest, AuctionRoomManager, get_auction_state(), place_auction_bid(), Any, get, post (+12 more)
+### Community 304 - "AuctionRoomManager"
+Cohesion: 0.24
+Nodes (10): AuctionRoomManager, Any, WebSocket, Manages active live WebSocket connections and auction states per RFQ., asyncio, test_auction_room_default_settings(), test_auction_room_disconnect_cleanup(), test_auction_room_initial_state() (+2 more)
 
 ### Community 305 - "useContractRedlines.ts"
 Cohesion: 0.22
 Nodes (15): useClauseLibrary(), useContractClauses(), useContractRedlines(), useInitiateSigningCeremony(), useReviewRedline(), useSubmitDigitalSignature(), useSubmitRedline(), ContractClause (+7 more)
 
-### Community 306 - "AdvanceShippingNotice"
-Cohesion: 0.15
-Nodes (14): AdvanceShippingNotice, AsnRepository, AsnFilterParams, AsyncSession, UUID, Repository for Advance Shipping Notices., AsnService, AsnCreateRequest (+6 more)
+### Community 306 - "useCatalogMarketplace.ts"
+Cohesion: 0.16
+Nodes (18): CatalogSearchParams, useAddToCart(), useCartCheckout(), useCatalogSearch(), useLaunchPunchout(), usePunchoutConfigs(), useRemoveFromCart(), useUpdateCartQuantity() (+10 more)
 
 ### Community 307 - "CurrencyService"
-Cohesion: 0.21
-Nodes (9): CurrencyRepository, CurrencyService, AsyncSession, CurrencyMaster, Decimal, UUID, Soft delete (deactivate) a currency., Fetch cached exchange rate from Redis. (+1 more)
+Cohesion: 0.17
+Nodes (10): CurrencyRepository, CurrencyService, AsyncSession, CurrencyMaster, Decimal, UUID, Soft delete (deactivate) a currency., Fetch cached exchange rate from Redis. (+2 more)
 
 ### Community 308 - "📋 Jira Parity & Automation Engine Implementation Report"
 Cohesion: 0.09
 Nodes (22): 1. Executive Summary, 2. Feature Parity Matrix, 3.1 Architecture Overview, 3.2 Bidirectional Issue Linking Inversion Mechanics, 3.3 Atomic Round-Robin Assignment Rotation, 3.4 Balanced Workload Auto-Assignment, 3. Architecture & Technical Design, 4. Database Migrations (+14 more)
 
-### Community 309 - "requisition/models.py"
-Cohesion: 0.13
-Nodes (22): Requisition, RequisitionLine, UnmappedPrException, UnmappedPrMappingLog, PRListResponse, AsyncSession, UUID, UnmappedPrRepository (+14 more)
+### Community 309 - "requisition/service.py"
+Cohesion: 0.20
+Nodes (13): Requisition, RequisitionLine, UnmappedPrException, UnmappedPrMappingLog, SourcingPathResult, AsyncSession, UUID, UnmappedPrRepository (+5 more)
 
 ### Community 310 - "DigioAdapter"
 Cohesion: 0.21
@@ -1383,52 +1386,52 @@ Cohesion: 0.21
 Nodes (7): DocuSignAdapter, Any, DocuSign eSign Adapter (SPEC_13 S13-06). Handles global eSign workflow via…, Check status of envelope in DocuSign., Download signed envelope PDF from DocuSign., Adapter for interacting with DocuSign eSign REST APIs., Create an envelope in DocuSign. Falls back to sandbox mock response when…
 
 ### Community 312 - "requisition/router.py"
-Cohesion: 0.14
-Nodes (37): ProcurementType, amend_requisition(), approve_requisition(), bulk_create_requisitions(), check_budget_availability(), convert_to_po(), convert_to_rfq(), create_requisition() (+29 more)
+Cohesion: 0.16
+Nodes (32): amend_requisition(), approve_requisition(), bulk_create_requisitions(), check_budget_availability(), convert_to_po(), convert_to_rfq(), create_requisition(), export_requisitions_csv() (+24 more)
 
 ### Community 313 - ".create"
 Cohesion: 0.16
 Nodes (12): BidStatusEnum, Any, AsyncSession, Decimal, UUID, Any, AsyncSession, UUID (+4 more)
 
-### Community 314 - "Badge"
-Cohesion: 0.06
-Nodes (67): AdminDashboardPage(), CategoryNode, ItemMasterManagementPage(), DeliveryLocationsManagementPage(), MasterDataHubPage(), FacilitiesLogisticsContent(), PLANT_TYPES, LineRow (+59 more)
+### Community 314 - "useEvaluation.ts"
+Cohesion: 0.15
+Nodes (21): AwardDraftItem, AwardRecommendationPage(), NegotiationPage(), EvaluationPage(), AwardDetail, AwardRecommendation, ComparativeStatement, CSLineRanking (+13 more)
 
 ### Community 315 - "integration/router.py"
 Cohesion: 0.08
 Nodes (54): get_erp_reconciliation(), get_integration_config(), get_integration_job_detail(), get_integration_stats(), inbound_erp_sync(), inbound_gateway_sync(), list_erp_mappings(), list_integration_jobs() (+46 more)
 
-### Community 316 - "test_analytics.py"
-Cohesion: 0.11
-Nodes (32): create_analytics_fixtures(), _override_get_db(), asyncio, AsyncSession, Decimal, UUID, Integration tests for SPEC_25 Analytics & Reporting: - S25-01: Procurement KPI…, MUST PASS: bu_scoped_user_cannot_see_other_bu_data. BU-scoped user sees only… (+24 more)
+### Community 316 - "create_checkpoint"
+Cohesion: 0.13
+Nodes (21): create_checkpoint(), dr_health(), get_dr_posture(), get_drill_detail(), list_checkpoints(), list_drills(), AsyncSession, get (+13 more)
 
 ### Community 317 - "test_invoice_payment.py"
-Cohesion: 0.15
-Nodes (28): InvoiceLineCreate, InvoiceSubmitRequest, DisputeMessageCreateRequest, DisputeResolveRequest, create_invoice_fixtures(), asyncio, AsyncSession, Integration tests for SPEC_15 Invoice & Payment: - S15-01: Invoice submission… (+20 more)
+Cohesion: 0.12
+Nodes (33): InvoiceLineCreate, InvoiceSubmitRequest, DisputeCreateRequest, DisputeMessageCreateRequest, DisputeResolveRequest, ErpPaymentWebhookRequest, async_check_invoice_aging(), Any (+25 more)
 
 ### Community 318 - "LiveBidRepository"
-Cohesion: 0.14
-Nodes (12): AuctionConnectionManager, Manages per-auction WebSocket connections + Redis pub/sub subscription., LiveBidRepository, AsyncSession, Decimal, UUID, Returns current L1 price across all vendors for this lot., Atomic Redis INCR for monotonic bid_sequence. Falls back to DB count. (+4 more)
+Cohesion: 0.10
+Nodes (22): LiveBidRepository, AsyncSession, Decimal, UUID, Returns current L1 price across all vendors for this lot., Atomic Redis INCR for monotonic bid_sequence. Falls back to DB count., Returns the lowest valid bid per vendor for this auction+lot, ordered by…, AuctionParticipant (+14 more)
 
 ### Community 319 - "contract/router.py"
-Cohesion: 0.04
-Nodes (102): activate_contract(), add_contract_clause(), add_contract_line(), add_contract_milestone(), amend_contract(), approve_contract(), complete_milestone(), complete_milestone_direct() (+94 more)
+Cohesion: 0.05
+Nodes (83): activate_contract(), add_contract_clause(), add_contract_line(), add_contract_milestone(), amend_contract(), approve_contract(), complete_milestone(), complete_milestone_direct() (+75 more)
 
-### Community 320 - "analytics/router.py"
-Cohesion: 0.10
-Nodes (50): detect_maverick_anomalies(), execute_custom_report(), export_csv(), export_excel(), ExportRequest, get_all_vendor_performance(), get_carbon_esg_footprint(), get_compliance() (+42 more)
+### Community 320 - "User"
+Cohesion: 0.07
+Nodes (77): detect_maverick_anomalies(), execute_custom_report(), export_csv(), export_excel(), ExportRequest, get_all_vendor_performance(), get_carbon_esg_footprint(), get_compliance() (+69 more)
 
 ### Community 321 - "BankVerificationAdapter"
-Cohesion: 0.17
-Nodes (7): BankVerificationAdapter, Any, UUID, Verify penny drop confirmation by matching the credited amount (₹1.00)., Bank Account and Penny Drop Verification Adapter. Validates Indian IFSC codes…, SPEC_20 & SPEC_15: PAN, GSTIN, and Bank Penny Drop Validation., TestStatutoryAndBankingAdapters
+Cohesion: 0.25
+Nodes (5): BankVerificationAdapter, Any, UUID, Verify penny drop confirmation by matching the credited amount (₹1.00)., Bank Account and Penny Drop Verification Adapter. Validates Indian IFSC codes…
 
 ### Community 322 - "AnalyticsService"
 Cohesion: 0.26
 Nodes (4): AnalyticsService, _current_fy(), Any, UUID
 
 ### Community 323 - "usePurchaseOrders.ts"
-Cohesion: 0.08
-Nodes (31): NewGRNPage(), GRNListPage(), PurchaseOrderDetailPage(), PurchaseOrdersListPage(), CreateAsnPage(), SupplierPODetailPage(), SupplierPurchaseOrdersPage(), useCreateAsn() (+23 more)
+Cohesion: 0.09
+Nodes (29): NewGRNPage(), GRNListPage(), PurchaseOrderDetailPage(), PurchaseOrdersListPage(), CreateAsnPage(), SupplierPODetailPage(), SupplierPurchaseOrdersPage(), useCreateAsn() (+21 more)
 
 ### Community 324 - "admin-portal/public/manifest.json"
 Cohesion: 0.15
@@ -1442,57 +1445,53 @@ Nodes (4): Frontend Wiring Coverage, SPEC_13 Requirement Coverage Matrix, SPEC A
 Cohesion: 0.15
 Nodes (12): background_color, categories, description, display, icons, business, productivity, name (+4 more)
 
-### Community 327 - "UserSession"
-Cohesion: 0.16
-Nodes (9): UserSession, AsyncSession, datetime, UUID, SessionRepository, asyncio, Repository layer tests — UserRepository, SessionRepository, RoleRepository.…, TestSessionRepository (+1 more)
+### Community 327 - "SessionRepository"
+Cohesion: 0.17
+Nodes (7): AsyncSession, datetime, UUID, SessionRepository, asyncio, TestSessionRepository, TestVendorRepository
 
 ### Community 328 - "STEP 2 — IMPLEMENT"
 Cohesion: 0.06
 Nodes (34): 2.10 `app/modules/ticket/fsm.py`, 2.11 `app/modules/ticket/sla_service.py`, 2.12 `app/modules/ticket/mention_parser.py`, 2.13 `app/modules/ticket/service.py` — TicketService, 2.14 `app/modules/ticket/router.py` — Full Router, 2.15 Register Router in `app/main.py`, 2.16 `app/tasks/ticket_sla.py` — Three Celery Tasks, 2.17 Update Beat Schedule in `app/tasks/celery_app.py` (+26 more)
 
-### Community 329 - "analytics/schemas.py"
-Cohesion: 0.07
-Nodes (36): ApprovalBottleneckItem, CarbonCategoryBreakdown, CarbonFootprintResponse, CategoryEmissionFactorCreate, CategoryEmissionFactorItem, ComplianceAuditResponse, CustomReportFilter, CustomReportRequest (+28 more)
+### Community 329 - "buyer-portal/app/(main)/invoices/[id]/page.tsx"
+Cohesion: 0.13
+Nodes (14): InvoiceDetailPage(), SupplierInvoiceDetailPage(), useInvoice(), useMatchInvoice(), useRejectInvoice(), PaymentSchedule(), PaymentScheduleInvoiceData, PaymentScheduleProps (+6 more)
 
 ### Community 331 - ".create"
 Cohesion: 0.27
 Nodes (8): PoStatusEnum, Any, AsyncSession, Decimal, UUID, Any, AsyncSession, UUID
 
 ### Community 332 - "test_contract.py"
-Cohesion: 0.11
-Nodes (38): can_transition(), get_allowed_transitions(), _normalize_status(), ContractStatusEnum, Contract Lifecycle Finite State Machine (FSM). SPEC_13 S13-02: Defines allowed…, validate_contract_transition(), ContractAmendRequest, ContractCreateRequest (+30 more)
+Cohesion: 0.12
+Nodes (36): ContractAmendRequest, ContractCreateRequest, ContractFromAwardRequest, ContractLineCreate, ContractMilestoneCreate, async_check_contract_expiry(), Any, Core contract expiry and auto-renewal check logic. Returns counts of alerts… (+28 more)
 
 ### Community 333 - "supplier-portal/public/manifest.json"
 Cohesion: 0.15
 Nodes (12): background_color, categories, description, display, icons, business, name, orientation (+4 more)
 
-### Community 334 - "grn/router.py"
-Cohesion: 0.10
-Nodes (41): create_asn(), dispatch_asn(), fast_grn_intake(), get_asn(), health(), list_asns(), AsnCreateRequest, AsnDispatchPayload (+33 more)
+### Community 334 - "_to_asn_response"
+Cohesion: 0.18
+Nodes (19): create_asn(), dispatch_asn(), fast_grn_intake(), get_asn(), health(), list_asns(), AsnCreateRequest, AsnDispatchPayload (+11 more)
 
 ### Community 335 - "🚀 Beginner's Complete Guide to Git, GitHub, Branching & CI/CD"
-Cohesion: 0.17
-Nodes (10): 1. Core Concepts: What are Git, GitHub, and CI/CD?, 2. The Branching Strategy: Which Branch Do I Use?, 6. Common Mistakes to Avoid & How to Recover, 7. Daily Git Command Cheatsheet, 🚀 Beginner's Complete Guide to Git, GitHub, Branching & CI/CD, 🌳 Branch Types & Rules:, ❌ Mistake 1: Committing sensitive files (`.env`, `keys/private.pem`), ❌ Mistake 2: Accidentally editing code directly on `main` or `develop` (+2 more)
+Cohesion: 0.13
+Nodes (15): 1. Core Concepts: What are Git, GitHub, and CI/CD?, 2. The Branching Strategy: Which Branch Do I Use?, 3. Who Gets What Link? (Devs, Testers, Clients), 6. Common Mistakes to Avoid & How to Recover, 7. Daily Git Command Cheatsheet, 🚀 Beginner's Complete Guide to Git, GitHub, Branching & CI/CD, 🌳 Branch Types & Rules:, ❌ Mistake 1: Committing sensitive files (`.env`, `keys/private.pem`) (+7 more)
 
 ### Community 336 - "catalog/service.py"
 Cohesion: 0.07
-Nodes (59): add_item_to_cart(), checkout_cart_to_pr(), create_punchout_config(), get_cart(), health(), launch_punchout_session(), list_punchout_configs(), process_punchout_callback() (+51 more)
+Nodes (48): CartItem, CatalogTierPricing, PunchoutConfig, PunchoutSession, UserCart, CartItemRepository, CatalogTierPricingRepository, PunchoutConfigRepository (+40 more)
 
-### Community 337 - "GSTAdapter"
-Cohesion: 0.16
-Nodes (5): GSTAdapter, Any, GSTN Portal verification adapter supporting live Taxpayer API, caching, and…, PANAdapter, Any
+### Community 337 - "ENTERPRISE_HANDOVER_MANUAL.md"
+Cohesion: 0.11
+Nodes (17): 1-Click Persona Simulator, 1. Executive & Managerial Overview, 1. Modal & Popup Table Scroll Containment, 2. Action Button Throttling & Double-Click Guards, 2. End-to-End Enterprise Architecture, 3. Persona Control Deck & Universal Super Admin, 3. Real-Time Notification Pipeline, 5. Frontend & Performance Hardening Reference (+9 more)
 
 ### Community 338 - "contract/service.py"
 Cohesion: 0.23
 Nodes (14): ContractClauseCreate, ContractRedlineCreate, ContractRedlineReviewRequest, InitiateSigningCeremonyRequest, SubmitDigitalSignatureRequest, Minio, Contract Management Service (SPEC_13 S13-01 to S13-17). Handles contract…, asyncio (+6 more)
 
-### Community 339 - "test_pr_workflows.py"
-Cohesion: 0.19
-Nodes (16): create_pr_workflow_fixtures(), asyncio, AsyncSession, UUID, Workflow tests for Purchase Requisition (SPEC_08) and Unmapped PR (SPEC_09).…, PR submit evaluates approval rules and initiates workflow engine., Maker-checker rule strictly prevents creator from approving their own PR., When no approval rules match, PR remains in SUBMITTED status and raises… (+8 more)
-
 ### Community 340 - "seed_enterprise_extensions.py"
-Cohesion: 0.08
-Nodes (60): Base, Database definitions., MaverickSpendCluster, ApprovalRuleVersion, Immutable snapshot of an approval rule at activation time. Created on…, AsnLine, AuctionRankSnapshot, BidDocument (+52 more)
+Cohesion: 0.06
+Nodes (59): AiRfqDraft, Base, Database definitions., AiRfqDraft, NegotiationRound, NegotiationSession, SupplierRadarScore, AiRfqDraftRepository (+51 more)
 
 ### Community 341 - "SPEC_14 AUDIT REPORT — Purchase Order & GRN Modules"
 Cohesion: 0.40
@@ -1504,27 +1503,27 @@ Nodes (18): 1. Executive Summary, 2. Category Summary Matrix, 3. Granular Module
 
 ### Community 344 - "invoice/service.py"
 Cohesion: 0.07
-Nodes (38): GoodsReceiptNote, GrnLine, GrnRepository, AsyncSession, GrnFilterParams, UUID, Goods Receipt Note (GRN) Repository (SPEC_14 / SPEC_17). Provides database…, Repository for GRN operations. (+30 more)
+Nodes (39): GoodsReceiptNote, GrnLine, QualityInspection, GrnRepository, AsyncSession, GrnFilterParams, UUID, Goods Receipt Note (GRN) Repository (SPEC_14 / SPEC_17). Provides database… (+31 more)
 
 ### Community 346 - "useIntegrations.ts"
 Cohesion: 0.15
 Nodes (19): IntegrationJobDetailPage(), IntegrationMonitorPage(), IntegrationSettingsPage(), ERPConfig, ERPConfigUpdatePayload, IntegrationJob, IntegrationJobFilterParams, IntegrationStats (+11 more)
 
 ### Community 347 - "._make_pr"
-Cohesion: 0.24
-Nodes (4): integration, TestRequisitionRouter, fixture, requisition_service()
+Cohesion: 0.13
+Nodes (9): AsyncSession, datetime, Requisition, UUID, RequisitionRepository, integration, TestRequisitionRouter, fixture (+1 more)
 
-### Community 348 - "ai_sourcing/service.py"
-Cohesion: 0.10
-Nodes (36): AiRfqDraft, AiRfqDraft, NegotiationRound, NegotiationSession, SupplierRadarScore, AiRfqDraftRepository, NegotiationRoundRepository, NegotiationSessionRepository (+28 more)
+### Community 348 - "master_data/models.py"
+Cohesion: 0.09
+Nodes (41): AiRfqDraftResponse, AnomalyFlag, CalculateRadarScoresRequest, ConvertDraftToRfqRequest, ConvertDraftToRfqResponse, GenerateSmartRfqRequest, NegotiationRoundResponse, NegotiationSessionResponse (+33 more)
 
 ### Community 349 - "notification_digest.py"
 Cohesion: 0.18
 Nodes (13): get_db_ctx(), auction_ws_endpoint(), AsyncSession, UUID, WebSocket, compile_notification_digests(), compile_notification_digests_async(), is_digest_excluded() (+5 more)
 
 ### Community 350 - "IntegrationService"
-Cohesion: 0.19
-Nodes (12): IntegrationService, Any, AsyncSession, ERPEntityMapping, IntegrationJob, ScheduledJobRun, UUID, Service layer for managing ERP & External Integrations. (+4 more)
+Cohesion: 0.21
+Nodes (11): IntegrationService, Any, AsyncSession, ERPEntityMapping, IntegrationJob, ScheduledJobRun, UUID, Service layer for managing ERP & External Integrations. (+3 more)
 
 ### Community 351 - ".switch_company_context"
 Cohesion: 0.21
@@ -1543,12 +1542,12 @@ Cohesion: 0.31
 Nodes (6): DRRepository, AsyncSession, DRBackupCheckpoint, DRFailoverDrill, UUID, Returns (total_count, worm_locked_count, total_size_bytes).
 
 ### Community 355 - "notification/router.py"
-Cohesion: 0.08
-Nodes (44): create_notification_template(), delete_notification_template(), dispatch_test_notification(), get_notification_preferences(), get_notification_template(), get_notifications(), list_notification_templates(), mark_all_notifications_read() (+36 more)
+Cohesion: 0.09
+Nodes (41): create_notification_template(), delete_notification_template(), dispatch_test_notification(), get_notification_preferences(), get_notification_template(), get_notifications(), list_notification_templates(), mark_all_notifications_read() (+33 more)
 
 ### Community 356 - "PaymentService"
-Cohesion: 0.14
-Nodes (14): PaymentService, Any, AsyncSession, DisputeMessageCreateRequest, DisputeResolveRequest, PaymentFilterParams, PaymentProcessRequest, UUID (+6 more)
+Cohesion: 0.13
+Nodes (15): PaymentService, Any, AsyncSession, DisputeMessageCreateRequest, DisputeResolveRequest, PaymentFilterParams, PaymentProcessRequest, UUID (+7 more)
 
 ### Community 357 - "dependencies"
 Cohesion: 0.12
@@ -1598,9 +1597,9 @@ Nodes (6): AsyncSession, UUID, WorkflowInstance, WorkflowTask, Return all PENDIN
 Cohesion: 0.33
 Nodes (5): 1. SPEC_10 Requirements Audit Matrix, 2. SPEC_11 Requirements Audit Matrix, 3. Frontend Implementation & UI Usability Audit, 4. Summary Score, SPEC AUDIT REPORT — SPEC_10 (RFQ Lifecycle) & SPEC_11 (Bid Management)
 
-### Community 371 - ".log"
-Cohesion: 0.23
-Nodes (11): AuditService, Any, AsyncSession, datetime, UUID, Search and list audit logs using Elasticsearch or SQL fallback., Run cryptographic SHA-256 chain of custody verification across audit records., Generate tamper-evident compliance audit export with cryptographic hash… (+3 more)
+### Community 371 - "encrypt_field"
+Cohesion: 0.19
+Nodes (11): decrypt_field(), encrypt_field(), get_fernet(), Encrypt a string field. Returns base64-encoded ciphertext string., Decrypt a previously encrypted field., Fernet, SPEC_04 § 13.1 — PAN, GSTIN, bank account, TOTP secret must be encrypted at…, TestFieldEncryptionSecurity (+3 more)
 
 ### Community 372 - "SPEC AUDIT REPORT — SPEC_07: Vendor Management"
 Cohesion: 0.40
@@ -1631,20 +1630,20 @@ Cohesion: 0.50
 Nodes (3): 1. Requirement Traceability Matrix, 2. Coverage Summary, SPEC AUDIT REPORT — SPEC_20: ERP & External Integrations Monitor & On-Demand Sync
 
 ### Community 379 - "test_config.py"
-Cohesion: 0.12
-Nodes (17): get_settings(), field_validator, Settings, AsyncSession, UUID, user_has_permission(), BaseSettings, Stub returns True for non-permanently-denied permissions. (+9 more)
+Cohesion: 0.20
+Nodes (12): get_settings(), field_validator, Settings, BaseSettings, env_setup(), fixture, test_all_celery_intervals_accessible(), test_cors_origins() (+4 more)
 
 ### Community 380 - "PurchaseOrderService"
 Cohesion: 0.23
-Nodes (11): validate_po_transition(), PurchaseOrderService, Any, AsyncSession, POAmendRequest, POCreateRequest, POFilterParams, POFromAwardRequest (+3 more)
+Nodes (10): PurchaseOrderService, Any, AsyncSession, POAmendRequest, POCreateRequest, POFilterParams, POFromAwardRequest, UUID (+2 more)
 
 ### Community 381 - "SPEC_16 AUDIT REPORT — Notification Service"
 Cohesion: 0.40
 Nodes (4): 1. Requirement Coverage Matrix, 2. Coverage Summary, 3. Test Verification, SPEC_16 AUDIT REPORT — Notification Service
 
-### Community 382 - "test_end_to_end_connected_flow.py"
-Cohesion: 0.05
-Nodes (81): POStatus, ApprovalRule, Any, datetime, setter, UUID, Approval Rules Models — ApprovalRule + ApprovalRuleVersion. Matches PostgreSQL…, Approval routing rule — maps entity + conditions → workflow template / approval… (+73 more)
+### Community 382 - "purchase_order/service.py"
+Cohesion: 0.10
+Nodes (54): POStatus, AsnCreateRequest, AsnFilterParams, AsnLineCreate, GrnCreateRequest, GrnLineCreate, QualityInspectionCreate, can_transition() (+46 more)
 
 ### Community 384 - "package.json"
 Cohesion: 0.22
@@ -1656,11 +1655,11 @@ Nodes (14): Notification, NotificationTemplate, NotificationPreferenceRepository
 
 ### Community 386 - "test_tasks_coverage.py"
 Cohesion: 0.07
-Nodes (40): on_worker_process_init(), Dispose parent connection pools, engines, and async loops in child workers…, task, Daily Celery task to fetch latest exchange rates and update cache + DB., refresh_exchange_rates(), _async_check_sla(), check_slas(), check_workflow_sla_timers() (+32 more)
+Nodes (46): RoleCode, _async_process_due_jobs(), process_due_jobs(), task, Scheduled Celery task executing due integration jobs and retry queues every 60s., _async_generate_daily(), _async_generate_periodic(), _current_fy() (+38 more)
 
 ### Community 387 - "🛠️ Step-by-Step Local Setup"
-Cohesion: 0.25
-Nodes (8): Step 1 — Prerequisites & Environment, Step 3 — Generate RSA Keys (JWT Auth), Step 4 — Start Backing Services (Docker), Step 5 — Database Migrations & Messaging Setup, Step 6 — Seed Master Data & Create Superadmin, Step 7 (Alternative: Local / Hybrid Mode) — Start Application Services Locally, Step 7 (Docker Mode) — Start All Remaining Application Containers, 🛠️ Step-by-Step Local Setup
+Cohesion: 0.14
+Nodes (14): 2a — Minimum Required `.env` Values for Local Dev, 2b — JWT Authentication Key Paths, 2c — External Services (Optional for Local Dev), 2d — Sanity Check Before Continuing, Step 1 — Prerequisites & Environment, Step 2 — Configuration & Environment Variables (`.env`), Step 3 — Generate RSA Keys (JWT Auth), Step 4 — Start Backing Services (Docker) (+6 more)
 
 ### Community 388 - "erp_invoice.py"
 Cohesion: 0.36
@@ -1670,9 +1669,9 @@ Nodes (5): ERPInvoiceAdapter, Any, AsyncSession, UUID, Handles mapping, payload 
 Cohesion: 0.50
 Nodes (3): COVERAGE SUMMARY, SPEC_22 AUDIT REPORT — Observability & Monitoring, SPEC REQUIREMENTS & IMPLEMENTATION STATUS
 
-### Community 390 - "HRMSConsumer"
-Cohesion: 0.26
-Nodes (8): HRMSConsumer, Any, AsyncSession, UUID, Find pending workflow tasks assigned to the terminated user and reassign them., Create new portal user from HRMS employee profile., Consumer service handling inbound HRMS employee lifecycle webhooks and sync…, Handle employee termination from HRMS: 1. Set user status to TERMINATED 2.…
+### Community 390 - "enums.py"
+Cohesion: 0.07
+Nodes (44): ApprovalTaskStatus, ContractStatus, EvaluationType, IntegrationJobStatus, InvoiceStatus, NotificationChannel, NotificationStatus, PaymentStatus (+36 more)
 
 ### Community 391 - ".create"
 Cohesion: 0.27
@@ -1687,16 +1686,16 @@ Cohesion: 0.23
 Nodes (7): CompliancePolicyRepository, ComplianceScanRepository, AsyncSession, CompliancePolicy, ComplianceScan, UUID, ComplianceFinding
 
 ### Community 396 - "admin-portal/app/(main)/tickets/[id]/page.tsx"
-Cohesion: 0.11
-Nodes (41): AdminTicketsBoardPage(), COLUMNS, AdminTicketDetailPage(), BuyerTicketsBoardPage(), COLUMNS, BuyerTicketDetailPage(), SupplierTicketDetailPage(), TicketCommentBox() (+33 more)
+Cohesion: 0.10
+Nodes (45): AdminTicketsBoardPage(), Column, COLUMNS, AdminTicketDetailPage(), AdminTicketsPage(), BuyerTicketsBoardPage(), Column, COLUMNS (+37 more)
 
 ### Community 397 - "NotificationService"
-Cohesion: 0.21
-Nodes (8): NotificationService, Any, AsyncSession, NotificationChannelEnum, UUID, Dispatch notification across configured channels adhering to user preferences &…, Service layer managing notification dispatch, channels, preferences, and…, Render string using Jinja2 with robust fallback.
+Cohesion: 0.19
+Nodes (10): NotificationPreferenceItem, NotificationResponse, NotificationService, Any, AsyncSession, NotificationChannelEnum, UUID, Dispatch notification across configured channels adhering to user preferences &… (+2 more)
 
 ### Community 398 - "usePayments.ts"
-Cohesion: 0.19
-Nodes (12): BuyerDisputeInboxPage(), SupplierDisputeInboxPage(), PaymentFilterParams, useAddDisputeMessage(), useDisputes(), useResolveDispute(), DisputeCreateRequest, DisputeMessageCreateRequest (+4 more)
+Cohesion: 0.14
+Nodes (18): BuyerDisputeInboxPage(), BuyerPaymentsPage(), SupplierDisputeInboxPage(), SupplierPaymentsPage(), PaymentFilterParams, useAddDisputeMessage(), useDisputes(), useDownloadRemittancePDF() (+10 more)
 
 ### Community 399 - "devDependencies"
 Cohesion: 0.22
@@ -1719,7 +1718,7 @@ Cohesion: 0.25
 Nodes (8): scripts, build, clean, dev, generate:types, lint, test, typecheck
 
 ### Community 404 - "useCompliancePosture.ts"
-Cohesion: 0.18
+Cohesion: 0.26
 Nodes (12): useComplianceLatest(), useCompliancePolicies(), useComplianceScans(), useGenerateComplianceAttestation(), useRunComplianceScan(), useToggleCompliancePolicy(), ComplianceAttestation, ComplianceFinding (+4 more)
 
 ### Community 405 - "SPEC_20 AUDIT REPORT — Integration Layer & Hub"
@@ -1731,12 +1730,12 @@ Cohesion: 0.50
 Nodes (3): name, private, version
 
 ### Community 408 - "RazorpayPaymentAdapter"
-Cohesion: 0.09
-Nodes (12): Any, Decimal, Cryptographically verify Razorpay webhook signature using HMAC-SHA256. Header…, Extract normalized payout/payment status, reference, and UTR from webhook…, Razorpay Payouts & Payment Gateway Execution Adapter with HMAC Webhook…, Execute live bank transfer payout via RazorpayX. Amount is converted to paise…, RazorpayPaymentAdapter, integration (+4 more)
+Cohesion: 0.15
+Nodes (10): Any, Decimal, Cryptographically verify Razorpay webhook signature using HMAC-SHA256. Header…, Extract normalized payout/payment status, reference, and UTR from webhook…, Razorpay Payouts & Payment Gateway Execution Adapter with HMAC Webhook…, Execute live bank transfer payout via RazorpayX. Amount is converted to paise…, RazorpayPaymentAdapter, integration (+2 more)
 
 ### Community 409 - "config.py"
-Cohesion: 0.04
-Nodes (97): AbstractEventLoop, AuditEntityType, BidStatus, publish_outbox(), publish_outbox_messages(), task, Celery task: poll outbox_messages and publish to RabbitMQ., OutboxPublisher (+89 more)
+Cohesion: 0.06
+Nodes (47): AbstractEventLoop, publish_outbox(), publish_outbox_messages(), task, Celery task: poll outbox_messages and publish to RabbitMQ., _async_refresh(), _current_fy(), task (+39 more)
 
 ### Community 423 - "item/service.py"
 Cohesion: 0.27
@@ -1747,8 +1746,8 @@ Cohesion: 0.23
 Nodes (7): e2e, Persona 1: Buyer creates requisitions, checks budget, and initiates RFQ., Persona 2: Approver inspects pending task inbox and evaluates sign-offs., Persona 3: Supplier accesses assigned bids, orders, and invoice submissions., Persona 4: System Admin verifies master data, cryptographic audit chain, and…, Comprehensive persona walkthrough across Buyer, Approver, Supplier, and Admin…, TestEndToEndPersonaQA
 
 ### Community 425 - "TestPermanentlyDeniedPermissions"
-Cohesion: 0.12
-Nodes (12): asyncio, SPEC_04 § 6 — brute-force lockout after 5 failed attempts., Incrementing fail count and checking against limit., Locked account raises AppException with ACCOUNT_LOCKED code., Simulates 5 failure increments then lockout check., SPEC_04 § 10.1 — rfq.view_bids_before_opening is PERMANENTLY denied., This permission must be in PERMANENTLY_DENIED_PERMISSIONS regardless of role., The denied set should contain the critical permission. (+4 more)
+Cohesion: 0.10
+Nodes (13): asyncio, SPEC_04 § 6 — brute-force lockout after 5 failed attempts., Incrementing fail count and checking against limit., Locked account raises AppException with ACCOUNT_LOCKED code., Simulates 5 failure increments then lockout check., When a revoked token is reused, all sessions must be revoked., SPEC_04 § 10.1 — rfq.view_bids_before_opening is PERMANENTLY denied., This permission must be in PERMANENTLY_DENIED_PERMISSIONS regardless of role. (+5 more)
 
 ### Community 426 - ".create"
 Cohesion: 0.36
@@ -1759,16 +1758,16 @@ Cohesion: 0.19
 Nodes (13): Any, ApprovalRule, AsyncSession, UUID, Evaluate all active rules for entity_type in priority order (ascending = higher…, Evaluate all active rules, resolve priority & specificity ties, and return…, Detect priority conflicts: two active rules with same entity_type and priority.…, Activate a rule. Blocks if priority conflicts exist. Creates an immutable… (+5 more)
 
 ### Community 428 - "SafeHTTPClient"
-Cohesion: 0.07
-Nodes (33): Any, AsyncSession, Response, UUID, Factory method to instantiate a SafeHTTPClient populated with tenant allowed…, HTTP client with strict SSRF prevention and tenant-scoped domain allowlisting., Check if hostname is an IP belonging to private or metadata subnets., Validate URL against scheme, loopback/private IPs, and allowed domain list. (+25 more)
+Cohesion: 0.09
+Nodes (25): Any, AsyncSession, Response, UUID, Factory method to instantiate a SafeHTTPClient populated with tenant allowed…, HTTP client with strict SSRF prevention and tenant-scoped domain allowlisting., Check if hostname is an IP belonging to private or metadata subnets., Validate URL against scheme, loopback/private IPs, and allowed domain list. (+17 more)
 
 ### Community 429 - "test_db_session.py"
 Cohesion: 0.16
 Nodes (14): asyncio, Unit tests for app.db.session, app.db.enums, and PgBouncer configuration., Verify PgBouncer configuration exists in docker and k8s and conforms to SPEC_03., Verify get_db yields session and commits on success., Verify get_db rolls back session if an exception occurs., Verify get_db_ctx context manager yields session and commits., Verify get_db_with_rls sets app.current_org_id before yielding., Verify all 20+ ENUM types from SPEC_03 Section 2 are properly declared. (+6 more)
 
-### Community 430 - "einvoicing/service.py"
-Cohesion: 0.15
-Nodes (21): CancelEInvoiceRequest, EInvoiceResponse, EWayBillResponse, GenerateEInvoiceRequest, GenerateEWayBillRequest, EInvoicingService, Any, AsyncSession (+13 more)
+### Community 430 - "AdvanceShippingNotice"
+Cohesion: 0.08
+Nodes (35): AdvanceShippingNotice, AsnRepository, AsnFilterParams, AsyncSession, UUID, Repository for Advance Shipping Notices., AsnService, AsnCreateRequest (+27 more)
 
 ### Community 432 - "EvaluationService"
 Cohesion: 0.28
@@ -1783,20 +1782,20 @@ Cohesion: 0.33
 Nodes (5): 1. Executive Summary & Verification Baseline, 2. Comprehensive Spec-by-Spec Implementation Audit (Modules 01–25), 3. Action Items to Bridge the Gap to 100% Usability, Comprehensive Spec Implementation, Frontend Wiring & Usability Audit Report, Current System Health & Baseline Verification
 
 ### Community 437 - "create_test_org_and_user"
-Cohesion: 0.16
-Nodes (18): create_test_org_and_user(), get_test_db_session(), asyncio, AsyncSession, Digest task aggregates pending digest notifications and sends single email., User preference email_enabled=False results in no email notification., Critical notifications (e.g. approval_sla_escalation) bypass muted preferences., Test full HTTP notification lifecycle: list, mark read, mark all read,… (+10 more)
+Cohesion: 0.12
+Nodes (23): create_test_org_and_user(), get_test_db_session(), asyncio, AsyncSession, UUID, InAppChannel.send() publishes notification payload to correct Redis channel., WhatsApp channel returns 202 with stub warning log., Digest task aggregates pending digest notifications and sends single email. (+15 more)
 
 ### Community 441 - "test_notifications.py"
-Cohesion: 0.10
-Nodes (26): ExternalServiceError, EmailChannel, Any, UUID, SendGrid email dispatch channel., InAppChannel, Any, UUID (+18 more)
+Cohesion: 0.11
+Nodes (21): ExternalServiceError, EmailChannel, Any, UUID, SendGrid email dispatch channel., InAppChannel, Any, UUID (+13 more)
 
 ### Community 442 - "AsyncSession"
 Cohesion: 0.33
 Nodes (6): EInvoiceRepository, EWayBillRepository, AsyncSession, UUID, EInvoice, EWayBill
 
-### Community 444 - "Step 2 — Configuration & Environment Variables (`.env`)"
-Cohesion: 0.33
-Nodes (6): 2a — Minimum Required `.env` Values for Local Dev, 2b — JWT Authentication Key Paths, 2c — External Services (Optional for Local Dev), 2d — Sanity Check Before Continuing, Step 2 — Configuration & Environment Variables (`.env`), Understanding the Template
+### Community 444 - "asyncio"
+Cohesion: 0.23
+Nodes (6): CategoryCreateRequest, IncotermCreateRequest, asyncio, Creating category at level 6 raises MAX_DEPTH_EXCEEDED., TestCategoryService, TestIncotermEndpoints
 
 ### Community 445 - "useLogin"
 Cohesion: 0.17
@@ -1807,40 +1806,40 @@ Cohesion: 0.33
 Nodes (5): 1. Context & Scope, 2. Assumptions Log, 3. Implementation Steps, Implementation Plan: Deep Code Analysis, Bug Fixes, Performance & Container Optimizations, Scope:
 
 ### Community 447 - "compute_record_hash"
-Cohesion: 0.17
-Nodes (13): compute_payload_digest(), compute_record_hash(), Any, UUID, Verify chronological sequence of audit logs for cryptographic tampering or…, Generate deterministic SHA-256 digest of JSON-serializable dictionary., Compute cryptographic SHA-256 chain hash for an audit record. Ensures tamper-…, Resolve IP address to geolocation and ISP classification. Safely differentiates… (+5 more)
+Cohesion: 0.06
+Nodes (29): compute_payload_digest(), compute_record_hash(), Any, UUID, Verify chronological sequence of audit logs for cryptographic tampering or…, Generate deterministic SHA-256 digest of JSON-serializable dictionary., Compute cryptographic SHA-256 chain hash for an audit record. Ensures tamper-…, Resolve IP address to geolocation and ISP classification. Safely differentiates… (+21 more)
 
 ### Community 449 - "success_response"
-Cohesion: 0.05
-Nodes (88): success_response(), get_dr_posture(), get_drill_detail(), list_checkpoints(), list_drills(), get, List disaster recovery failover drill history with RPO/RTO metrics., Retrieve detailed drill audit report and execution step phases. (+80 more)
+Cohesion: 0.04
+Nodes (110): success_response(), calculate_supplier_radar_scores(), convert_draft_to_rfq(), generate_smart_rfq(), get_negotiation_session(), health(), list_negotiation_sessions(), list_smart_rfq_drafts() (+102 more)
 
 ### Community 450 - "OracleAdapter"
 Cohesion: 0.35
 Nodes (4): OracleAdapter, Any, UUID, Oracle ERP Cloud & E-Business Suite (EBS) REST Adapter.
 
 ### Community 452 - "RoleRepository"
-Cohesion: 0.22
-Nodes (6): AsyncSession, UUID, RoleRepository, TestRoleRepository, asyncio, TestSuperAdminRoleBypass
+Cohesion: 0.19
+Nodes (7): AsyncSession, UUID, RoleRepository, Repository layer tests — UserRepository, SessionRepository, RoleRepository.…, TestRoleRepository, asyncio, TestSuperAdminRoleBypass
 
 ### Community 453 - "procurement-portal-frontend/package.json"
 Cohesion: 0.33
 Nodes (5): engines, node, name, packageManager, private
 
-### Community 454 - "enums.py"
-Cohesion: 0.03
-Nodes (109): get_current_user(), get_current_user_ws(), get_optional_current_user(), AsyncSession, Request, WebSocket, 7-step auth pipeline: validate token → check user → check session → inactivity., Returns the authenticated user if valid, or None if unauthenticated. (+101 more)
+### Community 454 - "main.py"
+Cohesion: 0.04
+Nodes (111): get_current_user(), get_current_user_ws(), get_optional_current_user(), AsyncSession, Request, WebSocket, Dependency factory: ensures user has a specific permission., Dependency factory: ensures user has AT LEAST ONE of the specified permissions. (+103 more)
 
 ### Community 455 - "types/src/index.ts"
-Cohesion: 0.04
-Nodes (68): AsnDetailPage(), AsnFilterParams, useAsn(), useDispatchAsn(), CatalogSearchParams, useAddToCart(), useCartCheckout(), useCatalogSearch() (+60 more)
+Cohesion: 0.03
+Nodes (64): AsnDetailPage(), AsnFilterParams, useAsn(), useDispatchAsn(), GrnFilterParams, NotificationsListResponse, NotificationTemplatesResponse, components (+56 more)
 
 ### Community 456 - "🛒 BUYER PORTAL — Complete Feature Audit"
 Cohesion: 0.17
 Nodes (12): Analytics, Authentication, 🛒 BUYER PORTAL — Complete Feature Audit, Contracts, GRN (Goods Receipt Notes), Invoices, Payments, Purchase Orders (+4 more)
 
 ### Community 457 - "test_document_scanner.py"
-Cohesion: 0.09
-Nodes (16): ClamAVScanner, Sanitizes filename by stripping path traversal characters, null bytes,…, Scans a file using the clamscan CLI utility. Returns (is_clean: bool,…, Asynchronous ClamAV client using the standard clamd INSTREAM protocol., Check if ClamAV daemon is reachable and responding to PING., Scan a byte payload for malware. Returns: (is_clean: bool, detail: str) -…, Validates file magic bytes against disallowed executable types and declared…, sanitize_filename() (+8 more)
+Cohesion: 0.12
+Nodes (13): ClamAVScanner, Scans a file using the clamscan CLI utility. Returns (is_clean: bool,…, Asynchronous ClamAV client using the standard clamd INSTREAM protocol., Check if ClamAV daemon is reachable and responding to PING., Scan a byte payload for malware. Returns: (is_clean: bool, detail: str) -…, Validates file magic bytes against disallowed executable types and declared…, scan_with_clamav(), validate_file_magic() (+5 more)
 
 ### Community 458 - "test_ticket_visibility.py"
 Cohesion: 0.12
@@ -1850,40 +1849,40 @@ Nodes (29): AsyncClient, asyncio, AsyncSession, fixture, security, Auth headers 
 Cohesion: 0.50
 Nodes (3): 1. Requirement Traceability Matrix, 2. Coverage Summary, SPEC AUDIT REPORT — SPEC_26: Ticket & Query Management System
 
-### Community 462 - "vendor/service.py"
-Cohesion: 0.23
-Nodes (12): BulkVendorCategoryMappingItem, BulkVendorCategoryMappingResponse, DuplicateCheckResult, DuplicateMatch, VendorKYCReviewRequest, VendorSelfRegistrationRequest, db_session(), asyncio (+4 more)
+### Community 462 - "Enterprise Cross-Portal Synchronicity & Comprehensive Workflow Audit Report"
+Cohesion: 0.12
+Nodes (13): 1. Cross-Portal Synchronicity Architecture, 2. End-to-End Workflow Verification (9 Phases), 3. Comprehensive Portal Feature & Tab Breakdown, 4. Cross-Portal State Invalidation Engine, 5. Production Readiness & Quality Assurance Sign-Off, A. Buyer Portal (`http://localhost:3000`), Automated Verification Matrix, B. Supplier Portal (`http://localhost:3001`) (+5 more)
 
 ### Community 467 - "Performance Code Optimization Audit Report"
 Cohesion: 0.50
 Nodes (3): Coverage & Verification Matrix, Overall Summary, Performance Code Optimization Audit Report
 
-### Community 470 - "idempotency.py"
-Cohesion: 0.25
-Nodes (8): check_idempotency(), IdempotencyMiddleware, Any, Redis, Check if an idempotency key exists in Redis (or in-memory fallback)., Store idempotency key result in Redis (and in-memory fallback)., Pure ASGI idempotency middleware (no BaseHTTPMiddleware generator overhead).…, store_idempotency()
+### Community 470 - "4. Step-by-Step Operational Manuals"
+Cohesion: 0.13
+Nodes (15): 4. Step-by-Step Operational Manuals, Module A: Purchase Requisitions & PunchOut Catalogs, Module B: Approval Workflows, Delegation & Batch Actions, Module C: Strategic Sourcing, Reverse Auctions & Awarding, Module D: Supplier Portal, Sealed Bids & ASNs, Module E: Dock Receiving, Scanning & Quality Inspection, Module F: Invoice 3-Way / 4-Way Match & Discrepancy Reconciliation, Module G: System Administration, SLAs, & Audit Trails (+7 more)
 
 ### Community 471 - "🏢 S2P Procurement Portal — Full Platform Audit Report"
 Cohesion: 0.22
 Nodes (8): 🚀 Deployment Verification Checklist, 📊 Executive Summary, 📝 Final Verdict, 🏆 Module Coverage Summary, 🏗️ Platform Architecture Overview, 🔄 S2P Master Workflow — End-to-End Flow, 🏢 S2P Procurement Portal — Full Platform Audit Report, 🌐 WebSocket & Real-Time Features
 
 ### Community 472 - "clear_and_seed_all.py"
-Cohesion: 0.16
-Nodes (19): clear_database(), clear_redis(), Master database reset and synchronous end-to-end seed orchestrator. Strictly…, Safely truncate all base tables excluding alembic_version and partition…, Flush all Redis keys to ensure clean cache and reset state., run_all_seeds(), seed(), AsyncSession (+11 more)
+Cohesion: 0.18
+Nodes (17): clear_database(), clear_redis(), Master database reset and synchronous end-to-end seed orchestrator. Strictly…, Safely truncate all base tables excluding alembic_version and partition…, Flush all Redis keys to ensure clean cache and reset state., run_all_seeds(), seed(), seed_data() (+9 more)
 
 ### Community 487 - "🔑 ADMIN PORTAL — Complete Feature Audit"
 Cohesion: 0.22
 Nodes (9): 🔑 ADMIN PORTAL — Complete Feature Audit, Approval Rules & Workflows, Authentication, Dashboard, Integrations, Master Data Hub (All 8 submodules), Observability & Audit, Tickets (Admin Configuration) (+1 more)
 
 ### Community 490 - "useInvoices.ts"
-Cohesion: 0.09
-Nodes (32): InvoiceDetailPage(), InvoicesListPage(), BuyerPaymentsPage(), SupplierInvoiceDetailPage(), FormInvoiceLine, NewInvoicePage(), SupplierInvoicesPage(), SupplierPaymentsPage() (+24 more)
+Cohesion: 0.13
+Nodes (21): InvoicesListPage(), FormInvoiceLine, NewInvoicePage(), SupplierInvoicesPage(), usePerformReconciliation(), useReconciliationDashboard(), InvoiceFilterParams, useApproveInvoice() (+13 more)
 
 ### Community 491 - "📋 Assumptions Log"
 Cohesion: 0.13
 Nodes (15): 📋 Assumptions Log, Current Session State, 📊 SPEC Audit: Advance Shipping Notices (ASN) & Warehouse Barcode Intake (2026-09-09), 📊 SPEC Audit: Advanced Workflow Rules & Delegation (2026-09-09), 📊 SPEC Audit: Analytics & Spend Cube (2026-09-09), 📊 SPEC Audit: Contract Management & Authoring (2026-09-09), 📊 SPEC Audit: Cross-Portal Synchronous Workflows & Gateway Routing (2026-09-10), 📊 SPEC Audit: End-to-End Persona QA & Multi-Portal (2026-09-09) (+7 more)
 
 ### Community 492 - "useEInvoicing.ts"
-Cohesion: 0.14
+Cohesion: 0.12
 Nodes (19): WarehouseBarcodeScanPage(), SupplierAsnsPage(), useAsns(), useFastGrnIntake(), useScanLookupAsn(), useCancelEInvoice(), useEInvoices(), useEWayBills() (+11 more)
 
 ### Community 493 - "purchase_order/pdf_generator.py"
@@ -1895,8 +1894,8 @@ Cohesion: 0.24
 Nodes (16): useCalculateRadarScores(), useConvertDraftToRfq(), useGenerateSmartRfq(), useNegotiationSession(), useNegotiationSessions(), useSmartRfqDrafts(), useStartBotNegotiation(), useSubmitNegotiationCounter() (+8 more)
 
 ### Community 495 - "payment/service.py"
-Cohesion: 0.16
-Nodes (14): Dispute, DisputeMessage, PaymentRecord, PaymentRepository, AsyncSession, PaymentFilterParams, UUID, PaymentFilterParams (+6 more)
+Cohesion: 0.22
+Nodes (10): Dispute, DisputeMessage, PaymentRecord, PaymentRepository, AsyncSession, PaymentFilterParams, UUID, PaymentFilterParams (+2 more)
 
 ### Community 496 - "🔁 CROSS-PORTAL SYNCHRONIZATION ANALYSIS"
 Cohesion: 0.29
@@ -1910,45 +1909,41 @@ Nodes (7): Invoices, Payments & Documents, Purchase Orders, Registration & Authe
 Cohesion: 0.43
 Nodes (6): do_run_migrations(), get_url(), Run migrations in 'offline' mode., Run migrations in 'online' mode., run_migrations_offline(), run_migrations_online()
 
-### Community 499 - "3. Who Gets What Link? (Devs, Testers, Clients)"
-Cohesion: 0.40
-Nodes (5): 3. Who Gets What Link? (Devs, Testers, Clients), Scenario A: Another Developer working with you on the *SAME* feature, Scenario B: Another Developer starting their *OWN* new feature, Scenario C: QA Engineer / Tester verifying your work, Scenario D: Product Manager, Executives, or Clients
+### Community 499 - "MasterDataImportService"
+Cohesion: 0.31
+Nodes (5): MasterDataImportService, AsyncSession, IntegrationJob, UUID, TestMasterDataImportService
 
-### Community 500 - "TestNotificationsMultiChannel"
-Cohesion: 0.14
-Nodes (5): integration, SPEC_22: Audit Trail API Endpoints., SPEC_16: Multi-Channel Real-Time Notifications & Preferences., TestAuditTrailRouterEndpoints, TestNotificationsMultiChannel
+### Community 501 - "WebhookDeliveryService"
+Cohesion: 0.23
+Nodes (8): Any, Outbound webhook delivery service with HMAC-SHA256 request signing., Compute HMAC-SHA256 hex digest for body with secret., Verify HMAC-SHA256 signature in X-Procurement-Signature header., Deliver payload to endpoint with X-Procurement-Signature header., WebhookDeliveryService, Verify HMAC-SHA256 signature in X-Procurement-Signature header., test_webhook_signature_valid()
 
-### Community 501 - "CarbonESGService"
-Cohesion: 0.29
-Nodes (8): CarbonESGService, AsyncSession, CategoryEmissionFactorCreate, SupplierESGScorecardUpdate, UUID, Service computing organizational Carbon Footprint (Scope 1, 2, 3), Supplier ESG…, CategoryEmissionFactorItem, SupplierESGScorecardItem
-
-### Community 502 - "validate_password_strength"
-Cohesion: 0.13
-Nodes (9): load_common_passwords(), mask_pii(), Returns masked value for logging. Never logs raw PII., validate_password_strength(), Unit tests for app.core.security — password hashing, validation, PII masking.…, Common passwords must be rejected if list is loaded., load_common_passwords should not raise even if file missing., TestMaskPII (+1 more)
+### Community 502 - "hash_password"
+Cohesion: 0.08
+Nodes (17): _BCryptContext, hash_password(), load_common_passwords(), mask_pii(), Returns masked value for logging. Never logs raw PII., validate_password_strength(), verify_password(), client() (+9 more)
 
 ### Community 503 - "BankVerificationAdapter"
 Cohesion: 0.33
 Nodes (3): BankVerificationAdapter, Any, UUID
 
 ### Community 504 - "document/service.py"
-Cohesion: 0.09
-Nodes (26): DocumentCategory, Document, DocumentVersion, DocumentRepository, AsyncSession, UUID, DocumentService, AsyncSession (+18 more)
+Cohesion: 0.11
+Nodes (19): DocumentCategory, Document, DocumentVersion, DocumentRepository, AsyncSession, UUID, DocumentService, AsyncSession (+11 more)
 
 ### Community 505 - "BaseModel"
-Cohesion: 0.06
-Nodes (44): BaseModel, AnomalyFlag, ComplianceAttestationResponse, ComplianceFindingResponse, CompliancePolicyBase, CompliancePolicyResponse, ComplianceScanResponse, ComplianceScanRunRequest (+36 more)
+Cohesion: 0.03
+Nodes (103): BaseModel, CarbonESGService, AsyncSession, CategoryEmissionFactorCreate, SupplierESGScorecardUpdate, UUID, Service computing organizational Carbon Footprint (Scope 1, 2, 3), Supplier ESG…, ApprovalBottleneckItem (+95 more)
 
-### Community 507 - "TicketSearchService"
-Cohesion: 0.24
-Nodes (5): Any, AsyncSession, datetime, UUID, TicketSearchService
+### Community 507 - "._sql_fallback_search"
+Cohesion: 0.57
+Nodes (3): Any, AsyncSession, UUID
 
 ### Community 509 - "TestPRApprovalWorkflowDefinition"
 Cohesion: 0.33
 Nodes (4): Test step condition evaluations for low-value, mid-value, and high-value capex…, Tests covering PR_APPROVAL template definition and condition expressions., Verify PR_APPROVAL template defines 4 sequential approval steps with correct…, TestPRApprovalWorkflowDefinition
 
-### Community 510 - "scheduled_reports.py"
-Cohesion: 0.33
-Nodes (8): _async_generate_daily(), _async_generate_periodic(), _current_fy(), generate_daily_analytics_report(), generate_monthly_analytics_report(), generate_weekly_analytics_report(), task, TestScheduledReportsTask
+### Community 510 - "TestApproverResolver"
+Cohesion: 0.29
+Nodes (3): asyncio, unit, TestApproverResolver
 
 ### Community 511 - "useERPGateway.ts"
 Cohesion: 0.33
@@ -1962,9 +1957,9 @@ Nodes (4): 1. Requirement Coverage Matrix, 2. Coverage Summary, 3. Test Verifica
 Cohesion: 0.17
 Nodes (3): POST /auth/refresh must exist (not 404/405)., End-to-end happy path with mocked service layer — endpoint must exist., TestAuthLoginEndpoint
 
-### Community 514 - "uuid4"
-Cohesion: 0.04
-Nodes (99): RFQStatus, BidLineSubmitRequest, BidSubmitRequest, InvalidRfqTransitionError, validate_rfq_transition(), AddParticipantsRequest, AmendRequest, CancelRequest (+91 more)
+### Community 514 - "sourcing/service.py"
+Cohesion: 0.07
+Nodes (58): RFQStatus, InvalidRfqTransitionError, validate_rfq_transition(), RfqParticipant, AmendRequest, BidCountResponse, CancelRequest, ClarificationCreateRequest (+50 more)
 
 ### Community 515 - "🔐 Auth & Security Cross-Portal Analysis"
 Cohesion: 0.50
@@ -1975,8 +1970,8 @@ Cohesion: 0.50
 Nodes (4): ⚙️ BACKEND API — Complete Module Audit, Core Infrastructure, Platform Services, Procurement Modules
 
 ### Community 517 - "get_redis_client"
-Cohesion: 0.11
-Nodes (23): get_redis_client(), get_redis_pool(), Redis, Get a Redis client sharing the singleton ConnectionPool for the given DB index., Retrieve or initialize a cached singleton ConnectionPool for the requested DB…, _get_result_backend_url(), ConnectionPool, clear_redis() (+15 more)
+Cohesion: 0.10
+Nodes (25): get_redis_client(), get_redis_pool(), Redis, Get a Redis client sharing the singleton ConnectionPool for the given DB index., Retrieve or initialize a cached singleton ConnectionPool for the requested DB…, _get_result_backend_url(), _async_refresh(), Fetch daily exchange rates; cache in Redis and persist to DB. (+17 more)
 
 ### Community 518 - "CustomERPAdapter"
 Cohesion: 0.35
@@ -1986,25 +1981,25 @@ Nodes (4): CustomERPAdapter, Any, UUID, Configurable Generic REST ERP Adapter fo
 Cohesion: 0.27
 Nodes (5): auth_headers(), ColoredLogger, get_token(), verify_cross_portal_sync.py Comprehensive End-to-End Cross-Portal Synchronicity…, run_cross_portal_verification()
 
-### Community 520 - "test_compliance_posture.py"
-Cohesion: 0.42
-Nodes (8): asyncio, AsyncSession, Integration tests for Option D: Enterprise Compliance & Security Posture…, seed_compliance_test_user(), test_compliance_policies_provisioning_and_toggle(), test_cryptographic_compliance_attestation(), test_historical_scans_listing(), test_run_live_compliance_scan_and_findings()
+### Community 520 - "Incident Troubleshooting Playbook (10 Common Scenarios)"
+Cohesion: 0.18
+Nodes (11): Incident Troubleshooting Playbook (10 Common Scenarios), Scenario 10: Container healthcheck failure after reboot, Scenario 1: User reports "Access Restricted" on a module they should have, Scenario 2: Notification bell does not show new approval alerts, Scenario 3: Reverse auction bids not updating in real time, Scenario 4: "Estimated amount exceeds available budget" error on PR submit, Scenario 5: Supplier cannot see tender prices after submission, Scenario 6: Invoice 3-Way Match shows "DISCREPANCY" (+3 more)
 
 ### Community 521 - "📋 Issues & Observations"
 Cohesion: 0.67
 Nodes (3): 📋 Issues & Observations, 🟡 Minor Observations (Non-Breaking / Future Enhancements), 🟢 Resolved Issues (Verified & Tested)
 
-### Community 523 - "stream_csv"
-Cohesion: 0.29
-Nodes (9): generate_table_pdf(), Any, StreamingResponse, Stream tabular rows as a downloadable CSV file., Stream in-memory PDF bytes as a downloadable PDF file., Generate professional PDF bytes from tabular data using ReportLab., stream_csv(), stream_pdf() (+1 more)
-
-### Community 524 - "HolidayRepository"
+### Community 523 - "sanitize_filename"
 Cohesion: 0.36
-Nodes (5): HolidayRepository, AsyncSession, date, HolidayMaster, UUID
+Nodes (3): Sanitizes filename by stripping path traversal characters, null bytes,…, sanitize_filename(), TestPathTraversalSanitization
 
-### Community 525 - "AuditSearchQuery"
-Cohesion: 0.29
-Nodes (6): AuditSearchQuery, asyncio, Verify that AuditSearchService indexes to monthly index and builds ES queries., Verify that AuditSearchService gracefully handles disabled state, connection…, test_audit_search_service_circuit_breaker_and_disabled(), test_audit_search_service_indexing_and_search()
+### Community 524 - "holiday/service.py"
+Cohesion: 0.18
+Nodes (11): HolidayRepository, AsyncSession, date, HolidayMaster, UUID, HolidayCreateRequest, HolidayResponse, HolidayService (+3 more)
+
+### Community 525 - "document_scan.py"
+Cohesion: 0.36
+Nodes (7): _async_scan(), task, Celery task: download document from MinIO → run ClamAV scan → update scan…, scan_document_task(), asyncio, test_document_scan_clean(), test_document_scan_infected_quarantined()
 
 ### Community 526 - "NetSuiteAdapter"
 Cohesion: 0.33
@@ -2015,8 +2010,8 @@ Cohesion: 0.33
 Nodes (5): 1. Requirement Coverage Matrix, 2. Test Execution & Persona Verification, Automated Developer Persona, Enterprise Expansion Coverage & Audit Report — Cycle 4, TypeScript & Monorepo Verification
 
 ### Community 531 - "test_owasp.py"
-Cohesion: 0.06
-Nodes (54): decrypt_field(), encrypt_field(), get_fernet(), Encrypt a string field. Returns base64-encoded ciphertext string., Decrypt a previously encrypted field., Fernet, SPEC_04 § 13.1 — PAN, GSTIN, bank account, TOTP secret must be encrypted at…, TestFieldEncryptionSecurity (+46 more)
+Cohesion: 0.07
+Nodes (46): _load_private_key(), _load_public_key(), Read PEM key from file path., _read_key(), AsyncClient, AsyncSession, security, OWASP Top 10 Security Test Suite. Verifies security controls across all 10… (+38 more)
 
 ### Community 533 - "GrnService"
 Cohesion: 0.30
@@ -2024,7 +2019,7 @@ Nodes (7): GrnService, AsyncSession, GrnCreateRequest, GrnFilterParams, QualityI
 
 ### Community 535 - "src/useTickets.ts"
 Cohesion: 0.05
-Nodes (49): ACTION_LABELS, AdminTicketAutomationPage(), TRIGGER_LABELS, AdminTicketCustomFieldsPage(), TYPE_BADGES, AdminTicketDashboardPage(), useAutomationRules(), useCreateAutomationRule() (+41 more)
+Nodes (48): ACTION_LABELS, AdminTicketAutomationPage(), TRIGGER_LABELS, AdminTicketCustomFieldsPage(), TYPE_BADGES, AdminTicketSLAConfigPage(), DEFAULT_ROWS, BuyerAssignedTicketsPage() (+40 more)
 
 ### Community 536 - "erp_payment.py"
 Cohesion: 0.36
@@ -2039,32 +2034,24 @@ Cohesion: 0.36
 Nodes (4): Validates detected mime type against ALLOWED_MIME_TYPES for a given…, validate_mime_type(), Rename .exe to .pdf: detected as executable MIME -> rejected., TestValidateMimeType
 
 ### Community 549 - "PANAdapter"
-Cohesion: 0.32
-Nodes (3): PANAdapter, Any, Income Tax Department PAN Verification Adapter. Validates format, entity…
+Cohesion: 0.16
+Nodes (7): PANAdapter, Any, Income Tax Department PAN Verification Adapter. Validates format, entity…, SPEC_20 & SPEC_15: PAN, GSTIN, and Bank Penny Drop Validation., TestStatutoryAndBankingAdapters, Verify PAN validation result is cached in Redis with 90-day TTL., test_pan_validation_cached()
 
-### Community 551 - "test_ticket_fsm.py"
-Cohesion: 0.17
-Nodes (11): parametrize, Verify all 7 states are present in the FSM definition., Verify all legal buyer transitions execute without exception., Verify illegal transitions raise AppException with code…, Suppliers can close or reopen RESOLVED tickets., Suppliers are blocked from buyer-only workflow transitions., test_all_legal_buyer_transitions(), test_fsm_structure() (+3 more)
+### Community 551 - "src/components/tickets/TicketCommentFeed.tsx"
+Cohesion: 0.39
+Nodes (7): TicketCommentFeed(), TicketCommentFeedProps, useDeleteTicketComment(), useEditTicketComment(), TicketCommentResponse, formatMentionsForMarkdown(), TicketCommentFeedProps
 
 ### Community 553 - "useVendorOnboarding.ts"
-Cohesion: 0.27
-Nodes (8): SupplierRegisterLandingPage(), usePendingOnboardingApplications(), useReviewOnboardingApplication(), useSelfRegisterVendor(), VendorKYCReviewPayload, VendorOnboardingApplication, VendorSelfRegistrationPayload, VendorOnboardingWorkbench()
+Cohesion: 0.29
+Nodes (6): usePendingOnboardingApplications(), useReviewOnboardingApplication(), VendorKYCReviewPayload, VendorOnboardingApplication, VendorSelfRegistrationPayload, VendorOnboardingWorkbench()
 
 ### Community 554 - "ERPMaterialAdapter"
 Cohesion: 0.33
 Nodes (5): ERPMaterialAdapter, Any, AsyncSession, UUID, Handles mapping and lookup for Material Master & Commodity items.
 
-### Community 555 - "get_audit_logs"
-Cohesion: 0.29
-Nodes (7): get_audit_logs(), health(), AsyncSession, datetime, get, UUID, Elasticsearch-backed audit log search with date range, entity type, action,…
-
 ### Community 556 - "pytest_configure"
 Cohesion: 0.40
 Nodes (5): _About, Procurement Portal Application Package., _safe_hashpw(), pytest_configure(), Set required env vars before any imports.
-
-### Community 557 - "update_vendor_risk_assessment_endpoint"
-Cohesion: 0.33
-Nodes (6): put, Supplier portal endpoint to update the current supplier's own vendor details., Update financial and ESG risk assessment parameters and recompute risk tier., update_my_vendor_profile(), update_vendor_risk_assessment_endpoint(), VendorUpdateRequest
 
 ### Community 558 - "generate_interactive_pdf.js"
 Cohesion: 0.29
@@ -2074,9 +2061,9 @@ Nodes (7): { chromium }, fs, generateHTML(), OUTPUT_HTML_PATH, OUTPUT_PDF_PATH, 
 Cohesion: 0.40
 Nodes (3): FilterBuilder, Any, Builds SQLAlchemy filter conditions from query parameters and dictionary specs.
 
-### Community 560 - "seed_demo_user.py"
-Cohesion: 0.14
-Nodes (26): AuditLog, AwardDetail, AwardRecommendation, ComparativeStatement, CsLineRanking, Evaluation, EvaluationScore, Negotiation (+18 more)
+### Community 560 - "seed_enterprise_comprehensive.py"
+Cohesion: 0.06
+Nodes (68): Contract, ContractAmendment, ContractClause, ContractClauseInstance, ContractDocument, ContractLine, ContractMilestone, ContractRedline (+60 more)
 
 ### Community 562 - "useSwitchCompanyContext"
 Cohesion: 0.33
@@ -2102,33 +2089,37 @@ Nodes (13): 1. Executive Platform Architecture & Portals, 2. Complete Portal Fea
 Cohesion: 0.38
 Nodes (5): ERPVendorAdapter, Any, AsyncSession, UUID, Handles mapping, payload formatting, and synchronization for Vendor entity.
 
-### Community 575 - "TicketAutomationEngine"
-Cohesion: 0.32
-Nodes (6): Any, AsyncSession, UUID, Evaluates and executes no-code Jira-style automation rules., Finds all active rules for this trigger and org, evaluates conditions, and runs…, TicketAutomationEngine
+### Community 575 - "validate_contract_transition"
+Cohesion: 0.62
+Nodes (6): can_transition(), get_allowed_transitions(), _normalize_status(), ContractStatusEnum, Contract Lifecycle Finite State Machine (FSM). SPEC_13 S13-02: Defines allowed…, validate_contract_transition()
 
-### Community 576 - "register_vendor_with_token"
-Cohesion: 0.40
-Nodes (5): Request, Complete vendor registration wizard step via invitation token., Public self-service supplier onboarding & automated KYC verification., register_vendor_with_token(), self_register_vendor()
+### Community 576 - "6. DevOps, Deployment & Disaster Recovery Runbook"
+Cohesion: 0.29
+Nodes (7): 6. DevOps, Deployment & Disaster Recovery Runbook, Automated Backup & Disaster Recovery (DR) Drills, Database Backup Script, Object Storage (MinIO) Backup, 🏆 Project Certification & Verification Baseline, Service Ports & URL Quick Reference, Zero-Downtime Database Migration Protocol
 
 ### Community 577 - "ERPPOAdapter"
 Cohesion: 0.38
 Nodes (5): ERPPOAdapter, Any, AsyncSession, UUID, Handles mapping, payload formatting, and synchronization for Purchase Order…
 
-### Community 579 - "test_multi_tenant_company_switcher.py"
-Cohesion: 0.40
-Nodes (9): SwitchCompanyContextRequest, asyncio, AsyncSession, Integration tests for Multi-Tenant Active Company Switcher & Cross-Tenant…, seed_multi_tenant_fixtures(), test_cross_tenant_rollup_aggregation(), test_get_accessible_companies(), test_switch_company_context_success() (+1 more)
+### Community 579 - "test_advanced_invoice_reconciliation.py"
+Cohesion: 0.43
+Nodes (6): asyncio, AsyncSession, Integration tests for SPEC_15 Automated 3-Way & 4-Way Invoice Matching &…, setup_base_fixtures(), test_3way_reconciliation_within_tolerance_auto_approves(), test_4way_reconciliation_detects_quality_rejection_and_variance()
 
 ### Community 580 - "WhatsAppChannel"
-Cohesion: 0.25
-Nodes (6): Any, UUID, Enterprise WhatsApp Business dispatch channel supporting Meta Cloud API &…, WhatsAppChannel, WhatsApp channel returns 202 with stub warning log., test_whatsapp_stub_returns_202()
+Cohesion: 0.36
+Nodes (4): Any, UUID, Enterprise WhatsApp Business dispatch channel supporting Meta Cloud API &…, WhatsAppChannel
 
 ### Community 581 - "UnmappedPRService"
 Cohesion: 0.49
 Nodes (4): AsyncSession, Requisition, UUID, UnmappedPRService
 
-### Community 582 - "require_mfa_enabled"
-Cohesion: 0.25
-Nodes (6): Dependency: asserts user has MFA enabled (for privileged roles)., require_mfa_enabled(), Test the logic within auth dependencies without FastAPI plumbing., require_permission checks PERMANENTLY_DENIED before any DB query., MFA_REQUIRED_ROLES should contain critical roles., TestAuthDependenciesLogic
+### Community 582 - "TestAuthDependenciesLogic"
+Cohesion: 0.29
+Nodes (4): Test the logic within auth dependencies without FastAPI plumbing., require_permission checks PERMANENTLY_DENIED before any DB query., MFA_REQUIRED_ROLES should contain critical roles., TestAuthDependenciesLogic
+
+### Community 583 - "async_check_compliance"
+Cohesion: 0.33
+Nodes (6): async_check_compliance(), check_vendor_compliance(), Any, task, Daily Celery task to check compliance document expiry and set hold if expired., Core compliance check logic for vendor documents.
 
 ### Community 584 - "export_service.py"
 Cohesion: 0.33
@@ -2139,32 +2130,40 @@ Cohesion: 0.50
 Nodes (3): Test that SLA thresholds match the spec (50/100/150/200%)., Verify threshold values are consistent with the design spec., TestSLAStatusThresholds
 
 ### Community 586 - "TestUserRouterEndpoints"
-Cohesion: 0.29
-Nodes (3): Test user router HTTP layer — endpoints must exist and return correct status., Verify all 8 user endpoints are mounted (not 404/405 on method)., TestUserRouterEndpoints
+Cohesion: 0.22
+Nodes (4): _make_token(), Test user router HTTP layer — endpoints must exist and return correct status., Verify all 8 user endpoints are mounted (not 404/405 on method)., TestUserRouterEndpoints
 
-### Community 587 - ".require_comment_on_reject"
+### Community 587 - "test_maverick_spend_intelligence_spec25.py"
+Cohesion: 0.33
+Nodes (5): db_session(), asyncio, AsyncSession, fixture, test_maverick_spend_cluster_detection_and_triage()
+
+### Community 588 - "admin_ticket_headers"
 Cohesion: 0.40
-Nodes (3): Any, date, field_validator
+Nodes (6): admin_ticket_headers(), admin_ticket_user(), AsyncSession, fixture, Admin user with PROCUREMENT_ADMIN role for full ticket permissions., Bearer authorization headers for admin_ticket_user.
+
+### Community 589 - "mfa/page.tsx"
+Cohesion: 0.50
+Nodes (3): MFAForm, mfaSchema, useMFAVerify()
 
 ## Knowledge Gaps
-- **1441 isolated node(s):** `entrypoint.sh script`, `name`, `version`, `private`, `test:e2e` (+1436 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 3607 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **105 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **1482 isolated node(s):** `entrypoint.sh script`, `name`, `version`, `private`, `test:e2e` (+1477 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 3648 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **114 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `User` connect `User` to `HRMSConsumer`, `test_compliance_posture.py`, `test_owasp.py`, `AsyncSession`, `evaluation/router.py`, `PaginationMeta`, `NotFoundError`, `disaster_recovery/router.py`, `ForbiddenError`, `RequisitionService`, `TestEndToEndPersonaQA`, `ticket/service.py`, `get_audit_logs`, `purchase_order/router.py`, `update_vendor_risk_assessment_endpoint`, `factories/__init__.py`, `developer/router.py`, `sourcing/auction.py`, `UserRepository`, `seed_demo_user.py`, `test_integration_jobs.py`, `create_test_org_and_user`, `requisition/models.py`, `requisition/router.py`, `test_notifications.py`, `integration/router.py`, `test_analytics.py`, `contract/router.py`, `analytics/router.py`, `success_response`, `test_multi_tenant_company_switcher.py`, `enums.py`, `UserSession`, `vendor/router.py`, `.create`, `workflow/router.py`, `grn/router.py`, `invoice/router.py`, `catalog/service.py`, `vendor/service.py`, `seed_enterprise_extensions.py`, `test_vendor.py`, `AuthService`, `invoice/service.py`, `provision_or_login_sso_user`, `PermissionCode`, `notification_digest.py`, `test_auth_coverage.py`, `approval_rules/router.py`, `.switch_company_context`, `user/router.py`, `notification/router.py`, `compliance/router.py`, `payment/router.py`, `ApproverResolver`, `requisition/service.py`, `document/router.py`, `WorkflowEngine`, `payment/service.py`, `auth/router.py`, `master_data/models.py`, `bid/router.py`, `BaseModel`?**
-  _High betweenness centrality (0.102) - this node is a cross-community bridge._
-- **Why does `NotFoundError` connect `NotFoundError` to `asyncio`, `TicketRepository`, `uuid4`, `NotificationService`, `GrnService`, `config.py`, `evaluation/router.py`, `PaginationMeta`, `holiday/service.py`, `ForbiddenError`, `RequisitionService`, `item/service.py`, `ticket/service.py`, `ContractService`, `einvoicing/service.py`, `developer/router.py`, `EvaluationService`, `seed_demo_user.py`, `AdvanceShippingNotice`, `ValidationError`, `OrganizationService`, `requisition/models.py`, `requisition/router.py`, `test_notifications.py`, `User`, `AnalyticsService`, `AppException`, `UnmappedPRService`, `enums.py`, `vendor/router.py`, `test_contract.py`, `workflow/router.py`, `vendor/service.py`, `catalog/service.py`, `contract/service.py`, `test_pr_workflows.py`, `seed_enterprise_extensions.py`, `test_vendor.py`, `invoice/service.py`, `ai_sourcing/service.py`, `PermissionCode`, `IntegrationService`, `.switch_company_context`, `BaseRepository`, `test_vendor_workflows.py`, `uom/service.py`, `PaymentService`, `LiveBidService`, `ComplianceService`, `document/service.py`, `InvoiceService`, `ApproverResolver`, `requisition/service.py`, `test_requisition.py`, `payment/service.py`, `RfqService`, `WorkflowRepository`, `tax/service.py`, `bid/router.py`, `BaseModel`, `PurchaseOrderService`, `test_end_to_end_connected_flow.py`?**
-  _High betweenness centrality (0.046) - this node is a cross-community bridge._
-- **Why does `BaseModel` connect `BaseModel` to `asyncio`, `uuid4`, `Notification`, `schemas.py`, `AuditSearchQuery`, `config.py`, `evaluation/router.py`, `PaginationMeta`, `AnalyticsRepository`, `holiday/service.py`, `disaster_recovery/router.py`, `test_spec18_api_standards.py`, `ticket/service.py`, `purchase_order/router.py`, `ticket/router.py`, `update_vendor_risk_assessment_endpoint`, `einvoicing/service.py`, `developer/router.py`, `seed_demo_user.py`, `sourcing/auction.py`, `AdvanceShippingNotice`, `ValidationError`, `requisition/models.py`, `requisition/router.py`, `integration/router.py`, `test_invoice_payment.py`, `User`, `contract/router.py`, `analytics/router.py`, `test_multi_tenant_company_switcher.py`, `enums.py`, `analytics/schemas.py`, `vendor/router.py`, `test_contract.py`, `workflow/router.py`, `grn/router.py`, `invoice/router.py`, `catalog/service.py`, `vendor/service.py`, `contract/service.py`, `seed_enterprise_extensions.py`, `test_vendor.py`, `invoice/service.py`, `ai_sourcing/service.py`, `PermissionCode`, `approval_rules/router.py`, `user/router.py`, `notification/router.py`, `compliance/router.py`, `LiveBidService`, `db`, `document/service.py`, `payment/router.py`, `test_requisition.py`, `requisition/service.py`, `document/router.py`, `payment/service.py`, `auth/router.py`, `master_data/models.py`, `tax/service.py`, `bid/router.py`, `Ticket`, `test_end_to_end_connected_flow.py`?**
-  _High betweenness centrality (0.044) - this node is a cross-community bridge._
+- **Why does `User` connect `User` to `enums.py`, `test_owasp.py`, `developer/router.py`, `evaluation/router.py`, `NotFoundError`, `ForbiddenError`, `RequisitionService`, `TestEndToEndPersonaQA`, `purchase_order/router.py`, `factories/__init__.py`, `DeveloperService`, `seed_enterprise_comprehensive.py`, `UserRepository`, `requisition/service.py`, `create_test_org_and_user`, `requisition/router.py`, `test_notifications.py`, `integration/router.py`, `create_checkpoint`, `PaginationMeta`, `contract/router.py`, `success_response`, `RoleRepository`, `main.py`, `SessionRepository`, `.create`, `AsyncSession`, `_to_asn_response`, `invoice/router.py`, `seed_enterprise_extensions.py`, `test_vendor.py`, `auth/service.py`, `invoice/service.py`, `sso.py`, `PermissionCode`, `notification_digest.py`, `approval_rules/router.py`, `.switch_company_context`, `AsyncSession`, `BaseRepository`, `user/router.py`, `notification/router.py`, `toggle_compliance_policy`, `uuid4`, `ApproverResolver`, `.patch`, `organization/models.py`, `upload_document`, `ticket/service.py`, `WorkflowEngine`, `auth/router.py`, `get_bid_count`, `BaseModel`?**
+  _High betweenness centrality (0.100) - this node is a cross-community bridge._
+- **Why does `NotFoundError` connect `NotFoundError` to `sourcing/service.py`, `TicketRepository`, `test_evaluation.py`, `enums.py`, `holiday/service.py`, `NotificationService`, `GrnService`, `developer/router.py`, `evaluation/router.py`, `auction_router.py`, `ForbiddenError`, `RequisitionService`, `item/service.py`, `ContractService`, `AdvanceShippingNotice`, `DeveloperService`, `EvaluationService`, `OrganizationService`, `seed_enterprise_comprehensive.py`, `location/service.py`, `requisition/service.py`, `requisition/router.py`, `test_notifications.py`, `PaginationMeta`, `User`, `success_response`, `AnalyticsService`, `.__init__`, `UnmappedPRService`, `main.py`, `test_end_to_end_connected_flow.py`, `test_contract.py`, `AsyncSession`, `catalog/service.py`, `contract/service.py`, `seed_enterprise_extensions.py`, `test_vendor.py`, `invoice/service.py`, `master_data/models.py`, `BaseRepository`, `IntegrationService`, `PermissionCode`, `.switch_company_context`, `uom/service.py`, `PaymentService`, `LiveBidService`, `uuid4`, `ComplianceService`, `InvoiceService`, `ApproverResolver`, `organization/models.py`, `ticket/service.py`, `test_requisition.py`, `payment/service.py`, `RfqService`, `WorkflowRepository`, `AppException`, `MasterDataImportService`, `document/service.py`, `BaseModel`, `PurchaseOrderService`, `purchase_order/service.py`?**
+  _High betweenness centrality (0.045) - this node is a cross-community bridge._
+- **Why does `BaseModel` connect `BaseModel` to `Notification`, `sourcing/service.py`, `test_evaluation.py`, `enums.py`, `schemas.py`, `holiday/service.py`, `NotificationService`, `developer/router.py`, `evaluation/router.py`, `auction_router.py`, `AnalyticsRepository`, `disaster_recovery/service.py`, `ForbiddenError`, `purchase_order/router.py`, `ticket/router.py`, `AdvanceShippingNotice`, `seed_enterprise_comprehensive.py`, `audit/service.py`, `location/service.py`, `requisition/service.py`, `requisition/router.py`, `integration/router.py`, `asyncio`, `PaginationMeta`, `test_invoice_payment.py`, `contract/router.py`, `User`, `main.py`, `test_end_to_end_connected_flow.py`, `test_contract.py`, `AsyncSession`, `_to_asn_response`, `catalog/service.py`, `contract/service.py`, `seed_enterprise_extensions.py`, `test_vendor.py`, `invoice/service.py`, `master_data/models.py`, `BaseRepository`, `approval_rules/router.py`, `PermissionCode`, `AsyncSession`, `user/router.py`, `notification/router.py`, `toggle_compliance_policy`, `LiveBidService`, `uuid4`, `document/service.py`, `.patch`, `test_requisition.py`, `organization/models.py`, `upload_document`, `PaymentTermsService`, `ticket/service.py`, `payment/service.py`, `auth/router.py`, `AppException`, `PurchaseOrder`, `get_bid_count`, `test_ticket_jira_features.py`, `purchase_order/service.py`?**
+  _High betweenness centrality (0.043) - this node is a cross-community bridge._
 - **Are the 655 inferred relationships involving `uuid4` (e.g. with `sso_initiate()` and `._issue_tokens()`) actually correct?**
   _`uuid4` has 655 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 254 inferred relationships involving `PermissionCode` (e.g. with `activate_rule()` and `create_rule()`) actually correct?**
   _`PermissionCode` has 254 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `entrypoint.sh script`, `name`, `version` to the rest of the system?**
-  _1441 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _1482 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Bid Service` be split into smaller, more focused modules?**
   _Cohesion score 0.11764705882352941 - nodes in this community are weakly interconnected._

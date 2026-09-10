@@ -1482,9 +1482,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1789054904.6754594,
-    "seen": 1789056479.5303838,
-    "ast_hash": "067a8e1952a1e67b4a6d9e3a6e6fd01c",
+    "mtime": 1789057130.8871331,
+    "seen": 1789057155.228173,
+    "ast_hash": "e73f98c9ef2c28d94798e67f7af430d1",
     "semantic_hash": ""
   },
   "graphify_diff_20260904_014322.txt": {
@@ -6609,6 +6609,18 @@
     "mtime": 1789056278.1623936,
     "seen": 1789056479.527204,
     "ast_hash": "50d620d1bbe000e18d8f8535764f50b4",
+    "semantic_hash": ""
+  },
+  "docs/CROSS_PORTAL_WORKFLOW_REPORT.md": {
+    "mtime": 1789056770.1108358,
+    "seen": 1789057155.2283,
+    "ast_hash": "b189b21fb243a7383349b9b9700c2438",
+    "semantic_hash": ""
+  },
+  "docs/ENTERPRISE_HANDOVER_MANUAL.md": {
+    "mtime": 1789056770.1136887,
+    "seen": 1789057155.2283561,
+    "ast_hash": "5cc918cf1c4c40c6c14ad9f38b5be8c4",
     "semantic_hash": ""
   }
 }

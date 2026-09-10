@@ -24,8 +24,9 @@ All three portals run simultaneously with seeded test roles. Access them directl
 > - **Interactive Persona Deck:** Click the `👑 Super Admin` header pill to switch views and deep link directly into any of the 8 enterprise personas.
 >
 > 🚪 **API Gateway (Kong):** [http://localhost:8000](http://localhost:8000) &nbsp;•&nbsp; **Direct Backend API:** [http://localhost:8080](http://localhost:8080)
->
-> 📘 **Git & CI/CD Guide:** [Complete Beginner Guide to Git, GitHub & Branching](docs/GIT_AND_CICD_GUIDE.md)
+> 📘 **Git & CI/CD Guide:** [Complete Beginner Guide to Git, GitHub & Branching](docs/GIT_AND_CICD_GUIDE.md)  
+> 📊 **Cross-Portal Workflow & Audit Report:** [Enterprise Synchronicity & Workflow Verification](docs/CROSS_PORTAL_WORKFLOW_REPORT.md)  
+> 📖 **Enterprise Handover Manual:** [Complete Technical, Managerial & Operations Manual](docs/ENTERPRISE_HANDOVER_MANUAL.md)
 
 ---
 
