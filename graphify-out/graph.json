@@ -38290,7 +38290,7 @@
       "file_type": "code",
       "norm_label": "useapproveinvoice()",
       "source_file": "procurement-portal-frontend/packages/hooks/src/useInvoices.ts",
-      "source_location": "L78"
+      "source_location": "L79"
     },
     {
       "id": "procurement_portal_frontend_packages_hooks_src_useinvoices_usedisputeinvoice",
@@ -38302,7 +38302,7 @@
       "file_type": "code",
       "norm_label": "usedisputeinvoice()",
       "source_file": "procurement-portal-frontend/packages/hooks/src/useInvoices.ts",
-      "source_location": "L107"
+      "source_location": "L108"
     },
     {
       "id": "procurement_portal_frontend_packages_hooks_src_useinvoices_useinvoice",
@@ -38326,7 +38326,7 @@
       "file_type": "code",
       "norm_label": "usematchinvoice()",
       "source_file": "procurement-portal-frontend/packages/hooks/src/useInvoices.ts",
-      "source_location": "L122"
+      "source_location": "L123"
     },
     {
       "id": "procurement_portal_frontend_packages_hooks_src_useinvoices_userejectinvoice",
@@ -38338,7 +38338,7 @@
       "file_type": "code",
       "norm_label": "userejectinvoice()",
       "source_file": "procurement-portal-frontend/packages/hooks/src/useInvoices.ts",
-      "source_location": "L93"
+      "source_location": "L94"
     },
     {
       "id": "procurement_portal_frontend_packages_ui_src_components_invoicereconciliationworkbench_invoicereconciliationworkbench",
@@ -44650,7 +44650,7 @@
       "file_type": "code",
       "norm_label": "usesubmitinvoice()",
       "source_file": "procurement-portal-frontend/packages/hooks/src/useInvoices.ts",
-      "source_location": "L56"
+      "source_location": "L57"
     },
     {
       "id": "procurement_portal_frontend_packages_hooks_src_usepurchaseorders_useacknowledgepo",
@@ -107467,7 +107467,7 @@
       "node_kind": "heading",
       "norm_label": "\ud83d\udcca spec audit: advance shipping notices (asn) & warehouse barcode intake (2026-09-09)",
       "source_file": "README.md",
-      "source_location": "L819"
+      "source_location": "L820"
     },
     {
       "id": "readme_spec_audit_advanced_workflow_rules_delegation_2026_09_09",
@@ -107479,7 +107479,7 @@
       "node_kind": "heading",
       "norm_label": "\ud83d\udcca spec audit: advanced workflow rules & delegation (2026-09-09)",
       "source_file": "README.md",
-      "source_location": "L702"
+      "source_location": "L703"
     },
     {
       "id": "readme_spec_audit_analytics_spend_cube_2026_09_09",
@@ -107491,7 +107491,7 @@
       "node_kind": "heading",
       "norm_label": "\ud83d\udcca spec audit: analytics & spend cube (2026-09-09)",
       "source_file": "README.md",
-      "source_location": "L750"
+      "source_location": "L751"
     },
     {
       "id": "readme_spec_audit_contract_management_authoring_2026_09_09",
@@ -107503,7 +107503,7 @@
       "node_kind": "heading",
       "norm_label": "\ud83d\udcca spec audit: contract management & authoring (2026-09-09)",
       "source_file": "README.md",
-      "source_location": "L763"
+      "source_location": "L764"
     },
     {
       "id": "readme_spec_audit_cross_portal_synchronous_workflows_gateway_routing_2026_09_10",
@@ -107527,7 +107527,7 @@
       "node_kind": "heading",
       "norm_label": "\ud83d\udcca spec audit: end-to-end persona qa & multi-portal (2026-09-09)",
       "source_file": "README.md",
-      "source_location": "L714"
+      "source_location": "L715"
     },
     {
       "id": "readme_spec_audit_enterprise_notifications_audit_trail_2026_09_09",
@@ -107539,7 +107539,7 @@
       "node_kind": "heading",
       "norm_label": "\ud83d\udcca spec audit: enterprise notifications & audit trail (2026-09-09)",
       "source_file": "README.md",
-      "source_location": "L737"
+      "source_location": "L738"
     },
     {
       "id": "readme_spec_audit_enterprise_ticketing_slas_2026_09_09",
@@ -107551,7 +107551,7 @@
       "node_kind": "heading",
       "norm_label": "\ud83d\udcca spec audit: enterprise ticketing & slas (2026-09-09)",
       "source_file": "README.md",
-      "source_location": "L776"
+      "source_location": "L777"
     },
     {
       "id": "readme_spec_audit_erp_payment_gateways_2026_09_09",
@@ -107563,7 +107563,7 @@
       "node_kind": "heading",
       "norm_label": "\ud83d\udcca spec audit: erp & payment gateways (2026-09-09)",
       "source_file": "README.md",
-      "source_location": "L724"
+      "source_location": "L725"
     },
     {
       "id": "readme_spec_audit_requisition_to_po_workflow_2026_09_09",
@@ -107575,7 +107575,7 @@
       "node_kind": "heading",
       "norm_label": "\ud83d\udcca spec audit: requisition-to-po workflow (2026-09-09)",
       "source_file": "README.md",
-      "source_location": "L832"
+      "source_location": "L833"
     },
     {
       "id": "readme_spec_audit_rfq_reverse_auction_bidding_2026_09_09",
@@ -107587,7 +107587,7 @@
       "node_kind": "heading",
       "norm_label": "\ud83d\udcca spec audit: rfq & reverse auction bidding (2026-09-09)",
       "source_file": "README.md",
-      "source_location": "L805"
+      "source_location": "L806"
     },
     {
       "id": "readme_spec_audit_supplier_onboarding_compliance_2026_09_09",
@@ -107599,7 +107599,7 @@
       "node_kind": "heading",
       "norm_label": "\ud83d\udcca spec audit: supplier onboarding & compliance (2026-09-09)",
       "source_file": "README.md",
-      "source_location": "L790"
+      "source_location": "L791"
     },
     {
       "id": "readme_spec_audit_supplier_performance_scorecards_risk_2026_09_09",
@@ -107611,7 +107611,7 @@
       "node_kind": "heading",
       "norm_label": "\ud83d\udcca spec audit: supplier performance scorecards & risk (2026-09-09)",
       "source_file": "README.md",
-      "source_location": "L687"
+      "source_location": "L688"
     },
     {
       "id": "procurement_portal_frontend_apps_buyer_portal_app_main_grn_scan_page",
@@ -363371,7 +363371,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "procurement-portal-frontend/packages/hooks/src/useInvoices.ts",
-      "source_location": "L107",
+      "source_location": "L108",
       "weight": 1.0
     },
     {
@@ -363393,7 +363393,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "procurement-portal-frontend/packages/hooks/src/useInvoices.ts",
-      "source_location": "L122",
+      "source_location": "L123",
       "weight": 1.0
     },
     {
@@ -363437,7 +363437,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "procurement-portal-frontend/packages/hooks/src/useInvoices.ts",
-      "source_location": "L56",
+      "source_location": "L57",
       "weight": 1.0
     },
     {
@@ -363448,7 +363448,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "procurement-portal-frontend/packages/hooks/src/useInvoices.ts",
-      "source_location": "L78",
+      "source_location": "L79",
       "weight": 1.0
     },
     {
@@ -363459,7 +363459,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "procurement-portal-frontend/packages/hooks/src/useInvoices.ts",
-      "source_location": "L93",
+      "source_location": "L94",
       "weight": 1.0
     },
     {
@@ -374228,7 +374228,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L687",
+      "source_location": "L688",
       "weight": 1.0
     },
     {
@@ -374239,7 +374239,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L702",
+      "source_location": "L703",
       "weight": 1.0
     },
     {
@@ -374250,7 +374250,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L714",
+      "source_location": "L715",
       "weight": 1.0
     },
     {
@@ -374261,7 +374261,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L724",
+      "source_location": "L725",
       "weight": 1.0
     },
     {
@@ -374272,7 +374272,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L737",
+      "source_location": "L738",
       "weight": 1.0
     },
     {
@@ -374283,7 +374283,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L750",
+      "source_location": "L751",
       "weight": 1.0
     },
     {
@@ -374294,7 +374294,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L763",
+      "source_location": "L764",
       "weight": 1.0
     },
     {
@@ -374305,7 +374305,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L776",
+      "source_location": "L777",
       "weight": 1.0
     },
     {
@@ -374316,7 +374316,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L790",
+      "source_location": "L791",
       "weight": 1.0
     },
     {
@@ -374327,7 +374327,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L805",
+      "source_location": "L806",
       "weight": 1.0
     },
     {
@@ -374338,7 +374338,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L819",
+      "source_location": "L820",
       "weight": 1.0
     },
     {
@@ -374349,7 +374349,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L832",
+      "source_location": "L833",
       "weight": 1.0
     },
     {
@@ -456207,5 +456207,5 @@
       "source_file": "specs/SPEC_04_AUTH_SECURITY.md"
     }
   ],
-  "built_at_commit": "d466d6cce4eced85c27562af95dc88df50f84903"
+  "built_at_commit": "7f8645ff68238989aebc9a051498e1f606286cba"
 }
