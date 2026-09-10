@@ -665,12 +665,23 @@ docker compose logs -f -t
 ---
 
 ### Current Session State
-- **Completed (Option A — SPEC_11B)**: Dynamic Reverse & Forward Live Auction Engine — backend (WebSocket bidding, Dutch/English, anti-sniping, FX normalization) + full frontend (Buyer & Supplier `/auctions/[id]/live`, LiveAuctionRoom component) committed `b3d5787`.
-- **Completed (Option B — SPEC_15)**: Automated 3-Way & 4-Way Invoice Matching — service, workbench component, Buyer Portal `/invoices/reconciliation` page, 2/2 integration tests passed, committed `5ac47a7`.
-- **Completed (Option C — SPEC_13)**: Contract Lifecycle Redlining & Collaborative Clause Editor — migration `0048`, clause library, `submit_redline`, `review_redline`, `initiate_signing_ceremony`, `submit_digital_signature`, `ContractRedlineStudio` component, Buyer Portal `/contracts/[id]/redline` and Supplier Portal `/contracts/[id]/review` pages, 15/15 tests passed, committed `6c5dd43`.
-- **Completed (Option D — SPEC_21/22)**: Automated Disaster Recovery Orchestrator & PITR Backup Drills — migration `0049`, `DRBackupCheckpoint` + `DRFailoverDrill` models, posture engine (RPO/RTO SLA gauges), WORM integrity checker, 5-phase failover drill simulator, `DisasterRecoveryConsole` component, Admin Portal `/system/recovery` page with sidebar nav, 2/2 integration tests passed, committed `76f165f`.
-- **Tested**: 19/19 integration tests passed across Option A–D; `turbo typecheck` 7/7 packages clean (0 TypeScript errors); ruff clean on all DR + contract files; Alembic head: `0049_dr_orchestrator`; graphify updated (10177 nodes).
-- **Next**: `git push origin develop` to publish 4 new commits, then Docker full-stack smoke test and next module selection.
+- **Completed**: Cross-Portal Synchronous Flow verification across Admin, Buyer, and Supplier Portals.
+- **Fixed Gateway**: Added missing routing definitions to `kong/kong.yml` for `/api/v1/asns`, `/api/v1/developer`, `/api/v1/audit`, `/api/v1/compliance`, and `/api/v1/einvoicing`.
+- **Fixed Core**: Loop-safe Redis connection pool caching in `app/core/redis_client.py` and mock-safe row unpacking in `app/modules/workflow/service.py`.
+- **Verified Cross-Portal Test**: `test_cross_portal_synchronous_flow.py` (Admin master data/rules -> Buyer PR -> Workflow Approval -> RFQ -> Supplier Bid -> Unseal/Award -> Contract e-Sign -> PO -> ASN -> Fast GRN -> Invoice -> 3-Way Match -> Settlement -> Remittance -> Ticket -> ERP Sync).
+- **Tested**: All 964 backend tests passed (100% pass rate in 65s); frontend Turbo typecheck 7/7 packages clean with 0 errors; graphify updated (10,499 nodes, 28,359 edges, 582 communities).
+- **Artifact**: Produced exhaustive technical guide `CROSS_PORTAL_ARCHITECTURE_AND_WORKFLOW_GUIDE.md`.
+
+### 📊 SPEC Audit: Cross-Portal Synchronous Workflows & Gateway Routing (2026-09-10)
+```
+MODULE | SPEC REQUIREMENT | STATUS | ARTIFACT / CODE
+XPORT.1 | Cross-Portal Synchronous Event Integration Test | [DONE] | test_cross_portal_synchronous_flow.py
+XPORT.2 | Kong Gateway Proxy Integrity (Audit, ASNs, Einvoicing, Dev) | [DONE] | kong/kong.yml
+XPORT.3 | Asyncio Redis Connection Pool Event Loop Isolation | [DONE] | app/core/redis_client.py
+XPORT.4 | Workflow Engine Raw Row Sequence Safety Guard | [DONE] | app/modules/workflow/service.py
+XPORT.5 | Cross-Portal Architecture & Synchronous Workflow Guide | [DONE] | CROSS_PORTAL_ARCHITECTURE_AND_WORKFLOW_GUIDE.md
+OVERALL: 5/5 (100%) | BACKEND 100% | FRONTEND 100% | TESTS 100%
+```
 
 
 ### 📊 SPEC Audit: Supplier Performance Scorecards & Risk (2026-09-09)

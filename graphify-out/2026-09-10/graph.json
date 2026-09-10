@@ -22990,7 +22990,7 @@
       "file_type": "code",
       "norm_label": "._advance_to_next_step()",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L631"
+      "source_location": "L635"
     },
     {
       "id": "app_modules_workflow_service_workflowengine_apply_delegation",
@@ -23002,7 +23002,7 @@
       "file_type": "code",
       "norm_label": "._apply_delegation()",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L668"
+      "source_location": "L672"
     },
     {
       "id": "app_modules_workflow_service_workflowengine_cancel",
@@ -23014,7 +23014,7 @@
       "file_type": "code",
       "norm_label": ".cancel()",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L268"
+      "source_location": "L272"
     },
     {
       "id": "app_modules_workflow_service_workflowengine_cancel_pending_tasks",
@@ -23026,7 +23026,7 @@
       "file_type": "code",
       "norm_label": "._cancel_pending_tasks()",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L816"
+      "source_location": "L820"
     },
     {
       "id": "app_modules_workflow_service_workflowengine_check_parallel_convergence",
@@ -23038,7 +23038,7 @@
       "file_type": "code",
       "norm_label": "._check_parallel_convergence()",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L568"
+      "source_location": "L572"
     },
     {
       "id": "app_modules_workflow_service_workflowengine_create_tasks_for_step",
@@ -23050,7 +23050,7 @@
       "file_type": "code",
       "norm_label": ".create_tasks_for_step()",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L466"
+      "source_location": "L470"
     },
     {
       "id": "app_modules_workflow_service_workflowengine_force_advance",
@@ -23062,7 +23062,7 @@
       "file_type": "code",
       "norm_label": ".force_advance()",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L338"
+      "source_location": "L342"
     },
     {
       "id": "app_modules_workflow_service_workflowengine_get_escalation_approvers",
@@ -23074,7 +23074,7 @@
       "file_type": "code",
       "norm_label": "._get_escalation_approvers()",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L802"
+      "source_location": "L806"
     },
     {
       "id": "app_modules_workflow_service_workflowengine_handle_step_completion",
@@ -23086,7 +23086,7 @@
       "file_type": "code",
       "norm_label": "._handle_step_completion()",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L530"
+      "source_location": "L534"
     },
     {
       "id": "app_modules_workflow_service_workflowengine_init",
@@ -23122,7 +23122,7 @@
       "file_type": "code",
       "norm_label": ".pause()",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L302"
+      "source_location": "L306"
     },
     {
       "id": "app_modules_workflow_service_workflowengine_process_step",
@@ -23134,7 +23134,7 @@
       "file_type": "code",
       "norm_label": "._process_step()",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L439"
+      "source_location": "L443"
     },
     {
       "id": "app_modules_workflow_service_workflowengine_resume",
@@ -23146,7 +23146,7 @@
       "file_type": "code",
       "norm_label": ".resume()",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L320"
+      "source_location": "L324"
     },
     {
       "id": "app_modules_workflow_service_workflowengine_simulate",
@@ -23158,7 +23158,7 @@
       "file_type": "code",
       "norm_label": ".simulate()",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L385"
+      "source_location": "L389"
     },
     {
       "id": "app_modules_workflow_service_workflowengine_sync_entity_on_completion",
@@ -23170,7 +23170,7 @@
       "file_type": "code",
       "norm_label": "._sync_entity_on_completion()",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L839"
+      "source_location": "L843"
     },
     {
       "id": "app_modules_sourcing_service_rfqservice_add_clarification",
@@ -60226,7 +60226,7 @@
       "file_type": "code",
       "norm_label": "get_redis_client()",
       "source_file": "app/core/redis_client.py",
-      "source_location": "L117"
+      "source_location": "L126"
     },
     {
       "id": "app_core_redis_client_get_redis_pool",
@@ -60238,7 +60238,7 @@
       "file_type": "code",
       "norm_label": "get_redis_pool()",
       "source_file": "app/core/redis_client.py",
-      "source_location": "L95"
+      "source_location": "L97"
     },
     {
       "id": "app_modules_bid_live_bid_service_livebidservice_redis",
@@ -66022,7 +66022,7 @@
       "file_type": "code",
       "norm_label": "close_redis_pools()",
       "source_file": "app/core/redis_client.py",
-      "source_location": "L123"
+      "source_location": "L132"
     },
     {
       "id": "app_core_telemetry_get_current_trace_id",
@@ -69046,7 +69046,7 @@
       "source_location": "L130"
     },
     {
-      "id": "app_modules_workflow_service_rationale_276",
+      "id": "app_modules_workflow_service_rationale_280",
       "label": "Cancel an active workflow instance.",
       "_origin": "ast",
       "community": 110,
@@ -69054,10 +69054,10 @@
       "file_type": "rationale",
       "norm_label": "cancel an active workflow instance.",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L276"
+      "source_location": "L280"
     },
     {
-      "id": "app_modules_workflow_service_rationale_309",
+      "id": "app_modules_workflow_service_rationale_313",
       "label": "Pause an active workflow instance (admin action).",
       "_origin": "ast",
       "community": 110,
@@ -69065,10 +69065,10 @@
       "file_type": "rationale",
       "norm_label": "pause an active workflow instance (admin action).",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L309"
+      "source_location": "L313"
     },
     {
-      "id": "app_modules_workflow_service_rationale_327",
+      "id": "app_modules_workflow_service_rationale_331",
       "label": "Resume a paused workflow instance (admin action).",
       "_origin": "ast",
       "community": 110,
@@ -69076,10 +69076,10 @@
       "file_type": "rationale",
       "norm_label": "resume a paused workflow instance (admin action).",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L327"
+      "source_location": "L331"
     },
     {
-      "id": "app_modules_workflow_service_rationale_346",
+      "id": "app_modules_workflow_service_rationale_350",
       "label": "Admin force-advance: skip current step, write ADMIN_INTERVENTION compliance\u2026",
       "_origin": "ast",
       "community": 110,
@@ -69087,10 +69087,10 @@
       "file_type": "rationale",
       "norm_label": "admin force-advance: skip current step, write admin_intervention compliance...",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L346"
+      "source_location": "L350"
     },
     {
-      "id": "app_modules_workflow_service_rationale_392",
+      "id": "app_modules_workflow_service_rationale_396",
       "label": "DRY-RUN \u2014 read-only. Returns expected approval chain with approver names. NEVER\u2026",
       "_origin": "ast",
       "community": 110,
@@ -69098,10 +69098,10 @@
       "file_type": "rationale",
       "norm_label": "dry-run \u2014 read-only. returns expected approval chain with approver names. never...",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L392"
+      "source_location": "L396"
     },
     {
-      "id": "app_modules_workflow_service_rationale_446",
+      "id": "app_modules_workflow_service_rationale_450",
       "label": "Evaluate condition, resolve approvers, create tasks.",
       "_origin": "ast",
       "community": 110,
@@ -69109,10 +69109,10 @@
       "file_type": "rationale",
       "norm_label": "evaluate condition, resolve approvers, create tasks.",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L446"
+      "source_location": "L450"
     },
     {
-      "id": "app_modules_workflow_service_rationale_473",
+      "id": "app_modules_workflow_service_rationale_477",
       "label": "Create workflow tasks \u2014 enforces maker-checker by excluding entity\u2026",
       "_origin": "ast",
       "community": 110,
@@ -69120,10 +69120,10 @@
       "file_type": "rationale",
       "norm_label": "create workflow tasks \u2014 enforces maker-checker by excluding entity...",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L473"
+      "source_location": "L477"
     },
     {
-      "id": "app_modules_workflow_service_rationale_537",
+      "id": "app_modules_workflow_service_rationale_541",
       "label": "Handle post-task-action step logic based on action and step type.",
       "_origin": "ast",
       "community": 110,
@@ -69131,10 +69131,10 @@
       "file_type": "rationale",
       "norm_label": "handle post-task-action step logic based on action and step type.",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L537"
+      "source_location": "L541"
     },
     {
-      "id": "app_modules_workflow_service_rationale_575",
+      "id": "app_modules_workflow_service_rationale_579",
       "label": "Apply ALL / ANY / MAJORITY / QUORUM_N_OF_M convergence logic.",
       "_origin": "ast",
       "community": 110,
@@ -69142,7 +69142,7 @@
       "file_type": "rationale",
       "norm_label": "apply all / any / majority / quorum_n_of_m convergence logic.",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L575"
+      "source_location": "L579"
     },
     {
       "id": "app_modules_workflow_service_rationale_60",
@@ -69156,7 +69156,7 @@
       "source_location": "L60"
     },
     {
-      "id": "app_modules_workflow_service_rationale_634",
+      "id": "app_modules_workflow_service_rationale_638",
       "label": "Find and process the next eligible step, or complete the workflow.",
       "_origin": "ast",
       "community": 110,
@@ -69164,10 +69164,10 @@
       "file_type": "rationale",
       "norm_label": "find and process the next eligible step, or complete the workflow.",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L634"
+      "source_location": "L638"
     },
     {
-      "id": "app_modules_workflow_service_rationale_676",
+      "id": "app_modules_workflow_service_rationale_680",
       "label": "Replace delegating users with their delegates (checked at task creation time).\u2026",
       "_origin": "ast",
       "community": 110,
@@ -69175,10 +69175,10 @@
       "file_type": "rationale",
       "norm_label": "replace delegating users with their delegates (checked at task creation time)....",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L676"
+      "source_location": "L680"
     },
     {
-      "id": "app_modules_workflow_service_rationale_808",
+      "id": "app_modules_workflow_service_rationale_812",
       "label": "Get escalation approvers from escalation_config \u2192 fallback to PROCUREMENT_ADMIN.",
       "_origin": "ast",
       "community": 110,
@@ -69186,10 +69186,10 @@
       "file_type": "rationale",
       "norm_label": "get escalation approvers from escalation_config \u2192 fallback to procurement_admin.",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L808"
+      "source_location": "L812"
     },
     {
-      "id": "app_modules_workflow_service_rationale_822",
+      "id": "app_modules_workflow_service_rationale_826",
       "label": "Cancel all pending tasks for a given instance.",
       "_origin": "ast",
       "community": 110,
@@ -69197,10 +69197,10 @@
       "file_type": "rationale",
       "norm_label": "cancel all pending tasks for a given instance.",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L822"
+      "source_location": "L826"
     },
     {
-      "id": "app_modules_workflow_service_rationale_845",
+      "id": "app_modules_workflow_service_rationale_849",
       "label": "Synchronously synchronize the underlying business entity status upon workflow\u2026",
       "_origin": "ast",
       "community": 110,
@@ -69208,7 +69208,7 @@
       "file_type": "rationale",
       "norm_label": "synchronously synchronize the underlying business entity status upon workflow...",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L845"
+      "source_location": "L849"
     },
     {
       "id": "app_modules_workflow_service_rationale_92",
@@ -74423,7 +74423,7 @@
       "node_kind": "heading",
       "norm_label": "\ud83c\udfd7\ufe0f architecture & tech stack",
       "source_file": "README.md",
-      "source_location": "L505"
+      "source_location": "L521"
     },
     {
       "id": "readme_current_session_state",
@@ -74447,7 +74447,7 @@
       "node_kind": "heading",
       "norm_label": "\ud83d\udd0d full-stack verification checklist",
       "source_file": "README.md",
-      "source_location": "L374"
+      "source_location": "L390"
     },
     {
       "id": "readme_live_terminal_log_streaming",
@@ -74459,7 +74459,7 @@
       "node_kind": "heading",
       "norm_label": "\ud83d\udcdc live terminal log streaming",
       "source_file": "README.md",
-      "source_location": "L474"
+      "source_location": "L490"
     },
     {
       "id": "readme_portals_demo_accounts",
@@ -74483,7 +74483,7 @@
       "node_kind": "heading",
       "norm_label": "\ud83d\udd04 rebuilding docker containers",
       "source_file": "README.md",
-      "source_location": "L407"
+      "source_location": "L423"
     },
     {
       "id": "readme_s2p_procurement_portal",
@@ -74507,7 +74507,7 @@
       "node_kind": "heading",
       "norm_label": "\ud83d\udd0c service port directory",
       "source_file": "README.md",
-      "source_location": "L453"
+      "source_location": "L469"
     },
     {
       "id": "readme_testing_suite",
@@ -74519,7 +74519,7 @@
       "node_kind": "heading",
       "norm_label": "\ud83e\uddea testing suite",
       "source_file": "README.md",
-      "source_location": "L427"
+      "source_location": "L443"
     },
     {
       "id": "reports_spec_03_audit",
@@ -97848,7 +97848,7 @@
       "node_kind": "heading",
       "norm_label": "step 1 \u2014 prerequisites & environment",
       "source_file": "README.md",
-      "source_location": "L99"
+      "source_location": "L115"
     },
     {
       "id": "readme_step_3_generate_rsa_keys_jwt_auth",
@@ -97860,7 +97860,7 @@
       "node_kind": "heading",
       "norm_label": "step 3 \u2014 generate rsa keys (jwt auth)",
       "source_file": "README.md",
-      "source_location": "L262"
+      "source_location": "L278"
     },
     {
       "id": "readme_step_4_start_backing_services_docker",
@@ -97872,7 +97872,7 @@
       "node_kind": "heading",
       "norm_label": "step 4 \u2014 start backing services (docker)",
       "source_file": "README.md",
-      "source_location": "L272"
+      "source_location": "L288"
     },
     {
       "id": "readme_step_5_database_migrations_messaging_setup",
@@ -97884,7 +97884,7 @@
       "node_kind": "heading",
       "norm_label": "step 5 \u2014 database migrations & messaging setup",
       "source_file": "README.md",
-      "source_location": "L287"
+      "source_location": "L303"
     },
     {
       "id": "readme_step_6_seed_master_data_create_superadmin",
@@ -97896,7 +97896,7 @@
       "node_kind": "heading",
       "norm_label": "step 6 \u2014 seed master data & create superadmin",
       "source_file": "README.md",
-      "source_location": "L306"
+      "source_location": "L322"
     },
     {
       "id": "readme_step_7_alternative_local_hybrid_mode_start_application_services_locally",
@@ -97908,7 +97908,7 @@
       "node_kind": "heading",
       "norm_label": "step 7 (alternative: local / hybrid mode) \u2014 start application services locally",
       "source_file": "README.md",
-      "source_location": "L350"
+      "source_location": "L366"
     },
     {
       "id": "readme_step_7_docker_mode_start_all_remaining_application_containers",
@@ -97920,7 +97920,7 @@
       "node_kind": "heading",
       "norm_label": "step 7 (docker mode) \u2014 start all remaining application containers",
       "source_file": "README.md",
-      "source_location": "L336"
+      "source_location": "L352"
     },
     {
       "id": "readme_step_by_step_local_setup",
@@ -97932,7 +97932,7 @@
       "node_kind": "heading",
       "norm_label": "\ud83d\udee0\ufe0f step-by-step local setup",
       "source_file": "README.md",
-      "source_location": "L95"
+      "source_location": "L111"
     },
     {
       "id": "app_modules_integration_adapters_erp_payment",
@@ -101528,7 +101528,7 @@
       "node_kind": "heading",
       "norm_label": "2a \u2014 minimum required `.env` values for local dev",
       "source_file": "README.md",
-      "source_location": "L180"
+      "source_location": "L196"
     },
     {
       "id": "readme_2b_jwt_authentication_key_paths",
@@ -101540,7 +101540,7 @@
       "node_kind": "heading",
       "norm_label": "2b \u2014 jwt authentication key paths",
       "source_file": "README.md",
-      "source_location": "L225"
+      "source_location": "L241"
     },
     {
       "id": "readme_2c_external_services_optional_for_local_dev",
@@ -101552,7 +101552,7 @@
       "node_kind": "heading",
       "norm_label": "2c \u2014 external services (optional for local dev)",
       "source_file": "README.md",
-      "source_location": "L234"
+      "source_location": "L250"
     },
     {
       "id": "readme_2d_sanity_check_before_continuing",
@@ -101564,7 +101564,7 @@
       "node_kind": "heading",
       "norm_label": "2d \u2014 sanity check before continuing",
       "source_file": "README.md",
-      "source_location": "L250"
+      "source_location": "L266"
     },
     {
       "id": "readme_step_2_configuration_environment_variables_env",
@@ -101576,7 +101576,7 @@
       "node_kind": "heading",
       "norm_label": "step 2 \u2014 configuration & environment variables (`.env`)",
       "source_file": "README.md",
-      "source_location": "L141"
+      "source_location": "L157"
     },
     {
       "id": "readme_understanding_the_template",
@@ -101588,7 +101588,7 @@
       "node_kind": "heading",
       "norm_label": "understanding the template",
       "source_file": "README.md",
-      "source_location": "L149"
+      "source_location": "L165"
     },
     {
       "id": "app_modules_unmapped_pr_router",
@@ -105596,10 +105596,10 @@
       "node_kind": "heading",
       "norm_label": "\ud83d\udccb assumptions log",
       "source_file": "README.md",
-      "source_location": "L519"
+      "source_location": "L535"
     },
     {
-      "id": "readme_current_session_state_651",
+      "id": "readme_current_session_state_667",
       "label": "Current Session State",
       "_origin": "ast",
       "community": 491,
@@ -105608,7 +105608,7 @@
       "node_kind": "heading",
       "norm_label": "current session state",
       "source_file": "README.md",
-      "source_location": "L651"
+      "source_location": "L667"
     },
     {
       "id": "readme_spec_audit_advance_shipping_notices_asn_warehouse_barcode_intake_2026_09_09",
@@ -105620,7 +105620,7 @@
       "node_kind": "heading",
       "norm_label": "\ud83d\udcca spec audit: advance shipping notices (asn) & warehouse barcode intake (2026-09-09)",
       "source_file": "README.md",
-      "source_location": "L792"
+      "source_location": "L808"
     },
     {
       "id": "readme_spec_audit_advanced_workflow_rules_delegation_2026_09_09",
@@ -105632,7 +105632,7 @@
       "node_kind": "heading",
       "norm_label": "\ud83d\udcca spec audit: advanced workflow rules & delegation (2026-09-09)",
       "source_file": "README.md",
-      "source_location": "L675"
+      "source_location": "L691"
     },
     {
       "id": "readme_spec_audit_analytics_spend_cube_2026_09_09",
@@ -105644,7 +105644,7 @@
       "node_kind": "heading",
       "norm_label": "\ud83d\udcca spec audit: analytics & spend cube (2026-09-09)",
       "source_file": "README.md",
-      "source_location": "L723"
+      "source_location": "L739"
     },
     {
       "id": "readme_spec_audit_contract_management_authoring_2026_09_09",
@@ -105656,7 +105656,7 @@
       "node_kind": "heading",
       "norm_label": "\ud83d\udcca spec audit: contract management & authoring (2026-09-09)",
       "source_file": "README.md",
-      "source_location": "L736"
+      "source_location": "L752"
     },
     {
       "id": "readme_spec_audit_end_to_end_persona_qa_multi_portal_2026_09_09",
@@ -105668,7 +105668,7 @@
       "node_kind": "heading",
       "norm_label": "\ud83d\udcca spec audit: end-to-end persona qa & multi-portal (2026-09-09)",
       "source_file": "README.md",
-      "source_location": "L687"
+      "source_location": "L703"
     },
     {
       "id": "readme_spec_audit_enterprise_notifications_audit_trail_2026_09_09",
@@ -105680,7 +105680,7 @@
       "node_kind": "heading",
       "norm_label": "\ud83d\udcca spec audit: enterprise notifications & audit trail (2026-09-09)",
       "source_file": "README.md",
-      "source_location": "L710"
+      "source_location": "L726"
     },
     {
       "id": "readme_spec_audit_enterprise_ticketing_slas_2026_09_09",
@@ -105692,7 +105692,7 @@
       "node_kind": "heading",
       "norm_label": "\ud83d\udcca spec audit: enterprise ticketing & slas (2026-09-09)",
       "source_file": "README.md",
-      "source_location": "L749"
+      "source_location": "L765"
     },
     {
       "id": "readme_spec_audit_erp_payment_gateways_2026_09_09",
@@ -105704,7 +105704,7 @@
       "node_kind": "heading",
       "norm_label": "\ud83d\udcca spec audit: erp & payment gateways (2026-09-09)",
       "source_file": "README.md",
-      "source_location": "L697"
+      "source_location": "L713"
     },
     {
       "id": "readme_spec_audit_requisition_to_po_workflow_2026_09_09",
@@ -105716,7 +105716,7 @@
       "node_kind": "heading",
       "norm_label": "\ud83d\udcca spec audit: requisition-to-po workflow (2026-09-09)",
       "source_file": "README.md",
-      "source_location": "L805"
+      "source_location": "L821"
     },
     {
       "id": "readme_spec_audit_rfq_reverse_auction_bidding_2026_09_09",
@@ -105728,7 +105728,7 @@
       "node_kind": "heading",
       "norm_label": "\ud83d\udcca spec audit: rfq & reverse auction bidding (2026-09-09)",
       "source_file": "README.md",
-      "source_location": "L778"
+      "source_location": "L794"
     },
     {
       "id": "readme_spec_audit_supplier_onboarding_compliance_2026_09_09",
@@ -105740,7 +105740,7 @@
       "node_kind": "heading",
       "norm_label": "\ud83d\udcca spec audit: supplier onboarding & compliance (2026-09-09)",
       "source_file": "README.md",
-      "source_location": "L763"
+      "source_location": "L779"
     },
     {
       "id": "readme_spec_audit_supplier_performance_scorecards_risk_2026_09_09",
@@ -105752,7 +105752,7 @@
       "node_kind": "heading",
       "norm_label": "\ud83d\udcca spec audit: supplier performance scorecards & risk (2026-09-09)",
       "source_file": "README.md",
-      "source_location": "L660"
+      "source_location": "L676"
     },
     {
       "id": "procurement_portal_frontend_apps_buyer_portal_app_main_grn_scan_page",
@@ -110821,7 +110821,7 @@
       "node_kind": "heading",
       "norm_label": "mode 1: complete docker stack (fastest)",
       "source_file": "README.md",
-      "source_location": "L44"
+      "source_location": "L60"
     },
     {
       "id": "readme_mode_2_local_development_hybrid",
@@ -110833,7 +110833,7 @@
       "node_kind": "heading",
       "norm_label": "mode 2: local development (hybrid)",
       "source_file": "README.md",
-      "source_location": "L54"
+      "source_location": "L70"
     },
     {
       "id": "readme_quick_test_commands",
@@ -110845,7 +110845,7 @@
       "node_kind": "heading",
       "norm_label": "quick test commands",
       "source_file": "README.md",
-      "source_location": "L83"
+      "source_location": "L99"
     },
     {
       "id": "readme_quickstart_verification",
@@ -110857,7 +110857,7 @@
       "node_kind": "heading",
       "norm_label": "\u26a1 quickstart & verification",
       "source_file": "README.md",
-      "source_location": "L42"
+      "source_location": "L58"
     },
     {
       "id": "procurement_portal_frontend_apps_admin_portal_app_main_organization_business_units_page",
@@ -111795,7 +111795,7 @@
       "source_location": "L1"
     },
     {
-      "id": "app_core_redis_client_rationale_118",
+      "id": "app_core_redis_client_rationale_127",
       "label": "Get a Redis client sharing the singleton ConnectionPool for the given DB index.",
       "_origin": "ast",
       "community": 554,
@@ -111803,10 +111803,10 @@
       "file_type": "rationale",
       "norm_label": "get a redis client sharing the singleton connectionpool for the given db index.",
       "source_file": "app/core/redis_client.py",
-      "source_location": "L118"
+      "source_location": "L127"
     },
     {
-      "id": "app_core_redis_client_rationale_96",
+      "id": "app_core_redis_client_rationale_98",
       "label": "Retrieve or initialize a cached singleton ConnectionPool for the requested DB\u2026",
       "_origin": "ast",
       "community": 554,
@@ -111814,7 +111814,7 @@
       "file_type": "rationale",
       "norm_label": "retrieve or initialize a cached singleton connectionpool for the requested db...",
       "source_file": "app/core/redis_client.py",
-      "source_location": "L96"
+      "source_location": "L98"
     },
     {
       "id": "app_modules_integration_adapters_pan_rationale_15",
@@ -118280,7 +118280,7 @@
       "source_location": "L74"
     },
     {
-      "id": "app_core_redis_client_rationale_124",
+      "id": "app_core_redis_client_rationale_133",
       "label": "Disconnect and clean up all singleton connection pools.",
       "_origin": "ast",
       "community": 95,
@@ -118288,7 +118288,7 @@
       "file_type": "rationale",
       "norm_label": "disconnect and clean up all singleton connection pools.",
       "source_file": "app/core/redis_client.py",
-      "source_location": "L124"
+      "source_location": "L133"
     },
     {
       "id": "app_modules_admin_router_rationale_38",
@@ -126442,7 +126442,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/core/redis_client.py",
-      "source_location": "L119",
+      "source_location": "L128",
       "weight": 1.0
     },
     {
@@ -146962,7 +146962,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L228",
+      "source_location": "L232",
       "weight": 1.0
     },
     {
@@ -146974,7 +146974,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L265",
+      "source_location": "L269",
       "weight": 1.0
     },
     {
@@ -146986,7 +146986,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L642",
+      "source_location": "L646",
       "weight": 1.0
     },
     {
@@ -146998,7 +146998,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L647",
+      "source_location": "L651",
       "weight": 1.0
     },
     {
@@ -147010,7 +147010,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L662",
+      "source_location": "L666",
       "weight": 1.0
     },
     {
@@ -147022,7 +147022,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L282",
+      "source_location": "L286",
       "weight": 1.0
     },
     {
@@ -147034,7 +147034,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L293",
+      "source_location": "L297",
       "weight": 1.0
     },
     {
@@ -147046,7 +147046,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L299",
+      "source_location": "L303",
       "weight": 1.0
     },
     {
@@ -147058,7 +147058,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L577",
+      "source_location": "L581",
       "weight": 1.0
     },
     {
@@ -147070,7 +147070,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L595",
+      "source_location": "L599",
       "weight": 1.0
     },
     {
@@ -147082,7 +147082,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L483",
+      "source_location": "L487",
       "weight": 1.0
     },
     {
@@ -147094,7 +147094,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L490",
+      "source_location": "L494",
       "weight": 1.0
     },
     {
@@ -147106,7 +147106,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L500",
+      "source_location": "L504",
       "weight": 1.0
     },
     {
@@ -147118,7 +147118,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L352",
+      "source_location": "L356",
       "weight": 1.0
     },
     {
@@ -147130,7 +147130,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L358",
+      "source_location": "L362",
       "weight": 1.0
     },
     {
@@ -147142,7 +147142,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L360",
+      "source_location": "L364",
       "weight": 1.0
     },
     {
@@ -147154,7 +147154,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L379",
+      "source_location": "L383",
       "weight": 1.0
     },
     {
@@ -147166,7 +147166,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L550",
+      "source_location": "L554",
       "weight": 1.0
     },
     {
@@ -147178,7 +147178,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L558",
+      "source_location": "L562",
       "weight": 1.0
     },
     {
@@ -147190,7 +147190,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L564",
+      "source_location": "L568",
       "weight": 1.0
     },
     {
@@ -147202,7 +147202,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L566",
+      "source_location": "L570",
       "weight": 1.0
     },
     {
@@ -147250,7 +147250,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L312",
+      "source_location": "L316",
       "weight": 1.0
     },
     {
@@ -147262,7 +147262,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L447",
+      "source_location": "L451",
       "weight": 1.0
     },
     {
@@ -147274,7 +147274,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L460",
+      "source_location": "L464",
       "weight": 1.0
     },
     {
@@ -147286,7 +147286,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L464",
+      "source_location": "L468",
       "weight": 1.0
     },
     {
@@ -147298,7 +147298,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L330",
+      "source_location": "L334",
       "weight": 1.0
     },
     {
@@ -147310,7 +147310,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L400",
+      "source_location": "L404",
       "weight": 1.0
     },
     {
@@ -147322,7 +147322,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L878",
+      "source_location": "L882",
       "weight": 1.0
     },
     {
@@ -199934,7 +199934,7 @@
       "confidence_score": 1.0,
       "context": "generic_arg",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L668",
+      "source_location": "L672",
       "weight": 1.0
     },
     {
@@ -199946,7 +199946,7 @@
       "confidence_score": 1.0,
       "context": "generic_arg",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L668",
+      "source_location": "L672",
       "weight": 1.0
     },
     {
@@ -199958,7 +199958,7 @@
       "confidence_score": 1.0,
       "context": "generic_arg",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L466",
+      "source_location": "L470",
       "weight": 1.0
     },
     {
@@ -199970,7 +199970,7 @@
       "confidence_score": 1.0,
       "context": "generic_arg",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L802",
+      "source_location": "L806",
       "weight": 1.0
     },
     {
@@ -199982,7 +199982,7 @@
       "confidence_score": 1.0,
       "context": "generic_arg",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L385",
+      "source_location": "L389",
       "weight": 1.0
     },
     {
@@ -221345,7 +221345,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L1019",
+      "source_location": "L1023",
       "weight": 1.0
     },
     {
@@ -221357,7 +221357,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L1076",
+      "source_location": "L1080",
       "weight": 1.0
     },
     {
@@ -221369,7 +221369,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L1096",
+      "source_location": "L1100",
       "weight": 1.0
     },
     {
@@ -221381,7 +221381,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L1097",
+      "source_location": "L1101",
       "weight": 1.0
     },
     {
@@ -221561,7 +221561,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L854",
+      "source_location": "L858",
       "weight": 1.0
     },
     {
@@ -221573,7 +221573,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L862",
+      "source_location": "L866",
       "weight": 1.0
     },
     {
@@ -221585,7 +221585,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L863",
+      "source_location": "L867",
       "weight": 1.0
     },
     {
@@ -221597,7 +221597,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L919",
+      "source_location": "L923",
       "weight": 1.0
     },
     {
@@ -221609,7 +221609,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L920",
+      "source_location": "L924",
       "weight": 1.0
     },
     {
@@ -221621,7 +221621,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L965",
+      "source_location": "L969",
       "weight": 1.0
     },
     {
@@ -221633,7 +221633,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L965",
+      "source_location": "L969",
       "weight": 1.0
     },
     {
@@ -319890,7 +319890,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L631",
+      "source_location": "L635",
       "weight": 1.0
     },
     {
@@ -319902,7 +319902,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L631",
+      "source_location": "L635",
       "weight": 1.0
     },
     {
@@ -319914,7 +319914,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L668",
+      "source_location": "L672",
       "weight": 1.0
     },
     {
@@ -319926,7 +319926,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L668",
+      "source_location": "L672",
       "weight": 1.0
     },
     {
@@ -319938,7 +319938,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L268",
+      "source_location": "L272",
       "weight": 1.0
     },
     {
@@ -319950,7 +319950,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L268",
+      "source_location": "L272",
       "weight": 1.0
     },
     {
@@ -319962,7 +319962,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L816",
+      "source_location": "L820",
       "weight": 1.0
     },
     {
@@ -319974,7 +319974,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L816",
+      "source_location": "L820",
       "weight": 1.0
     },
     {
@@ -319986,7 +319986,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L568",
+      "source_location": "L572",
       "weight": 1.0
     },
     {
@@ -319998,7 +319998,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L568",
+      "source_location": "L572",
       "weight": 1.0
     },
     {
@@ -320010,7 +320010,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L568",
+      "source_location": "L572",
       "weight": 1.0
     },
     {
@@ -320022,7 +320022,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L466",
+      "source_location": "L470",
       "weight": 1.0
     },
     {
@@ -320034,7 +320034,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L466",
+      "source_location": "L470",
       "weight": 1.0
     },
     {
@@ -320046,7 +320046,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L338",
+      "source_location": "L342",
       "weight": 1.0
     },
     {
@@ -320058,7 +320058,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L338",
+      "source_location": "L342",
       "weight": 1.0
     },
     {
@@ -320070,7 +320070,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L802",
+      "source_location": "L806",
       "weight": 1.0
     },
     {
@@ -320082,7 +320082,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L802",
+      "source_location": "L806",
       "weight": 1.0
     },
     {
@@ -320094,7 +320094,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L530",
+      "source_location": "L534",
       "weight": 1.0
     },
     {
@@ -320106,7 +320106,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L530",
+      "source_location": "L534",
       "weight": 1.0
     },
     {
@@ -320118,7 +320118,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L530",
+      "source_location": "L534",
       "weight": 1.0
     },
     {
@@ -320202,7 +320202,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L302",
+      "source_location": "L306",
       "weight": 1.0
     },
     {
@@ -320214,7 +320214,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L302",
+      "source_location": "L306",
       "weight": 1.0
     },
     {
@@ -320226,7 +320226,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L439",
+      "source_location": "L443",
       "weight": 1.0
     },
     {
@@ -320238,7 +320238,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L439",
+      "source_location": "L443",
       "weight": 1.0
     },
     {
@@ -320250,7 +320250,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L320",
+      "source_location": "L324",
       "weight": 1.0
     },
     {
@@ -320262,7 +320262,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L320",
+      "source_location": "L324",
       "weight": 1.0
     },
     {
@@ -320274,7 +320274,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L385",
+      "source_location": "L389",
       "weight": 1.0
     },
     {
@@ -320286,7 +320286,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L385",
+      "source_location": "L389",
       "weight": 1.0
     },
     {
@@ -320298,7 +320298,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L839",
+      "source_location": "L843",
       "weight": 1.0
     },
     {
@@ -320310,7 +320310,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L839",
+      "source_location": "L843",
       "weight": 1.0
     },
     {
@@ -327724,7 +327724,7 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "app/core/redis_client.py",
-      "source_location": "L117",
+      "source_location": "L126",
       "weight": 1.0
     },
     {
@@ -327736,7 +327736,7 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "app/core/redis_client.py",
-      "source_location": "L95",
+      "source_location": "L97",
       "weight": 1.0
     },
     {
@@ -330856,7 +330856,7 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L268",
+      "source_location": "L272",
       "weight": 1.0
     },
     {
@@ -330868,7 +330868,7 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L338",
+      "source_location": "L342",
       "weight": 1.0
     },
     {
@@ -330880,7 +330880,7 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L302",
+      "source_location": "L306",
       "weight": 1.0
     },
     {
@@ -330892,7 +330892,7 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L320",
+      "source_location": "L324",
       "weight": 1.0
     },
     {
@@ -333359,7 +333359,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/core/redis_client.py",
-      "source_location": "L123",
+      "source_location": "L132",
       "weight": 1.0
     },
     {
@@ -333370,7 +333370,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/core/redis_client.py",
-      "source_location": "L95",
+      "source_location": "L97",
       "weight": 1.0
     },
     {
@@ -372568,13 +372568,13 @@
     },
     {
       "source": "readme_assumptions_log",
-      "target": "readme_current_session_state_651",
+      "target": "readme_current_session_state_667",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L651",
+      "source_location": "L667",
       "weight": 1.0
     },
     {
@@ -372585,7 +372585,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L660",
+      "source_location": "L676",
       "weight": 1.0
     },
     {
@@ -372596,7 +372596,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L675",
+      "source_location": "L691",
       "weight": 1.0
     },
     {
@@ -372607,7 +372607,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L687",
+      "source_location": "L703",
       "weight": 1.0
     },
     {
@@ -372618,7 +372618,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L697",
+      "source_location": "L713",
       "weight": 1.0
     },
     {
@@ -372629,7 +372629,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L710",
+      "source_location": "L726",
       "weight": 1.0
     },
     {
@@ -372640,7 +372640,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L723",
+      "source_location": "L739",
       "weight": 1.0
     },
     {
@@ -372651,7 +372651,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L736",
+      "source_location": "L752",
       "weight": 1.0
     },
     {
@@ -372662,7 +372662,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L749",
+      "source_location": "L765",
       "weight": 1.0
     },
     {
@@ -372673,7 +372673,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L763",
+      "source_location": "L779",
       "weight": 1.0
     },
     {
@@ -372684,7 +372684,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L778",
+      "source_location": "L794",
       "weight": 1.0
     },
     {
@@ -372695,7 +372695,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L792",
+      "source_location": "L808",
       "weight": 1.0
     },
     {
@@ -372706,7 +372706,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L805",
+      "source_location": "L821",
       "weight": 1.0
     },
     {
@@ -372717,7 +372717,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L44",
+      "source_location": "L60",
       "weight": 1.0
     },
     {
@@ -372728,7 +372728,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L54",
+      "source_location": "L70",
       "weight": 1.0
     },
     {
@@ -372739,7 +372739,18 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L83",
+      "source_location": "L99",
+      "weight": 1.0
+    },
+    {
+      "source": "readme_s2p_procurement_portal",
+      "target": "readme_step_by_step_local_setup",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": "L111",
       "weight": 1.0
     },
     {
@@ -372761,7 +372772,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L374",
+      "source_location": "L390",
       "weight": 1.0
     },
     {
@@ -372772,18 +372783,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L407",
-      "weight": 1.0
-    },
-    {
-      "source": "readme_s2p_procurement_portal",
-      "target": "readme_quickstart_verification",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "README.md",
-      "source_location": "L42",
+      "source_location": "L423",
       "weight": 1.0
     },
     {
@@ -372794,7 +372794,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L427",
+      "source_location": "L443",
       "weight": 1.0
     },
     {
@@ -372805,7 +372805,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L453",
+      "source_location": "L469",
       "weight": 1.0
     },
     {
@@ -372816,7 +372816,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L505",
+      "source_location": "L521",
       "weight": 1.0
     },
     {
@@ -372827,7 +372827,18 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L519",
+      "source_location": "L535",
+      "weight": 1.0
+    },
+    {
+      "source": "readme_s2p_procurement_portal",
+      "target": "readme_quickstart_verification",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": "L58",
       "weight": 1.0
     },
     {
@@ -372842,17 +372853,6 @@
       "weight": 1.0
     },
     {
-      "source": "readme_s2p_procurement_portal",
-      "target": "readme_step_by_step_local_setup",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "README.md",
-      "source_location": "L95",
-      "weight": 1.0
-    },
-    {
       "source": "readme_service_port_directory",
       "target": "readme_live_terminal_log_streaming",
       "relation": "contains",
@@ -372860,7 +372860,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L474",
+      "source_location": "L490",
       "weight": 1.0
     },
     {
@@ -372871,7 +372871,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L149",
+      "source_location": "L165",
       "weight": 1.0
     },
     {
@@ -372882,7 +372882,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L180",
+      "source_location": "L196",
       "weight": 1.0
     },
     {
@@ -372893,7 +372893,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L225",
+      "source_location": "L241",
       "weight": 1.0
     },
     {
@@ -372904,7 +372904,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L234",
+      "source_location": "L250",
       "weight": 1.0
     },
     {
@@ -372915,84 +372915,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L250",
-      "weight": 1.0
-    },
-    {
-      "source": "readme_step_by_step_local_setup",
-      "target": "readme_step_2_configuration_environment_variables_env",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "README.md",
-      "source_location": "L141",
-      "weight": 1.0
-    },
-    {
-      "source": "readme_step_by_step_local_setup",
-      "target": "readme_step_3_generate_rsa_keys_jwt_auth",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "README.md",
-      "source_location": "L262",
-      "weight": 1.0
-    },
-    {
-      "source": "readme_step_by_step_local_setup",
-      "target": "readme_step_4_start_backing_services_docker",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "README.md",
-      "source_location": "L272",
-      "weight": 1.0
-    },
-    {
-      "source": "readme_step_by_step_local_setup",
-      "target": "readme_step_5_database_migrations_messaging_setup",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "README.md",
-      "source_location": "L287",
-      "weight": 1.0
-    },
-    {
-      "source": "readme_step_by_step_local_setup",
-      "target": "readme_step_6_seed_master_data_create_superadmin",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "README.md",
-      "source_location": "L306",
-      "weight": 1.0
-    },
-    {
-      "source": "readme_step_by_step_local_setup",
-      "target": "readme_step_7_docker_mode_start_all_remaining_application_containers",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "README.md",
-      "source_location": "L336",
-      "weight": 1.0
-    },
-    {
-      "source": "readme_step_by_step_local_setup",
-      "target": "readme_step_7_alternative_local_hybrid_mode_start_application_services_locally",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "README.md",
-      "source_location": "L350",
+      "source_location": "L266",
       "weight": 1.0
     },
     {
@@ -373003,7 +372926,84 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L99",
+      "source_location": "L115",
+      "weight": 1.0
+    },
+    {
+      "source": "readme_step_by_step_local_setup",
+      "target": "readme_step_2_configuration_environment_variables_env",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": "L157",
+      "weight": 1.0
+    },
+    {
+      "source": "readme_step_by_step_local_setup",
+      "target": "readme_step_3_generate_rsa_keys_jwt_auth",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": "L278",
+      "weight": 1.0
+    },
+    {
+      "source": "readme_step_by_step_local_setup",
+      "target": "readme_step_4_start_backing_services_docker",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": "L288",
+      "weight": 1.0
+    },
+    {
+      "source": "readme_step_by_step_local_setup",
+      "target": "readme_step_5_database_migrations_messaging_setup",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": "L303",
+      "weight": 1.0
+    },
+    {
+      "source": "readme_step_by_step_local_setup",
+      "target": "readme_step_6_seed_master_data_create_superadmin",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": "L322",
+      "weight": 1.0
+    },
+    {
+      "source": "readme_step_by_step_local_setup",
+      "target": "readme_step_7_docker_mode_start_all_remaining_application_containers",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": "L352",
+      "weight": 1.0
+    },
+    {
+      "source": "readme_step_by_step_local_setup",
+      "target": "readme_step_7_alternative_local_hybrid_mode_start_application_services_locally",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": "L366",
       "weight": 1.0
     },
     {
@@ -405953,7 +405953,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L268",
+      "source_location": "L272",
       "weight": 1.0
     },
     {
@@ -405964,7 +405964,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L302",
+      "source_location": "L306",
       "weight": 1.0
     },
     {
@@ -405975,7 +405975,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L320",
+      "source_location": "L324",
       "weight": 1.0
     },
     {
@@ -405986,7 +405986,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L338",
+      "source_location": "L342",
       "weight": 1.0
     },
     {
@@ -405997,7 +405997,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L385",
+      "source_location": "L389",
       "weight": 1.0
     },
     {
@@ -406008,7 +406008,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L439",
+      "source_location": "L443",
       "weight": 1.0
     },
     {
@@ -406019,7 +406019,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L466",
+      "source_location": "L470",
       "weight": 1.0
     },
     {
@@ -406030,7 +406030,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L530",
+      "source_location": "L534",
       "weight": 1.0
     },
     {
@@ -406041,7 +406041,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L568",
+      "source_location": "L572",
       "weight": 1.0
     },
     {
@@ -406052,7 +406052,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L631",
+      "source_location": "L635",
       "weight": 1.0
     },
     {
@@ -406074,7 +406074,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L668",
+      "source_location": "L672",
       "weight": 1.0
     },
     {
@@ -406085,18 +406085,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L802",
-      "weight": 1.0
-    },
-    {
-      "source": "app_modules_workflow_service_workflowengine",
-      "target": "app_modules_workflow_service_workflowengine_cancel_pending_tasks",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "app/modules/workflow/service.py",
-      "source_location": "L816",
+      "source_location": "L806",
       "weight": 1.0
     },
     {
@@ -406112,13 +406101,24 @@
     },
     {
       "source": "app_modules_workflow_service_workflowengine",
+      "target": "app_modules_workflow_service_workflowengine_cancel_pending_tasks",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/modules/workflow/service.py",
+      "source_location": "L820",
+      "weight": 1.0
+    },
+    {
+      "source": "app_modules_workflow_service_workflowengine",
       "target": "app_modules_workflow_service_workflowengine_sync_entity_on_completion",
       "relation": "method",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L839",
+      "source_location": "L843",
       "weight": 1.0
     },
     {
@@ -412590,25 +412590,25 @@
       "weight": 1.0
     },
     {
-      "source": "app_core_redis_client_rationale_118",
+      "source": "app_core_redis_client_rationale_127",
       "target": "app_core_redis_client_get_redis_client",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/core/redis_client.py",
-      "source_location": "L118",
+      "source_location": "L127",
       "weight": 1.0
     },
     {
-      "source": "app_core_redis_client_rationale_124",
+      "source": "app_core_redis_client_rationale_133",
       "target": "app_core_redis_client_close_redis_pools",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/core/redis_client.py",
-      "source_location": "L124",
+      "source_location": "L133",
       "weight": 1.0
     },
     {
@@ -412634,14 +412634,14 @@
       "weight": 1.0
     },
     {
-      "source": "app_core_redis_client_rationale_96",
+      "source": "app_core_redis_client_rationale_98",
       "target": "app_core_redis_client_get_redis_pool",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/core/redis_client.py",
-      "source_location": "L96",
+      "source_location": "L98",
       "weight": 1.0
     },
     {
@@ -419993,102 +419993,102 @@
       "weight": 1.0
     },
     {
-      "source": "app_modules_workflow_service_rationale_276",
+      "source": "app_modules_workflow_service_rationale_280",
       "target": "app_modules_workflow_service_workflowengine_cancel",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L276",
+      "source_location": "L280",
       "weight": 1.0
     },
     {
-      "source": "app_modules_workflow_service_rationale_309",
+      "source": "app_modules_workflow_service_rationale_313",
       "target": "app_modules_workflow_service_workflowengine_pause",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L309",
+      "source_location": "L313",
       "weight": 1.0
     },
     {
-      "source": "app_modules_workflow_service_rationale_327",
+      "source": "app_modules_workflow_service_rationale_331",
       "target": "app_modules_workflow_service_workflowengine_resume",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L327",
+      "source_location": "L331",
       "weight": 1.0
     },
     {
-      "source": "app_modules_workflow_service_rationale_346",
+      "source": "app_modules_workflow_service_rationale_350",
       "target": "app_modules_workflow_service_workflowengine_force_advance",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L346",
+      "source_location": "L350",
       "weight": 1.0
     },
     {
-      "source": "app_modules_workflow_service_rationale_392",
+      "source": "app_modules_workflow_service_rationale_396",
       "target": "app_modules_workflow_service_workflowengine_simulate",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L392",
+      "source_location": "L396",
       "weight": 1.0
     },
     {
-      "source": "app_modules_workflow_service_rationale_446",
+      "source": "app_modules_workflow_service_rationale_450",
       "target": "app_modules_workflow_service_workflowengine_process_step",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L446",
+      "source_location": "L450",
       "weight": 1.0
     },
     {
-      "source": "app_modules_workflow_service_rationale_473",
+      "source": "app_modules_workflow_service_rationale_477",
       "target": "app_modules_workflow_service_workflowengine_create_tasks_for_step",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L473",
+      "source_location": "L477",
       "weight": 1.0
     },
     {
-      "source": "app_modules_workflow_service_rationale_537",
+      "source": "app_modules_workflow_service_rationale_541",
       "target": "app_modules_workflow_service_workflowengine_handle_step_completion",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L537",
+      "source_location": "L541",
       "weight": 1.0
     },
     {
-      "source": "app_modules_workflow_service_rationale_575",
+      "source": "app_modules_workflow_service_rationale_579",
       "target": "app_modules_workflow_service_workflowengine_check_parallel_convergence",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L575",
+      "source_location": "L579",
       "weight": 1.0
     },
     {
@@ -420103,58 +420103,58 @@
       "weight": 1.0
     },
     {
-      "source": "app_modules_workflow_service_rationale_634",
+      "source": "app_modules_workflow_service_rationale_638",
       "target": "app_modules_workflow_service_workflowengine_advance_to_next_step",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L634",
+      "source_location": "L638",
       "weight": 1.0
     },
     {
-      "source": "app_modules_workflow_service_rationale_676",
+      "source": "app_modules_workflow_service_rationale_680",
       "target": "app_modules_workflow_service_workflowengine_apply_delegation",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L676",
+      "source_location": "L680",
       "weight": 1.0
     },
     {
-      "source": "app_modules_workflow_service_rationale_808",
+      "source": "app_modules_workflow_service_rationale_812",
       "target": "app_modules_workflow_service_workflowengine_get_escalation_approvers",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L808",
+      "source_location": "L812",
       "weight": 1.0
     },
     {
-      "source": "app_modules_workflow_service_rationale_822",
+      "source": "app_modules_workflow_service_rationale_826",
       "target": "app_modules_workflow_service_workflowengine_cancel_pending_tasks",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L822",
+      "source_location": "L826",
       "weight": 1.0
     },
     {
-      "source": "app_modules_workflow_service_rationale_845",
+      "source": "app_modules_workflow_service_rationale_849",
       "target": "app_modules_workflow_service_workflowengine_sync_entity_on_completion",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L845",
+      "source_location": "L849",
       "weight": 1.0
     },
     {
@@ -428515,7 +428515,7 @@
       "confidence_score": 0.85,
       "context": "assignment",
       "source_file": "app/core/redis_client.py",
-      "source_location": "L130",
+      "source_location": "L142",
       "weight": 1.0
     },
     {
@@ -429259,7 +429259,7 @@
       "confidence_score": 0.85,
       "context": "call",
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L495",
+      "source_location": "L499",
       "weight": 1.0
     },
     {
@@ -446045,7 +446045,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.95,
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L1107",
+      "source_location": "L1111",
       "weight": 0.8
     },
     {
@@ -446067,7 +446067,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.95,
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L228",
+      "source_location": "L232",
       "weight": 0.8
     },
     {
@@ -446078,7 +446078,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.95,
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L296",
+      "source_location": "L300",
       "weight": 0.8
     },
     {
@@ -446122,7 +446122,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.95,
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L873",
+      "source_location": "L877",
       "weight": 0.8
     },
     {
@@ -446133,7 +446133,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.95,
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L878",
+      "source_location": "L882",
       "weight": 0.8
     },
     {
@@ -446144,7 +446144,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.95,
       "source_file": "app/modules/workflow/service.py",
-      "source_location": "L930",
+      "source_location": "L934",
       "weight": 0.8
     },
     {
@@ -454398,5 +454398,5 @@
       "source_file": "specs/SPEC_04_AUTH_SECURITY.md"
     }
   ],
-  "built_at_commit": "05f1e4cd48293e039b13ee227e7f5dc593ca004f"
+  "built_at_commit": "11c124d1f543ac41cefa783aebf0e35920485dd5"
 }

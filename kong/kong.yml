@@ -304,6 +304,47 @@ routes:
     strip_path: false
     paths:
       - /api/v1/einvoice
+      - /api/v1/einvoicing
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 100
+
+  - name: asns-route
+    service: api
+    strip_path: false
+    paths:
+      - /api/v1/asns
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 100
+
+  - name: developer-route
+    service: api
+    strip_path: false
+    paths:
+      - /api/v1/developer
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 100
+
+  - name: audit-route
+    service: api
+    strip_path: false
+    paths:
+      - /api/v1/audit
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 100
+
+  - name: compliance-route
+    service: api
+    strip_path: false
+    paths:
+      - /api/v1/compliance
     plugins:
       - name: rate-limiting
         config:

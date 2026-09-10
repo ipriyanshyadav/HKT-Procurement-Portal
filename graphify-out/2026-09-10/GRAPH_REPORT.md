@@ -1,7 +1,7 @@
 # Graph Report - procurement-portal  (2026-09-10)
 
 ## Corpus Check
-- 1020 files · ~925,051 words
+- 1020 files · ~925,110 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `05f1e4cd`
+- Built from commit: `11c124d1`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
