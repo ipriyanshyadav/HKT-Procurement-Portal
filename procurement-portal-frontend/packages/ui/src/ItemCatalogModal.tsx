@@ -85,16 +85,24 @@ export function ItemCatalogModal({
     }
   };
 
+  const catalogItemMap = useMemo(() => {
+    const map = new Map<string, ItemMaster>();
+    catalogItems.forEach((item) => map.set(item.id, item));
+    return map;
+  }, [catalogItems]);
+
   const selectedCount = Object.keys(selectedCart).length;
-  const selectedTotal = Object.entries(selectedCart).reduce((sum, [id, qty]) => {
-    const item = catalogItems.find((i) => i.id === id);
-    return sum + (item ? Number(item.standard_price) * qty : 0);
-  }, 0);
+  const selectedTotal = useMemo(() => {
+    return Object.entries(selectedCart).reduce((sum, [id, qty]) => {
+      const item = catalogItemMap.get(id);
+      return sum + (item ? Number(item.standard_price) * qty : 0);
+    }, 0);
+  }, [selectedCart, catalogItemMap]);
 
   const handleApplySelection = () => {
     const linesToAdd = Object.entries(selectedCart)
       .map(([id, qty]) => {
-        const item = catalogItems.find((i) => i.id === id);
+        const item = catalogItemMap.get(id);
         if (!item) return null;
         return {
           code: item.code,
@@ -124,7 +132,7 @@ export function ItemCatalogModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
+    <div className="fixed inset-0 z-50 overflow-y-auto overscroll-contain apple-scroll-container bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
       <div className="relative w-full max-w-5xl bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col max-h-[90vh] overflow-hidden animate-in fade-in zoom-in-95 duration-150">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
@@ -178,7 +186,7 @@ export function ItemCatalogModal({
         </div>
 
         {/* Product Grid / Catalog list */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto overscroll-contain apple-scroll-container p-6">
           {isLoading ? (
             <div className="py-20 text-center text-slate-400">
               <Package className="w-8 h-8 mx-auto animate-pulse text-indigo-400 mb-2" />

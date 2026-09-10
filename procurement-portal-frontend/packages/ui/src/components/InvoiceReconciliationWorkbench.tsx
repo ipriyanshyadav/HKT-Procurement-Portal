@@ -38,6 +38,7 @@ export function InvoiceReconciliationWorkbench() {
   const [reconcileResult, setReconcileResult] = useState<AdvancedReconciliationResponse | null>(null);
   const [disputeNote, setDisputeNote] = useState<string>("");
   const [isDisputing, setIsDisputing] = useState<boolean>(false);
+  const [reconcileError, setReconcileError] = useState<string | null>(null);
 
   // Queries & Mutations
   const { data: dashboardStats, isLoading: loadingStats, refetch: refetchStats } = useReconciliationDashboard();
@@ -48,6 +49,7 @@ export function InvoiceReconciliationWorkbench() {
 
   const handleRunReconcile = async (invoice: InvoiceResponse) => {
     setSelectedInvoice(invoice);
+    setReconcileError(null);
     try {
       const result = await reconcileMutation.mutateAsync({
         invoiceId: invoice.id,
@@ -61,8 +63,9 @@ export function InvoiceReconciliationWorkbench() {
       setReconcileResult(result);
       refetchStats();
       refetchInvoices();
-    } catch (err) {
-      console.error(err);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to execute invoice reconciliation.";
+      setReconcileError(msg);
     }
   };
 
@@ -259,6 +262,12 @@ export function InvoiceReconciliationWorkbench() {
         </div>
       </div>
 
+      {reconcileError && (
+        <div className="p-4 bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-200 border border-rose-200 dark:border-rose-900 rounded-xl text-xs font-semibold">
+          ⚠️ {reconcileError}
+        </div>
+      )}
+
       {/* Main Split Layout: Invoices Table & Split Reconciliation Workbench */}
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
         {/* Invoices List Panel (5 cols) */}
@@ -268,7 +277,7 @@ export function InvoiceReconciliationWorkbench() {
               Invoices Queue ({invoices.length})
             </h2>
 
-            <div className="space-y-2 max-h-[600px] overflow-y-auto pr-1">
+            <div className="space-y-2 max-h-[600px] overflow-y-auto overscroll-contain apple-scroll-container pr-1">
               {loadingInvoices ? (
                 <div className="p-8 text-center text-sm text-gray-400">Loading invoices...</div>
               ) : invoices.length === 0 ? (

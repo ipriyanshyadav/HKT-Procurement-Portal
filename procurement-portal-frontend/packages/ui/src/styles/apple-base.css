@@ -584,9 +584,25 @@ body {
   border-color: rgba(255, 255, 255, 0.12) !important;
 }
 
-/* === SMOOTH SCROLL === */
+/* === SMOOTH SCROLL & SCROLL CONTAINMENT === */
 html {
   scroll-behavior: smooth;
+}
+
+/* Modal and popup table scroll containment (prevents lag and scroll chaining) */
+.apple-scroll-container,
+.apple-table-scroll,
+.apple-modal,
+[role="dialog"] [class*="overflow-y-auto"],
+[data-radix-dialog-content] [class*="overflow-y-auto"] {
+  overscroll-behavior: contain !important;
+  -webkit-overflow-scrolling: touch !important;
+  scrollbar-gutter: stable;
+}
+
+.apple-table-container,
+.apple-modal {
+  transform: translateZ(0); /* Hardware accelerated composite layer */
 }
 
 /* === SELECTION === */

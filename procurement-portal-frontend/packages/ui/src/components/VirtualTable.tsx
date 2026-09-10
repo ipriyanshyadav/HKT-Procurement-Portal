@@ -64,7 +64,7 @@ export function VirtualTable<T>({
           overflowY: 'auto',
           width: '100%',
         }}
-        className="w-full relative"
+        className="w-full relative apple-scroll-container overscroll-contain"
       >
         <table className="apple-table w-full border-collapse">
           {/* Sticky Header */}

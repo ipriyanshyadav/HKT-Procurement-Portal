@@ -6,6 +6,17 @@
   border: 1px solid var(--apple-separator);
   background: var(--apple-bg-primary);
   box-shadow: var(--apple-card-shadow);
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-gutter: stable;
+}
+
+.apple-scroll-container,
+.apple-table-scroll {
+  overscroll-behavior: contain !important;
+  -webkit-overflow-scrolling: touch !important;
+  scrollbar-gutter: stable;
+  scroll-behavior: smooth;
 }
 
 .apple-table {

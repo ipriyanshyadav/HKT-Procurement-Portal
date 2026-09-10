@@ -1,6 +1,6 @@
 "use client";
 
-import React, { forwardRef, ButtonHTMLAttributes, ReactNode } from 'react';
+import React, { forwardRef, ButtonHTMLAttributes, ReactNode, useRef } from 'react';
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'ghost' | 'destructive' | 'danger' | 'outline' | 'icon';
@@ -25,10 +25,13 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       disabled,
       className = '',
       type = 'button',
+      onClick,
       ...rest
     },
     ref
   ) => {
+    const isClickingRef = useRef(false);
+
     let variantClass = 'btn-primary';
     if (variant === 'secondary' || variant === 'outline') variantClass = 'btn-secondary';
     else if (variant === 'ghost') variantClass = 'btn-ghost';
@@ -40,12 +43,38 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     else if (size === 'lg') sizeClass = 'btn-lg';
 
     const effectiveLeftIcon = leftIcon || icon;
+    const isActionDisabled = Boolean(disabled || loading);
+
+    const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+      if (isActionDisabled) {
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
+      // Suppress rapid double-clicks (400ms throttle guard)
+      if (isClickingRef.current) {
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
+      isClickingRef.current = true;
+      setTimeout(() => {
+        isClickingRef.current = false;
+      }, 400);
+
+      if (onClick) {
+        onClick(e);
+      }
+    };
 
     return (
       <button
         ref={ref}
         type={type}
-        disabled={disabled || loading}
+        disabled={isActionDisabled}
+        aria-busy={loading ? "true" : undefined}
+        aria-disabled={isActionDisabled ? "true" : undefined}
+        onClick={handleClick}
         className={`${variantClass} ${sizeClass} ${className}`}
         {...rest}
       >

@@ -112,7 +112,7 @@ export default function TasksPage() {
 
   const handleBatchApproveSubmit = async () => {
     const selectedTasks = tasks.filter((t) => selectedTaskIds.includes(t.id));
-    if (selectedTasks.length === 0) return;
+    if (selectedTasks.length === 0 || batchApproveMutation.isPending) return;
 
     try {
       await batchApproveMutation.mutateAsync(
@@ -390,7 +390,7 @@ export default function TasksPage() {
                 type="button"
                 onClick={handleBatchApproveSubmit}
                 disabled={batchApproveMutation.isPending}
-                className="px-4 py-2 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl disabled:opacity-50 flex items-center gap-2"
+                className="px-4 py-2 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl disabled:opacity-50 disabled:pointer-events-none flex items-center gap-2"
               >
                 {batchApproveMutation.isPending && <RefreshCw className="w-4 h-4 animate-spin" />}
                 Confirm Approval
@@ -402,7 +402,7 @@ export default function TasksPage() {
 
       {/* Out of Office / Delegations Modal */}
       {showDelegationModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4 overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4 overflow-y-auto overscroll-contain apple-scroll-container">
           <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl max-w-2xl w-full p-6 border border-slate-200 dark:border-slate-800 space-y-6 my-8">
             <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
               <div>
@@ -559,7 +559,7 @@ export default function TasksPage() {
                 <button
                   type="submit"
                   disabled={createDelegationMutation.isPending}
-                  className="px-4 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl disabled:opacity-50 flex items-center gap-2"
+                  className="px-4 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl disabled:opacity-50 disabled:pointer-events-none flex items-center gap-2"
                 >
                   {createDelegationMutation.isPending && <RefreshCw className="w-4 h-4 animate-spin" />}
                   Save Delegation

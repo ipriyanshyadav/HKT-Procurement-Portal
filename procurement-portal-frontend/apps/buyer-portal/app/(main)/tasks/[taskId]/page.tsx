@@ -64,7 +64,7 @@ export default function TaskDetailPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!action || !task) return;
+    if (!action || !task || isSubmitting) return;
 
     setSubmitError(null);
     const payload = { comment };
@@ -216,7 +216,8 @@ export default function TaskDetailPage() {
               <button
                 type="submit"
                 disabled={!action || isSubmitting}
-                className="w-full rounded-md bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-busy={isSubmitting ? "true" : undefined}
+                className="w-full rounded-md bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none"
               >
                 {isSubmitting ? "Submitting…" : "Submit Decision"}
               </button>
