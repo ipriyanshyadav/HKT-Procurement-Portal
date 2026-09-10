@@ -26,8 +26,30 @@ All three portals run simultaneously with seeded test roles. Access them directl
 > 🚪 **API Gateway (Kong):** [http://localhost:8000](http://localhost:8000) &nbsp;•&nbsp; **Direct Backend API:** [http://localhost:8080](http://localhost:8080)
 >
 > 📘 **Git & CI/CD Guide:** [Complete Beginner Guide to Git, GitHub & Branching](docs/GIT_AND_CICD_GUIDE.md)
->
+
 ---
+
+### 🎭 Full Enterprise Role Demonstration (8 Personas)
+
+The platform supports strict enterprise role separation (where each user only sees their own siloed screen) as well as an omnipotent **Super Admin** who can embody any persona on demand:
+
+| # | Role / Persona | Screen / Access Scope | Standalone Account | Super Admin 1-Click Route |
+| :-: | :--- | :--- | :--- | :--- |
+| **1** | **⚙️ System Admin** | Admin Portal (Users, Workflows, Master Data, Audit Logs) | `admin@procurement.com` | `http://localhost:3002/users` |
+| **2** | **📝 Requestor** | Buyer Portal (Catalog browsing, PR draft, submit requisition) | `buyer@procurement.com` | `http://localhost:3000/purchase-requests` |
+| **3** | **🎯 Buyer Specialist** | Buyer Portal (PR review, Sourcing RFQ, Bidding, PO generation) | `buyer@procurement.com` | `http://localhost:3000/sourcing` |
+| **4** | **✅ Approver (L1)** | Buyer Portal (Line manager approvals, Task inbox) | `approver@procurement.com` | `http://localhost:3000/approvals` |
+| **5** | **📊 Finance Manager (L2)** | Buyer Portal (Finance sign-offs, budget controls, approvals) | `approver@procurement.com` | `http://localhost:3000/approvals` |
+| **6** | **📦 Warehouse Manager** | Buyer Portal (Goods receipts, 3-way match inspect, GRN delivery) | `warehouse@procurement.com` | `http://localhost:3000/goods-receipts` |
+| **7** | **💳 Accounts Payable** | Buyer Portal (Invoice processing, 2-way / 3-way match, payment holds) | `ap@procurement.com` | `http://localhost:3000/invoices` |
+| **8** | **🏭 Supplier Partner** | Supplier Portal (RFQ bids, PO acknowledgment, ASN, invoices) | `supplier@acme.com` | `http://localhost:3001/rfqs` |
+
+#### How to Use the 1-Click Switcher & Persona Deck:
+1. Log into **any portal** ([Buyer :3000](http://localhost:3000), [Supplier :3001](http://localhost:3001), or [Admin :3002](http://localhost:3002)) using `superadmin@procurement.com` / `SuperAdmin123456!@#`.
+2. Look at the top navigation bar:
+   - **Segmented Quick Switcher (`[ 🏢 Buyer | 🏭 Supplier | ⚙️ Admin ]`):** Click any portal name to jump directly to that application without needing to re-login. Cross-portal cookies and token refresh handle the transition instantly.
+   - **Persona Control Deck (`👑 Super Admin`):** Click the golden crown pill in the header to open the interactive persona dropdown. Clicking any persona instantly routes you to that specific role's screen.
+
 
 ## Current Session State
 - **Completed (Super Admin Universal Persona & Cross-Portal Navigation)**:
