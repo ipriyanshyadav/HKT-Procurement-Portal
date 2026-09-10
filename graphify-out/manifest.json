@@ -1482,9 +1482,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1789012706.9120073,
-    "seen": 1789016363.1451561,
-    "ast_hash": "dc24adc3ffaaf41d32e5f7f8f08b2893",
+    "mtime": 1789016403.067902,
+    "seen": 1789016889.9508722,
+    "ast_hash": "fad3581b78afa2c2fc1e8bbe7687018e",
     "semantic_hash": ""
   },
   "graphify_diff_20260904_014322.txt": {
@@ -5124,9 +5124,9 @@
     "semantic_hash": ""
   },
   "app/modules/ticket/service.py": {
-    "mtime": 1788867714.4630873,
-    "seen": 1788870391.152147,
-    "ast_hash": "d3b5f130440785664b87b8bea81db257",
+    "mtime": 1789016754.0706272,
+    "seen": 1789016889.937252,
+    "ast_hash": "b1158fbf8c333f6ef7330f535313e419",
     "semantic_hash": ""
   },
   "app/modules/ticket/sla_service.py": {
@@ -5700,9 +5700,9 @@
     "semantic_hash": ""
   },
   "tests/e2e/playwright/approver_and_admin_flows.spec.ts": {
-    "mtime": 1788962946.4600086,
-    "seen": 1788963889.8815649,
-    "ast_hash": "7e535aa16f52a99e3586b2df2f666ee1",
+    "mtime": 1789016667.735033,
+    "seen": 1789016889.9482088,
+    "ast_hash": "912d4d3ed4bd7cdeb8ef13ddce42c99a",
     "semantic_hash": ""
   },
   "tests/e2e/test_persona_qa_walkthrough.py": {
@@ -6549,6 +6549,12 @@
     "mtime": 1789012586.3364735,
     "seen": 1789012673.2378519,
     "ast_hash": "5143cccd50bd6225c3862882495bbf85",
+    "semantic_hash": ""
+  },
+  "docs/CROSS_PORTAL_FEATURE_AND_WORKFLOW_MANUAL.md": {
+    "mtime": 1789016857.3203366,
+    "seen": 1789016889.9509819,
+    "ast_hash": "86815cb4870846aed47b7a71a9ef00c3",
     "semantic_hash": ""
   }
 }
