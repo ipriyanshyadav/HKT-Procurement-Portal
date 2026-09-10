@@ -203,17 +203,49 @@ export function checkRouteAccess(
   // --- Buyer Portal Route Policy ---
   const path = pathname.toLowerCase();
 
-  // 1. Invoices & 3-Way Match & Reconciliation
-  if (path.startsWith("/invoices") || path.startsWith("/payments")) {
-    const req = ["FINANCE_CONTROLLER", "CFO", "SUPERADMIN"];
+  // 1. Payments & Treasury
+  if (path.startsWith("/payments")) {
+    const req = [
+      "BUYER",
+      "PROCUREMENT_OFFICER",
+      "PROCUREMENT_MANAGER",
+      "PROCUREMENT_HEAD",
+      "FINANCE_CONTROLLER",
+      "CFO",
+      "ORG_ADMIN",
+      "SUPERADMIN",
+    ];
     const allowed = req.some((r) => upperRoles.includes(r));
     return {
       allowed,
-      moduleName: path.startsWith("/payments") ? "Payments & Treasury" : "Invoices & 3-Way Match",
-      requiredRoles: ["FINANCE_CONTROLLER", "CFO"],
+      moduleName: "Payments & Treasury",
+      requiredRoles: ["BUYER", "PROCUREMENT_OFFICER", "FINANCE_CONTROLLER", "CFO"],
       reason: allowed
         ? undefined
-        : "Access is restricted to Finance Controllers, Accounts Payable Leads, and CFOs.",
+        : "Access is restricted to Purchasing, Procurement Officers, and Finance Controllers.",
+    };
+  }
+
+  // 1b. Invoices & 3-Way Match
+  if (path.startsWith("/invoices")) {
+    const req = [
+      "BUYER",
+      "PROCUREMENT_OFFICER",
+      "PROCUREMENT_MANAGER",
+      "PROCUREMENT_HEAD",
+      "FINANCE_CONTROLLER",
+      "CFO",
+      "ORG_ADMIN",
+      "SUPERADMIN",
+    ];
+    const allowed = req.some((r) => upperRoles.includes(r));
+    return {
+      allowed,
+      moduleName: "Invoices & 3-Way Match",
+      requiredRoles: ["BUYER", "PROCUREMENT_OFFICER", "FINANCE_CONTROLLER", "CFO"],
+      reason: allowed
+        ? undefined
+        : "Access is restricted to Purchasing, Procurement Officers, and Finance Controllers.",
     };
   }
 

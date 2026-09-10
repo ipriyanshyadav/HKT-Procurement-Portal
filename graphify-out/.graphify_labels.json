@@ -554,6 +554,7 @@
   "552": "compliance/__init__.py",
   "553": "TestMakerCheckerSegregation",
   "554": "multi_user_refresh_isolation.spec.ts",
+  "555": "comprehensive_self_check.spec.ts",
   "556": "pytest_configure",
   "558": "generate_interactive_pdf.js",
   "559": "FilterBuilder",

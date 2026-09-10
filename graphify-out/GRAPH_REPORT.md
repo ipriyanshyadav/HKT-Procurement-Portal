@@ -1,16 +1,16 @@
 # Graph Report - procurement-portal  (2026-09-10)
 
 ## Corpus Check
-- 1036 files · ~970,856 words
+- 1037 files · ~971,651 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 10674 nodes · 28989 edges · 583 communities (382 shown, 113 thin omitted)
+- 10675 nodes · 28989 edges · 584 communities (382 shown, 113 thin omitted)
 - Extraction: 93% EXTRACTED · 7% INFERRED · 0% AMBIGUOUS · INFERRED: 2163 edges (avg confidence: 0.9)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `8ccc7676`
+- Built from commit: `40e7cf7a`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -549,7 +549,7 @@
 - **Cryptographic Sealing and Data Integrity Architecture** — specs_spec_10_rfq_lifecycle_bid_sealing_service, specs_spec_11_bid_management_bid_sha256_hash_integrity, specs_spec_17_document_management_clamav_virus_scanner, specs_spec_17_document_management_bid_document_sealing, specs_spec_23_testing_audit_validation_tests [INFERRED 0.95]
 - **Defense-in-Depth & Zero-Trust Security Architecture** — specs_spec_04_auth_security_auth_pipeline, specs_spec_04_auth_security_sod_enforcement, plans_plan_spec_20_integration_safehttpclient, plans_plan_spec_21_infrastructure_networkpolicies, plans_plan_spec_17_document_management_documentscanner [INFERRED 0.95]
 
-## Communities (583 total, 113 thin omitted)
+## Communities (584 total, 113 thin omitted)
 
 ### Community 0 - "Generic Finite State Machine Orchestrator"
 Cohesion: 0.20
@@ -2081,16 +2081,16 @@ Nodes (4): _make_token(), Test user router HTTP layer — endpoints must exist a
 
 ## Knowledge Gaps
 - **1479 isolated node(s):** `entrypoint.sh script`, `name`, `version`, `private`, `test:e2e` (+1474 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 3648 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 3649 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
 - **113 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `User` connect `User` to `HRMSConsumer`, `ForbiddenError`, `developer/router.py`, `test_erp_and_payment_spec20.py`, `config.py`, `evaluation/router.py`, `PaginationMeta`, `VendorService`, `disaster_recovery/router.py`, `vendor/router.py`, `TestEndToEndPersonaQA`, `purchase_order/router.py`, `factories/__init__.py`, `einvoicing/router.py`, `DeveloperService`, `seed_demo_user.py`, `UserRepository`, `organization/models.py`, `CurrencyService`, `test_notifications.py`, `integration/router.py`, `create_incoterm`, `sourcing/router.py`, `PermissionCode`, `test_notifications_and_audit_spec16_22.py`, `unmapped_pr/router.py`, `RoleRepository`, `main.py`, `UserSession`, `.create`, `seed_enterprise_comprehensive.py`, `workflow/router.py`, `invoice/router.py`, `RequisitionService`, `seed_enterprise_extensions.py`, `test_vendor.py`, `grn/router.py`, `auth/service.py`, `provision_or_login_sso_user`, `ai_sourcing/service.py`, `list_audit_logs`, `simulate_rule_matching`, `master_data/router.py`, `catalog/router.py`, `TaxCreateRequest`, `.switch_company_context`, `notification/router.py`, `compliance/router.py`, `user/router.py`, `ticket/service.py`, `uuid4`, `ApproverResolver`, `enums.py`, `.patch`, `document/router.py`, `AppException`, `payment/router.py`, `auth/router.py`, `ValidationError`, `test_integration_jobs.py`, `hash_password`, `bid/router.py`, `BaseModel`, `test_purchase_order_grn.py`?**
-  _High betweenness centrality (0.093) - this node is a cross-community bridge._
+  _High betweenness centrality (0.092) - this node is a cross-community bridge._
 - **Why does `NotFoundError` connect `NotFoundError` to `test_end_to_end_connected_flow.py`, `TicketRepository`, `holiday/service.py`, `NotificationService`, `ForbiddenError`, `GrnService`, `developer/router.py`, `config.py`, `evaluation/router.py`, `PaginationMeta`, `VendorService`, `vendor/router.py`, `item/service.py`, `ContractService`, `einvoicing/router.py`, `DeveloperService`, `organization/models.py`, `DeliveryLocationService`, `ErpMappingService`, `notification/service.py`, `sourcing/router.py`, `User`, `CatalogService`, `AnalyticsService`, `.__init__`, `UnmappedPRService`, `catalog/service.py`, `seed_enterprise_comprehensive.py`, `workflow/router.py`, `seed_enterprise_extensions.py`, `test_vendor.py`, `invoice/service.py`, `RequisitionService`, `ai_sourcing/service.py`, `master_data/router.py`, `IntegrationService`, `.switch_company_context`, `test_vendor_workflows.py`, `UomService`, `compliance/router.py`, `payment/service.py`, `LiveBidService`, `ticket/service.py`, `document/service.py`, `enums.py`, `ApproverResolver`, `BaseRepository`, `AppException`, `RfqService`, `WorkflowRepository`, `ValidationError`, `MasterDataImportService`, `PurchaseOrder`, `bid/router.py`, `BaseModel`, `test_purchase_order_grn.py`?**
-  _High betweenness centrality (0.045) - this node is a cross-community bridge._
+  _High betweenness centrality (0.044) - this node is a cross-community bridge._
 - **Why does `BaseModel` connect `BaseModel` to `asyncio`, `test_end_to_end_connected_flow.py`, `Notification`, `schemas.py`, `holiday/service.py`, `NotificationService`, `ForbiddenError`, `developer/router.py`, `evaluation/router.py`, `PaginationMeta`, `AnalyticsRepository`, `disaster_recovery/router.py`, `vendor/router.py`, `purchase_order/router.py`, `success_response`, `einvoicing/router.py`, `organization/models.py`, `seed_demo_user.py`, `test_observability.py`, `CurrencyService`, `ErpMappingService`, `DeliveryLocationService`, `integration/router.py`, `create_incoterm`, `test_invoice_payment.py`, `sourcing/router.py`, `PermissionCode`, `User`, `CatalogService`, `unmapped_pr/router.py`, `main.py`, `catalog/service.py`, `seed_enterprise_comprehensive.py`, `workflow/router.py`, `GoodsReceiptNote`, `invoice/router.py`, `AuditSearchQuery`, `seed_enterprise_extensions.py`, `test_vendor.py`, `grn/router.py`, `invoice/service.py`, `RequisitionService`, `ai_sourcing/service.py`, `list_audit_logs`, `simulate_rule_matching`, `master_data/router.py`, `catalog/router.py`, `TaxCreateRequest`, `test_requisition_budget_check.py`, `notification/router.py`, `compliance/router.py`, `payment/service.py`, `LiveBidService`, `uuid4`, `document/service.py`, `.patch`, `enums.py`, `ticket/service.py`, `document/router.py`, `PaymentTermsService`, `payment/router.py`, `auth/router.py`, `user/router.py`, `ValidationError`, `PurchaseOrder`, `bid/router.py`, `Ticket`, `test_purchase_order_grn.py`?**
   _High betweenness centrality (0.043) - this node is a cross-community bridge._
 - **Are the 655 inferred relationships involving `uuid4` (e.g. with `sso_initiate()` and `._issue_tokens()`) actually correct?**

@@ -948,8 +948,8 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/types/src/api.ts": {
-    "mtime": 1789057991.5062623,
-    "seen": 1789058700.2045271,
+    "mtime": 1789060188.948052,
+    "seen": 1789060667.913895,
     "ast_hash": "78361e250bde117fcfd1a864cd6243cb",
     "semantic_hash": ""
   },
@@ -1170,9 +1170,9 @@
     "semantic_hash": ""
   },
   "kong/kong.yml": {
-    "mtime": 1788999629.0321176,
-    "seen": 1789000266.2453172,
-    "ast_hash": "fda22b5b36700ec17de77d1deaeef51a",
+    "mtime": 1789060559.573182,
+    "seen": 1789060667.922347,
+    "ast_hash": "cab74ca76c62921be0aec51ae360adf8",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/pnpm-workspace.yaml": {
@@ -1482,9 +1482,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1789057130.8871331,
-    "seen": 1789057155.228173,
-    "ast_hash": "e73f98c9ef2c28d94798e67f7af430d1",
+    "mtime": 1789058707.5768993,
+    "seen": 1789060667.920594,
+    "ast_hash": "fb7cafebcbd06a8404ee975e49b1cacc",
     "semantic_hash": ""
   },
   "graphify_diff_20260904_014322.txt": {
@@ -4968,9 +4968,9 @@
     "semantic_hash": ""
   },
   "kong/kong.local.yml": {
-    "mtime": 1788901662.2405183,
-    "seen": 1788902584.911882,
-    "ast_hash": "a950be3dfd48a85b93dea07166189101",
+    "mtime": 1789060562.2827368,
+    "seen": 1789060667.922345,
+    "ast_hash": "842f20f2b2e35093d14c17cfd42423d4",
     "semantic_hash": ""
   },
   "alembic/versions/0037_trgm_search_indexes.py": {
@@ -6576,9 +6576,9 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/stores/src/personas.ts": {
-    "mtime": 1789039847.402618,
-    "seen": 1789039902.250359,
-    "ast_hash": "361e3533d9113d02e127f96ea60835ec",
+    "mtime": 1789060311.59068,
+    "seen": 1789060667.9138072,
+    "ast_hash": "b9b7a65d35ad2ae9eed09e19ae732c3c",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/ui/src/components/AccessRestrictedCard.tsx": {
@@ -6627,6 +6627,12 @@
     "mtime": 1789058615.6665988,
     "seen": 1789058700.207474,
     "ast_hash": "a0b2f8484440ec6f2373f9a5930148fd",
+    "semantic_hash": ""
+  },
+  "tests/e2e/playwright/comprehensive_self_check.spec.ts": {
+    "mtime": 1789059874.7317214,
+    "seen": 1789060667.917439,
+    "ast_hash": "b34e1a46fcb03de4196e96ecb397d0a7",
     "semantic_hash": ""
   }
 }
