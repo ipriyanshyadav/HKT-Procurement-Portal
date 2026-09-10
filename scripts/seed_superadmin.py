@@ -56,8 +56,8 @@ async def seed_superadmin() -> None:
                 org_id=DEFAULT_ORG_ID,
                 email=SUPERADMIN_EMAIL,
                 password_hash=hash_password(SUPERADMIN_PASSWORD),
-                first_name="Super",
-                last_name="Admin",
+                first_name="Alexander",
+                last_name="Vance",
                 employee_id="EMP-SUPER",
                 status=UserStatusEnum.ACTIVE,
                 mfa_enabled=False,
@@ -68,6 +68,8 @@ async def seed_superadmin() -> None:
             await db.flush()
             logger.info("Created Super Admin user: %s (ID: %s)", SUPERADMIN_EMAIL, user.id)
         else:
+            user.first_name = "Alexander"
+            user.last_name = "Vance"
             user.password_hash = hash_password(SUPERADMIN_PASSWORD)
             user.status = UserStatusEnum.ACTIVE
             if vendor_id and not user.vendor_id:

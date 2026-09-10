@@ -8,13 +8,13 @@
 
 All three portals run simultaneously with seeded test roles. Access them directly in your browser:
 
-| Portal | Local URL | Primary Users | Demo Account | Password | Assigned Roles |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **👑 Universal Super Admin** | **Any Portal** (`:3000`, `:3001`, `:3002`) | Universal Omnipotent Access & 1-Click Persona Switching | `superadmin@procurement.com` | `SuperAdmin123456!@#` | `SUPERADMIN` (All System & Org Roles, Omnipotent Bypass) |
-| **Buyer Portal** | [http://localhost:3000](http://localhost:3000) | Procurement Team (PRs, RFQs, Bids, Tickets) | `buyer@procurement.com` | `Buyer123456!@#` | `REQUESTOR`, `BUYER`, `PROCUREMENT_OFFICER` |
-| **Buyer Portal (Approver)** | [http://localhost:3000](http://localhost:3000) | Approvers & Leadership (Sign-offs) | `approver@procurement.com` | `Approver123!@#` | `APPROVER`, `PROCUREMENT_HEAD`, `FINANCE_MANAGER` |
-| **Supplier Portal** | [http://localhost:3001](http://localhost:3001) | External Vendors (Bids, Invoices, Queries) | `supplier@acme.com` | `Supplier123456!@#` | `SUPPLIER` (Acme Tech Solutions) |
-| **Admin Portal** | [http://localhost:3002](http://localhost:3002) | System Administrators (Master Data, SLAs, Tickets) | `admin@procurement.com` | `Admin123456!@#` | `ORG_ADMIN`, `PROCUREMENT_MANAGER` |
+| Portal | Local URL | Primary Users | Real Human Name | Demo Account | Password | Assigned Roles |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **👑 Universal Super Admin** | **Any Portal** (`:3000`, `:3001`, `:3002`) | Universal Omnipotent Access & 1-Click Persona Switching | Alexander Vance | `superadmin@procurement.com` | `SuperAdmin123456!@#` | `SUPERADMIN` (All System & Org Roles, Omnipotent Bypass) |
+| **Buyer Portal** | [http://localhost:3000](http://localhost:3000) | Procurement Team (PRs, RFQs, Bids, Tickets) | Sarah Jenkins | `buyer@procurement.com` | `Buyer123456!@#` | `REQUESTOR`, `BUYER`, `PROCUREMENT_OFFICER` |
+| **Buyer Portal (Approver)** | [http://localhost:3000](http://localhost:3000) | Approvers & Leadership (Sign-offs) | Robert Taylor | `approver@procurement.com` | `Approver123!@#` | `APPROVER`, `PROCUREMENT_HEAD`, `FINANCE_CONTROLLER` |
+| **Supplier Portal** | [http://localhost:3001](http://localhost:3001) | External Vendors (Bids, Invoices, Queries) | Rajesh Kumar | `supplier@acme.com` | `Supplier123456!@#` | `SUPPLIER`, `SUPPLIER_ADMIN` (Acme Tech Solutions) |
+| **Admin Portal** | [http://localhost:3002](http://localhost:3002) | System Administrators (Master Data, SLAs, Tickets) | David Miller | `admin@procurement.com` | `Admin123456!@#` | `ORG_ADMIN`, `PROCUREMENT_MANAGER`, `PROCUREMENT_ADMIN` |
 
 > 🔑 **Organization ID for all logins:** `00000000-0000-0000-0000-000000000001` (Default Organization)
 >
@@ -31,18 +31,18 @@ All three portals run simultaneously with seeded test roles. Access them directl
 
 ### 🎭 Full Enterprise Role Demonstration (8 Personas)
 
-The platform supports strict enterprise role separation (where each user only sees their own siloed screen) as well as an omnipotent **Super Admin** who can embody any persona on demand:
+The platform supports strict enterprise role separation (where each user only sees their own siloed screen) as well as an omnipotent **Super Admin** who can embody any persona on demand. Every persona is seeded as a real user in the database:
 
-| # | Role / Persona | Screen / Access Scope | Standalone Account | Super Admin 1-Click Route |
-| :-: | :--- | :--- | :--- | :--- |
-| **1** | **⚙️ System Admin** | Admin Portal (Users, Workflows, Master Data, Audit Logs) | `admin@procurement.com` | `http://localhost:3002/users` |
-| **2** | **📝 Requestor** | Buyer Portal (Catalog browsing, PR draft, submit requisition) | `buyer@procurement.com` | `http://localhost:3000/purchase-requests` |
-| **3** | **🎯 Buyer Specialist** | Buyer Portal (PR review, Sourcing RFQ, Bidding, PO generation) | `buyer@procurement.com` | `http://localhost:3000/sourcing` |
-| **4** | **✅ Approver (L1)** | Buyer Portal (Line manager approvals, Task inbox) | `approver@procurement.com` | `http://localhost:3000/approvals` |
-| **5** | **📊 Finance Manager (L2)** | Buyer Portal (Finance sign-offs, budget controls, approvals) | `approver@procurement.com` | `http://localhost:3000/approvals` |
-| **6** | **📦 Warehouse Manager** | Buyer Portal (Goods receipts, 3-way match inspect, GRN delivery) | `warehouse@procurement.com` | `http://localhost:3000/goods-receipts` |
-| **7** | **💳 Accounts Payable** | Buyer Portal (Invoice processing, 2-way / 3-way match, payment holds) | `ap@procurement.com` | `http://localhost:3000/invoices` |
-| **8** | **🏭 Supplier Partner** | Supplier Portal (RFQ bids, PO acknowledgment, ASN, invoices) | `supplier@acme.com` | `http://localhost:3001/rfqs` |
+| # | Role / Persona | Real Human Name | Screen / Access Scope | Standalone Account | Password | Super Admin 1-Click Route |
+| :-: | :--- | :--- | :--- | :--- | :--- | :--- |
+| **1** | **⚙️ System Admin** | David Miller | Admin Portal (Users, Workflows, Master Data, Audit Logs) | `admin@procurement.com` | `Admin123456!@#` | `http://localhost:3002/users` |
+| **2** | **📝 Requestor** | Sarah Jenkins | Buyer Portal (Catalog browsing, PR draft, submit requisition) | `buyer@procurement.com` | `Buyer123456!@#` | `http://localhost:3000/purchase-requests` |
+| **3** | **🎯 Buyer Specialist** | Sarah Jenkins | Buyer Portal (PR review, Sourcing RFQ, Bidding, PO generation) | `buyer@procurement.com` | `Buyer123456!@#` | `http://localhost:3000/sourcing` |
+| **4** | **✅ Approver (L1)** | Robert Taylor | Buyer Portal (Line manager approvals, Task inbox) | `approver@procurement.com` | `Approver123!@#` | `http://localhost:3000/approvals` |
+| **5** | **📊 Finance Manager (L2)** | Eleanor Vance | Buyer Portal (Finance sign-offs, budget controls, approvals) | `finance@procurement.com` | `Finance123!@#` | `http://localhost:3000/approvals` |
+| **6** | **📦 Warehouse Manager** | Marcus Vance | Buyer Portal (Goods receipts, 3-way match inspect, GRN delivery) | `warehouse@procurement.com` | `Warehouse123!@#` | `http://localhost:3000/goods-receipts` |
+| **7** | **💳 Accounts Payable** | Claire Redfield | Buyer Portal (Invoice processing, 2-way / 3-way match, payment holds) | `ap@procurement.com` | `Accounts123!@#` | `http://localhost:3000/invoices` |
+| **8** | **🏭 Supplier Partner** | Rajesh Kumar | Supplier Portal (RFQ bids, PO acknowledgment, ASN, invoices) | `supplier@acme.com` | `Supplier123456!@#` | `http://localhost:3001/rfqs` |
 
 #### How to Use the 1-Click Switcher & Persona Deck:
 1. Log into **any portal** ([Buyer :3000](http://localhost:3000), [Supplier :3001](http://localhost:3001), or [Admin :3002](http://localhost:3002)) using `superadmin@procurement.com` / `SuperAdmin123456!@#`.

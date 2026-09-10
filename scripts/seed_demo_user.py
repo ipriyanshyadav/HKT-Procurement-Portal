@@ -372,44 +372,68 @@ async def seed_demo():
                 await db.flush()
             categories[code] = cat
 
-        # 8. Demo Users (Super Admin, Buyer, Admin, Approver)
+        # 8. Demo Users (Super Admin, Buyer, Admin, Approver, Finance, Warehouse, AP)
         users_config = [
             {
                 "email": "superadmin@procurement.com",
                 "password": "SuperAdmin123456!@#",
-                "first_name": "Super",
-                "last_name": "Admin",
+                "first_name": "Alexander",
+                "last_name": "Vance",
                 "employee_id": "EMP-SUPER",
                 "roles": [
                     "SUPERADMIN", "ORG_ADMIN", "PROCUREMENT_ADMIN", "PROCUREMENT_MANAGER",
                     "PROCUREMENT_HEAD", "APPROVER", "BUYER", "REQUESTOR", "PROCUREMENT_OFFICER",
-                    "FINANCE_MANAGER", "FINANCE_CONTROLLER", "CFO", "SOURCING_MANAGER",
+                    "FINANCE_CONTROLLER", "CFO", "SOURCING_MANAGER",
                     "COMPLIANCE_OFFICER", "VENDOR_ADMIN", "SUPPLIER", "SUPPLIER_ADMIN",
                 ],
             },
             {
                 "email": "admin@procurement.com",
                 "password": "Admin123456!@#",
-                "first_name": "Admin",
-                "last_name": "User",
+                "first_name": "David",
+                "last_name": "Miller",
                 "employee_id": "EMP-001",
-                "roles": ["SUPERADMIN", "ORG_ADMIN", "PROCUREMENT_MANAGER"],
+                "roles": ["ORG_ADMIN", "PROCUREMENT_MANAGER", "PROCUREMENT_ADMIN"],
             },
             {
                 "email": "buyer@procurement.com",
                 "password": "Buyer123456!@#",
-                "first_name": "Buyer",
-                "last_name": "Specialist",
+                "first_name": "Sarah",
+                "last_name": "Jenkins",
                 "employee_id": "EMP-002",
                 "roles": ["REQUESTOR", "BUYER", "PROCUREMENT_OFFICER"],
             },
             {
                 "email": "approver@procurement.com",
                 "password": "Approver123!@#",
-                "first_name": "Chief",
-                "last_name": "Approver",
+                "first_name": "Robert",
+                "last_name": "Taylor",
                 "employee_id": "EMP-003",
-                "roles": ["APPROVER", "PROCUREMENT_HEAD", "FINANCE_MANAGER"],
+                "roles": ["APPROVER", "PROCUREMENT_HEAD", "FINANCE_CONTROLLER"],
+            },
+            {
+                "email": "finance@procurement.com",
+                "password": "Finance123!@#",
+                "first_name": "Eleanor",
+                "last_name": "Vance",
+                "employee_id": "EMP-004",
+                "roles": ["FINANCE_CONTROLLER", "CFO", "APPROVER"],
+            },
+            {
+                "email": "warehouse@procurement.com",
+                "password": "Warehouse123!@#",
+                "first_name": "Marcus",
+                "last_name": "Vance",
+                "employee_id": "EMP-005",
+                "roles": ["BUYER", "PROCUREMENT_OFFICER"],
+            },
+            {
+                "email": "ap@procurement.com",
+                "password": "Accounts123!@#",
+                "first_name": "Claire",
+                "last_name": "Redfield",
+                "employee_id": "EMP-006",
+                "roles": ["FINANCE_CONTROLLER", "PROCUREMENT_OFFICER"],
             },
         ]
 
@@ -435,6 +459,15 @@ async def seed_demo():
                     is_supplier_user=False,
                 )
                 db.add(user)
+                await db.flush()
+            else:
+                user.first_name = uconf["first_name"]
+                user.last_name = uconf["last_name"]
+                user.password_hash = hash_password(uconf["password"])
+                user.status = UserStatusEnum.ACTIVE
+                user.business_unit_id = bu.id
+                user.department_id = dept.id
+                user.plant_id = plant.id
                 await db.flush()
             created_users[uconf["email"]] = user
 
@@ -704,8 +737,8 @@ async def seed_demo():
 
         # 12. Demo Supplier Users (Acme & Global Cloud)
         supplier_users_conf = [
-            ("supplier@acme.com", "Acme", "Supplier", acme_vendor.id, "VEND-EMP-001"),
-            ("supplier@globalcloud.com", "Global", "Supplier", gc_vendor.id, "VEND-EMP-002"),
+            ("supplier@acme.com", "Rajesh", "Kumar", acme_vendor.id, "VEND-EMP-001"),
+            ("supplier@globalcloud.com", "Priya", "Sharma", gc_vendor.id, "VEND-EMP-002"),
         ]
         created_suppliers = {}
         for s_email, s_fn, s_ln, s_vid, s_emp in supplier_users_conf:
@@ -726,25 +759,33 @@ async def seed_demo():
                 )
                 db.add(s_user)
                 await db.flush()
+            else:
+                s_user.first_name = s_fn
+                s_user.last_name = s_ln
+                s_user.password_hash = hash_password("Supplier123456!@#")
+                s_user.status = UserStatusEnum.ACTIVE
+                s_user.vendor_id = s_vid
+                await db.flush()
             created_suppliers[s_email] = s_user
 
-            res = await db.execute(select(Role).where(and_(Role.org_id == DEFAULT_ORG_ID, Role.code == "SUPPLIER")))
-            sup_role = res.scalar_one_or_none()
-            if sup_role:
-                res = await db.execute(
-                    select(UserRoleAssignment).where(
-                        and_(UserRoleAssignment.user_id == s_user.id, UserRoleAssignment.role_id == sup_role.id)
-                    )
-                )
-                if not res.scalar_one_or_none():
-                    db.add(
-                        UserRoleAssignment(
-                            org_id=DEFAULT_ORG_ID,
-                            user_id=s_user.id,
-                            role_id=sup_role.id,
-                            is_active=True,
+            for sup_role_code in ["SUPPLIER", "SUPPLIER_ADMIN"]:
+                res = await db.execute(select(Role).where(and_(Role.org_id == DEFAULT_ORG_ID, Role.code == sup_role_code)))
+                sup_role = res.scalar_one_or_none()
+                if sup_role:
+                    res = await db.execute(
+                        select(UserRoleAssignment).where(
+                            and_(UserRoleAssignment.user_id == s_user.id, UserRoleAssignment.role_id == sup_role.id)
                         )
                     )
+                    if not res.scalar_one_or_none():
+                        db.add(
+                            UserRoleAssignment(
+                                org_id=DEFAULT_ORG_ID,
+                                user_id=s_user.id,
+                                role_id=sup_role.id,
+                                is_active=True,
+                            )
+                        )
 
         # 13. Requisitions across 5 States + Unmapped Exception
         pr_samples = [
