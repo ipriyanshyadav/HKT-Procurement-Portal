@@ -76,9 +76,16 @@ async def get_current_user(
         raise AuthenticationError("Session expired due to inactivity")
 
     await session_repository.update_activity(db, session.id, now)
+    portal = payload.get("portal", "buyer")
+    roles = payload.get("roles", [])
+    if portal == "supplier" and any(str(r).upper() == "SUPERADMIN" for r in roles):
+        user.is_supplier_user = True
+        if not user.vendor_id and payload.get("vendor_id"):
+            user.vendor_id = UUID(payload["vendor_id"])
+
     request.state.user = user
     request.state.org_id = org_id
-    request.state.portal = payload.get("portal", "buyer")
+    request.state.portal = portal
     return user
 
 
@@ -149,6 +156,8 @@ def require_mfa_enabled():
         db: AsyncSession = Depends(get_db),
     ) -> User:
         user_roles = set(await role_repository.get_user_role_codes(db, current_user.id, current_user.org_id))
+        if any(r.upper() == "SUPERADMIN" for r in user_roles):
+            return current_user
         if mfa_roles.intersection(user_roles) and not current_user.mfa_enabled:
             raise ForbiddenError(
                 "MFA must be enabled for your role. Please complete MFA enrollment."

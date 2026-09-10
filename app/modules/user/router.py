@@ -123,8 +123,12 @@ class RevokeSessionRequest(BaseModel):
 
 
 @router.get("/me")
-async def get_me(current_user: User = Depends(get_current_user)) -> dict:
+async def get_me(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict:
     """GET /api/v1/users/me — returns current user profile."""
+    roles = await role_repository.get_user_role_codes(db, current_user.id, current_user.org_id)
     return success_response({
         "id": str(current_user.id),
         "email": current_user.email,
@@ -135,6 +139,8 @@ async def get_me(current_user: User = Depends(get_current_user)) -> dict:
         "is_supplier_user": current_user.is_supplier_user,
         "vendor_id": str(current_user.vendor_id) if current_user.vendor_id else None,
         "org_id": str(current_user.org_id),
+        "roles": roles,
+        "role_names": roles,
     })
 
 

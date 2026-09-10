@@ -372,8 +372,21 @@ async def seed_demo():
                 await db.flush()
             categories[code] = cat
 
-        # 8. Demo Users (Buyer, Admin, Approver)
+        # 8. Demo Users (Super Admin, Buyer, Admin, Approver)
         users_config = [
+            {
+                "email": "superadmin@procurement.com",
+                "password": "SuperAdmin123456!@#",
+                "first_name": "Super",
+                "last_name": "Admin",
+                "employee_id": "EMP-SUPER",
+                "roles": [
+                    "SUPERADMIN", "ORG_ADMIN", "PROCUREMENT_ADMIN", "PROCUREMENT_MANAGER",
+                    "PROCUREMENT_HEAD", "APPROVER", "BUYER", "REQUESTOR", "PROCUREMENT_OFFICER",
+                    "FINANCE_MANAGER", "FINANCE_CONTROLLER", "CFO", "SOURCING_MANAGER",
+                    "COMPLIANCE_OFFICER", "VENDOR_ADMIN", "SUPPLIER", "SUPPLIER_ADMIN",
+                ],
+            },
             {
                 "email": "admin@procurement.com",
                 "password": "Admin123456!@#",

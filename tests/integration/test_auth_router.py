@@ -309,22 +309,51 @@ class TestPortalSessionScoping:
         mock_db = AsyncMock()
 
         with patch("app.auth.service.user_repository.find_by_email", new_callable=AsyncMock) as mock_find, \
+             patch("app.auth.service.role_repository.get_user_role_codes", new_callable=AsyncMock) as mock_roles, \
+             patch.object(service, "_issue_tokens", new_callable=AsyncMock) as mock_issue, \
              patch.object(service, "_get_fail_count", new_callable=AsyncMock, return_value=0), \
-             patch("app.auth.service.verify_password", return_value=True):
+             patch("app.auth.service.verify_password", return_value=True), \
+             patch("app.auth.service.audit_service.log", new_callable=AsyncMock):
 
             # 1. Internal buyer trying to log in to Supplier Portal -> ForbiddenError
             mock_find.return_value = internal_user
+            mock_roles.return_value = ["BUYER"]
             with pytest.raises(ForbiddenError, match="Internal user accounts cannot log in to the Supplier Portal"):
                 await service.login(mock_db, "buyer@test.com", "Secret123!", portal_type="supplier", org_id=uuid4())
 
             # 2. Supplier user trying to log in to Buyer Portal -> ForbiddenError
             mock_find.return_value = supplier_user
+            mock_roles.return_value = ["SUPPLIER"]
             with pytest.raises(ForbiddenError, match="Supplier accounts cannot log in to the Buyer"):
                 await service.login(mock_db, "supplier@test.com", "Secret123!", portal_type="buyer", org_id=uuid4())
 
             # 3. Supplier user trying to log in to Admin Portal -> ForbiddenError
             with pytest.raises(ForbiddenError, match="Supplier accounts cannot log in to the Buyer or Admin Portal"):
                 await service.login(mock_db, "supplier@test.com", "Secret123!", portal_type="admin", org_id=uuid4())
+
+            # 4. Super Admin user can log into ALL portals (supplier, buyer, admin) without error
+            superadmin_user = MagicMock()
+            superadmin_user.id = uuid4()
+            superadmin_user.status = UserStatusEnum.ACTIVE
+            superadmin_user.is_supplier_user = False
+            superadmin_user.password_hash = "$2b$12$e..."
+            superadmin_user.password_changed_at = None
+            superadmin_user.mfa_enabled = False
+            mock_find.return_value = superadmin_user
+            mock_roles.return_value = ["SUPERADMIN"]
+            mock_issue.return_value = LoginResult(access_token="super.token", refresh_token="super.refresh")
+
+            # Can access supplier portal
+            res_supp = await service.login(mock_db, "superadmin@procurement.com", "SuperAdmin123456!@#", portal_type="supplier", org_id=uuid4())
+            assert res_supp.access_token == "super.token"
+
+            # Can access buyer portal
+            res_buyer = await service.login(mock_db, "superadmin@procurement.com", "SuperAdmin123456!@#", portal_type="buyer", org_id=uuid4())
+            assert res_buyer.access_token == "super.token"
+
+            # Can access admin portal
+            res_admin = await service.login(mock_db, "superadmin@procurement.com", "SuperAdmin123456!@#", portal_type="admin", org_id=uuid4())
+            assert res_admin.access_token == "super.token"
 
     def test_logout_isolated_to_portal_cookie(self):
         from unittest.mock import AsyncMock, patch, MagicMock

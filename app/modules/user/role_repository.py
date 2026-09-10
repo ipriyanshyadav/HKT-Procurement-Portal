@@ -3,6 +3,7 @@ from typing import Optional
 from uuid import UUID
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_, or_, func
+from app.core.constants import RoleCode
 from app.db.repository_base import BaseRepository
 from app.modules.user.models import Role, UserRoleAssignment, RolePermission, Permission
 
@@ -31,6 +32,10 @@ class RoleRepository(BaseRepository[Role]):
     async def user_has_permission(
         self, db: AsyncSession, user_id: UUID, org_id: UUID, permission_code: str
     ) -> bool:
+        user_roles = await self.get_user_role_codes(db, user_id, org_id)
+        if any(r.upper() == RoleCode.SUPERADMIN for r in user_roles):
+            return True
+
         stmt = (
             select(Permission.id)
             .join(RolePermission, RolePermission.permission_id == Permission.id)

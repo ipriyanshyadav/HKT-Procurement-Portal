@@ -360,9 +360,9 @@
     "semantic_hash": ""
   },
   "app/auth/router.py": {
-    "mtime": 1788867714.4456882,
-    "seen": 1788870391.1519868,
-    "ast_hash": "b908949bcfbb08b1e96003ceb46ce5f0",
+    "mtime": 1789037669.175721,
+    "seen": 1789037836.163017,
+    "ast_hash": "e7366ccc7bf61002944e58fe68878ef9",
     "semantic_hash": ""
   },
   "app/config.py": {
@@ -732,9 +732,9 @@
     "semantic_hash": ""
   },
   "app/modules/user/router.py": {
-    "mtime": 1788996278.870775,
-    "seen": 1788996388.659132,
-    "ast_hash": "fb6567a70282dfe36aa93fe501b21709",
+    "mtime": 1789037431.1363916,
+    "seen": 1789037836.169191,
+    "ast_hash": "3fabffa9559cd429ce7c0b574ca31e69",
     "semantic_hash": ""
   },
   "app/modules/vendor/__init__.py": {
@@ -948,8 +948,8 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/types/src/api.ts": {
-    "mtime": 1789034982.7677782,
-    "seen": 1789035194.640666,
+    "mtime": 1789037630.8511379,
+    "seen": 1789037836.1769652,
     "ast_hash": "78361e250bde117fcfd1a864cd6243cb",
     "semantic_hash": ""
   },
@@ -1482,9 +1482,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1789033838.6966617,
-    "seen": 1789035194.646239,
-    "ast_hash": "67fd0c0029c5f4cb8f20463246485d79",
+    "mtime": 1789037816.2323303,
+    "seen": 1789037836.1823559,
+    "ast_hash": "99ad325c4c5ad0616230eeb5d10a1bd9",
     "semantic_hash": ""
   },
   "graphify_diff_20260904_014322.txt": {
@@ -1506,9 +1506,9 @@
     "semantic_hash": ""
   },
   "app/auth/dependencies.py": {
-    "mtime": 1788867714.4453502,
-    "seen": 1788870391.151985,
-    "ast_hash": "b416f7a42cd2d46c7bbf8c8ff61bcbb4",
+    "mtime": 1789037401.4496276,
+    "seen": 1789037836.162978,
+    "ast_hash": "3a89570d119b223a117b506edbc464d6",
     "semantic_hash": ""
   },
   "app/auth/jwt.py": {
@@ -1530,9 +1530,9 @@
     "semantic_hash": ""
   },
   "app/auth/service.py": {
-    "mtime": 1788867714.4459949,
-    "seen": 1788870391.151988,
-    "ast_hash": "0a6cd97d43069ae246ffd6d23df38fa8",
+    "mtime": 1789037375.1293187,
+    "seen": 1789037836.1630368,
+    "ast_hash": "f7acd8c6555d92565b8c96f53199373a",
     "semantic_hash": ""
   },
   "app/auth/sso.py": {
@@ -1566,9 +1566,9 @@
     "semantic_hash": ""
   },
   "app/modules/user/role_repository.py": {
-    "mtime": 1788975948.4466736,
-    "seen": 1788976796.539894,
-    "ast_hash": "d113135255c2c3ee4814d3a4f53a3107",
+    "mtime": 1789037319.8309767,
+    "seen": 1789037836.16919,
+    "ast_hash": "8e684e0fa582c115658c941718045497",
     "semantic_hash": ""
   },
   "app/modules/user/session_repository.py": {
@@ -1590,21 +1590,21 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/buyer-portal/middleware.ts": {
-    "mtime": 1788681612.0772014,
-    "seen": 1788681979.400373,
-    "ast_hash": "8bfdd55d836ae6e85caf0d48fd240c6b",
+    "mtime": 1789037483.50169,
+    "seen": 1789037836.173683,
+    "ast_hash": "3e74cc7b0ec32e86fab4a3947ad5636e",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/supplier-portal/middleware.ts": {
-    "mtime": 1788681617.7439644,
-    "seen": 1788681979.400398,
-    "ast_hash": "37c786cdeb8cc036c4c1962452b7b589",
+    "mtime": 1789037491.024034,
+    "seen": 1789037836.174787,
+    "ast_hash": "a5b3c9335bb5e39dcaf89387b08f81df",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/hooks/src/useAuth.ts": {
-    "mtime": 1788638719.6347363,
-    "seen": 1788638903.7502232,
-    "ast_hash": "cfd8f9a18eaf77a062e7df1b83b12a4f",
+    "mtime": 1789037503.324173,
+    "seen": 1789037836.175976,
+    "ast_hash": "f129f8ef23e6d478479a21547ddde3c6",
     "semantic_hash": ""
   },
   "tests/security/test_auth_security.py": {
@@ -1626,9 +1626,9 @@
     "semantic_hash": ""
   },
   "tests/integration/test_auth_router.py": {
-    "mtime": 1788526975.6833935,
-    "seen": 1788527041.568341,
-    "ast_hash": "c7aa2b65915501cd0672dadfb02dfc88",
+    "mtime": 1789037678.1847599,
+    "seen": 1789037836.180139,
+    "ast_hash": "5039fbc879d7827972256b622ec62e75",
     "semantic_hash": ""
   },
   "tests/unit/test_auth_coverage.py": {
@@ -2280,9 +2280,9 @@
     "semantic_hash": ""
   },
   "scripts/seed_demo_user.py": {
-    "mtime": 1788932178.2625227,
-    "seen": 1788933220.87961,
-    "ast_hash": "1d99113df7bf512b9c9a6ddf19f71ad1",
+    "mtime": 1789037474.1998723,
+    "seen": 1789037836.179583,
+    "ast_hash": "f9000f93dcda3a5e6f2647acb2345b03",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/admin-portal/postcss.config.js": {
@@ -2382,9 +2382,9 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/admin-portal/middleware.ts": {
-    "mtime": 1788681627.781032,
-    "seen": 1788681979.4003022,
-    "ast_hash": "bc94c0b3d7d77989751bdf37c40c2944",
+    "mtime": 1789037487.8885999,
+    "seen": 1789037836.171842,
+    "ast_hash": "72f60aab8ca0d9561a01fe4f0f9fafb6",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/hooks/src/useOrganization.ts": {
@@ -2448,9 +2448,9 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/ui/src/components/Navbar.tsx": {
-    "mtime": 1788989732.2776315,
-    "seen": 1788995068.720479,
-    "ast_hash": "aaf4f3e202daf6bba0a0c4c2f5c62ca7",
+    "mtime": 1789037625.2596211,
+    "seen": 1789037836.178411,
+    "ast_hash": "ddda62ebea4996c7d3dcda971c8119a9",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/ui/src/components/PageHeader.tsx": {
@@ -6555,6 +6555,18 @@
     "mtime": 1789016857.3203366,
     "seen": 1789016889.9509819,
     "ast_hash": "86815cb4870846aed47b7a71a9ef00c3",
+    "semantic_hash": ""
+  },
+  "scripts/seed_superadmin.py": {
+    "mtime": 1789037449.9747427,
+    "seen": 1789037836.179619,
+    "ast_hash": "6abd2e97997c541774cec8c6a5ac02f0",
+    "semantic_hash": ""
+  },
+  "tests/unit/test_superadmin_universal_access.py": {
+    "mtime": 1789037714.0467458,
+    "seen": 1789037836.181889,
+    "ast_hash": "fbb8425c35cd1dce671dbabe97832cda",
     "semantic_hash": ""
   }
 }

@@ -10,12 +10,18 @@ All three portals run simultaneously with seeded test roles. Access them directl
 
 | Portal | Local URL | Primary Users | Demo Account | Password | Assigned Roles |
 | :--- | :--- | :--- | :--- | :--- | :--- |
+| **👑 Universal Super Admin** | **Any Portal** (`:3000`, `:3001`, `:3002`) | Universal Omnipotent Access & 1-Click Persona Switching | `superadmin@procurement.com` | `SuperAdmin123456!@#` | `SUPERADMIN` (All System & Org Roles, Omnipotent Bypass) |
 | **Buyer Portal** | [http://localhost:3000](http://localhost:3000) | Procurement Team (PRs, RFQs, Bids, Tickets) | `buyer@procurement.com` | `Buyer123456!@#` | `REQUESTOR`, `BUYER`, `PROCUREMENT_OFFICER` |
 | **Buyer Portal (Approver)** | [http://localhost:3000](http://localhost:3000) | Approvers & Leadership (Sign-offs) | `approver@procurement.com` | `Approver123!@#` | `APPROVER`, `PROCUREMENT_HEAD`, `FINANCE_MANAGER` |
 | **Supplier Portal** | [http://localhost:3001](http://localhost:3001) | External Vendors (Bids, Invoices, Queries) | `supplier@acme.com` | `Supplier123456!@#` | `SUPPLIER` (Acme Tech Solutions) |
-| **Admin Portal** | [http://localhost:3002](http://localhost:3002) | System Administrators (Master Data, SLAs, Tickets) | `admin@procurement.com` | `Admin123456!@#` | `SUPERADMIN`, `ORG_ADMIN`, `PROCUREMENT_MANAGER` |
+| **Admin Portal** | [http://localhost:3002](http://localhost:3002) | System Administrators (Master Data, SLAs, Tickets) | `admin@procurement.com` | `Admin123456!@#` | `ORG_ADMIN`, `PROCUREMENT_MANAGER` |
 
 > 🔑 **Organization ID for all logins:** `00000000-0000-0000-0000-000000000001` (Default Organization)
+>
+> 👑 **Super Admin Universal Access & Switcher:**
+> - **Omnipotent Permissions:** Can view, edit, approve, and execute any action across all modules without role or scope barriers.
+> - **1-Click Portal Switcher:** Seamlessly switch between Buyer (`:3000`), Supplier (`:3001`), and Admin (`:3002`) with persistent cross-portal cookies.
+> - **Interactive Persona Deck:** Click the `👑 Super Admin` header pill to switch views and deep link directly into any of the 8 enterprise personas.
 >
 > 🚪 **API Gateway (Kong):** [http://localhost:8000](http://localhost:8000) &nbsp;•&nbsp; **Direct Backend API:** [http://localhost:8080](http://localhost:8080)
 >
@@ -24,34 +30,20 @@ All three portals run simultaneously with seeded test roles. Access them directl
 ---
 
 ## Current Session State
-- **Completed (Real-Time Notification System & On-Screen Toast Alerts Overhaul)**:
-  1. **Backend Real-Time Dispatch**:
-     - Connected `app/modules/workflow/service.py` to `notification_service.dispatch()` on task creation: approver immediately receives in-app DB notification + WebSocket push (`WORKFLOW_TASK_ASSIGNED`).
-     - Added submitter notification upon workflow completion or rejection (`WORKFLOW_COMPLETED` / `WORKFLOW_REJECTED`).
-     - Subscribed `NotificationConsumer` in `app/modules/notification/consumer.py` to `q.workflow.events` for RabbitMQ durability.
-  2. **Frontend On-Screen Toast Alerts**:
-     - Built reactive toast slice in `useNotificationStore` (`toasts`, `addToast`, `dismissToast`).
-     - In `useNotifications.ts`, incoming WebSocket messages automatically trigger floating Apple glass `<NotificationToast />` banners with category icons, metadata, and direct routing.
-     - Built `<NotificationToaster />` in `@procurement/ui` and mounted in `<Providers />` across Buyer, Supplier, and Admin portals.
-  3. **Admin Portal Parity & Polling Resilience**:
-     - Added `<NotificationBell />` to Admin Portal top bar and enabled `useNotifications()` listener.
-     - Added fallback background polling (`refetchInterval: isConnected ? false : 15000`) in `useNotificationsList` for offline/disconnect resilience.
-     - Seeded live notifications via `scripts/seed_demo_notifications.py`.
-  4. **SPEC Audit**:
-```
-MODULE | SPEC | DATE
-Playwright E2E Multi-Portal [DONE] → tests/e2e/playwright/
-Cross-Portal Sync & Events [DONE] → tests/integration/test_cross_portal_synchronous_flow.py
-Connected Source-to-Pay [DONE] → tests/integration/test_end_to_end_connected_flow.py
-Real-Time In-App Notifications [DONE] → app/modules/notification/ & @procurement/ui
-Multi-Portal Notification Toaster [DONE] → all 3 portals & @procurement/hooks
-Buyer Portal (3000) [DONE] → procurement_buyer_portal:3000
-Supplier Portal (3001) [DONE] → procurement_supplier_portal:3001
-Admin Portal (3002) [DONE] → procurement_admin_portal:3002
-API Gateway & Backend [DONE] → procurement_kong:8000 / procurement_api:8080
-OVERALL: 18/18 (100%) | BACKEND 100% | FRONTEND 100% | TESTS 100% (835/835 Passing)
-```
-- **Verification**: `turbo typecheck` passing (7/7 packages clean, 0 errors in 7.7s), 835/835 pytest passing, `graphify update .` completed (10,546 nodes, 28,431 edges, 583 communities).
+- **Completed (Super Admin Universal Persona & Cross-Portal Navigation)**:
+  1. **Backend Omnipotent Access & Cross-Portal Auth**:
+     - `role_repository.py`: In `user_has_permission`, short-circuits to `True` for `RoleCode.SUPERADMIN`.
+     - `service.py`: Allows `SUPERADMIN` login to any portal (Buyer, Supplier, Admin). In Supplier mode, dynamically injects vendor context (`V-10001`).
+     - `dependencies.py`: Dynamically binds vendor context and sets `is_supplier_user=True` when `SUPERADMIN` accesses Supplier APIs; exempts `SUPERADMIN` from mandatory MFA lockout.
+     - `router.py`: Dual-writes portal-isolated cookies and root cookies (`path="/"`) with cross-portal cookie fallback on refresh.
+  2. **Frontend 1-Click Portal Switcher & Persona Deck**:
+     - `Navbar.tsx`: Integrated segmented quick-switcher (`[ 🏢 Buyer | 🏭 Supplier | ⚙️ Admin ]`) and interactive `👑 Super Admin` Persona Deck with deep links to all 8 enterprise personas.
+     - Middlewares updated across all 3 portals (`apps/*/middleware.ts`) to validate cross-portal auth cookies seamlessly.
+  3. **Verification**:
+     - 445/445 backend unit tests passing (`tests/unit/`).
+     - 396/396 backend integration tests passing (`tests/integration/`).
+     - 7/7 Turbo frontend packages passing strict typecheck with 0 errors.
+     - Seeding verified via `scripts/seed_superadmin.py` and `scripts/seed_demo_user.py`.
 
 ---
 

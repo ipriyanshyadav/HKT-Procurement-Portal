@@ -16,6 +16,8 @@ import {
   Copy,
   KeyRound,
   CheckCircle2,
+  Crown,
+  Sparkles,
 } from 'lucide-react';
 import { useAuthStore } from '@procurement/stores';
 import { ThemeSwitcher } from '../theme/ThemeSwitcher';
@@ -58,6 +60,100 @@ export interface NavbarProps {
   showSidebarToggle?: boolean;
 }
 
+export interface PersonaDefinition {
+  id: string;
+  title: string;
+  roleName: string;
+  portalName: string;
+  portalKey: 'buyer' | 'supplier' | 'admin';
+  path: string;
+  icon: string;
+  description: string;
+}
+
+export const ENTERPRISE_PERSONAS: PersonaDefinition[] = [
+  {
+    id: 'system-admin',
+    title: 'System Admin',
+    roleName: 'SUPERADMIN / ORG_ADMIN',
+    portalName: 'Admin Portal',
+    portalKey: 'admin',
+    path: '/users',
+    icon: '🛠️',
+    description: 'System config, users, workflows & audit trails',
+  },
+  {
+    id: 'requestor',
+    title: 'Requestor',
+    roleName: 'REQUESTOR',
+    portalName: 'Buyer Portal',
+    portalKey: 'buyer',
+    path: '/requisitions',
+    icon: '📝',
+    description: 'PR requisitions, shopping cart & catalog checkout',
+  },
+  {
+    id: 'buyer',
+    title: 'Buyer Specialist',
+    roleName: 'BUYER / SOURCING_MANAGER',
+    portalName: 'Buyer Portal',
+    portalKey: 'buyer',
+    path: '/sourcing',
+    icon: '💼',
+    description: 'RFQs, tenders, comparative statements & live reverse auctions',
+  },
+  {
+    id: 'approver',
+    title: 'Approver L1',
+    roleName: 'APPROVER / PROCUREMENT_HEAD',
+    portalName: 'Buyer Portal',
+    portalKey: 'buyer',
+    path: '/tasks',
+    icon: '✅',
+    description: 'Managerial sign-offs, PR/PO approvals & tasks inbox',
+  },
+  {
+    id: 'finance',
+    title: 'Finance L2',
+    roleName: 'FINANCE_MANAGER / CFO',
+    portalName: 'Buyer Portal',
+    portalKey: 'buyer',
+    path: '/tasks',
+    icon: '💰',
+    description: 'Financial controls, budget exceptions & CFO approvals',
+  },
+  {
+    id: 'warehouse',
+    title: 'Warehouse Manager',
+    roleName: 'LOGISTICS / RECEIVING',
+    portalName: 'Buyer Portal',
+    portalKey: 'buyer',
+    path: '/goods-receipts',
+    icon: '📦',
+    description: 'Shipment intake, GRN creation & quality inspections',
+  },
+  {
+    id: 'ap',
+    title: 'Accounts Payable',
+    roleName: 'FINANCE_CONTROLLER / AP',
+    portalName: 'Buyer Portal',
+    portalKey: 'buyer',
+    path: '/invoices',
+    icon: '📑',
+    description: 'Invoice verification, 3-way match & dispute resolution',
+  },
+  {
+    id: 'supplier',
+    title: 'Supplier Partner',
+    roleName: 'SUPPLIER / VENDOR',
+    portalName: 'Supplier Portal',
+    portalKey: 'supplier',
+    path: '/tenders',
+    icon: '🏭',
+    description: 'Bid submission, reverse auctions, PO acknowledgments & invoices',
+  },
+];
+
 export function Navbar({
   portalName = 'HKT Procurement',
   portalBadge,
@@ -74,9 +170,11 @@ export function Navbar({
 }: NavbarProps) {
   const pathname = usePathname();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isPersonaMenuOpen, setIsPersonaMenuOpen] = useState(false);
   const [isConfirmingSignOut, setIsConfirmingSignOut] = useState(false);
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const personaMenuRef = useRef<HTMLDivElement>(null);
 
   const storeUser = useAuthStore((state) => state.user);
   const permissions = useAuthStore((state) => state.permissions) || [];
@@ -88,14 +186,17 @@ export function Navbar({
         setIsDropdownOpen(false);
         setIsConfirmingSignOut(false);
       }
+      if (personaMenuRef.current && !personaMenuRef.current.contains(event.target as Node)) {
+        setIsPersonaMenuOpen(false);
+      }
     }
-    if (isDropdownOpen) {
+    if (isDropdownOpen || isPersonaMenuOpen) {
       document.addEventListener('mousedown', handleClickOutside);
     }
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isDropdownOpen]);
+  }, [isDropdownOpen, isPersonaMenuOpen]);
 
   // Close dropdown on Escape key
   useEffect(() => {
@@ -103,15 +204,16 @@ export function Navbar({
       if (event.key === 'Escape') {
         setIsDropdownOpen(false);
         setIsConfirmingSignOut(false);
+        setIsPersonaMenuOpen(false);
       }
     }
-    if (isDropdownOpen) {
+    if (isDropdownOpen || isPersonaMenuOpen) {
       document.addEventListener('keydown', handleKeyDown);
     }
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isDropdownOpen]);
+  }, [isDropdownOpen, isPersonaMenuOpen]);
 
   let badgeColorClass = 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800';
   if (badgeColor === 'green') {
@@ -155,6 +257,24 @@ export function Navbar({
     (storeUser?.role_names && storeUser.role_names.length > 0 ? storeUser.role_names[0] : null) ||
     fallbackRole;
 
+  // User roles & SuperAdmin check
+  const userRoles = [
+    ...(user?.roles || []),
+    ...(user?.role_names || []),
+    ...(storeUser?.role_names || []),
+    user?.role,
+  ]
+    .filter(Boolean)
+    .map((r) => String(r).toUpperCase());
+
+  const isSuperAdmin =
+    userRoles.includes('SUPERADMIN') ||
+    effectiveEmail === 'superadmin@procurement.com' ||
+    effectiveEmail === 'admin@procurement.com' ||
+    roleDisplay?.toUpperCase().includes('SUPERADMIN');
+
+  const roleDisplayEffective = isSuperAdmin ? '👑 Super Admin' : roleDisplay;
+
   const handleCopy = (text: string, field: string) => {
     if (typeof window !== 'undefined' && navigator?.clipboard) {
       navigator.clipboard.writeText(text);
@@ -173,6 +293,11 @@ export function Navbar({
       return `${protocol}//${hostname}:${portMap[target]}`;
     }
     return `/${target}`;
+  };
+
+  const getPersonaUrl = (persona: PersonaDefinition) => {
+    const base = getPortalUrl(persona.portalKey);
+    return `${base}${persona.path}`;
   };
 
   const isCurrentPortal = (target: 'buyer' | 'supplier' | 'admin') => {
@@ -244,8 +369,116 @@ export function Navbar({
         )}
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2.5 sm:gap-3">
         {actions}
+
+        {/* 1-Click Portal Quick Switcher */}
+        <div className="hidden sm:flex items-center bg-black/5 dark:bg-white/5 p-0.5 rounded-xl border border-neutral-200/70 dark:border-neutral-800 shadow-xs">
+          <a
+            href={getPortalUrl('buyer')}
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all ${
+              isCurrentPortal('buyer')
+                ? 'bg-white dark:bg-neutral-800 text-amber-700 dark:text-amber-300 shadow-xs border border-neutral-200/60 dark:border-neutral-700/60'
+                : 'text-neutral-500 hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-neutral-200'
+            }`}
+            title="Switch to Buyer Portal (:3000)"
+          >
+            <span className={`w-1.5 h-1.5 rounded-full ${isCurrentPortal('buyer') ? 'bg-amber-500' : 'bg-neutral-300 dark:bg-neutral-600'}`} />
+            <span>Buyer</span>
+          </a>
+          <a
+            href={getPortalUrl('supplier')}
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all ${
+              isCurrentPortal('supplier')
+                ? 'bg-white dark:bg-neutral-800 text-emerald-700 dark:text-emerald-300 shadow-xs border border-neutral-200/60 dark:border-neutral-700/60'
+                : 'text-neutral-500 hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-neutral-200'
+            }`}
+            title="Switch to Supplier Portal (:3001)"
+          >
+            <span className={`w-1.5 h-1.5 rounded-full ${isCurrentPortal('supplier') ? 'bg-emerald-500' : 'bg-neutral-300 dark:bg-neutral-600'}`} />
+            <span>Supplier</span>
+          </a>
+          <a
+            href={getPortalUrl('admin')}
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all ${
+              isCurrentPortal('admin')
+                ? 'bg-white dark:bg-neutral-800 text-blue-700 dark:text-blue-300 shadow-xs border border-neutral-200/60 dark:border-neutral-700/60'
+                : 'text-neutral-500 hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-neutral-200'
+            }`}
+            title="Switch to Admin Portal (:3002)"
+          >
+            <span className={`w-1.5 h-1.5 rounded-full ${isCurrentPortal('admin') ? 'bg-blue-500' : 'bg-neutral-300 dark:bg-neutral-600'}`} />
+            <span>Admin</span>
+          </a>
+        </div>
+
+        {/* Super Admin Persona Control Deck */}
+        {isSuperAdmin && (
+          <div className="relative" ref={personaMenuRef}>
+            <button
+              type="button"
+              onClick={() => setIsPersonaMenuOpen((prev) => !prev)}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gradient-to-r from-amber-500/15 via-yellow-500/15 to-amber-600/15 border border-amber-500/30 text-amber-800 dark:text-amber-300 hover:border-amber-500/60 hover:bg-amber-500/20 transition-all text-xs font-bold shadow-xs group"
+              title="Super Admin Persona Control Deck — Click to inspect and switch personas"
+              aria-label="Super Admin Persona Control Deck"
+            >
+              <Crown className="w-3.5 h-3.5 text-amber-500 group-hover:scale-110 transition-transform" />
+              <span className="hidden md:inline">Super Admin</span>
+              <ChevronDown className={`w-3 h-3 text-amber-600/70 transition-transform duration-200 ${isPersonaMenuOpen ? 'rotate-180' : ''}`} />
+            </button>
+
+            {isPersonaMenuOpen && (
+              <div className="absolute right-0 mt-2 w-[340px] sm:w-[380px] max-w-[calc(100vw-2rem)] rounded-2xl bg-white/95 dark:bg-neutral-900/95 backdrop-blur-2xl border border-amber-500/30 shadow-2xl shadow-amber-500/10 z-50 overflow-hidden">
+                <div className="p-3.5 bg-gradient-to-r from-amber-500/15 via-yellow-500/10 to-orange-500/10 border-b border-amber-500/20">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="w-7 h-7 rounded-xl bg-gradient-to-tr from-amber-500 to-yellow-400 text-white flex items-center justify-center text-sm shadow-sm">
+                        👑
+                      </span>
+                      <div>
+                        <h4 className="text-xs font-bold text-neutral-900 dark:text-white">
+                          Super Admin Persona Deck
+                        </h4>
+                        <p className="text-[10px] text-amber-700 dark:text-amber-400 font-medium">
+                          Universal access across 3 portals & 8 personas
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-2 max-h-[380px] overflow-y-auto space-y-1">
+                  <div className="px-2 py-1 flex items-center justify-between text-[10px] font-bold text-neutral-400 uppercase tracking-wider">
+                    <span>Embody Persona Screen</span>
+                    <span className="text-[9px] text-amber-600 dark:text-amber-400 lowercase font-normal">click to jump</span>
+                  </div>
+                  {ENTERPRISE_PERSONAS.map((p) => (
+                    <a
+                      key={p.id}
+                      href={getPersonaUrl(p)}
+                      className="flex items-center justify-between px-2.5 py-2 rounded-xl hover:bg-amber-50/60 dark:hover:bg-amber-950/20 transition-colors group"
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <span className="text-base flex-shrink-0">{p.icon}</span>
+                        <div className="min-w-0">
+                          <p className="text-xs font-semibold text-neutral-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors truncate">
+                            {p.title}
+                          </p>
+                          <p className="text-[10px] text-neutral-500 dark:text-neutral-400 truncate">
+                            {p.description}
+                          </p>
+                        </div>
+                      </div>
+                      <span className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 flex-shrink-0 group-hover:bg-amber-100 dark:group-hover:bg-amber-900/40 group-hover:text-amber-700 dark:group-hover:text-amber-300 transition-colors ml-2 font-mono">
+                        {p.portalKey}
+                      </span>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Apple Light/Dark Switcher */}
         <ThemeSwitcher />
@@ -322,9 +555,16 @@ export function Navbar({
                       )}
 
                       <div className="flex items-center gap-1.5 mt-2">
-                        <span className={`inline-flex items-center text-[10px] font-semibold px-2.5 py-0.5 rounded-full border ${badgeColorClass}`}>
-                          {roleDisplay}
-                        </span>
+                        {isSuperAdmin ? (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-amber-500/40 bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 shadow-xs">
+                            <Crown className="w-3 h-3 text-amber-500" />
+                            Super Admin (All 17 Roles Active)
+                          </span>
+                        ) : (
+                          <span className={`inline-flex items-center text-[10px] font-semibold px-2.5 py-0.5 rounded-full border ${badgeColorClass}`}>
+                            {roleDisplay}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -371,6 +611,28 @@ export function Navbar({
                     Account & Security
                   </div>
                   <div className="space-y-1">
+                    {/* Super Admin Omnipotent Privilege Info */}
+                    {isSuperAdmin && (
+                      <div className="flex items-center justify-between px-2.5 py-2 rounded-xl bg-gradient-to-r from-amber-500/10 via-yellow-500/10 to-orange-500/10 border border-amber-500/30">
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <div className="w-7 h-7 rounded-lg bg-amber-500 text-white flex items-center justify-center flex-shrink-0 shadow-xs">
+                            <Crown className="w-4 h-4" />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-xs font-bold text-neutral-900 dark:text-white">
+                              Universal Omnipotent Access
+                            </p>
+                            <p className="text-[11px] text-amber-700 dark:text-amber-400 truncate">
+                              All portals, APIs & workflows unlocked
+                            </p>
+                          </div>
+                        </div>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-200/80 dark:bg-amber-900/50 text-amber-900 dark:text-amber-200">
+                          Omnipotent
+                        </span>
+                      </div>
+                    )}
+
                     {/* Role & Permissions Info */}
                     <div className="flex items-center justify-between px-2.5 py-2 rounded-xl bg-neutral-50/50 dark:bg-neutral-800/30 border border-neutral-100 dark:border-neutral-800">
                       <div className="flex items-center gap-2.5 min-w-0">
@@ -382,7 +644,7 @@ export function Navbar({
                             Access Permissions
                           </p>
                           <p className="text-[11px] text-neutral-500 dark:text-neutral-400 truncate">
-                            {permissions.length > 0 ? `${permissions.length} Policies Active` : 'Standard Role Policy'}
+                            {isSuperAdmin ? 'All 100+ System Permissions Active' : permissions.length > 0 ? `${permissions.length} Policies Active` : 'Standard Role Policy'}
                           </p>
                         </div>
                       </div>
