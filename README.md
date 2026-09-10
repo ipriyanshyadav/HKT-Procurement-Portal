@@ -24,12 +24,19 @@ All three portals run simultaneously with seeded test roles. Access them directl
 ---
 
 ## Current Session State
-- **Completed (Sidebar Navigation Consolidation & Multi-Portal Cleanup)**:
-  1. **Navigation Consolidation**:
-     - `apps/buyer-portal/app/(main)/layout.tsx`: Consolidated 4 redundant ticket links (*All Tickets*, *Kanban Board*, *Assigned to Me*, *Raised by Me*) into a single clean hub item (`Tickets & Inquiries` → `/tickets`), eliminating dead imports (`Kanban`, `Ticket`).
-     - `apps/admin-portal/app/(main)/layout.tsx`: Consolidated 4 redundant ticket links (*All Tickets Queue*, *Support Dashboard*, *SLA Policies*, *Reports & Export*) into a single clean hub item (`Helpdesk & SLAs` → `/tickets`), eliminating dead imports (`Timer`, `FileSpreadsheet`).
-     - Preserved 100% in-page sub-navigation tabs across all ticket views in both portals with active-path highlighting.
-  2. **SPEC Audit**:
+- **Completed (Comprehensive Multi-Portal Sidebar Overhaul & Interactive UX Suite)**:
+  1. **Supplier Portal (`:3001`)**:
+     - Consolidated 7 fragmented sections (including 4 single-item micro-sections) into 5 balanced, lifecycle-ordered stages: *Bidding & Opportunities*, *Orders & Fulfillment*, *Finance & Invoicing*, *Company & Compliance*, and *Support*.
+  2. **Buyer Portal (`:3000`)**:
+     - Resolved out-of-sequence section sandwiching; split overloaded Purchasing group (11 items) into dedicated *Purchasing* (6 items) and *Accounts Payable* (5 items) domains.
+     - Added distinct semantic icons (`Store` for marketplace, `ShoppingBag` for PO) and connected live task count badges (`pendingTasksCount`) via `useMyWorkflowTasks()`.
+  3. **Admin Portal (`:3002`)**:
+     - Streamlined Master Data section from 11 links down to 5 core entries (*Master Data Hub*, *Categories*, *Item Catalog*, *Tax, Terms & Currencies*, *CSV Bulk Import*), eliminating 6 redundant links while preserving full access via the Master Data Hub dashboard.
+     - Pruned unused Lucide icons (`Scale`, `Coins`, `CreditCard`, `MapPin`, `Calendar`, `Truck`) adhering strictly to zero dead code.
+  4. **Interactive UX Suite (`packages/ui`)**:
+     - `Sidebar.tsx`: Built in-dock real-time **Quick Find search filter** (`searchQuery`), **collapsible accordion sections** with animated rotate chevrons, **badge color variants** (`orange`, `red`, `green`, `blue`), and longest-prefix route matching preventing parent active-state collisions.
+     - `sidebar.css`: Added styles for `.sidebar-section-header`, interactive section focus states, and search clear buttons.
+  5. **SPEC Audit**:
 ```
 MODULE | SPEC | DATE
 Playwright E2E Multi-Portal [DONE] → tests/e2e/playwright/
@@ -39,10 +46,10 @@ Buyer Portal (3000) [DONE] → procurement_buyer_portal:3000
 Supplier Portal (3001) [DONE] → procurement_supplier_portal:3001
 Admin Portal (3002) [DONE] → procurement_admin_portal:3002
 API Gateway & Backend [DONE] → procurement_kong:8000 / procurement_api:8080
-Navigation & Sidebar Polish [DONE] → buyer-portal & admin-portal layouts
+Multi-Portal Sidebar Suite [DONE] → all 3 portals & @procurement/ui
 OVERALL: 17/17 (100%) | BACKEND 100% | FRONTEND 100% | E2E 100% (All Suites Passing)
 ```
-- **Verification**: `turbo typecheck` passing (7/7 packages clean, 0 errors), zero dead code/unused imports, `graphify update .` completed (10,535 nodes, 28,393 edges, 592 communities).
+- **Verification**: `turbo typecheck` passing (7/7 packages clean, 0 errors in 26s), zero dead code/unused imports, `graphify update .` completed (10,535 nodes, 28,396 edges, 588 communities).
 
 ---
 
