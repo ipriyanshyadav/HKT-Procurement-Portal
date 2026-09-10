@@ -918,15 +918,15 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/stores/src/authStore.ts": {
-    "mtime": 1788526753.2768135,
-    "seen": 1788527041.568293,
-    "ast_hash": "0977c60637270fb93566c2194d00bbab",
+    "mtime": 1789039589.1522288,
+    "seen": 1789039902.250327,
+    "ast_hash": "efdd57cf883eed63b05d953d9b7a5d33",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/stores/src/index.ts": {
-    "mtime": 1788609276.1455154,
-    "seen": 1788609539.901809,
-    "ast_hash": "3604dd9563032a6204de936032f0f472",
+    "mtime": 1789039595.5823736,
+    "seen": 1789039902.250329,
+    "ast_hash": "c5aca3130d80796c5e518de98e88a7b6",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/stores/tsconfig.json": {
@@ -948,8 +948,8 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/types/src/api.ts": {
-    "mtime": 1789037630.8511379,
-    "seen": 1789037836.1769652,
+    "mtime": 1789039868.1362872,
+    "seen": 1789039902.2504241,
     "ast_hash": "78361e250bde117fcfd1a864cd6243cb",
     "semantic_hash": ""
   },
@@ -972,9 +972,9 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/ui/src/index.ts": {
-    "mtime": 1789034917.971306,
-    "seen": 1789035194.6428769,
-    "ast_hash": "5e8d2e63dd2cfa0af8df8413131069eb",
+    "mtime": 1789039752.4567406,
+    "seen": 1789039902.252598,
+    "ast_hash": "4bae0cc1ed26242692204e415cf91cbe",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/ui/src/utils.ts": {
@@ -1482,9 +1482,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1789038487.0512915,
-    "seen": 1789038525.653733,
-    "ast_hash": "b02bf3ddd85aebfdc63d2bf982a90727",
+    "mtime": 1789039883.8223474,
+    "seen": 1789039902.256015,
+    "ast_hash": "27ff9d4674e7b88e50de0d794b70b44b",
     "semantic_hash": ""
   },
   "graphify_diff_20260904_014322.txt": {
@@ -2406,9 +2406,9 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/ui/src/components/AppShell.tsx": {
-    "mtime": 1788935681.365055,
-    "seen": 1788935783.8966641,
-    "ast_hash": "bcf518ccd6f4f0e957be39696e50d310",
+    "mtime": 1789039643.010592,
+    "seen": 1789039902.251313,
+    "ast_hash": "3363ca32a5ac7bfce8813835859390d7",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/ui/src/components/Badge.tsx": {
@@ -2448,9 +2448,9 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/ui/src/components/Navbar.tsx": {
-    "mtime": 1789037625.2596211,
-    "seen": 1789037836.178411,
-    "ast_hash": "ddda62ebea4996c7d3dcda971c8119a9",
+    "mtime": 1789039747.6294553,
+    "seen": 1789039902.2518778,
+    "ast_hash": "d0e2bedadd95c864271a06350f3f4f8b",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/ui/src/components/PageHeader.tsx": {
@@ -6567,6 +6567,30 @@
     "mtime": 1789037714.0467458,
     "seen": 1789037836.181889,
     "ast_hash": "fbb8425c35cd1dce671dbabe97832cda",
+    "semantic_hash": ""
+  },
+  "procurement-portal-frontend/packages/stores/src/personas.test.ts": {
+    "mtime": 1789039863.4454582,
+    "seen": 1789039902.250358,
+    "ast_hash": "e140d718ed345cd1ee426b751f8a724e",
+    "semantic_hash": ""
+  },
+  "procurement-portal-frontend/packages/stores/src/personas.ts": {
+    "mtime": 1789039847.402618,
+    "seen": 1789039902.250359,
+    "ast_hash": "361e3533d9113d02e127f96ea60835ec",
+    "semantic_hash": ""
+  },
+  "procurement-portal-frontend/packages/ui/src/components/AccessRestrictedCard.tsx": {
+    "mtime": 1789039609.1871526,
+    "seen": 1789039902.251312,
+    "ast_hash": "b301bb201e20c4f65a668f254df51c59",
+    "semantic_hash": ""
+  },
+  "procurement-portal-frontend/packages/ui/src/components/PersonaSimulationBanner.tsx": {
+    "mtime": 1789039614.628825,
+    "seen": 1789039902.252,
+    "ast_hash": "1a57abaae28bc979057acbb1a6ab8f80",
     "semantic_hash": ""
   }
 }

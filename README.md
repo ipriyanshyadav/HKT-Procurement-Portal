@@ -43,29 +43,31 @@ The platform supports strict enterprise role separation (where each user only se
 | **6** | **📦 Warehouse Manager** | Marcus Vance | Buyer Portal (Goods receipts, 3-way match inspect, GRN delivery) | `warehouse@procurement.com` | `Warehouse123!@#` | `http://localhost:3000/goods-receipts` |
 | **7** | **💳 Accounts Payable** | Claire Redfield | Buyer Portal (Invoice processing, 2-way / 3-way match, payment holds) | `ap@procurement.com` | `Accounts123!@#` | `http://localhost:3000/invoices` |
 | **8** | **🏭 Supplier Partner** | Rajesh Kumar | Supplier Portal (RFQ bids, PO acknowledgment, ASN, invoices) | `supplier@acme.com` | `Supplier123456!@#` | `http://localhost:3001/rfqs` |
+| **9** | **🌐 Global Cloud Vendor** | Priya Sharma | Supplier Portal (Bids, rate cards, SLAs, disputes) | `supplier@globalcloud.com` | `Supplier123456!@#` | `http://localhost:3001/rfqs` |
+
+#### 🛡️ Sidebar Navigation & In-Page Authorization Policy
+- **Universal Sidebar Visibility**: All sidebar navigation tabs and sub-tabs remain **100% visible and clickable** for every user across all three portals (Buyer `:3000`, Supplier `:3001`, Admin `:3002`).
+- **In-Page Danger Warning**: If a user navigates to a tab or module they lack permissions for, the page displays a high-visibility danger banner (`AccessRestrictedCard`):
+  - ⚠️ *"You are not authorized to use [moduleName]"*
+  - Diagnostic comparison showing: **Active Persona** vs. **Assigned Roles** vs. **Required Role(s)**.
+  - Standard users see direct links to return to dashboard or submit an internal permission request.
+- **👑 Omnipotent Super Admin & Persona Simulation**:
+  - **Alexander Vance** (`superadmin@procurement.com`) has universal unrestricted bypass access to every tab, module, and API across all 3 portals.
+  - When Alexander Vance chooses to embody a persona from the **Persona Control Deck**, the platform temporarily scopes his effective roles to match that persona. When he navigates to a module restricted for that persona (e.g. visiting *Invoices* as *Sarah Jenkins*), he experiences the exact in-page danger restriction.
+  - **1-Click Instant Restoration**: A persistent top simulation banner and an in-page recovery button allow Alexander Vance to instantly return to full Super Admin privileges with a single click.
 
 #### How to Use the 1-Click Switcher & Persona Deck:
 1. Log into **any portal** ([Buyer :3000](http://localhost:3000), [Supplier :3001](http://localhost:3001), or [Admin :3002](http://localhost:3002)) using `superadmin@procurement.com` / `SuperAdmin123456!@#`.
 2. Look at the top navigation bar:
    - **Segmented Quick Switcher (`[ 🏢 Buyer | 🏭 Supplier | ⚙️ Admin ]`):** Click any portal name to jump directly to that application without needing to re-login. Cross-portal cookies and token refresh handle the transition instantly.
-   - **Persona Control Deck (`👑 Super Admin`):** Click the golden crown pill in the header to open the interactive persona dropdown. Clicking any persona instantly routes you to that specific role's screen.
+   - **Persona Control Deck (`👑 Super Admin`):** Click the golden crown pill in the header to open the interactive persona dropdown. Selecting any persona immediately applies their scoped permissions and routes to their screen.
+   - **Exit Persona Simulation (`👑 Exit to Super Admin`):** Click the sticky golden banner button or the recovery button in any danger card to instantly restore universal access.
 
 
 ## Current Session State
-- **Completed (Super Admin Universal Persona & Cross-Portal Navigation)**:
-  1. **Backend Omnipotent Access & Cross-Portal Auth**:
-     - `role_repository.py`: In `user_has_permission`, short-circuits to `True` for `RoleCode.SUPERADMIN`.
-     - `service.py`: Allows `SUPERADMIN` login to any portal (Buyer, Supplier, Admin). In Supplier mode, dynamically injects vendor context (`V-10001`).
-     - `dependencies.py`: Dynamically binds vendor context and sets `is_supplier_user=True` when `SUPERADMIN` accesses Supplier APIs; exempts `SUPERADMIN` from mandatory MFA lockout.
-     - `router.py`: Dual-writes portal-isolated cookies and root cookies (`path="/"`) with cross-portal cookie fallback on refresh.
-  2. **Frontend 1-Click Portal Switcher & Persona Deck**:
-     - `Navbar.tsx`: Integrated segmented quick-switcher (`[ 🏢 Buyer | 🏭 Supplier | ⚙️ Admin ]`) and interactive `👑 Super Admin` Persona Deck with deep links to all 8 enterprise personas.
-     - Middlewares updated across all 3 portals (`apps/*/middleware.ts`) to validate cross-portal auth cookies seamlessly.
-  3. **Verification**:
-     - 445/445 backend unit tests passing (`tests/unit/`).
-     - 396/396 backend integration tests passing (`tests/integration/`).
-     - 7/7 Turbo frontend packages passing strict typecheck with 0 errors.
-     - Seeding verified via `scripts/seed_superadmin.py` and `scripts/seed_demo_user.py`.
+- **Implemented**: Universal sidebar tab visibility across all portals with in-page `<AccessRestrictedCard />` danger warning; Super Admin Alexander Vance omnipotent access and 1-click persona simulation deck (8 enterprise personas) with instant Super Admin recovery.
+- **Tested**: Backend unit tests (445/445), auth bypass tests (6/6), frontend turbo typecheck (7/7 packages), turbo lint (3/3 apps), and stores unit test suite (8/8 persona access tests) passing with 0 errors.
+- **Next**: Final git commit and graphify knowledge graph update.
 
 ---
 

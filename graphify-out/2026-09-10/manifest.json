@@ -1482,9 +1482,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1789037816.2323303,
-    "seen": 1789037836.1823559,
-    "ast_hash": "99ad325c4c5ad0616230eeb5d10a1bd9",
+    "mtime": 1789038487.0512915,
+    "seen": 1789038525.653733,
+    "ast_hash": "b02bf3ddd85aebfdc63d2bf982a90727",
     "semantic_hash": ""
   },
   "graphify_diff_20260904_014322.txt": {
@@ -2280,9 +2280,9 @@
     "semantic_hash": ""
   },
   "scripts/seed_demo_user.py": {
-    "mtime": 1789037474.1998723,
-    "seen": 1789037836.179583,
-    "ast_hash": "f9000f93dcda3a5e6f2647acb2345b03",
+    "mtime": 1789038427.7418277,
+    "seen": 1789038525.650534,
+    "ast_hash": "48c9c95621129085a3fbd2244012b373",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/admin-portal/postcss.config.js": {
@@ -6558,9 +6558,9 @@
     "semantic_hash": ""
   },
   "scripts/seed_superadmin.py": {
-    "mtime": 1789037449.9747427,
-    "seen": 1789037836.179619,
-    "ast_hash": "6abd2e97997c541774cec8c6a5ac02f0",
+    "mtime": 1789038403.7355387,
+    "seen": 1789038525.6505759,
+    "ast_hash": "c8218a4f520ee76e5005f2ed25b6235c",
     "semantic_hash": ""
   },
   "tests/unit/test_superadmin_universal_access.py": {

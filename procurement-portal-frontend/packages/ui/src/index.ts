@@ -131,6 +131,12 @@ export type { SidebarProps, SidebarItemData, SidebarMode } from "./components/Si
 export { AppShell } from "./components/AppShell";
 export type { AppShellProps } from "./components/AppShell";
 
+export { AccessRestrictedCard } from "./components/AccessRestrictedCard";
+export type { AccessRestrictedCardProps } from "./components/AccessRestrictedCard";
+
+export { PersonaSimulationBanner } from "./components/PersonaSimulationBanner";
+export type { PersonaSimulationBannerProps } from "./components/PersonaSimulationBanner";
+
 export { PageTransition } from "./components/PageTransition";
 export type { PageTransitionProps } from "./components/PageTransition";
 

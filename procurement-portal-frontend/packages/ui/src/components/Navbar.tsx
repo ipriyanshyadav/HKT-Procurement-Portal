@@ -19,7 +19,7 @@ import {
   Crown,
   Sparkles,
 } from 'lucide-react';
-import { useAuthStore } from '@procurement/stores';
+import { useAuthStore, ENTERPRISE_PERSONAS, SUPERADMIN_PERSONA, EnterprisePersona } from '@procurement/stores';
 import { ThemeSwitcher } from '../theme/ThemeSwitcher';
 
 import { SidebarMode } from './Sidebar';
@@ -37,6 +37,7 @@ export interface UserProfile {
   org_id?: string;
   status?: string;
   mfa_enabled?: boolean;
+  vendor_id?: string | null;
 }
 
 export interface NavItem {
@@ -60,99 +61,6 @@ export interface NavbarProps {
   showSidebarToggle?: boolean;
 }
 
-export interface PersonaDefinition {
-  id: string;
-  title: string;
-  roleName: string;
-  portalName: string;
-  portalKey: 'buyer' | 'supplier' | 'admin';
-  path: string;
-  icon: string;
-  description: string;
-}
-
-export const ENTERPRISE_PERSONAS: PersonaDefinition[] = [
-  {
-    id: 'system-admin',
-    title: 'System Admin',
-    roleName: 'SUPERADMIN / ORG_ADMIN',
-    portalName: 'Admin Portal',
-    portalKey: 'admin',
-    path: '/users',
-    icon: '🛠️',
-    description: 'System config, users, workflows & audit trails',
-  },
-  {
-    id: 'requestor',
-    title: 'Requestor',
-    roleName: 'REQUESTOR',
-    portalName: 'Buyer Portal',
-    portalKey: 'buyer',
-    path: '/requisitions',
-    icon: '📝',
-    description: 'PR requisitions, shopping cart & catalog checkout',
-  },
-  {
-    id: 'buyer',
-    title: 'Buyer Specialist',
-    roleName: 'BUYER / SOURCING_MANAGER',
-    portalName: 'Buyer Portal',
-    portalKey: 'buyer',
-    path: '/sourcing',
-    icon: '💼',
-    description: 'RFQs, tenders, comparative statements & live reverse auctions',
-  },
-  {
-    id: 'approver',
-    title: 'Approver L1',
-    roleName: 'APPROVER / PROCUREMENT_HEAD',
-    portalName: 'Buyer Portal',
-    portalKey: 'buyer',
-    path: '/tasks',
-    icon: '✅',
-    description: 'Managerial sign-offs, PR/PO approvals & tasks inbox',
-  },
-  {
-    id: 'finance',
-    title: 'Finance L2',
-    roleName: 'FINANCE_MANAGER / CFO',
-    portalName: 'Buyer Portal',
-    portalKey: 'buyer',
-    path: '/tasks',
-    icon: '💰',
-    description: 'Financial controls, budget exceptions & CFO approvals',
-  },
-  {
-    id: 'warehouse',
-    title: 'Warehouse Manager',
-    roleName: 'LOGISTICS / RECEIVING',
-    portalName: 'Buyer Portal',
-    portalKey: 'buyer',
-    path: '/goods-receipts',
-    icon: '📦',
-    description: 'Shipment intake, GRN creation & quality inspections',
-  },
-  {
-    id: 'ap',
-    title: 'Accounts Payable',
-    roleName: 'FINANCE_CONTROLLER / AP',
-    portalName: 'Buyer Portal',
-    portalKey: 'buyer',
-    path: '/invoices',
-    icon: '📑',
-    description: 'Invoice verification, 3-way match & dispute resolution',
-  },
-  {
-    id: 'supplier',
-    title: 'Supplier Partner',
-    roleName: 'SUPPLIER / VENDOR',
-    portalName: 'Supplier Portal',
-    portalKey: 'supplier',
-    path: '/tenders',
-    icon: '🏭',
-    description: 'Bid submission, reverse auctions, PO acknowledgments & invoices',
-  },
-];
 
 export function Navbar({
   portalName = 'HKT Procurement',
@@ -178,6 +86,8 @@ export function Navbar({
 
   const storeUser = useAuthStore((state) => state.user);
   const permissions = useAuthStore((state) => state.permissions) || [];
+  const emulatedPersona = useAuthStore((state) => state.emulatedPersona);
+  const setEmulatedPersona = useAuthStore((state) => state.setEmulatedPersona);
 
   // Close dropdown on click outside
   useEffect(() => {
@@ -267,11 +177,15 @@ export function Navbar({
     .filter(Boolean)
     .map((r) => String(r).toUpperCase());
 
-  const isSuperAdmin =
-    userRoles.includes('SUPERADMIN') ||
+  const isSuperAdminAccount =
+    storeUser?.email === 'superadmin@procurement.com' ||
+    user?.email === 'superadmin@procurement.com' ||
     effectiveEmail === 'superadmin@procurement.com' ||
-    effectiveEmail === 'admin@procurement.com' ||
-    roleDisplay?.toUpperCase().includes('SUPERADMIN');
+    (storeUser?.role_names || []).map((r) => String(r).toUpperCase()).includes('SUPERADMIN') ||
+    userRoles.includes('SUPERADMIN') ||
+    !!emulatedPersona;
+
+  const isSuperAdmin = !emulatedPersona && isSuperAdminAccount;
 
   const roleDisplayEffective = isSuperAdmin ? '👑 Super Admin' : roleDisplay;
 
@@ -295,9 +209,22 @@ export function Navbar({
     return `/${target}`;
   };
 
-  const getPersonaUrl = (persona: PersonaDefinition) => {
+  const getPersonaUrl = (persona: EnterprisePersona) => {
     const base = getPortalUrl(persona.portalKey);
     return `${base}${persona.path}`;
+  };
+
+  const handleSelectPersona = (p: EnterprisePersona) => {
+    setEmulatedPersona(p);
+    setIsPersonaMenuOpen(false);
+    const targetUrl = getPersonaUrl(p);
+    window.location.href = targetUrl;
+  };
+
+  const handleRestoreSuperAdmin = () => {
+    setEmulatedPersona(null);
+    setIsPersonaMenuOpen(false);
+    window.location.reload();
   };
 
   const isCurrentPortal = (target: 'buyer' | 'supplier' | 'admin') => {
@@ -413,22 +340,37 @@ export function Navbar({
         </div>
 
         {/* Super Admin Persona Control Deck */}
-        {isSuperAdmin && (
+        {isSuperAdminAccount && (
           <div className="relative" ref={personaMenuRef}>
             <button
               type="button"
               onClick={() => setIsPersonaMenuOpen((prev) => !prev)}
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gradient-to-r from-amber-500/15 via-yellow-500/15 to-amber-600/15 border border-amber-500/30 text-amber-800 dark:text-amber-300 hover:border-amber-500/60 hover:bg-amber-500/20 transition-all text-xs font-bold shadow-xs group"
-              title="Super Admin Persona Control Deck — Click to inspect and switch personas"
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border transition-all text-xs font-bold shadow-xs group ${
+                emulatedPersona
+                  ? 'bg-gradient-to-r from-purple-500/15 via-indigo-500/15 to-pink-500/15 border-purple-500/40 text-purple-800 dark:text-purple-300 hover:border-purple-500/70 hover:bg-purple-500/25'
+                  : 'bg-gradient-to-r from-amber-500/15 via-yellow-500/15 to-amber-600/15 border-amber-500/30 text-amber-800 dark:text-amber-300 hover:border-amber-500/60 hover:bg-amber-500/20'
+              }`}
+              title={emulatedPersona ? `Simulating ${emulatedPersona.name} — Click to switch or exit` : "Super Admin Persona Control Deck — Click to inspect and switch personas"}
               aria-label="Super Admin Persona Control Deck"
             >
-              <Crown className="w-3.5 h-3.5 text-amber-500 group-hover:scale-110 transition-transform" />
-              <span className="hidden md:inline">Super Admin</span>
-              <ChevronDown className={`w-3 h-3 text-amber-600/70 transition-transform duration-200 ${isPersonaMenuOpen ? 'rotate-180' : ''}`} />
+              {emulatedPersona ? (
+                <>
+                  <span className="text-xs flex-shrink-0">{emulatedPersona.icon}</span>
+                  <span className="hidden md:inline truncate max-w-[120px]">{emulatedPersona.name}</span>
+                  <span className="text-[10px] px-1.5 py-0.2 rounded bg-purple-200/60 dark:bg-purple-900/60 text-purple-900 dark:text-purple-200 hidden sm:inline font-mono">SIM</span>
+                </>
+              ) : (
+                <>
+                  <Crown className="w-3.5 h-3.5 text-amber-500 group-hover:scale-110 transition-transform" />
+                  <span className="hidden md:inline">Super Admin</span>
+                </>
+              )}
+              <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${isPersonaMenuOpen ? 'rotate-180' : ''} ${emulatedPersona ? 'text-purple-600/70' : 'text-amber-600/70'}`} />
             </button>
 
             {isPersonaMenuOpen && (
-              <div className="absolute right-0 mt-2 w-[340px] sm:w-[380px] max-w-[calc(100vw-2rem)] rounded-2xl bg-white/95 dark:bg-neutral-900/95 backdrop-blur-2xl border border-amber-500/30 shadow-2xl shadow-amber-500/10 z-50 overflow-hidden">
+              <div className="absolute right-0 mt-2 w-[360px] sm:w-[400px] max-w-[calc(100vw-2rem)] rounded-2xl bg-white/95 dark:bg-neutral-900/95 backdrop-blur-2xl border border-amber-500/30 shadow-2xl shadow-amber-500/10 z-50 overflow-hidden">
+                {/* Header */}
                 <div className="p-3.5 bg-gradient-to-r from-amber-500/15 via-yellow-500/10 to-orange-500/10 border-b border-amber-500/20">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -440,40 +382,122 @@ export function Navbar({
                           Super Admin Persona Deck
                         </h4>
                         <p className="text-[10px] text-amber-700 dark:text-amber-400 font-medium">
-                          Universal access across 3 portals & 8 personas
+                          Simulate exact roles & view restrictions
                         </p>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="p-2 max-h-[380px] overflow-y-auto space-y-1">
-                  <div className="px-2 py-1 flex items-center justify-between text-[10px] font-bold text-neutral-400 uppercase tracking-wider">
-                    <span>Embody Persona Screen</span>
-                    <span className="text-[9px] text-amber-600 dark:text-amber-400 lowercase font-normal">click to jump</span>
-                  </div>
-                  {ENTERPRISE_PERSONAS.map((p) => (
-                    <a
-                      key={p.id}
-                      href={getPersonaUrl(p)}
-                      className="flex items-center justify-between px-2.5 py-2 rounded-xl hover:bg-amber-50/60 dark:hover:bg-amber-950/20 transition-colors group"
-                    >
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <span className="text-base flex-shrink-0">{p.icon}</span>
-                        <div className="min-w-0">
-                          <p className="text-xs font-semibold text-neutral-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors truncate">
-                            {p.title}
-                          </p>
-                          <p className="text-[10px] text-neutral-500 dark:text-neutral-400 truncate">
-                            {p.description}
+                {/* Active Emulation Notice & Quick Restore */}
+                {emulatedPersona && (
+                  <div className="p-3 bg-purple-50/70 dark:bg-purple-950/40 border-b border-purple-200/60 dark:border-purple-800/60 space-y-2">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-sm">{emulatedPersona.icon}</span>
+                          <p className="text-xs font-bold text-purple-900 dark:text-purple-200 truncate">
+                            Active: {emulatedPersona.name}
                           </p>
                         </div>
+                        <p className="text-[10px] text-purple-700 dark:text-purple-400 truncate mt-0.5">
+                          {emulatedPersona.title} • {emulatedPersona.roles.join(', ')}
+                        </p>
                       </div>
-                      <span className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 flex-shrink-0 group-hover:bg-amber-100 dark:group-hover:bg-amber-900/40 group-hover:text-amber-700 dark:group-hover:text-amber-300 transition-colors ml-2 font-mono">
-                        {p.portalKey}
+                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-purple-200/80 dark:bg-purple-900/80 text-purple-900 dark:text-purple-200 font-mono flex-shrink-0">
+                        ACTIVE
                       </span>
-                    </a>
-                  ))}
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={handleRestoreSuperAdmin}
+                      className="w-full flex items-center justify-center gap-1.5 py-1.5 px-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white text-xs font-bold rounded-xl shadow-xs transition-all"
+                    >
+                      <Crown className="w-3.5 h-3.5" />
+                      <span>👑 Restore Full Super Admin Mode</span>
+                    </button>
+                  </div>
+                )}
+
+                {/* Persona Switch List */}
+                <div className="p-2 max-h-[380px] overflow-y-auto space-y-1">
+                  <div className="px-2 py-1 flex items-center justify-between text-[10px] font-bold text-neutral-400 uppercase tracking-wider">
+                    <span>Select Persona to Emulate</span>
+                    <span className="text-[9px] text-amber-600 dark:text-amber-400 lowercase font-normal">8 personas</span>
+                  </div>
+
+                  {/* Super Admin Default Option */}
+                  <button
+                    type="button"
+                    onClick={handleRestoreSuperAdmin}
+                    className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl transition-colors text-left group ${
+                      !emulatedPersona
+                        ? 'bg-amber-100/60 dark:bg-amber-900/30 border border-amber-300 dark:border-amber-700'
+                        : 'hover:bg-amber-50/60 dark:hover:bg-amber-950/20'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <span className="text-base flex-shrink-0">👑</span>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <p className="text-xs font-bold text-neutral-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400">
+                            Alexander Vance
+                          </p>
+                          {!emulatedPersona && (
+                            <span className="text-[9px] font-bold px-1 py-0.2 rounded bg-amber-200 dark:bg-amber-800 text-amber-900 dark:text-amber-200">
+                              CURRENT
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-[10px] text-neutral-500 dark:text-neutral-400 truncate">
+                          Universal Super Admin (All Permissions & Portals)
+                        </p>
+                      </div>
+                    </div>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-200 flex-shrink-0 ml-2 font-mono">
+                      ALL PORTALS
+                    </span>
+                  </button>
+
+                  {/* 8 Enterprise Personas */}
+                  {ENTERPRISE_PERSONAS.map((p) => {
+                    const isSelected = emulatedPersona?.id === p.id;
+                    return (
+                      <button
+                        key={p.id}
+                        type="button"
+                        onClick={() => handleSelectPersona(p)}
+                        className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl transition-colors text-left group ${
+                          isSelected
+                            ? 'bg-purple-100/60 dark:bg-purple-950/40 border border-purple-300 dark:border-purple-700'
+                            : 'hover:bg-amber-50/60 dark:hover:bg-amber-950/20'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <span className="text-base flex-shrink-0">{p.icon}</span>
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-1.5">
+                              <p className="text-xs font-semibold text-neutral-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors truncate">
+                                {p.name}
+                              </p>
+                              {isSelected && (
+                                <span className="text-[9px] font-bold px-1 py-0.2 rounded bg-purple-200 dark:bg-purple-800 text-purple-900 dark:text-purple-200">
+                                  ACTIVE
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-[10px] text-neutral-500 dark:text-neutral-400 truncate">
+                              {p.title} • {p.roles.slice(0, 2).join(', ')}
+                            </p>
+                          </div>
+                        </div>
+                        <span className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 flex-shrink-0 group-hover:bg-amber-100 dark:group-hover:bg-amber-900/40 group-hover:text-amber-700 dark:group-hover:text-amber-300 transition-colors ml-2 font-mono uppercase">
+                          {p.portalKey}
+                        </span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}
