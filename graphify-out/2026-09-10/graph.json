@@ -65482,7 +65482,7 @@
       "file_type": "code",
       "norm_label": "adminmainlayout()",
       "source_file": "procurement-portal-frontend/apps/admin-portal/app/(main)/layout.tsx",
-      "source_location": "L38"
+      "source_location": "L36"
     },
     {
       "id": "procurement_portal_frontend_apps_buyer_portal_app_auth_mfa_page_mfapage",
@@ -149290,7 +149290,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "procurement-portal-frontend/apps/admin-portal/app/(main)/layout.tsx",
-      "source_location": "L39",
+      "source_location": "L37",
       "weight": 1.0
     },
     {
@@ -149302,7 +149302,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "procurement-portal-frontend/apps/admin-portal/app/(main)/layout.tsx",
-      "source_location": "L40",
+      "source_location": "L38",
       "weight": 1.0
     },
     {
@@ -149314,7 +149314,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "procurement-portal-frontend/apps/admin-portal/app/(main)/layout.tsx",
-      "source_location": "L41",
+      "source_location": "L39",
       "weight": 1.0
     },
     {
@@ -149326,7 +149326,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "procurement-portal-frontend/apps/admin-portal/app/(main)/layout.tsx",
-      "source_location": "L43",
+      "source_location": "L41",
       "weight": 1.0
     },
     {
@@ -355487,7 +355487,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "procurement-portal-frontend/apps/admin-portal/app/(main)/layout.tsx",
-      "source_location": "L38",
+      "source_location": "L36",
       "weight": 1.0
     },
     {
@@ -456518,5 +456518,5 @@
       "source_file": "specs/SPEC_04_AUTH_SECURITY.md"
     }
   ],
-  "built_at_commit": "1c00f04f9f943aef8c040b10d1a96633a65b1b7b"
+  "built_at_commit": "7abde0ee3de595293fcb91ecc396c513d572a7a9"
 }
