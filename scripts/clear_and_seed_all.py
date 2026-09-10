@@ -130,13 +130,19 @@ async def run_all_seeds():
     await seed_catalog_items_fn()
 
     # 7. Seed Demo Users, Vendors, PRs, RFQs, Bids, CS, POs, GRNs, Invoices, Payments, Contracts, Integrations, Tickets, Notifications
-    logger.info("--- [5/6] Seeding Complete Demo Lifecycle Entities & Transacting Data ---")
+    logger.info("--- [5/7] Seeding Complete Demo Lifecycle Entities & Transacting Data ---")
     from scripts.seed_demo_user import seed_demo
 
     await seed_demo()
 
-    # 8. Verification & Summary
-    logger.info("--- [6/6] Verifying Seeded Entity Counts ---")
+    # 8. Seed Enterprise Comprehensive Hierarchy, All Suppliers, Cross-Domain Transactions
+    logger.info("--- [6/7] Seeding Enterprise Multi-Org, Multi-Vendor & Transactional Expansion ---")
+    from scripts.seed_enterprise_comprehensive import seed_enterprise_comprehensive
+
+    await seed_enterprise_comprehensive()
+
+    # 9. Verification & Summary
+    logger.info("--- [7/7] Verifying Seeded Entity Counts ---")
     async with async_session() as db:
         tables_to_check = [
             "organizations",

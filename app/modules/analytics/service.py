@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 from contextlib import asynccontextmanager
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from decimal import Decimal
 from typing import Any, AsyncGenerator, Dict, List, Optional
 from uuid import UUID
@@ -812,7 +812,7 @@ class AnalyticsService:
                         COALESCE(SUM(paid_amount), 0) as total_paid,
                         COUNT(*) as total_invoices,
                         COUNT(*) FILTER (WHERE payment_status = 'PENDING') as pending_count,
-                        COUNT(*) FILTER (WHERE payment_status = 'PAID') as paid_count,
+                        COUNT(*) FILTER (WHERE payment_status = 'COMPLETED') as paid_count,
                         COUNT(*) FILTER (WHERE payment_status = 'PENDING' AND due_date < CURRENT_DATE) as overdue_count
                     FROM invoices
                     WHERE org_id = :org_id AND deleted_at IS NULL
@@ -835,7 +835,12 @@ class AnalyticsService:
                 {"org_id": org_id},
             )
             val = p_res.scalar()
-            d["avg_payment_days"] = round(float(val), 1) if val is not None else 0.0
+            if isinstance(val, timedelta):
+                d["avg_payment_days"] = round(val.total_seconds() / 86400.0, 1)
+            elif val is not None:
+                d["avg_payment_days"] = round(float(val), 1)
+            else:
+                d["avg_payment_days"] = 0.0
             return d
 
     async def get_dashboard(

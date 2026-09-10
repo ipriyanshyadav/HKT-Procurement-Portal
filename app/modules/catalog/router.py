@@ -30,6 +30,7 @@ async def health():
 
 
 @router.get("/items", response_model=None)
+@router.get("/search", response_model=None)
 async def search_catalog(
     q: str | None = Query(None, description="Keyword search across name, code, brand, specs"),
     category_id: UUID | None = Query(None, description="Category filter"),
