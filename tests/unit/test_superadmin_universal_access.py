@@ -77,6 +77,8 @@ class TestSuperAdminUniversalPortalAccess:
              patch("app.auth.service.role_repository.get_user_role_codes", new_callable=AsyncMock, return_value=[RoleCode.SUPERADMIN]), \
              patch.object(service, "_issue_tokens", new_callable=AsyncMock, return_value=LoginResult(access_token="tok", refresh_token="ref")), \
              patch.object(service, "_get_fail_count", new_callable=AsyncMock, return_value=0), \
+             patch.object(service, "_clear_fail_count", new_callable=AsyncMock), \
+             patch("app.auth.service.get_redis_client", return_value=AsyncMock()), \
              patch("app.auth.service.verify_password", return_value=True), \
              patch("app.auth.service.audit_service.log", new_callable=AsyncMock):
 
