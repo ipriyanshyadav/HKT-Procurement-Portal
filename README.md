@@ -24,16 +24,12 @@ All three portals run simultaneously with seeded test roles. Access them directl
 ---
 
 ## Current Session State
-- **Completed (Cross-Portal End-to-End Testing & Synchronous UI Workflow Verification)**:
-  1. **Playwright Multi-Portal Live Browser E2E Suite**:
-     - `approver_and_admin_flows.spec.ts`: Approver persona task inspections and Admin persona master data / audit log flows verified.
-     - `buyer_flows.spec.ts`: Buyer persona login, PR creation, and PO listing verified.
-     - `supplier_flows.spec.ts`: Supplier persona login, dashboard metrics, and PO inspection verified.
-     - `full_procurement_cycle.spec.ts`: Complete Source-to-Pay lifecycle executed live across Buyer and Supplier browser contexts (PR → PO → Send → Ack → GRN → Invoice Submission → 3-Way Match → Payment Auto-Schedule).
-  2. **Frontend UI Fixes & Form Stability**:
-     - `apps/supplier-portal/app/(main)/invoices/new/page.tsx`: Stabilized URL-driven PO selection (`?po_id=`), unified clean option rendering from eligible receipts, and made submission button an explicit action handler preventing native form reset/reloads.
-     - `packages/hooks/src/useInvoices.ts`: Optimized `useEligibleInvoiceLines` with 10s `staleTime` to avoid redundant concurrent refetches during form inputs.
-  3. **SPEC Audit**:
+- **Completed (Sidebar Navigation Consolidation & Multi-Portal Cleanup)**:
+  1. **Navigation Consolidation**:
+     - `apps/buyer-portal/app/(main)/layout.tsx`: Consolidated 4 redundant ticket links (*All Tickets*, *Kanban Board*, *Assigned to Me*, *Raised by Me*) into a single clean hub item (`Tickets & Inquiries` → `/tickets`), eliminating dead imports (`Kanban`, `Ticket`).
+     - `apps/admin-portal/app/(main)/layout.tsx`: Consolidated 4 redundant ticket links (*All Tickets Queue*, *Support Dashboard*, *SLA Policies*, *Reports & Export*) into a single clean hub item (`Helpdesk & SLAs` → `/tickets`), eliminating dead imports (`Timer`, `FileSpreadsheet`).
+     - Preserved 100% in-page sub-navigation tabs across all ticket views in both portals with active-path highlighting.
+  2. **SPEC Audit**:
 ```
 MODULE | SPEC | DATE
 Playwright E2E Multi-Portal [DONE] → tests/e2e/playwright/
@@ -43,9 +39,10 @@ Buyer Portal (3000) [DONE] → procurement_buyer_portal:3000
 Supplier Portal (3001) [DONE] → procurement_supplier_portal:3001
 Admin Portal (3002) [DONE] → procurement_admin_portal:3002
 API Gateway & Backend [DONE] → procurement_kong:8000 / procurement_api:8080
+Navigation & Sidebar Polish [DONE] → buyer-portal & admin-portal layouts
 OVERALL: 17/17 (100%) | BACKEND 100% | FRONTEND 100% | E2E 100% (All Suites Passing)
 ```
-- **Verification**: 5/5 Playwright E2E browser tests passing (12.4s), 439 unit tests passing (10.3s), 83+ comprehensive integration tests passing, zero dead code, `graphify update .` completed (10,521 nodes, 28,380 edges, 584 communities).
+- **Verification**: `turbo typecheck` passing (7/7 packages clean, 0 errors), zero dead code/unused imports, `graphify update .` completed (10,535 nodes, 28,393 edges, 592 communities).
 
 ---
 

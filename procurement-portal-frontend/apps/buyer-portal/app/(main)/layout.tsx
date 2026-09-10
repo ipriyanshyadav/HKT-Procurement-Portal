@@ -4,7 +4,7 @@ import React, { ReactNode } from "react";
 import { useAuthInit, useCurrentUser, useLogout } from "@procurement/hooks";
 import { useAuthStore } from "@procurement/stores";
 import { AppShell, CompanySwitcher, NotificationBell } from "@procurement/ui";
-import { ShoppingCart, CheckSquare, FileQuestion, Users, FileText, FileCheck, Package, Receipt, CreditCard, Truck, AlertCircle, BarChart2, PieChart, Award, LifeBuoy, Kanban, UserCheck, Ticket, ShieldAlert, Barcode, Globe, ShieldCheck, Sparkles, Gavel, Scale } from "lucide-react";
+import { ShoppingCart, CheckSquare, FileQuestion, Users, FileText, FileCheck, Package, Receipt, CreditCard, Truck, AlertCircle, BarChart2, PieChart, Award, LifeBuoy, UserCheck, ShieldAlert, Barcode, Globe, ShieldCheck, Sparkles, Gavel, Scale } from "lucide-react";
 
 export default function BuyerMainLayout({ children }: { children: ReactNode }) {
   const { isInitializing } = useAuthInit();
@@ -170,27 +170,9 @@ export default function BuyerMainLayout({ children }: { children: ReactNode }) {
       section: "Analytics",
     },
     {
-      label: "All Tickets",
+      label: "Tickets & Inquiries",
       href: "/tickets",
       icon: <LifeBuoy className="w-4 h-4" />,
-      section: "Support & Tickets",
-    },
-    {
-      label: "Kanban Board",
-      href: "/tickets/board",
-      icon: <Kanban className="w-4 h-4" />,
-      section: "Support & Tickets",
-    },
-    {
-      label: "Assigned to Me",
-      href: "/tickets/assigned",
-      icon: <UserCheck className="w-4 h-4" />,
-      section: "Support & Tickets",
-    },
-    {
-      label: "Raised by Me",
-      href: "/tickets/my",
-      icon: <Ticket className="w-4 h-4" />,
       section: "Support & Tickets",
     },
   ];

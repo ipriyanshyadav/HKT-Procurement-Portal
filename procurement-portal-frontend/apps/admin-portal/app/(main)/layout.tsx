@@ -24,8 +24,6 @@ import {
   Shield,
   Activity,
   LifeBuoy,
-  Timer,
-  FileSpreadsheet,
   Layers,
   Factory,
   Package,
@@ -211,27 +209,9 @@ export default function AdminMainLayout({ children }: { children: ReactNode }) {
       section: "System Operations",
     },
     {
-      label: "All Tickets Queue",
+      label: "Helpdesk & SLAs",
       href: "/tickets",
       icon: <LifeBuoy className="w-4 h-4" />,
-      section: "Tickets & SLAs",
-    },
-    {
-      label: "Support Dashboard",
-      href: "/tickets/dashboard",
-      icon: <BarChart3 className="w-4 h-4" />,
-      section: "Tickets & SLAs",
-    },
-    {
-      label: "SLA Policies",
-      href: "/tickets/sla-config",
-      icon: <Timer className="w-4 h-4" />,
-      section: "Tickets & SLAs",
-    },
-    {
-      label: "Reports & Export",
-      href: "/tickets/reports",
-      icon: <FileSpreadsheet className="w-4 h-4" />,
       section: "Tickets & SLAs",
     },
   ];
