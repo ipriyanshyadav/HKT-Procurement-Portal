@@ -25,6 +25,7 @@ class NotificationConsumer:
         "q.notification.inapp",
         "q.notification.digest",
         "q.ticket.events",
+        "q.workflow.events",
     ]
 
     def __init__(
@@ -73,6 +74,8 @@ class NotificationConsumer:
                     logger.info(f"[NotificationConsumer] Queued digest item for user {body.get('user_id')}")
                 elif routing_key.startswith("ticket.") or "ticket" in routing_key:
                     await self._handle_ticket_notification(body, routing_key)
+                elif routing_key.startswith("workflow.") or "workflow" in routing_key:
+                    await self._handle_workflow_notification(body, routing_key)
 
                 # Persist notification in DB if user_id and org_id are provided
                 await self._persist_notification(body, routing_key)
@@ -190,6 +193,33 @@ class NotificationConsumer:
                 await self.inapp_channel.send(user_id=recipient_id, notification=notif_data)
             except Exception as e:
                 logger.warning(f"[NotificationConsumer] In-app ticket notification failed: {e}")
+            await self._persist_notification(notif_data, routing_key="notification.inapp")
+
+    async def _handle_workflow_notification(self, body: dict, routing_key: str) -> None:
+        event_type = routing_key.replace("workflow.", "")
+        org_id_str = body.get("org_id")
+        org_id = UUID(org_id_str) if org_id_str else None
+
+        if event_type == "task.created":
+            assigned_to_str = body.get("assigned_to")
+            if not assigned_to_str:
+                return
+            user_id = UUID(assigned_to_str)
+            task_id = body.get("task_id")
+            step_name = body.get("step_name", "Approval Step")
+            notif_data = {
+                "user_id": str(user_id),
+                "org_id": str(org_id) if org_id else None,
+                "title": f"Approval Required: {step_name}",
+                "body": f"{step_name} requires your review and approval.",
+                "notification_type": "WORKFLOW_TASK_ASSIGNED",
+                "entity_type": "task",
+                "entity_id": task_id,
+            }
+            try:
+                await self.inapp_channel.send(user_id=user_id, notification=notif_data)
+            except Exception as e:
+                logger.warning(f"[NotificationConsumer] In-app workflow notification failed: {e}")
             await self._persist_notification(notif_data, routing_key="notification.inapp")
 
 notification_consumer = NotificationConsumer()

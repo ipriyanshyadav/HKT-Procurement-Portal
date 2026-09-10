@@ -27,6 +27,7 @@ export function useNotifications() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const setConnected = useNotificationStore((state) => state.setConnected);
   const addNotification = useNotificationStore((state) => state.addNotification);
+  const addToast = useNotificationStore((state) => state.addToast);
   const queryClient = useQueryClient();
 
   const wsRef = useRef<WebSocket | null>(null);
@@ -105,6 +106,50 @@ export function useNotifications() {
               };
               addNotification(notification);
               queryClient.invalidateQueries({ queryKey: ["notifications"] });
+
+              // Determine semantic alert type
+              let toastType: "info" | "success" | "warning" | "error" = "info";
+              const norm = (notification.notification_type || "").toLowerCase();
+              if (norm.includes("reject") || norm.includes("failed") || norm.includes("error") || norm.includes("breach")) {
+                toastType = "error";
+              } else if (norm.includes("approve") || norm.includes("completed") || norm.includes("success")) {
+                toastType = "success";
+              } else if (norm.includes("sla") || norm.includes("warn") || norm.includes("hold")) {
+                toastType = "warning";
+              }
+
+              // Direct navigation link for the toast
+              let link: string | undefined;
+              if (notification.entity_type) {
+                const type = notification.entity_type.toLowerCase();
+                if (type.includes("req") || type === "pr") {
+                  link = notification.entity_id ? `/requisitions/${notification.entity_id}` : "/requisitions";
+                } else if (type === "rfq" || type === "sourcing" || type === "bid") {
+                  link = notification.entity_id ? `/rfqs/${notification.entity_id}` : "/rfqs";
+                } else if (type.includes("order") || type === "po") {
+                  link = notification.entity_id ? `/purchase-orders/${notification.entity_id}` : "/purchase-orders";
+                } else if (type.includes("invoice") || type.includes("payment")) {
+                  link = notification.entity_id ? `/invoices/${notification.entity_id}` : "/invoices";
+                } else if (type.includes("task") || type.includes("approval")) {
+                  link = notification.entity_id ? `/tasks/${notification.entity_id}` : "/tasks";
+                } else if (type.includes("vendor")) {
+                  link = notification.entity_id ? `/vendors/${notification.entity_id}` : "/vendors";
+                }
+              }
+
+              // Fire on-screen toast popup
+              addToast({
+                id: notification.id,
+                title: notification.title,
+                body: notification.body,
+                type: toastType,
+                notification_type: notification.notification_type,
+                entity_type: notification.entity_type,
+                entity_id: notification.entity_id,
+                created_at: notification.created_at,
+                link,
+                durationMs: 7000,
+              });
             }
           } catch {
             // Ignored invalid JSON payloads
@@ -156,6 +201,7 @@ export function useNotificationsList(params?: {
   unread_only?: boolean;
 }) {
   const setNotifications = useNotificationStore((state) => state.setNotifications);
+  const isConnected = useNotificationStore((state) => state.isConnected);
 
   return useQuery({
     queryKey: ["notifications", params],
@@ -176,6 +222,7 @@ export function useNotificationsList(params?: {
       items: res.data,
       meta: res.meta,
     }),
+    refetchInterval: isConnected ? false : 15000,
   });
 }
 

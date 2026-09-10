@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useNotificationStore } from "@procurement/stores";
 import {
   Bell,
   CheckCircle2,
@@ -153,5 +155,43 @@ export function NotificationToastContainer({
         />
       ))}
     </div>
+  );
+}
+
+export function NotificationToaster() {
+  const toasts = useNotificationStore((state) => state.toasts);
+  const dismissToast = useNotificationStore((state) => state.dismissToast);
+  const router = useRouter();
+
+  const handleToastClick = (toast: NotificationToastItem) => {
+    dismissToast(toast.id);
+    if (toast.link) {
+      router.push(toast.link);
+      return;
+    }
+    if (toast.entity_type) {
+      const type = toast.entity_type.toLowerCase();
+      if (type.includes("req") || type === "pr") {
+        router.push(toast.entity_id ? `/requisitions/${toast.entity_id}` : "/requisitions");
+      } else if (type === "rfq" || type === "sourcing" || type === "bid") {
+        router.push(toast.entity_id ? `/rfqs/${toast.entity_id}` : "/rfqs");
+      } else if (type.includes("order") || type === "po") {
+        router.push(toast.entity_id ? `/purchase-orders/${toast.entity_id}` : "/purchase-orders");
+      } else if (type.includes("invoice") || type.includes("payment")) {
+        router.push(toast.entity_id ? `/invoices/${toast.entity_id}` : "/invoices");
+      } else if (type.includes("task") || type.includes("approval")) {
+        router.push(toast.entity_id ? `/tasks/${toast.entity_id}` : "/tasks");
+      } else if (type.includes("vendor")) {
+        router.push(toast.entity_id ? `/vendors/${toast.entity_id}` : "/vendors");
+      }
+    }
+  };
+
+  return (
+    <NotificationToastContainer
+      toasts={toasts}
+      onDismiss={dismissToast}
+      onClick={handleToastClick}
+    />
   );
 }

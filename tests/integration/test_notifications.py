@@ -554,3 +554,75 @@ async def test_notification_templates_crud_and_preview():
         app.dependency_overrides.pop(get_db, None)
         app.dependency_overrides.pop(get_current_user, None)
 
+
+@pytest.mark.asyncio
+async def test_workflow_task_inapp_notification_dispatch():
+    """Verify workflow task notification is dispatched to approver with in-app channel and WebSocket payload."""
+    org_id = uuid4()
+    approver_id = uuid4()
+    task_id = uuid4()
+
+    async with TestSession() as db:
+        approver = await create_test_org_and_user(db, org_id, approver_id)
+
+        service = NotificationService()
+        with patch.object(service.inapp_channel, "send", new_callable=AsyncMock) as mock_inapp_send:
+            created = await service.dispatch(
+                db=db,
+                user_id=approver_id,
+                org_id=org_id,
+                notification_type="WORKFLOW_TASK_ASSIGNED",
+                title="Approval Required: Requisition",
+                body="Step 1 requires your review and approval.",
+                entity_type="task",
+                entity_id=task_id,
+                to_email=approver.email,
+            )
+
+            assert len(created) >= 1
+            notif = created[0]
+            assert notif.user_id == approver_id
+            assert notif.notification_type == "WORKFLOW_TASK_ASSIGNED"
+            assert notif.entity_type == "task"
+            assert notif.entity_id == task_id
+            assert notif.channel == NotificationChannelEnum.IN_APP
+            mock_inapp_send.assert_called_once()
+
+        # Query user notifications
+        items, total, unread = await service.list_notifications(
+            db, user_id=approver_id, org_id=org_id, page=1, page_size=10
+        )
+        assert total >= 1
+        assert unread >= 1
+        assert any(n.entity_id == task_id for n in items)
+
+
+@pytest.mark.asyncio
+async def test_consumer_workflow_task_event_handler():
+    """Verify NotificationConsumer handles workflow.task.created event from q.workflow.events."""
+    org_id = uuid4()
+    approver_id = uuid4()
+    task_id = uuid4()
+
+    async with TestSession() as db:
+        await create_test_org_and_user(db, org_id, approver_id)
+
+    consumer = NotificationConsumer()
+    body = {
+        "task_id": str(task_id),
+        "instance_id": str(uuid4()),
+        "assigned_to": str(approver_id),
+        "step_name": "Finance Review",
+        "sla_deadline": datetime.now(timezone.utc).isoformat(),
+        "org_id": str(org_id),
+    }
+
+    with patch.object(consumer.inapp_channel, "send", new_callable=AsyncMock) as mock_inapp:
+        with patch("app.modules.notification.consumer.get_db_ctx", side_effect=get_test_db_session):
+            await consumer._handle_workflow_notification(body, routing_key="workflow.task.created")
+            mock_inapp.assert_called_once()
+            call_args = mock_inapp.call_args[1]
+            assert call_args["user_id"] == approver_id
+            assert call_args["notification"]["entity_id"] == str(task_id)
+
+

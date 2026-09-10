@@ -64,6 +64,21 @@ export interface NotificationPreference {
   quiet_hours_end?: string | null;
 }
 
+export type NotificationToastType = "info" | "success" | "warning" | "error";
+
+export interface NotificationToastItem {
+  id: string;
+  title: string;
+  body?: string;
+  type?: NotificationToastType;
+  notification_type?: string;
+  entity_type?: string | null;
+  entity_id?: string | null;
+  created_at?: string;
+  link?: string;
+  durationMs?: number;
+}
+
 export interface NotificationTemplateItem {
   id: string;
   org_id?: string | null;

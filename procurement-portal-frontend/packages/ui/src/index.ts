@@ -191,7 +191,7 @@ export type { I18nProviderProps } from "./i18n";
 // Notification Components (SPEC_16)
 export { NotificationBell } from "./components/NotificationBell";
 export { NotificationCenter } from "./components/NotificationCenter";
-export { NotificationToast, NotificationToastContainer } from "./components/NotificationToast";
+export { NotificationToast, NotificationToastContainer, NotificationToaster } from "./components/NotificationToast";
 export type { NotificationToastItem, NotificationToastProps, NotificationToastContainerProps, NotificationToastType } from "./components/NotificationToast";
 
 // Enterprise Nuances & Real-World Modules

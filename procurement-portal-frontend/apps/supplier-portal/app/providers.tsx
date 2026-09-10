@@ -1,12 +1,12 @@
 "use client";
 
 import { QueryClient, QueryClientProvider, useNotifications } from "@procurement/hooks";
-import { ThemeProvider } from "@procurement/ui";
+import { ThemeProvider, NotificationToaster } from "@procurement/ui";
 import { useState, type ReactNode } from "react";
 
 function NotificationListener() {
   useNotifications();
-  return null;
+  return <NotificationToaster />;
 }
 
 export function Providers({ children }: { children: ReactNode }) {

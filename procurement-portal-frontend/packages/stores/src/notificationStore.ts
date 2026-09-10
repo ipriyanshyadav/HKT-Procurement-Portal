@@ -30,22 +30,41 @@ export interface NotificationPreference {
   quiet_hours_end?: string | null;
 }
 
+export type NotificationToastType = "info" | "success" | "warning" | "error";
+
+export interface NotificationToastItem {
+  id: string;
+  title: string;
+  body?: string;
+  type?: NotificationToastType;
+  notification_type?: string;
+  entity_type?: string | null;
+  entity_id?: string | null;
+  created_at?: string;
+  link?: string;
+  durationMs?: number;
+}
+
 export interface NotificationState {
   notifications: NotificationItem[];
   unreadCount: number;
   isConnected: boolean;
+  toasts: NotificationToastItem[];
   setConnected: (connected: boolean) => void;
   setNotifications: (items: NotificationItem[], unread?: number) => void;
   addNotification: (item: NotificationItem) => void;
   markAsRead: (id: string) => void;
   markAllAsRead: () => void;
   clearNotifications: () => void;
+  addToast: (toast: NotificationToastItem) => void;
+  dismissToast: (id: string) => void;
 }
 
 export const useNotificationStore = create<NotificationState>((set) => ({
   notifications: [],
   unreadCount: 0,
   isConnected: false,
+  toasts: [],
 
   setConnected: (connected: boolean) => set({ isConnected: connected }),
 
@@ -109,4 +128,14 @@ export const useNotificationStore = create<NotificationState>((set) => ({
     }),
 
   clearNotifications: () => set({ notifications: [], unreadCount: 0 }),
+
+  addToast: (toast: NotificationToastItem) =>
+    set((state) => ({
+      toasts: [...state.toasts.filter((t) => t.id !== toast.id), toast],
+    })),
+
+  dismissToast: (id: string) =>
+    set((state) => ({
+      toasts: state.toasts.filter((t) => t.id !== id),
+    })),
 }));

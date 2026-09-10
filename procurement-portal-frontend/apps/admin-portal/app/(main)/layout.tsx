@@ -3,7 +3,7 @@
 import React, { ReactNode } from "react";
 import { useAuthInit, useCurrentUser, useLogout } from "@procurement/hooks";
 import { useAuthStore } from "@procurement/stores";
-import { AppShell } from "@procurement/ui";
+import { AppShell, NotificationBell } from "@procurement/ui";
 import {
   LayoutDashboard,
   FolderTree,
@@ -182,6 +182,7 @@ export default function AdminMainLayout({ children }: { children: ReactNode }) {
       homeHref="/dashboard"
       navItems={navItems}
       user={user}
+      actions={<NotificationBell />}
       onLogout={() => logoutMutation.mutate()}
     >
       {children}

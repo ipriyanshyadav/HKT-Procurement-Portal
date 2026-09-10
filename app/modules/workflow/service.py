@@ -531,6 +531,25 @@ class WorkflowEngine:
                 step_name=str(step.get("step_name") or task.assigned_role or "step"),
             ).inc()
 
+            # Direct In-App & Real-Time Notification to Approver
+            try:
+                from app.modules.notification.service import notification_service
+                entity_type_title = instance.entity_type.replace("_", " ").title()
+                step_name = step.get("step_name") or f"Step {step.get('step_number', 1)}"
+                await notification_service.dispatch(
+                    db,
+                    user_id=approver.id,
+                    org_id=instance.org_id,
+                    notification_type="WORKFLOW_TASK_ASSIGNED",
+                    title=f"Approval Required: {entity_type_title}",
+                    body=f"{step_name} requires your review and approval.",
+                    entity_type="task",
+                    entity_id=task.id,
+                    to_email=getattr(approver, "email", None),
+                )
+            except Exception as notif_err:
+                logger.warning("Failed to dispatch workflow task notification: {}", notif_err)
+
     async def _handle_step_completion(
         self,
         db: AsyncSession,
@@ -1111,6 +1130,40 @@ class WorkflowEngine:
                         vendor.status = VendorStatus.ACTIVE
                         vendor.updated_by = actor
                         await db.flush()
+
+            # Direct In-App & Real-Time Notification to Document Requestor/Creator
+            try:
+                creator_id_str = (
+                    (instance.entity_context or {}).get("requestor_id")
+                    or (instance.entity_context or {}).get("created_by")
+                    or (instance.entity_context or {}).get("submitted_by")
+                )
+                if creator_id_str:
+                    from app.modules.notification.service import notification_service
+                    creator_id = UUID(str(creator_id_str))
+                    action_label = (
+                        "Approved"
+                        if final_action in ("APPROVE", "FORCE_APPROVE")
+                        else ("Cancelled" if final_action == "CANCEL" else "Rejected")
+                    )
+                    notif_type = (
+                        "WORKFLOW_COMPLETED"
+                        if final_action in ("APPROVE", "FORCE_APPROVE")
+                        else "WORKFLOW_REJECTED"
+                    )
+                    entity_type_title = instance.entity_type.replace("_", " ").title()
+                    await notification_service.dispatch(
+                        db,
+                        user_id=creator_id,
+                        org_id=instance.org_id,
+                        notification_type=notif_type,
+                        title=f"{entity_type_title} {action_label}",
+                        body=f"Your {entity_type_title.lower()} has been {action_label.lower()}.",
+                        entity_type=instance.entity_type.lower(),
+                        entity_id=instance.entity_id,
+                    )
+            except Exception as notif_err:
+                logger.warning("Failed to send workflow outcome notification: {}", notif_err)
         except Exception as e:
             logger.warning("Error syncing entity on workflow completion: {}", e)
 

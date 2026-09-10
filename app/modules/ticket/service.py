@@ -1509,7 +1509,7 @@ class TicketService:
                 max_val = max_res.scalar()
                 if max_val:
                     try:
-                        cur_max_num = int(max_val.split("-")[-1])
+                        cur_max_num = int(str(max_val).split("-")[-1])
                         await db.execute(text(f"SELECT setval('{seq}', {cur_max_num});"))
                     except (ValueError, IndexError):
                         pass

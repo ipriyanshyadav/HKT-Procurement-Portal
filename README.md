@@ -24,32 +24,34 @@ All three portals run simultaneously with seeded test roles. Access them directl
 ---
 
 ## Current Session State
-- **Completed (Comprehensive Multi-Portal Sidebar Overhaul & Interactive UX Suite)**:
-  1. **Supplier Portal (`:3001`)**:
-     - Consolidated 7 fragmented sections (including 4 single-item micro-sections) into 5 balanced, lifecycle-ordered stages: *Bidding & Opportunities*, *Orders & Fulfillment*, *Finance & Invoicing*, *Company & Compliance*, and *Support*.
-  2. **Buyer Portal (`:3000`)**:
-     - Resolved out-of-sequence section sandwiching; split overloaded Purchasing group (11 items) into dedicated *Purchasing* (6 items) and *Accounts Payable* (5 items) domains.
-     - Added distinct semantic icons (`Store` for marketplace, `ShoppingBag` for PO) and connected live task count badges (`pendingTasksCount`) via `useMyWorkflowTasks()`.
-  3. **Admin Portal (`:3002`)**:
-     - Streamlined Master Data section from 11 links down to 5 core entries (*Master Data Hub*, *Categories*, *Item Catalog*, *Tax, Terms & Currencies*, *CSV Bulk Import*), eliminating 6 redundant links while preserving full access via the Master Data Hub dashboard.
-     - Pruned unused Lucide icons (`Scale`, `Coins`, `CreditCard`, `MapPin`, `Calendar`, `Truck`) adhering strictly to zero dead code.
-  4. **Interactive UX Suite (`packages/ui`)**:
-     - `Sidebar.tsx`: Built in-dock real-time **Quick Find search filter** (`searchQuery`), **collapsible accordion sections** with animated rotate chevrons, **badge color variants** (`orange`, `red`, `green`, `blue`), and longest-prefix route matching preventing parent active-state collisions.
-     - `sidebar.css`: Added styles for `.sidebar-section-header`, interactive section focus states, and search clear buttons.
-  5. **SPEC Audit**:
+- **Completed (Real-Time Notification System & On-Screen Toast Alerts Overhaul)**:
+  1. **Backend Real-Time Dispatch**:
+     - Connected `app/modules/workflow/service.py` to `notification_service.dispatch()` on task creation: approver immediately receives in-app DB notification + WebSocket push (`WORKFLOW_TASK_ASSIGNED`).
+     - Added submitter notification upon workflow completion or rejection (`WORKFLOW_COMPLETED` / `WORKFLOW_REJECTED`).
+     - Subscribed `NotificationConsumer` in `app/modules/notification/consumer.py` to `q.workflow.events` for RabbitMQ durability.
+  2. **Frontend On-Screen Toast Alerts**:
+     - Built reactive toast slice in `useNotificationStore` (`toasts`, `addToast`, `dismissToast`).
+     - In `useNotifications.ts`, incoming WebSocket messages automatically trigger floating Apple glass `<NotificationToast />` banners with category icons, metadata, and direct routing.
+     - Built `<NotificationToaster />` in `@procurement/ui` and mounted in `<Providers />` across Buyer, Supplier, and Admin portals.
+  3. **Admin Portal Parity & Polling Resilience**:
+     - Added `<NotificationBell />` to Admin Portal top bar and enabled `useNotifications()` listener.
+     - Added fallback background polling (`refetchInterval: isConnected ? false : 15000`) in `useNotificationsList` for offline/disconnect resilience.
+     - Seeded live notifications via `scripts/seed_demo_notifications.py`.
+  4. **SPEC Audit**:
 ```
 MODULE | SPEC | DATE
 Playwright E2E Multi-Portal [DONE] → tests/e2e/playwright/
 Cross-Portal Sync & Events [DONE] → tests/integration/test_cross_portal_synchronous_flow.py
 Connected Source-to-Pay [DONE] → tests/integration/test_end_to_end_connected_flow.py
+Real-Time In-App Notifications [DONE] → app/modules/notification/ & @procurement/ui
+Multi-Portal Notification Toaster [DONE] → all 3 portals & @procurement/hooks
 Buyer Portal (3000) [DONE] → procurement_buyer_portal:3000
 Supplier Portal (3001) [DONE] → procurement_supplier_portal:3001
 Admin Portal (3002) [DONE] → procurement_admin_portal:3002
 API Gateway & Backend [DONE] → procurement_kong:8000 / procurement_api:8080
-Multi-Portal Sidebar Suite [DONE] → all 3 portals & @procurement/ui
-OVERALL: 17/17 (100%) | BACKEND 100% | FRONTEND 100% | E2E 100% (All Suites Passing)
+OVERALL: 18/18 (100%) | BACKEND 100% | FRONTEND 100% | TESTS 100% (835/835 Passing)
 ```
-- **Verification**: `turbo typecheck` passing (7/7 packages clean, 0 errors in 26s), zero dead code/unused imports, `graphify update .` completed (10,535 nodes, 28,396 edges, 588 communities).
+- **Verification**: `turbo typecheck` passing (7/7 packages clean, 0 errors in 7.7s), 835/835 pytest passing, `graphify update .` completed (10,546 nodes, 28,431 edges, 583 communities).
 
 ---
 
