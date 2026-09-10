@@ -71,7 +71,7 @@ from uuid import UUID, uuid4
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from sqlalchemy import and_, delete, select, text
+from sqlalchemy import and_, select
 
 from app.core.encryption import encrypt_field
 from app.core.security import hash_password
@@ -102,14 +102,12 @@ from app.db.session import async_session, engine
 from app.modules.audit.models import AuditLog
 from app.modules.bid.models import AuctionParticipant, BidLineResponse, BidResponse, LiveAuction, LiveBid
 from app.modules.contract.models import Contract, ContractAmendment, ContractDocument, ContractLine, ContractMilestone
-from app.modules.document.models import Document, DocumentVersion
+from app.modules.document.models import Document
 from app.modules.evaluation.models import (
     AwardDetail,
     AwardRecommendation,
     ComparativeStatement,
     CsLineRanking,
-    Evaluation,
-    EvaluationScore,
     Negotiation,
 )
 from app.modules.grn.models import GoodsReceiptNote, GrnLine
@@ -122,7 +120,14 @@ from app.modules.purchase_order.models import PoAmendment, PoLine, PurchaseOrder
 from app.modules.requisition.models import Requisition, RequisitionLine, UnmappedPrException
 from app.modules.sourcing.models import Rfq, RfqClarification, RfqLine, RfqLot, RfqParticipant
 from app.modules.user.models import Role, User, UserRoleAssignment
-from app.modules.vendor.models import Vendor, VendorBankAccount, VendorCategoryMapping, VendorContact, VendorDocument, VendorScorecard
+from app.modules.vendor.models import (
+    Vendor,
+    VendorBankAccount,
+    VendorCategoryMapping,
+    VendorContact,
+    VendorDocument,
+    VendorScorecard,
+)
 from app.modules.workflow.models import WorkflowInstance, WorkflowTask, WorkflowTemplate
 
 logging.basicConfig(level=logging.INFO)
@@ -177,7 +182,7 @@ async def seed_demo():
                 await db.flush()
             uom_map[code] = uom
         uom_ea_id = uom_map["EA"].id
-        uom_set_id = uom_map["SET"].id
+        _uom_set_id = uom_map["SET"].id
 
         # 3. Master Data: Payment Terms
         pterms = [
@@ -991,8 +996,8 @@ async def seed_demo():
                 db.add(pr)
                 await db.flush()
 
-                for l in lines:
-                    line_cat_code = l.pop("category_code")
+                for line_dict in lines:
+                    line_cat_code = line_dict.pop("category_code")
                     db.add(
                         RequisitionLine(
                             org_id=DEFAULT_ORG_ID,
@@ -1000,7 +1005,7 @@ async def seed_demo():
                             category_id=categories[line_cat_code].id,
                             delivery_location_id=loc.id,
                             required_by_date=today + timedelta(days=30),
-                            **l,
+                            **line_dict,
                         )
                     )
             pr_map[pdata["pr_number"]] = pr
@@ -3305,6 +3310,15 @@ async def seed_demo():
         logger.info("Demo in-app notifications seeded successfully!")
     except Exception as e:
         logger.warning("Demo notifications seeding skipped or failed: %s", e)
+
+    # 24. Seed Enterprise Extensions across all remaining modules and tabs
+    try:
+        from scripts.seed_enterprise_extensions import seed_enterprise_extensions
+
+        await seed_enterprise_extensions()
+        logger.info("Demo enterprise extensions seeded successfully!")
+    except Exception as e:
+        logger.warning("Demo enterprise extensions seeding skipped or failed: %s", e)
 
     await engine.dispose()
 

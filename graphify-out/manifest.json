@@ -948,8 +948,8 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/types/src/api.ts": {
-    "mtime": 1789039868.1362872,
-    "seen": 1789039902.2504241,
+    "mtime": 1789045431.9837406,
+    "seen": 1789045450.453771,
     "ast_hash": "78361e250bde117fcfd1a864cd6243cb",
     "semantic_hash": ""
   },
@@ -1410,9 +1410,9 @@
     "semantic_hash": ""
   },
   "app/modules/notification/models.py": {
-    "mtime": 1788609419.1412587,
-    "seen": 1788609539.901618,
-    "ast_hash": "afc7103c6cf23a7342cc4a544f7291df",
+    "mtime": 1789045410.0209205,
+    "seen": 1789045450.444555,
+    "ast_hash": "54c33456d9ddac20121845e27a0dfeaf",
     "semantic_hash": ""
   },
   "app/modules/organization/models.py": {
@@ -2280,9 +2280,9 @@
     "semantic_hash": ""
   },
   "scripts/seed_demo_user.py": {
-    "mtime": 1789038427.7418277,
-    "seen": 1789038525.650534,
-    "ast_hash": "48c9c95621129085a3fbd2244012b373",
+    "mtime": 1789045406.5571845,
+    "seen": 1789045450.456577,
+    "ast_hash": "943cc354935db8d45877f1b9d53c0619",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/admin-portal/postcss.config.js": {
@@ -5448,15 +5448,15 @@
     "semantic_hash": ""
   },
   "scripts/clear_and_seed_all.py": {
-    "mtime": 1788885974.0967715,
-    "seen": 1788886177.823562,
-    "ast_hash": "94108ee7641ec224406fafa9d2d81ba5",
+    "mtime": 1789045393.240093,
+    "seen": 1789045450.456446,
+    "ast_hash": "d8e310072e86399c59488254c86831a6",
     "semantic_hash": ""
   },
   "scripts/clear_seeded_data.py": {
-    "mtime": 1789033583.1660976,
-    "seen": 1789033784.4759412,
-    "ast_hash": "65ff9d02c850db205c9628b472ff467f",
+    "mtime": 1789041461.6346269,
+    "seen": 1789045450.456447,
+    "ast_hash": "9660fe091c4e0d168d165343f32d8d93",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/apps/admin-portal/app/(main)/permissions/page.tsx": {
@@ -6591,6 +6591,12 @@
     "mtime": 1789039614.628825,
     "seen": 1789039902.252,
     "ast_hash": "1a57abaae28bc979057acbb1a6ab8f80",
+    "semantic_hash": ""
+  },
+  "scripts/seed_enterprise_extensions.py": {
+    "mtime": 1789045381.0518785,
+    "seen": 1789045450.456578,
+    "ast_hash": "b23c349ee44b35647770740332b17f82",
     "semantic_hash": ""
   }
 }

@@ -60,9 +60,9 @@ async def clear_database() -> int:
     async with async_session() as db:
         # Find all base tables excluding alembic_version and child partitions of audit_logs
         query = text("""
-            SELECT tablename 
-            FROM pg_tables 
-            WHERE schemaname = 'public' 
+            SELECT tablename
+            FROM pg_tables
+            WHERE schemaname = 'public'
               AND tablename != 'alembic_version'
               AND tablename NOT LIKE 'audit_logs_20%'
             ORDER BY tablename;
@@ -192,14 +192,77 @@ async def run_all_seeds():
             "ticket_automation_rules",
             "notifications",
             "notification_templates",
+            "notification_preferences",
             "integration_jobs",
             "scheduled_job_runs",
+            "advance_shipping_notices",
+            "asn_lines",
+            "e_invoices",
+            "e_way_bills",
+            "service_entry_sheets",
+            "ses_lines",
+            "quality_inspections",
+            "delegation_rules",
+            "vendor_onboarding_applications",
+            "vendor_risk_assessments",
+            "contract_templates",
+            "contract_clauses",
+            "contract_clause_instances",
+            "contract_redlines",
+            "contract_esign_sessions",
+            "dr_backup_checkpoints",
+            "dr_failover_drills",
+            "api_keys",
+            "webhook_subscriptions",
+            "webhook_deliveries",
+            "maverick_spend_clusters",
+            "carbon_emission_factors",
+            "supplier_esg_metrics",
+            "compliance_policies",
+            "compliance_scans",
+            "compliance_findings",
+            "user_carts",
+            "cart_items",
+            "user_bu_scopes",
+            "user_category_scopes",
+            "user_coi_declarations",
+            "user_company_access",
+            "user_mfa",
+            "password_history",
+            "approval_groups",
+            "approval_group_members",
+            "approval_rules",
+            "approval_rule_versions",
+            "rfq_amendments",
+            "bid_documents",
+            "evaluations",
+            "evaluation_scores",
+            "ai_rfq_drafts",
+            "negotiation_sessions",
+            "negotiation_rounds",
+            "supplier_radar_scores",
+            "communication_threads",
+            "communication_messages",
+            "tenant_settings",
+            "feature_flags",
+            "erp_entity_mappings",
+            "erp_material_group_mapping",
+            "supplier_categories",
+            "catalog_tier_pricing",
+            "punchout_sessions",
+            "document_versions",
+            "auction_rank_snapshots",
+            "bid_versions",
+            "workflow_events",
+            "unmapped_pr_mapping_log",
+            "vendor_erp_sync_log",
+            "outbox_messages",
             "audit_logs",
         ]
         counts = {}
         for tbl in tables_to_check:
             try:
-                res = await db.execute(text(f"SELECT count(*) FROM {tbl}"))
+                res = await db.execute(text(f"SELECT count(*) FROM {tbl}"))  # noqa: S608
                 counts[tbl] = res.scalar_one()
             except Exception as e:
                 await db.rollback()
