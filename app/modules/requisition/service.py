@@ -121,6 +121,16 @@ class RequisitionService:
         pr = await self.repo.get(db, pr_id, org_id)
         if not pr:
             raise NotFoundError(f"Requisition {pr_id} not found")
+        if pr.status == PRStatus.CONVERTED and not getattr(pr, "po_id", None):
+            stmt = select(PurchaseOrder.id, PurchaseOrder.po_number).where(
+                PurchaseOrder.source_pr_id == pr.id,
+                PurchaseOrder.org_id == org_id,
+            ).limit(1)
+            res = await db.execute(stmt)
+            po_row = res.first()
+            if po_row:
+                pr.po_id = po_row[0]
+                pr.po_number = po_row[1]
         return pr
 
     async def list_prs(

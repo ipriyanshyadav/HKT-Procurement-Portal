@@ -41,6 +41,7 @@ dependencies = [
     "jinja2>=3.1.0",
     "websockets>=12.0.0",
     "openpyxl>=3.1.0",
+    "defusedxml>=0.7.1",
 ]
 
 [tool.setuptools.packages.find]
@@ -69,11 +70,15 @@ filterwarnings = [
     "ignore::starlette.exceptions.StarletteDeprecationWarning",
     "ignore:The anyio.abc.BlockingPortal alias is deprecated.*:DeprecationWarning",
     "ignore:.*unclosed .*:ResourceWarning",
+    "ignore:coroutine 'AsyncMockMixin.*' was never awaited:RuntimeWarning",
+    "ignore:coroutine 'Connection._cancel' was never awaited:RuntimeWarning",
+    "ignore:.*Connection._cancel.*:pytest.PytestUnraisableExceptionWarning",
 ]
 markers = [
     "unit: Unit tests",
     "integration: Integration tests requiring services",
     "workflow: End-to-end workflow tests",
+    "e2e: End-to-end multi-portal persona tests",
     "security: Security-focused tests",
     "performance: Performance benchmark tests",
 ]

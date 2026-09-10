@@ -1,23 +1,28 @@
 from __future__ import annotations
+
 from datetime import date
 from decimal import Decimal
-from typing import Optional, List
+from typing import Any
 from uuid import UUID
+
+from sqlalchemy import CHAR, Boolean, Date, ForeignKey, Integer, Numeric, String
+from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import String, Boolean, Numeric, Integer, Date, ForeignKey, CHAR
-from sqlalchemy.dialects.postgresql import ARRAY
+
 from app.db.base import BaseModel
+from app.db.enums import DOCUMENT_CATEGORY_PG, DocumentCategoryEnum
+
 
 class Category(BaseModel):
     __tablename__ = "categories"
 
     code: Mapped[str] = mapped_column(String(20), nullable=False)
     name: Mapped[str] = mapped_column(String(200), nullable=False)
-    parent_id: Mapped[Optional[UUID]] = mapped_column(ForeignKey("categories.id"), nullable=True)
+    parent_id: Mapped[UUID | None] = mapped_column(ForeignKey("categories.id"), nullable=True)
     level: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
-    erp_material_group: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
-    gl_account_mapping: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
-    synonyms: Mapped[Optional[List[str]]] = mapped_column(ARRAY(String), default=list, nullable=True)
+    erp_material_group: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    gl_account_mapping: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    synonyms: Mapped[list[str] | None] = mapped_column(ARRAY(String), default=list, nullable=True)
     requires_quality_inspection: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
@@ -30,11 +35,11 @@ class Category(BaseModel):
         self._path = value
 
     @property
-    def unspsc_code(self) -> Optional[str]:
+    def unspsc_code(self) -> str | None:
         return getattr(self, "_unspsc_code", None)
 
     @unspsc_code.setter
-    def unspsc_code(self, value: Optional[str]) -> None:
+    def unspsc_code(self, value: str | None) -> None:
         self._unspsc_code = value
 
 class UomMaster(BaseModel):
@@ -42,7 +47,7 @@ class UomMaster(BaseModel):
 
     code: Mapped[str] = mapped_column(String(20), nullable=False)
     name: Mapped[str] = mapped_column(String(100), nullable=False)
-    iso_code: Mapped[Optional[str]] = mapped_column(String(10), nullable=True)
+    iso_code: Mapped[str | None] = mapped_column(String(10), nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
 class CurrencyMaster(BaseModel):
@@ -64,7 +69,7 @@ class PaymentTerm(BaseModel):
     net_days: Mapped[int] = mapped_column(Integer, nullable=False)
     discount_percentage: Mapped[Decimal] = mapped_column(Numeric(5, 2), default=Decimal("0.0"), nullable=False)
     discount_days: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
-    description: Mapped[Optional[str]] = mapped_column(nullable=True)
+    description: Mapped[str | None] = mapped_column(nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
 class Incoterm(BaseModel):
@@ -83,9 +88,9 @@ class TaxCode(BaseModel):
     name: Mapped[str] = mapped_column(String(200), nullable=False)
     rate: Mapped[Decimal] = mapped_column(Numeric(5, 2), nullable=False)
     tax_type: Mapped[str] = mapped_column(String(50), nullable=False)
-    hsn_chapter: Mapped[Optional[str]] = mapped_column(String(10), nullable=True)
-    effective_from: Mapped[Optional[date]] = mapped_column(Date, default=date.today, nullable=True)
-    effective_to: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
+    hsn_chapter: Mapped[str | None] = mapped_column(String(10), nullable=True)
+    effective_from: Mapped[date | None] = mapped_column(Date, default=date.today, nullable=True)
+    effective_to: Mapped[date | None] = mapped_column(Date, nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
 class DeliveryLocation(BaseModel):
@@ -98,7 +103,7 @@ class DeliveryLocation(BaseModel):
     state: Mapped[str] = mapped_column(String(100), nullable=False)
     postal_code: Mapped[str] = mapped_column(String(20), nullable=False)
     country_code: Mapped[str] = mapped_column(CHAR(2), default="IN", nullable=False)
-    plant_id: Mapped[Optional[UUID]] = mapped_column(ForeignKey("plants.id"), nullable=True)
+    plant_id: Mapped[UUID | None] = mapped_column(ForeignKey("plants.id"), nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
 class DocumentType(BaseModel):
@@ -106,6 +111,10 @@ class DocumentType(BaseModel):
 
     code: Mapped[str] = mapped_column(String(50), nullable=False)
     name: Mapped[str] = mapped_column(String(200), nullable=False)
+    category: Mapped[DocumentCategoryEnum] = mapped_column(
+        DOCUMENT_CATEGORY_PG, default=DocumentCategoryEnum.COMPLIANCE, nullable=False
+    )
+    is_mandatory: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     is_mandatory_for_vendor: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     has_expiry_date: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     validity_alert_days: Mapped[int] = mapped_column(Integer, default=30, nullable=False)
@@ -116,7 +125,7 @@ class SupplierCategory(BaseModel):
 
     code: Mapped[str] = mapped_column(String(50), nullable=False)
     name: Mapped[str] = mapped_column(String(200), nullable=False)
-    description: Mapped[Optional[str]] = mapped_column(nullable=True)
+    description: Mapped[str | None] = mapped_column(nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
 class HolidayMaster(BaseModel):
@@ -124,7 +133,7 @@ class HolidayMaster(BaseModel):
 
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     holiday_date: Mapped[date] = mapped_column(Date, nullable=False)
-    plant_id: Mapped[Optional[UUID]] = mapped_column(ForeignKey("plants.id"), nullable=True)
+    plant_id: Mapped[UUID | None] = mapped_column(ForeignKey("plants.id"), nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
 class ErpMaterialGroupMapping(BaseModel):
@@ -141,13 +150,19 @@ class ItemMaster(BaseModel):
 
     code: Mapped[str] = mapped_column(String(50), nullable=False)
     name: Mapped[str] = mapped_column(String(200), nullable=False)
-    description: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
+    description: Mapped[str | None] = mapped_column(String(500), nullable=True)
     category_id: Mapped[UUID] = mapped_column(ForeignKey("categories.id"), nullable=False)
     uom_id: Mapped[UUID] = mapped_column(ForeignKey("uom_master.id"), nullable=False)
     standard_price: Mapped[Decimal] = mapped_column(Numeric(18, 4), default=Decimal("0.0"), nullable=False)
     currency: Mapped[str] = mapped_column(String(3), default="INR", nullable=False)
-    hsn_code: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
-    image_url: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
+    hsn_code: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    image_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
     is_punchout: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
-    punchout_vendor_id: Mapped[Optional[UUID]] = mapped_column(nullable=True)
+    punchout_vendor_id: Mapped[UUID | None] = mapped_column(nullable=True)
+    brand: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    manufacturer: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    lead_time_days: Mapped[int] = mapped_column(Integer, default=3, nullable=False)
+    min_order_qty: Mapped[Decimal] = mapped_column(Numeric(12, 2), default=Decimal("1.0"), nullable=False)
+    specifications: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict, nullable=False)
+    is_contract_item: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)

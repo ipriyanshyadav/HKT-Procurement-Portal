@@ -103,7 +103,57 @@ export interface VendorScorecard {
   commercial_compliance_score: number;
   responsiveness_score: number;
   overall_score: number;
+  quality_rejection_rate?: number | null;
+  pricing_competitiveness?: number | null;
   calculated_at: string;
+}
+
+export interface VendorRiskAssessment {
+  id: string;
+  vendor_id: string;
+  financial_risk_score: number;
+  credit_rating: string;
+  financial_stability_score: number;
+  liquidity_risk: string;
+  bankruptcy_risk: string;
+  debt_to_equity_ratio?: number | null;
+  esg_risk_score: number;
+  environmental_score: number;
+  social_score: number;
+  governance_score: number;
+  esg_rating: string;
+  overall_risk_score: number;
+  risk_tier: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL" | string;
+  risk_factors: any[];
+  mitigation_actions: any[];
+  last_assessed_at: string;
+  assessed_by?: string | null;
+}
+
+export interface VendorRiskSummaryItem {
+  vendor_id: string;
+  vendor_code?: string | null;
+  company_name: string;
+  overall_risk_score: number;
+  risk_tier: string;
+  financial_risk_score: number;
+  credit_rating: string;
+  esg_risk_score: number;
+  esg_rating: string;
+  performance_score?: number | null;
+}
+
+export interface VendorRiskDashboard {
+  total_vendors_monitored: number;
+  low_risk_count: number;
+  medium_risk_count: number;
+  high_risk_count: number;
+  critical_risk_count: number;
+  avg_financial_risk_score: number;
+  avg_esg_risk_score: number;
+  avg_overall_risk_score: number;
+  high_risk_watchlist: VendorRiskSummaryItem[];
+  esg_ratings_distribution: Record<string, number>;
 }
 
 export interface VendorDetail extends Vendor {
@@ -112,6 +162,7 @@ export interface VendorDetail extends Vendor {
   bank_accounts: VendorBankAccount[];
   documents: VendorDocument[];
   scorecard: VendorScorecard | null;
+  risk_assessment?: VendorRiskAssessment | null;
 }
 
 export interface VendorListParams {
@@ -590,5 +641,50 @@ export function useBulkVendorCategoryMapping() {
     },
   });
 }
+
+export function useCalculateVendorScorecard(vendorId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload?: { period_start?: string; period_end?: string }) => {
+      const res = await apiClient.post<APIEnvelope<VendorScorecard>>(
+        `/vendors/${vendorId}/scorecard/calculate`,
+        payload || {}
+      );
+      return res.data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["vendor", vendorId] });
+      queryClient.invalidateQueries({ queryKey: ["vendors"] });
+    },
+  });
+}
+
+export function useVendorRiskDashboard() {
+  return useQuery({
+    queryKey: ["vendorRiskDashboard"],
+    queryFn: async () => {
+      const res = await apiClient.get<APIEnvelope<VendorRiskDashboard>>("/vendors/risk/dashboard");
+      return res.data.data;
+    },
+  });
+}
+
+export function useUpdateVendorRiskAssessment(vendorId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload: Partial<VendorRiskAssessment>) => {
+      const res = await apiClient.put<APIEnvelope<VendorRiskAssessment>>(
+        `/vendors/${vendorId}/risk-assessment`,
+        payload
+      );
+      return res.data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["vendor", vendorId] });
+      queryClient.invalidateQueries({ queryKey: ["vendorRiskDashboard"] });
+    },
+  });
+}
+
 
 

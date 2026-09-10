@@ -15,6 +15,7 @@ import {
   Square,
   Zap,
   FormInput,
+  Kanban,
 } from "lucide-react";
 import { useTickets, useBulkStatusTickets, useBulkAssignTickets } from "@procurement/hooks";
 import { TicketSLAIndicator } from "@procurement/ui";
@@ -78,37 +79,52 @@ export default function AdminTicketsPage() {
             Global queue of buyer inquiries, vendor queries, and SLA tracking.
           </p>
         </div>
+      </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          <Link
-            href="/tickets/automation"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-amber-800 bg-amber-50 border border-amber-200 rounded-lg hover:bg-amber-100 transition-colors shadow-sm"
-          >
-            <Zap className="w-3.5 h-3.5 text-amber-600 fill-amber-600" />
-            <span>Automation Rules</span>
-          </Link>
-          <Link
-            href="/tickets/custom-fields"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors shadow-sm"
-          >
-            <FormInput className="w-3.5 h-3.5 text-slate-500" />
-            <span>Custom Fields</span>
-          </Link>
-          <Link
-            href="/tickets/dashboard"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors shadow-sm"
-          >
-            <BarChart3 className="w-3.5 h-3.5 text-slate-500" />
-            <span>SLA Dashboard</span>
-          </Link>
-          <Link
-            href="/tickets/sla-config"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
-          >
-            <Timer className="w-3.5 h-3.5" />
-            <span>Configure SLAs</span>
-          </Link>
-        </div>
+      {/* Sub-Navigation Tabs */}
+      <div className="w-full flex items-center gap-1.5 p-1.5 bg-neutral-100 dark:bg-neutral-800/80 rounded-2xl border border-neutral-200/80 dark:border-neutral-700 overflow-x-auto shadow-xs">
+        <Link
+          href="/tickets"
+          className="flex-1 min-w-[130px] flex items-center justify-center gap-2 py-2.5 px-3 text-xs sm:text-sm font-semibold rounded-xl bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm text-center"
+        >
+          <LifeBuoy className="w-4 h-4 text-blue-600" />
+          <span>Ticket Queue</span>
+        </Link>
+        <Link
+          href="/tickets/board"
+          className="flex-1 min-w-[130px] flex items-center justify-center gap-2 py-2.5 px-3 text-xs sm:text-sm font-semibold rounded-xl text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200/60 dark:hover:bg-neutral-700/50 transition-colors text-center"
+        >
+          <Kanban className="w-4 h-4 text-purple-500" />
+          <span>Kanban Board</span>
+        </Link>
+        <Link
+          href="/tickets/automation"
+          className="flex-1 min-w-[130px] flex items-center justify-center gap-2 py-2.5 px-3 text-xs sm:text-sm font-semibold rounded-xl text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200/60 dark:hover:bg-neutral-700/50 transition-colors text-center"
+        >
+          <Zap className="w-4 h-4 text-amber-500" />
+          <span>Automation</span>
+        </Link>
+        <Link
+          href="/tickets/custom-fields"
+          className="flex-1 min-w-[130px] flex items-center justify-center gap-2 py-2.5 px-3 text-xs sm:text-sm font-semibold rounded-xl text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200/60 dark:hover:bg-neutral-700/50 transition-colors text-center"
+        >
+          <FormInput className="w-4 h-4 text-neutral-500" />
+          <span>Custom Fields</span>
+        </Link>
+        <Link
+          href="/tickets/dashboard"
+          className="flex-1 min-w-[130px] flex items-center justify-center gap-2 py-2.5 px-3 text-xs sm:text-sm font-semibold rounded-xl text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200/60 dark:hover:bg-neutral-700/50 transition-colors text-center"
+        >
+          <BarChart3 className="w-4 h-4 text-emerald-500" />
+          <span>SLA Dashboard</span>
+        </Link>
+        <Link
+          href="/tickets/sla-config"
+          className="flex-1 min-w-[130px] flex items-center justify-center gap-2 py-2.5 px-3 text-xs sm:text-sm font-semibold rounded-xl text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200/60 dark:hover:bg-neutral-700/50 transition-colors text-center"
+        >
+          <Timer className="w-4 h-4 text-blue-500" />
+          <span>Configure SLAs</span>
+        </Link>
       </div>
 
       {/* Filter Bar */}

@@ -1,10 +1,11 @@
 "use client";
 
 import React, { ReactNode } from "react";
-import { useAuthInit, useCurrentUser, useLogout } from "@procurement/hooks";
+import { useAuthInit, useCurrentUser, useLogout, useMyWorkflowTasks } from "@procurement/hooks";
 import { useAuthStore } from "@procurement/stores";
-import { AppShell, NotificationBell } from "@procurement/ui";
-import { ShoppingCart, CheckSquare, FileQuestion, Users, FileText, FileCheck, Package, Receipt, CreditCard, Truck, AlertCircle, BarChart2, PieChart, Award, LifeBuoy, Kanban, UserCheck, Ticket } from "lucide-react";
+import { AppShell, CompanySwitcher, NotificationBell } from "@procurement/ui";
+import type { SidebarItemData } from "@procurement/ui";
+import { ShoppingCart, CheckSquare, FileQuestion, Users, FileText, FileCheck, Receipt, CreditCard, Truck, AlertCircle, BarChart2, PieChart, Award, LifeBuoy, UserCheck, ShieldAlert, Barcode, Globe, ShieldCheck, Sparkles, Gavel, Scale, Store, ShoppingBag } from "lucide-react";
 
 export default function BuyerMainLayout({ children }: { children: ReactNode }) {
   const { isInitializing } = useAuthInit();
@@ -12,6 +13,8 @@ export default function BuyerMainLayout({ children }: { children: ReactNode }) {
   const storeUser = useAuthStore((state) => state.user);
   const user = currentUser || storeUser;
   const logoutMutation = useLogout();
+  const { data: myTasksData } = useMyWorkflowTasks();
+  const pendingTasksCount = myTasksData?.tasks?.filter((t) => t.status === "PENDING")?.length ?? 0;
 
   if (isInitializing) {
     return (
@@ -24,7 +27,7 @@ export default function BuyerMainLayout({ children }: { children: ReactNode }) {
     );
   }
 
-  const navItems = [
+  const navItems: SidebarItemData[] = [
     {
       label: "Purchase Requisitions",
       href: "/requisitions",
@@ -32,9 +35,15 @@ export default function BuyerMainLayout({ children }: { children: ReactNode }) {
       section: "Purchasing",
     },
     {
+      label: "Marketplace & Catalogs",
+      href: "/marketplace",
+      icon: <Store className="w-4 h-4 text-emerald-500" />,
+      section: "Purchasing",
+    },
+    {
       label: "Purchase Orders",
       href: "/purchase-orders",
-      icon: <Package className="w-4 h-4" />,
+      icon: <ShoppingBag className="w-4 h-4" />,
       section: "Purchasing",
     },
     {
@@ -44,40 +53,10 @@ export default function BuyerMainLayout({ children }: { children: ReactNode }) {
       section: "Purchasing",
     },
     {
-      label: "Invoices",
-      href: "/invoices",
-      icon: <Receipt className="w-4 h-4" />,
+      label: "Barcode Dock Intake",
+      href: "/grn/scan",
+      icon: <Barcode className="w-4 h-4" />,
       section: "Purchasing",
-    },
-    {
-      label: "Dispute Inbox",
-      href: "/invoices/disputes",
-      icon: <AlertCircle className="w-4 h-4" />,
-      section: "Purchasing",
-    },
-    {
-      label: "Payments",
-      href: "/payments",
-      icon: <CreditCard className="w-4 h-4" />,
-      section: "Purchasing",
-    },
-    {
-      label: "RFQs & Tenders",
-      href: "/rfqs",
-      icon: <FileText className="w-4 h-4" />,
-      section: "Sourcing",
-    },
-    {
-      label: "Contracts",
-      href: "/contracts",
-      icon: <FileCheck className="w-4 h-4" />,
-      section: "Sourcing",
-    },
-    {
-      label: "Approvals & Tasks",
-      href: "/tasks",
-      icon: <CheckSquare className="w-4 h-4" />,
-      section: "Workflow",
     },
     {
       label: "Unmapped PRs",
@@ -86,10 +65,84 @@ export default function BuyerMainLayout({ children }: { children: ReactNode }) {
       section: "Purchasing",
     },
     {
-      label: "Vendors",
+      label: "AI Sourcing Copilot",
+      href: "/rfqs/copilot",
+      icon: <Sparkles className="w-4 h-4 text-purple-400" />,
+      section: "Sourcing & Suppliers",
+    },
+    {
+      label: "RFQs & Tenders",
+      href: "/rfqs",
+      icon: <FileText className="w-4 h-4" />,
+      section: "Sourcing & Suppliers",
+    },
+    {
+      label: "Live Auctions",
+      href: "/auctions",
+      icon: <Gavel className="w-4 h-4 text-amber-400" />,
+      section: "Sourcing & Suppliers",
+    },
+    {
+      label: "Contracts",
+      href: "/contracts",
+      icon: <FileCheck className="w-4 h-4" />,
+      section: "Sourcing & Suppliers",
+    },
+    {
+      label: "Vendor Directory",
       href: "/vendors",
       icon: <Users className="w-4 h-4" />,
-      section: "Sourcing",
+      section: "Sourcing & Suppliers",
+    },
+    {
+      label: "Vendor Risk & ESG",
+      href: "/vendors/risk",
+      icon: <ShieldAlert className="w-4 h-4" />,
+      section: "Sourcing & Suppliers",
+    },
+    {
+      label: "Invoices",
+      href: "/invoices",
+      icon: <Receipt className="w-4 h-4" />,
+      section: "Accounts Payable",
+    },
+    {
+      label: "3-Way / 4-Way Match",
+      href: "/invoices/reconciliation",
+      icon: <Scale className="w-4 h-4 text-indigo-400" />,
+      section: "Accounts Payable",
+    },
+    {
+      label: "E-Invoicing & E-Way Bills",
+      href: "/invoices/einvoice",
+      icon: <FileText className="w-4 h-4 text-emerald-400" />,
+      section: "Accounts Payable",
+    },
+    {
+      label: "Dispute Inbox",
+      href: "/invoices/disputes",
+      icon: <AlertCircle className="w-4 h-4" />,
+      section: "Accounts Payable",
+    },
+    {
+      label: "Payments",
+      href: "/payments",
+      icon: <CreditCard className="w-4 h-4" />,
+      section: "Accounts Payable",
+    },
+    {
+      label: "Approvals & Tasks",
+      href: "/tasks",
+      icon: <CheckSquare className="w-4 h-4" />,
+      section: "Workflow",
+      badge: pendingTasksCount > 0 ? pendingTasksCount : undefined,
+      badgeColor: "orange",
+    },
+    {
+      label: "Delegation Matrix",
+      href: "/tasks/delegation",
+      icon: <UserCheck className="w-4 h-4 text-indigo-500" />,
+      section: "Workflow",
     },
     {
       label: "KPI Dashboard",
@@ -110,28 +163,22 @@ export default function BuyerMainLayout({ children }: { children: ReactNode }) {
       section: "Analytics",
     },
     {
-      label: "All Tickets",
+      label: "Group Spend Rollup",
+      href: "/analytics/rollup",
+      icon: <Globe className="w-4 h-4" />,
+      section: "Analytics",
+    },
+    {
+      label: "Security & Compliance",
+      href: "/compliance",
+      icon: <ShieldCheck className="w-4 h-4 text-emerald-400" />,
+      section: "Analytics",
+    },
+    {
+      label: "Tickets & Inquiries",
       href: "/tickets",
       icon: <LifeBuoy className="w-4 h-4" />,
-      section: "Support & Tickets",
-    },
-    {
-      label: "Kanban Board",
-      href: "/tickets/board",
-      icon: <Kanban className="w-4 h-4" />,
-      section: "Support & Tickets",
-    },
-    {
-      label: "Assigned to Me",
-      href: "/tickets/assigned",
-      icon: <UserCheck className="w-4 h-4" />,
-      section: "Support & Tickets",
-    },
-    {
-      label: "Raised by Me",
-      href: "/tickets/my",
-      icon: <Ticket className="w-4 h-4" />,
-      section: "Support & Tickets",
+      section: "Support",
     },
   ];
 
@@ -144,7 +191,12 @@ export default function BuyerMainLayout({ children }: { children: ReactNode }) {
       navItems={navItems}
       user={user}
       onLogout={() => logoutMutation.mutate()}
-      actions={<NotificationBell />}
+      actions={
+        <div className="flex items-center gap-2">
+          <CompanySwitcher />
+          <NotificationBell />
+        </div>
+      }
     >
       {children}
     </AppShell>

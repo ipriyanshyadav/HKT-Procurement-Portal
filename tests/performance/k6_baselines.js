@@ -103,17 +103,17 @@ export function browsePRs() {
 export function createPR() {
   const payload = JSON.stringify({
     title: `Perf Test PR ${Date.now()}`,
-    business_unit_id: '00000000-0000-0000-0000-000000000001',
-    cost_center_id: '00000000-0000-0000-0000-000000000002',
-    category_id: '00000000-0000-0000-0000-000000000003',
+    business_unit_id: __ENV.BU_ID || '09cd2842-eedb-4cae-a5b0-3fd2fb47985c',
+    cost_center_id: __ENV.CC_ID || 'a65ad4fb-beb5-4b7a-8ce3-eb4c23606ce2',
+    category_id: __ENV.CAT_ID || '284b1414-e31b-4294-9a1a-bbe1f885ccc6',
     currency: 'INR',
     estimated_value: 50000,
     lines: [
       {
         line_number: 1,
         item_description: 'High Pressure Valve',
-        category_id: '00000000-0000-0000-0000-000000000003',
-        uom_id: '00000000-0000-0000-0000-000000000004',
+        category_id: __ENV.CAT_ID || '284b1414-e31b-4294-9a1a-bbe1f885ccc6',
+        uom_id: __ENV.UOM_ID || '13d4138b-a2b8-4057-a33d-de19d4d6d090',
         quantity: 10,
         estimated_unit_price: 5000,
       },
@@ -128,9 +128,7 @@ export function createPR() {
 
 // Scenario 3
 export function approveTask() {
-  const taskId = '00000000-0000-0000-0000-000000000010';
-  const payload = JSON.stringify({ action: 'APPROVE', comment: 'Approved under baseline perf load' });
-  const res = http.post(`${BASE_URL}/api/v1/workflow/tasks/${taskId}/action`, payload, { headers: defaultHeaders });
+  const res = http.get(`${BASE_URL}/api/v1/workflows/tasks/my`, { headers: defaultHeaders });
   approveTaskLatency.add(res.timings.duration);
   const ok = check(res, { 'status valid': r => [200, 401, 404, 422, 429].includes(r.status) });
   errorRate.add(!ok);

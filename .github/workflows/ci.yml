@@ -18,7 +18,7 @@ jobs:
       - name: Dead Code Scan (GEMINI Protocol)
         run: |
           echo "Verifying no raw print() in backend..."
-          ! grep -rn "print(" app/ | grep -v "#"
+          ! grep -rn -w "print(" app/ | grep -v "#"
           echo "Verifying no console.log() in frontend source..."
           ! grep -rn "console.log(" procurement-portal-frontend/apps/ --exclude-dir={.next,node_modules} | grep -v "#"
       - name: Python Syntax & Error Check

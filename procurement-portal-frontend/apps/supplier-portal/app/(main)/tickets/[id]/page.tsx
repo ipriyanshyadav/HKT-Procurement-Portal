@@ -94,28 +94,28 @@ export default function SupplierTicketDetailPage() {
     <div className="p-6 max-w-5xl mx-auto space-y-6">
       <Link
         href="/tickets"
-        className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors"
+        className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
       >
         <ArrowLeft className="w-4 h-4" />
         <span>Back to Queries</span>
       </Link>
 
       {/* Main Card */}
-      <div className="bg-white rounded-xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-6">
-        <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-100">
+      <div className="bg-white dark:bg-[#1C1C1F] rounded-2xl border border-slate-200/80 dark:border-white/15 p-6 sm:p-8 shadow-xs space-y-6">
+        <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-white/10">
           <div className="flex items-center gap-2">
-            <span className="font-mono text-sm font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded border border-emerald-200">
+            <span className="font-mono text-sm font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2.5 py-1 rounded-lg border border-emerald-200/70 dark:border-emerald-800/70">
               {ticket.ticket_number}
             </span>
-            <span className="text-xs font-medium uppercase tracking-wider text-slate-600 bg-slate-100 px-2 py-0.5 rounded">
+            <span className="text-xs font-medium uppercase tracking-wider text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-[#252529] px-2.5 py-1 rounded-lg border border-slate-200/60 dark:border-white/10">
               {ticket.ticket_type}
             </span>
-            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700">
+            <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 dark:bg-white/10 text-slate-800 dark:text-slate-200 border border-slate-200/60 dark:border-white/10">
               {ticket.status}
             </span>
             {ticket.due_date && (
-              <span className="text-xs font-medium px-2 py-0.5 rounded bg-slate-100 text-slate-700 flex items-center gap-1 border border-slate-200">
-                <Calendar className="w-3 h-3 text-slate-500" />
+              <span className="text-xs font-medium px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-[#252529] text-slate-700 dark:text-slate-300 flex items-center gap-1.5 border border-slate-200/60 dark:border-white/10">
+                <Calendar className="w-3.5 h-3.5 text-slate-500" />
                 <span>Target Due: {ticket.due_date}</span>
               </span>
             )}
@@ -132,9 +132,9 @@ export default function SupplierTicketDetailPage() {
         </div>
 
         <div>
-          <h1 className="text-xl font-bold text-slate-900 mb-3">{ticket.title}</h1>
+          <h1 className="text-xl font-bold text-slate-900 dark:text-white mb-3">{ticket.title}</h1>
           {ticket.description && (
-            <div className="text-sm text-slate-700 prose prose-sm max-w-none">
+            <div className="text-sm text-slate-700 dark:text-slate-300 prose prose-sm dark:prose-invert max-w-none">
               <ReactMarkdown remarkPlugins={[remarkGfm]}>
                 {ticket.description}
               </ReactMarkdown>
@@ -144,16 +144,16 @@ export default function SupplierTicketDetailPage() {
 
         {/* Resolution Banner */}
         {ticket.status === "RESOLVED" && (
-          <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 space-y-3">
+          <div className="p-5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/60 space-y-3">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-emerald-800 font-semibold text-sm">
-                <CheckCircle2 className="w-5 h-5 text-emerald-600" />
-                <span>Buyer Team has marked this query as Resolved</span>
+              <div className="flex items-center gap-2 text-emerald-800 dark:text-emerald-300 font-semibold text-sm">
+                <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                <span>Procurement Team has marked this query as Resolved</span>
               </div>
             </div>
 
             {ticket.resolution_note && (
-              <p className="text-xs text-emerald-900 bg-white/70 p-3 rounded-lg border border-emerald-100 whitespace-pre-wrap">
+              <p className="text-xs text-emerald-900 dark:text-emerald-200 bg-white/70 dark:bg-[#252529]/80 p-3.5 rounded-xl border border-emerald-100 dark:border-emerald-800/40 whitespace-pre-wrap">
                 {ticket.resolution_note}
               </p>
             )}
@@ -161,13 +161,13 @@ export default function SupplierTicketDetailPage() {
             <div className="flex flex-wrap items-center gap-3 pt-2">
               <button
                 onClick={() => setShowCloseModal(true)}
-                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold shadow-sm transition-colors"
+                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold shadow-xs transition-colors"
               >
                 Accept &amp; Close Query
               </button>
               <button
                 onClick={() => setShowReopenModal(true)}
-                className="px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5"
+                className="px-4 py-2 bg-white dark:bg-[#252529] hover:bg-slate-50 dark:hover:bg-white/10 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-white/15 rounded-xl text-xs font-semibold transition-colors flex items-center gap-1.5"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
                 <span>Not Satisfied? Reopen</span>
@@ -178,7 +178,7 @@ export default function SupplierTicketDetailPage() {
 
         {/* Closed Banner */}
         {ticket.status === "CLOSED" && (
-          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 flex items-center justify-between">
+          <div className="p-4 rounded-2xl bg-slate-50 dark:bg-[#252529] border border-slate-200 dark:border-white/10 text-xs text-slate-600 dark:text-slate-300 flex items-center justify-between">
             <span>This query is closed. Thank you for your feedback!</span>
             {Boolean((ticket as any).feedback_rating) && (
               <div className="flex items-center gap-1">
@@ -188,7 +188,7 @@ export default function SupplierTicketDetailPage() {
                     className={`w-4 h-4 ${
                       s <= ((ticket as any).feedback_rating || 0)
                         ? "text-amber-400 fill-amber-400"
-                        : "text-slate-200"
+                        : "text-slate-200 dark:text-slate-700"
                     }`}
                   />
                 ))}
@@ -199,25 +199,25 @@ export default function SupplierTicketDetailPage() {
 
         {/* Attachments */}
         {Boolean(ticket.attachments?.length) && (
-          <div className="space-y-2 pt-4 border-t border-slate-100">
-            <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+          <div className="space-y-2 pt-4 border-t border-slate-100 dark:border-white/10">
+            <h4 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               Attachments ({ticket.attachments?.length})
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {ticket.attachments?.map((att) => (
                 <div
                   key={att.id}
-                  className="p-2.5 rounded-lg border border-slate-200 flex items-center justify-between text-xs hover:bg-slate-50"
+                  className="p-3 rounded-xl border border-slate-200 dark:border-white/10 flex items-center justify-between text-xs hover:bg-slate-50 dark:hover:bg-[#252529] transition-colors"
                 >
                   <div className="flex items-center gap-2 truncate">
                     <Paperclip className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                    <span className="font-medium text-slate-800 truncate">{att.file_name}</span>
+                    <span className="font-medium text-slate-800 dark:text-slate-200 truncate">{att.file_name}</span>
                   </div>
                   <a
                     href={`/api/v1/documents/${att.document_id}/download`}
                     target="_blank"
                     rel="noreferrer"
-                    className="p-1 text-slate-500 hover:text-emerald-600"
+                    className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-slate-100 dark:hover:bg-white/10 rounded-lg transition-colors"
                     title="Download"
                   >
                     <Download className="w-3.5 h-3.5" />
@@ -236,8 +236,8 @@ export default function SupplierTicketDetailPage() {
       <TicketCustomFieldsPanel ticketId={ticketId} />
 
       {/* Discussion & Responses */}
-      <div className="bg-white rounded-xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-6">
-        <h3 className="text-base font-bold text-slate-900">
+      <div className="bg-white dark:bg-[#1C1C1F] rounded-2xl border border-slate-200/80 dark:border-white/15 p-6 sm:p-8 shadow-xs space-y-6">
+        <h3 className="text-base font-bold text-slate-900 dark:text-white">
           Responses &amp; Clarifications
         </h3>
 
@@ -259,13 +259,13 @@ export default function SupplierTicketDetailPage() {
 
       {/* Close Modal with CSAT rating */}
       {showCloseModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
           <form
             onSubmit={handleCloseSubmit}
-            className="bg-white rounded-xl max-w-md w-full p-6 space-y-4 border border-slate-200 shadow-xl"
+            className="bg-white dark:bg-[#1C1C1F] rounded-2xl max-w-md w-full p-6 space-y-4 border border-slate-200/80 dark:border-white/15 shadow-2xl"
           >
-            <h3 className="text-base font-bold text-slate-900">Rate Your Support Experience</h3>
-            <p className="text-xs text-slate-500">
+            <h3 className="text-base font-bold text-slate-900 dark:text-white">Rate Your Support Experience</h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
               Please rate how satisfied you were with the resolution provided by the procurement team.
             </p>
 
@@ -275,13 +275,13 @@ export default function SupplierTicketDetailPage() {
                   key={star}
                   type="button"
                   onClick={() => setRating(star)}
-                  className="p-1 text-slate-300 hover:text-amber-400 transition-colors focus:outline-none"
+                  className="p-1 text-slate-300 dark:text-slate-600 hover:text-amber-400 transition-colors focus:outline-none"
                 >
                   <Star
                     className={`w-7 h-7 ${
                       star <= rating
                         ? "text-amber-400 fill-amber-400"
-                        : "text-slate-300"
+                        : "text-slate-300 dark:text-slate-600"
                     }`}
                   />
                 </button>
@@ -289,7 +289,7 @@ export default function SupplierTicketDetailPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 Feedback Comment (Optional)
               </label>
               <textarea
@@ -297,7 +297,7 @@ export default function SupplierTicketDetailPage() {
                 value={feedbackComment}
                 onChange={(e) => setFeedbackComment(e.target.value)}
                 placeholder="Any additional feedback..."
-                className="w-full text-sm p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                className="w-full text-sm p-3 bg-white dark:bg-[#252529] border border-slate-300 dark:border-white/15 text-slate-900 dark:text-white rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none"
               />
             </div>
 
@@ -305,14 +305,14 @@ export default function SupplierTicketDetailPage() {
               <button
                 type="button"
                 onClick={() => setShowCloseModal(false)}
-                className="px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-100 rounded"
+                className="px-3.5 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/10 rounded-xl transition-colors"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={close.isPending}
-                className="px-4 py-1.5 text-xs bg-emerald-600 hover:bg-emerald-700 text-white rounded font-semibold"
+                className="px-4 py-1.5 text-xs bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white rounded-xl font-semibold transition-colors shadow-xs"
               >
                 Submit &amp; Close Query
               </button>
@@ -323,14 +323,14 @@ export default function SupplierTicketDetailPage() {
 
       {/* Reopen Modal */}
       {showReopenModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
           <form
             onSubmit={handleReopenSubmit}
-            className="bg-white rounded-xl max-w-md w-full p-6 space-y-4 border border-slate-200 shadow-xl"
+            className="bg-white dark:bg-[#1C1C1F] rounded-2xl max-w-md w-full p-6 space-y-4 border border-slate-200/80 dark:border-white/15 shadow-2xl"
           >
-            <h3 className="text-base font-bold text-slate-900">Reopen Query</h3>
+            <h3 className="text-base font-bold text-slate-900 dark:text-white">Reopen Query</h3>
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 Reason for Reopening <span className="text-rose-500">*</span>
               </label>
               <textarea
@@ -339,21 +339,21 @@ export default function SupplierTicketDetailPage() {
                 value={reopenReason}
                 onChange={(e) => setReopenReason(e.target.value)}
                 placeholder="What part of the resolution was incomplete or needs further clarification?"
-                className="w-full text-sm p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                className="w-full text-sm p-3 bg-white dark:bg-[#252529] border border-slate-300 dark:border-white/15 text-slate-900 dark:text-white rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none"
               />
             </div>
             <div className="flex justify-end gap-2 pt-2">
               <button
                 type="button"
                 onClick={() => setShowReopenModal(false)}
-                className="px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-100 rounded"
+                className="px-3.5 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/10 rounded-xl transition-colors"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={!reopenReason.trim() || reopen.isPending}
-                className="px-4 py-1.5 text-xs bg-emerald-600 hover:bg-emerald-700 text-white rounded font-semibold disabled:opacity-50"
+                className="px-4 py-1.5 text-xs bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white rounded-xl font-semibold disabled:opacity-50 transition-colors shadow-xs"
               >
                 Reopen Query
               </button>

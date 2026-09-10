@@ -15,9 +15,10 @@ import {
   useVendorDetail,
   useInitiatePennyTest,
   useConfirmPennyTest,
+  useCalculateVendorScorecard,
   VendorDocument,
 } from "@procurement/hooks";
-import { ComplianceExpiryAlert, VendorStatusBadge, PermissionGuard, DocumentList } from "@procurement/ui";
+import { ComplianceExpiryAlert, VendorStatusBadge, PermissionGuard, DocumentList, Button, Badge } from "@procurement/ui";
 
 export default function VendorDetailPage() {
   const params = useParams();
@@ -35,6 +36,7 @@ export default function VendorDetailPage() {
   const reinstateMutation = useReinstateVendor(vendorId);
   const initiateBlacklistMutation = useInitiateBlacklist(vendorId);
   const confirmBlacklistMutation = useConfirmBlacklist(vendorId);
+  const calculateScorecardMutation = useCalculateVendorScorecard(vendorId);
 
   // Penny-Drop Verification State
   const initiatePennyTest = useInitiatePennyTest(vendorId);
@@ -119,60 +121,65 @@ export default function VendorDetailPage() {
           {["SUBMITTED", "UNDER_REVIEW"].includes(vendor.status) && (
             <>
               <PermissionGuard permission="vendor.qualify">
-                <button
+                <Button
+                  size="sm"
                   onClick={() => setModalAction("QUALIFY")}
-                  className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold shadow-sm transition"
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
                 >
                   Qualify Vendor
-                </button>
+                </Button>
               </PermissionGuard>
               <PermissionGuard permission="vendor.reject">
-                <button
+                <Button
+                  size="sm"
+                  variant="secondary"
                   onClick={() => setModalAction("RESUBMIT")}
-                  className="px-3.5 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-semibold shadow-sm transition"
                 >
                   Request Resubmission
-                </button>
+                </Button>
               </PermissionGuard>
               <PermissionGuard permission="vendor.reject">
-                <button
+                <Button
+                  size="sm"
+                  variant="danger"
                   onClick={() => setModalAction("REJECT")}
-                  className="px-3.5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-semibold shadow-sm transition"
                 >
                   Reject
-                </button>
+                </Button>
               </PermissionGuard>
             </>
           )}
 
           {vendor.status === "QUALIFIED" && (
             <PermissionGuard permission="vendor.activate">
-              <button
+              <Button
+                size="sm"
                 onClick={() => setModalAction("ACTIVATE")}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shadow-sm transition"
               >
                 Activate Vendor
-              </button>
+              </Button>
             </PermissionGuard>
           )}
 
           {vendor.status === "ACTIVE" && (
             <>
               <PermissionGuard permission="vendor.suspend">
-                <button
+                <Button
+                  size="sm"
+                  variant="secondary"
                   onClick={() => setModalAction("SUSPEND")}
-                  className="px-3.5 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-semibold shadow-sm transition"
                 >
                   Suspend
-                </button>
+                </Button>
               </PermissionGuard>
               <PermissionGuard permission="vendor.blacklist_initiate">
-                <button
+                <Button
+                  size="sm"
+                  variant="danger"
                   onClick={() => setModalAction("INITIATE_BLACKLIST")}
-                  className="px-3.5 py-2 bg-red-700 hover:bg-red-800 text-white rounded-lg text-xs font-semibold shadow-sm transition"
                 >
                   Initiate Blacklist
-                </button>
+                </Button>
               </PermissionGuard>
             </>
           )}
@@ -180,32 +187,36 @@ export default function VendorDetailPage() {
           {vendor.status === "SUSPENDED" && (
             <>
               <PermissionGuard permission="vendor.reinstate">
-                <button
+                <Button
+                  size="sm"
                   onClick={() => setModalAction("REINSTATE")}
-                  className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold shadow-sm transition"
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white"
                 >
                   Reinstate Vendor
-                </button>
+                </Button>
               </PermissionGuard>
               <PermissionGuard permission="vendor.blacklist_initiate">
-                <button
+                <Button
+                  size="sm"
+                  variant="danger"
                   onClick={() => setModalAction("INITIATE_BLACKLIST")}
-                  className="px-3.5 py-2 bg-red-700 hover:bg-red-800 text-white rounded-lg text-xs font-semibold shadow-sm transition"
                 >
                   Initiate Blacklist
-                </button>
+                </Button>
               </PermissionGuard>
             </>
           )}
 
           {vendor.blacklist_reason && !vendor.blacklisted_at && (
             <PermissionGuard permission="vendor.blacklist_approve">
-              <button
+              <Button
+                size="sm"
+                variant="danger"
                 onClick={() => setModalAction("CONFIRM_BLACKLIST")}
-                className="px-3.5 py-2 bg-red-900 hover:bg-red-950 text-white rounded-lg text-xs font-semibold shadow-sm transition animate-pulse"
+                className="animate-pulse"
               >
                 Confirm Blacklisting (Dual-Approval)
-              </button>
+              </Button>
             </PermissionGuard>
           )}
         </div>
@@ -216,44 +227,44 @@ export default function VendorDetailPage() {
         {/* Left 2 Cols: Details & Documents */}
         <div className="lg:col-span-2 space-y-6">
           {/* General Information Card */}
-          <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
-            <h2 className="text-base font-bold text-gray-900 mb-4">Vendor Profile</h2>
+          <div className="bg-white dark:bg-[#1C1C1F] p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-white/15 space-y-4">
+            <h2 className="text-base font-bold text-slate-900 dark:text-white border-b border-slate-100 dark:border-white/10 pb-3">Vendor Profile</h2>
             <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
               <div>
-                <dt className="text-xs text-gray-500 font-medium">Legal Name</dt>
-                <dd className="font-semibold text-gray-800">{vendor.legal_name || "—"}</dd>
+                <dt className="text-xs text-slate-500 dark:text-slate-400 uppercase font-semibold">Legal Name</dt>
+                <dd className="font-semibold text-slate-900 dark:text-white mt-0.5">{vendor.legal_name || "—"}</dd>
               </div>
               <div>
-                <dt className="text-xs text-gray-500 font-medium">Registration Type</dt>
-                <dd className="font-semibold text-gray-800">{vendor.registration_type}</dd>
+                <dt className="text-xs text-slate-500 dark:text-slate-400 uppercase font-semibold">Registration Type</dt>
+                <dd className="font-semibold text-slate-900 dark:text-white mt-0.5">{vendor.registration_type}</dd>
               </div>
               <div>
-                <dt className="text-xs text-gray-500 font-medium">PAN</dt>
-                <dd className="font-mono font-semibold text-gray-800">{vendor.pan || "—"}</dd>
+                <dt className="text-xs text-slate-500 dark:text-slate-400 uppercase font-semibold">PAN</dt>
+                <dd className="font-mono font-semibold text-slate-900 dark:text-white mt-0.5">{vendor.pan || "—"}</dd>
               </div>
               <div>
-                <dt className="text-xs text-gray-500 font-medium">GSTIN</dt>
-                <dd className="font-mono font-semibold text-gray-800">{vendor.gstin || "—"}</dd>
+                <dt className="text-xs text-slate-500 dark:text-slate-400 uppercase font-semibold">GSTIN</dt>
+                <dd className="font-mono font-semibold text-slate-900 dark:text-white mt-0.5">{vendor.gstin || "—"}</dd>
               </div>
               <div>
-                <dt className="text-xs text-gray-500 font-medium">CIN</dt>
-                <dd className="font-mono font-semibold text-gray-800">{vendor.cin || "—"}</dd>
+                <dt className="text-xs text-slate-500 dark:text-slate-400 uppercase font-semibold">CIN</dt>
+                <dd className="font-mono font-semibold text-slate-900 dark:text-white mt-0.5">{vendor.cin || "—"}</dd>
               </div>
               <div>
-                <dt className="text-xs text-gray-500 font-medium">DUNS Number</dt>
-                <dd className="font-mono font-semibold text-gray-800">{vendor.duns_number || "—"}</dd>
+                <dt className="text-xs text-slate-500 dark:text-slate-400 uppercase font-semibold">DUNS Number</dt>
+                <dd className="font-mono font-semibold text-slate-900 dark:text-white mt-0.5">{vendor.duns_number || "—"}</dd>
               </div>
               <div>
-                <dt className="text-xs text-gray-500 font-medium">Email</dt>
-                <dd className="font-semibold text-gray-800">{vendor.primary_email}</dd>
+                <dt className="text-xs text-slate-500 dark:text-slate-400 uppercase font-semibold">Email</dt>
+                <dd className="font-semibold text-slate-900 dark:text-white mt-0.5">{vendor.primary_email}</dd>
               </div>
               <div>
-                <dt className="text-xs text-gray-500 font-medium">Phone</dt>
-                <dd className="font-semibold text-gray-800">{vendor.primary_phone || "—"}</dd>
+                <dt className="text-xs text-slate-500 dark:text-slate-400 uppercase font-semibold">Phone</dt>
+                <dd className="font-semibold text-slate-900 dark:text-white mt-0.5">{vendor.primary_phone || "—"}</dd>
               </div>
               <div className="sm:col-span-2">
-                <dt className="text-xs text-gray-500 font-medium">Address</dt>
-                <dd className="text-gray-800">
+                <dt className="text-xs text-slate-500 dark:text-slate-400 uppercase font-semibold">Address</dt>
+                <dd className="text-slate-800 dark:text-slate-200 mt-0.5">
                   {[vendor.address_line1, vendor.address_line2, vendor.city, vendor.state, vendor.postal_code, vendor.country_code]
                     .filter(Boolean)
                     .join(", ") || "—"}
@@ -271,15 +282,15 @@ export default function VendorDetailPage() {
           />
 
           {/* Bank Accounts Card */}
-          <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200 space-y-4">
-            <div className="flex items-center justify-between">
+          <div className="bg-white dark:bg-[#1C1C1F] p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-white/15 space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-white/10 pb-3">
               <div>
-                <h2 className="text-base font-bold text-gray-900">Bank Accounts & Verification</h2>
-                <p className="text-xs text-gray-500 mt-0.5">
+                <h2 className="text-base font-bold text-slate-900 dark:text-white">Bank Accounts & Verification</h2>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                   Penny-drop automated verification for secure vendor disbursements.
                 </p>
               </div>
-              <span className="text-xs font-semibold text-gray-500">
+              <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
                 {vendor.bank_accounts.length} account{vendor.bank_accounts.length === 1 ? "" : "s"}
               </span>
             </div>
@@ -303,36 +314,36 @@ export default function VendorDetailPage() {
             )}
 
             {vendor.bank_accounts.length === 0 ? (
-              <p className="text-sm text-gray-400 italic">No bank accounts added.</p>
+              <p className="text-sm text-slate-400 dark:text-slate-500 italic">No bank accounts added.</p>
             ) : (
               <div className="space-y-3">
                 {vendor.bank_accounts.map((b) => (
                   <div
                     key={b.id}
-                    className="flex flex-col md:flex-row md:items-center justify-between p-4 rounded-xl border border-gray-100 bg-gray-50 gap-4"
+                    className="flex flex-col md:flex-row md:items-center justify-between p-4 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#252529] gap-4"
                   >
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <p className="font-semibold text-sm text-gray-900">{b.bank_name}</p>
+                        <p className="font-semibold text-sm text-slate-900 dark:text-white">{b.bank_name}</p>
                         {b.is_primary && (
-                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-100 text-blue-700">
+                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300">
                             PRIMARY
                           </span>
                         )}
                       </div>
-                      <p className="text-xs text-gray-600 font-mono">
+                      <p className="text-xs text-slate-600 dark:text-slate-300 font-mono">
                         A/C: {b.account_number_masked} · IFSC: {b.ifsc_code}
                       </p>
-                      <p className="text-xs text-gray-500">
-                        Holder: <span className="font-medium text-gray-700">{b.account_holder_name}</span>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                        Holder: <span className="font-medium text-slate-700 dark:text-slate-300">{b.account_holder_name}</span>
                         {b.penny_test_reference && (
-                          <span className="ml-2 font-mono text-[11px] text-gray-400">
+                          <span className="ml-2 font-mono text-[11px] text-slate-400 dark:text-slate-500">
                             Ref: {b.penny_test_reference}
                           </span>
                         )}
                       </p>
                       {b.penny_test_validated_at && (
-                        <p className="text-[11px] text-emerald-600">
+                        <p className="text-[11px] text-emerald-600 dark:text-emerald-400">
                           Validated on {new Date(b.penny_test_validated_at).toLocaleDateString()}
                         </p>
                       )}
@@ -342,10 +353,10 @@ export default function VendorDetailPage() {
                       <span
                         className={`text-xs px-2.5 py-1 rounded-full font-semibold ${
                           b.penny_test_status === "VALIDATED"
-                            ? "bg-emerald-100 text-emerald-800"
+                            ? "bg-emerald-100 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60"
                             : b.penny_test_status === "PENNY_TEST_INITIATED"
-                            ? "bg-amber-100 text-amber-800"
-                            : "bg-gray-100 text-gray-700"
+                            ? "bg-amber-100 dark:bg-amber-950/50 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60"
+                            : "bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300"
                         }`}
                       >
                         {b.penny_test_status === "VALIDATED"
@@ -357,16 +368,17 @@ export default function VendorDetailPage() {
 
                       {b.penny_test_status === "PENNY_TEST_INITIATED" ? (
                         <div className="flex items-center gap-1.5">
-                          <button
+                          <Button
+                            size="sm"
                             onClick={() => {
                               setPennyBankId(b.id);
                               setPennyAmountInput("");
                               setPennyFeedback(null);
                             }}
-                            className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold shadow-sm transition"
+                            className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
                           >
                             Verify Deposit
-                          </button>
+                          </Button>
                           <button
                             onClick={async () => {
                               try {
@@ -388,13 +400,14 @@ export default function VendorDetailPage() {
                               }
                             }}
                             disabled={initiatePennyTest.isPending}
-                            className="px-2 py-1 text-xs text-gray-500 hover:text-gray-800 underline disabled:opacity-50"
+                            className="px-2 py-1 text-xs text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white underline disabled:opacity-50"
                           >
                             Re-send
                           </button>
                         </div>
                       ) : b.penny_test_status !== "VALIDATED" ? (
-                        <button
+                        <Button
+                          size="sm"
                           onClick={async () => {
                             try {
                               setPennyFeedback(null);
@@ -415,10 +428,9 @@ export default function VendorDetailPage() {
                             }
                           }}
                           disabled={initiatePennyTest.isPending}
-                          className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shadow-sm transition disabled:opacity-50"
                         >
                           {initiatePennyTest.isPending ? "Initiating..." : "Initiate Penny Test"}
-                        </button>
+                        </Button>
                       ) : null}
                     </div>
                   </div>
@@ -431,74 +443,180 @@ export default function VendorDetailPage() {
         {/* Right Col: Scorecard & Lifecycle History */}
         <div className="space-y-6">
           {/* Performance Scorecard Card */}
-          <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
-            <h2 className="text-base font-bold text-gray-900 mb-3">Performance Scorecard</h2>
+          <div className="bg-white dark:bg-[#1C1C1F] p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-white/15 space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-white/10 pb-3">
+              <h2 className="text-base font-bold text-slate-900 dark:text-white">Performance Scorecard</h2>
+              <PermissionGuard permission={["vendor.qualify", "vendor.activate"]}>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={calculateScorecardMutation.isPending}
+                  onClick={async () => {
+                    try {
+                      await calculateScorecardMutation.mutateAsync({});
+                      refetch();
+                    } catch (err: any) {
+                      alert(err?.response?.data?.error?.message || err.message || "Failed to calculate scorecard");
+                    }
+                  }}
+                  className="text-xs h-7 px-2.5"
+                >
+                  {calculateScorecardMutation.isPending ? "Calculating..." : "Recalculate"}
+                </Button>
+              </PermissionGuard>
+            </div>
             {vendor.scorecard ? (
               <div className="space-y-4">
-                <div className="text-center py-4 bg-gray-50 rounded-lg">
-                  <div className="text-3xl font-extrabold text-blue-600">
+                <div className="text-center py-4 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900/40 rounded-xl">
+                  <div className="text-3xl font-extrabold text-blue-600 dark:text-blue-400">
                     {vendor.scorecard.overall_score}%
                   </div>
-                  <div className="text-xs font-medium text-gray-500 mt-1">Overall Score</div>
+                  <div className="text-xs font-semibold text-slate-600 dark:text-slate-400 mt-1 uppercase">Overall Score</div>
                 </div>
                 <div className="space-y-2.5 text-xs">
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">On-Time Delivery (40%):</span>
-                    <span className="font-semibold">{vendor.scorecard.on_time_delivery_rate}%</span>
+                  <div className="flex justify-between text-slate-600 dark:text-slate-300">
+                    <span className="text-slate-500 dark:text-slate-400">On-Time Delivery (40%):</span>
+                    <span className="font-semibold text-slate-900 dark:text-white">{vendor.scorecard.on_time_delivery_rate}%</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Quality Acceptance (30%):</span>
-                    <span className="font-semibold">{vendor.scorecard.quality_acceptance_rate}%</span>
+                  <div className="flex justify-between text-slate-600 dark:text-slate-300">
+                    <span className="text-slate-500 dark:text-slate-400">Quality Acceptance (30%):</span>
+                    <span className="font-semibold text-slate-900 dark:text-white">{vendor.scorecard.quality_acceptance_rate}%</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Commercial Compliance (20%):</span>
-                    <span className="font-semibold">{vendor.scorecard.commercial_compliance_score}%</span>
+                  {vendor.scorecard.quality_rejection_rate != null && (
+                    <div className="flex justify-between text-slate-600 dark:text-slate-300">
+                      <span className="text-slate-500 dark:text-slate-400">Quality Rejection Rate:</span>
+                      <span className="font-semibold text-rose-500 dark:text-rose-400">{vendor.scorecard.quality_rejection_rate}%</span>
+                    </div>
+                  )}
+                  {vendor.scorecard.pricing_competitiveness != null && (
+                    <div className="flex justify-between text-slate-600 dark:text-slate-300">
+                      <span className="text-slate-500 dark:text-slate-400">Pricing Competitiveness:</span>
+                      <span className="font-semibold text-slate-900 dark:text-white">{vendor.scorecard.pricing_competitiveness}%</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between text-slate-600 dark:text-slate-300">
+                    <span className="text-slate-500 dark:text-slate-400">Commercial Compliance (20%):</span>
+                    <span className="font-semibold text-slate-900 dark:text-white">{vendor.scorecard.commercial_compliance_score}%</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Responsiveness (10%):</span>
-                    <span className="font-semibold">{vendor.scorecard.responsiveness_score}%</span>
+                  <div className="flex justify-between text-slate-600 dark:text-slate-300">
+                    <span className="text-slate-500 dark:text-slate-400">Responsiveness (10%):</span>
+                    <span className="font-semibold text-slate-900 dark:text-white">{vendor.scorecard.responsiveness_score}%</span>
                   </div>
                 </div>
               </div>
             ) : (
-              <p className="text-sm text-gray-400 italic">No scorecard calculated yet.</p>
+              <p className="text-sm text-slate-400 dark:text-slate-500 italic">No scorecard calculated yet.</p>
+            )}
+          </div>
+
+          {/* Financial & ESG Risk Profile Card */}
+          <div className="bg-white dark:bg-[#1C1C1F] p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-white/15 space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-white/10 pb-3">
+              <h2 className="text-base font-bold text-slate-900 dark:text-white">Financial & ESG Risk Profile</h2>
+              {vendor.risk_assessment && (
+                <span className={`px-2 py-0.5 rounded-full text-xs font-semibold border ${
+                  vendor.risk_assessment.risk_tier === "CRITICAL"
+                    ? "bg-rose-500/10 text-rose-500 border-rose-500/30"
+                    : vendor.risk_assessment.risk_tier === "HIGH"
+                    ? "bg-orange-500/10 text-orange-400 border-orange-500/30"
+                    : vendor.risk_assessment.risk_tier === "MEDIUM"
+                    ? "bg-amber-500/10 text-amber-400 border-amber-500/30"
+                    : "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
+                }`}>
+                  {vendor.risk_assessment.risk_tier} RISK
+                </span>
+              )}
+            </div>
+
+            {vendor.risk_assessment ? (
+              <div className="space-y-4">
+                <div className="text-center py-3 bg-slate-50 dark:bg-[#252529] border border-slate-200 dark:border-white/10 rounded-xl">
+                  <div className="text-2xl font-extrabold text-slate-900 dark:text-white">
+                    {vendor.risk_assessment.overall_risk_score} / 100
+                  </div>
+                  <div className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5">Composite Risk Index</div>
+                </div>
+
+                <div className="space-y-2 text-xs">
+                  <div className="font-semibold text-slate-800 dark:text-slate-200 text-xs uppercase tracking-wider mb-1">Financial Stability</div>
+                  <div className="flex justify-between text-slate-600 dark:text-slate-300">
+                    <span className="text-slate-500 dark:text-slate-400">Credit Rating:</span>
+                    <span className="font-semibold text-slate-900 dark:text-white">{vendor.risk_assessment.credit_rating}</span>
+                  </div>
+                  <div className="flex justify-between text-slate-600 dark:text-slate-300">
+                    <span className="text-slate-500 dark:text-slate-400">Financial Risk Score:</span>
+                    <span className="font-semibold text-slate-900 dark:text-white">{vendor.risk_assessment.financial_risk_score}</span>
+                  </div>
+                  <div className="flex justify-between text-slate-600 dark:text-slate-300">
+                    <span className="text-slate-500 dark:text-slate-400">Liquidity / Bankruptcy:</span>
+                    <span className="font-semibold text-slate-900 dark:text-white">{vendor.risk_assessment.liquidity_risk} / {vendor.risk_assessment.bankruptcy_risk}</span>
+                  </div>
+                </div>
+
+                <div className="space-y-2 text-xs pt-2 border-t border-slate-100 dark:border-white/10">
+                  <div className="font-semibold text-slate-800 dark:text-slate-200 text-xs uppercase tracking-wider mb-1">ESG Health</div>
+                  <div className="flex justify-between text-slate-600 dark:text-slate-300">
+                    <span className="text-slate-500 dark:text-slate-400">ESG Rating:</span>
+                    <span className="font-semibold text-emerald-500 dark:text-emerald-400">{vendor.risk_assessment.esg_rating}</span>
+                  </div>
+                  <div className="flex justify-between text-slate-600 dark:text-slate-300">
+                    <span className="text-slate-500 dark:text-slate-400">Env / Social / Gov:</span>
+                    <span className="font-semibold text-slate-900 dark:text-white">
+                      {vendor.risk_assessment.environmental_score} / {vendor.risk_assessment.social_score} / {vendor.risk_assessment.governance_score}
+                    </span>
+                  </div>
+                </div>
+
+                {vendor.risk_assessment.risk_factors && vendor.risk_assessment.risk_factors.length > 0 && (
+                  <div className="pt-2 border-t border-slate-100 dark:border-white/10 text-xs">
+                    <span className="font-semibold text-slate-800 dark:text-slate-200">Identified Risk Factors:</span>
+                    <ul className="mt-1 space-y-1 list-disc list-inside text-slate-500 dark:text-slate-400">
+                      {vendor.risk_assessment.risk_factors.map((f: any, idx: number) => (
+                        <li key={idx}>{typeof f === 'string' ? f : JSON.stringify(f)}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <p className="text-sm text-slate-400 dark:text-slate-500 italic">No risk assessment recorded yet.</p>
             )}
           </div>
 
           {/* Status & Lifecycle Notes */}
-          <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200 text-xs space-y-3">
-            <h2 className="text-base font-bold text-gray-900 mb-2">Lifecycle History</h2>
+          <div className="bg-white dark:bg-[#1C1C1F] p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-white/15 text-xs space-y-3">
+            <h2 className="text-base font-bold text-slate-900 dark:text-white border-b border-slate-100 dark:border-white/10 pb-3">Lifecycle History</h2>
             {vendor.submitted_at && (
-              <div>
-                <span className="text-gray-400">Submitted:</span>{" "}
-                <span className="font-medium text-gray-700">
+              <div className="flex justify-between">
+                <span className="text-slate-500 dark:text-slate-400">Submitted:</span>{" "}
+                <span className="font-medium text-slate-800 dark:text-slate-200">
                   {new Date(vendor.submitted_at).toLocaleString()}
                 </span>
               </div>
             )}
             {vendor.qualified_at && (
-              <div>
-                <span className="text-gray-400">Qualified:</span>{" "}
-                <span className="font-medium text-gray-700">
+              <div className="flex justify-between">
+                <span className="text-slate-500 dark:text-slate-400">Qualified:</span>{" "}
+                <span className="font-medium text-slate-800 dark:text-slate-200">
                   {new Date(vendor.qualified_at).toLocaleString()}
                 </span>
               </div>
             )}
             {vendor.activated_at && (
-              <div>
-                <span className="text-gray-400">Activated:</span>{" "}
-                <span className="font-medium text-gray-700">
+              <div className="flex justify-between">
+                <span className="text-slate-500 dark:text-slate-400">Activated:</span>{" "}
+                <span className="font-medium text-slate-800 dark:text-slate-200">
                   {new Date(vendor.activated_at).toLocaleString()}
                 </span>
               </div>
             )}
             {vendor.suspension_reason && (
-              <div className="bg-amber-50 border border-amber-200 p-2.5 rounded text-amber-900">
-                <strong>Reason:</strong> {vendor.suspension_reason}
+              <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 p-3 rounded-xl text-amber-900 dark:text-amber-200">
+                <strong>Suspension Reason:</strong> {vendor.suspension_reason}
               </div>
             )}
             {vendor.blacklist_reason && (
-              <div className="bg-red-50 border border-red-200 p-2.5 rounded text-red-900">
+              <div className="bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 p-3 rounded-xl text-rose-900 dark:text-rose-200">
                 <strong>Blacklist Reason:</strong> {vendor.blacklist_reason}
               </div>
             )}
@@ -508,12 +626,12 @@ export default function VendorDetailPage() {
 
       {/* Action Modal */}
       {modalAction && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 space-y-4">
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+          <div className="bg-white dark:bg-[#1C1C1F] rounded-2xl shadow-xl max-w-md w-full p-6 space-y-4 border border-slate-200 dark:border-white/15">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white">
               {modalAction.replace(/_/g, " ")} Confirmation
             </h3>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-slate-500 dark:text-slate-400">
               Please enter notes or justification for this lifecycle transition.
             </p>
             {modalAction !== "ACTIVATE" && (
@@ -522,25 +640,26 @@ export default function VendorDetailPage() {
                 onChange={(e) => setModalInput(e.target.value)}
                 placeholder="Reason or notes..."
                 rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-slate-200 dark:border-white/15 rounded-xl text-sm bg-white dark:bg-[#252529] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             )}
             <div className="flex justify-end gap-2 pt-2">
-              <button
+              <Button
+                variant="secondary"
+                size="sm"
                 onClick={() => {
                   setModalAction(null);
                   setModalInput("");
                 }}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-xs font-semibold text-gray-700 hover:bg-gray-50 dark:hover:bg-slate-800/50"
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
+                size="sm"
                 onClick={handleActionSubmit}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shadow-sm"
               >
                 Confirm Action
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -548,14 +667,14 @@ export default function VendorDetailPage() {
 
       {/* Penny Test Verification Modal */}
       {pennyBankId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+          <div className="bg-white dark:bg-[#1C1C1F] rounded-2xl shadow-xl max-w-md w-full p-6 space-y-4 border border-slate-200 dark:border-white/15">
             <div>
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white">Confirm Penny-Drop Deposit</h3>
-              <p className="text-xs text-gray-500 mt-1">
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white">Confirm Penny-Drop Deposit</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                 Enter the exact micro-deposit amount that appeared in the vendor&apos;s bank account
                 statement for{" "}
-                <span className="font-semibold text-gray-700">
+                <span className="font-semibold text-slate-800 dark:text-slate-200">
                   {vendor.bank_accounts.find((b) => b.id === pennyBankId)?.bank_name}
                 </span>{" "}
                 (A/C:{" "}
@@ -568,7 +687,7 @@ export default function VendorDetailPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-1">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 Amount Received (₹)
               </label>
               <input
@@ -578,26 +697,28 @@ export default function VendorDetailPage() {
                 value={pennyAmountInput}
                 onChange={(e) => setPennyAmountInput(e.target.value)}
                 placeholder="e.g. 1.05"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"
+                className="w-full px-3 py-2 border border-slate-200 dark:border-white/15 rounded-xl text-sm bg-white dark:bg-[#252529] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"
                 autoFocus
               />
-              <p className="text-[11px] text-gray-400 mt-1">
+              <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1">
                 Amount must exactly match the micro-deposit generated during test initiation.
               </p>
             </div>
 
             <div className="flex justify-end gap-2 pt-2">
-              <button
+              <Button
+                variant="secondary"
+                size="sm"
                 onClick={() => {
                   setPennyBankId(null);
                   setPennyAmountInput("");
                 }}
                 disabled={confirmPennyTest.isPending}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-xs font-semibold text-gray-700 hover:bg-gray-50 dark:hover:bg-slate-800/50"
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
+                size="sm"
                 onClick={async () => {
                   const amt = parseFloat(pennyAmountInput);
                   if (isNaN(amt) || amt <= 0) {
@@ -638,10 +759,10 @@ export default function VendorDetailPage() {
                   }
                 }}
                 disabled={confirmPennyTest.isPending || !pennyAmountInput}
-                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold shadow-sm disabled:opacity-50"
+                className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
               >
                 {confirmPennyTest.isPending ? "Validating..." : "Confirm & Validate"}
-              </button>
+              </Button>
             </div>
           </div>
         </div>

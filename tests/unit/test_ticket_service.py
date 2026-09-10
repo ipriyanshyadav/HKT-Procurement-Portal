@@ -38,6 +38,7 @@ async def test_generate_ticket_number(mock_deps):
     # Mock sequence execution
     mock_seq_res = MagicMock()
     mock_seq_res.scalar.return_value = 42
+    mock_seq_res.scalar_one_or_none.return_value = None
     mock_db.execute.return_value = mock_seq_res
 
     current_year = datetime.now(UTC).year

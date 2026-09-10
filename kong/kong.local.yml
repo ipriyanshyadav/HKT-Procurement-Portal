@@ -20,10 +20,14 @@ routes:
     service: api
     strip_path: false
     paths:
+      - /api/v1/organization
       - /api/v1/organizations
       - /api/v1/users
       - /api/v1/business-units
       - /api/v1/cost-centers
+      - /api/v1/legal-entities
+      - /api/v1/plants
+      - /api/v1/departments
     plugins:
       - name: rate-limiting
         config:

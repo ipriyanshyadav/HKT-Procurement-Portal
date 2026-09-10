@@ -21,6 +21,8 @@ export function middleware(request: NextRequest) {
 
   const refreshToken =
     request.cookies.get("refresh_token_supplier") ||
+    request.cookies.get("refresh_token_buyer") ||
+    request.cookies.get("refresh_token_admin") ||
     request.cookies.get("refresh_token");
 
   if (!refreshToken) {

@@ -1,76 +1,86 @@
 from __future__ import annotations
+
 import asyncio
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, APIRouter
-from sqlalchemy import text
-from fastapi.middleware.cors import CORSMiddleware
-from prometheus_fastapi_instrumentator import Instrumentator
-import aio_pika
-from datetime import datetime, timezone
-from loguru import logger
+from datetime import UTC, datetime
 
-from app.config import settings
-from app.core.telemetry import setup_telemetry
-from app.core.exceptions import register_exception_handlers
-from app.core.middleware import (
-    SecurityHeadersMiddleware,
-    TimingMiddleware,
-    LoggingContextMiddleware,
-    RequestIDMiddleware
-)
-from app.core.idempotency import IdempotencyMiddleware
+import aio_pika
+from fastapi import APIRouter, FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from loguru import logger
+from prometheus_fastapi_instrumentator import Instrumentator
+from sqlalchemy import text
+
+import app.modules.approval_rules.models  # noqa: F401
+import app.modules.audit.models  # noqa: F401
+import app.modules.bid.models  # noqa: F401
+import app.modules.contract.models  # noqa: F401
+import app.modules.document.models  # noqa: F401
+import app.modules.evaluation.models  # noqa: F401
+import app.modules.grn.models  # noqa: F401
+import app.modules.integration.models  # noqa: F401
+import app.modules.invoice.models  # noqa: F401
+import app.modules.master_data.models  # noqa: F401
+import app.modules.notification.models  # noqa: F401
 
 # Import all module models so SQLAlchemy Base.metadata is fully populated
 import app.modules.organization.models  # noqa: F401
-import app.modules.user.models  # noqa: F401
-import app.modules.master_data.models  # noqa: F401
-import app.modules.vendor.models  # noqa: F401
+import app.modules.payment.models  # noqa: F401
+import app.modules.purchase_order.models  # noqa: F401
 import app.modules.requisition.models  # noqa: F401
 import app.modules.sourcing.models  # noqa: F401
-import app.modules.bid.models  # noqa: F401
-import app.modules.evaluation.models  # noqa: F401
-import app.modules.contract.models  # noqa: F401
-import app.modules.purchase_order.models  # noqa: F401
-import app.modules.grn.models  # noqa: F401
-import app.modules.invoice.models  # noqa: F401
-import app.modules.payment.models  # noqa: F401
-import app.modules.workflow.models  # noqa: F401
-import app.modules.approval_rules.models  # noqa: F401
-import app.modules.document.models  # noqa: F401
-import app.modules.notification.models  # noqa: F401
-import app.modules.audit.models  # noqa: F401
-import app.modules.integration.models  # noqa: F401
 import app.modules.ticket.models  # noqa: F401
+import app.modules.user.models  # noqa: F401
+import app.modules.vendor.models  # noqa: F401
+import app.modules.workflow.models  # noqa: F401
+from app.auth.router import router as auth_router
+from app.config import settings
+from app.core.exceptions import register_exception_handlers
+from app.core.idempotency import IdempotencyMiddleware
+from app.core.middleware import (
+    LoggingContextMiddleware,
+    RequestIDMiddleware,
+    SecurityHeadersMiddleware,
+    TimingMiddleware,
+)
+from app.core.telemetry import setup_telemetry
+from app.modules.admin.router import router as admin_router
+from app.modules.analytics.router import router as analytics_router
+from app.modules.approval_rules.router import router as approval_rules_router
+from app.modules.ai_sourcing.router import router as ai_sourcing_router
+from app.modules.asn.router import router as asn_router
+from app.modules.audit.router import router as audit_router
+from app.modules.award.router import router as award_router
+from app.modules.bid.auction_router import router as live_auction_router
+from app.modules.bid.auction_ws import auction_ws_endpoint
+from app.modules.bid.router import router as bid_router
+from app.modules.catalog.router import router as catalog_router
+from app.modules.compliance.router import router as compliance_router
+from app.modules.contract.router import router as contract_router
+from app.modules.developer.router import router as developer_router
+from app.modules.disaster_recovery.router import router as disaster_recovery_router
+from app.modules.document.router import router as document_router
+from app.modules.einvoicing.router import router as einvoicing_router
+from app.modules.evaluation.router import router as evaluation_router
+from app.modules.grn.router import router as grn_router
+from app.modules.integration.router import router as integration_router
+from app.modules.invoice.router import router as invoice_router
+from app.modules.master_data.router import router as master_data_router
+from app.modules.notification.router import router as notification_router
+from app.modules.notification.websocket import notification_ws_endpoint
 
 # Placeholder routers for dynamic import or manual definition
 from app.modules.organization.router import router as organization_router
-from app.modules.user.router import router as user_router
-from app.modules.master_data.router import router as master_data_router
-from app.modules.vendor.router import router as vendor_router
-from app.modules.requisition.router import router as requisition_router
-from app.modules.unmapped_pr.router import router as unmapped_pr_router
-from app.modules.sourcing.router import router as sourcing_router
-from app.modules.bid.router import router as bid_router
-from app.modules.evaluation.router import router as evaluation_router
-from app.modules.award.router import router as award_router
-from app.modules.contract.router import router as contract_router
-from app.modules.purchase_order.router import router as purchase_order_router
-from app.modules.grn.router import router as grn_router
-from app.modules.invoice.router import router as invoice_router
 from app.modules.payment.router import router as payment_router
-from app.modules.notification.router import router as notification_router
-from app.modules.document.router import router as document_router
-from app.modules.workflow.router import router as workflow_router
-from app.modules.approval_rules.router import router as approval_rules_router
-from app.modules.integration.router import router as integration_router
-from app.modules.analytics.router import router as analytics_router
-from app.modules.admin.router import router as admin_router
-from app.auth.router import router as auth_router
+from app.modules.purchase_order.router import router as purchase_order_router
+from app.modules.requisition.router import router as requisition_router
 from app.modules.sourcing.auction import auction_router
-from app.modules.bid.auction_router import router as live_auction_router
-from app.modules.bid.auction_ws import auction_ws_endpoint
-from app.modules.notification.websocket import notification_ws_endpoint
+from app.modules.sourcing.router import router as sourcing_router
 from app.modules.ticket.router import router as ticket_router
+from app.modules.unmapped_pr.router import router as unmapped_pr_router
+from app.modules.user.router import router as user_router
+from app.modules.vendor.router import router as vendor_router
+from app.modules.workflow.router import router as workflow_router
 
 _minio_health_client = None
 
@@ -79,6 +89,7 @@ def _get_minio_health_client():
     global _minio_health_client
     if _minio_health_client is None:
         from minio import Minio
+
         _minio_health_client = Minio(
             settings.MINIO_ENDPOINT,
             access_key=settings.MINIO_ACCESS_KEY,
@@ -86,7 +97,10 @@ def _get_minio_health_client():
             secure=settings.MINIO_USE_SSL,
         )
     return _minio_health_client
+
+
 # Note: audit has no router — it is a service-layer-only module
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -100,7 +114,7 @@ async def lifespan(app: FastAPI):
         logger.info("Connected to RabbitMQ")
     except Exception as e:
         logger.error(f"Failed to connect to RabbitMQ: {e}")
-        
+
     yield
     # Shutdown
     logger.info("Shutting down Procurement Portal...")
@@ -109,22 +123,26 @@ async def lifespan(app: FastAPI):
         logger.info("Closed RabbitMQ connection")
     try:
         from app.modules.audit.search_service import audit_search_service
+
         await audit_search_service.close()
         logger.info("Closed Elasticsearch audit search connection")
     except Exception as e:
         logger.debug(f"Elasticsearch cleanup: {e}")
     try:
         from app.modules.ticket.search_service import ticket_search_service
+
         await ticket_search_service.close()
         logger.info("Closed Elasticsearch ticket search connection")
     except Exception as e:
         logger.debug(f"Ticket search cleanup: {e}")
     try:
         from app.core.redis_client import close_redis_pools
+
         await close_redis_pools()
         logger.info("Closed Redis connection pools")
     except Exception as e:
         logger.debug(f"Redis pool cleanup: {e}")
+
 
 def create_app() -> FastAPI:
     app = FastAPI(
@@ -133,12 +151,13 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
         openapi_url="/api/v1/openapi.json",
         docs_url="/docs" if settings.DEBUG else None,
-        redoc_url="/redoc" if settings.DEBUG else None
+        redoc_url="/redoc" if settings.DEBUG else None,
     )
 
     @app.get("/openapi.json", include_in_schema=False)
     async def openapi_alias():
         from fastapi.responses import JSONResponse
+
         return JSONResponse(app.openapi())
 
     # Middleware order: Outermost first -> SecurityHeaders -> Timing -> LoggingContext -> RequestID -> Idempotency
@@ -174,7 +193,7 @@ def create_app() -> FastAPI:
 
     @app.get("/health")
     async def health_check():
-        return {"status": "ok", "version": settings.APP_VERSION, "timestamp": datetime.now(timezone.utc).isoformat()}
+        return {"status": "ok", "version": settings.APP_VERSION, "timestamp": datetime.now(UTC).isoformat()}
 
     @app.get("/health/ready")
     async def health_ready():
@@ -182,6 +201,7 @@ def create_app() -> FastAPI:
         overall = "ok"
         try:
             from app.db.session import engine
+
             async with engine.connect() as conn:
                 await conn.execute(text("SELECT 1"))
             checks["db"] = "ok"
@@ -191,6 +211,7 @@ def create_app() -> FastAPI:
 
         try:
             from app.core.redis_client import get_redis_client
+
             r = get_redis_client(settings.REDIS_SESSION_DB)
             await r.ping()
             checks["redis"] = "ok"
@@ -218,18 +239,19 @@ def create_app() -> FastAPI:
 
         status_code = 200 if overall == "ok" else 503
         from starlette.responses import JSONResponse as StarletteJSONResponse
+
         return StarletteJSONResponse(
             status_code=status_code,
             content={
                 "status": overall,
                 "checks": checks,
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
             },
         )
 
     @app.get("/health/live")
     async def health_live():
-        return {"status": "ok", "timestamp": datetime.now(timezone.utc).isoformat()}
+        return {"status": "ok", "timestamp": datetime.now(UTC).isoformat()}
 
     # Routers
     api_router = APIRouter(prefix="/api/v1")
@@ -247,6 +269,7 @@ def create_app() -> FastAPI:
     api_router.include_router(contract_router, prefix="/contracts")
     api_router.include_router(purchase_order_router, prefix="/purchase-orders")
     api_router.include_router(grn_router, prefix="/grn")
+    api_router.include_router(asn_router, prefix="/asns")
     api_router.include_router(invoice_router, prefix="/invoices")
     api_router.include_router(payment_router, prefix="/payments")
     api_router.include_router(notification_router, prefix="/notifications")
@@ -261,6 +284,13 @@ def create_app() -> FastAPI:
     api_router.include_router(auth_router, prefix="/admin/auth")
     api_router.include_router(auction_router)
     api_router.include_router(ticket_router, prefix="/tickets")
+    api_router.include_router(developer_router, prefix="/developer")
+    api_router.include_router(audit_router, prefix="/audit")
+    api_router.include_router(compliance_router, prefix="/compliance")
+    api_router.include_router(catalog_router, prefix="/catalog")
+    api_router.include_router(ai_sourcing_router, prefix="/ai-sourcing")
+    api_router.include_router(einvoicing_router, prefix="/einvoicing")
+    api_router.include_router(disaster_recovery_router, prefix="/disaster-recovery")
 
     app.include_router(api_router)
     app.include_router(live_auction_router, prefix="/api/v1")
@@ -268,5 +298,6 @@ def create_app() -> FastAPI:
     app.add_api_websocket_route("/ws/notifications", notification_ws_endpoint)
 
     return app
+
 
 app = create_app()

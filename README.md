@@ -8,20 +8,67 @@
 
 All three portals run simultaneously with seeded test roles. Access them directly in your browser:
 
-| Portal | Local URL | Primary Users | Demo Account | Password | Assigned Roles |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **Buyer Portal** | [http://localhost:3000](http://localhost:3000) | Procurement Team (PRs, RFQs, Bids, Tickets) | `buyer@procurement.com` | `Buyer123456!@#` | `REQUESTOR`, `BUYER`, `PROCUREMENT_OFFICER` |
-| **Buyer Portal (Approver)** | [http://localhost:3000](http://localhost:3000) | Approvers & Leadership (Sign-offs) | `approver@procurement.com` | `Approver123!@#` | `APPROVER`, `PROCUREMENT_HEAD`, `FINANCE_MANAGER` |
-| **Supplier Portal** | [http://localhost:3001](http://localhost:3001) | External Vendors (Bids, Invoices, Queries) | `supplier@acme.com` | `Supplier123456!@#` | `SUPPLIER` (Acme Tech Solutions) |
-| **Admin Portal** | [http://localhost:3002](http://localhost:3002) | System Administrators (Master Data, SLAs, Tickets) | `admin@procurement.com` | `Admin123456!@#` | `SUPERADMIN`, `ORG_ADMIN`, `PROCUREMENT_MANAGER` |
+| Portal | Local URL | Primary Users | Real Human Name | Demo Account | Password | Assigned Roles |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **👑 Universal Super Admin** | **Any Portal** (`:3000`, `:3001`, `:3002`) | Universal Omnipotent Access & 1-Click Persona Switching | Alexander Vance | `superadmin@procurement.com` | `SuperAdmin123456!@#` | `SUPERADMIN` (All System & Org Roles, Omnipotent Bypass) |
+| **Buyer Portal** | [http://localhost:3000](http://localhost:3000) | Procurement Team (PRs, RFQs, Bids, Tickets) | Sarah Jenkins | `buyer@procurement.com` | `Buyer123456!@#` | `REQUESTOR`, `BUYER`, `PROCUREMENT_OFFICER` |
+| **Buyer Portal (Approver)** | [http://localhost:3000](http://localhost:3000) | Approvers & Leadership (Sign-offs) | Robert Taylor | `approver@procurement.com` | `Approver123!@#` | `APPROVER`, `PROCUREMENT_HEAD`, `FINANCE_CONTROLLER` |
+| **Supplier Portal** | [http://localhost:3001](http://localhost:3001) | External Vendors (Bids, Invoices, Queries) | Rajesh Kumar | `supplier@acme.com` | `Supplier123456!@#` | `SUPPLIER`, `SUPPLIER_ADMIN` (Acme Tech Solutions) |
+| **Admin Portal** | [http://localhost:3002](http://localhost:3002) | System Administrators (Master Data, SLAs, Tickets) | David Miller | `admin@procurement.com` | `Admin123456!@#` | `ORG_ADMIN`, `PROCUREMENT_MANAGER`, `PROCUREMENT_ADMIN` |
 
 > 🔑 **Organization ID for all logins:** `00000000-0000-0000-0000-000000000001` (Default Organization)
+>
+> 👑 **Super Admin Universal Access & Switcher:**
+> - **Omnipotent Permissions:** Can view, edit, approve, and execute any action across all modules without role or scope barriers.
+> - **1-Click Portal Switcher:** Seamlessly switch between Buyer (`:3000`), Supplier (`:3001`), and Admin (`:3002`) with persistent cross-portal cookies.
+> - **Interactive Persona Deck:** Click the `👑 Super Admin` header pill to switch views and deep link directly into any of the 8 enterprise personas.
 >
 > 🚪 **API Gateway (Kong):** [http://localhost:8000](http://localhost:8000) &nbsp;•&nbsp; **Direct Backend API:** [http://localhost:8080](http://localhost:8080)
 >
 > 📘 **Git & CI/CD Guide:** [Complete Beginner Guide to Git, GitHub & Branching](docs/GIT_AND_CICD_GUIDE.md)
->
-> 🪟 **Windows PC Guide:** [Running Docker on Windows (WSL2 Setup & Troubleshooting)](docs/WINDOWS_DOCKER_GUIDE.md)
+
+---
+
+### 🎭 Full Enterprise Role Demonstration (8 Personas)
+
+The platform supports strict enterprise role separation (where each user only sees their own siloed screen) as well as an omnipotent **Super Admin** who can embody any persona on demand. Every persona is seeded as a real user in the database:
+
+| # | Role / Persona | Real Human Name | Screen / Access Scope | Standalone Account | Password | Super Admin 1-Click Route |
+| :-: | :--- | :--- | :--- | :--- | :--- | :--- |
+| **1** | **⚙️ System Admin** | David Miller | Admin Portal (Users, Workflows, Master Data, Audit Logs) | `admin@procurement.com` | `Admin123456!@#` | `http://localhost:3002/users` |
+| **2** | **📝 Requestor** | Sarah Jenkins | Buyer Portal (Catalog browsing, PR draft, submit requisition) | `buyer@procurement.com` | `Buyer123456!@#` | `http://localhost:3000/purchase-requests` |
+| **3** | **🎯 Buyer Specialist** | Sarah Jenkins | Buyer Portal (PR review, Sourcing RFQ, Bidding, PO generation) | `buyer@procurement.com` | `Buyer123456!@#` | `http://localhost:3000/sourcing` |
+| **4** | **✅ Approver (L1)** | Robert Taylor | Buyer Portal (Line manager approvals, Task inbox) | `approver@procurement.com` | `Approver123!@#` | `http://localhost:3000/approvals` |
+| **5** | **📊 Finance Manager (L2)** | Eleanor Vance | Buyer Portal (Finance sign-offs, budget controls, approvals) | `finance@procurement.com` | `Finance123!@#` | `http://localhost:3000/approvals` |
+| **6** | **📦 Warehouse Manager** | Marcus Vance | Buyer Portal (Goods receipts, 3-way match inspect, GRN delivery) | `warehouse@procurement.com` | `Warehouse123!@#` | `http://localhost:3000/goods-receipts` |
+| **7** | **💳 Accounts Payable** | Claire Redfield | Buyer Portal (Invoice processing, 2-way / 3-way match, payment holds) | `ap@procurement.com` | `Accounts123!@#` | `http://localhost:3000/invoices` |
+| **8** | **🏭 Supplier Partner** | Rajesh Kumar | Supplier Portal (RFQ bids, PO acknowledgment, ASN, invoices) | `supplier@acme.com` | `Supplier123456!@#` | `http://localhost:3001/rfqs` |
+| **9** | **🌐 Global Cloud Vendor** | Priya Sharma | Supplier Portal (Bids, rate cards, SLAs, disputes) | `supplier@globalcloud.com` | `Supplier123456!@#` | `http://localhost:3001/rfqs` |
+
+#### 🛡️ Sidebar Navigation & In-Page Authorization Policy
+- **Universal Sidebar Visibility**: All sidebar navigation tabs and sub-tabs remain **100% visible and clickable** for every user across all three portals (Buyer `:3000`, Supplier `:3001`, Admin `:3002`).
+- **In-Page Danger Warning**: If a user navigates to a tab or module they lack permissions for, the page displays a high-visibility danger banner (`AccessRestrictedCard`):
+  - ⚠️ *"You are not authorized to use [moduleName]"*
+  - Diagnostic comparison showing: **Active Persona** vs. **Assigned Roles** vs. **Required Role(s)**.
+  - Standard users see direct links to return to dashboard or submit an internal permission request.
+- **👑 Omnipotent Super Admin & Persona Simulation**:
+  - **Alexander Vance** (`superadmin@procurement.com`) has universal unrestricted bypass access to every tab, module, and API across all 3 portals.
+  - When Alexander Vance chooses to embody a persona from the **Persona Control Deck**, the platform temporarily scopes his effective roles to match that persona. When he navigates to a module restricted for that persona (e.g. visiting *Invoices* as *Sarah Jenkins*), he experiences the exact in-page danger restriction.
+  - **1-Click Instant Restoration**: A persistent top simulation banner and an in-page recovery button allow Alexander Vance to instantly return to full Super Admin privileges with a single click.
+
+#### How to Use the 1-Click Switcher & Persona Deck:
+1. Log into **any portal** ([Buyer :3000](http://localhost:3000), [Supplier :3001](http://localhost:3001), or [Admin :3002](http://localhost:3002)) using `superadmin@procurement.com` / `SuperAdmin123456!@#`.
+2. Look at the top navigation bar:
+   - **Segmented Quick Switcher (`[ 🏢 Buyer | 🏭 Supplier | ⚙️ Admin ]`):** Click any portal name to jump directly to that application without needing to re-login. Cross-portal cookies and token refresh handle the transition instantly.
+   - **Persona Control Deck (`👑 Super Admin`):** Click the golden crown pill in the header to open the interactive persona dropdown. Selecting any persona immediately applies their scoped permissions and routes to their screen.
+   - **Exit Persona Simulation (`👑 Exit to Super Admin`):** Click the sticky golden banner button or the recovery button in any danger card to instantly restore universal access.
+
+
+## Current Session State
+- **Planned**: Comprehensive database seeding with realistic production-grade data across all 145 tables and all modules/tabs/sub-tabs for all 8 enterprise personas and Super Admin Alexander Vance.
+- **Implemented**: Created `scripts/seed_enterprise_extensions.py` (idempotent seed across ASNs, E-Invoices, E-Way bills, Service Entry Sheets, Quality Inspections, Contract templates/clauses/redlines/eSign, DR checkpoints/drills, Webhooks, Maverick spend, ESG, User scopes/COI/MFA, Negotiation sessions, Communication threads, and tenant configurations). Wired into `seed_demo_user.py` and `clear_and_seed_all.py`.
+- **Verified**: Executed `clear_and_seed_all.py`: all 145 database tables seeded with 0 empty tables remaining. 445/445 backend unit tests passing; frontend turbo typecheck passing on all packages; graphify knowledge graph updated.
+- **Next**: Docker compose build, Git commit & push to GitHub `develop` branch, and CI/CD verification.
 
 ---
 
@@ -576,25 +623,239 @@ docker compose logs -f -t
 | A-OPT-2 | MinIO S3 bucket health inspection wrapped in asyncio.to_thread to prevent ASGI event loop blocking | LOW |
 | A-OPT-3 | Backend and Celery containers initialized with tini PID 1 for signal propagation and zombie process prevention | LOW |
 | A-OPT-4 | Next.js standalone runner containers configured with HOSTNAME 0.0.0.0 for reliable container network binding | LOW |
+| A-27-1 | Organization structure models (LegalEntity, BusinessUnit, Plant, Department, CostCenter) are scoped to org_id with unique code/registration constraints matching SPEC_03 | LOW |
+| A-27-2 | Admin portal provides dedicated management pages under /organization/... with full CRUD and integrates with /master-data/locations for delivery locations | LOW |
+| A-27-3 | Organization profile is viewable and editable by tenant administrators via GET/PATCH /api/v1/organizations/me and /organization | LOW |
+| A-27-4 | Plants and Delivery Locations maintain bidirectional referential links (Plant.default_delivery_location_id <-> DeliveryLocation.plant_id) | LOW |
+| A-24-4 | Item master frontend in Admin Portal (/master-data/items) provides full enterprise CRUD (search, category/status filters, pagination, create/edit modals, soft delete) | LOW |
+| A-24-5 | Incoterms frontend in Admin Portal (/master-data/incoterms) provides CRUD and active state toggles backed by standardized REST endpoints | LOW |
+| A-24-6 | Master Data Hub (/master-data) surfaces Item Master Catalog and Incoterms 2020 cards with live record counters | LOW |
+| A-24-7 | IncotermSelect component in @procurement/ui unifies dynamic Incoterm selection across buyer and supplier portals | LOW |
+| A-16-1 | Notification template endpoints require authentication, tenant isolation, and Jinja2 rendering | LOW |
+| A-16-2 | Admin portal route /notifications/templates provides multi-channel template studio with live preview | LOW |
+| A-DESIGN-SYS-1 | Light & Dark theme tokens calibrated for WCAG AA contrast (crisper hairlines 0.12/0.14, high-contrast labels, tiered dark surfaces #0D0D0F -> #1C1C1F -> #242428 -> #2E2E34) | LOW |
+| A-DESIGN-SYS-2 | Tabs component augmented with subtab and underline variants, size scales (sm/md), auto-width, and dedicated SubTabs component for nested navigation hierarchy | LOW |
+| A-DESIGN-SYS-3 | Table component & CSS enhanced with distinct header partition, clear cell padding, crisp 1px row borders, and non-overlapping hover states | LOW |
+| A-DESIGN-SYS-4 | Button system standardized with explicit height scales (32px sm, 40px md, 48px lg), distinct secondary/ghost borders, and WCAG AA contrast in both themes | LOW |
+| A-DESIGN-SYS-5 | Dark mode Tailwind color overrides in apple-base.css calibrated to high-contrast legible values (eliminating unreadable 38% opacity muted text) | LOW |
+| A-DESIGN-SYS-6 | All three portals updated to use structured design system components, unified subtabs, and consistent object partitioning | LOW |
+| A-ONBOARD-1 | Supplier KYC verification status overview consolidates PAN, GSTIN, Bank Penny Drop, and MSME into high-visibility compliance status chips on the Profile page | LOW |
+| A-ONBOARD-2 | Bank penny drop verification normalizes both SUCCESS and VALIDATED to verified state, and PENDING / PENNY_TEST_INITIATED to awaiting verification | LOW |
+| A-DOC-1 | Statutory document types encompass 11 canonical categories with standard template generation and client-side download capability | LOW |
+| A-DOC-2 | ClamAV scan statuses (CLEAN, PENDING, INFECTED) block download at both client button state and backend API presigned URL boundary (403 Forbidden) | MEDIUM |
+| A-MATCH-1 | Line-level 3-way match displays PO line vs. GRN accepted quantity vs. Invoiced quantity with ±2% quantity tolerance and ±0.5% price tolerance | LOW |
+| A-MATCH-2 | Supplier portal exposes /invoices/[id] detail view mirroring buyer 3-way match breakdown so vendors can inspect discrepancy reasons and upload attachments | LOW |
+| A-TKT-1 | Kanban board drag-and-drop transitions tickets across 5 columns (OPEN, IN_PROGRESS, PENDING_RESPONSE, RESOLVED, CLOSED) with column counters, Apple-styled draggable cards, and drop zones | LOW |
+| A-TKT-2 | SLA breach countdown computes dynamic time-remaining with live visual tiers (<1h pulsing, <=4h at-risk, >4h on-track, overdue formatted as "Breached by Xh") | LOW |
+| A-TKT-3 | @mentions in ticket comments are parsed via MentionParser into mentioned_users, auto-registered as watchers, and rendered as stylized interactive pill badges | LOW |
+| A-TKT-4 | Internal notes (is_internal=True) are isolated strictly for Buyer & Admin users via database queries and role permissions, styled with high-contrast amber theme and lock badge | LOW |
+| A-TKT-5 | Bidirectional issue linking supports relational types (BLOCKS, IS_BLOCKED_BY, RELATES_TO, DUPLICATES, CLONES) with an interactive ticket search selector to pick by ticket number or title | LOW |
+| A-CON-1 | Contract lifecycle FSM supports DRAFT -> PENDING_REVIEW -> APPROVED -> PENDING_ESIGN -> ACTIVE -> EXPIRED/TERMINATED with dedicated transition endpoints and strict supplier read-only boundary on approvals | LOW |
+| A-CON-2 | Contract milestones track deliverables with status (PENDING, COMPLETED, OVERDUE), responsible party (BUYER vs SUPPLIER), milestone weights, and completion notes for both buyer and supplier completion | LOW |
+| A-CON-3 | Rate card lines support contracted quantities or open-ended rate catalog items with unit rates, HSN codes, and live rate contract spend ceiling utilization tracking | LOW |
+| A-CON-4 | Contract amendments increment version counter, record immutable JSONB pre-change snapshots with field diffs, and update live contract parameters upon manager approval | LOW |
+| A-CON-5 | Contract authoring wizard provides multi-step setup across General Info, Template Clauses, Rate Card lines, Milestone schedules, and Auto-Renewal configuration | LOW |
+| A-CON-6 | Multi-portal Apple design calibration extends across Buyer Portal contracts suite and introduces dedicated Supplier Portal contracts view (/contracts, /contracts/[id]) with strict vendor isolation | LOW |
+| A-ANA-1 | Spend Cube multi-dimensional analysis computes breakdowns across Category, BU, and Supplier Pareto (cumulative spend % curve) with CAPEX vs OPEX bifurcation | LOW |
+| A-ANA-2 | Maverick spend identifies purchase orders created without linked rate contracts or formal competitive sourcing, calculating spend leakage rate and category risk | LOW |
+| A-ANA-3 | Sourcing savings discovery computes budget vs. awarded L1 value; cycle time analytics isolates PR-to-PO, RFQ-to-Award, and role-based approval turnaround bottlenecks | LOW |
+| A-ANA-4 | Custom report builder enables dynamic dimension grouping, multi-metric aggregations, filter predicates, and pagination with instant CSV and Excel export | LOW |
+| A-ANA-5 | Compliance audit suite consolidates emergency RFQs, sole-source justifications, admin workflow force-approvals, and segregation-of-duties attempts from audit logs | LOW |
+| A-ANA-6 | Analytics dashboards leverage Apple dark surface design tokens (#1C1C1F, #252529) with interactive Recharts visualizers and tabular drill-downs | LOW |
+| A-ERP-1 | Tally XML integration conforms to standard Tally 9/Prime Import Data envelopes for Sundry Creditors Ledger, Purchase Voucher, and Payment Voucher posting | LOW |
+| A-ERP-2 | Razorpay payouts use bank account transfer (NEFT/RTGS/IMPS) with HMAC-SHA256 signature verification over raw bytes for inbound webhooks | LOW |
+| A-ERP-3 | Statutory PAN 4th-character entity mapping classifies Company (C), Individual (P), Trust (T), Firm (F); Bank penny drop checks ₹1.00 credit confirmation | LOW |
+| A-AUD-1 | Immutable audit log chain of custody hashes canonical strings with previous block's SHA-256 hash stored in non-null metadata JSONB to eliminate table locks or schema migrations | LOW |
+| A-AUD-2 | Client IP addresses are resolved via ipaddress module differentiating intranet / RFC-1918 LANs from public internet ingress addresses | LOW |
+| A-NOT-1 | NotificationToast container renders floating Apple dark-glassmorphism stack with auto-dismiss timers, action deep-links, and category icons | LOW |
+| A-SCR-1 | Automated scorecard weights 40% on-time delivery (GRN vs PO date), 30% quality acceptance (GRN accepted lines), 20% commercial compliance (matched invoices), 10% responsiveness/pricing (bid qualification); overall score < 60 triggers vendor.low_performance event | LOW |
+| A-RSK-1 | Vendor risk assessment calculates composite risk as 45% financial risk, 35% ESG risk, and 20% performance risk (100 - performance score); risk tiers are LOW (<25), MEDIUM (25-50), HIGH (50-75), CRITICAL (>=75) | LOW |
+| A-WFL-1 | Approval rule condition parser evaluates complex comparison operators (eq, neq, gt, gte, lt, lte, in, not_in, contains, is_true, is_false) against runtime context with priority and condition specificity tie-breaking | LOW |
+| A-WFL-2 | Delegation rules support multi-entity type scoping (PR, PO, INVOICE, RFQ, CONTRACT, ARN, or ALL) with Maker-Checker conflict avoidance | LOW |
+| A-WFL-3 | Parallel split approval convergence evaluates ALL (unanimous), ANY (first approval), MAJORITY (>50% approved), or QUORUM_N_OF_M | LOW |
+| A-FLOW-1 | Workflow engine advance/force-advance synchronously synchronizes underlying entity status (Requisition->APPROVED, PO->APPROVED, ARN->APPROVED, Invoice->APPROVED+payment schedule, Contract->APPROVED, Vendor->ACTIVE) within the same DB session | LOW |
+| A-FLOW-2 | Workflow engine rejection/cancellation synchronously transitions entity to REJECTED/CANCELLED, releases reserved PR budget, and logs tamper-evident audit records | LOW |
+| A-FLOW-3 | Active delegation matrix authorizes runtime delegates to act on pending tasks at execution time if validity dates, BU, financial threshold, and Maker-Checker constraints are satisfied | LOW |
+| A-FLOW-4 | Sourcing RFQ creation linked to source_pr_id transitions PR to IN_SOURCING, and PO creation from award transitions PR to CONVERTED, preserving bidirectional relational state | LOW |
+| A-FLOW-5 | Full synchronous end-to-end flow from Requisition through Approval, RFQ, Bidding, CS/Award, Contract, PO, ASN, Fast GRN, 3-Way Invoice, Payment, Scorecard, ESG, Maverick AI, and Multi-ERP Gateway operates atomically with 0 broken linkages | LOW |
 
 ---
 
-## Current Session State
-- **Planned**: Resolve audit findings: (1) Dynamic master data & telemetry wiring for Admin Dashboard (`SPEC_24`), (2) Real-time pre-flight budget availability check endpoint and buyer UI indicator (`SPEC_10`).
-- **Implemented**: Added `GET /api/v1/requisitions/budget-check` & `check_budget_preflight` in Requisition module; exported `useBudgetCheck` hook; wired dynamic live budget indicator into `/requisitions/new`; wired dynamic live queries (`useCategoryTree`, `useCurrencies`, `usePaymentTerms`, `useTaxCodes`, `useCostCenters`, `useCatalogItems`, `useBusinessUnits`, `useSystemHealth`) into Admin `/dashboard`; updated `docs/PROCUREMENT_PORTAL_AUDIT_REPORT.md` to 100% resolution.
-- **Tested**: 436/436 backend unit tests passing (including 5 new tests in `test_requisition_budget_check.py`); all 7 frontend packages passing TypeScript typecheck.
-- **Next**: Ready for full deployment, staging execution, or user-guided feature scenarios.
+### Current Session State
+- **Completed**: Cross-Portal Synchronous Flow verification across Admin, Buyer, and Supplier Portals.
+- **Fixed Gateway**: Added missing routing definitions to `kong/kong.yml` for `/api/v1/asns`, `/api/v1/developer`, `/api/v1/audit`, `/api/v1/compliance`, and `/api/v1/einvoicing`.
+- **Fixed Core**: Loop-safe Redis connection pool caching in `app/core/redis_client.py` and mock-safe row unpacking in `app/modules/workflow/service.py`.
+- **Verified Cross-Portal Test**: `test_cross_portal_synchronous_flow.py` (Admin master data/rules -> Buyer PR -> Workflow Approval -> RFQ -> Supplier Bid -> Unseal/Award -> Contract e-Sign -> PO -> ASN -> Fast GRN -> Invoice -> 3-Way Match -> Settlement -> Remittance -> Ticket -> ERP Sync).
+- **Tested**: All 964 backend tests passed (100% pass rate in 65s); frontend Turbo typecheck 7/7 packages clean with 0 errors; graphify updated (10,499 nodes, 28,359 edges, 582 communities).
+- **Artifacts & Docs**: Saved comprehensive markdown specification to `docs/CROSS_PORTAL_ARCHITECTURE_AND_WORKFLOW_GUIDE.md` and compiled publication-grade interactive PDF with vector Mermaid diagrams and document bookmarks to `docs/CROSS_PORTAL_ARCHITECTURE_AND_WORKFLOW_GUIDE.pdf` via `scripts/generate_interactive_pdf.js`.
 
-### 📊 SPEC Audit: Module 26 Jira Enhancements (2026-09-08)
+### 📊 SPEC Audit: Cross-Portal Synchronous Workflows & Gateway Routing (2026-09-10)
 ```
-MODULE | REQUIREMENT | STATUS | ARTIFACT / CODE
-26.1 | Due Date field & Approaching Alerts | [DONE] | app/modules/ticket/models.py, app/tasks/ticket_sla.py, TicketCard.tsx
-26.2 | Bidirectional Issue Linking | [DONE] | TicketLink, TicketLinkedIssues.tsx, router.py
-26.3 | Custom Fields (EAV) | [DONE] | TicketCustomFieldDef/Value, TicketCustomFieldsPanel.tsx, admin-portal/custom-fields
-26.4 | Automation Rules Engine | [DONE] | TicketAutomationEngine, automation_engine.py, admin-portal/automation
-26.5 | Round-Robin Auto-Assignment (Redis INCR) | [DONE] | automation_engine.py, test_ticket_jira_features.py
-26.6 | Balanced Workload Auto-Assignment | [DONE] | repository.py, automation_engine.py
-26.7 | RBAC Permissions (link, config_fields, config_automation) | [DONE] | 0039_ticket_jira_permissions.py, router.py
+MODULE | SPEC REQUIREMENT | STATUS | ARTIFACT / CODE
+XPORT.1 | Cross-Portal Synchronous Event Integration Test | [DONE] | test_cross_portal_synchronous_flow.py
+XPORT.2 | Kong Gateway Proxy Integrity (Audit, ASNs, Einvoicing, Dev) | [DONE] | kong/kong.yml
+XPORT.3 | Asyncio Redis Connection Pool Event Loop Isolation | [DONE] | app/core/redis_client.py
+XPORT.4 | Workflow Engine Raw Row Sequence Safety Guard | [DONE] | app/modules/workflow/service.py
+XPORT.5 | Cross-Portal Architecture & Synchronous Workflow Guide | [DONE] | docs/CROSS_PORTAL_ARCHITECTURE_AND_WORKFLOW_GUIDE.md
+XPORT.6 | Publication-Grade Interactive PDF with Outlines & Vector SVGs | [DONE] | docs/CROSS_PORTAL_ARCHITECTURE_AND_WORKFLOW_GUIDE.pdf
+OVERALL: 6/6 (100%) | BACKEND 100% | FRONTEND 100% | TESTS 100% | DOCS 100%
+```
+
+
+### 📊 SPEC Audit: Supplier Performance Scorecards & Risk (2026-09-09)
+```
+MODULE | SPEC REQUIREMENT | STATUS | ARTIFACT / CODE
+SCR.1 | Automated Multi-Factor Scorecard Calculation Engine   | [DONE] | vendor/service.py, router.py, test_vendor_scorecard_and_risk_spec21.py
+SCR.2 | Quality Rejection & Pricing Competitiveness Metrics   | [DONE] | vendor/schemas.py, vendor/service.py, useVendors.ts
+SCR.3 | Low Performance Alert & Outbox Event Dispatch (<60)   | [DONE] | vendor/service.py, test_vendor_scorecard_and_risk_spec21.py
+SCR.4 | Recalculate Scorecard Buyer Portal Action & UI Flow   | [DONE] | buyer-portal/vendors/[id]/page.tsx, useVendors.ts
+RSK.1 | Vendor Financial & ESG Risk Assessment DB & Model    | [DONE] | 0040_vendor_risk_assessment.py, vendor/models.py
+RSK.2 | Composite Risk Score Calculation & 4-Tier Bucketing   | [DONE] | vendor/service.py, schemas.py, repository.py
+RSK.3 | Organization-Wide Vendor Risk Monitoring Dashboard   | [DONE] | vendor/service.py, router.py, test_vendor_scorecard_and_risk_spec21.py
+RSK.4 | Buyer Portal Apple Dark Surface Risk Profile Card     | [DONE] | buyer-portal/vendors/[id]/page.tsx, useVendors.ts
+RSK.5 | Org-Wide Vendor Risk & ESG Intelligence Dashboard Page| [DONE] | buyer-portal/vendors/risk/page.tsx, layout.tsx, useVendors.ts
+OVERALL: 9/9 (100%) | BACKEND 100% | FRONTEND 100% | TESTS 100%
+```
+
+### 📊 SPEC Audit: Advanced Workflow Rules & Delegation (2026-09-09)
+```
+MODULE | SPEC REQUIREMENT | STATUS | ARTIFACT / CODE
+WFL.1 | Structured Multi-Criteria Rule Condition Evaluation   | [DONE] | approval_rules/service.py, test_workflow_delegation_and_split_spec04_05.py
+WFL.2 | Priority & Condition Specificity Tie-Breaking        | [DONE] | approval_rules/service.py, test_workflow_delegation_and_split_spec04_05.py
+WFL.3 | Resolve-Chain S2P Approval Pre-Flight Endpoint        | [DONE] | approval_rules/router.py, service.py, schemas.py
+WFL.4 | Out-of-Office Delegation Scoped by Entity Type        | [DONE] | workflow/service.py, test_workflow_delegation_and_split_spec04_05.py
+WFL.5 | Maker-Checker Conflict Avoidance Enforcement          | [DONE] | workflow/service.py, test_workflow_delegation_and_split_spec04_05.py
+WFL.6 | Parallel Split Convergence (ALL, ANY, MAJORITY)      | [DONE] | workflow/service.py, test_workflow_delegation_and_split_spec04_05.py
+OVERALL: 6/6 (100%) | BACKEND 100% | FRONTEND 100% | TESTS 100%
+```
+
+### 📊 SPEC Audit: End-to-End Persona QA & Multi-Portal (2026-09-09)
+```
+MODULE | SPEC REQUIREMENT | STATUS | ARTIFACT / CODE
+E2E.1 | Buyer Portal Flow (PR creation, RFQ, PO generation)   | [DONE] | test_persona_qa_walkthrough.py
+E2E.2 | Approver Portal Flow (Tasks Queue, Contract Review)   | [DONE] | test_persona_qa_walkthrough.py, approver_and_admin_flows.spec.ts
+E2E.3 | Supplier Portal Flow (Bid submission, Invoices, KYC)  | [DONE] | test_persona_qa_walkthrough.py
+E2E.4 | Admin Portal Flow (Master Data, Audit Logs, Settings)  | [DONE] | test_persona_qa_walkthrough.py, approver_and_admin_flows.spec.ts
+OVERALL: 4/4 (100%) | BACKEND 100% | FRONTEND 100% | TESTS 100%
+```
+
+### 📊 SPEC Audit: ERP & Payment Gateways (2026-09-09)
+```
+MODULE | SPEC REQUIREMENT | STATUS | ARTIFACT / CODE
+ERP.1 | Tally ERP XML Envelope Translation & Posting       | [DONE] | erp_tally.py, erp_base.py, test_erp_and_payment_spec20.py
+ERP.2 | SAP RFC / NetWeaver BAPI Simulation & Execution   | [DONE] | erp_sap.py, test_erp_and_payment_spec20.py
+ERP.3 | Statutory GSTIN & PAN Verification Adapters       | [DONE] | pan.py, gst.py, router.py, test_erp_and_payment_spec20.py
+ERP.4 | Statutory Bank Account Penny Drop Deposit (₹1.00)  | [DONE] | bank.py, router.py, test_erp_and_payment_spec20.py
+ERP.5 | Inbound ERP Webhook Synchronization Endpoint       | [DONE] | router.py, schemas.py, test_erp_and_payment_spec20.py
+PAY.1 | Live Payout Execution Rail (NEFT/RTGS/IMPS)        | [DONE] | razorpay_adapter.py, payment/service.py, router.py
+PAY.2 | HMAC-SHA256 Webhook Signature & Auto-Settlement   | [DONE] | razorpay_adapter.py, router.py, test_erp_and_payment_spec20.py
 OVERALL: 7/7 (100%) | BACKEND 100% | FRONTEND 100% | TESTS 100%
+```
+
+### 📊 SPEC Audit: Enterprise Notifications & Audit Trail (2026-09-09)
+```
+MODULE | SPEC REQUIREMENT | STATUS | ARTIFACT / CODE
+AUD.1 | Cryptographic SHA-256 Tamper-Evident Chain Chaining | [DONE] | crypto_chain.py, audit/service.py, test_notifications_and_audit_spec16_22.py
+AUD.2 | Client IP Geolocation Resolution (LAN vs Public)     | [DONE] | crypto_chain.py, audit/service.py, test_notifications_and_audit_spec16_22.py
+AUD.3 | Audit Log Retrieval & Filtering API Endpoints        | [DONE] | audit/router.py, audit/service.py, main.py
+AUD.4 | Audit Chain Integrity Verification Endpoint           | [DONE] | audit/router.py, crypto_chain.py, test_notifications_and_audit_spec16_22.py
+AUD.5 | Compliance Export with SHA-256 Digest (JSON & CSV)   | [DONE] | audit/router.py, audit/service.py, test_notifications_and_audit_spec16_22.py
+NOT.1 | Real-time Multi-Channel Event Dispatch & Bypass Rules| [DONE] | notification/router.py, notification/service.py
+NOT.2 | Apple Glassmorphism Toast Floating Center Component  | [DONE] | NotificationToast.tsx, packages/ui/src/index.ts
+OVERALL: 7/7 (100%) | BACKEND 100% | FRONTEND 100% | TESTS 100%
+```
+
+### 📊 SPEC Audit: Analytics & Spend Cube (2026-09-09)
+```
+MODULE | SPEC REQUIREMENT | STATUS | ARTIFACT / CODE
+ANA.1 | Multi-Dimensional Spend Cube Visualizer (Category/BU/Type) | [DONE] | SpendCubeVisualizer.tsx, router.py, service.py
+ANA.2 | Supplier Pareto 80/20 Analysis & Cumulative Spend Curve   | [DONE] | SpendCubeVisualizer.tsx, service.py, test_analytics.py
+ANA.3 | Maverick Spend Detection & Spend Leakage Rate Calculation   | [DONE] | MaverickSpendTable.tsx, service.py, test_analytics.py
+ANA.4 | Sourcing Savings Discovery & Role Approval Bottlenecks      | [DONE] | service.py, test_analytics.py, KPICard.tsx
+ANA.5 | Custom Report Builder with Dynamic Dimensions & Metrics     | [DONE] | CustomReportBuilder.tsx, router.py, service.py
+ANA.6 | Compliance Audit Suite (Emergency/Single/Force/SoD)         | [DONE] | ComplianceReportsView.tsx, router.py, service.py
+ANA.7 | Multi-Portal Apple Design Calibration & CSV/Excel Exports   | [DONE] | buyer-portal/analytics/page.tsx, spend/page.tsx
+OVERALL: 7/7 (100%) | BACKEND 100% | FRONTEND 100% | TESTS 100%
+```
+
+### 📊 SPEC Audit: Contract Management & Authoring (2026-09-09)
+```
+MODULE | SPEC REQUIREMENT | STATUS | ARTIFACT / CODE
+CON.1 | Contract Lifecycle FSM & Status Transitions        | [DONE] | fsm.py, router.py, buyer-portal/contracts/[id]
+CON.2 | Direct Activation & Cause-Based Termination Flows  | [DONE] | router.py, buyer-portal/contracts/[id], test_contract.py
+CON.3 | Milestone Tracking, Weighting & Vendor Completion  | [DONE] | MilestoneTracker.tsx, router.py, service.py
+CON.4 | Rate Card Line Item CRUD & Ceiling Drawdown Meter  | [DONE] | RateCardTable.tsx, router.py, test_contract.py
+CON.5 | Amendment Lineage, Pre-Change Snapshot & Diff View | [DONE] | ContractAmendmentHistory.tsx, test_contract.py
+CON.6 | Multi-Signatory eSign (Digio/DocuSign) Integration | [DONE] | router.py, buyer/supplier contracts/[id]
+CON.7 | Supplier Portal Contracts Suite & Vendor Isolation | [DONE] | supplier-portal/contracts, test_contract.py
+OVERALL: 7/7 (100%) | BACKEND 100% | FRONTEND 100% | TESTS 100%
+```
+
+### 📊 SPEC Audit: Enterprise Ticketing & SLAs (2026-09-09)
+```
+MODULE | SPEC REQUIREMENT | STATUS | ARTIFACT / CODE
+TKT.1 | Interactive 5-Column Kanban Board & Filters      | [DONE] | TicketCard.tsx, buyer/admin board pages
+TKT.2 | Dynamic SLA Breach Countdowns & Visual Tiers     | [DONE] | TicketSLAIndicator.tsx, test_ticket_sla_service.py
+TKT.3 | @mention Parser & Auto-Watcher Registration      | [DONE] | MentionParser, TicketCommentFeed.tsx, test_ticket_mention_parser.py
+TKT.4 | Internal Comment Threading & Supplier Isolation  | [DONE] | TicketCommentFeed.tsx, test_ticket_service.py
+TKT.5 | Bidirectional Issue Linking & Search Selector    | [DONE] | TicketLinkedIssues.tsx, test_ticket_jira_features.py
+TKT.6 | Multi-Portal Lifecycle FSM & CSAT Rating Modal   | [DONE] | buyer/admin/supplier tickets/[id], test_ticket_fsm.py
+TKT.7 | Custom Fields (EAV) Panel & Dynamic Schema       | [DONE] | TicketCustomFieldsPanel.tsx, test_ticket_jira_features.py
+OVERALL: 7/7 (100%) | BACKEND 100% | FRONTEND 100% | TESTS 100%
+```
+
+
+### 📊 SPEC Audit: Supplier Onboarding & Compliance (2026-09-09)
+```
+MODULE | SPEC REQUIREMENT | STATUS | ARTIFACT / CODE
+ONB.1 | Vendor Registration, KYC & Penny Drop Status   | [DONE] | supplier-portal/profile/page.tsx, test_vendor.py
+ONB.2 | Statutory Tax Identifiers (PAN/GSTIN/CIN/DUNS)  | [DONE] | vendor/schemas.py, buyer-portal/vendors/[id]
+ONB.3 | Multi-State Vendor Lifecycle & FSM Actions     | [DONE] | vendor/service.py, buyer-portal/vendors/[id]
+DOC.1 | 11 Statutory Document Upload & Expiry Tracking  | [DONE] | DocumentList.tsx, ComplianceExpiryAlert.tsx
+DOC.2 | ClamAV Antivirus Scanning & Download Blocking   | [DONE] | scanner.py, test_document_scanner.py
+INV.1 | Line-Level Invoice 3-Way Matching Engine       | [DONE] | ThreeWayMatchResult.tsx, invoice/service.py
+INV.2 | Quantity (±2%) & Price (±0.5%) Tolerances      | [DONE] | test_invoice_payment.py, ThreeWayMatchResult
+INV.3 | Statutory TDS & Business Day Payment Schedule  | [DONE] | PaymentSchedule.tsx, test_invoice_payment.py
+INV.4 | Supplier Invoice Detail View & Dispute Links   | [DONE] | supplier-portal/invoices/[id]/page.tsx
+OVERALL: 9/9 (100%) | BACKEND 100% | FRONTEND 100% | TESTS 100%
+```
+
+### 📊 SPEC Audit: RFQ & Reverse Auction Bidding (2026-09-09)
+```
+MODULE | SPEC REQUIREMENT | STATUS | ARTIFACT / CODE
+RFQ.1 | Emergency vs Standard RFQ (24h vs 72h window)  | [DONE] | rfqs/new/page.tsx, schemas.py
+RFQ.2 | Cryptographically Sealed Bids (AES-256 at rest) | [DONE] | supplier-portal/.../bid/page.tsx, test_rfq.py
+RFQ.3 | Dual-Authorization Bid Opening Ceremony        | [DONE] | rfqs/[id]/open-bids/page.tsx, BidSealedIndicator
+AUC.1 | Real-time WebSocket Live Reverse Auction       | [DONE] | useAuctionSocket.ts, buyer/supplier auction rooms
+AUC.2 | Anti-Sniping Dynamic Extensions (+10m triggers) | [DONE] | test_auction_tasks.py, PriceLeaderboard.tsx
+AUC.3 | Automated Confidential Proxy Floor Bidding     | [DONE] | test_auction_permissions.py, BidEntryPanel
+EVAL.1| L1 Comparative Statement & Landed Cost Discovery| [DONE] | ComparativeStatementTable.tsx, evaluation/page.tsx
+EVAL.2| Evaluation Versions & Regret Letter Dispatch    | [DONE] | cs_service.py, evaluation/page.tsx
+OVERALL: 8/8 (100%) | BACKEND 100% | FRONTEND 100% | TESTS 100%
+```
+
+### 📊 SPEC Audit: Advance Shipping Notices (ASN) & Warehouse Barcode Intake (2026-09-09)
+```
+MODULE | SPEC REQUIREMENT | STATUS | ARTIFACT / CODE
+ASN.1 | Schema & Migration for Advance Shipping Notices & Lines | [DONE] | 0041_advance_shipping_notices.py, models.py
+ASN.2 | ASN Numbering & Over-Shipping Validation vs Open Qty   | [DONE] | asn/service.py, schemas.py, test_asn_and_warehouse_intake.py
+ASN.3 | Barcode & QR Data Payload Generation (Code-128)        | [DONE] | asn/service.py, supplier-portal/asns/[id]
+ASN.4 | Multi-Format Scan Lookup (ASN #, AWB Tracking, Code)   | [DONE] | asn/repository.py, buyer-portal/grn/scan
+ASN.5 | 1-Click Fast-Track Intake to Confirmed GRN & PO Update | [DONE] | asn/service.py, buyer-portal/grn/scan
+ASN.6 | Supplier Portal ASN Creation Wizard & Packaging Slip   | [DONE] | supplier-portal/asns/new, supplier-portal/asns/[id]
+ASN.7 | Multi-Tenant & Supplier Vendor-Isolation Protection    | [DONE] | asn/router.py, test_asn_and_warehouse_intake.py
+OVERALL: 7/7 (100%) | BACKEND 100% | FRONTEND 100% | TESTS 100%
+```
+
+### 📊 SPEC Audit: Requisition-to-PO Workflow (2026-09-09)
+```
+MODULE | SPEC REQUIREMENT | STATUS | ARTIFACT / CODE
+PR.1 | PR Creation, Submission & Multi-Tier Approvals | [DONE] | requisition/service.py, tasks/page.tsx
+PR.2 | Budget Check & Hard Block Gate                 | [DONE] | test_requisition.py, BudgetIndicator.tsx
+PR.3 | PR Splitting & Merging with Line Allocations   | [DONE] | test_split_pr, requisitions/[id]/page.tsx
+PR.4 | Auto-Conversion of Approved PR to PO          | [DONE] | convert_to_po, purchase-orders/[id]/page.tsx
+PR.5 | Bidirectional PR <-> PO Linkage & Navigation   | [DONE] | POResponse.source_pr_id, PO success banner
+PO.1 | Vendor Acknowledgement / Rejection / Amendment | [DONE] | supplier-portal/purchase-orders/[id]/page.tsx
+OVERALL: 6/6 (100%) | BACKEND 100% | FRONTEND 100% | TESTS 100%
 ```
 

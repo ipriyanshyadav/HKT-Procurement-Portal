@@ -89,12 +89,21 @@ class RedisKeys:
     def analytics_cache(prefix: str, org_id: str | UUID, fiscal_year: str, bu_scope: str = "") -> str:
         return f"analytics:{prefix}:{org_id}:{fiscal_year}:{bu_scope}"
 
-_redis_pools: dict[int, redis.ConnectionPool] = {}
+import asyncio
+
+_redis_pools: dict[tuple[int, int], redis.ConnectionPool] = {}
 
 
 def get_redis_pool(db_index: int = 0) -> redis.ConnectionPool:
-    """Retrieve or initialize a cached singleton ConnectionPool for the requested DB index."""
-    if db_index not in _redis_pools:
+    """Retrieve or initialize a cached singleton ConnectionPool for the requested DB index and active event loop."""
+    try:
+        loop = asyncio.get_running_loop()
+        loop_id = id(loop)
+    except RuntimeError:
+        loop_id = 0
+
+    key = (db_index, loop_id)
+    if key not in _redis_pools:
         redis_url = settings.REDIS_URL
         if "://" not in redis_url:
             redis_url = f"redis://{redis_url}"
@@ -107,11 +116,11 @@ def get_redis_pool(db_index: int = 0) -> redis.ConnectionPool:
             parsed.query,
             parsed.fragment,
         ))
-        _redis_pools[db_index] = redis.ConnectionPool.from_url(
+        _redis_pools[key] = redis.ConnectionPool.from_url(
             target_url,
             max_connections=20,
         )
-    return _redis_pools[db_index]
+    return _redis_pools[key]
 
 
 def get_redis_client(db_index: int = 0) -> redis.Redis:
@@ -123,7 +132,10 @@ def get_redis_client(db_index: int = 0) -> redis.Redis:
 async def close_redis_pools() -> None:
     """Disconnect and clean up all singleton connection pools."""
     for pool in list(_redis_pools.values()):
-        await pool.disconnect()
+        try:
+            await pool.disconnect()
+        except Exception:
+            pass
     _redis_pools.clear()
 
 

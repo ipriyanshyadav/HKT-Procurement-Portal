@@ -95,18 +95,18 @@ export default function ApprovalRulesListPage() {
       <Card>
         <div className="space-y-4">
           {/* Controls Bar: Tabs & Search */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-neutral-200 dark:border-neutral-800 pb-4">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-neutral-200 dark:border-neutral-800 pb-4">
             {/* Entity Filter Tabs */}
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+            <div className="flex-1 flex items-center gap-1.5 p-1.5 bg-neutral-100 dark:bg-neutral-800/60 rounded-xl border border-neutral-200/60 dark:border-neutral-800 overflow-x-auto">
               {ENTITY_TABS.map((tab) => (
                 <button
                   key={tab}
                   type="button"
                   onClick={() => setSelectedEntity(tab)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                  className={`flex-1 min-w-[70px] py-2 px-3 rounded-lg text-xs font-semibold text-center justify-center transition-all ${
                     selectedEntity === tab
                       ? "bg-blue-600 text-white shadow-sm"
-                      : "bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700"
+                      : "text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700"
                   }`}
                 >
                   {tab}

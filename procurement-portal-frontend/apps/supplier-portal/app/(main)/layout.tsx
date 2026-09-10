@@ -4,7 +4,7 @@ import React, { ReactNode } from "react";
 import { useAuthInit, useCurrentUser, useLogout } from "@procurement/hooks";
 import { useAuthStore } from "@procurement/stores";
 import { AppShell, NotificationBell } from "@procurement/ui";
-import { Building2, FileCheck, UserPlus, Gavel, Package, Receipt, CreditCard, AlertCircle, LifeBuoy } from "lucide-react";
+import { Building2, FileCheck, UserPlus, Gavel, Package, Receipt, CreditCard, AlertCircle, LifeBuoy, FileText, Truck } from "lucide-react";
 
 export default function SupplierMainLayout({ children }: { children: ReactNode }) {
   const { isInitializing } = useAuthInit();
@@ -26,52 +26,76 @@ export default function SupplierMainLayout({ children }: { children: ReactNode }
 
   const navItems = [
     {
+      label: "Tenders & Bids",
+      href: "/rfqs",
+      icon: <Gavel className="w-4 h-4" />,
+      section: "Bidding & Opportunities",
+    },
+    {
+      label: "Live Auctions",
+      href: "/auctions",
+      icon: <Gavel className="w-4 h-4 text-amber-400" />,
+      section: "Bidding & Opportunities",
+    },
+    {
+      label: "Contracts & Agreements",
+      href: "/contracts",
+      icon: <FileText className="w-4 h-4" />,
+      section: "Orders & Fulfillment",
+    },
+    {
       label: "Purchase Orders",
       href: "/purchase-orders",
       icon: <Package className="w-4 h-4" />,
-      section: "Orders",
+      section: "Orders & Fulfillment",
+    },
+    {
+      label: "Advance Shipping (ASN)",
+      href: "/asns",
+      icon: <Truck className="w-4 h-4" />,
+      section: "Orders & Fulfillment",
     },
     {
       label: "Invoices",
       href: "/invoices",
       icon: <Receipt className="w-4 h-4" />,
-      section: "Finance",
+      section: "Finance & Invoicing",
+    },
+    {
+      label: "E-Invoicing & E-Way Bills",
+      href: "/asns/einvoice",
+      icon: <FileText className="w-4 h-4 text-emerald-400" />,
+      section: "Finance & Invoicing",
     },
     {
       label: "Dispute Inbox",
       href: "/invoices/disputes",
       icon: <AlertCircle className="w-4 h-4" />,
-      section: "Finance",
+      section: "Finance & Invoicing",
     },
     {
       label: "Payments",
       href: "/payments",
       icon: <CreditCard className="w-4 h-4" />,
-      section: "Finance",
+      section: "Finance & Invoicing",
     },
     {
-      label: "Tenders & Bids",
-      href: "/rfqs",
-      icon: <Gavel className="w-4 h-4" />,
-      section: "Bidding",
-    },
-    {
-      label: "My Profile",
+      label: "Vendor Profile",
       href: "/profile",
       icon: <Building2 className="w-4 h-4" />,
-      section: "Account",
+      section: "Company & Compliance",
     },
     {
       label: "Documents & Compliance",
       href: "/documents",
       icon: <FileCheck className="w-4 h-4" />,
-      section: "Compliance",
+      section: "Company & Compliance",
     },
     {
       label: "Registration Info",
       href: "/register",
       icon: <UserPlus className="w-4 h-4" />,
-      section: "Onboarding",
+      section: "Company & Compliance",
     },
     {
       label: "Queries & Support",

@@ -3,7 +3,7 @@
 import React, { ReactNode } from "react";
 import { useAuthInit, useCurrentUser, useLogout } from "@procurement/hooks";
 import { useAuthStore } from "@procurement/stores";
-import { AppShell } from "@procurement/ui";
+import { AppShell, NotificationBell } from "@procurement/ui";
 import {
   LayoutDashboard,
   FolderTree,
@@ -12,19 +12,19 @@ import {
   Users,
   GitFork,
   Database,
-  Scale,
-  Coins,
-  CreditCard,
   Percent,
-  MapPin,
-  Calendar,
   Cpu,
   BarChart3,
   ShieldCheck,
+  Shield,
   Activity,
   LifeBuoy,
-  Timer,
-  FileSpreadsheet,
+  Layers,
+  Factory,
+  Package,
+  BellRing,
+  Terminal,
+  HardDrive,
 } from "lucide-react";
 
 export default function AdminMainLayout({ children }: { children: ReactNode }) {
@@ -59,15 +59,39 @@ export default function AdminMainLayout({ children }: { children: ReactNode }) {
       section: "Overview",
     },
     {
-      label: "Users & Roles",
+      label: "Operating Structure",
+      href: "/organization/structure",
+      icon: <Layers className="w-4 h-4" />,
+      section: "Enterprise Structure",
+    },
+    {
+      label: "Facilities & Logistics",
+      href: "/organization/facilities",
+      icon: <Factory className="w-4 h-4" />,
+      section: "Enterprise Structure",
+    },
+    {
+      label: "Users & Sessions",
       href: "/users",
       icon: <Users className="w-4 h-4" />,
+      section: "Access & Security",
+    },
+    {
+      label: "Roles & RBAC",
+      href: "/roles",
+      icon: <Shield className="w-4 h-4" />,
       section: "Access & Security",
     },
     {
       label: "Audit Trail",
       href: "/audit-trail",
       icon: <ShieldCheck className="w-4 h-4" />,
+      section: "Access & Security",
+    },
+    {
+      label: "Security & Compliance",
+      href: "/compliance",
+      icon: <ShieldCheck className="w-4 h-4 text-emerald-400" />,
       section: "Access & Security",
     },
     {
@@ -83,51 +107,33 @@ export default function AdminMainLayout({ children }: { children: ReactNode }) {
       section: "Governance",
     },
     {
+      label: "Notification Templates",
+      href: "/notifications/templates",
+      icon: <BellRing className="w-4 h-4" />,
+      section: "Governance",
+    },
+    {
       label: "Master Data Hub",
       href: "/master-data",
       icon: <Database className="w-4 h-4" />,
       section: "Master Data",
     },
     {
-      label: "Categories",
+      label: "Categories & Taxonomy",
       href: "/master-data/categories",
       icon: <FolderTree className="w-4 h-4" />,
       section: "Master Data",
     },
     {
-      label: "Units of Measure",
-      href: "/master-data/uom",
-      icon: <Scale className="w-4 h-4" />,
+      label: "Item Catalog",
+      href: "/master-data/items",
+      icon: <Package className="w-4 h-4" />,
       section: "Master Data",
     },
     {
-      label: "Currencies & FX",
-      href: "/master-data/currencies",
-      icon: <Coins className="w-4 h-4" />,
-      section: "Master Data",
-    },
-    {
-      label: "Payment Terms",
-      href: "/master-data/payment-terms",
-      icon: <CreditCard className="w-4 h-4" />,
-      section: "Master Data",
-    },
-    {
-      label: "Tax Codes",
+      label: "Tax, Terms & Currencies",
       href: "/master-data/tax-codes",
       icon: <Percent className="w-4 h-4" />,
-      section: "Master Data",
-    },
-    {
-      label: "Delivery Locations",
-      href: "/master-data/locations",
-      icon: <MapPin className="w-4 h-4" />,
-      section: "Master Data",
-    },
-    {
-      label: "Holiday Calendar",
-      href: "/master-data/holidays",
-      icon: <Calendar className="w-4 h-4" />,
       section: "Master Data",
     },
     {
@@ -143,33 +149,27 @@ export default function AdminMainLayout({ children }: { children: ReactNode }) {
       section: "System Operations",
     },
     {
+      label: "Developer & API Keys",
+      href: "/developer",
+      icon: <Terminal className="w-4 h-4" />,
+      section: "System Operations",
+    },
+    {
       label: "System Health",
       href: "/system/health",
       icon: <Activity className="w-4 h-4" />,
       section: "System Operations",
     },
     {
-      label: "All Tickets Queue",
+      label: "DR Orchestrator",
+      href: "/system/recovery",
+      icon: <HardDrive className="w-4 h-4" />,
+      section: "System Operations",
+    },
+    {
+      label: "Helpdesk & SLAs",
       href: "/tickets",
       icon: <LifeBuoy className="w-4 h-4" />,
-      section: "Tickets & SLAs",
-    },
-    {
-      label: "Support Dashboard",
-      href: "/tickets/dashboard",
-      icon: <BarChart3 className="w-4 h-4" />,
-      section: "Tickets & SLAs",
-    },
-    {
-      label: "SLA Policies",
-      href: "/tickets/sla-config",
-      icon: <Timer className="w-4 h-4" />,
-      section: "Tickets & SLAs",
-    },
-    {
-      label: "Reports & Export",
-      href: "/tickets/reports",
-      icon: <FileSpreadsheet className="w-4 h-4" />,
       section: "Tickets & SLAs",
     },
   ];
@@ -182,6 +182,7 @@ export default function AdminMainLayout({ children }: { children: ReactNode }) {
       homeHref="/dashboard"
       navItems={navItems}
       user={user}
+      actions={<NotificationBell />}
       onLogout={() => logoutMutation.mutate()}
     >
       {children}

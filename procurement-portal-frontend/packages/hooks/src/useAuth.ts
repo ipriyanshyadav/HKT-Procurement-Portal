@@ -43,7 +43,10 @@ interface CurrentUser {
   status: string;
   mfa_enabled: boolean;
   is_supplier_user: boolean;
+  vendor_id?: string | null;
   org_id: string;
+  roles?: string[];
+  role_names?: string[];
 }
 
 interface PermissionsResponse {
@@ -61,6 +64,7 @@ async function syncUserProfile(token: string): Promise<CurrentUser> {
   ]);
   const u = userRes.data.data;
   const fullName = `${u.first_name || ""} ${u.last_name || ""}`.trim() || u.email.split("@")[0];
+  const roleNames = u.role_names || u.roles || [];
   useAuthStore.getState().setUser(
     {
       id: u.id,
@@ -69,9 +73,10 @@ async function syncUserProfile(token: string): Promise<CurrentUser> {
       last_name: u.last_name,
       full_name: fullName,
       org_id: u.org_id,
-      role_names: [],
+      role_names: roleNames,
       is_active: u.status === "ACTIVE",
       is_supplier_user: u.is_supplier_user,
+      vendor_id: u.vendor_id,
     },
     permsRes.data.data.permissions || [],
   );

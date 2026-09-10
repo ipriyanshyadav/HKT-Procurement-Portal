@@ -1,7 +1,16 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "globalDependencies": ["**/.env.*local"],
-  "globalEnv": ["API_URL", "NEXT_PUBLIC_API_URL", "INTERNAL_API_URL", "PORT"],
+  "globalEnv": [
+    "API_URL",
+    "NEXT_PUBLIC_API_URL",
+    "INTERNAL_API_URL",
+    "PORT",
+    "NEXT_PUBLIC_PROMETHEUS_URL",
+    "NEXT_PUBLIC_GRAFANA_URL",
+    "NEXT_PUBLIC_JAEGER_URL",
+    "NEXT_PUBLIC_LOKI_URL"
+  ],
   "tasks": {
     "build": {
       "dependsOn": ["^build", "generate:types"],

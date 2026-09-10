@@ -26,6 +26,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 from sqlalchemy import delete, select, text
 
 from app.db.session import async_session
+from app.modules.document.models import Document
 from app.modules.invoice.models import Invoice
 from app.modules.organization.models import Organization
 from app.modules.purchase_order.models import PurchaseOrder
@@ -34,7 +35,13 @@ from app.modules.sourcing.models import Rfq
 from app.modules.ticket.models import (
     Ticket,
     TicketActivityLog,
+    TicketAttachment,
+    TicketAutomationRule,
     TicketComment,
+    TicketCustomFieldDef,
+    TicketCustomFieldValue,
+    TicketLink,
+    TicketSLAConfig,
     TicketWatcher,
 )
 from app.modules.ticket.search_service import TicketSearchService
@@ -152,9 +159,13 @@ async def seed_tickets():
                 len(existing_tickets),
             )
             t_ids = [t.id for t in existing_tickets]
+            await db.execute(delete(TicketAttachment).where(TicketAttachment.ticket_id.in_(t_ids)))
             await db.execute(delete(TicketComment).where(TicketComment.ticket_id.in_(t_ids)))
             await db.execute(delete(TicketWatcher).where(TicketWatcher.ticket_id.in_(t_ids)))
             await db.execute(delete(TicketActivityLog).where(TicketActivityLog.ticket_id.in_(t_ids)))
+            await db.execute(delete(TicketCustomFieldValue).where(TicketCustomFieldValue.ticket_id.in_(t_ids)))
+            await db.execute(delete(TicketLink).where(TicketLink.source_ticket_id.in_(t_ids)))
+            await db.execute(delete(TicketLink).where(TicketLink.target_ticket_id.in_(t_ids)))
             await db.execute(delete(Ticket).where(Ticket.id.in_(t_ids)))
             await db.flush()
 
@@ -548,6 +559,8 @@ async def seed_tickets():
         search_svc = TicketSearchService()
 
         # Insert tickets and relational children
+        created_tickets: list[Ticket] = []
+        first_comment_map: dict[UUID, UUID] = {}
         for tdef in ticket_definitions:
             ticket_num = f"TKT-DEF-{year}-{str(tdef['seq_num']).zfill(6)}"
             ticket = Ticket(
@@ -579,6 +592,7 @@ async def seed_tickets():
                 updated_at=tdef["created_at"],
             )
             db.add(ticket)
+            created_tickets.append(ticket)
             await db.flush()
 
             # Activity log for creation
@@ -630,6 +644,8 @@ async def seed_tickets():
                     updated_at=c_created,
                 )
                 db.add(comment)
+                if ticket.id not in first_comment_map:
+                    first_comment_map[ticket.id] = comment.id
 
                 # Activity log for comment
                 act_type = "INTERNAL_NOTE_ADDED" if cdef["is_internal"] else "COMMENT_ADDED"
@@ -684,9 +700,245 @@ async def seed_tickets():
                 "Seeded ticket: %s | %s [%s] (%s)", ticket_num, ticket.title[:40], ticket.status, ticket.priority
             )
 
+        # Seed Ticket Attachments
+        tds_doc = (
+            await db.execute(
+                select(Document).where(
+                    Document.org_id == DEFAULT_ORG_ID,
+                    Document.original_filename == "Lower_TDS_Certificate_194C_FY26.pdf",
+                )
+            )
+        ).scalar_one_or_none()
+
+        po_doc = (
+            await db.execute(
+                select(Document).where(
+                    Document.org_id == DEFAULT_ORG_ID,
+                    Document.original_filename == "Signed_PO_PO-2026-000001.pdf",
+                )
+            )
+        ).scalar_one_or_none()
+
+        if tds_doc and len(created_tickets) >= 1:
+            db.add(
+                TicketAttachment(
+                    id=uuid4(),
+                    org_id=DEFAULT_ORG_ID,
+                    ticket_id=created_tickets[0].id,
+                    comment_id=first_comment_map.get(created_tickets[0].id),
+                    document_id=tds_doc.id,
+                    uploaded_by=supplier.id,
+                    file_name=tds_doc.original_filename,
+                )
+            )
+            tds_doc.entity_type = "TICKET"
+            tds_doc.entity_id = created_tickets[0].id
+
+        if po_doc and len(created_tickets) >= 3:
+            db.add(
+                TicketAttachment(
+                    id=uuid4(),
+                    org_id=DEFAULT_ORG_ID,
+                    ticket_id=created_tickets[2].id,
+                    comment_id=None,
+                    document_id=po_doc.id,
+                    uploaded_by=supplier.id,
+                    file_name=po_doc.original_filename,
+                )
+            )
+            logger.info("Seeded Ticket Attachments for Ticket 1 and Ticket 3")
+
+        # 4. Seed Ticket SLA Configurations
+        await db.execute(delete(TicketSLAConfig).where(TicketSLAConfig.org_id == DEFAULT_ORG_ID))
+        sla_configs = [
+            TicketSLAConfig(
+                id=uuid4(),
+                org_id=DEFAULT_ORG_ID,
+                priority="CRITICAL",
+                first_response_hours=1,
+                resolution_hours=4,
+                escalation_hours=2,
+                escalate_to_role="PROCUREMENT_HEAD",
+            ),
+            TicketSLAConfig(
+                id=uuid4(),
+                org_id=DEFAULT_ORG_ID,
+                priority="HIGH",
+                first_response_hours=2,
+                resolution_hours=12,
+                escalation_hours=8,
+                escalate_to_role="PROCUREMENT_MANAGER",
+            ),
+            TicketSLAConfig(
+                id=uuid4(),
+                org_id=DEFAULT_ORG_ID,
+                priority="MEDIUM",
+                first_response_hours=4,
+                resolution_hours=48,
+                escalation_hours=24,
+                escalate_to_role="PROCUREMENT_OFFICER",
+            ),
+            TicketSLAConfig(
+                id=uuid4(),
+                org_id=DEFAULT_ORG_ID,
+                priority="LOW",
+                first_response_hours=8,
+                resolution_hours=120,
+                escalation_hours=72,
+                escalate_to_role="BUYER",
+            ),
+        ]
+        db.add_all(sla_configs)
+        logger.info("Seeded %d Ticket SLA Configurations", len(sla_configs))
+
+        # 5. Seed Ticket Custom Field Definitions & Values
+        await db.execute(delete(TicketCustomFieldValue).where(TicketCustomFieldValue.org_id == DEFAULT_ORG_ID))
+        await db.execute(delete(TicketCustomFieldDef).where(TicketCustomFieldDef.org_id == DEFAULT_ORG_ID))
+        cfield_defs = [
+            TicketCustomFieldDef(
+                id=uuid4(),
+                org_id=DEFAULT_ORG_ID,
+                name="Impact Level",
+                field_key="impact_level",
+                field_type="SELECT",
+                description="Business operational impact scope",
+                is_required=False,
+                options=["Enterprise-Wide", "Departmental", "Individual User"],
+                applies_to_ticket_types=["BUG", "CHANGE_REQUEST", "DISCREPANCY"],
+                created_by=admin.id,
+            ),
+            TicketCustomFieldDef(
+                id=uuid4(),
+                org_id=DEFAULT_ORG_ID,
+                name="Estimated Cost Savings (INR)",
+                field_key="est_cost_savings",
+                field_type="NUMBER",
+                description="Projected cost impact or savings",
+                is_required=False,
+                options=[],
+                applies_to_ticket_types=["CHANGE_REQUEST", "QUERY"],
+                created_by=admin.id,
+            ),
+            TicketCustomFieldDef(
+                id=uuid4(),
+                org_id=DEFAULT_ORG_ID,
+                name="Root Cause Summary",
+                field_key="root_cause_summary",
+                field_type="TEXT",
+                description="Engineering / vendor analysis summary",
+                is_required=False,
+                options=[],
+                applies_to_ticket_types=["BUG", "VENDOR_ISSUE", "DISCREPANCY"],
+                created_by=admin.id,
+            ),
+        ]
+        db.add_all(cfield_defs)
+        await db.flush()
+
+        if len(created_tickets) >= 3:
+            db.add_all(
+                [
+                    TicketCustomFieldValue(
+                        id=uuid4(),
+                        org_id=DEFAULT_ORG_ID,
+                        ticket_id=created_tickets[0].id,
+                        field_def_id=cfield_defs[0].id,
+                        value_text="Enterprise-Wide",
+                    ),
+                    TicketCustomFieldValue(
+                        id=uuid4(),
+                        org_id=DEFAULT_ORG_ID,
+                        ticket_id=created_tickets[1].id,
+                        field_def_id=cfield_defs[1].id,
+                        value_number=50000.00,
+                    ),
+                    TicketCustomFieldValue(
+                        id=uuid4(),
+                        org_id=DEFAULT_ORG_ID,
+                        ticket_id=created_tickets[2].id,
+                        field_def_id=cfield_defs[2].id,
+                        value_text="Upstream gateway firmware incompatibility during handshake.",
+                    ),
+                ]
+            )
+
+        # 6. Seed Ticket Bidirectional Links
+        await db.execute(delete(TicketLink).where(TicketLink.org_id == DEFAULT_ORG_ID))
+        if len(created_tickets) >= 4:
+            db.add_all(
+                [
+                    TicketLink(
+                        id=uuid4(),
+                        org_id=DEFAULT_ORG_ID,
+                        source_ticket_id=created_tickets[0].id,
+                        target_ticket_id=created_tickets[1].id,
+                        link_type="BLOCKS",
+                        created_by=admin.id,
+                    ),
+                    TicketLink(
+                        id=uuid4(),
+                        org_id=DEFAULT_ORG_ID,
+                        source_ticket_id=created_tickets[2].id,
+                        target_ticket_id=created_tickets[3].id,
+                        link_type="RELATES_TO",
+                        created_by=buyer.id,
+                    ),
+                ]
+            )
+            logger.info("Seeded Ticket Links between tickets")
+
+        # 7. Seed Ticket Automation Rules
+        await db.execute(delete(TicketAutomationRule).where(TicketAutomationRule.org_id == DEFAULT_ORG_ID))
+        rules = [
+            TicketAutomationRule(
+                id=uuid4(),
+                org_id=DEFAULT_ORG_ID,
+                name="Auto-assign Critical Issues to Lead",
+                description="Immediately assign critical tickets to Lead Administrator",
+                is_enabled=True,
+                trigger_type="TICKET_CREATED",
+                trigger_config={},
+                conditions=[{"field": "priority", "op": "eq", "value": "CRITICAL"}],
+                actions=[{"action": "ASSIGN_USER", "user_id": str(admin.id), "team": "Procurement Ops"}],
+                created_by=admin.id,
+            ),
+            TicketAutomationRule(
+                id=uuid4(),
+                org_id=DEFAULT_ORG_ID,
+                name="Auto-escalate Breached Disputes",
+                description="Escalate disputed invoice discrepancies exceeding SLA",
+                is_enabled=True,
+                trigger_type="STATUS_CHANGED",
+                trigger_config={"field": "status", "to": "ESCALATED"},
+                conditions=[{"field": "ticket_type", "op": "eq", "value": "DISCREPANCY"}],
+                actions=[
+                    {
+                        "action": "ADD_COMMENT",
+                        "content": "Automated SLA Alert: Discrepancy escalated to Finance Manager for review.",
+                        "is_internal": True,
+                    }
+                ],
+                created_by=admin.id,
+            ),
+            TicketAutomationRule(
+                id=uuid4(),
+                org_id=DEFAULT_ORG_ID,
+                name="Round-Robin Query Assignment",
+                description="Distribute buyer queries evenly between buyer team members",
+                is_enabled=True,
+                trigger_type="TICKET_CREATED",
+                trigger_config={},
+                conditions=[{"field": "ticket_type", "op": "eq", "value": "QUERY"}],
+                actions=[{"action": "ASSIGN_ROUND_ROBIN", "user_ids": [str(buyer.id), str(admin.id)]}],
+                created_by=admin.id,
+            ),
+        ]
+        db.add_all(rules)
+        logger.info("Seeded %d Ticket Automation Rules", len(rules))
+
         await search_svc.close()
         await db.commit()
-        logger.info("Successfully seeded %d relational tickets for Default Organization!", len(ticket_definitions))
+        logger.info("Successfully seeded %d relational tickets and advanced features for Default Organization!", len(ticket_definitions))
 
 
 if __name__ == "__main__":

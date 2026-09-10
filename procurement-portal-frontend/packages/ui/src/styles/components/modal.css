@@ -20,6 +20,7 @@
 .apple-modal {
   background: var(--apple-bg-primary);
   border-radius: 20px 20px 0 0;
+  border: 1px solid var(--apple-separator);
   width: 100%;
   max-width: 640px;
   padding: 20px 24px 36px;
@@ -65,7 +66,8 @@
 .dark .apple-modal,
 .theme-apple-dark .apple-modal,
 [data-theme='apple-dark'] .apple-modal {
-  background: var(--apple-bg-secondary);
-  border: 0.5px solid rgba(255, 255, 255, 0.12);
+  background: var(--apple-bg-card);
+  border: 1px solid var(--apple-separator);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.75);
 }
 

@@ -13,7 +13,7 @@ from app.core.constants import AuditAction, PermissionCode
 from app.core.metrics import rfq_published_total
 from app.core.exceptions import AppException, ConflictError, ForbiddenError, NotFoundError, ValidationError
 from app.core.redis_client import RedisKeys, get_redis_client
-from app.db.enums import RFQStatus, RFQType, AuditEntityType
+from app.db.enums import RFQStatus, RFQType, AuditEntityType, PRStatus
 from app.events.publisher import OutboxPublisher
 from app.modules.audit.service import audit_service
 from app.modules.requisition.models import Requisition
@@ -58,6 +58,8 @@ class RfqService:
                     "PR_NOT_APPROVED",
                     "Only APPROVED PRs can be converted to RFQ",
                 )
+            pr.status = PRStatus.IN_SOURCING
+            await db.flush()
 
         rfq_number = await self._generate_rfq_number(db, data.business_unit_id, org_id)
 
@@ -86,6 +88,8 @@ class RfqService:
             lot_participation_mode=data.lot_participation_mode,
             is_emergency=(data.rfq_type == RFQType.EMERGENCY.value),
             source_pr_id=data.source_pr_id,
+            bidding_mode=data.bidding_mode or "SEALED",
+            auction_config=data.auction_config,
             created_by=actor_id,
             updated_by=actor_id,
             linked_pr_ids=[data.source_pr_id] if data.source_pr_id else [],

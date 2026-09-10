@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "test:e2e": "playwright test tests/e2e/full_procurement_cycle.spec.ts"
+    "test:e2e": "playwright test tests/e2e/playwright/"
   },
   "devDependencies": {
     "@playwright/test": "^1.63.0"

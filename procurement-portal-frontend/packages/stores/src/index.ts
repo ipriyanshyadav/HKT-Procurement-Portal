@@ -6,3 +6,11 @@ export type {
   NotificationItem,
   NotificationPreference,
 } from "./notificationStore";
+export {
+  ENTERPRISE_PERSONAS,
+  SUPERADMIN_PERSONA,
+  getPersonaById,
+  checkRouteAccess,
+} from "./personas";
+export type { EnterprisePersona, RouteAccessResult } from "./personas";
+

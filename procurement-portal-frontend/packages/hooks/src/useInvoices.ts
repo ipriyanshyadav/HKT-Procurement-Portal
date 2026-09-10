@@ -50,6 +50,7 @@ export function useEligibleInvoiceLines(vendorId?: string) {
       });
       return (res.data.data ?? []) as EligibleLineResponse[];
     },
+    staleTime: 10_000,
   });
 }
 

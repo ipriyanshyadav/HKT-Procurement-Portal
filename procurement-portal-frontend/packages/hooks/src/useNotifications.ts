@@ -2,7 +2,15 @@ import { useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@procurement/utils";
 import { useAuthStore, useNotificationStore } from "@procurement/stores";
-import type { NotificationItem, NotificationPreference } from "@procurement/types";
+import type {
+  NotificationItem,
+  NotificationPreference,
+  NotificationTemplateItem,
+  NotificationTemplateCreatePayload,
+  NotificationTemplateUpdatePayload,
+  NotificationTemplatePreviewPayload,
+  NotificationTemplatePreviewResult,
+} from "@procurement/types";
 
 export interface NotificationsListResponse {
   data: NotificationItem[];
@@ -19,6 +27,7 @@ export function useNotifications() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const setConnected = useNotificationStore((state) => state.setConnected);
   const addNotification = useNotificationStore((state) => state.addNotification);
+  const addToast = useNotificationStore((state) => state.addToast);
   const queryClient = useQueryClient();
 
   const wsRef = useRef<WebSocket | null>(null);
@@ -97,6 +106,50 @@ export function useNotifications() {
               };
               addNotification(notification);
               queryClient.invalidateQueries({ queryKey: ["notifications"] });
+
+              // Determine semantic alert type
+              let toastType: "info" | "success" | "warning" | "error" = "info";
+              const norm = (notification.notification_type || "").toLowerCase();
+              if (norm.includes("reject") || norm.includes("failed") || norm.includes("error") || norm.includes("breach")) {
+                toastType = "error";
+              } else if (norm.includes("approve") || norm.includes("completed") || norm.includes("success")) {
+                toastType = "success";
+              } else if (norm.includes("sla") || norm.includes("warn") || norm.includes("hold")) {
+                toastType = "warning";
+              }
+
+              // Direct navigation link for the toast
+              let link: string | undefined;
+              if (notification.entity_type) {
+                const type = notification.entity_type.toLowerCase();
+                if (type.includes("req") || type === "pr") {
+                  link = notification.entity_id ? `/requisitions/${notification.entity_id}` : "/requisitions";
+                } else if (type === "rfq" || type === "sourcing" || type === "bid") {
+                  link = notification.entity_id ? `/rfqs/${notification.entity_id}` : "/rfqs";
+                } else if (type.includes("order") || type === "po") {
+                  link = notification.entity_id ? `/purchase-orders/${notification.entity_id}` : "/purchase-orders";
+                } else if (type.includes("invoice") || type.includes("payment")) {
+                  link = notification.entity_id ? `/invoices/${notification.entity_id}` : "/invoices";
+                } else if (type.includes("task") || type.includes("approval")) {
+                  link = notification.entity_id ? `/tasks/${notification.entity_id}` : "/tasks";
+                } else if (type.includes("vendor")) {
+                  link = notification.entity_id ? `/vendors/${notification.entity_id}` : "/vendors";
+                }
+              }
+
+              // Fire on-screen toast popup
+              addToast({
+                id: notification.id,
+                title: notification.title,
+                body: notification.body,
+                type: toastType,
+                notification_type: notification.notification_type,
+                entity_type: notification.entity_type,
+                entity_id: notification.entity_id,
+                created_at: notification.created_at,
+                link,
+                durationMs: 7000,
+              });
             }
           } catch {
             // Ignored invalid JSON payloads
@@ -148,6 +201,7 @@ export function useNotificationsList(params?: {
   unread_only?: boolean;
 }) {
   const setNotifications = useNotificationStore((state) => state.setNotifications);
+  const isConnected = useNotificationStore((state) => state.isConnected);
 
   return useQuery({
     queryKey: ["notifications", params],
@@ -168,6 +222,7 @@ export function useNotificationsList(params?: {
       items: res.data,
       meta: res.meta,
     }),
+    refetchInterval: isConnected ? false : 15000,
   });
 }
 
@@ -226,3 +281,118 @@ export function useUpdateNotificationPreferences() {
     },
   });
 }
+
+export interface NotificationTemplatesResponse {
+  data: NotificationTemplateItem[];
+  meta: {
+    page: number;
+    page_size: number;
+    total: number;
+    total_pages: number;
+  };
+}
+
+export function useNotificationTemplates(params?: {
+  channel?: string;
+  language?: string;
+  search?: string;
+  is_active?: boolean;
+  page?: number;
+  page_size?: number;
+}) {
+  return useQuery({
+    queryKey: ["notificationTemplates", params],
+    queryFn: async () => {
+      const res = await apiClient.get<NotificationTemplatesResponse>("/notifications/templates", {
+        params: {
+          channel: params?.channel || undefined,
+          language: params?.language || undefined,
+          search: params?.search || undefined,
+          is_active: params?.is_active !== undefined ? params.is_active : undefined,
+          page: params?.page || 1,
+          page_size: params?.page_size || 50,
+        },
+      });
+      return res.data;
+    },
+  });
+}
+
+export function useNotificationTemplate(templateId?: string) {
+  return useQuery({
+    queryKey: ["notificationTemplate", templateId],
+    queryFn: async () => {
+      if (!templateId) return null;
+      const res = await apiClient.get<{ data: NotificationTemplateItem }>(`/notifications/templates/${templateId}`);
+      return res.data.data;
+    },
+    enabled: !!templateId,
+  });
+}
+
+export function useCreateNotificationTemplate() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (payload: NotificationTemplateCreatePayload) => {
+      const res = await apiClient.post<{ data: NotificationTemplateItem }>("/notifications/templates", payload);
+      return res.data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notificationTemplates"] });
+    },
+  });
+}
+
+export function useUpdateNotificationTemplate() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      templateId,
+      payload,
+    }: {
+      templateId: string;
+      payload: NotificationTemplateUpdatePayload;
+    }) => {
+      const res = await apiClient.put<{ data: NotificationTemplateItem }>(
+        `/notifications/templates/${templateId}`,
+        payload
+      );
+      return res.data.data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["notificationTemplates"] });
+      queryClient.invalidateQueries({ queryKey: ["notificationTemplate", variables.templateId] });
+    },
+  });
+}
+
+export function useDeleteNotificationTemplate() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (templateId: string) => {
+      const res = await apiClient.delete<{ data: { message: string } }>(
+        `/notifications/templates/${templateId}`
+      );
+      return res.data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notificationTemplates"] });
+    },
+  });
+}
+
+export function usePreviewNotificationTemplate() {
+  return useMutation({
+    mutationFn: async (payload: NotificationTemplatePreviewPayload) => {
+      const res = await apiClient.post<{ data: NotificationTemplatePreviewResult }>(
+        "/notifications/templates/preview",
+        payload
+      );
+      return res.data.data;
+    },
+  });
+}
+

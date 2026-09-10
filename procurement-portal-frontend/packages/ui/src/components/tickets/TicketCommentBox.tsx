@@ -1,13 +1,26 @@
 "use client";
 
 import React, { useState, useRef } from "react";
-import { Send, Lock, Eye, Paperclip, Loader2 } from "lucide-react";
+import { Send, Lock, Eye, Paperclip, Loader2, AtSign } from "lucide-react";
 import { useAddTicketComment, useUploadTicketAttachment } from "@procurement/hooks";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface TicketCommentBoxProps {
   ticketId: string;
   allowInternalNotes?: boolean;
   onCommentAdded?: () => void;
+}
+
+function formatMentionsForMarkdown(text: string): string {
+  if (!text) return "";
+  const parts = text.split(/(```[\s\S]*?```|`[^`]+`)/g);
+  return parts
+    .map((part, index) => {
+      if (index % 2 === 1) return part;
+      return part.replace(/(^|[\s(])@([a-zA-Z0-9._-]+)/g, "$1[@$2](#mention-$2)");
+    })
+    .join("");
 }
 
 export function TicketCommentBox({
@@ -20,6 +33,7 @@ export function TicketCommentBox({
   const [previewMode, setPreviewMode] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const addCommentMutation = useAddTicketComment();
   const uploadAttachmentMutation = useUploadTicketAttachment();
@@ -42,6 +56,14 @@ export function TicketCommentBox({
     } catch (err) {
       // Error handled by query client
     }
+  };
+
+  const handleInsertMention = () => {
+    if (previewMode) setPreviewMode(false);
+    setContent((prev) => (prev ? `${prev} @` : "@"));
+    setTimeout(() => {
+      textareaRef.current?.focus();
+    }, 50);
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -67,22 +89,22 @@ export function TicketCommentBox({
   return (
     <form
       onSubmit={handleSubmit}
-      className={`rounded-lg border transition-all ${
+      className={`rounded-2xl border transition-all ${
         isInternal && allowInternalNotes
-          ? "border-amber-300 bg-amber-50/40"
-          : "border-slate-200 bg-white"
+          ? "border-amber-400/80 bg-amber-50/40 dark:border-amber-700/60 dark:bg-amber-950/20"
+          : "border-slate-200/80 bg-white dark:border-white/15 dark:bg-[#1C1C1F]"
       }`}
     >
-      <div className="p-3">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-1.5 text-xs">
+      <div className="p-3.5">
+        <div className="flex items-center justify-between mb-2.5">
+          <div className="flex items-center gap-1 text-xs w-48 sm:w-56 p-1 bg-slate-100 dark:bg-[#252529] border border-slate-200/60 dark:border-white/10 rounded-xl">
             <button
               type="button"
               onClick={() => setPreviewMode(false)}
-              className={`px-2.5 py-1 rounded font-medium transition-colors ${
+              className={`flex-1 py-1.5 px-3 rounded-lg font-medium transition-all text-center justify-center flex items-center ${
                 !previewMode
-                  ? "bg-slate-100 text-slate-900"
-                  : "text-slate-500 hover:text-slate-800"
+                  ? "bg-white dark:bg-[#1C1C1F] text-slate-900 dark:text-white shadow-xs"
+                  : "text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white"
               }`}
             >
               Write
@@ -90,10 +112,10 @@ export function TicketCommentBox({
             <button
               type="button"
               onClick={() => setPreviewMode(true)}
-              className={`px-2.5 py-1 rounded font-medium transition-colors ${
+              className={`flex-1 py-1.5 px-3 rounded-lg font-medium transition-all text-center justify-center flex items-center ${
                 previewMode
-                  ? "bg-slate-100 text-slate-900"
-                  : "text-slate-500 hover:text-slate-800"
+                  ? "bg-white dark:bg-[#1C1C1F] text-slate-900 dark:text-white shadow-xs"
+                  : "text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white"
               }`}
             >
               Preview
@@ -104,32 +126,57 @@ export function TicketCommentBox({
             <button
               type="button"
               onClick={() => setIsInternal(!isInternal)}
-              className={`flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-md transition-colors ${
+              className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors ${
                 isInternal
-                  ? "bg-amber-100 text-amber-900 border border-amber-300"
-                  : "text-slate-600 hover:bg-slate-100 border border-transparent"
+                  ? "bg-amber-100 dark:bg-amber-900/60 text-amber-950 dark:text-amber-200 border border-amber-300 dark:border-amber-700/60"
+                  : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10 border border-transparent"
               }`}
               title="Internal notes are invisible to suppliers"
             >
-              <Lock className="w-3.5 h-3.5 text-amber-700" />
+              <Lock className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400" />
               <span>Internal Note</span>
             </button>
           )}
         </div>
 
         {isInternal && allowInternalNotes && (
-          <div className="mb-2 text-[11px] text-amber-800 bg-amber-100/70 border border-amber-200 px-2.5 py-1 rounded flex items-center gap-1.5">
-            <Eye className="w-3.5 h-3.5" />
-            <span>Visible to buyer internal team only. Suppliers will not see this comment.</span>
+          <div className="mb-2.5 text-[11px] text-amber-900 dark:text-amber-200 bg-amber-100/70 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700/60 px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+            <Eye className="w-3.5 h-3.5 flex-shrink-0" />
+            <span>Visible to internal team only. Suppliers will not see this note.</span>
           </div>
         )}
 
         {previewMode ? (
-          <div className="min-h-[96px] p-2 text-sm text-slate-800 prose prose-sm max-w-none bg-slate-50 rounded border border-slate-200">
-            {content ? content : <span className="text-slate-400 italic">Nothing to preview</span>}
+          <div className="min-h-[100px] p-3 text-sm text-slate-800 dark:text-slate-200 prose prose-sm dark:prose-invert max-w-none bg-slate-50 dark:bg-[#252529] rounded-xl border border-slate-200 dark:border-white/10">
+            {content ? (
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                components={{
+                  a: ({ node, href, children, ...props }) => {
+                    if (href?.startsWith("#mention-")) {
+                      return (
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded-md text-xs font-semibold font-mono bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200 dark:border-blue-800/80">
+                          {children}
+                        </span>
+                      );
+                    }
+                    return (
+                      <a href={href} className="text-blue-600 dark:text-blue-400 hover:underline" {...props}>
+                        {children}
+                      </a>
+                    );
+                  },
+                }}
+              >
+                {formatMentionsForMarkdown(content)}
+              </ReactMarkdown>
+            ) : (
+              <span className="text-slate-400 dark:text-slate-500 italic">Nothing to preview</span>
+            )}
           </div>
         ) : (
           <textarea
+            ref={textareaRef}
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder={
@@ -137,12 +184,12 @@ export function TicketCommentBox({
                 ? "Add an internal note... (Markdown and @mentions supported)"
                 : "Add a response... (Markdown and @mentions supported)"
             }
-            className="w-full min-h-[96px] text-sm bg-transparent border-0 focus:ring-0 focus:outline-none resize-y placeholder:text-slate-400"
+            className="w-full min-h-[100px] text-sm bg-transparent border-0 focus:ring-0 focus:outline-none resize-y text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500"
           />
         )}
       </div>
 
-      <div className="px-3 py-2 bg-slate-50/70 border-t border-slate-100 flex items-center justify-between rounded-b-lg">
+      <div className="px-3.5 py-2.5 bg-slate-50/80 dark:bg-[#252529]/60 border-t border-slate-100 dark:border-white/10 flex items-center justify-between rounded-b-2xl">
         <div className="flex items-center gap-2">
           <input
             type="file"
@@ -155,23 +202,33 @@ export function TicketCommentBox({
             type="button"
             onClick={() => fileInputRef.current?.click()}
             disabled={isUploading}
-            className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-200/60 rounded transition-colors disabled:opacity-50"
+            className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-white/10 rounded-lg transition-colors disabled:opacity-50"
             title="Attach a file"
           >
             {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Paperclip className="w-4 h-4" />}
           </button>
-          <span className="text-[11px] text-slate-400 hidden sm:inline">
-            Supports GitHub-flavored Markdown and @mentions
+
+          <button
+            type="button"
+            onClick={handleInsertMention}
+            className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-200/60 dark:hover:bg-white/10 rounded-lg transition-colors"
+            title="Mention a team member (@username)"
+          >
+            <AtSign className="w-4 h-4" />
+          </button>
+
+          <span className="text-[11px] text-slate-400 dark:text-slate-500 hidden sm:inline">
+            Supports Markdown and @mentions
           </span>
         </div>
 
         <button
           type="submit"
           disabled={!content.trim() || addCommentMutation.isPending}
-          className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-md text-xs font-medium text-white shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+          className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-white shadow-xs transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
             isInternal
-              ? "bg-amber-600 hover:bg-amber-700"
-              : "bg-blue-600 hover:bg-blue-700"
+              ? "bg-amber-600 hover:bg-amber-700 dark:bg-amber-600 dark:hover:bg-amber-500"
+              : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
           }`}
         >
           {addCommentMutation.isPending ? (

@@ -27,6 +27,17 @@ import {
   Zap,
 } from "lucide-react";
 
+function getTelemetryUrl(envUrl: string | undefined, defaultPort: number): string {
+  if (envUrl) return envUrl;
+  if (typeof window !== "undefined") {
+    const hostname = window.location.hostname;
+    const protocol = window.location.protocol;
+    const host = hostname.includes(":") && !hostname.startsWith("[") ? `[${hostname}]` : hostname;
+    return `${protocol}//${host}:${defaultPort}`;
+  }
+  return `http://localhost:${defaultPort}`;
+}
+
 export default function SystemHealthDashboard() {
   const [pollingInterval, setPollingInterval] = useState<number>(5000);
   const [isAutoRefresh, setIsAutoRefresh] = useState<boolean>(true);
@@ -41,6 +52,33 @@ export default function SystemHealthDashboard() {
   const overallStatus = data?.status || (isLoading ? "ok" : "failed");
   const checks = data?.checks || {};
   const latency = data?.latencyMs ?? 0;
+
+  const telemetryDashboards = [
+    {
+      name: "Prometheus",
+      port: "Port 9090",
+      description: "Scraping 12 custom metrics + 15 alert rules.",
+      href: getTelemetryUrl(process.env.NEXT_PUBLIC_PROMETHEUS_URL, 9090),
+    },
+    {
+      name: "Grafana 10",
+      port: "Port 3003",
+      description: "7 ConfigMap-provisioned dashboards for S2P & SLOs.",
+      href: getTelemetryUrl(process.env.NEXT_PUBLIC_GRAFANA_URL, 3003),
+    },
+    {
+      name: "Jaeger Tracing",
+      port: "Port 16686",
+      description: "OpenTelemetry end-to-end distributed traces.",
+      href: getTelemetryUrl(process.env.NEXT_PUBLIC_JAEGER_URL, 16686),
+    },
+    {
+      name: "Loki / Promtail",
+      port: "Port 3100",
+      description: "Structured JSON log aggregation with health drops.",
+      href: getTelemetryUrl(process.env.NEXT_PUBLIC_LOKI_URL, 3100),
+    },
+  ];
 
   const getStatusColor = (st: string) => {
     switch (st) {
@@ -304,45 +342,26 @@ export default function SystemHealthDashboard() {
         </h3>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
-          <div className="p-3.5 bg-neutral-50 dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 space-y-1">
-            <div className="flex items-center justify-between font-semibold text-neutral-800 dark:text-neutral-200">
-              <span>Prometheus</span>
-              <Badge variant="info">Port 9090</Badge>
-            </div>
-            <p className="text-neutral-500 text-[11px]">
-              Scraping 12 custom metrics + 15 alert rules.
-            </p>
-          </div>
-
-          <div className="p-3.5 bg-neutral-50 dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 space-y-1">
-            <div className="flex items-center justify-between font-semibold text-neutral-800 dark:text-neutral-200">
-              <span>Grafana 10</span>
-              <Badge variant="info">Port 3003</Badge>
-            </div>
-            <p className="text-neutral-500 text-[11px]">
-              7 ConfigMap-provisioned dashboards for S2P & SLOs.
-            </p>
-          </div>
-
-          <div className="p-3.5 bg-neutral-50 dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 space-y-1">
-            <div className="flex items-center justify-between font-semibold text-neutral-800 dark:text-neutral-200">
-              <span>Jaeger Tracing</span>
-              <Badge variant="info">Port 16686</Badge>
-            </div>
-            <p className="text-neutral-500 text-[11px]">
-              OpenTelemetry end-to-end distributed traces.
-            </p>
-          </div>
-
-          <div className="p-3.5 bg-neutral-50 dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 space-y-1">
-            <div className="flex items-center justify-between font-semibold text-neutral-800 dark:text-neutral-200">
-              <span>Loki / Promtail</span>
-              <Badge variant="info">Port 3100</Badge>
-            </div>
-            <p className="text-neutral-500 text-[11px]">
-              Structured JSON log aggregation with health drops.
-            </p>
-          </div>
+          {telemetryDashboards.map((dash) => (
+            <a
+              key={dash.name}
+              href={dash.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group block p-3.5 bg-neutral-50 dark:bg-neutral-900 hover:bg-neutral-100/80 dark:hover:bg-neutral-800/80 rounded-xl border border-neutral-200 dark:border-neutral-800 hover:border-purple-300 dark:hover:border-purple-600/70 hover:shadow-xs transition-all duration-150 space-y-1 cursor-pointer"
+            >
+              <div className="flex items-center justify-between font-semibold text-neutral-800 dark:text-neutral-200">
+                <span className="flex items-center gap-1.5 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
+                  {dash.name}
+                  <ExternalLink className="w-3 h-3 text-neutral-400 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors" />
+                </span>
+                <Badge variant="info">{dash.port}</Badge>
+              </div>
+              <p className="text-neutral-500 dark:text-neutral-400 text-[11px]">
+                {dash.description}
+              </p>
+            </a>
+          ))}
         </div>
       </Card>
     </div>

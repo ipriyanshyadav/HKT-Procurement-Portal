@@ -26,6 +26,8 @@ export function middleware(request: NextRequest) {
   // We cannot check the access_token since it's in memory only
   const refreshToken =
     request.cookies.get("refresh_token_buyer") ||
+    request.cookies.get("refresh_token_admin") ||
+    request.cookies.get("refresh_token_supplier") ||
     request.cookies.get("refresh_token");
 
   if (!refreshToken) {

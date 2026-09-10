@@ -19,6 +19,9 @@ export type { CurrencySelectProps, CurrencyOption } from "./CurrencySelect";
 export { PaymentTermsSelect } from "./PaymentTermsSelect";
 export type { PaymentTermsSelectProps, PaymentTermOption } from "./PaymentTermsSelect";
 
+export { IncotermSelect } from "./IncotermSelect";
+export type { IncotermSelectProps, IncotermOption } from "./IncotermSelect";
+
 export { VendorStatusBadge } from "./VendorStatusBadge";
 export type { VendorStatus } from "./VendorStatusBadge";
 
@@ -109,8 +112,8 @@ export type { KPIItemProps, HeroKPIStripProps, KPICardProps } from "./components
 export { SpendChart } from "./components/SpendChart";
 export type { SpendChartProps, SpendItem, BreakdownType } from "./components/SpendChart";
 
-export { Tabs, RadixTabs, TabsList, TabsTrigger, TabsContent } from "./components/Tabs";
-export type { TabsProps, TabOption } from "./components/Tabs";
+export { Tabs, SubTabs, UnderlineTabs, RadixTabs, TabsList, TabsTrigger, TabsContent } from "./components/Tabs";
+export type { TabsProps, TabOption, TabsVariant, TabsSize } from "./components/Tabs";
 
 export { Skeleton } from "./components/Skeleton";
 export type { SkeletonProps } from "./components/Skeleton";
@@ -127,6 +130,18 @@ export type { SidebarProps, SidebarItemData, SidebarMode } from "./components/Si
 
 export { AppShell } from "./components/AppShell";
 export type { AppShellProps } from "./components/AppShell";
+
+export { AccessRestrictedCard } from "./components/AccessRestrictedCard";
+export type { AccessRestrictedCardProps } from "./components/AccessRestrictedCard";
+
+export { PersonaSimulationBanner } from "./components/PersonaSimulationBanner";
+export type { PersonaSimulationBannerProps } from "./components/PersonaSimulationBanner";
+
+export { PageTransition } from "./components/PageTransition";
+export type { PageTransitionProps } from "./components/PageTransition";
+
+export { VirtualTable } from "./components/VirtualTable";
+export type { VirtualTableProps, VirtualTableColumn } from "./components/VirtualTable";
 
 // Interaction Hooks
 export { useAppleReveal } from "./hooks/useAppleReveal";
@@ -152,6 +167,10 @@ export { ContractExpiryCountdown } from "./ContractExpiryCountdown";
 export type { ContractExpiryCountdownProps } from "./ContractExpiryCountdown";
 export { MilestoneTracker } from "./MilestoneTracker";
 export type { MilestoneTrackerProps, MilestoneItem } from "./MilestoneTracker";
+export { RateCardTable } from "./RateCardTable";
+export type { RateCardTableProps, RateCardLineItem } from "./RateCardTable";
+export { ContractAmendmentHistory } from "./ContractAmendmentHistory";
+export type { ContractAmendmentHistoryProps, AmendmentItem } from "./ContractAmendmentHistory";
 
 // Purchase Order & GRN Components (SPEC_14)
 export { DeliveryScheduleTable } from "./DeliveryScheduleTable";
@@ -178,6 +197,8 @@ export type { I18nProviderProps } from "./i18n";
 // Notification Components (SPEC_16)
 export { NotificationBell } from "./components/NotificationBell";
 export { NotificationCenter } from "./components/NotificationCenter";
+export { NotificationToast, NotificationToastContainer, NotificationToaster } from "./components/NotificationToast";
+export type { NotificationToastItem, NotificationToastProps, NotificationToastContainerProps, NotificationToastType } from "./components/NotificationToast";
 
 // Enterprise Nuances & Real-World Modules
 export { ItemCatalogModal } from "./ItemCatalogModal";
@@ -189,3 +210,63 @@ export type { SplitScreenViewerProps, DocumentItem } from "./SplitScreenViewer";
 
 // Ticket & Query Management Components (SPEC_26)
 export * from "./components/tickets";
+
+// Analytics & Spend Cube Components (SPEC_25)
+export { SpendCubeVisualizer } from "./components/SpendCubeVisualizer";
+export type { SpendCubeVisualizerProps, SpendCubeTab } from "./components/SpendCubeVisualizer";
+export { MaverickSpendTable } from "./components/MaverickSpendTable";
+export type { MaverickSpendTableProps } from "./components/MaverickSpendTable";
+export { CustomReportBuilder } from "./components/CustomReportBuilder";
+export type { CustomReportBuilderProps } from "./components/CustomReportBuilder";
+export { ComplianceReportsView } from "./components/ComplianceReportsView";
+export type { ComplianceReportsViewProps, ComplianceTab } from "./components/ComplianceReportsView";
+
+// Multi-Tenant Company Switcher
+export { CompanySwitcher } from "./components/CompanySwitcher";
+export type { CompanySwitcherProps } from "./components/CompanySwitcher";
+
+// Developer Platform & API Key Management
+export { DeveloperPlatformDashboard } from "./components/DeveloperPlatformDashboard";
+
+// Enterprise Compliance & Security Posture Dashboard
+export { CompliancePostureDashboard } from "./components/CompliancePostureDashboard";
+
+// Catalog & PunchOut Marketplace (SPEC_14)
+export { CatalogMarketplace } from "./components/CatalogMarketplace";
+
+// AI-Powered Autonomous Sourcing & Negotiation Copilot
+export { AISourcingCopilot } from "./components/AISourcingCopilot";
+
+// Government E-Invoicing & E-Way Bill Integration (India GST & Global Peppol)
+export { EInvoiceComplianceViewer } from "./components/EInvoiceComplianceViewer";
+
+// Dynamic Live Auction Engine (SPEC_11B)
+export { LiveAuctionRoom } from "./components/LiveAuctionRoom";
+export { LiveAuctionList } from "./components/LiveAuctionList";
+
+// Automated 3-Way & 4-Way Invoice Reconciliation (SPEC_15)
+export { InvoiceReconciliationWorkbench } from "./components/InvoiceReconciliationWorkbench";
+
+// Contract Lifecycle Redlining & Collaborative Clause Editor (SPEC_13)
+export { ContractRedlineStudio } from "./components/ContractRedlineStudio";
+export type { ContractRedlineStudioProps } from "./components/ContractRedlineStudio";
+
+// Automated Disaster Recovery Orchestrator & PITR Backup Drills (SPEC_21/SPEC_22)
+export { DisasterRecoveryConsole } from "./components/DisasterRecoveryConsole";
+
+// External Supplier Self-Onboarding & KYC Compliance Workbench (SPEC_07)
+export { VendorOnboardingWorkbench } from "./components/VendorOnboardingWorkbench";
+
+// Real-Time Spend Cube & Maverick Spend AI Intelligence (SPEC_25)
+export { MaverickIntelligenceWorkbench } from "./components/MaverickIntelligenceWorkbench";
+export type { MaverickIntelligenceWorkbenchProps } from "./components/MaverickIntelligenceWorkbench";
+
+// Multi-ERP Bi-Directional Sync Gateway (SPEC_20)
+export { ERPGatewayReconciliationConsole } from "./components/ERPGatewayReconciliationConsole";
+export type { ERPGatewayReconciliationConsoleProps } from "./components/ERPGatewayReconciliationConsole";
+
+// Automated Carbon & ESG Scope 1, 2, 3 Footprint Calculator (SPEC_25 / SPEC_07)
+export { CarbonESGDashboard } from "./analytics/CarbonESGDashboard";
+
+// Advanced Multi-Tier Approval Delegation Matrix & SoD Workbench (SPEC_06)
+export { ApprovalDelegationWorkbench } from "./workflow/ApprovalDelegationWorkbench";

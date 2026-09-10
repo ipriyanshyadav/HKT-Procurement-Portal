@@ -95,53 +95,53 @@ export default function ContractsListPage() {
 
       {/* KPI Cards Strip */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+        <div className="bg-white dark:bg-[#1C1C1F] p-4 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               Total Contracts
             </span>
             <FileText className="w-4 h-4 text-slate-400" />
           </div>
-          <div className="text-2xl font-bold text-slate-900 dark:text-slate-100 mt-2">
+          <div className="text-2xl font-bold text-slate-900 dark:text-slate-100 mt-2 font-mono">
             {kpis.total}
           </div>
           <span className="text-xs text-slate-500">Across all business units</span>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+        <div className="bg-white dark:bg-[#1C1C1F] p-4 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               Active Contracts
             </span>
             <CheckCircle2 className="w-4 h-4 text-emerald-500" />
           </div>
-          <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-2">
+          <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-2 font-mono">
             {kpis.active}
           </div>
           <span className="text-xs text-emerald-600/80">Valid & executing</span>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+        <div className="bg-white dark:bg-[#1C1C1F] p-4 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               Expiring &lt; 60 Days
             </span>
             <Clock className="w-4 h-4 text-amber-500" />
           </div>
-          <div className="text-2xl font-bold text-amber-600 dark:text-amber-400 mt-2">
+          <div className="text-2xl font-bold text-amber-600 dark:text-amber-400 mt-2 font-mono">
             {kpis.warning}
           </div>
           <span className="text-xs text-amber-600/80">Renewal notice period</span>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+        <div className="bg-white dark:bg-[#1C1C1F] p-4 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               Critical / Expired
             </span>
             <AlertTriangle className="w-4 h-4 text-red-500" />
           </div>
-          <div className="text-2xl font-bold text-red-600 dark:text-red-400 mt-2">
+          <div className="text-2xl font-bold text-red-600 dark:text-red-400 mt-2 font-mono">
             {kpis.critical}
           </div>
           <span className="text-xs text-red-600/80">Requires urgent action</span>
@@ -149,7 +149,7 @@ export default function ContractsListPage() {
       </div>
 
       {/* Filters Bar */}
-      <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-wrap items-center gap-3">
+      <div className="bg-white dark:bg-[#1C1C1F] p-4 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm flex flex-wrap items-center gap-3">
         <div className="flex-1 min-w-[240px] relative">
           <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
@@ -160,7 +160,7 @@ export default function ContractsListPage() {
               setSearch(e.target.value);
               setPage(1);
             }}
-            className="w-full text-sm border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-lg pl-9 pr-3.5 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+            className="w-full text-sm border border-slate-300 dark:border-white/15 bg-white dark:bg-[#252529] text-slate-900 dark:text-slate-100 rounded-xl pl-9 pr-3.5 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
           />
         </div>
 
@@ -170,7 +170,7 @@ export default function ContractsListPage() {
             setStatusFilter(e.target.value);
             setPage(1);
           }}
-          className="text-sm border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+          className="text-sm border border-slate-300 dark:border-white/15 rounded-xl px-3 py-2 bg-white dark:bg-[#252529] text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
         >
           <option value="">All Statuses</option>
           <option value="DRAFT">Draft</option>
@@ -191,7 +191,7 @@ export default function ContractsListPage() {
             setExpiryDaysFilter(val ? Number(val) : undefined);
             setPage(1);
           }}
-          className="text-sm border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+          className="text-sm border border-slate-300 dark:border-white/15 rounded-xl px-3 py-2 bg-white dark:bg-[#252529] text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
         >
           <option value="">All Validity Horizons</option>
           <option value="30">Expiring in 30 Days (Critical)</option>
@@ -201,7 +201,7 @@ export default function ContractsListPage() {
       </div>
 
       {/* Contracts Table */}
-      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+      <div className="bg-white dark:bg-[#1C1C1F] rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm overflow-hidden">
         {isLoading ? (
           <div className="p-16 text-center text-slate-500 dark:text-slate-400 text-sm">
             <Clock className="w-6 h-6 animate-spin mx-auto mb-2 text-indigo-600" />
@@ -219,7 +219,7 @@ export default function ContractsListPage() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm text-slate-600 dark:text-slate-300">
-              <thead className="bg-slate-50 dark:bg-slate-800/60 text-xs uppercase font-semibold text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
+              <thead className="bg-slate-50 dark:bg-[#252529] text-xs uppercase font-semibold text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-white/10">
                 <tr>
                   <th className="px-6 py-3.5">Contract Details</th>
                   <th className="px-6 py-3.5">Type</th>
@@ -229,7 +229,7 @@ export default function ContractsListPage() {
                   <th className="px-6 py-3.5 text-right">Workspace</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+              <tbody className="divide-y divide-slate-100 dark:divide-white/5">
                 {contracts.map((c) => {
                   const totalVal = Number(c.total_value || 0);
                   const utilVal = Number(c.utilized_value || 0);
@@ -277,7 +277,7 @@ export default function ContractsListPage() {
                               <span>Utilized: {utilPct}%</span>
                               <span>{c.currency} {utilVal.toLocaleString()}</span>
                             </div>
-                            <div className="w-28 bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                            <div className="w-28 bg-slate-100 dark:bg-white/10 rounded-full h-1.5 overflow-hidden">
                               <div
                                 className={`h-1.5 rounded-full ${
                                   utilPct > 90

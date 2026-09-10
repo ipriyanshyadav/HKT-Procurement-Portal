@@ -51,10 +51,14 @@ def _get_refresh_token_and_key(request: Request) -> tuple[str, str, Optional[str
     portal = _get_portal(request)
     cookie_key = _get_cookie_key(portal)
     token = request.cookies.get(cookie_key)
-    if not token and cookie_key != "refresh_token":
-        token = request.cookies.get("refresh_token")
-        if token:
-            cookie_key = "refresh_token"
+    if not token:
+        for fallback_key in ("refresh_token", "refresh_token_buyer", "refresh_token_admin", "refresh_token_supplier"):
+            val = request.cookies.get(fallback_key)
+            if val:
+                token = val
+                if fallback_key == "refresh_token":
+                    cookie_key = "refresh_token"
+                break
     return token or "", cookie_key, portal
 
 
@@ -95,6 +99,16 @@ async def login(
             path="/",
             max_age=settings.JWT_REFRESH_TOKEN_EXPIRE_HOURS * 3600,
         )
+        if cookie_key != "refresh_token":
+            response.set_cookie(
+                key="refresh_token",
+                value=result.refresh_token,
+                httponly=True,
+                secure=settings.COOKIE_SECURE,
+                samesite=settings.COOKIE_SAMESITE,
+                path="/",
+                max_age=settings.JWT_REFRESH_TOKEN_EXPIRE_HOURS * 3600,
+            )
     return response
 
 
@@ -119,6 +133,16 @@ async def refresh(
         path="/",
         max_age=settings.JWT_REFRESH_TOKEN_EXPIRE_HOURS * 3600,
     )
+    if cookie_key != "refresh_token":
+        response.set_cookie(
+            key="refresh_token",
+            value=result.refresh_token,
+            httponly=True,
+            secure=settings.COOKIE_SECURE,
+            samesite=settings.COOKIE_SAMESITE,
+            path="/",
+            max_age=settings.JWT_REFRESH_TOKEN_EXPIRE_HOURS * 3600,
+        )
     return response
 
 

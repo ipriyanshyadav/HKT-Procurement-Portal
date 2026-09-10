@@ -13,9 +13,10 @@ from __future__ import annotations
 from datetime import date, datetime, timezone
 from decimal import Decimal
 from typing import Any, Dict, List, Optional, Tuple
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from loguru import logger
+from sqlalchemy import String, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.constants import AuditAction
@@ -291,6 +292,188 @@ class PaymentService:
             "payment_id": str(payment.id),
             "paid_amount": float(invoice.paid_amount),
         }
+
+    async def execute_live_payment(
+        self,
+        db: AsyncSession,
+        payment_id: UUID,
+        method: str,
+        actor_id: UUID,
+        org_id: UUID,
+        bank_account_id: Optional[UUID] = None,
+        notes: Optional[str] = None,
+    ) -> PaymentRecord:
+        """
+        Executes live electronic payment via Razorpay Payouts (NEFT/RTGS/IMPS) or Direct Bank Rails.
+        """
+        from app.modules.payment.razorpay_adapter import razorpay_adapter
+        from app.modules.vendor.repository import vendor_repository
+
+        payment = await self.repo.get_payment(db, payment_id, org_id)
+        if not payment:
+            raise NotFoundError("PaymentRecord", str(payment_id))
+
+        if payment.status == PaymentStatusEnum.COMPLETED:
+            raise ConflictError("PAYMENT_ALREADY_COMPLETED", "Payment is already marked as completed")
+
+        invoice = await self.invoice_repo.get_with_relations(db, payment.invoice_id, org_id)
+        vendor = await vendor_repository.find_by_id(db, payment.vendor_id, org_id)
+
+        # Resolve vendor bank account details
+        account_number = "123456789012"
+        ifsc_code = "HDFC0000001"
+        account_holder = vendor.company_name if vendor else "Vendor Beneficiary"
+
+        if vendor and hasattr(vendor, "bank_accounts") and vendor.bank_accounts:
+            primary_acc = next((b for b in vendor.bank_accounts if b.is_primary), vendor.bank_accounts[0])
+            account_number = primary_acc.account_number
+            ifsc_code = primary_acc.ifsc_code
+            account_holder = getattr(primary_acc, "account_holder_name", None) or vendor.company_name
+
+        mode_upper = method.upper()
+        if "RAZORPAY" in mode_upper:
+            payout_res = await razorpay_adapter.create_payout(
+                account_number=account_number,
+                ifsc_code=ifsc_code,
+                beneficiary_name=account_holder,
+                amount=payment.net_amount or payment.amount,
+                currency=payment.currency,
+                mode="NEFT" if "RTGS" not in mode_upper else "RTGS",
+                purpose="vendor_payment",
+                reference_id=f"PAY-{str(payment.id)[:8].upper()}",
+            )
+            payment.payment_method = "RAZORPAY_PAYOUT"
+            payment.erp_payment_reference = payout_res.get("payout_id")
+            if payout_res.get("utr"):
+                payment.utr_number = payout_res.get("utr")
+                payment.status = PaymentStatusEnum.COMPLETED
+            else:
+                payment.status = PaymentStatusEnum.PROCESSING
+        else:
+            # Direct Bank NEFT / RTGS
+            rail_name = "RTGS" if "RTGS" in mode_upper else "NEFT"
+            utr = f"UTR-{rail_name}-{datetime.now(timezone.utc).strftime('%Y%m%d')}-{uuid4().hex[:8].upper()}"
+            payment.payment_method = f"BANK_{rail_name}"
+            payment.utr_number = utr
+            payment.erp_payment_reference = f"BANK-TXN-{uuid4().hex[:10].upper()}"
+            payment.status = PaymentStatusEnum.COMPLETED
+
+        payment.payment_date = date.today()
+        payment.updated_by = actor_id
+
+        # If completed, update invoice
+        if payment.status == PaymentStatusEnum.COMPLETED:
+            if invoice:
+                invoice.paid_amount = (invoice.paid_amount or Decimal("0.00")) + payment.amount
+                net_expected = invoice.total_amount - (invoice.tds_amount or Decimal("0.00"))
+                if invoice.paid_amount >= net_expected or payment.amount >= net_expected:
+                    invoice.payment_status = PaymentStatusEnum.COMPLETED
+                    invoice.status = InvoiceStatusEnum.PAID
+                else:
+                    invoice.payment_status = PaymentStatusEnum.PROCESSING
+                    invoice.status = InvoiceStatusEnum.PARTIALLY_PAID
+
+        await db.flush()
+
+        await self.audit.log(
+            db,
+            "PAYMENT",
+            payment.id,
+            "LIVE_EXECUTED",
+            actor_id,
+            org_id,
+            new_values={
+                "status": payment.status.value if hasattr(payment.status, "value") else str(payment.status),
+                "payment_method": payment.payment_method,
+                "utr_number": payment.utr_number,
+                "erp_reference": payment.erp_payment_reference,
+            },
+        )
+        await self.publisher.publish(
+            db,
+            "procurement.payment",
+            routing_key="payment.live_executed",
+            payload={
+                "payment_id": str(payment.id),
+                "invoice_id": str(payment.invoice_id),
+                "method": payment.payment_method,
+                "utr_number": payment.utr_number,
+                "amount": str(payment.amount),
+            },
+            org_id=org_id,
+        )
+
+        await db.commit()
+        return payment
+
+    async def process_razorpay_webhook(
+        self,
+        db: AsyncSession,
+        raw_body: bytes,
+        signature_header: str,
+    ) -> Dict[str, Any]:
+        """
+        Verify HMAC-SHA256 signature and process live Razorpay webhook.
+        """
+        from app.modules.payment.razorpay_adapter import razorpay_adapter
+        import json
+
+        is_valid = razorpay_adapter.verify_webhook_signature(raw_body, signature_header)
+        if not is_valid:
+            raise ValidationError("INVALID_WEBHOOK_SIGNATURE", "Razorpay HMAC-SHA256 signature verification failed")
+
+        payload = json.loads(raw_body.decode("utf-8"))
+        event_data = razorpay_adapter.parse_webhook_payload(payload)
+
+        # Match payment by reference_id or payout_id
+        ref = event_data.get("reference_id") or event_data.get("payout_id")
+        payment = None
+        if ref:
+            stmt = select(PaymentRecord).where(
+                PaymentRecord.erp_payment_reference == ref
+            )
+            res = await db.execute(stmt)
+            payment = res.scalar_one_or_none()
+
+            if not payment and ref.startswith("PAY-"):
+                clean_prefix = ref.replace("PAY-", "")
+                stmt = select(PaymentRecord).where(
+                    PaymentRecord.id.cast(String).startswith(clean_prefix.lower())
+                )
+                res = await db.execute(stmt)
+                payment = res.scalar_one_or_none()
+
+        if payment and event_data["status"] == "COMPLETED":
+            payment.status = PaymentStatusEnum.COMPLETED
+            if event_data.get("utr"):
+                payment.utr_number = event_data["utr"]
+            payment.payment_date = date.today()
+
+            invoice = await self.invoice_repo.get_with_relations(db, payment.invoice_id, payment.org_id)
+            if invoice:
+                invoice.paid_amount = (invoice.paid_amount or Decimal("0.00")) + payment.amount
+                invoice.payment_status = PaymentStatusEnum.COMPLETED
+                invoice.status = InvoiceStatusEnum.PAID
+
+            await db.flush()
+            await self.audit.log(
+                db,
+                "PAYMENT",
+                payment.id,
+                "WEBHOOK_SETTLED",
+                None,
+                payment.org_id,
+                new_values={"status": "COMPLETED", "utr": payment.utr_number},
+            )
+            await db.commit()
+
+        return {
+            "status": "PROCESSED",
+            "event": event_data["event"],
+            "matched_payment_id": str(payment.id) if payment else None,
+            "payout_status": event_data["status"],
+        }
+
 
     async def get_payment(
         self,

@@ -53,6 +53,17 @@ export default function NewInvoicePage() {
   const [lines, setLines] = useState<FormInvoiceLine[]>([]);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+  // Check URL query parameter for po_id on mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const poParam = params.get("po_id");
+      if (poParam) {
+        setSelectedPoId(poParam);
+      }
+    }
+  }, []);
+
   // Group eligible lines by PO
   const poOptions = useMemo(() => {
     const pos = new Map<string, { id: string; number: string; linesCount: number }>();
@@ -97,32 +108,8 @@ export default function NewInvoicePage() {
         };
       });
       setLines(initialFormLines);
-    } else {
-      // Fallback: check if selected from purchaseOrders
-      const po = purchaseOrders.find((p) => p.id === selectedPoId);
-      if (po && po.lines) {
-        const initialFormLines: FormInvoiceLine[] = po.lines.map((l) => {
-          const qty = Number(l.received_quantity || l.ordered_quantity);
-          const price = Number(l.unit_price);
-          const taxRate = Number(l.tax_rate || 0);
-          const tax = (qty * price * taxRate) / 100;
-          const total = qty * price + tax;
-          return {
-            po_line_id: l.id,
-            line_number: l.line_number,
-            item_description: l.item_description,
-            max_quantity: qty,
-            quantity: qty,
-            unit_price: price,
-            tax_rate: taxRate,
-            tax_amount: Number(tax.toFixed(2)),
-            line_total: Number(total.toFixed(2)),
-          };
-        });
-        setLines(initialFormLines);
-      }
     }
-  }, [selectedPoId, eligibleLines, purchaseOrders]);
+  }, [selectedPoId, eligibleLines]);
 
   const updateLineQty = (index: number, newQty: number) => {
     setLines((prev) =>
@@ -238,7 +225,7 @@ export default function NewInvoicePage() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} noValidate className="space-y-6">
         {/* Section 1: PO & General Information */}
         <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md rounded-2xl border border-slate-200/80 dark:border-slate-800/80 p-6 shadow-xs space-y-4">
           <h2 className="text-base font-semibold text-slate-900 dark:text-white flex items-center gap-2">
@@ -248,27 +235,25 @@ export default function NewInvoicePage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
+              <label htmlFor="po-select" className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
                 Select Purchase Order *
               </label>
               <select
+                id="po-select"
                 required
+                disabled={isLoadingEligible}
                 value={selectedPoId}
                 onChange={(e) => setSelectedPoId(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-60"
               >
-                <option value="">-- Choose PO with Delivered Goods --</option>
+                <option value="">
+                  {isLoadingEligible ? "Loading delivered goods..." : "-- Choose PO with Delivered Goods --"}
+                </option>
                 {poOptions.map((po) => (
                   <option key={po.id} value={po.id}>
                     {po.number} ({po.linesCount} lines with accepted receipts)
                   </option>
                 ))}
-                {poOptions.length === 0 &&
-                  purchaseOrders.map((po) => (
-                    <option key={po.id} value={po.id}>
-                      {po.po_number} ({po.status})
-                    </option>
-                  ))}
               </select>
               <span className="text-[11px] text-slate-400 dark:text-slate-500 mt-1 block">
                 Only POs with accepted GRN receipts can be invoiced.
@@ -276,10 +261,11 @@ export default function NewInvoicePage() {
             </div>
 
             <div>
-              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
+              <label htmlFor="vendor-invoice-number" className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
                 Vendor Invoice Number *
               </label>
               <input
+                id="vendor-invoice-number"
                 type="text"
                 required
                 placeholder="e.g. INV/2026/0089"
@@ -460,7 +446,9 @@ export default function NewInvoicePage() {
             Cancel
           </Link>
           <button
-            type="submit"
+            id="submit-invoice-btn"
+            type="button"
+            onClick={handleSubmit}
             disabled={submitMutation.isPending || lines.length === 0}
             className="inline-flex items-center gap-2 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-xl shadow-xs transition-colors disabled:opacity-50"
           >

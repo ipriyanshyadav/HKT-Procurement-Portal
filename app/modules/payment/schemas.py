@@ -121,3 +121,12 @@ class ErpPaymentWebhookRequest(BaseModel):
     payment_date: date
     payment_method: Optional[str] = "NEFT"
     erp_reference: Optional[str] = None
+
+
+class PaymentLiveExecuteRequest(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    method: str = Field(default="RAZORPAY_PAYOUT", description="Payment rail: RAZORPAY_PAYOUT | BANK_NEFT | BANK_RTGS")
+    bank_account_id: Optional[UUID] = None
+    notes: Optional[str] = None
+

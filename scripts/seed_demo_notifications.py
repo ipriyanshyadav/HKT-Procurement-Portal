@@ -50,18 +50,19 @@ async def seed_demo_notifications():
         users_res = await db.execute(
             select(User).where(
                 User.org_id == DEFAULT_ORG_ID,
-                User.email.in_(["buyer@procurement.com", "supplier@acme.com", "admin@procurement.com"]),
+                User.email.in_(["buyer@procurement.com", "supplier@acme.com", "admin@procurement.com", "approver@procurement.com"]),
             )
         )
         users = {u.email: u for u in users_res.scalars().all()}
         buyer = users.get("buyer@procurement.com")
         supplier = users.get("supplier@acme.com")
+        approver = users.get("approver@procurement.com")
+        admin = users.get("admin@procurement.com")
 
         # Clean existing demo notifications to ensure fresh live links
-        if buyer:
-            await db.execute(delete(Notification).where(Notification.user_id == buyer.id))
-        if supplier:
-            await db.execute(delete(Notification).where(Notification.user_id == supplier.id))
+        for u in [buyer, supplier, approver, admin]:
+            if u:
+                await db.execute(delete(Notification).where(Notification.user_id == u.id))
 
         pr_num = live_pr.pr_number if live_pr else "PR-IT-2026-000002"
         pr_id = live_pr.id if live_pr else uuid4()
@@ -200,6 +201,75 @@ async def seed_demo_notifications():
             },
         ]
 
+        approver_items = [
+            {
+                "type": "pr_submitted",
+                "title": f"PR Approval Required: {pr_num}",
+                "body": f"Requisition {pr_num} ('{pr_title}') requires your sign-off in the Approvals inbox.",
+                "entity_type": "requisition",
+                "entity_id": pr_id,
+                "is_read": False,
+                "delta_hours": 0.5,
+            },
+            {
+                "type": "po_approval",
+                "title": f"Purchase Order Sign-Off: {po_num}",
+                "body": f"Purchase order {po_num} requires procurement leadership authorization.",
+                "entity_type": "purchase_order",
+                "entity_id": po_id,
+                "is_read": False,
+                "delta_hours": 1.8,
+            },
+            {
+                "type": "rfq_bid_opening",
+                "title": f"Dual-Auth Bid Opening Ready: {rfq_num}",
+                "body": f"Bidding deadline has elapsed for {rfq_num}. Dual-authorization required to unseal bids.",
+                "entity_type": "rfq",
+                "entity_id": rfq_id,
+                "is_read": False,
+                "delta_hours": 3.2,
+            },
+            {
+                "type": "contract_review",
+                "title": "Contract Under Review: CON-2026-000002",
+                "body": "Annual Hardware Support contract terms submitted for executive review and e-signature.",
+                "entity_type": "contract",
+                "entity_id": uuid4(),
+                "is_read": True,
+                "delta_hours": 18.0,
+            },
+        ]
+
+        admin_items = [
+            {
+                "type": "integration_sync_completed",
+                "title": "ERP Integration Sync Complete",
+                "body": "Nightly SAP S/4HANA vendor and MM purchase order sync finished with 0 errors.",
+                "entity_type": "integration",
+                "entity_id": uuid4(),
+                "is_read": False,
+                "delta_hours": 1.0,
+            },
+            {
+                "type": "sla_warning",
+                "title": "Support Ticket SLA Approaching",
+                "body": "Ticket TKT-DEF-2026-000001 resolution SLA deadline in under 4 hours.",
+                "entity_type": "ticket",
+                "entity_id": uuid4(),
+                "is_read": False,
+                "delta_hours": 2.0,
+            },
+            {
+                "type": "system_health_ok",
+                "title": "System Telemetry Healthy",
+                "body": "PostgreSQL connection pools, Redis cache, and RabbitMQ message broker all operating normally.",
+                "entity_type": "system",
+                "entity_id": uuid4(),
+                "is_read": True,
+                "delta_hours": 24.0,
+            },
+        ]
+
         seeded_count = 0
 
         if buyer:
@@ -259,6 +329,54 @@ async def seed_demo_notifications():
                     id=uuid4(),
                     org_id=DEFAULT_ORG_ID,
                     user_id=supplier.id,
+                    notification_type=item["type"],
+                    channel=NotificationChannelEnum.IN_APP,
+                    title=item["title"],
+                    body=item["body"],
+                    entity_type=item["entity_type"],
+                    entity_id=item["entity_id"],
+                    status=NotificationStatusEnum.SENT,
+                    sent_at=created_at,
+                    delivered_at=created_at,
+                    read_at=read_at,
+                    created_at=created_at,
+                )
+                db.add(notif)
+                seeded_count += 1
+
+        if approver:
+            for item in approver_items:
+                created_at = now - timedelta(hours=item["delta_hours"])
+                read_at = created_at + timedelta(minutes=5) if item["is_read"] else None
+
+                notif = Notification(
+                    id=uuid4(),
+                    org_id=DEFAULT_ORG_ID,
+                    user_id=approver.id,
+                    notification_type=item["type"],
+                    channel=NotificationChannelEnum.IN_APP,
+                    title=item["title"],
+                    body=item["body"],
+                    entity_type=item["entity_type"],
+                    entity_id=item["entity_id"],
+                    status=NotificationStatusEnum.SENT,
+                    sent_at=created_at,
+                    delivered_at=created_at,
+                    read_at=read_at,
+                    created_at=created_at,
+                )
+                db.add(notif)
+                seeded_count += 1
+
+        if admin:
+            for item in admin_items:
+                created_at = now - timedelta(hours=item["delta_hours"])
+                read_at = created_at + timedelta(minutes=5) if item["is_read"] else None
+
+                notif = Notification(
+                    id=uuid4(),
+                    org_id=DEFAULT_ORG_ID,
+                    user_id=admin.id,
                     notification_type=item["type"],
                     channel=NotificationChannelEnum.IN_APP,
                     title=item["title"],

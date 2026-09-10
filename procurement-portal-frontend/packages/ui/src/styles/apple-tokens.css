@@ -1,34 +1,41 @@
 /* Apple Design Tokens — Light & Dark */
 :root {
   /* === LIGHT MODE TOKENS === */
+  --apple-bg-canvas: #F5F5F7;
   --apple-bg-primary: #FFFFFF;
   --apple-bg-secondary: #F5F5F7;
   --apple-bg-tertiary: #FBFBFD;
+  --apple-bg-card: #FFFFFF;
+  --apple-bg-well: #F2F2F7;
   --apple-bg-grouped: #F2F2F7;
 
   --apple-label-primary: #1D1D1F;
-  --apple-label-secondary: #6E6E73;
-  --apple-label-tertiary: #AEAEB2;
-  --apple-label-quaternary: #C7C7CC;
+  --apple-label-secondary: #48484A; /* High-contrast secondary text (WCAG AA compliant) */
+  --apple-label-tertiary: #6E6E73;  /* Readable tertiary text */
+  --apple-label-quaternary: #8E8E93;
 
   --apple-blue: #0071E3; /* primary CTA */
   --apple-blue-hover: #0077ED;
   --apple-blue-light: #007AFF; /* system blue */
 
-  --apple-separator: rgba(0, 0, 0, 0.08);
+  --apple-separator: rgba(0, 0, 0, 0.12); /* Crisp hairline separator */
+  --apple-separator-strong: rgba(0, 0, 0, 0.20);
   --apple-fill-primary: rgba(120, 120, 128, 0.20);
   --apple-fill-secondary: rgba(120, 120, 128, 0.16);
   --apple-fill-tertiary: rgba(118, 118, 128, 0.12);
   --apple-fill-quaternary: rgba(116, 116, 128, 0.08);
 
-  --apple-vibrancy-light: rgba(255, 255, 255, 0.80);
-  --apple-vibrancy-ultra: rgba(255, 255, 255, 0.92);
+  --apple-vibrancy-light: rgba(255, 255, 255, 0.90);
+  --apple-vibrancy-ultra: rgba(255, 255, 255, 0.97);
+
+  --apple-card-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 4px 16px rgba(0, 0, 0, 0.05);
+  --apple-card-shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.08), 0 12px 32px rgba(0, 0, 0, 0.08);
 
   /* === SEMANTIC PROCUREMENT COLORS === */
   --status-approved: #30D158; /* Apple green */
   --status-pending: #FF9F0A; /* Apple orange */
   --status-rejected: #FF453A; /* Apple red */
-  --status-draft: #8E8E93; /* Apple gray */
+  --status-draft: #636366; /* Apple gray - exactly matching plan & spec */
   --status-review: #0A84FF; /* Apple blue */
 
   /* Spacing and Radii */
@@ -40,36 +47,59 @@
 
   /* Apple Standard Motion Curves */
   --apple-ease: cubic-bezier(0.25, 0.1, 0.25, 1.0);
+  --ease-apple: cubic-bezier(0.25, 0.1, 0.25, 1.0);
   --apple-spring: cubic-bezier(0.32, 0.72, 0, 1);
   --apple-duration-micro: 120ms;
+  --duration-micro: 120ms;
   --apple-duration-standard: 300ms;
+  --duration-standard: 300ms;
   --apple-duration-page: 500ms;
+  --duration-page: 500ms;
+
+  /* Spec Explicit Dark Mode Aliases for Global Reference */
+  --apple-bg-primary-dark: #000000;
+  --apple-bg-secondary-dark: #1C1C1E;
+  --apple-bg-tertiary-dark: #2C2C2E;
+  --apple-bg-grouped-dark: #1C1C1E;
+  --apple-label-primary-dark: #FFFFFF;
+  --apple-label-secondary-dark: rgba(235, 235, 245, 0.80);
+  --apple-label-tertiary-dark: rgba(235, 235, 245, 0.48);
+  --apple-blue-dark: #0A84FF;
+  --apple-vibrancy-dark: rgba(28, 28, 30, 0.80);
 }
 
-/* === DARK MODE TOKENS (macOS Sonoma / Apple.com faithful) === */
+/* === DARK MODE TOKENS (macOS Sonoma / Apple HIG faithful) === */
 .dark,
 .theme-apple-dark,
 [data-theme='apple-dark'] {
-  --apple-bg-primary: #000000;
-  --apple-bg-secondary: #161618;
-  --apple-bg-tertiary: #1C1C1E;
+  --apple-bg-canvas: #000000;      /* Apple pure OLED true-black canvas */
+  --apple-bg-primary: #000000;     /* Root canvas background */
+  --apple-bg-secondary: #1C1C1E;   /* System Gray 6: Surface / Cards / Sidebar */
+  --apple-bg-tertiary: #2C2C2E;    /* System Gray 5: Wells / Inputs / Headers */
   --apple-bg-grouped: #1C1C1E;
+  --apple-bg-card: #1C1C1E;        /* Elevated Card Surface */
+  --apple-bg-well: #2C2C2E;        /* Inset Well / Subtab / Header */
+  --apple-bg-elevated: #3A3A3C;    /* System Gray 4: Modals / Popovers */
 
   --apple-label-primary: #FFFFFF;
-  --apple-label-secondary: rgba(235, 235, 245, 0.80);
-  --apple-label-tertiary: rgba(235, 235, 245, 0.48);
-  --apple-label-quaternary: rgba(235, 235, 245, 0.20);
+  --apple-label-secondary: rgba(235, 235, 245, 0.80); /* 80% white - crisp secondary */
+  --apple-label-tertiary: rgba(235, 235, 245, 0.48);  /* 48% white - readable tertiary */
+  --apple-label-quaternary: rgba(235, 235, 245, 0.28);
 
   --apple-blue: #0A84FF;
   --apple-blue-hover: #409CFF;
   --apple-blue-light: #0A84FF;
 
-  --apple-separator: rgba(255, 255, 255, 0.12);
+  --apple-separator: rgba(255, 255, 255, 0.10); /* Apple 0.5px - 1px hairline separator */
+  --apple-separator-strong: rgba(255, 255, 255, 0.20);
   --apple-fill-primary: rgba(120, 120, 128, 0.36);
   --apple-fill-secondary: rgba(120, 120, 128, 0.28);
   --apple-fill-tertiary: rgba(118, 118, 128, 0.20);
-  --apple-fill-quaternary: rgba(116, 116, 128, 0.14);
+  --apple-fill-quaternary: rgba(116, 116, 128, 0.12);
 
   --apple-vibrancy-light: rgba(28, 28, 30, 0.80);
-  --apple-vibrancy-ultra: rgba(28, 28, 30, 0.94);
+  --apple-vibrancy-ultra: rgba(28, 28, 30, 0.95);
+
+  --apple-card-shadow: 0 2px 16px rgba(0, 0, 0, 0.30);
+  --apple-card-shadow-hover: 0 8px 32px rgba(0, 0, 0, 0.50);
 }

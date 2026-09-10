@@ -52,6 +52,8 @@ class RfqCreateRequest(BaseModel):
     bid_validity_days: int = Field(default=90, ge=1)
     is_multi_lot: bool = False
     lot_participation_mode: str = "MANDATORY_ALL"
+    bidding_mode: str = Field(default="SEALED")
+    auction_config: Optional[Dict[str, Any]] = None
     source_pr_id: Optional[UUID] = None
     lots: List[RfqLotCreateRequest] = Field(default_factory=list)
     lines: List[RfqLineCreateRequest] = Field(default_factory=list)
@@ -67,6 +69,8 @@ class RfqUpdateRequest(BaseModel):
     bid_close_at: Optional[datetime] = None
     bid_open_at: Optional[datetime] = None
     bid_validity_days: Optional[int] = Field(None, ge=1)
+    bidding_mode: Optional[str] = None
+    auction_config: Optional[Dict[str, Any]] = None
     lots: Optional[List[RfqLotCreateRequest]] = None
     lines: Optional[List[RfqLineCreateRequest]] = None
 
@@ -195,6 +199,8 @@ class RfqDetailResponse(BaseModel):
     cancelled_at: Optional[datetime] = None
     cancel_reason: Optional[str] = None
     source_pr_id: Optional[UUID] = None
+    bidding_mode: str = "SEALED"
+    auction_config: Optional[Dict[str, Any]] = None
     created_by: Optional[UUID] = None
     created_at: datetime
     updated_at: datetime
@@ -212,6 +218,7 @@ class RfqListResponse(BaseModel):
     rfq_number: str
     title: str
     rfq_type: str
+    bidding_mode: str = "SEALED"
     status: str
     buyer_id: UUID
     business_unit_id: UUID

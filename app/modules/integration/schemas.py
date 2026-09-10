@@ -85,3 +85,88 @@ class ERPConfigUpdateRequest(BaseModel):
     allowed_domains: List[str] = []
     is_enabled: bool = True
 
+
+class GSTVerificationRequest(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    gstin: str
+    legal_name: Optional[str] = None
+
+
+class PANVerificationRequest(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    pan: str
+    name: Optional[str] = None
+
+
+class BankPennyDropRequest(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    vendor_id: Optional[UUID] = None
+    account_number: str
+    ifsc_code: str
+    account_holder_name: str
+
+
+class InboundSyncRequest(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    provider: str = "SAP"
+    entity_type: str
+    data: Dict[str, Any]
+
+
+class ERPEntityMappingResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    org_id: UUID
+    erp_system: str
+    entity_type: str
+    internal_id: UUID
+    external_id: str
+    sync_direction: str
+    sync_status: str
+    retry_count: int
+    last_error: Optional[str] = None
+    idoc_number: Optional[str] = None
+    payload_checksum: Optional[str] = None
+    reconciliation_hash: Optional[str] = None
+    metadata_json: Dict[str, Any] = {}
+    last_synced_at: datetime
+    created_at: datetime
+
+
+class ERPSyncTriggerRequest(BaseModel):
+    erp_system: str = "SAP_S4HANA"  # SAP_S4HANA, NETSUITE, ORACLE_CLOUD
+    entity_type: str  # PURCHASE_ORDER, INVOICE, VENDOR, GOODS_RECEIPT
+    internal_id: UUID
+    force_retry: bool = False
+
+
+class ERPSyncTriggerResponse(BaseModel):
+    status: str
+    erp_system: str
+    entity_type: str
+    internal_id: UUID
+    external_id: str
+    idoc_number: Optional[str] = None
+    payload_checksum: Optional[str] = None
+    synced_at: datetime
+    message: str
+
+
+class ERPReconciliationReportResponse(BaseModel):
+    org_id: UUID
+    erp_system: Optional[str] = None
+    total_mapped_entities: int
+    success_count: int
+    pending_count: int
+    failed_count: int
+    dead_letter_count: int
+    parity_percentage: float
+    recent_mappings: List[ERPEntityMappingResponse]
+    dead_letter_queue: List[ERPEntityMappingResponse]
+
+

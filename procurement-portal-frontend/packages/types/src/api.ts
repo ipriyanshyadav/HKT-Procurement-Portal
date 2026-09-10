@@ -121,6 +121,154 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/organizations/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Current Organization
+         * @description Retrieve profile and settings of the current user's organization.
+         */
+        get: operations["get_current_organization_api_v1_organizations_me_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update Current Organization
+         * @description Update profile and settings of the current user's organization.
+         */
+        patch: operations["update_current_organization_api_v1_organizations_me_patch"];
+        trace?: never;
+    };
+    "/api/v1/organizations/current": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Current Organization
+         * @description Retrieve profile and settings of the current user's organization.
+         */
+        get: operations["get_current_organization_api_v1_organizations_current_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update Current Organization
+         * @description Update profile and settings of the current user's organization.
+         */
+        patch: operations["update_current_organization_api_v1_organizations_current_patch"];
+        trace?: never;
+    };
+    "/api/v1/organization": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Current Organization
+         * @description Retrieve profile and settings of the current user's organization.
+         */
+        get: operations["get_current_organization_api_v1_organization_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update Current Organization
+         * @description Update profile and settings of the current user's organization.
+         */
+        patch: operations["update_current_organization_api_v1_organization_patch"];
+        trace?: never;
+    };
+    "/api/v1/organizations/legal-entities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Legal Entities
+         * @description List legal entities for current organization.
+         */
+        get: operations["list_legal_entities_api_v1_organizations_legal_entities_get"];
+        put?: never;
+        /**
+         * Create Legal Entity
+         * @description Create a new legal entity.
+         */
+        post: operations["create_legal_entity_api_v1_organizations_legal_entities_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/legal-entities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Legal Entities
+         * @description List legal entities for current organization.
+         */
+        get: operations["list_legal_entities_api_v1_legal_entities_get"];
+        put?: never;
+        /**
+         * Create Legal Entity
+         * @description Create a new legal entity.
+         */
+        post: operations["create_legal_entity_api_v1_legal_entities_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/legal-entities/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Legal Entity
+         * @description Get legal entity by ID.
+         */
+        get: operations["get_legal_entity_api_v1_legal_entities__id__get"];
+        /**
+         * Update Legal Entity
+         * @description Update legal entity details.
+         */
+        put: operations["update_legal_entity_api_v1_legal_entities__id__put"];
+        post?: never;
+        /**
+         * Delete Legal Entity
+         * @description Soft-delete a legal entity.
+         */
+        delete: operations["delete_legal_entity_api_v1_legal_entities__id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/organizations/business-units": {
         parameters: {
             query?: never;
@@ -134,7 +282,11 @@ export interface paths {
          */
         get: operations["list_business_units_api_v1_organizations_business_units_get"];
         put?: never;
-        post?: never;
+        /**
+         * Create Business Unit
+         * @description Create a new business unit.
+         */
+        post: operations["create_business_unit_api_v1_organizations_business_units_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -154,8 +306,192 @@ export interface paths {
          */
         get: operations["list_business_units_api_v1_business_units_get"];
         put?: never;
-        post?: never;
+        /**
+         * Create Business Unit
+         * @description Create a new business unit.
+         */
+        post: operations["create_business_unit_api_v1_business_units_post"];
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/business-units/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Business Unit
+         * @description Get business unit by ID.
+         */
+        get: operations["get_business_unit_api_v1_business_units__id__get"];
+        /**
+         * Update Business Unit
+         * @description Update business unit details.
+         */
+        put: operations["update_business_unit_api_v1_business_units__id__put"];
+        post?: never;
+        /**
+         * Delete Business Unit
+         * @description Soft-delete a business unit.
+         */
+        delete: operations["delete_business_unit_api_v1_business_units__id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/organizations/plants": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Plants
+         * @description List manufacturing plants and facilities.
+         */
+        get: operations["list_plants_api_v1_organizations_plants_get"];
+        put?: never;
+        /**
+         * Create Plant
+         * @description Create a new manufacturing plant or facility.
+         */
+        post: operations["create_plant_api_v1_organizations_plants_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plants": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Plants
+         * @description List manufacturing plants and facilities.
+         */
+        get: operations["list_plants_api_v1_plants_get"];
+        put?: never;
+        /**
+         * Create Plant
+         * @description Create a new manufacturing plant or facility.
+         */
+        post: operations["create_plant_api_v1_plants_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plants/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Plant
+         * @description Get plant by ID.
+         */
+        get: operations["get_plant_api_v1_plants__id__get"];
+        /**
+         * Update Plant
+         * @description Update plant details.
+         */
+        put: operations["update_plant_api_v1_plants__id__put"];
+        post?: never;
+        /**
+         * Delete Plant
+         * @description Soft-delete a plant.
+         */
+        delete: operations["delete_plant_api_v1_plants__id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/organizations/departments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Departments
+         * @description List operational departments.
+         */
+        get: operations["list_departments_api_v1_organizations_departments_get"];
+        put?: never;
+        /**
+         * Create Department
+         * @description Create a new department.
+         */
+        post: operations["create_department_api_v1_organizations_departments_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/departments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Departments
+         * @description List operational departments.
+         */
+        get: operations["list_departments_api_v1_departments_get"];
+        put?: never;
+        /**
+         * Create Department
+         * @description Create a new department.
+         */
+        post: operations["create_department_api_v1_departments_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/departments/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Department
+         * @description Get department by ID.
+         */
+        get: operations["get_department_api_v1_departments__id__get"];
+        /**
+         * Update Department
+         * @description Update department details.
+         */
+        put: operations["update_department_api_v1_departments__id__put"];
+        post?: never;
+        /**
+         * Delete Department
+         * @description Soft-delete a department.
+         */
+        delete: operations["delete_department_api_v1_departments__id__delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -174,7 +510,11 @@ export interface paths {
          */
         get: operations["list_cost_centers_api_v1_organizations_cost_centers_get"];
         put?: never;
-        post?: never;
+        /**
+         * Create Cost Center
+         * @description Create a new cost center.
+         */
+        post: operations["create_cost_center_api_v1_organizations_cost_centers_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -194,8 +534,40 @@ export interface paths {
          */
         get: operations["list_cost_centers_api_v1_cost_centers_get"];
         put?: never;
-        post?: never;
+        /**
+         * Create Cost Center
+         * @description Create a new cost center.
+         */
+        post: operations["create_cost_center_api_v1_cost_centers_post"];
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/cost-centers/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Cost Center
+         * @description Get cost center by ID.
+         */
+        get: operations["get_cost_center_api_v1_cost_centers__id__get"];
+        /**
+         * Update Cost Center
+         * @description Update cost center details.
+         */
+        put: operations["update_cost_center_api_v1_cost_centers__id__put"];
+        post?: never;
+        /**
+         * Delete Cost Center
+         * @description Soft-delete a cost center.
+         */
+        delete: operations["delete_cost_center_api_v1_cost_centers__id__delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -338,11 +710,179 @@ export interface paths {
         };
         /**
          * List Roles
-         * @description GET /api/v1/users/roles — list available roles in the organization.
+         * @description GET /api/v1/users/roles — list available roles with descriptions, access scope, and permissions.
          */
         get: operations["list_roles_api_v1_users_roles_get"];
         put?: never;
+        /**
+         * Create Role
+         * @description POST /api/v1/users/roles — create a new role with description and permissions.
+         */
+        post: operations["create_role_api_v1_users_roles_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/users/roles/{role_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Role
+         * @description GET /api/v1/users/roles/{role_id} — get detailed role metadata and its assigned permissions.
+         */
+        get: operations["get_role_api_v1_users_roles__role_id__get"];
+        /**
+         * Update Role
+         * @description PUT /api/v1/users/roles/{role_id} — update role details.
+         */
+        put: operations["update_role_api_v1_users_roles__role_id__put"];
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/users/roles/{role_id}/permissions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Update Role Permissions
+         * @description PUT /api/v1/users/roles/{role_id}/permissions — batch update permissions assigned to a role.
+         */
+        put: operations["update_role_permissions_api_v1_users_roles__role_id__permissions_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/users/permissions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Permissions
+         * @description GET /api/v1/users/permissions — full catalog of system permissions.
+         */
+        get: operations["list_permissions_api_v1_users_permissions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/users/role-permissions/matrix": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Role Permissions Matrix
+         * @description GET /api/v1/users/role-permissions/matrix — RBAC matrix mapping permissions to roles.
+         */
+        get: operations["get_role_permissions_matrix_api_v1_users_role_permissions_matrix_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/users/role-permissions/toggle": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Toggle Role Permission
+         * @description POST /api/v1/users/role-permissions/toggle — toggle a permission on a role.
+         */
+        post: operations["toggle_role_permission_api_v1_users_role_permissions_toggle_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/users/sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Sessions
+         * @description GET /api/v1/users/sessions — list user sessions across the organization.
+         */
+        get: operations["list_sessions_api_v1_users_sessions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/users/sessions/{session_id}/revoke": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Revoke Session
+         * @description POST /api/v1/users/sessions/{session_id}/revoke — force-revoke an active user session.
+         */
+        post: operations["revoke_session_api_v1_users_sessions__session_id__revoke_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/users/sessions/user/{user_id}/revoke-all": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Revoke All User Sessions
+         * @description POST /api/v1/users/sessions/user/{user_id}/revoke-all — force-revoke all active sessions for a user.
+         */
+        post: operations["revoke_all_user_sessions_api_v1_users_sessions_user__user_id__revoke_all_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -694,12 +1234,40 @@ export interface paths {
         };
         /**
          * List Incoterms
-         * @description List Incoterms 2020 standard codes.
+         * @description List Incoterms standard codes.
          */
         get: operations["list_incoterms_api_v1_master_data_incoterms_get"];
         put?: never;
-        post?: never;
+        /**
+         * Create Incoterm
+         * @description Create a new Incoterm record.
+         */
+        post: operations["create_incoterm_api_v1_master_data_incoterms_post"];
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/master-data/incoterms/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Update Incoterm
+         * @description Update an Incoterm record.
+         */
+        put: operations["update_incoterm_api_v1_master_data_incoterms__id__put"];
+        post?: never;
+        /**
+         * Delete Incoterm
+         * @description Soft-delete an Incoterm.
+         */
+        delete: operations["delete_incoterm_api_v1_master_data_incoterms__id__delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1602,6 +2170,26 @@ export interface paths {
          * @description POST /api/v1/requisitions/bulk — create multiple requisitions in batch.
          */
         post: operations["bulk_create_requisitions_api_v1_requisitions_bulk_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/requisitions/budget-check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Check Budget Availability
+         * @description Pre-flight real-time check of budget availability before PR submission.
+         */
+        get: operations["check_budget_availability_api_v1_requisitions_budget_check_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -3831,6 +4419,78 @@ export interface paths {
         put: operations["update_notification_preferences_api_v1_notifications_preferences_put"];
         post?: never;
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/notifications/templates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List notification templates
+         * @description List paginated notification templates for the organization.
+         */
+        get: operations["list_notification_templates_api_v1_notifications_templates_get"];
+        put?: never;
+        /**
+         * Create notification template
+         * @description Create a new notification template.
+         */
+        post: operations["create_notification_template_api_v1_notifications_templates_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/notifications/templates/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Preview rendered notification template
+         * @description Test render Jinja2 templates with context variables.
+         */
+        post: operations["preview_notification_template_api_v1_notifications_templates_preview_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/notifications/templates/{template_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get notification template details
+         * @description Retrieve details of a single notification template.
+         */
+        get: operations["get_notification_template_api_v1_notifications_templates__template_id__get"];
+        /**
+         * Update notification template
+         * @description Update subject, body, variables or active status of a notification template.
+         */
+        put: operations["update_notification_template_api_v1_notifications_templates__template_id__put"];
+        post?: never;
+        /**
+         * Delete notification template
+         * @description Soft-delete a notification template.
+         */
+        delete: operations["delete_notification_template_api_v1_notifications_templates__template_id__delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -6125,6 +6785,28 @@ export interface components {
              */
             timestamp?: string;
         };
+        /** APIResponse[BudgetCheckResult] */
+        APIResponse_BudgetCheckResult_: {
+            data: components["schemas"]["BudgetCheckResult"];
+            meta?: components["schemas"]["PaginationMeta"] | null;
+            links?: components["schemas"]["Links"] | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             */
+            timestamp?: string;
+        };
+        /** APIResponse[BusinessUnitResponse] */
+        APIResponse_BusinessUnitResponse_: {
+            data: components["schemas"]["BusinessUnitResponse"];
+            meta?: components["schemas"]["PaginationMeta"] | null;
+            links?: components["schemas"]["Links"] | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             */
+            timestamp?: string;
+        };
         /** APIResponse[ComparativeStatementResponse] */
         APIResponse_ComparativeStatementResponse_: {
             data: components["schemas"]["ComparativeStatementResponse"];
@@ -6158,9 +6840,31 @@ export interface components {
              */
             timestamp?: string;
         };
+        /** APIResponse[CostCenterResponse] */
+        APIResponse_CostCenterResponse_: {
+            data: components["schemas"]["CostCenterResponse"];
+            meta?: components["schemas"]["PaginationMeta"] | null;
+            links?: components["schemas"]["Links"] | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             */
+            timestamp?: string;
+        };
         /** APIResponse[DelegationRuleResponse] */
         APIResponse_DelegationRuleResponse_: {
             data: components["schemas"]["DelegationRuleResponse"];
+            meta?: components["schemas"]["PaginationMeta"] | null;
+            links?: components["schemas"]["Links"] | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             */
+            timestamp?: string;
+        };
+        /** APIResponse[DepartmentResponse] */
+        APIResponse_DepartmentResponse_: {
+            data: components["schemas"]["DepartmentResponse"];
             meta?: components["schemas"]["PaginationMeta"] | null;
             links?: components["schemas"]["Links"] | null;
             /**
@@ -6257,6 +6961,17 @@ export interface components {
              */
             timestamp?: string;
         };
+        /** APIResponse[LegalEntityResponse] */
+        APIResponse_LegalEntityResponse_: {
+            data: components["schemas"]["LegalEntityResponse"];
+            meta?: components["schemas"]["PaginationMeta"] | null;
+            links?: components["schemas"]["Links"] | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             */
+            timestamp?: string;
+        };
         /** APIResponse[List[BusinessUnitResponse]] */
         APIResponse_List_BusinessUnitResponse__: {
             /** Data */
@@ -6309,6 +7024,18 @@ export interface components {
         APIResponse_List_CostCenterResponse__: {
             /** Data */
             data: components["schemas"]["CostCenterResponse"][];
+            meta?: components["schemas"]["PaginationMeta"] | null;
+            links?: components["schemas"]["Links"] | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             */
+            timestamp?: string;
+        };
+        /** APIResponse[List[DepartmentResponse]] */
+        APIResponse_List_DepartmentResponse__: {
+            /** Data */
+            data: components["schemas"]["DepartmentResponse"][];
             meta?: components["schemas"]["PaginationMeta"] | null;
             links?: components["schemas"]["Links"] | null;
             /**
@@ -6377,6 +7104,18 @@ export interface components {
              */
             timestamp?: string;
         };
+        /** APIResponse[List[LegalEntityResponse]] */
+        APIResponse_List_LegalEntityResponse__: {
+            /** Data */
+            data: components["schemas"]["LegalEntityResponse"][];
+            meta?: components["schemas"]["PaginationMeta"] | null;
+            links?: components["schemas"]["Links"] | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             */
+            timestamp?: string;
+        };
         /** APIResponse[List[NegotiationResponse]] */
         APIResponse_List_NegotiationResponse__: {
             /** Data */
@@ -6429,6 +7168,18 @@ export interface components {
         APIResponse_List_PaymentRecordResponse__: {
             /** Data */
             data: components["schemas"]["PaymentRecordResponse"][];
+            meta?: components["schemas"]["PaginationMeta"] | null;
+            links?: components["schemas"]["Links"] | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             */
+            timestamp?: string;
+        };
+        /** APIResponse[List[PlantResponse]] */
+        APIResponse_List_PlantResponse__: {
+            /** Data */
+            data: components["schemas"]["PlantResponse"][];
             meta?: components["schemas"]["PaginationMeta"] | null;
             links?: components["schemas"]["Links"] | null;
             /**
@@ -6533,6 +7284,17 @@ export interface components {
              */
             timestamp?: string;
         };
+        /** APIResponse[OrganizationResponse] */
+        APIResponse_OrganizationResponse_: {
+            data: components["schemas"]["OrganizationResponse"];
+            meta?: components["schemas"]["PaginationMeta"] | null;
+            links?: components["schemas"]["Links"] | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             */
+            timestamp?: string;
+        };
         /** APIResponse[POResponse] */
         APIResponse_POResponse_: {
             data: components["schemas"]["POResponse"];
@@ -6558,6 +7320,17 @@ export interface components {
         /** APIResponse[PaymentRecordResponse] */
         APIResponse_PaymentRecordResponse_: {
             data: components["schemas"]["PaymentRecordResponse"];
+            meta?: components["schemas"]["PaginationMeta"] | null;
+            links?: components["schemas"]["Links"] | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             */
+            timestamp?: string;
+        };
+        /** APIResponse[PlantResponse] */
+        APIResponse_PlantResponse_: {
+            data: components["schemas"]["PlantResponse"];
             meta?: components["schemas"]["PaginationMeta"] | null;
             links?: components["schemas"]["Links"] | null;
             /**
@@ -7348,6 +8121,17 @@ export interface components {
             /** Compliance Expiry */
             compliance_expiry?: string | null;
         };
+        /** BudgetCheckResult */
+        BudgetCheckResult: {
+            /** Status */
+            status: string;
+            /** Available */
+            available: string;
+            /** Requested */
+            requested: string;
+            /** Message */
+            message?: string | null;
+        };
         /** BulkVendorCategoryMappingItem */
         BulkVendorCategoryMappingItem: {
             /** Vendor Id */
@@ -7361,6 +8145,30 @@ export interface components {
         BulkVendorCategoryMappingRequest: {
             /** Mappings */
             mappings: components["schemas"]["BulkVendorCategoryMappingItem"][];
+        };
+        /** BusinessUnitCreateRequest */
+        BusinessUnitCreateRequest: {
+            /** Code */
+            code: string;
+            /** Name */
+            name: string;
+            /**
+             * Legal Entity Id
+             * Format: uuid
+             */
+            legal_entity_id: string;
+            /** Erp Company Code */
+            erp_company_code?: string | null;
+            /**
+             * Default Currency
+             * @default INR
+             */
+            default_currency: string;
+            /**
+             * Is Active
+             * @default true
+             */
+            is_active: boolean;
         };
         /** BusinessUnitResponse */
         BusinessUnitResponse: {
@@ -7395,10 +8203,28 @@ export interface components {
              * @default true
              */
             is_active: boolean;
+            /**
+             * Version
+             * @default 1
+             */
+            version: number | null;
             /** Created At */
             created_at?: string | null;
             /** Updated At */
             updated_at?: string | null;
+        };
+        /** BusinessUnitUpdateRequest */
+        BusinessUnitUpdateRequest: {
+            /** Name */
+            name?: string | null;
+            /** Legal Entity Id */
+            legal_entity_id?: string | null;
+            /** Erp Company Code */
+            erp_company_code?: string | null;
+            /** Default Currency */
+            default_currency?: string | null;
+            /** Is Active */
+            is_active?: boolean | null;
         };
         /** CSGenerateRequest */
         CSGenerateRequest: {
@@ -8129,6 +8955,41 @@ export interface components {
             /** Po Number */
             po_number?: string | null;
         };
+        /** CostCenterCreateRequest */
+        CostCenterCreateRequest: {
+            /** Code */
+            code: string;
+            /** Name */
+            name: string;
+            /**
+             * Business Unit Id
+             * Format: uuid
+             */
+            business_unit_id: string;
+            /** Gl Account */
+            gl_account?: string | null;
+            /** Erp Cost Center Code */
+            erp_cost_center_code?: string | null;
+            /**
+             * Annual Budget
+             * @default 0.0
+             */
+            annual_budget: number | string;
+            /**
+             * Available Budget
+             * @default 0.0
+             */
+            available_budget: number | string;
+            /** Budget Period Start */
+            budget_period_start?: string | null;
+            /** Budget Period End */
+            budget_period_end?: string | null;
+            /**
+             * Is Active
+             * @default true
+             */
+            is_active: boolean;
+        };
         /** CostCenterResponse */
         CostCenterResponse: {
             /**
@@ -8173,10 +9034,36 @@ export interface components {
              * @default true
              */
             is_active: boolean;
+            /**
+             * Version
+             * @default 1
+             */
+            version: number | null;
             /** Created At */
             created_at?: string | null;
             /** Updated At */
             updated_at?: string | null;
+        };
+        /** CostCenterUpdateRequest */
+        CostCenterUpdateRequest: {
+            /** Name */
+            name?: string | null;
+            /** Business Unit Id */
+            business_unit_id?: string | null;
+            /** Gl Account */
+            gl_account?: string | null;
+            /** Erp Cost Center Code */
+            erp_cost_center_code?: string | null;
+            /** Annual Budget */
+            annual_budget?: number | string | null;
+            /** Available Budget */
+            available_budget?: number | string | null;
+            /** Budget Period Start */
+            budget_period_start?: string | null;
+            /** Budget Period End */
+            budget_period_end?: string | null;
+            /** Is Active */
+            is_active?: boolean | null;
         };
         /** CurrencyCreateRequest */
         CurrencyCreateRequest: {
@@ -8359,6 +9246,74 @@ export interface components {
             is_active: boolean;
             /** Created At */
             created_at?: string | null;
+        };
+        /** DepartmentCreateRequest */
+        DepartmentCreateRequest: {
+            /** Code */
+            code: string;
+            /** Name */
+            name: string;
+            /**
+             * Business Unit Id
+             * Format: uuid
+             */
+            business_unit_id: string;
+            /** Head User Id */
+            head_user_id?: string | null;
+            /**
+             * Is Active
+             * @default true
+             */
+            is_active: boolean;
+        };
+        /** DepartmentResponse */
+        DepartmentResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Org Id
+             * Format: uuid
+             */
+            org_id: string;
+            /**
+             * Business Unit Id
+             * Format: uuid
+             */
+            business_unit_id: string;
+            /** Code */
+            code: string;
+            /** Name */
+            name: string;
+            /** Head User Id */
+            head_user_id?: string | null;
+            /**
+             * Is Active
+             * @default true
+             */
+            is_active: boolean;
+            /**
+             * Version
+             * @default 1
+             */
+            version: number | null;
+            /** Created At */
+            created_at?: string | null;
+            /** Updated At */
+            updated_at?: string | null;
+        };
+        /** DepartmentUpdateRequest */
+        DepartmentUpdateRequest: {
+            /** Name */
+            name?: string | null;
+            /** Business Unit Id */
+            business_unit_id?: string | null;
+            /** Head User Id */
+            head_user_id?: string | null;
+            /** Is Active */
+            is_active?: boolean | null;
         };
         /** DisputeCreateRequest */
         DisputeCreateRequest: {
@@ -8841,6 +9796,31 @@ export interface components {
             /** Plant Id */
             plant_id?: string | null;
         };
+        /** IncotermCreateRequest */
+        IncotermCreateRequest: {
+            /** Code */
+            code: string;
+            /** Name */
+            name: string;
+            /**
+             * Edition Year
+             * @default 2020
+             */
+            edition_year: number;
+            /** Risk Transfer Point */
+            risk_transfer_point: string;
+        };
+        /** IncotermUpdateRequest */
+        IncotermUpdateRequest: {
+            /** Name */
+            name?: string | null;
+            /** Edition Year */
+            edition_year?: number | null;
+            /** Risk Transfer Point */
+            risk_transfer_point?: string | null;
+            /** Is Active */
+            is_active?: boolean | null;
+        };
         /** IntegrationJobResponse */
         IntegrationJobResponse: {
             /**
@@ -9224,6 +10204,106 @@ export interface components {
             /** Is Active */
             is_active?: boolean | null;
         };
+        /** LegalEntityCreateRequest */
+        LegalEntityCreateRequest: {
+            /** Name */
+            name: string;
+            /** Registration Number */
+            registration_number: string;
+            /** Gstin */
+            gstin?: string | null;
+            /** Pan */
+            pan?: string | null;
+            /** Cin */
+            cin?: string | null;
+            /** Address Line1 */
+            address_line1?: string | null;
+            /** Address Line2 */
+            address_line2?: string | null;
+            /** City */
+            city?: string | null;
+            /** State */
+            state?: string | null;
+            /** Postal Code */
+            postal_code?: string | null;
+            /**
+             * Country Code
+             * @default IN
+             */
+            country_code: string;
+        };
+        /** LegalEntityResponse */
+        LegalEntityResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Org Id
+             * Format: uuid
+             */
+            org_id: string;
+            /** Name */
+            name: string;
+            /** Registration Number */
+            registration_number: string;
+            /** Gstin */
+            gstin?: string | null;
+            /** Pan */
+            pan?: string | null;
+            /** Cin */
+            cin?: string | null;
+            /** Address Line1 */
+            address_line1?: string | null;
+            /** Address Line2 */
+            address_line2?: string | null;
+            /** City */
+            city?: string | null;
+            /** State */
+            state?: string | null;
+            /** Postal Code */
+            postal_code?: string | null;
+            /**
+             * Country Code
+             * @default IN
+             */
+            country_code: string;
+            /**
+             * Version
+             * @default 1
+             */
+            version: number | null;
+            /** Created At */
+            created_at?: string | null;
+            /** Updated At */
+            updated_at?: string | null;
+        };
+        /** LegalEntityUpdateRequest */
+        LegalEntityUpdateRequest: {
+            /** Name */
+            name?: string | null;
+            /** Registration Number */
+            registration_number?: string | null;
+            /** Gstin */
+            gstin?: string | null;
+            /** Pan */
+            pan?: string | null;
+            /** Cin */
+            cin?: string | null;
+            /** Address Line1 */
+            address_line1?: string | null;
+            /** Address Line2 */
+            address_line2?: string | null;
+            /** City */
+            city?: string | null;
+            /** State */
+            state?: string | null;
+            /** Postal Code */
+            postal_code?: string | null;
+            /** Country Code */
+            country_code?: string | null;
+        };
         /** Links */
         Links: {
             /** Self */
@@ -9474,6 +10554,11 @@ export interface components {
             /** Notes */
             notes?: string | null;
         };
+        /**
+         * NotificationChannel
+         * @enum {string}
+         */
+        NotificationChannel: "EMAIL" | "SMS" | "IN_APP" | "WHATSAPP" | "DIGEST";
         /** NotificationPreferenceItem */
         NotificationPreferenceItem: {
             /** Notification Type */
@@ -9507,6 +10592,121 @@ export interface components {
         NotificationPreferencesUpdateRequest: {
             /** Preferences */
             preferences: components["schemas"]["NotificationPreferenceItem"][];
+        };
+        /** NotificationTemplateCreateRequest */
+        NotificationTemplateCreateRequest: {
+            /** Template Code */
+            template_code: string;
+            channel: components["schemas"]["NotificationChannel"];
+            /**
+             * Language
+             * @default en
+             */
+            language: string;
+            /** Subject Template */
+            subject_template?: string | null;
+            /** Body Template */
+            body_template: string;
+            /** Variables */
+            variables?: string[];
+            /**
+             * Is Active
+             * @default true
+             */
+            is_active: boolean;
+        };
+        /** NotificationTemplatePreviewRequest */
+        NotificationTemplatePreviewRequest: {
+            /** Subject Template */
+            subject_template?: string | null;
+            /** Body Template */
+            body_template: string;
+            /** Context */
+            context?: {
+                [key: string]: unknown;
+            };
+        };
+        /** NotificationTemplateUpdateRequest */
+        NotificationTemplateUpdateRequest: {
+            /** Language */
+            language?: string | null;
+            /** Subject Template */
+            subject_template?: string | null;
+            /** Body Template */
+            body_template?: string | null;
+            /** Variables */
+            variables?: string[] | null;
+            /** Is Active */
+            is_active?: boolean | null;
+        };
+        /** OrganizationResponse */
+        OrganizationResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Legal Name */
+            legal_name: string;
+            /** Registration Number */
+            registration_number?: string | null;
+            /** Tax Id */
+            tax_id?: string | null;
+            /**
+             * Country Code
+             * @default IN
+             */
+            country_code: string;
+            /**
+             * Base Currency
+             * @default INR
+             */
+            base_currency: string;
+            /**
+             * Cost Of Capital Rate
+             * @default 0.1200
+             */
+            cost_of_capital_rate: string;
+            /** Logo Url */
+            logo_url?: string | null;
+            /** Settings */
+            settings?: {
+                [key: string]: unknown;
+            };
+            /**
+             * Version
+             * @default 1
+             */
+            version: number | null;
+            /** Created At */
+            created_at?: string | null;
+            /** Updated At */
+            updated_at?: string | null;
+        };
+        /** OrganizationUpdateRequest */
+        OrganizationUpdateRequest: {
+            /** Name */
+            name?: string | null;
+            /** Legal Name */
+            legal_name?: string | null;
+            /** Registration Number */
+            registration_number?: string | null;
+            /** Tax Id */
+            tax_id?: string | null;
+            /** Country Code */
+            country_code?: string | null;
+            /** Base Currency */
+            base_currency?: string | null;
+            /** Cost Of Capital Rate */
+            cost_of_capital_rate?: number | string | null;
+            /** Logo Url */
+            logo_url?: string | null;
+            /** Settings */
+            settings?: {
+                [key: string]: unknown;
+            } | null;
         };
         /** POAcknowledgeRequest */
         POAcknowledgeRequest: {
@@ -10366,6 +11566,140 @@ export interface components {
             /** Amount Received */
             amount_received: number;
         };
+        /** PlantCreateRequest */
+        PlantCreateRequest: {
+            /** Code */
+            code: string;
+            /** Name */
+            name: string;
+            /**
+             * Business Unit Id
+             * Format: uuid
+             */
+            business_unit_id: string;
+            /**
+             * Plant Type
+             * @default MANUFACTURING
+             */
+            plant_type: string;
+            /** Erp Plant Code */
+            erp_plant_code?: string | null;
+            /** Address Line1 */
+            address_line1?: string | null;
+            /** City */
+            city?: string | null;
+            /** State */
+            state?: string | null;
+            /** Postal Code */
+            postal_code?: string | null;
+            /**
+             * Country Code
+             * @default IN
+             */
+            country_code: string;
+            /** Latitude */
+            latitude?: number | string | null;
+            /** Longitude */
+            longitude?: number | string | null;
+            /** Default Delivery Location Id */
+            default_delivery_location_id?: string | null;
+            /**
+             * Is Active
+             * @default true
+             */
+            is_active: boolean;
+        };
+        /** PlantResponse */
+        PlantResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Org Id
+             * Format: uuid
+             */
+            org_id: string;
+            /**
+             * Business Unit Id
+             * Format: uuid
+             */
+            business_unit_id: string;
+            /** Code */
+            code: string;
+            /** Name */
+            name: string;
+            /**
+             * Plant Type
+             * @default MANUFACTURING
+             */
+            plant_type: string;
+            /** Erp Plant Code */
+            erp_plant_code?: string | null;
+            /** Address Line1 */
+            address_line1?: string | null;
+            /** City */
+            city?: string | null;
+            /** State */
+            state?: string | null;
+            /** Postal Code */
+            postal_code?: string | null;
+            /**
+             * Country Code
+             * @default IN
+             */
+            country_code: string;
+            /** Latitude */
+            latitude?: string | null;
+            /** Longitude */
+            longitude?: string | null;
+            /** Default Delivery Location Id */
+            default_delivery_location_id?: string | null;
+            /**
+             * Is Active
+             * @default true
+             */
+            is_active: boolean;
+            /**
+             * Version
+             * @default 1
+             */
+            version: number | null;
+            /** Created At */
+            created_at?: string | null;
+            /** Updated At */
+            updated_at?: string | null;
+        };
+        /** PlantUpdateRequest */
+        PlantUpdateRequest: {
+            /** Name */
+            name?: string | null;
+            /** Business Unit Id */
+            business_unit_id?: string | null;
+            /** Plant Type */
+            plant_type?: string | null;
+            /** Erp Plant Code */
+            erp_plant_code?: string | null;
+            /** Address Line1 */
+            address_line1?: string | null;
+            /** City */
+            city?: string | null;
+            /** State */
+            state?: string | null;
+            /** Postal Code */
+            postal_code?: string | null;
+            /** Country Code */
+            country_code?: string | null;
+            /** Latitude */
+            latitude?: number | string | null;
+            /** Longitude */
+            longitude?: number | string | null;
+            /** Default Delivery Location Id */
+            default_delivery_location_id?: string | null;
+            /** Is Active */
+            is_active?: boolean | null;
+        };
         /**
          * ProcurementType
          * @enum {string}
@@ -10468,6 +11802,14 @@ export interface components {
             count: number;
             /** Message */
             message: string;
+        };
+        /** RevokeSessionRequest */
+        RevokeSessionRequest: {
+            /**
+             * Reason
+             * @default Revoked by Administrator
+             */
+            reason: string | null;
         };
         /** RfqClarificationResponse */
         RfqClarificationResponse: {
@@ -10954,6 +12296,36 @@ export interface components {
             lots?: components["schemas"]["RfqLotCreateRequest"][] | null;
             /** Lines */
             lines?: components["schemas"]["RfqLineCreateRequest"][] | null;
+        };
+        /** RoleCreateRequest */
+        RoleCreateRequest: {
+            /** Code */
+            code: string;
+            /** Name */
+            name: string;
+            /** Description */
+            description?: string | null;
+            /**
+             * Is Supplier Role
+             * @default false
+             */
+            is_supplier_role: boolean;
+            /** Permission Codes */
+            permission_codes?: string[] | null;
+        };
+        /** RolePermissionsUpdateRequest */
+        RolePermissionsUpdateRequest: {
+            /** Permission Codes */
+            permission_codes: string[];
+        };
+        /** RoleUpdateRequest */
+        RoleUpdateRequest: {
+            /** Name */
+            name?: string | null;
+            /** Description */
+            description?: string | null;
+            /** Is Active */
+            is_active?: boolean | null;
         };
         /** ScheduledJobRunResponse */
         ScheduledJobRunResponse: {
@@ -11566,6 +12938,15 @@ export interface components {
             /** User Email */
             user_email?: string | null;
         };
+        /** ToggleRolePermissionRequest */
+        ToggleRolePermissionRequest: {
+            /** Role Code */
+            role_code: string;
+            /** Permission Code */
+            permission_code: string;
+            /** Granted */
+            granted: boolean;
+        };
         /** TurnstileVerifyRequest */
         TurnstileVerifyRequest: {
             /** Token */
@@ -12162,10 +13543,373 @@ export interface operations {
             };
         };
     };
+    get_current_organization_api_v1_organizations_me_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_OrganizationResponse_"];
+                };
+            };
+        };
+    };
+    update_current_organization_api_v1_organizations_me_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OrganizationUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_OrganizationResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_current_organization_api_v1_organizations_current_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_OrganizationResponse_"];
+                };
+            };
+        };
+    };
+    update_current_organization_api_v1_organizations_current_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OrganizationUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_OrganizationResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_current_organization_api_v1_organization_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_OrganizationResponse_"];
+                };
+            };
+        };
+    };
+    update_current_organization_api_v1_organization_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OrganizationUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_OrganizationResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_legal_entities_api_v1_organizations_legal_entities_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_List_LegalEntityResponse__"];
+                };
+            };
+        };
+    };
+    create_legal_entity_api_v1_organizations_legal_entities_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LegalEntityCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_LegalEntityResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_legal_entities_api_v1_legal_entities_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_List_LegalEntityResponse__"];
+                };
+            };
+        };
+    };
+    create_legal_entity_api_v1_legal_entities_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LegalEntityCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_LegalEntityResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_legal_entity_api_v1_legal_entities__id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_LegalEntityResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_legal_entity_api_v1_legal_entities__id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LegalEntityUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_LegalEntityResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_legal_entity_api_v1_legal_entities__id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_dict_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_business_units_api_v1_organizations_business_units_get: {
         parameters: {
             query?: {
                 active_only?: boolean;
+                legal_entity_id?: string | null;
             };
             header?: never;
             path?: never;
@@ -12193,10 +13937,44 @@ export interface operations {
             };
         };
     };
+    create_business_unit_api_v1_organizations_business_units_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BusinessUnitCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_BusinessUnitResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_business_units_api_v1_business_units_get: {
         parameters: {
             query?: {
                 active_only?: boolean;
+                legal_entity_id?: string | null;
             };
             header?: never;
             path?: never;
@@ -12211,6 +13989,590 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["APIResponse_List_BusinessUnitResponse__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_business_unit_api_v1_business_units_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BusinessUnitCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_BusinessUnitResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_business_unit_api_v1_business_units__id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_BusinessUnitResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_business_unit_api_v1_business_units__id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BusinessUnitUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_BusinessUnitResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_business_unit_api_v1_business_units__id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_dict_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_plants_api_v1_organizations_plants_get: {
+        parameters: {
+            query?: {
+                business_unit_id?: string | null;
+                active_only?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_List_PlantResponse__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_plant_api_v1_organizations_plants_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PlantCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_PlantResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_plants_api_v1_plants_get: {
+        parameters: {
+            query?: {
+                business_unit_id?: string | null;
+                active_only?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_List_PlantResponse__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_plant_api_v1_plants_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PlantCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_PlantResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_plant_api_v1_plants__id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_PlantResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_plant_api_v1_plants__id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PlantUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_PlantResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_plant_api_v1_plants__id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_dict_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_departments_api_v1_organizations_departments_get: {
+        parameters: {
+            query?: {
+                business_unit_id?: string | null;
+                active_only?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_List_DepartmentResponse__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_department_api_v1_organizations_departments_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DepartmentCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_DepartmentResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_departments_api_v1_departments_get: {
+        parameters: {
+            query?: {
+                business_unit_id?: string | null;
+                active_only?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_List_DepartmentResponse__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_department_api_v1_departments_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DepartmentCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_DepartmentResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_department_api_v1_departments__id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_DepartmentResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_department_api_v1_departments__id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DepartmentUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_DepartmentResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_department_api_v1_departments__id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_dict_"];
                 };
             };
             /** @description Validation Error */
@@ -12256,6 +14618,39 @@ export interface operations {
             };
         };
     };
+    create_cost_center_api_v1_organizations_cost_centers_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CostCenterCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_CostCenterResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_cost_centers_api_v1_cost_centers_get: {
         parameters: {
             query?: {
@@ -12275,6 +14670,136 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["APIResponse_List_CostCenterResponse__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_cost_center_api_v1_cost_centers_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CostCenterCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_CostCenterResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_cost_center_api_v1_cost_centers__id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_CostCenterResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_cost_center_api_v1_cost_centers__id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CostCenterUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_CostCenterResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_cost_center_api_v1_cost_centers__id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_dict_"];
                 };
             };
             /** @description Validation Error */
@@ -12526,6 +15051,353 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     };
+                };
+            };
+        };
+    };
+    create_role_api_v1_users_roles_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RoleCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_role_api_v1_users_roles__role_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                role_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_role_api_v1_users_roles__role_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                role_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RoleUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_role_permissions_api_v1_users_roles__role_id__permissions_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                role_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RolePermissionsUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_permissions_api_v1_users_permissions_get: {
+        parameters: {
+            query?: {
+                /** @description Module filter, e.g. PR, RFQ, USER */
+                module?: string | null;
+                /** @description Search in permission code, name, description */
+                search?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_role_permissions_matrix_api_v1_users_role_permissions_matrix_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    toggle_role_permission_api_v1_users_role_permissions_toggle_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ToggleRolePermissionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_sessions_api_v1_users_sessions_get: {
+        parameters: {
+            query?: {
+                /** @description Filter for active, unexpired sessions */
+                active_only?: boolean;
+                /** @description Search by user email, name, or IP */
+                search?: string | null;
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    revoke_session_api_v1_users_sessions__session_id__revoke_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                session_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["RevokeSessionRequest"] | null;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    revoke_all_user_sessions_api_v1_users_sessions_user__user_id__revoke_all_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["RevokeSessionRequest"] | null;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -13325,7 +16197,9 @@ export interface operations {
     };
     list_incoterms_api_v1_master_data_incoterms_get: {
         parameters: {
-            query?: never;
+            query?: {
+                active_only?: boolean;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -13339,6 +16213,114 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_incoterm_api_v1_master_data_incoterms_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["IncotermCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_incoterm_api_v1_master_data_incoterms__id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["IncotermUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_incoterm_api_v1_master_data_incoterms__id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -15163,6 +18145,44 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["APIResponse_List_PRDetailResponse__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    check_budget_availability_api_v1_requisitions_budget_check_get: {
+        parameters: {
+            query: {
+                /** @description Cost center UUID */
+                cost_center_id: string;
+                /** @description Estimated total amount to check */
+                amount: number | string;
+                /** @description Optional Business Unit UUID */
+                business_unit_id?: string | null;
+                /** @description Optional Category UUID */
+                category_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIResponse_BudgetCheckResult_"];
                 };
             };
             /** @description Validation Error */
@@ -19658,6 +22678,211 @@ export interface operations {
                 "application/json": components["schemas"]["NotificationPreferencesUpdateRequest"];
             };
         };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_notification_templates_api_v1_notifications_templates_get: {
+        parameters: {
+            query?: {
+                /** @description Filter by channel */
+                channel?: components["schemas"]["NotificationChannel"] | null;
+                /** @description Filter by language */
+                language?: string | null;
+                /** @description Search by code, subject or body */
+                search?: string | null;
+                /** @description Filter by active state */
+                is_active?: boolean | null;
+                /** @description Page number */
+                page?: number;
+                /** @description Page size */
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_notification_template_api_v1_notifications_templates_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NotificationTemplateCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    preview_notification_template_api_v1_notifications_templates_preview_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NotificationTemplatePreviewRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_notification_template_api_v1_notifications_templates__template_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                template_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_notification_template_api_v1_notifications_templates__template_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                template_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NotificationTemplateUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_notification_template_api_v1_notifications_templates__template_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                template_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description Successful Response */
             200: {

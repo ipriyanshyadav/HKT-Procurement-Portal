@@ -7,8 +7,8 @@ Follows clean layer discipline: router -> service -> repository -> model.
 """
 from __future__ import annotations
 
+import builtins
 from datetime import date
-from typing import List, Optional, Tuple
 from uuid import UUID
 
 from sqlalchemy import and_, func, or_, select
@@ -18,7 +18,6 @@ from sqlalchemy.orm import selectinload
 from app.modules.contract.models import (
     Contract,
     ContractAmendment,
-    ContractDocument,
     ContractLine,
     ContractMilestone,
     ContractTemplate,
@@ -33,7 +32,7 @@ class ContractRepository:
         db: AsyncSession,
         contract_id: UUID,
         org_id: UUID,
-    ) -> Optional[Contract]:
+    ) -> Contract | None:
         stmt = (
             select(Contract)
             .where(
@@ -57,7 +56,7 @@ class ContractRepository:
         db: AsyncSession,
         contract_number: str,
         org_id: UUID,
-    ) -> Optional[Contract]:
+    ) -> Contract | None:
         stmt = select(Contract).where(
             and_(
                 Contract.contract_number == contract_number,
@@ -72,13 +71,13 @@ class ContractRepository:
         self,
         db: AsyncSession,
         org_id: UUID,
-        status: Optional[str] = None,
-        vendor_id: Optional[UUID] = None,
-        category_id: Optional[UUID] = None,
-        search: Optional[str] = None,
+        status: str | None = None,
+        vendor_id: UUID | None = None,
+        category_id: UUID | None = None,
+        search: str | None = None,
         page: int = 1,
         page_size: int = 20,
-    ) -> Tuple[List[Contract], int]:
+    ) -> tuple[builtins.list[Contract], int]:
         filters = [
             Contract.org_id == org_id,
             Contract.deleted_at.is_(None),
@@ -133,8 +132,8 @@ class ContractRepository:
         self,
         db: AsyncSession,
         check_date: date,
-        org_id: Optional[UUID] = None,
-    ) -> List[Contract]:
+        org_id: UUID | None = None,
+    ) -> builtins.list[Contract]:
         filters = [
             Contract.end_date == check_date,
             Contract.status == "ACTIVE",
@@ -152,7 +151,7 @@ class ContractRepository:
         db: AsyncSession,
         vendor_id: UUID,
         org_id: UUID,
-    ) -> List[Contract]:
+    ) -> builtins.list[Contract]:
         stmt = (
             select(Contract)
             .where(
@@ -168,6 +167,34 @@ class ContractRepository:
         )
         res = await db.execute(stmt)
         return list(res.scalars().all())
+
+    # --- Lines / Rate Card ---
+    async def create_line(self, db: AsyncSession, line: ContractLine) -> ContractLine:
+        db.add(line)
+        await db.flush()
+        return line
+
+    async def get_line(
+        self,
+        db: AsyncSession,
+        line_id: UUID,
+        contract_id: UUID,
+        org_id: UUID,
+    ) -> ContractLine | None:
+        stmt = select(ContractLine).where(
+            and_(
+                ContractLine.id == line_id,
+                ContractLine.contract_id == contract_id,
+                ContractLine.org_id == org_id,
+                ContractLine.deleted_at.is_(None),
+            )
+        )
+        res = await db.execute(stmt)
+        return res.scalar_one_or_none()
+
+    async def delete_line(self, db: AsyncSession, line: ContractLine) -> None:
+        await db.delete(line)
+        await db.flush()
 
     # --- Milestones ---
     async def create_milestone(
@@ -185,7 +212,7 @@ class ContractRepository:
         milestone_id: UUID,
         contract_id: UUID,
         org_id: UUID,
-    ) -> Optional[ContractMilestone]:
+    ) -> ContractMilestone | None:
         stmt = select(ContractMilestone).where(
             and_(
                 ContractMilestone.id == milestone_id,
@@ -197,12 +224,29 @@ class ContractRepository:
         res = await db.execute(stmt)
         return res.scalar_one_or_none()
 
+    async def get_milestone_by_id(
+        self,
+        db: AsyncSession,
+        milestone_id: UUID,
+        org_id: UUID | None = None,
+    ) -> ContractMilestone | None:
+        filters = [
+            ContractMilestone.id == milestone_id,
+            ContractMilestone.deleted_at.is_(None),
+        ]
+        if org_id:
+            filters.append(ContractMilestone.org_id == org_id)
+        stmt = select(ContractMilestone).where(and_(*filters))
+        res = await db.execute(stmt)
+        return res.scalar_one_or_none()
+
+
     async def get_milestones(
         self,
         db: AsyncSession,
         contract_id: UUID,
         org_id: UUID,
-    ) -> List[ContractMilestone]:
+    ) -> builtins.list[ContractMilestone]:
         stmt = (
             select(ContractMilestone)
             .where(
@@ -221,7 +265,7 @@ class ContractRepository:
         self,
         db: AsyncSession,
         due_date: date,
-    ) -> List[ContractMilestone]:
+    ) -> builtins.list[ContractMilestone]:
         stmt = select(ContractMilestone).where(
             and_(
                 ContractMilestone.due_date <= due_date,
@@ -247,7 +291,7 @@ class ContractRepository:
         db: AsyncSession,
         contract_id: UUID,
         org_id: UUID,
-    ) -> List[ContractAmendment]:
+    ) -> builtins.list[ContractAmendment]:
         stmt = (
             select(ContractAmendment)
             .where(
@@ -267,7 +311,7 @@ class ContractRepository:
         db: AsyncSession,
         template_id: UUID,
         org_id: UUID,
-    ) -> Optional[ContractTemplate]:
+    ) -> ContractTemplate | None:
         stmt = select(ContractTemplate).where(
             and_(
                 ContractTemplate.id == template_id,
@@ -283,8 +327,8 @@ class ContractRepository:
         self,
         db: AsyncSession,
         org_id: UUID,
-        contract_type: Optional[str] = None,
-    ) -> List[ContractTemplate]:
+        contract_type: str | None = None,
+    ) -> builtins.list[ContractTemplate]:
         filters = [
             ContractTemplate.org_id == org_id,
             ContractTemplate.is_active.is_(True),

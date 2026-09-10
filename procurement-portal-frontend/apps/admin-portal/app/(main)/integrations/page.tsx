@@ -210,6 +210,13 @@ export default function IntegrationMonitorPage() {
 
         <div className="flex items-center gap-3">
           <Link
+            href="/integrations/erp"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-xl border border-indigo-500/30 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 shadow-2xs transition-all cursor-pointer"
+          >
+            <Layers className="w-3.5 h-3.5" />
+            Multi-ERP Gateway
+          </Link>
+          <Link
             href="/integrations/settings"
             className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 shadow-2xs transition-all cursor-pointer"
           >

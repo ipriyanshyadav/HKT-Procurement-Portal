@@ -5,13 +5,14 @@ from uuid import UUID
 from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.exceptions import NotFoundError
+import re
+from app.core.exceptions import NotFoundError, ConflictError
 from app.db.enums import NotificationChannelEnum, NotificationStatusEnum
 from app.modules.notification.channels.email import email_channel, EmailChannel
 from app.modules.notification.channels.sms import sms_channel, SMSChannel
 from app.modules.notification.channels.inapp import inapp_channel, InAppChannel
 from app.modules.notification.channels.whatsapp import whatsapp_channel, WhatsAppChannel
-from app.modules.notification.models import Notification, NotificationPreference
+from app.modules.notification.models import Notification, NotificationPreference, NotificationTemplate
 from app.modules.notification.repository import (
     notification_repo, NotificationRepository,
     preference_repo, NotificationPreferenceRepository,
@@ -328,5 +329,144 @@ class NotificationService:
 
         await db.commit()
         return created_notifs
+
+    async def list_templates(
+        self,
+        db: AsyncSession,
+        org_id: Optional[UUID] = None,
+        channel: Optional[NotificationChannelEnum] = None,
+        language: Optional[str] = None,
+        search: Optional[str] = None,
+        is_active: Optional[bool] = None,
+        page: int = 1,
+        page_size: int = 50,
+    ) -> tuple[List[NotificationTemplate], int]:
+        return await self.tmpl_repo.list_templates_paginated(
+            db=db,
+            org_id=org_id,
+            channel=channel,
+            language=language,
+            search=search,
+            is_active=is_active,
+            page=page,
+            page_size=page_size,
+        )
+
+    async def get_template_by_id(
+        self,
+        db: AsyncSession,
+        template_id: UUID,
+        org_id: Optional[UUID] = None,
+    ) -> NotificationTemplate:
+        template = await self.tmpl_repo.get_by_id(db, template_id, org_id)
+        if not template:
+            raise NotFoundError("Notification template not found")
+        return template
+
+    async def create_template(
+        self,
+        db: AsyncSession,
+        org_id: UUID,
+        template_code: str,
+        channel: NotificationChannelEnum,
+        language: str,
+        subject_template: Optional[str],
+        body_template: str,
+        variables: List[str],
+        is_active: bool = True,
+    ) -> NotificationTemplate:
+        existing = await self.tmpl_repo.get_template(
+            db, template_code=template_code, channel=channel, language=language, org_id=org_id
+        )
+        if existing and not existing.deleted_at:
+            raise ConflictError(f"Template with code '{template_code}', channel '{channel.value}', and language '{language}' already exists")
+
+        # Auto-detect variables if not passed
+        if not variables:
+            vars_found = set(re.findall(r"\{\{\s*([a-zA-Z0-9_]+)\s*\}\}", body_template))
+            if subject_template:
+                vars_found.update(re.findall(r"\{\{\s*([a-zA-Z0-9_]+)\s*\}\}", subject_template))
+            variables = sorted(list(vars_found))
+
+        tmpl = await self.tmpl_repo.create_template(
+            db=db,
+            org_id=org_id,
+            template_code=template_code,
+            channel=channel,
+            language=language,
+            subject_template=subject_template,
+            body_template=body_template,
+            variables=variables,
+            is_active=is_active,
+        )
+        await db.commit()
+        return tmpl
+
+    async def update_template(
+        self,
+        db: AsyncSession,
+        template_id: UUID,
+        org_id: UUID,
+        language: Optional[str] = None,
+        subject_template: Optional[str] = None,
+        body_template: Optional[str] = None,
+        variables: Optional[List[str]] = None,
+        is_active: Optional[bool] = None,
+    ) -> NotificationTemplate:
+        template = await self.get_template_by_id(db, template_id, org_id)
+
+        # Auto-detect variables if body or subject updated and variables not explicitly passed
+        if variables is None and (body_template is not None or subject_template is not None):
+            body_to_scan = body_template if body_template is not None else template.body_template
+            subject_to_scan = subject_template if subject_template is not None else template.subject_template
+            vars_found = set(re.findall(r"\{\{\s*([a-zA-Z0-9_]+)\s*\}\}", body_to_scan or ""))
+            if subject_to_scan:
+                vars_found.update(re.findall(r"\{\{\s*([a-zA-Z0-9_]+)\s*\}\}", subject_to_scan))
+            variables = sorted(list(vars_found))
+
+        updated = await self.tmpl_repo.update_template(
+            db=db,
+            template=template,
+            language=language,
+            subject_template=subject_template,
+            body_template=body_template,
+            variables=variables,
+            is_active=is_active,
+        )
+        await db.commit()
+        return updated
+
+    async def delete_template(
+        self,
+        db: AsyncSession,
+        template_id: UUID,
+        org_id: UUID,
+    ) -> None:
+        template = await self.get_template_by_id(db, template_id, org_id)
+        await self.tmpl_repo.delete_template(db, template)
+        await db.commit()
+
+    def preview_template(
+        self,
+        subject_template: Optional[str],
+        body_template: str,
+        context: dict[str, Any],
+    ) -> dict[str, Any]:
+        vars_found = set(re.findall(r"\{\{\s*([a-zA-Z0-9_]+)\s*\}\}", body_template))
+        if subject_template:
+            vars_found.update(re.findall(r"\{\{\s*([a-zA-Z0-9_]+)\s*\}\}", subject_template))
+
+        rendered_subject = (
+            self.render_template_str(subject_template, context)
+            if subject_template
+            else None
+        )
+        rendered_body = self.render_template_str(body_template, context)
+
+        return {
+            "rendered_subject": rendered_subject,
+            "rendered_body": rendered_body,
+            "detected_variables": sorted(list(vars_found)),
+        }
 
 notification_service = NotificationService()

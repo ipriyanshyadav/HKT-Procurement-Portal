@@ -12,10 +12,12 @@ from app.core.exceptions import AppException, AuthenticationError, ForbiddenErro
 from app.core.redis_client import RedisKeys, get_redis_client
 from app.auth.jwt import create_access_token, create_refresh_token, create_mfa_token, decode_jwt
 from app.auth.mfa import verify_totp, verify_backup_code, decrypt_totp_secret
+from app.core.constants import RoleCode
 from app.modules.user.models import User, UserSession
 from app.modules.user.repository import user_repository
 from app.modules.user.session_repository import session_repository
 from app.modules.user.role_repository import role_repository
+from app.modules.vendor.repository import vendor_repository
 from app.modules.audit.service import audit_service
 from app.db.enums import UserStatusEnum
 
@@ -91,10 +93,14 @@ class AuthService:
         if user.status != UserStatusEnum.ACTIVE:
             raise AuthenticationError(f"Account status: {user.status.value}")
 
-        if portal_type == "supplier" and not user.is_supplier_user:
-            raise ForbiddenError("Internal user accounts cannot log in to the Supplier Portal. Please use the Buyer Portal.")
-        if portal_type in ("buyer", "admin") and user.is_supplier_user:
-            raise ForbiddenError("Supplier accounts cannot log in to the Buyer or Admin Portal. Please use the Supplier Portal.")
+        user_roles = await role_repository.get_user_role_codes(db, user.id, org_id)
+        is_superadmin = any(r.upper() == RoleCode.SUPERADMIN for r in user_roles)
+
+        if not is_superadmin:
+            if portal_type == "supplier" and not user.is_supplier_user:
+                raise ForbiddenError("Internal user accounts cannot log in to the Supplier Portal. Please use the Buyer Portal.")
+            if portal_type in ("buyer", "admin") and user.is_supplier_user:
+                raise ForbiddenError("Supplier accounts cannot log in to the Buyer or Admin Portal. Please use the Supplier Portal.")
 
         # Password expiry check
         if user.password_changed_at:
@@ -167,10 +173,14 @@ class AuthService:
         if not user:
             raise AuthenticationError("User not found")
 
-        if portal_type == "supplier" and not user.is_supplier_user:
-            raise ForbiddenError("Supplier portal cannot refresh session for a non-supplier account.")
-        if portal_type in ("buyer", "admin") and user.is_supplier_user:
-            raise ForbiddenError("Buyer portal cannot refresh session for a supplier account.")
+        user_roles = await role_repository.get_user_role_codes(db, user.id, org_id)
+        is_superadmin = any(r.upper() == RoleCode.SUPERADMIN for r in user_roles)
+
+        if not is_superadmin:
+            if portal_type == "supplier" and not user.is_supplier_user:
+                raise ForbiddenError("Supplier portal cannot refresh session for a non-supplier account.")
+            if portal_type in ("buyer", "admin") and user.is_supplier_user:
+                raise ForbiddenError("Buyer portal cannot refresh session for a supplier account.")
 
         # Mark old token as revoked in Redis
         remaining_ttl = int(payload["exp"]) - int(datetime.now(timezone.utc).timestamp())
@@ -361,6 +371,14 @@ class AuthService:
         self, db: AsyncSession, user: User, org_id: UUID, portal: str = "buyer"
     ) -> LoginResult:
         roles = await role_repository.get_user_role_codes(db, user.id, org_id)
+        is_superadmin = any(r.upper() == RoleCode.SUPERADMIN for r in roles)
+
+        vendor_id = user.vendor_id
+        is_supplier = user.is_supplier_user or (portal == "supplier" and is_superadmin)
+        if portal == "supplier" and not vendor_id and is_superadmin:
+            vendors = await vendor_repository.get_multi(db, org_id, limit=1)
+            if vendors:
+                vendor_id = vendors[0].id
 
         # Scope repositories are module-specific; stub empty for now
         bu_scope: list[str] = []
@@ -379,7 +397,7 @@ class AuthService:
         access_token = create_access_token(
             user.id, org_id, user.email, roles,
             bu_scope, cat_scope, plant_scope,
-            user.is_supplier_user, user.vendor_id, session_jti,
+            is_supplier, vendor_id, session_jti,
             portal=portal,
         )
         refresh_token = create_refresh_token(user.id, org_id, session_jti)

@@ -58,6 +58,7 @@ class POCreateRequest(BaseModel):
     delivery_location_id: Optional[UUID] = None
     expected_delivery_date: Optional[date] = None
     deviation_justification: Optional[str] = None
+    source_pr_id: Optional[UUID] = None
     po_type: Optional[str] = "STANDARD"
 
 
@@ -107,6 +108,7 @@ class POResponse(BaseModel):
     title: str
     vendor_id: UUID
     vendor_name: Optional[str] = None
+    source_pr_id: Optional[UUID] = None
     rfq_id: Optional[UUID] = None
     arn_id: Optional[UUID] = None
     contract_id: Optional[UUID] = None

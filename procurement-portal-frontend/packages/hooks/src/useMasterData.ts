@@ -144,6 +144,20 @@ export interface Incoterm {
   updated_at: string;
 }
 
+export interface IncotermCreatePayload {
+  code: string;
+  name: string;
+  edition_year?: number;
+  risk_transfer_point: string;
+}
+
+export interface IncotermUpdatePayload {
+  name?: string;
+  edition_year?: number;
+  risk_transfer_point?: string;
+  is_active?: boolean;
+}
+
 export interface TaxCode {
   id: string;
   org_id: string;
@@ -588,15 +602,58 @@ export function useDeletePaymentTerm() {
 // Incoterms Hooks
 // -----------------------------------------------------------------------------
 
-export function useIncoterms() {
+export function useIncoterms(params?: { active_only?: boolean }) {
   return useQuery({
-    queryKey: ["master-data", "incoterms"],
+    queryKey: ["master-data", "incoterms", params],
     queryFn: async () => {
-      const res = await apiClient.get<APIResponse<Incoterm[]>>("/master-data/incoterms");
+      const res = await apiClient.get<APIResponse<Incoterm[]>>("/master-data/incoterms", {
+        params: {
+          active_only: params?.active_only ?? false,
+        },
+      });
       return res.data;
     },
     select: (res) => res.data,
     staleTime: MASTER_DATA_STALE_TIME,
+  });
+}
+
+export function useCreateIncoterm() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload: IncotermCreatePayload) => {
+      const res = await apiClient.post<APIResponse<Incoterm>>("/master-data/incoterms", payload);
+      return res.data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["master-data", "incoterms"] });
+    },
+  });
+}
+
+export function useUpdateIncoterm() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, payload }: { id: string; payload: IncotermUpdatePayload }) => {
+      const res = await apiClient.put<APIResponse<Incoterm>>(`/master-data/incoterms/${id}`, payload);
+      return res.data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["master-data", "incoterms"] });
+    },
+  });
+}
+
+export function useDeleteIncoterm() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const res = await apiClient.delete<APIResponse<{ message: string }>>(`/master-data/incoterms/${id}`);
+      return res.data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["master-data", "incoterms"] });
+    },
   });
 }
 
@@ -873,6 +930,32 @@ export function useCreateCatalogItem() {
   return useMutation({
     mutationFn: async (payload: ItemCreatePayload) => {
       const res = await apiClient.post<APIResponse<ItemMaster>>("/master-data/items", payload);
+      return res.data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["master-data", "items"] });
+    },
+  });
+}
+
+export function useUpdateCatalogItem() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, payload }: { id: string; payload: ItemUpdatePayload }) => {
+      const res = await apiClient.put<APIResponse<ItemMaster>>(`/master-data/items/${id}`, payload);
+      return res.data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["master-data", "items"] });
+    },
+  });
+}
+
+export function useDeleteCatalogItem() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const res = await apiClient.delete<APIResponse<{ message: string }>>(`/master-data/items/${id}`);
       return res.data.data;
     },
     onSuccess: () => {

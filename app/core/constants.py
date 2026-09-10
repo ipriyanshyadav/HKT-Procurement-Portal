@@ -1,7 +1,9 @@
 from __future__ import annotations
+
 from uuid import UUID
 
 DEFAULT_ORG_ID: UUID = UUID("00000000-0000-0000-0000-000000000001")
+
 
 class RoleCode:
     # Internal Roles (12)
@@ -24,6 +26,7 @@ class RoleCode:
     # Admin Roles (2)
     SUPERADMIN = "SUPERADMIN"
     ORG_ADMIN = "ORG_ADMIN"
+
 
 class AuditAction:
     # Auth (14)
@@ -115,6 +118,11 @@ class AuditAction:
     GRN_APPROVED = "GRN_APPROVED"
     GRN_REJECTED = "GRN_REJECTED"
 
+    # ASN (3)
+    ASN_CREATED = "ASN_CREATED"
+    ASN_DISPATCHED = "ASN_DISPATCHED"
+    ASN_RECEIVED = "ASN_RECEIVED"
+
     # Invoice (5)
     INVOICE_SUBMITTED = "INVOICE_SUBMITTED"
     MATCHED = "MATCHED"
@@ -168,6 +176,7 @@ class AuditAction:
     MD_UPDATED = "MD_UPDATED"
     DEACTIVATED = "DEACTIVATED"
     IMPORTED = "IMPORTED"
+
 
 class PermissionCode:
     # Organization (6)
@@ -358,6 +367,13 @@ class PermissionCode:
     ADMIN_MANAGE_SYSTEM = "admin.manage_system"
     ADMIN_VIEW_HEALTH = "admin.view_health"
 
+    # ASN (5)
+    ASN_CREATE = "asn.create"
+    ASN_VIEW_OWN = "asn.view_own"
+    ASN_VIEW_ALL = "asn.view_all"
+    ASN_DISPATCH = "asn.dispatch"
+    ASN_RECEIVE = "asn.receive"
+
     # Ticket (15)
     TICKET_CREATE = "ticket.create"
     TICKET_VIEW_OWN = "ticket.view_own"
@@ -374,6 +390,7 @@ class PermissionCode:
     TICKET_LINK = "ticket.link"
     TICKET_CONFIG_CUSTOM_FIELDS = "ticket.config_custom_fields"
     TICKET_CONFIG_AUTOMATION = "ticket.config_automation"
+
 
 AUDIT_INSERT_ONLY = True
 MAKER_CHECKER_ENFORCED = True

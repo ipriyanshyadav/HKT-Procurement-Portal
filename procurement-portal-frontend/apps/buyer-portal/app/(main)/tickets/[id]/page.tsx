@@ -153,7 +153,7 @@ export default function BuyerTicketDetailPage() {
       <div className="flex items-center justify-between">
         <Link
           href="/tickets"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back to All Tickets</span>
@@ -162,10 +162,10 @@ export default function BuyerTicketDetailPage() {
         <div className="flex items-center gap-2">
           <button
             onClick={handleToggleWatch}
-            className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors ${
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-xl border transition-colors shadow-2xs ${
               isWatcher
-                ? "bg-blue-50 text-blue-700 border-blue-200"
-                : "bg-white text-slate-600 border-slate-300 hover:bg-slate-50"
+                ? "bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border-blue-200 dark:border-blue-800/80"
+                : "bg-white dark:bg-[#1C1C1F] text-slate-700 dark:text-slate-200 border-slate-300 dark:border-white/15 hover:bg-slate-50 dark:hover:bg-[#252529]"
             }`}
           >
             {isWatcher ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
@@ -179,28 +179,38 @@ export default function BuyerTicketDetailPage() {
         {/* Left pane: 65% (8 cols) */}
         <div className="lg:col-span-8 space-y-6">
           {/* Header Card */}
-          <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm space-y-4">
+          <div className="bg-white dark:bg-[#1C1C1F] rounded-2xl border border-slate-200/80 dark:border-white/15 p-6 shadow-xs space-y-4">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="font-mono text-sm font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded">
+              <span className="font-mono text-sm font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 px-2.5 py-1 rounded-lg border border-blue-200/60 dark:border-blue-800/60">
                 {ticket.ticket_number}
               </span>
-              <span className="text-xs font-medium uppercase tracking-wider text-slate-600 bg-slate-100 px-2.5 py-1 rounded">
+              <span className="text-xs font-medium uppercase tracking-wider text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-[#252529] px-2.5 py-1 rounded-lg border border-slate-200/60 dark:border-white/10">
                 {ticket.ticket_type}
               </span>
-              <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-800">
+              <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 dark:bg-white/10 text-slate-800 dark:text-slate-200 border border-slate-200/60 dark:border-white/10">
                 Status: {ticket.status}
               </span>
-              <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-100 text-amber-800">
+              <span
+                className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${
+                  ticket.priority === "URGENT"
+                    ? "bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 border-rose-200 dark:border-rose-800/70"
+                    : ticket.priority === "HIGH"
+                    ? "bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-800/70"
+                    : ticket.priority === "MEDIUM"
+                    ? "bg-blue-100 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300 border-blue-200 dark:border-blue-800/70"
+                    : "bg-slate-100 dark:bg-white/10 text-slate-800 dark:text-slate-200 border-slate-200 dark:border-white/15"
+                }`}
+              >
                 Priority: {ticket.priority}
               </span>
             </div>
 
-            <h1 className="text-xl font-bold text-slate-900 leading-snug">
+            <h1 className="text-xl font-bold text-slate-900 dark:text-white leading-snug">
               {ticket.title}
             </h1>
 
             {ticket.description && (
-              <div className="text-sm text-slate-700 prose prose-sm max-w-none pt-3 border-t border-slate-100">
+              <div className="text-sm text-slate-700 dark:text-slate-300 prose prose-sm dark:prose-invert max-w-none pt-3 border-t border-slate-100 dark:border-white/10">
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>
                   {ticket.description}
                 </ReactMarkdown>
@@ -208,12 +218,12 @@ export default function BuyerTicketDetailPage() {
             )}
 
             {ticket.resolution_note && (
-              <div className="mt-4 p-4 rounded-lg bg-emerald-50 border border-emerald-200 text-sm">
-                <div className="flex items-center gap-1.5 font-semibold text-emerald-800 mb-1">
+              <div className="mt-4 p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/60 text-sm">
+                <div className="flex items-center gap-1.5 font-semibold text-emerald-800 dark:text-emerald-300 mb-1">
                   <CheckCircle2 className="w-4 h-4" />
                   <span>Resolution Details</span>
                 </div>
-                <p className="text-emerald-900 whitespace-pre-wrap">{ticket.resolution_note}</p>
+                <p className="text-emerald-900 dark:text-emerald-200 whitespace-pre-wrap">{ticket.resolution_note}</p>
               </div>
             )}
           </div>
@@ -226,26 +236,26 @@ export default function BuyerTicketDetailPage() {
 
           {/* Attachments Section */}
           {Boolean(ticket.attachments?.length) && (
-            <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-3">
-              <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+            <div className="bg-white dark:bg-[#1C1C1F] rounded-2xl border border-slate-200/80 dark:border-white/15 p-5 shadow-xs space-y-3">
+              <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                 Attachments ({ticket.attachments?.length})
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {ticket.attachments?.map((att) => (
                   <div
                     key={att.id}
-                    className="p-2.5 rounded-lg border border-slate-200 flex items-center justify-between gap-2 hover:bg-slate-50 text-xs"
+                    className="p-3 rounded-xl border border-slate-200 dark:border-white/10 flex items-center justify-between gap-2 hover:bg-slate-50 dark:hover:bg-[#252529] transition-colors text-xs"
                   >
                     <div className="flex items-center gap-2 truncate">
                       <Paperclip className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                      <span className="font-medium text-slate-800 truncate">{att.file_name}</span>
+                      <span className="font-medium text-slate-800 dark:text-slate-200 truncate">{att.file_name}</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <a
                         href={`/api/v1/documents/${att.document_id}/download`}
                         target="_blank"
                         rel="noreferrer"
-                        className="p-1 text-slate-500 hover:text-blue-600 rounded"
+                        className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-white/10 rounded-lg transition-colors"
                         title="Download"
                       >
                         <Download className="w-3.5 h-3.5" />
@@ -254,7 +264,7 @@ export default function BuyerTicketDetailPage() {
                         onClick={() =>
                           deleteAttachment.mutateAsync({ ticketId, attachmentId: att.id })
                         }
-                        className="p-1 text-slate-400 hover:text-rose-600 rounded"
+                        className="p-1.5 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-lg transition-colors"
                         title="Delete"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -267,8 +277,8 @@ export default function BuyerTicketDetailPage() {
           )}
 
           {/* Comments and Conversation */}
-          <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm space-y-6">
-            <h3 className="text-base font-bold text-slate-900">
+          <div className="bg-white dark:bg-[#1C1C1F] rounded-2xl border border-slate-200/80 dark:border-white/15 p-6 shadow-xs space-y-6">
+            <h3 className="text-base font-bold text-slate-900 dark:text-white">
               Activity &amp; Conversation
             </h3>
 
@@ -292,8 +302,8 @@ export default function BuyerTicketDetailPage() {
         {/* Right pane: 35% (4 cols) */}
         <div className="lg:col-span-4 space-y-6">
           {/* Quick Actions Card */}
-          <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-3">
-            <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+          <div className="bg-white dark:bg-[#1C1C1F] rounded-2xl border border-slate-200/80 dark:border-white/15 p-5 shadow-xs space-y-3">
+            <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               Workflow Actions
             </h3>
 
@@ -302,7 +312,7 @@ export default function BuyerTicketDetailPage() {
                 <button
                   onClick={() => startProgress.mutateAsync(ticketId).then(() => refetch())}
                   disabled={startProgress.isPending}
-                  className="w-full py-2 px-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-medium transition-colors shadow-sm flex items-center justify-center gap-1.5"
+                  className="w-full py-2.5 px-3 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white rounded-xl text-xs font-semibold transition-colors shadow-xs flex items-center justify-center gap-1.5"
                 >
                   <Clock className="w-3.5 h-3.5" />
                   <span>Start Progress</span>
@@ -319,7 +329,7 @@ export default function BuyerTicketDetailPage() {
                       })
                       .then(() => refetch())
                   }
-                  className="w-full py-2 px-3 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 rounded-lg text-xs font-medium transition-colors flex items-center justify-center gap-1.5"
+                  className="w-full py-2.5 px-3 bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/40 dark:hover:bg-amber-900/50 text-amber-900 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60 rounded-xl text-xs font-semibold transition-colors flex items-center justify-center gap-1.5"
                 >
                   <span>Mark Pending Response</span>
                 </button>
@@ -328,7 +338,7 @@ export default function BuyerTicketDetailPage() {
               {ticket.status !== "RESOLVED" && ticket.status !== "CLOSED" && (
                 <button
                   onClick={() => setShowResolveModal(true)}
-                  className="w-full py-2 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-medium transition-colors shadow-sm flex items-center justify-center gap-1.5"
+                  className="w-full py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold transition-colors shadow-xs flex items-center justify-center gap-1.5"
                 >
                   <CheckCircle2 className="w-3.5 h-3.5" />
                   <span>Resolve Ticket</span>
@@ -338,7 +348,7 @@ export default function BuyerTicketDetailPage() {
               {ticket.status === "RESOLVED" && (
                 <button
                   onClick={() => close.mutateAsync({ id: ticketId }).then(() => refetch())}
-                  className="w-full py-2 px-3 bg-slate-800 hover:bg-slate-900 text-white rounded-lg text-xs font-medium transition-colors shadow-sm flex items-center justify-center gap-1.5"
+                  className="w-full py-2.5 px-3 bg-slate-800 hover:bg-slate-900 dark:bg-white/15 dark:hover:bg-white/20 text-white rounded-xl text-xs font-semibold transition-colors shadow-xs flex items-center justify-center gap-1.5"
                 >
                   <span>Close Ticket</span>
                 </button>
@@ -347,7 +357,7 @@ export default function BuyerTicketDetailPage() {
               {(ticket.status === "RESOLVED" || ticket.status === "CLOSED") && (
                 <button
                   onClick={() => setShowReopenModal(true)}
-                  className="w-full py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-lg text-xs font-medium transition-colors flex items-center justify-center gap-1.5"
+                  className="w-full py-2.5 px-3 bg-slate-100 hover:bg-slate-200 dark:bg-[#252529] dark:hover:bg-white/10 text-slate-800 dark:text-slate-200 border border-slate-200/60 dark:border-white/10 rounded-xl text-xs font-semibold transition-colors flex items-center justify-center gap-1.5"
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
                   <span>Reopen Ticket</span>
@@ -357,7 +367,7 @@ export default function BuyerTicketDetailPage() {
               {ticket.status !== "CLOSED" && (
                 <button
                   onClick={() => setShowEscalateModal(true)}
-                  className="w-full py-2 px-3 bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200 rounded-lg text-xs font-medium transition-colors flex items-center justify-center gap-1.5"
+                  className="w-full py-2.5 px-3 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/50 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-800/60 rounded-xl text-xs font-semibold transition-colors flex items-center justify-center gap-1.5"
                 >
                   <TrendingUp className="w-3.5 h-3.5" />
                   <span>Escalate to Manager</span>
@@ -367,17 +377,17 @@ export default function BuyerTicketDetailPage() {
           </div>
 
           {/* Ticket Metadata Card */}
-          <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-4 text-xs">
-            <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+          <div className="bg-white dark:bg-[#1C1C1F] rounded-2xl border border-slate-200/80 dark:border-white/15 p-5 shadow-xs space-y-4 text-xs">
+            <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               Ticket Properties
             </h3>
 
-            <div className="space-y-3 divide-y divide-slate-100">
+            <div className="space-y-3 divide-y divide-slate-100 dark:divide-white/10">
               <div className="pt-2">
-                <span className="text-slate-400 block mb-1">Assignee</span>
+                <span className="text-slate-400 dark:text-slate-500 block mb-1 font-medium">Assignee</span>
                 <div className="flex items-center gap-2">
                   <User className="w-4 h-4 text-slate-400" />
-                  <span className="font-medium text-slate-800">
+                  <span className="font-semibold text-slate-800 dark:text-slate-200">
                     {ticket.assigned_to ? ticket.assigned_to.slice(0, 8) : "Unassigned"}
                   </span>
                 </div>
@@ -385,7 +395,7 @@ export default function BuyerTicketDetailPage() {
 
               <div className="pt-2">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-slate-400 block">Due Date</span>
+                  <span className="text-slate-400 dark:text-slate-500 block font-medium">Due Date</span>
                   {!isEditingDueDate && (
                     <button
                       type="button"
@@ -393,7 +403,7 @@ export default function BuyerTicketDetailPage() {
                         setNewDueDate(ticket.due_date || "");
                         setIsEditingDueDate(true);
                       }}
-                      className="text-xs text-blue-600 hover:underline font-medium flex items-center gap-1"
+                      className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-semibold flex items-center gap-1"
                     >
                       <Edit2 className="w-2.5 h-2.5" />
                       <span>{ticket.due_date ? "Edit" : "+ Set"}</span>
@@ -407,7 +417,7 @@ export default function BuyerTicketDetailPage() {
                       type="date"
                       value={newDueDate}
                       onChange={(e) => setNewDueDate(e.target.value)}
-                      className="text-xs p-1 border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 bg-white"
+                      className="text-xs p-1.5 border border-slate-300 dark:border-white/15 rounded-lg focus:ring-1 focus:ring-blue-500 bg-white dark:bg-[#252529] text-slate-900 dark:text-white"
                     />
                     <button
                       type="button"
@@ -420,7 +430,7 @@ export default function BuyerTicketDetailPage() {
                         setIsEditingDueDate(false);
                         refetch();
                       }}
-                      className="p-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded"
+                      className="p-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg"
                       title="Save"
                     >
                       <Check className="w-3.5 h-3.5" />
@@ -428,7 +438,7 @@ export default function BuyerTicketDetailPage() {
                     <button
                       type="button"
                       onClick={() => setIsEditingDueDate(false)}
-                      className="p-1 text-slate-400 hover:text-slate-600 rounded"
+                      className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg"
                       title="Cancel"
                     >
                       <X className="w-3.5 h-3.5" />
@@ -442,8 +452,8 @@ export default function BuyerTicketDetailPage() {
                         new Date(ticket.due_date).setHours(23, 59, 59, 999) < Date.now() &&
                         ticket.status !== "RESOLVED" &&
                         ticket.status !== "CLOSED"
-                          ? "text-rose-600 font-semibold"
-                          : "text-slate-800"
+                          ? "text-rose-600 dark:text-rose-400 font-bold"
+                          : "text-slate-800 dark:text-slate-200"
                       }
                     >
                       {ticket.due_date}
@@ -451,18 +461,18 @@ export default function BuyerTicketDetailPage() {
                     {new Date(ticket.due_date).setHours(23, 59, 59, 999) < Date.now() &&
                       ticket.status !== "RESOLVED" &&
                       ticket.status !== "CLOSED" && (
-                        <span className="text-[10px] bg-rose-100 text-rose-700 font-bold px-1.5 py-0.5 rounded">
+                        <span className="text-[10px] bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 font-bold px-1.5 py-0.5 rounded">
                           OVERDUE
                         </span>
                       )}
                   </div>
                 ) : (
-                  <span className="text-slate-400 italic">Not set</span>
+                  <span className="text-slate-400 dark:text-slate-500 italic">Not set</span>
                 )}
               </div>
 
               <div className="pt-2">
-                <span className="text-slate-400 block mb-1">Target SLA</span>
+                <span className="text-slate-400 dark:text-slate-500 block mb-1 font-medium">Target SLA</span>
                 <TicketSLAIndicator
                   slaStatus={ticket.sla_status}
                   slaBreachAt={ticket.sla_breach_at}
@@ -474,16 +484,16 @@ export default function BuyerTicketDetailPage() {
 
               {ticket.entity_type && (
                 <div className="pt-2">
-                  <span className="text-slate-400 block mb-1">Related Object</span>
-                  <span className="font-mono bg-slate-50 px-2 py-1 border border-slate-200 rounded block text-slate-800">
+                  <span className="text-slate-400 dark:text-slate-500 block mb-1 font-medium">Related Object</span>
+                  <span className="font-mono bg-slate-50 dark:bg-[#252529] px-2.5 py-1 border border-slate-200 dark:border-white/10 rounded-lg block text-slate-800 dark:text-slate-200">
                     {ticket.entity_type.toUpperCase()}: {ticket.entity_id}
                   </span>
                 </div>
               )}
 
               <div className="pt-2">
-                <span className="text-slate-400 block mb-1">Created At</span>
-                <span className="text-slate-700">
+                <span className="text-slate-400 dark:text-slate-500 block mb-1 font-medium">Created At</span>
+                <span className="text-slate-700 dark:text-slate-300">
                   {new Date(ticket.created_at).toLocaleString()}
                 </span>
               </div>
@@ -492,23 +502,23 @@ export default function BuyerTicketDetailPage() {
 
           {/* Activity Log Timeline */}
           {Boolean(ticket.activity_logs?.length) && (
-            <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-3">
-              <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+            <div className="bg-white dark:bg-[#1C1C1F] rounded-2xl border border-slate-200/80 dark:border-white/15 p-5 shadow-xs space-y-3">
+              <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                 Audit Timeline
               </h3>
-              <div className="space-y-3 border-l-2 border-slate-100 pl-3 ml-2 text-xs">
+              <div className="space-y-3 border-l-2 border-slate-100 dark:border-white/10 pl-3 ml-2 text-xs">
                 {ticket.activity_logs?.map((log) => (
                   <div key={log.id} className="relative">
-                    <div className="w-2 h-2 rounded-full bg-slate-300 absolute -left-[17px] top-1" />
-                    <span className="font-semibold text-slate-800 block">
+                    <div className="w-2 h-2 rounded-full bg-slate-300 dark:bg-white/30 absolute -left-[17px] top-1" />
+                    <span className="font-semibold text-slate-800 dark:text-slate-200 block">
                       {log.activity_type}
                     </span>
                     {log.old_value && log.new_value && (
-                      <span className="text-[11px] text-slate-500 block">
+                      <span className="text-[11px] text-slate-500 dark:text-slate-400 block">
                         {log.old_value} → {log.new_value}
                       </span>
                     )}
-                    <span className="text-[10px] text-slate-400">
+                    <span className="text-[10px] text-slate-400 dark:text-slate-500">
                       {new Date(log.created_at).toLocaleString()}
                     </span>
                   </div>
@@ -521,14 +531,14 @@ export default function BuyerTicketDetailPage() {
 
       {/* Resolve Modal */}
       {showResolveModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
           <form
             onSubmit={handleResolveSubmit}
-            className="bg-white rounded-xl max-w-md w-full p-5 space-y-4 border border-slate-200 shadow-xl"
+            className="bg-white dark:bg-[#1C1C1F] rounded-2xl max-w-md w-full p-6 space-y-4 border border-slate-200/80 dark:border-white/15 shadow-2xl"
           >
-            <h3 className="text-base font-bold text-slate-900">Resolve Ticket</h3>
+            <h3 className="text-base font-bold text-slate-900 dark:text-white">Resolve Ticket</h3>
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 Resolution Notes <span className="text-rose-500">*</span>
               </label>
               <textarea
@@ -537,21 +547,21 @@ export default function BuyerTicketDetailPage() {
                 value={resolutionNotes}
                 onChange={(e) => setResolutionNotes(e.target.value)}
                 placeholder="Explain the solution or resolution details..."
-                className="w-full text-sm p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                className="w-full text-sm p-3 bg-white dark:bg-[#252529] border border-slate-300 dark:border-white/15 text-slate-900 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none"
               />
             </div>
             <div className="flex justify-end gap-2">
               <button
                 type="button"
                 onClick={() => setShowResolveModal(false)}
-                className="px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-100 rounded"
+                className="px-3.5 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/10 rounded-xl transition-colors"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={!resolutionNotes.trim() || resolve.isPending}
-                className="px-4 py-1.5 text-xs bg-emerald-600 hover:bg-emerald-700 text-white rounded font-medium disabled:opacity-50"
+                className="px-4 py-1.5 text-xs bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white rounded-xl font-semibold disabled:opacity-50 transition-colors shadow-xs"
               >
                 Confirm Resolution
               </button>
@@ -562,14 +572,14 @@ export default function BuyerTicketDetailPage() {
 
       {/* Escalate Modal */}
       {showEscalateModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
           <form
             onSubmit={handleEscalateSubmit}
-            className="bg-white rounded-xl max-w-md w-full p-5 space-y-4 border border-slate-200 shadow-xl"
+            className="bg-white dark:bg-[#1C1C1F] rounded-2xl max-w-md w-full p-6 space-y-4 border border-slate-200/80 dark:border-white/15 shadow-2xl"
           >
-            <h3 className="text-base font-bold text-slate-900">Escalate Ticket</h3>
+            <h3 className="text-base font-bold text-slate-900 dark:text-white">Escalate Ticket</h3>
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 Escalation Reason <span className="text-rose-500">*</span>
               </label>
               <textarea
@@ -578,21 +588,21 @@ export default function BuyerTicketDetailPage() {
                 value={escalateReason}
                 onChange={(e) => setEscalateReason(e.target.value)}
                 placeholder="Why is this ticket being escalated?"
-                className="w-full text-sm p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                className="w-full text-sm p-3 bg-white dark:bg-[#252529] border border-slate-300 dark:border-white/15 text-slate-900 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none"
               />
             </div>
             <div className="flex justify-end gap-2">
               <button
                 type="button"
                 onClick={() => setShowEscalateModal(false)}
-                className="px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-100 rounded"
+                className="px-3.5 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/10 rounded-xl transition-colors"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={!escalateReason.trim() || escalate.isPending}
-                className="px-4 py-1.5 text-xs bg-rose-600 hover:bg-rose-700 text-white rounded font-medium disabled:opacity-50"
+                className="px-4 py-1.5 text-xs bg-rose-600 hover:bg-rose-700 dark:bg-rose-600 dark:hover:bg-rose-500 text-white rounded-xl font-semibold disabled:opacity-50 transition-colors shadow-xs"
               >
                 Confirm Escalation
               </button>
@@ -603,14 +613,14 @@ export default function BuyerTicketDetailPage() {
 
       {/* Reopen Modal */}
       {showReopenModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
           <form
             onSubmit={handleReopenSubmit}
-            className="bg-white rounded-xl max-w-md w-full p-5 space-y-4 border border-slate-200 shadow-xl"
+            className="bg-white dark:bg-[#1C1C1F] rounded-2xl max-w-md w-full p-6 space-y-4 border border-slate-200/80 dark:border-white/15 shadow-2xl"
           >
-            <h3 className="text-base font-bold text-slate-900">Reopen Ticket</h3>
+            <h3 className="text-base font-bold text-slate-900 dark:text-white">Reopen Ticket</h3>
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 Reopen Reason <span className="text-rose-500">*</span>
               </label>
               <textarea
@@ -619,21 +629,21 @@ export default function BuyerTicketDetailPage() {
                 value={reopenReason}
                 onChange={(e) => setReopenReason(e.target.value)}
                 placeholder="State the reason for reopening this ticket..."
-                className="w-full text-sm p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                className="w-full text-sm p-3 bg-white dark:bg-[#252529] border border-slate-300 dark:border-white/15 text-slate-900 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none"
               />
             </div>
             <div className="flex justify-end gap-2">
               <button
                 type="button"
                 onClick={() => setShowReopenModal(false)}
-                className="px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-100 rounded"
+                className="px-3.5 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/10 rounded-xl transition-colors"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={!reopenReason.trim() || reopen.isPending}
-                className="px-4 py-1.5 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded font-medium disabled:opacity-50"
+                className="px-4 py-1.5 text-xs bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white rounded-xl font-semibold disabled:opacity-50 transition-colors shadow-xs"
               >
                 Confirm Reopen
               </button>

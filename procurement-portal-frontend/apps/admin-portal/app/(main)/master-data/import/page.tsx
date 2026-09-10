@@ -2,6 +2,7 @@
 
 import React, { useState, useRef } from "react";
 import { useImportMasterDataEntity, useImportJobStatus } from "@procurement/hooks";
+import { UnderlineTabs } from "@procurement/ui";
 import {
   UploadCloud,
   FileSpreadsheet,
@@ -173,32 +174,24 @@ export default function MasterDataImportPage() {
       </div>
 
       {/* Entity Navigation Tabs */}
-      <div className="border-b border-slate-200 dark:border-slate-800">
-        <nav className="flex space-x-2 overflow-x-auto pb-px">
-          {Object.values(ENTITY_CONFIGS).map((entity) => {
+      <div className="w-full">
+        <UnderlineTabs
+          tabs={Object.values(ENTITY_CONFIGS).map((entity) => {
             const Icon = entity.icon;
-            const isActive = activeTab === entity.id;
-            return (
-              <button
-                key={entity.id}
-                type="button"
-                onClick={() => handleTabSwitch(entity.id)}
-                className={`inline-flex items-center gap-2 px-4 py-2.5 text-xs font-semibold rounded-t-lg border-b-2 transition-all shrink-0 ${
-                  isActive
-                    ? "border-blue-600 text-blue-600 bg-blue-50/40 dark:bg-blue-950/20 dark:border-blue-400 dark:text-blue-400"
-                    : "border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-300"
-                }`}
-              >
-                <Icon className="w-4 h-4" />
-                <span>{entity.label}</span>
-              </button>
-            );
+            return {
+              id: entity.id,
+              label: entity.label,
+              icon: <Icon className="w-4 h-4" />,
+            };
           })}
-        </nav>
+          activeTab={activeTab}
+          onChange={(id) => handleTabSwitch(id as MasterDataEntityType)}
+          ariaLabel="Master Data Entities"
+        />
       </div>
 
       {/* Upload Zone Card */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm p-6 space-y-6">
+      <div className="bg-white dark:bg-[#1C1C1F] border border-slate-200 dark:border-white/15 rounded-2xl shadow-sm p-6 space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <div className="flex items-center gap-2">

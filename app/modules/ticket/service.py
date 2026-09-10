@@ -1488,14 +1488,33 @@ class TicketService:
         year = datetime.now(timezone.utc).year
         seq = f"seq_tkt_{code.lower()}_{year}"
 
-        for attempt in range(3):
+        for attempt in range(5):
             try:
                 await db.execute(text(f"CREATE SEQUENCE IF NOT EXISTS {seq} START 1 INCREMENT 1;"))
                 result = await db.execute(text(f"SELECT nextval('{seq}');"))
                 n = result.scalar()
-                return f"TKT-{code}-{year}-{str(n).zfill(6)}"
+                candidate = f"TKT-{code}-{year}-{str(n).zfill(6)}"
+
+                existing = await db.execute(
+                    select(Ticket.id).where(Ticket.ticket_number == candidate)
+                )
+                if existing.scalar_one_or_none() is None:
+                    return candidate
+
+                # Existing record found; synchronize sequence to current maximum in database
+                max_stmt = select(func.max(Ticket.ticket_number)).where(
+                    Ticket.ticket_number.like(f"TKT-{code}-{year}-%")
+                )
+                max_res = await db.execute(max_stmt)
+                max_val = max_res.scalar()
+                if max_val:
+                    try:
+                        cur_max_num = int(str(max_val).split("-")[-1])
+                        await db.execute(text(f"SELECT setval('{seq}', {cur_max_num});"))
+                    except (ValueError, IndexError):
+                        pass
             except Exception:
-                if attempt == 2:
+                if attempt == 4:
                     raise
         raise RuntimeError(f"Failed to generate unique ticket sequence number for org {org_id} after multiple attempts")
 

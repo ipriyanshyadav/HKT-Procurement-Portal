@@ -11,7 +11,14 @@ import {
   useDownloadPOPDF,
   useGRNs,
 } from "@procurement/hooks";
-import { DeliveryScheduleTable, DocumentList, PermissionGuard } from "@procurement/ui";
+import {
+  DeliveryScheduleTable,
+  DocumentList,
+  PermissionGuard,
+  UnderlineTabs,
+  Button,
+  Badge,
+} from "@procurement/ui";
 import {
   Package,
   ArrowLeft,
@@ -66,7 +73,7 @@ export default function PurchaseOrderDetailPage() {
     return (
       <div className="p-8 max-w-xl mx-auto text-center space-y-4">
         <AlertCircle className="h-12 w-12 text-red-500 mx-auto" />
-        <h2 className="text-xl font-bold text-slate-800">Purchase Order Not Found</h2>
+        <h2 className="text-xl font-bold text-slate-800 dark:text-white">Purchase Order Not Found</h2>
         <p className="text-slate-500 text-sm">The purchase order you requested does not exist or failed to load.</p>
         <Link
           href="/purchase-orders"
@@ -125,64 +132,42 @@ export default function PurchaseOrderDetailPage() {
     return isNaN(num) ? "0.00" : `${po.currency} ${num.toLocaleString("en-IN", { minimumFractionDigits: 2 })}`;
   };
 
-  const getStatusBadgeClass = (status: string) => {
-    switch (status) {
-      case "APPROVED":
-      case "VENDOR_ACKNOWLEDGED":
-        return "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800";
-      case "SENT_TO_VENDOR":
-        return "bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800";
-      case "PENDING_APPROVAL":
-        return "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800";
-      case "PARTIALLY_RECEIVED":
-        return "bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800";
-      case "RECEIVED":
-      case "CLOSED":
-        return "bg-green-100 dark:bg-green-950/40 text-green-800 dark:text-green-300 border-green-300 dark:border-green-800";
-      case "VENDOR_REJECTED":
-      case "CANCELLED":
-      case "REJECTED":
-        return "bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800";
-      case "DRAFT":
-      default:
-        return "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700";
-    }
-  };
-
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* Top Navigation */}
       <div className="flex items-center justify-between">
         <Link
           href="/purchase-orders"
-          className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors"
         >
-          <ArrowLeft className="h-4 w-4" />
+          <ArrowLeft className="h-3.5 w-3.5" />
           Back to Purchase Orders
         </Link>
         <div className="flex items-center gap-2">
           {po.status === "PENDING_APPROVAL" && (
             <PermissionGuard permission="po.approve">
-              <button
+              <Button
+                variant="primary"
+                size="sm"
                 onClick={handleApprove}
-                disabled={approveMutation.isPending}
-                className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg shadow-sm transition-colors disabled:opacity-50"
+                loading={approveMutation.isPending}
+                icon={<CheckCircle2 className="h-3.5 w-3.5 mr-1.5" />}
               >
-                <CheckCircle2 className="h-4 w-4" />
                 Approve PO
-              </button>
+              </Button>
             </PermissionGuard>
           )}
           {po.status === "APPROVED" && (
             <PermissionGuard permission="po.update">
-              <button
+              <Button
+                variant="primary"
+                size="sm"
                 onClick={handleSendToVendor}
-                disabled={sendToVendorMutation.isPending}
-                className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg shadow-sm transition-colors disabled:opacity-50"
+                loading={sendToVendorMutation.isPending}
+                icon={<Send className="h-3.5 w-3.5 mr-1.5" />}
               >
-                <Send className="h-4 w-4" />
                 Send to Vendor
-              </button>
+              </Button>
             </PermissionGuard>
           )}
           {(po.status === "APPROVED" ||
@@ -190,44 +175,48 @@ export default function PurchaseOrderDetailPage() {
             po.status === "VENDOR_ACKNOWLEDGED" ||
             po.status === "PARTIALLY_RECEIVED" ||
             po.status === "RECEIVED") && (
-            <button
+            <Button
+              variant="secondary"
+              size="sm"
               onClick={handleDownloadPDF}
-              disabled={downloadPDFMutation.isPending}
-              className="inline-flex items-center gap-2 px-3.5 py-1.5 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold rounded-lg shadow-sm transition-colors disabled:opacity-50"
+              loading={downloadPDFMutation.isPending}
+              icon={<Download className="h-3.5 w-3.5 mr-1.5 text-slate-500 dark:text-slate-400" />}
             >
-              <Download className="h-4 w-4 text-slate-500 dark:text-slate-400" />
               Download PDF
-            </button>
+            </Button>
           )}
           {(po.status === "SENT_TO_VENDOR" ||
             po.status === "VENDOR_ACKNOWLEDGED" ||
             po.status === "PARTIALLY_RECEIVED") && (
             <PermissionGuard permission="grn.create">
-              <Link
-                href={`/grn/new?po_id=${po.id}`}
-                className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-sm transition-colors"
-              >
-                <Truck className="h-4 w-4" />
-                Create GRN
+              <Link href={`/grn/new?po_id=${po.id}`}>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  icon={<Truck className="h-3.5 w-3.5 mr-1.5" />}
+                >
+                  Create GRN
+                </Button>
               </Link>
             </PermissionGuard>
           )}
           {po.status !== "CANCELLED" && po.status !== "CLOSED" && (
             <PermissionGuard permission="po.cancel">
-              <button
+              <Button
+                variant="destructive"
+                size="sm"
                 onClick={() => setCancelModalOpen(true)}
-                className="inline-flex items-center gap-2 px-3.5 py-1.5 border border-rose-200 dark:border-rose-900/40 bg-white dark:bg-rose-950/20 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-rose-700 dark:text-rose-300 text-xs font-semibold rounded-lg shadow-sm transition-colors"
+                icon={<XCircle className="h-3.5 w-3.5 mr-1.5" />}
               >
-                <XCircle className="h-4 w-4" />
                 Cancel PO
-              </button>
+              </Button>
             </PermissionGuard>
           )}
         </div>
       </div>
 
       {/* Main Header Card */}
-      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm space-y-4">
+      <div className="bg-white dark:bg-[#1C1C1E] rounded-xl border border-slate-200/80 dark:border-white/10 p-6 shadow-xs space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-3">
@@ -237,18 +226,14 @@ export default function PurchaseOrderDetailPage() {
                   Version {po.amendment_count + 1}
                 </span>
               )}
-              <span
-                className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${getStatusBadgeClass(
-                  po.status
-                )}`}
-              >
+              <Badge variant={po.status.toLowerCase()}>
                 {po.status.replace(/_/g, " ")}
-              </span>
+              </Badge>
             </div>
             <p className="text-base font-medium text-slate-700 dark:text-slate-200 mt-1">{po.title}</p>
           </div>
           <div className="text-right">
-            <div className="text-xs text-slate-400 font-medium">TOTAL ORDER VALUE</div>
+            <div className="text-xs text-slate-400 font-medium uppercase tracking-wider">Total Order Value</div>
             <div className="text-2xl font-bold font-mono text-slate-900 dark:text-white">
               {formatCurrency(po.total_value)}
             </div>
@@ -256,13 +241,13 @@ export default function PurchaseOrderDetailPage() {
         </div>
 
         {/* Metadata Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-slate-100 dark:border-slate-800 text-sm">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-slate-100 dark:border-white/10 text-sm">
           <div>
-            <span className="block text-xs font-medium text-slate-400 uppercase">Vendor ID</span>
+            <span className="block text-xs font-medium text-slate-400 uppercase tracking-wider">Vendor ID</span>
             <span className="font-mono text-xs text-slate-700 dark:text-slate-300 font-semibold">{po.vendor_id}</span>
           </div>
           <div>
-            <span className="block text-xs font-medium text-slate-400 uppercase">Expected Delivery</span>
+            <span className="block text-xs font-medium text-slate-400 uppercase tracking-wider">Expected Delivery</span>
             <span className="font-medium text-slate-700 dark:text-slate-300">
               {po.expected_delivery_date
                 ? new Date(po.expected_delivery_date).toLocaleDateString()
@@ -270,17 +255,29 @@ export default function PurchaseOrderDetailPage() {
             </span>
           </div>
           <div>
-            <span className="block text-xs font-medium text-slate-400 uppercase">Created Date</span>
+            <span className="block text-xs font-medium text-slate-400 uppercase tracking-wider">Created Date</span>
             <span className="font-medium text-slate-700 dark:text-slate-300">
               {po.created_at ? new Date(po.created_at).toLocaleDateString() : "—"}
             </span>
           </div>
-          <div>
-            <span className="block text-xs font-medium text-slate-400 uppercase">Sent to Vendor</span>
-            <span className="font-medium text-slate-700 dark:text-slate-300">
-              {po.sent_at ? new Date(po.sent_at).toLocaleDateString() : "Not Sent"}
-            </span>
-          </div>
+          {po.source_pr_id ? (
+            <div>
+              <span className="block text-xs font-medium text-slate-400 uppercase tracking-wider">Source Requisition</span>
+              <Link
+                href={`/requisitions/${po.source_pr_id}`}
+                className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-mono font-semibold inline-flex items-center gap-1 mt-0.5"
+              >
+                <FileText className="w-3.5 h-3.5" /> View Source PR
+              </Link>
+            </div>
+          ) : (
+            <div>
+              <span className="block text-xs font-medium text-slate-400 uppercase tracking-wider">Sent to Vendor</span>
+              <span className="font-medium text-slate-700 dark:text-slate-300">
+                {po.sent_at ? new Date(po.sent_at).toLocaleDateString() : "Not Sent"}
+              </span>
+            </div>
+          )}
         </div>
 
         {po.vendor_rejection_reason && (
@@ -291,55 +288,20 @@ export default function PurchaseOrderDetailPage() {
       </div>
 
       {/* Tabs */}
-      <div className="border-b border-slate-200 dark:border-slate-800">
-        <nav className="flex space-x-8" aria-label="Tabs">
-          <button
-            onClick={() => setActiveTab("lines")}
-            className={`py-3 px-1 border-b-2 font-medium text-sm flex items-center gap-2 ${
-              activeTab === "lines"
-                ? "border-indigo-600 text-indigo-600 dark:text-indigo-400 dark:border-indigo-400"
-                : "border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:border-slate-300 dark:hover:border-slate-700"
-            }`}
-          >
-            <Package className="h-4 w-4" />
-            Delivery Schedule & Lines ({po.lines?.length || 0})
-          </button>
-          <button
-            onClick={() => setActiveTab("grn")}
-            className={`py-3 px-1 border-b-2 font-medium text-sm flex items-center gap-2 ${
-              activeTab === "grn"
-                ? "border-indigo-600 text-indigo-600 dark:text-indigo-400 dark:border-indigo-400"
-                : "border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:border-slate-300 dark:hover:border-slate-700"
-            }`}
-          >
-            <Truck className="h-4 w-4" />
-            GRN Receipts ({grns.length})
-          </button>
-          {po.amendments && po.amendments.length > 0 && (
-            <button
-              onClick={() => setActiveTab("amendments")}
-              className={`py-3 px-1 border-b-2 font-medium text-sm flex items-center gap-2 ${
-                activeTab === "amendments"
-                  ? "border-indigo-600 text-indigo-600 dark:text-indigo-400 dark:border-indigo-400"
-                  : "border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:border-slate-300 dark:hover:border-slate-700"
-              }`}
-            >
-              <FileCheck className="h-4 w-4" />
-              Amendments ({po.amendments.length})
-            </button>
-          )}
-          <button
-            onClick={() => setActiveTab("documents")}
-            className={`py-3 px-1 border-b-2 font-medium text-sm flex items-center gap-2 ${
-              activeTab === "documents"
-                ? "border-indigo-600 text-indigo-600 dark:text-indigo-400 dark:border-indigo-400"
-                : "border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:border-slate-300 dark:hover:border-slate-700"
-            }`}
-          >
-            <FileText className="h-4 w-4" />
-            Documents & Attachments
-          </button>
-        </nav>
+      <div className="w-full">
+        <UnderlineTabs
+          tabs={[
+            { id: "lines", label: `Delivery Schedule & Lines (${po.lines?.length || 0})`, icon: <Package className="h-4 w-4 shrink-0" /> },
+            { id: "grn", label: `GRN Receipts (${grns.length})`, icon: <Truck className="h-4 w-4 shrink-0" /> },
+            ...(po.amendments && po.amendments.length > 0
+              ? [{ id: "amendments", label: `Amendments (${po.amendments.length})`, icon: <FileCheck className="h-4 w-4 shrink-0" /> }]
+              : []),
+            { id: "documents", label: "Documents & Attachments", icon: <FileText className="h-4 w-4 shrink-0" /> },
+          ]}
+          activeTab={activeTab}
+          onChange={(tabId) => setActiveTab(tabId as any)}
+          ariaLabel="PO Tabs"
+        />
       </div>
 
       {/* Tab Contents */}

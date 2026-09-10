@@ -35,6 +35,11 @@ test_engine = create_async_engine(settings.DATABASE_URL, poolclass=NullPool)
 TestSession = async_sessionmaker(test_engine, expire_on_commit=False, class_=AsyncSession)
 
 
+async def _override_get_db():
+    async with TestSession() as session:
+        yield session
+
+
 async def create_analytics_fixtures(db: AsyncSession, org_id: UUID, cost_of_capital_rate: Decimal = Decimal("0.1500")) -> dict:
     """Sets up org, BUs, categories, vendors, users, PRs, and POs."""
     bu1_id = uuid4()
@@ -614,6 +619,7 @@ async def test_analytics_endpoints_and_scope():
     mock_user.roles = ["BUYER"]
 
     app.dependency_overrides[get_current_user] = lambda: mock_user
+    app.dependency_overrides[get_db] = _override_get_db
 
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
         # 1. Health
@@ -642,6 +648,7 @@ async def test_analytics_endpoints_and_scope():
         res = await ac.get("/api/v1/analytics/cycle-times")
         assert res.status_code == 200
         assert "pr_to_po_avg_days" in res.json()["data"]
+        assert "approval_bottlenecks" in res.json()["data"]
 
         # 6. Export CSV
         res = await ac.post("/api/v1/analytics/export/csv", json={
@@ -652,3 +659,333 @@ async def test_analytics_endpoints_and_scope():
         assert "text/csv" in res.headers["content-type"]
 
     app.dependency_overrides.clear()
+
+
+@pytest.mark.asyncio
+async def test_spend_cube_pareto_calculation():
+    """Test Spend Cube endpoint: category/bu slicing, CAPEX vs OPEX, and Pareto 80/20 distribution."""
+    org_id = uuid4()
+    async with TestSession() as db:
+        f = await create_analytics_fixtures(db, org_id)
+
+        # Create 1 CAPEX PR and 1 OPEX PR
+        pr_capex = uuid4()
+        pr_opex = uuid4()
+        await db.execute(
+            text("""
+                INSERT INTO requisitions (id, org_id, pr_number, title, status, requestor_id, business_unit_id,
+                                          cost_center_id, category_id, currency, estimated_value, is_capex, version)
+                VALUES (:pr1, :org_id, :num1, 'Capex Servers', 'APPROVED', :buyer1, :bu1,
+                        :cc1, :cat1, 'INR', 800000.00, true, 1),
+                       (:pr2, :org_id, :num2, 'Opex Supplies', 'APPROVED', :buyer1, :bu2,
+                        :cc2, :cat2, 'INR', 200000.00, false, 1)
+            """),
+            {
+                "pr1": pr_capex,
+                "pr2": pr_opex,
+                "org_id": org_id,
+                "num1": f"PR-{pr_capex.hex[:6]}",
+                "num2": f"PR-{pr_opex.hex[:6]}",
+                "buyer1": f["buyer1_id"],
+                "bu1": f["bu1_id"],
+                "bu2": f["bu2_id"],
+                "cc1": f["cc1_id"],
+                "cc2": f["cc2_id"],
+                "cat1": f["cat1_id"],
+                "cat2": f["cat2_id"],
+            },
+        )
+
+        po1_id = uuid4()
+        po2_id = uuid4()
+        # PO1: vendor1, capex, 800,000
+        # PO2: vendor2, opex, 200,000
+        await db.execute(
+            text("""
+                INSERT INTO purchase_orders (id, org_id, po_number, title, vendor_id, source_pr_id, status,
+                                             business_unit_id, category_id, currency, total_value, buyer_id, version)
+                VALUES (:po1, :org_id, :num1, 'Capex PO', :v1, :pr1, 'APPROVED',
+                        :bu1, :cat1, 'INR', 800000.00, :buyer1, 1),
+                       (:po2, :org_id, :num2, 'Opex PO', :v2, :pr2, 'APPROVED',
+                        :bu2, :cat2, 'INR', 200000.00, :buyer1, 1)
+            """),
+            {
+                "po1": po1_id,
+                "po2": po2_id,
+                "org_id": org_id,
+                "num1": f"PO-{po1_id.hex[:6]}",
+                "num2": f"PO-{po2_id.hex[:6]}",
+                "v1": f["vendor1_id"],
+                "v2": f["vendor2_id"],
+                "pr1": pr_capex,
+                "pr2": pr_opex,
+                "bu1": f["bu1_id"],
+                "bu2": f["bu2_id"],
+                "cat1": f["cat1_id"],
+                "cat2": f["cat2_id"],
+                "buyer1": f["buyer1_id"],
+            },
+        )
+        await db.commit()
+
+    mock_user = User(
+        id=f["head_user_id"],
+        org_id=org_id,
+        email="head@test.com",
+        first_name="Head",
+        last_name="Procurement",
+    )
+    mock_user.roles = ["PROCUREMENT_HEAD"]
+    app.dependency_overrides[get_current_user] = lambda: mock_user
+    app.dependency_overrides[get_db] = _override_get_db
+
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
+        res = await ac.get("/api/v1/analytics/spend-cube")
+        assert res.status_code == 200
+        data = res.json()["data"]
+        assert data["total_spend"] == 1000000.0
+        assert data["capex_spend"] == 800000.0
+        assert data["opex_spend"] == 200000.0
+        assert data["capex_percentage"] == 80.0
+        assert data["opex_percentage"] == 20.0
+        assert len(data["by_category"]) >= 2
+        assert len(data["by_bu"]) >= 2
+
+        pareto = data["pareto_vendors"]
+        assert len(pareto) == 2
+        assert pareto[0]["vendor_id"] == str(f["vendor1_id"])
+        assert pareto[0]["total_spend"] == 800000.0
+        assert pareto[0]["pareto_tier"] == "TOP_80"
+        assert pareto[1]["vendor_id"] == str(f["vendor2_id"])
+        assert data["pareto_summary"]["total_vendors"] == 2
+
+    app.dependency_overrides.clear()
+
+
+@pytest.mark.asyncio
+async def test_maverick_spend_identification():
+    """Test Maverick Spend endpoint: identifies POs without contracts or RFQs and flags risk levels."""
+    org_id = uuid4()
+    async with TestSession() as db:
+        f = await create_analytics_fixtures(db, org_id)
+
+        contract_id = uuid4()
+        await db.execute(
+            text("""
+                INSERT INTO contracts (id, org_id, business_unit_id, category_id, contract_number, title, vendor_id, status, total_value, start_date, end_date, version)
+                VALUES (:c_id, :org_id, :bu1, :cat1, 'CON-001', 'IT Master Agreement', :v1, 'ACTIVE', 1000000.0, CURRENT_DATE, CURRENT_DATE + INTERVAL '365 days', 1)
+            """),
+            {"c_id": contract_id, "org_id": org_id, "bu1": f["bu1_id"], "cat1": f["cat1_id"], "v1": f["vendor1_id"]},
+        )
+
+        po_contracted = uuid4()
+        po_maverick = uuid4()
+
+        await db.execute(
+            text("""
+                INSERT INTO purchase_orders (id, org_id, po_number, title, vendor_id, contract_id, source_pr_id, rfq_id,
+                                             status, business_unit_id, category_id, currency, total_value, buyer_id, version)
+                VALUES (:po1, :org_id, :num1, 'Contracted PO', :v1, :c_id, NULL, NULL,
+                        'APPROVED', :bu1, :cat1, 'INR', 600000.00, :buyer1, 1),
+                       (:po2, :org_id, :num2, 'Maverick PO', :v2, NULL, NULL, NULL,
+                        'APPROVED', :bu2, :cat2, 'INR', 400000.00, :buyer1, 1)
+            """),
+            {
+                "po1": po_contracted,
+                "po2": po_maverick,
+                "org_id": org_id,
+                "num1": f"PO-{po_contracted.hex[:6]}",
+                "num2": f"PO-{po_maverick.hex[:6]}",
+                "v1": f["vendor1_id"],
+                "v2": f["vendor2_id"],
+                "c_id": contract_id,
+                "bu1": f["bu1_id"],
+                "bu2": f["bu2_id"],
+                "cat1": f["cat1_id"],
+                "cat2": f["cat2_id"],
+                "buyer1": f["buyer1_id"],
+            },
+        )
+        await db.commit()
+
+    mock_user = User(
+        id=f["head_user_id"],
+        org_id=org_id,
+        email="head@test.com",
+        first_name="Head",
+        last_name="Procurement",
+    )
+    mock_user.roles = ["PROCUREMENT_HEAD"]
+    app.dependency_overrides[get_current_user] = lambda: mock_user
+    app.dependency_overrides[get_db] = _override_get_db
+
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
+        res = await ac.get("/api/v1/analytics/maverick-spend")
+        assert res.status_code == 200
+        data = res.json()["data"]
+        assert data["total_po_spend"] == 1000000.0
+        assert data["contracted_spend"] == 600000.0
+        assert data["maverick_spend"] == 400000.0
+        assert data["leakage_rate"] == 40.0
+        assert data["total_po_count"] == 2
+        assert data["maverick_po_count"] == 1
+        assert data["compliant_po_count"] == 1
+
+        uncontracted = data["uncontracted_pos"]
+        assert len(uncontracted) >= 1
+        assert uncontracted[0]["po_number"] == f"PO-{po_maverick.hex[:6]}"
+        assert uncontracted[0]["risk_level"] in ("HIGH", "MEDIUM")
+
+    app.dependency_overrides.clear()
+
+
+@pytest.mark.asyncio
+async def test_custom_report_builder_dynamic_query():
+    """Test Custom Report Builder: dynamic dimension grouping, metrics, filters, and sorting."""
+    org_id = uuid4()
+    async with TestSession() as db:
+        f = await create_analytics_fixtures(db, org_id)
+
+        po1_id = uuid4()
+        await db.execute(
+            text("""
+                INSERT INTO purchase_orders (id, org_id, po_number, title, vendor_id, status,
+                                             business_unit_id, category_id, currency, total_value, buyer_id, version)
+                VALUES (:po1, :org_id, :num1, 'Report PO', :v1, 'APPROVED',
+                        :bu1, :cat1, 'INR', 150000.00, :buyer1, 1)
+            """),
+            {
+                "po1": po1_id,
+                "org_id": org_id,
+                "num1": f"PO-{po1_id.hex[:6]}",
+                "v1": f["vendor1_id"],
+                "bu1": f["bu1_id"],
+                "cat1": f["cat1_id"],
+                "buyer1": f["buyer1_id"],
+            },
+        )
+        await db.commit()
+
+    mock_user = User(
+        id=f["head_user_id"],
+        org_id=org_id,
+        email="head@test.com",
+        first_name="Head",
+        last_name="Procurement",
+    )
+    mock_user.roles = ["PROCUREMENT_HEAD"]
+    app.dependency_overrides[get_current_user] = lambda: mock_user
+    app.dependency_overrides[get_db] = _override_get_db
+
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
+        req_payload = {
+            "name": "Category & Vendor Spend",
+            "dimensions": ["category_name", "vendor_name"],
+            "metrics": ["total_po_value", "po_count", "avg_po_value"],
+            "filters": [
+                {"field": "status", "operator": "eq", "value": "APPROVED"}
+            ],
+            "sort": [
+                {"field": "total_po_value", "direction": "desc"}
+            ],
+            "page": 1,
+            "page_size": 25,
+        }
+        res = await ac.post("/api/v1/analytics/reports", json=req_payload)
+        assert res.status_code == 200
+        data = res.json()["data"]
+        assert data["name"] == "Category & Vendor Spend"
+        assert data["total_records"] >= 1
+        assert len(data["data"]) >= 1
+        row = data["data"][0]
+        assert "category_name" in row
+        assert "vendor_name" in row
+        assert "total_po_value" in row
+        assert row["total_po_value"] == 150000.0
+
+    app.dependency_overrides.clear()
+
+
+@pytest.mark.asyncio
+async def test_compliance_audit_reports():
+    """Test Compliance Audit Reports: emergency RFQs, single vendor justifications, and audit logs."""
+    org_id = uuid4()
+    async with TestSession() as db:
+        f = await create_analytics_fixtures(db, org_id)
+
+        # 1. Emergency RFQ
+        rfq_em_id = uuid4()
+        await db.execute(
+            text("""
+                INSERT INTO rfqs (id, org_id, rfq_number, title, rfq_type, sourcing_type, status,
+                                  buyer_id, business_unit_id, category_id, estimated_value,
+                                  is_emergency, description, version)
+                VALUES (:id, :org_id, 'RFQ-EM-01', 'Critical Plant Repair', 'LIMITED_TENDER', 'GOODS', 'PUBLISHED',
+                        :b1, :bu1, :cat1, 250000.0, true, 'Factory boiler failure emergency', 1)
+            """),
+            {
+                "id": rfq_em_id,
+                "org_id": org_id,
+                "b1": f["buyer1_id"],
+                "bu1": f["bu1_id"],
+                "cat1": f["cat1_id"],
+            },
+        )
+
+        # 2. Single-Vendor RFQ
+        rfq_sv_id = uuid4()
+        await db.execute(
+            text("""
+                INSERT INTO rfqs (id, org_id, rfq_number, title, rfq_type, sourcing_type, status,
+                                  buyer_id, business_unit_id, category_id, estimated_value,
+                                  is_single_vendor, single_vendor_justification, version)
+                VALUES (:id, :org_id, 'RFQ-SV-01', 'Proprietary OEM Spares', 'LIMITED_TENDER', 'GOODS', 'PUBLISHED',
+                        :b1, :bu1, :cat1, 180000.0, true, 'Sole licensed distributor in APAC', 1)
+            """),
+            {
+                "id": rfq_sv_id,
+                "org_id": org_id,
+                "b1": f["buyer1_id"],
+                "bu1": f["bu1_id"],
+                "cat1": f["cat1_id"],
+            },
+        )
+
+        # 3. Force-Approval Audit Log
+        audit_id = uuid4()
+        await db.execute(
+            text("""
+                INSERT INTO audit_logs (id, org_id, entity_type, entity_id, action, actor_email, metadata, created_at)
+                VALUES (:id, :org_id, 'PURCHASE_ORDER', :ent_id, 'WORKFLOW_ADMIN_INTERVENTION', 'admin@test.com',
+                        '{"intervention_type": "FORCE_ADVANCE", "reason": "Bypassed VP offline approved"}', NOW())
+            """),
+            {"id": audit_id, "org_id": org_id, "ent_id": uuid4()},
+        )
+        await db.commit()
+
+    mock_user = User(
+        id=f["head_user_id"],
+        org_id=org_id,
+        email="head@test.com",
+        first_name="Head",
+        last_name="Procurement",
+    )
+    mock_user.roles = ["PROCUREMENT_HEAD"]
+    app.dependency_overrides[get_current_user] = lambda: mock_user
+    app.dependency_overrides[get_db] = _override_get_db
+
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
+        res = await ac.get("/api/v1/analytics/compliance-reports")
+        assert res.status_code == 200
+        data = res.json()["data"]
+        assert len(data["emergency_rfqs"]) >= 1
+        assert data["emergency_rfqs"][0]["rfq_number"] == "RFQ-EM-01"
+        assert len(data["single_vendor_rfqs"]) >= 1
+        assert data["single_vendor_rfqs"][0]["rfq_number"] == "RFQ-SV-01"
+        assert len(data["force_approves"]) >= 1
+        assert data["summary"]["emergency_rfq_count"] >= 1
+        assert data["summary"]["single_vendor_count"] >= 1
+        assert data["summary"]["force_approve_count"] >= 1
+
+    app.dependency_overrides.clear()
+

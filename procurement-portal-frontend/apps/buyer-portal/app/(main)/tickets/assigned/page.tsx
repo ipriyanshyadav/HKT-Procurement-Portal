@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { UserCheck, ExternalLink, Clock, AlertCircle } from "lucide-react";
+import { UserCheck, ExternalLink, Clock, AlertCircle, List, Kanban, User } from "lucide-react";
 import { useMyAssignedTickets } from "@procurement/hooks";
 import { TicketSLAIndicator } from "@procurement/ui";
 
@@ -21,6 +21,38 @@ export default function BuyerAssignedTicketsPage() {
             Inquiries and tickets where you are the designated assignee.
           </p>
         </div>
+      </div>
+
+      {/* Ticket View Tabs Strip */}
+      <div className="w-full flex items-center gap-1.5 p-1.5 bg-neutral-100 dark:bg-neutral-800/80 rounded-2xl border border-neutral-200/80 dark:border-neutral-700 overflow-x-auto shadow-xs">
+        <Link
+          href="/tickets"
+          className="flex-1 min-w-[130px] flex items-center justify-center gap-2 py-2.5 px-3 text-xs sm:text-sm font-semibold rounded-xl text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200/60 dark:hover:bg-neutral-700/50 transition-colors text-center"
+        >
+          <List className="w-4 h-4" />
+          <span>All Tickets</span>
+        </Link>
+        <Link
+          href="/tickets/board"
+          className="flex-1 min-w-[130px] flex items-center justify-center gap-2 py-2.5 px-3 text-xs sm:text-sm font-semibold rounded-xl text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200/60 dark:hover:bg-neutral-700/50 transition-colors text-center"
+        >
+          <Kanban className="w-4 h-4" />
+          <span>Kanban Board</span>
+        </Link>
+        <Link
+          href="/tickets/my"
+          className="flex-1 min-w-[130px] flex items-center justify-center gap-2 py-2.5 px-3 text-xs sm:text-sm font-semibold rounded-xl text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200/60 dark:hover:bg-neutral-700/50 transition-colors text-center"
+        >
+          <User className="w-4 h-4" />
+          <span>Raised by Me</span>
+        </Link>
+        <Link
+          href="/tickets/assigned"
+          className="flex-1 min-w-[130px] flex items-center justify-center gap-2 py-2.5 px-3 text-xs sm:text-sm font-semibold rounded-xl bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm text-center"
+        >
+          <UserCheck className="w-4 h-4 text-blue-600" />
+          <span>Assigned to Me</span>
+        </Link>
       </div>
 
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">

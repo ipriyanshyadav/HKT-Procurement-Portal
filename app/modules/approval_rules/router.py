@@ -222,3 +222,16 @@ async def simulate_rule_matching(
             evaluated_rules_count=evaluated_count,
         )
     )
+
+
+@router.post("/resolve-chain")
+async def resolve_approval_chain(
+    data: ApprovalRuleSimulateRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Resolve approval chain dynamic matrix according to SPEC_06."""
+    chain = await rules_engine.resolve_chain(
+        db, data.entity_type, data.entity_context, current_user.org_id
+    )
+    return success_response(chain)

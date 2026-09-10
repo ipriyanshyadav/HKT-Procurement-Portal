@@ -12,7 +12,7 @@ import {
   CreateRequisitionPayload,
   RequisitionDetail,
 } from "@procurement/hooks";
-import { PermissionGuard, Badge, Button } from "@procurement/ui";
+import { PermissionGuard, Badge, Button, SubTabs } from "@procurement/ui";
 import { Eye } from "lucide-react";
 
 interface ParsedRequisitionItem {
@@ -540,59 +540,39 @@ export default function BulkRequisitionsImportPage() {
         <div className="space-y-4">
           {/* KPI Strip */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-              <p className="text-xs text-gray-500">Total PRs</p>
-              <p className="text-xl font-bold text-gray-900 dark:text-white mt-1">{parsedItems.length}</p>
+            <div className="bg-white dark:bg-[#1C1C1F] p-4 rounded-xl border border-slate-200 dark:border-white/15 shadow-sm">
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Total PRs</p>
+              <p className="text-xl font-bold font-mono text-slate-900 dark:text-white mt-1">{parsedItems.length}</p>
             </div>
-            <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-              <p className="text-xs text-emerald-600 font-medium">Valid for Import</p>
-              <p className="text-xl font-bold text-emerald-700 mt-1">{validItems.length}</p>
+            <div className="bg-white dark:bg-[#1C1C1F] p-4 rounded-xl border border-slate-200 dark:border-white/15 shadow-sm">
+              <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">Valid for Import</p>
+              <p className="text-xl font-bold font-mono text-emerald-600 dark:text-emerald-400 mt-1">{validItems.length}</p>
             </div>
-            <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-              <p className="text-xs text-red-600 font-medium">Validation Errors</p>
-              <p className="text-xl font-bold text-red-700 mt-1">{errorItems.length}</p>
+            <div className="bg-white dark:bg-[#1C1C1F] p-4 rounded-xl border border-slate-200 dark:border-white/15 shadow-sm">
+              <p className="text-xs text-rose-600 dark:text-rose-400 font-medium">Validation Errors</p>
+              <p className="text-xl font-bold font-mono text-rose-600 dark:text-rose-400 mt-1">{errorItems.length}</p>
             </div>
-            <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-              <p className="text-xs text-gray-500">Total Value (Valid)</p>
-              <p className="text-xl font-bold text-blue-600 mt-1">
+            <div className="bg-white dark:bg-[#1C1C1F] p-4 rounded-xl border border-slate-200 dark:border-white/15 shadow-sm">
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Total Value (Valid)</p>
+              <p className="text-xl font-bold font-mono text-blue-600 dark:text-blue-400 mt-1">
                 ₹{totalValue.toLocaleString("en-IN", { maximumFractionDigits: 2 })}
               </p>
             </div>
           </div>
 
           {/* Tab Filter & Batch Submit Button */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white p-3 rounded-xl border border-gray-200 shadow-sm">
-            <div className="flex items-center gap-1 bg-gray-100 dark:bg-slate-800 p-1 rounded-lg">
-              <button
-                onClick={() => setActiveTab("ALL")}
-                className={`px-3 py-1.5 text-xs font-semibold rounded-md transition ${
-                  activeTab === "ALL"
-                    ? "bg-white text-gray-900 shadow-sm"
-                    : "text-gray-500 hover:text-gray-800"
-                }`}
-              >
-                All ({parsedItems.length})
-              </button>
-              <button
-                onClick={() => setActiveTab("VALID")}
-                className={`px-3 py-1.5 text-xs font-semibold rounded-md transition ${
-                  activeTab === "VALID"
-                    ? "bg-white text-emerald-700 shadow-sm"
-                    : "text-gray-500 hover:text-gray-800"
-                }`}
-              >
-                Ready ({validItems.length})
-              </button>
-              <button
-                onClick={() => setActiveTab("ERROR")}
-                className={`px-3 py-1.5 text-xs font-semibold rounded-md transition ${
-                  activeTab === "ERROR"
-                    ? "bg-white text-red-700 shadow-sm"
-                    : "text-gray-500 hover:text-gray-800"
-                }`}
-              >
-                Errors ({errorItems.length})
-              </button>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white dark:bg-[#1C1C1F] p-3 rounded-xl border border-slate-200 dark:border-white/15 shadow-sm">
+            <div className="w-full sm:w-auto">
+              <SubTabs
+                tabs={[
+                  { id: "ALL", label: "All", badge: parsedItems.length },
+                  { id: "VALID", label: "Ready", badge: validItems.length },
+                  { id: "ERROR", label: "Errors", badge: errorItems.length },
+                ]}
+                activeTab={activeTab}
+                onChange={(id) => setActiveTab(id as any)}
+                ariaLabel="Validation Filter"
+              />
             </div>
 
             <PermissionGuard permission="pr.create">
@@ -614,11 +594,11 @@ export default function BulkRequisitionsImportPage() {
           </div>
 
           {/* Requisitions Preview Table */}
-          <div className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm overflow-hidden">
+          <div className="bg-white dark:bg-[#1C1C1F] rounded-xl border border-slate-200 dark:border-white/15 shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
-                  <tr className="bg-gray-50 border-b border-gray-200 dark:border-slate-800 text-gray-500 font-semibold uppercase tracking-wider">
+                  <tr className="bg-slate-50 dark:bg-[#252529] border-b border-slate-200 dark:border-white/15 text-slate-600 dark:text-slate-300 font-semibold uppercase tracking-wider">
                     <th className="p-3.5">Status</th>
                     <th className="p-3.5">Requisition Title</th>
                     <th className="p-3.5">Type</th>
@@ -628,30 +608,30 @@ export default function BulkRequisitionsImportPage() {
                     <th className="p-3.5 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100 dark:divide-slate-800">
+                <tbody className="divide-y divide-slate-100 dark:divide-white/10">
                   {displayedItems.map((item) => {
                     const isExpanded = expandedId === item.id;
                     const hasErrors = item.errors.length > 0;
 
                     return (
                       <React.Fragment key={item.id}>
-                        <tr className="hover:bg-gray-50 dark:hover:bg-slate-800/50/80 transition">
+                        <tr className="hover:bg-slate-50 dark:hover:bg-white/[0.04] transition">
                           <td className="p-3.5">
                             <Badge variant={hasErrors ? "rejected" : "approved"}>
                               {hasErrors ? `INVALID (${item.errors.length})` : "READY"}
                             </Badge>
                           </td>
                           <td className="p-3.5">
-                            <p className="font-semibold text-gray-900">{item.payload.title}</p>
+                            <p className="font-semibold text-slate-900 dark:text-slate-100">{item.payload.title}</p>
                             {item.payload.description && (
-                              <p className="text-[11px] text-gray-400 line-clamp-1">
+                              <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1">
                                 {item.payload.description}
                               </p>
                             )}
                             {hasErrors && (
                               <div className="mt-1 space-y-0.5">
                                 {item.errors.map((err, i) => (
-                                  <p key={i} className="text-[11px] text-red-600 font-mono">
+                                  <p key={i} className="text-[11px] text-rose-600 dark:text-rose-400 font-mono">
                                     • {err}
                                   </p>
                                 ))}
@@ -659,18 +639,18 @@ export default function BulkRequisitionsImportPage() {
                             )}
                           </td>
                           <td className="p-3.5">
-                            <span className="px-2 py-0.5 rounded bg-gray-100 text-gray-700 text-[10px] font-bold">
+                            <span className="px-2 py-0.5 rounded bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300 text-[10px] font-bold">
                               {item.payload.procurement_type}
                             </span>
                           </td>
-                          <td className="p-3.5 font-mono text-[11px] text-gray-600">
+                          <td className="p-3.5 font-mono text-[11px] text-slate-600 dark:text-slate-400">
                             <div>BU: {item.payload.business_unit_id.slice(0, 8)}...</div>
                             <div>CC: {item.payload.cost_center_id.slice(0, 8)}...</div>
                           </td>
-                          <td className="p-3.5 text-center font-semibold">
+                          <td className="p-3.5 text-center font-semibold text-slate-900 dark:text-slate-100">
                             {item.payload.lines.length}
                           </td>
-                          <td className="p-3.5 text-right font-semibold font-mono text-gray-900">
+                          <td className="p-3.5 text-right font-semibold font-mono text-slate-900 dark:text-slate-100">
                             ₹{item.totalValue.toLocaleString("en-IN", { maximumFractionDigits: 2 })}
                           </td>
                           <td className="p-3.5 text-right">
@@ -689,11 +669,11 @@ export default function BulkRequisitionsImportPage() {
 
                         {/* Expanded Line Items Detail */}
                         {isExpanded && (
-                          <tr className="bg-slate-50">
+                          <tr className="bg-slate-50/50 dark:bg-white/[0.02]">
                             <td colSpan={7} className="p-4">
-                              <div className="border border-slate-200 rounded-lg overflow-hidden bg-white">
+                              <div className="border border-slate-200 dark:border-white/15 rounded-lg overflow-hidden bg-white dark:bg-[#252529]">
                                 <table className="w-full text-left text-[11px]">
-                                  <thead className="bg-slate-100 text-slate-600 uppercase font-semibold">
+                                  <thead className="bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300 uppercase font-semibold">
                                     <tr>
                                       <th className="p-2 text-center">#</th>
                                       <th className="p-2">Item Description</th>
@@ -703,23 +683,23 @@ export default function BulkRequisitionsImportPage() {
                                       <th className="p-2 text-right">Total</th>
                                     </tr>
                                   </thead>
-                                  <tbody className="divide-y divide-slate-100">
+                                  <tbody className="divide-y divide-slate-100 dark:divide-white/10">
                                     {item.payload.lines.map((ln) => (
                                       <tr key={ln.line_number}>
                                         <td className="p-2 text-center text-slate-400">
                                           {ln.line_number}
                                         </td>
-                                        <td className="p-2 font-medium text-slate-800">
+                                        <td className="p-2 font-medium text-slate-800 dark:text-slate-200">
                                           {ln.item_description}
                                         </td>
-                                        <td className="p-2 font-mono text-slate-500">
+                                        <td className="p-2 font-mono text-slate-500 dark:text-slate-400">
                                           {ln.item_code || "—"}
                                         </td>
-                                        <td className="p-2 text-center font-mono">{ln.quantity}</td>
-                                        <td className="p-2 text-right font-mono">
+                                        <td className="p-2 text-center font-mono text-slate-800 dark:text-slate-200">{ln.quantity}</td>
+                                        <td className="p-2 text-right font-mono text-slate-800 dark:text-slate-200">
                                           ₹{ln.estimated_unit_price.toFixed(2)}
                                         </td>
-                                        <td className="p-2 text-right font-mono font-semibold">
+                                        <td className="p-2 text-right font-mono font-semibold text-slate-900 dark:text-white">
                                           ₹
                                           {(ln.quantity * ln.estimated_unit_price).toLocaleString(
                                             "en-IN",
