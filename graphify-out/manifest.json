@@ -1482,9 +1482,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1788998914.3568168,
-    "seen": 1789000266.2436988,
-    "ast_hash": "19fe5c9bede8db3522923dca39908760",
+    "mtime": 1789000274.3176,
+    "seen": 1789012673.234455,
+    "ast_hash": "9ae49316d923eef0f92dd28abe28cefd",
     "semantic_hash": ""
   },
   "graphify_diff_20260904_014322.txt": {
@@ -6522,9 +6522,33 @@
     "semantic_hash": ""
   },
   "tests/integration/test_cross_portal_synchronous_flow.py": {
-    "mtime": 1789000138.3304355,
-    "seen": 1789000266.2415318,
-    "ast_hash": "572ed57d0e69f90d3c6b7fa0da7a6f35",
+    "mtime": 1789000303.2659953,
+    "seen": 1789012673.232206,
+    "ast_hash": "d4cf648d7951effbce3d71381db0d85c",
+    "semantic_hash": ""
+  },
+  "scripts/generate_interactive_pdf.js": {
+    "mtime": 1789012574.3744056,
+    "seen": 1789012673.231324,
+    "ast_hash": "7d852bea9780a28647e123ac9523b392",
+    "semantic_hash": ""
+  },
+  "docs/CROSS_PORTAL_ARCHITECTURE_AND_WORKFLOW_GUIDE.html": {
+    "mtime": 1789012583.0374825,
+    "seen": 1789012673.234537,
+    "ast_hash": "8819dc75dea7621ddd2a961fe5ad1d25",
+    "semantic_hash": ""
+  },
+  "docs/CROSS_PORTAL_ARCHITECTURE_AND_WORKFLOW_GUIDE.md": {
+    "mtime": 1789012173.39356,
+    "seen": 1789012673.234538,
+    "ast_hash": "45fe7748bef434c55671c6ca4d59cb0b",
+    "semantic_hash": ""
+  },
+  "docs/CROSS_PORTAL_ARCHITECTURE_AND_WORKFLOW_GUIDE.pdf": {
+    "mtime": 1789012586.3364735,
+    "seen": 1789012673.2378519,
+    "ast_hash": "5143cccd50bd6225c3862882495bbf85",
     "semantic_hash": ""
   }
 }

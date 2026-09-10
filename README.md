@@ -670,7 +670,7 @@ docker compose logs -f -t
 - **Fixed Core**: Loop-safe Redis connection pool caching in `app/core/redis_client.py` and mock-safe row unpacking in `app/modules/workflow/service.py`.
 - **Verified Cross-Portal Test**: `test_cross_portal_synchronous_flow.py` (Admin master data/rules -> Buyer PR -> Workflow Approval -> RFQ -> Supplier Bid -> Unseal/Award -> Contract e-Sign -> PO -> ASN -> Fast GRN -> Invoice -> 3-Way Match -> Settlement -> Remittance -> Ticket -> ERP Sync).
 - **Tested**: All 964 backend tests passed (100% pass rate in 65s); frontend Turbo typecheck 7/7 packages clean with 0 errors; graphify updated (10,499 nodes, 28,359 edges, 582 communities).
-- **Artifact**: Produced exhaustive technical guide `CROSS_PORTAL_ARCHITECTURE_AND_WORKFLOW_GUIDE.md`.
+- **Artifacts & Docs**: Saved comprehensive markdown specification to `docs/CROSS_PORTAL_ARCHITECTURE_AND_WORKFLOW_GUIDE.md` and compiled publication-grade interactive PDF with vector Mermaid diagrams and document bookmarks to `docs/CROSS_PORTAL_ARCHITECTURE_AND_WORKFLOW_GUIDE.pdf` via `scripts/generate_interactive_pdf.js`.
 
 ### 📊 SPEC Audit: Cross-Portal Synchronous Workflows & Gateway Routing (2026-09-10)
 ```
@@ -679,8 +679,9 @@ XPORT.1 | Cross-Portal Synchronous Event Integration Test | [DONE] | test_cross_
 XPORT.2 | Kong Gateway Proxy Integrity (Audit, ASNs, Einvoicing, Dev) | [DONE] | kong/kong.yml
 XPORT.3 | Asyncio Redis Connection Pool Event Loop Isolation | [DONE] | app/core/redis_client.py
 XPORT.4 | Workflow Engine Raw Row Sequence Safety Guard | [DONE] | app/modules/workflow/service.py
-XPORT.5 | Cross-Portal Architecture & Synchronous Workflow Guide | [DONE] | CROSS_PORTAL_ARCHITECTURE_AND_WORKFLOW_GUIDE.md
-OVERALL: 5/5 (100%) | BACKEND 100% | FRONTEND 100% | TESTS 100%
+XPORT.5 | Cross-Portal Architecture & Synchronous Workflow Guide | [DONE] | docs/CROSS_PORTAL_ARCHITECTURE_AND_WORKFLOW_GUIDE.md
+XPORT.6 | Publication-Grade Interactive PDF with Outlines & Vector SVGs | [DONE] | docs/CROSS_PORTAL_ARCHITECTURE_AND_WORKFLOW_GUIDE.pdf
+OVERALL: 6/6 (100%) | BACKEND 100% | FRONTEND 100% | TESTS 100% | DOCS 100%
 ```
 
 
