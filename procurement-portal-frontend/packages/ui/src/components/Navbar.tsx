@@ -299,46 +299,6 @@ export function Navbar({
       <div className="flex items-center gap-2.5 sm:gap-3">
         {actions}
 
-        {/* 1-Click Portal Quick Switcher */}
-        <div className="hidden sm:flex items-center bg-black/5 dark:bg-white/5 p-0.5 rounded-xl border border-neutral-200/70 dark:border-neutral-800 shadow-xs">
-          <a
-            href={getPortalUrl('buyer')}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all ${
-              isCurrentPortal('buyer')
-                ? 'bg-white dark:bg-neutral-800 text-amber-700 dark:text-amber-300 shadow-xs border border-neutral-200/60 dark:border-neutral-700/60'
-                : 'text-neutral-500 hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-neutral-200'
-            }`}
-            title="Switch to Buyer Portal (:3000)"
-          >
-            <span className={`w-1.5 h-1.5 rounded-full ${isCurrentPortal('buyer') ? 'bg-amber-500' : 'bg-neutral-300 dark:bg-neutral-600'}`} />
-            <span>Buyer</span>
-          </a>
-          <a
-            href={getPortalUrl('supplier')}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all ${
-              isCurrentPortal('supplier')
-                ? 'bg-white dark:bg-neutral-800 text-emerald-700 dark:text-emerald-300 shadow-xs border border-neutral-200/60 dark:border-neutral-700/60'
-                : 'text-neutral-500 hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-neutral-200'
-            }`}
-            title="Switch to Supplier Portal (:3001)"
-          >
-            <span className={`w-1.5 h-1.5 rounded-full ${isCurrentPortal('supplier') ? 'bg-emerald-500' : 'bg-neutral-300 dark:bg-neutral-600'}`} />
-            <span>Supplier</span>
-          </a>
-          <a
-            href={getPortalUrl('admin')}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all ${
-              isCurrentPortal('admin')
-                ? 'bg-white dark:bg-neutral-800 text-blue-700 dark:text-blue-300 shadow-xs border border-neutral-200/60 dark:border-neutral-700/60'
-                : 'text-neutral-500 hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-neutral-200'
-            }`}
-            title="Switch to Admin Portal (:3002)"
-          >
-            <span className={`w-1.5 h-1.5 rounded-full ${isCurrentPortal('admin') ? 'bg-blue-500' : 'bg-neutral-300 dark:bg-neutral-600'}`} />
-            <span>Admin</span>
-          </a>
-        </div>
-
         {/* Super Admin Persona Control Deck */}
         {isSuperAdminAccount && (
           <div className="relative" ref={personaMenuRef}>
