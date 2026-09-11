@@ -1,11 +1,12 @@
 import { useCallback } from "react";
 import { useNotificationStore } from "@procurement/stores";
+import { playSuccessChime, playActionChime } from "@procurement/utils";
 
 /**
  * useAppToast — thin wrapper around notificationStore's toast system.
  *
  * Replaces native browser `alert()` calls throughout the application with
- * accessible, non-blocking toast notifications.
+ * accessible, non-blocking toast notifications and subtle acoustic feedback.
  *
  * Usage:
  *   const { toast } = useAppToast();
@@ -22,6 +23,11 @@ export function useAppToast() {
       body?: string,
       durationMs = 5000,
     ) => {
+      if (type === "success") {
+        playSuccessChime();
+      } else if (type === "warning" || type === "info") {
+        playActionChime();
+      }
       addToast({
         id: `toast-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
         title,

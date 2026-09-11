@@ -81,65 +81,65 @@ export function ERPGatewayReconciliationConsole({
     <div className={`space-y-6 ${className}`}>
       {/* Top Header Metrics */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-2xl border border-white/10 bg-[#1A1A1E] p-5 shadow-sm">
+        <div className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#1A1A1E] p-5 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-neutral-400">Total Synced Entities</span>
-            <Database className="h-5 w-5 text-blue-400" />
+            <span className="text-xs font-medium text-slate-500 dark:text-neutral-400">Total Synced Entities</span>
+            <Database className="h-5 w-5 text-blue-500 dark:text-blue-400" />
           </div>
           <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-2xl font-bold tracking-tight text-white">
+            <span className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
               {reconData?.total_mapped_entities ?? 0}
             </span>
-            <span className="text-xs text-neutral-400">records</span>
+            <span className="text-xs text-slate-500 dark:text-neutral-400">records</span>
           </div>
         </div>
 
-        <div className="rounded-2xl border border-emerald-500/20 bg-emerald-950/20 p-5 shadow-sm">
+        <div className="rounded-2xl border border-emerald-500/20 bg-emerald-50 dark:bg-emerald-950/20 p-5 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-emerald-300">System Parity Rate</span>
-            <CheckCircle2 className="h-5 w-5 text-emerald-400" />
+            <span className="text-xs font-medium text-emerald-800 dark:text-emerald-300">System Parity Rate</span>
+            <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
           </div>
           <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-2xl font-bold tracking-tight text-emerald-400">
+            <span className="text-2xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400">
               {reconData?.parity_percentage?.toFixed(1) ?? "100.0"}%
             </span>
-            <span className="text-xs text-emerald-400/80">ERP agreement</span>
+            <span className="text-xs text-emerald-700 dark:text-emerald-400/80">ERP agreement</span>
           </div>
         </div>
 
-        <div className="rounded-2xl border border-white/10 bg-[#1A1A1E] p-5 shadow-sm">
+        <div className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#1A1A1E] p-5 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-neutral-400">Connected Gateways</span>
-            <Network className="h-5 w-5 text-indigo-400" />
+            <span className="text-xs font-medium text-slate-500 dark:text-neutral-400">Connected Gateways</span>
+            <Network className="h-5 w-5 text-indigo-500 dark:text-indigo-400" />
           </div>
           <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-2xl font-bold tracking-tight text-white">2 Active</span>
-            <span className="text-xs text-neutral-400">SAP S/4HANA & NetSuite</span>
+            <span className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">2 Active</span>
+            <span className="text-xs text-slate-500 dark:text-neutral-400">SAP S/4HANA & NetSuite</span>
           </div>
         </div>
 
-        <div className="rounded-2xl border border-red-500/20 bg-red-950/20 p-5 shadow-sm">
+        <div className="rounded-2xl border border-red-500/20 bg-red-50 dark:bg-red-950/20 p-5 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-red-300">Dead Letter Queue (DLQ)</span>
-            <ShieldAlert className="h-5 w-5 text-red-400" />
+            <span className="text-xs font-medium text-red-800 dark:text-red-300">Dead Letter Queue (DLQ)</span>
+            <ShieldAlert className="h-5 w-5 text-red-600 dark:text-red-400" />
           </div>
           <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-2xl font-bold tracking-tight text-red-400">
+            <span className="text-2xl font-bold tracking-tight text-red-600 dark:text-red-400">
               {reconData?.dead_letter_count ?? 0}
             </span>
-            <span className="text-xs text-red-400/80">requires intervention</span>
+            <span className="text-xs text-red-700 dark:text-red-400/80">requires intervention</span>
           </div>
         </div>
       </div>
 
       {/* Tabs Switcher */}
-      <div className="flex items-center gap-2 border-b border-white/10 pb-3">
+      <div className="flex items-center gap-2 border-b border-slate-200 dark:border-white/10 pb-3">
         <button
           onClick={() => setActiveTab("mappings")}
           className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-semibold transition-all ${
             activeTab === "mappings"
-              ? "bg-white text-black shadow-sm"
-              : "text-neutral-400 hover:bg-white/5 hover:text-white"
+              ? "bg-slate-900 text-white dark:bg-white dark:text-black shadow-sm"
+              : "text-slate-600 dark:text-neutral-400 hover:bg-slate-100 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white"
           }`}
         >
           <Layers className="h-4 w-4" />
@@ -150,8 +150,8 @@ export function ERPGatewayReconciliationConsole({
           onClick={() => setActiveTab("reconciliation")}
           className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-semibold transition-all ${
             activeTab === "reconciliation"
-              ? "bg-white text-black shadow-sm"
-              : "text-neutral-400 hover:bg-white/5 hover:text-white"
+              ? "bg-slate-900 text-white dark:bg-white dark:text-black shadow-sm"
+              : "text-slate-600 dark:text-neutral-400 hover:bg-slate-100 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white"
           }`}
         >
           <Sliders className="h-4 w-4" />
@@ -167,8 +167,8 @@ export function ERPGatewayReconciliationConsole({
           onClick={() => setActiveTab("dispatch")}
           className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-semibold transition-all ${
             activeTab === "dispatch"
-              ? "bg-white text-black shadow-sm"
-              : "text-neutral-400 hover:bg-white/5 hover:text-white"
+              ? "bg-slate-900 text-white dark:bg-white dark:text-black shadow-sm"
+              : "text-slate-600 dark:text-neutral-400 hover:bg-slate-100 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white"
           }`}
         >
           <Send className="h-4 w-4" />
@@ -179,12 +179,12 @@ export function ERPGatewayReconciliationConsole({
       {/* Tab 1: Entity Mappings */}
       {activeTab === "mappings" && (
         <div className="space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-[#1A1A1E] p-4">
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#1A1A1E] p-4 shadow-sm">
             <div className="flex flex-wrap items-center gap-3">
               <select
                 value={selectedErp}
                 onChange={(e) => setSelectedErp(e.target.value)}
-                className="rounded-xl border border-white/10 bg-[#252529] px-3 py-2 text-xs text-neutral-200 focus:border-blue-500 focus:outline-none"
+                className="rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#252529] px-3 py-2 text-xs text-slate-800 dark:text-neutral-200 focus:border-blue-500 focus:outline-none"
               >
                 <option value="ALL">All ERP Systems</option>
                 <option value="SAP_S4HANA">SAP S/4HANA (IDoc)</option>
@@ -195,7 +195,7 @@ export function ERPGatewayReconciliationConsole({
               <select
                 value={selectedEntity}
                 onChange={(e) => setSelectedEntity(e.target.value)}
-                className="rounded-xl border border-white/10 bg-[#252529] px-3 py-2 text-xs text-neutral-200 focus:border-blue-500 focus:outline-none"
+                className="rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#252529] px-3 py-2 text-xs text-slate-800 dark:text-neutral-200 focus:border-blue-500 focus:outline-none"
               >
                 <option value="ALL">All Entity Types</option>
                 <option value="PURCHASE_ORDER">Purchase Orders</option>
@@ -207,7 +207,7 @@ export function ERPGatewayReconciliationConsole({
               <select
                 value={selectedStatus}
                 onChange={(e) => setSelectedStatus(e.target.value)}
-                className="rounded-xl border border-white/10 bg-[#252529] px-3 py-2 text-xs text-neutral-200 focus:border-blue-500 focus:outline-none"
+                className="rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#252529] px-3 py-2 text-xs text-slate-800 dark:text-neutral-200 focus:border-blue-500 focus:outline-none"
               >
                 <option value="ALL">All Sync Statuses</option>
                 <option value="SUCCESS">Success</option>
@@ -220,16 +220,16 @@ export function ERPGatewayReconciliationConsole({
             <button
               onClick={() => refetchMappings()}
               disabled={isMappingsLoading}
-              className="flex items-center gap-1.5 rounded-xl border border-white/10 bg-[#252529] px-3 py-2 text-xs font-medium text-neutral-300 hover:bg-white/5 hover:text-white"
+              className="flex items-center gap-1.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#252529] px-3 py-2 text-xs font-medium text-slate-700 dark:text-neutral-300 hover:bg-slate-100 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white transition-colors"
             >
               <RefreshCw className={`h-3.5 w-3.5 ${isMappingsLoading ? "animate-spin" : ""}`} />
               Refresh
             </button>
           </div>
 
-          <div className="overflow-x-auto rounded-2xl border border-white/10 bg-[#1A1A1E]">
+          <div className="overflow-x-auto rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#1A1A1E] shadow-sm">
             <table className="w-full text-left text-xs">
-              <thead className="bg-[#252529] uppercase tracking-wider text-neutral-400">
+              <thead className="bg-slate-50 dark:bg-[#252529] uppercase tracking-wider text-slate-500 dark:text-neutral-400">
                 <tr>
                   <th className="px-4 py-3">Internal Entity</th>
                   <th className="px-4 py-3">ERP System</th>
@@ -241,22 +241,22 @@ export function ERPGatewayReconciliationConsole({
                   <th className="px-4 py-3 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5 font-mono">
+              <tbody className="divide-y divide-slate-100 dark:divide-white/5 font-mono">
                 {(mappingsData?.mappings ?? []).length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="px-4 py-8 text-center text-neutral-500 font-sans">
+                    <td colSpan={8} className="px-4 py-8 text-center text-slate-500 dark:text-neutral-500 font-sans">
                       No ERP entity mappings found matching criteria.
                     </td>
                   </tr>
                 ) : (
                   (mappingsData?.mappings ?? []).map((m) => (
-                    <tr key={m.id} className="hover:bg-white/5">
+                    <tr key={m.id} className="hover:bg-slate-50/80 dark:hover:bg-white/5 transition-colors">
                       <td className="px-4 py-3">
-                        <div className="font-semibold text-white font-sans">{m.entity_type}</div>
-                        <div className="text-[10px] text-neutral-500">{m.internal_id}</div>
+                        <div className="font-semibold text-slate-900 dark:text-white font-sans">{m.entity_type}</div>
+                        <div className="text-[10px] text-slate-500 dark:text-neutral-500">{m.internal_id}</div>
                       </td>
                       <td className="px-4 py-3">
-                        <span className="rounded-md border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-medium text-neutral-300">
+                        <span className="rounded-md border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-white/5 px-2 py-0.5 text-[10px] font-medium text-slate-700 dark:text-neutral-300">
                           {m.erp_system}
                         </span>
                       </td>
@@ -325,41 +325,41 @@ export function ERPGatewayReconciliationConsole({
       {activeTab === "reconciliation" && (
         <div className="space-y-6">
           {/* Dead Letter Queue Section */}
-          <div className="rounded-2xl border border-red-500/20 bg-[#1A1A1E] p-5 shadow-sm">
+          <div className="rounded-2xl border border-red-500/20 bg-white dark:bg-[#1A1A1E] p-5 shadow-sm">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <ShieldAlert className="h-5 w-5 text-red-400" />
-                <h3 className="text-base font-semibold text-white">Dead Letter Queue (DLQ)</h3>
+                <ShieldAlert className="h-5 w-5 text-red-600 dark:text-red-400" />
+                <h3 className="text-base font-semibold text-slate-900 dark:text-white">Dead Letter Queue (DLQ)</h3>
               </div>
-              <span className="rounded-full bg-red-500/20 px-2.5 py-0.5 text-xs font-bold text-red-300">
+              <span className="rounded-full bg-red-500/20 px-2.5 py-0.5 text-xs font-bold text-red-700 dark:text-red-300">
                 {reconData?.dead_letter_count ?? 0} Failed Transmissions
               </span>
             </div>
-            <p className="mt-1 text-xs text-neutral-400">
+            <p className="mt-1 text-xs text-slate-500 dark:text-neutral-400">
               Transactions that failed 3 consecutive retry attempts are placed in the Dead Letter Queue to prevent pipeline blockage.
             </p>
 
             <div className="mt-4 space-y-3">
               {(reconData?.dead_letter_queue ?? []).length === 0 ? (
-                <div className="rounded-xl border border-white/5 bg-[#252529]/40 p-6 text-center text-xs text-neutral-400">
-                  <CheckCircle2 className="mx-auto h-6 w-6 text-emerald-400 mb-1" />
+                <div className="rounded-xl border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-[#252529]/40 p-6 text-center text-xs text-slate-600 dark:text-neutral-400">
+                  <CheckCircle2 className="mx-auto h-6 w-6 text-emerald-600 dark:text-emerald-400 mb-1" />
                   Dead Letter Queue is empty. All ERP transactions synchronized normally.
                 </div>
               ) : (
                 (reconData?.dead_letter_queue ?? []).map((dlqItem) => (
                   <div
                     key={dlqItem.id}
-                    className="flex flex-col gap-3 rounded-xl border border-red-500/30 bg-red-950/20 p-4 sm:flex-row sm:items-center sm:justify-between"
+                    className="flex flex-col gap-3 rounded-xl border border-red-500/30 bg-red-50 dark:bg-red-950/20 p-4 sm:flex-row sm:items-center sm:justify-between"
                   >
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-semibold text-white">{dlqItem.entity_type}</span>
-                        <span className="font-mono text-xs text-red-300">{dlqItem.external_id}</span>
-                        <span className="rounded bg-red-500/30 px-2 py-0.5 text-[10px] font-bold text-red-200">
+                        <span className="font-semibold text-slate-900 dark:text-white">{dlqItem.entity_type}</span>
+                        <span className="font-mono text-xs text-red-700 dark:text-red-300">{dlqItem.external_id}</span>
+                        <span className="rounded bg-red-500/30 px-2 py-0.5 text-[10px] font-bold text-red-800 dark:text-red-200">
                           {dlqItem.erp_system}
                         </span>
                       </div>
-                      <p className="mt-1 text-xs text-red-200/80">
+                      <p className="mt-1 text-xs text-red-700 dark:text-red-200/80">
                         {dlqItem.last_error || "Max retries exceeded without acknowledgment."}
                       </p>
                     </div>
@@ -367,7 +367,7 @@ export function ERPGatewayReconciliationConsole({
                     <button
                       onClick={() => handleRetry(dlqItem.id)}
                       disabled={retryMutation.isPending}
-                      className="flex items-center justify-center gap-1.5 rounded-xl bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-500"
+                      className="flex items-center justify-center gap-1.5 rounded-xl bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-500 transition-colors"
                     >
                       <RefreshCw className="h-3 w-3" />
                       Force Re-queue
@@ -382,19 +382,19 @@ export function ERPGatewayReconciliationConsole({
 
       {/* Tab 3: Manual Sync Dispatcher */}
       {activeTab === "dispatch" && (
-        <div className="rounded-2xl border border-white/10 bg-[#1A1A1E] p-6 shadow-sm">
-          <h3 className="text-base font-semibold text-white">Manual ERP Sync Dispatcher</h3>
-          <p className="mt-1 text-xs text-neutral-400">
+        <div className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#1A1A1E] p-6 shadow-sm">
+          <h3 className="text-base font-semibold text-slate-900 dark:text-white">Manual ERP Sync Dispatcher</h3>
+          <p className="mt-1 text-xs text-slate-500 dark:text-neutral-400">
             Dispatch an individual internal document directly to SAP S/4HANA (IDoc ORDERS05/INVOIC02) or NetSuite (SuiteTalk REST).
           </p>
 
           <form onSubmit={handleDispatch} className="mt-6 max-w-xl space-y-4">
             <div>
-              <label className="block text-xs font-medium text-neutral-300">Target ERP Gateway</label>
+              <label className="block text-xs font-medium text-slate-700 dark:text-neutral-300">Target ERP Gateway</label>
               <select
                 value={dispatchErp}
                 onChange={(e) => setDispatchErp(e.target.value)}
-                className="mt-1 w-full rounded-xl border border-white/10 bg-[#252529] px-3 py-2 text-xs text-white focus:border-blue-500 focus:outline-none"
+                className="mt-1 w-full rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#252529] px-3 py-2 text-xs text-slate-900 dark:text-white focus:border-blue-500 focus:outline-none"
               >
                 <option value="SAP_S4HANA">SAP S/4HANA (IDoc ORDERS05 / RFC)</option>
                 <option value="NETSUITE">NetSuite (SuiteTalk REST API)</option>
@@ -403,11 +403,11 @@ export function ERPGatewayReconciliationConsole({
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-neutral-300">Entity Type</label>
+              <label className="block text-xs font-medium text-slate-700 dark:text-neutral-300">Entity Type</label>
               <select
                 value={dispatchEntity}
                 onChange={(e) => setDispatchEntity(e.target.value)}
-                className="mt-1 w-full rounded-xl border border-white/10 bg-[#252529] px-3 py-2 text-xs text-white focus:border-blue-500 focus:outline-none"
+                className="mt-1 w-full rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#252529] px-3 py-2 text-xs text-slate-900 dark:text-white focus:border-blue-500 focus:outline-none"
               >
                 <option value="PURCHASE_ORDER">Purchase Order (PO)</option>
                 <option value="INVOICE">Vendor Invoice (Bill)</option>
@@ -417,14 +417,14 @@ export function ERPGatewayReconciliationConsole({
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-neutral-300">Internal Entity UUID</label>
+              <label className="block text-xs font-medium text-slate-700 dark:text-neutral-300">Internal Entity UUID</label>
               <input
                 type="text"
                 required
                 placeholder="e.g. 7f58a3d1-4e89-4cb2-93b5-..."
                 value={dispatchId}
                 onChange={(e) => setDispatchId(e.target.value)}
-                className="mt-1 w-full rounded-xl border border-white/10 bg-[#252529] px-3 py-2 font-mono text-xs text-white focus:border-blue-500 focus:outline-none"
+                className="mt-1 w-full rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#252529] px-3 py-2 font-mono text-xs text-slate-900 dark:text-white focus:border-blue-500 focus:outline-none"
               />
             </div>
 
@@ -434,9 +434,9 @@ export function ERPGatewayReconciliationConsole({
                 id="forceRetry"
                 checked={dispatchForce}
                 onChange={(e) => setDispatchForce(e.target.checked)}
-                className="rounded border-white/10 bg-[#252529] text-blue-600"
+                className="rounded border-slate-300 dark:border-white/10 bg-slate-50 dark:bg-[#252529] text-blue-600"
               />
-              <label htmlFor="forceRetry" className="text-xs text-neutral-300">
+              <label htmlFor="forceRetry" className="text-xs text-slate-700 dark:text-neutral-300">
                 Force sync (bypass idempotency cache)
               </label>
             </div>

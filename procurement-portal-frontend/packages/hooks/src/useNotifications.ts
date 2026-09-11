@@ -22,6 +22,8 @@ export interface NotificationsListResponse {
   };
 }
 
+const toastedNotificationIds = new Set<string>();
+
 export function useNotifications() {
   const token = useAuthStore((state) => state.accessToken);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -237,6 +239,7 @@ export function useNotificationsList(params?: {
 }) {
   const setNotifications = useNotificationStore((state) => state.setNotifications);
   const isConnected = useNotificationStore((state) => state.isConnected);
+  const addToast = useNotificationStore((state) => state.addToast);
 
   return useQuery({
     queryKey: ["notifications", params],
@@ -250,6 +253,48 @@ export function useNotificationsList(params?: {
       });
       if (res.data?.data) {
         setNotifications(res.data.data, res.data.meta?.unread_count);
+
+        // Check if there are unread notifications that arrived while the user was away
+        const unreadItems = res.data.data.filter((n) => !n.is_read && !n.read_at && !toastedNotificationIds.has(n.id));
+        if (unreadItems.length > 0) {
+          const toToast = unreadItems.slice(0, 2);
+          toToast.forEach((item, index) => {
+            toastedNotificationIds.add(item.id);
+            setTimeout(() => {
+              let link: string | undefined;
+              if (item.entity_type) {
+                const type = item.entity_type.toLowerCase();
+                if (type.includes("req") || type === "pr") {
+                  link = item.entity_id ? `/requisitions/${item.entity_id}` : "/requisitions";
+                } else if (type === "rfq" || type === "sourcing" || type === "bid") {
+                  link = item.entity_id ? `/rfqs/${item.entity_id}` : "/rfqs";
+                } else if (type.includes("order") || type === "po") {
+                  link = item.entity_id ? `/purchase-orders/${item.entity_id}` : "/purchase-orders";
+                } else if (type.includes("invoice") || type.includes("payment")) {
+                  link = item.entity_id ? `/invoices/${item.entity_id}` : "/invoices";
+                } else if (type.includes("task") || type.includes("approval")) {
+                  link = item.entity_id ? `/tasks/${item.entity_id}` : "/tasks";
+                } else if (type.includes("vendor")) {
+                  link = item.entity_id ? `/vendors/${item.entity_id}` : "/vendors";
+                }
+              }
+              addToast({
+                id: `away-${item.id}`,
+                title: item.title,
+                body: item.body,
+                notification_type: item.notification_type,
+                entity_type: item.entity_type,
+                entity_id: item.entity_id,
+                created_at: item.created_at,
+                link,
+                durationMs: 7000,
+              });
+            }, (index + 1) * 600);
+          });
+          setTimeout(() => {
+            playNotificationChime();
+          }, 600);
+        }
       }
       return res.data;
     },

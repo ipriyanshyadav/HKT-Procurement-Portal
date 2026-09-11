@@ -494,7 +494,7 @@ export function Navbar({
             {/* Organized Dropdown Menu */}
             {isDropdownOpen && (
               <div
-                className="apple-dropdown-menu absolute right-0 mt-2 w-[330px] sm:w-[350px] max-w-[calc(100vw-2rem)] rounded-2xl bg-white/95 dark:bg-neutral-900/95 backdrop-blur-2xl border border-neutral-200/80 dark:border-neutral-800 shadow-2xl shadow-black/10 dark:shadow-black/50 z-50 overflow-hidden max-h-[calc(100vh-80px)] overflow-y-auto"
+                className="apple-dropdown-menu absolute right-0 mt-2 w-[330px] sm:w-[350px] max-w-[calc(100vw-2rem)] rounded-2xl bg-white/95 dark:bg-neutral-900/95 backdrop-blur-2xl border border-neutral-200/80 dark:border-neutral-800 shadow-2xl shadow-black/10 dark:shadow-black/50 z-50 overflow-hidden max-h-[calc(100vh-80px)] overflow-y-auto overscroll-contain"
                 role="menu"
                 aria-orientation="vertical"
               >
