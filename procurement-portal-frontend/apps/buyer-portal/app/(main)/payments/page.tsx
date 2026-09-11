@@ -411,17 +411,17 @@ export default function BuyerPaymentsPage() {
             <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-800 text-xs">
               <thead className="bg-slate-50/80 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 font-semibold uppercase tracking-wider">
                 <tr>
-                  <th className="py-3.5 pl-4 pr-3 text-left">UTR / Reference</th>
-                  <th className="px-3 py-3.5 text-left">Invoice #</th>
-                  <th className="px-3 py-3.5 text-left">Vendor</th>
-                  <th className="px-3 py-3.5 text-right">Gross Amount</th>
-                  <th className="px-3 py-3.5 text-right">TDS (2%)</th>
-                  <th className="px-3 py-3.5 text-right">Net Payable</th>
-                  <th className="px-3 py-3.5 text-left">Due Date</th>
-                  <th className="px-3 py-3.5 text-left">Settled Date</th>
-                  <th className="px-3 py-3.5 text-center">Mode</th>
-                  <th className="px-3 py-3.5 text-center">Status</th>
-                  <th className="py-3.5 pl-3 pr-4 text-right">Action</th>
+                  <th className="py-3 pl-4 pr-3 text-left whitespace-nowrap">UTR / Reference</th>
+                  <th className="px-3 py-3 text-left whitespace-nowrap">Invoice #</th>
+                  <th className="px-3 py-3 text-left whitespace-nowrap">Vendor</th>
+                  <th className="px-3 py-3 text-right whitespace-nowrap">Gross Amount</th>
+                  <th className="px-3 py-3 text-right whitespace-nowrap">TDS (2%)</th>
+                  <th className="px-3 py-3 text-right whitespace-nowrap">Net Payable</th>
+                  <th className="px-3 py-3 text-left whitespace-nowrap">Due Date</th>
+                  <th className="px-3 py-3 text-left whitespace-nowrap">Settled Date</th>
+                  <th className="px-3 py-3 text-center whitespace-nowrap">Mode</th>
+                  <th className="px-3 py-3 text-center whitespace-nowrap">Status</th>
+                  <th className="py-3 pl-3 pr-4 text-right whitespace-nowrap">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800 bg-white dark:bg-slate-900/40">
@@ -434,7 +434,7 @@ export default function BuyerPaymentsPage() {
                   return (
                     <tr key={p.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
                       {/* UTR / Reference */}
-                      <td className="py-3.5 pl-4 pr-3">
+                      <td className="py-3 pl-4 pr-3 whitespace-nowrap">
                         {p.utr_number ? (
                           <div className="flex items-center gap-1.5">
                             <span className="font-mono font-bold text-slate-900 dark:text-slate-100 text-xs bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
@@ -465,7 +465,7 @@ export default function BuyerPaymentsPage() {
                       </td>
 
                       {/* Invoice */}
-                      <td className="px-3 py-3.5">
+                      <td className="px-3 py-3 whitespace-nowrap">
                         <Link
                           href={`/invoices/${p.invoice_id}`}
                           className="font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 flex items-center gap-1 group"
@@ -476,30 +476,30 @@ export default function BuyerPaymentsPage() {
                       </td>
 
                       {/* Vendor */}
-                      <td className="px-3 py-3.5">
-                        <div className="flex items-center gap-1.5 text-slate-800 dark:text-slate-200 font-medium max-w-[160px] truncate">
+                      <td className="px-3 py-3 whitespace-nowrap">
+                        <div className="flex items-center gap-1.5 text-slate-800 dark:text-slate-200 font-medium max-w-[180px] truncate">
                           <Building className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 shrink-0" />
                           <span className="truncate">{p.vendor_name || "—"}</span>
                         </div>
                       </td>
 
                       {/* Gross Amount */}
-                      <td className="px-3 py-3.5 text-right font-medium text-slate-600 dark:text-slate-400">
+                      <td className="px-3 py-3 text-right font-mono font-medium text-slate-600 dark:text-slate-400 whitespace-nowrap">
                         {formatCurrency(gross, p.currency)}
                       </td>
 
                       {/* TDS (2%) */}
-                      <td className="px-3 py-3.5 text-right font-medium text-amber-700 dark:text-amber-400">
+                      <td className="px-3 py-3 text-right font-mono font-medium text-amber-700 dark:text-amber-400 whitespace-nowrap">
                         {tds > 0 ? `- ${formatCurrency(tds, p.currency)}` : "—"}
                       </td>
 
                       {/* Net Payable */}
-                      <td className="px-3 py-3.5 text-right font-bold text-slate-900 dark:text-white">
+                      <td className="px-3 py-3 text-right font-mono font-bold text-slate-900 dark:text-white whitespace-nowrap">
                         {formatCurrency(net, p.currency)}
                       </td>
 
                       {/* Due Date */}
-                      <td className="px-3 py-3.5 text-slate-600 dark:text-slate-400 whitespace-nowrap">
+                      <td className="px-3 py-3 text-slate-600 dark:text-slate-400 whitespace-nowrap">
                         {p.payment_due_date ? (
                           <span>
                             {new Date(p.payment_due_date).toLocaleDateString("en-IN", {
@@ -514,7 +514,7 @@ export default function BuyerPaymentsPage() {
                       </td>
 
                       {/* Settled Date */}
-                      <td className="px-3 py-3.5 text-slate-600 dark:text-slate-400 whitespace-nowrap">
+                      <td className="px-3 py-3 text-slate-600 dark:text-slate-400 whitespace-nowrap">
                         {p.payment_date && p.status === "COMPLETED" ? (
                           <span className="font-medium text-slate-800 dark:text-slate-200">
                             {new Date(p.payment_date).toLocaleDateString("en-IN", {
@@ -529,19 +529,19 @@ export default function BuyerPaymentsPage() {
                       </td>
 
                       {/* Payment Method */}
-                      <td className="px-3 py-3.5 text-center">
+                      <td className="px-3 py-3 text-center whitespace-nowrap">
                         <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
                           {p.payment_method || "NEFT"}
                         </span>
                       </td>
 
                       {/* Status */}
-                      <td className="px-3 py-3.5 text-center whitespace-nowrap">
+                      <td className="px-3 py-3 text-center whitespace-nowrap">
                         {getStatusBadge(p.status)}
                       </td>
 
                       {/* Actions */}
-                      <td className="py-3.5 pl-3 pr-4 text-right whitespace-nowrap">
+                      <td className="py-3 pl-3 pr-4 text-right whitespace-nowrap">
                         <div className="flex items-center justify-end gap-2">
                           {isScheduled ? (
                             <button

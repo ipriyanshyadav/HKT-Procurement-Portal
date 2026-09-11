@@ -947,8 +947,31 @@ class InvoiceService:
         auto_approved = False
         if overall_status == "FULLY_MATCHED" and payload.auto_approve_if_matched:
             invoice.match_status = "MATCHED"
-            await self.approve(db, invoice.id, actor_id, org_id)
-            auto_approved = True
+            curr_status = invoice.status.value if hasattr(invoice.status, "value") else str(invoice.status)
+            allowed_approval_statuses = [
+                InvoiceStatusEnum.SUBMITTED.value if hasattr(InvoiceStatusEnum.SUBMITTED, "value") else "SUBMITTED",
+                InvoiceStatusEnum.MATCHED.value if hasattr(InvoiceStatusEnum.MATCHED, "value") else "MATCHED",
+                (
+                    InvoiceStatusEnum.PARTIALLY_MATCHED.value
+                    if hasattr(InvoiceStatusEnum.PARTIALLY_MATCHED, "value")
+                    else "PARTIALLY_MATCHED"
+                ),
+                (
+                    InvoiceStatusEnum.PENDING_APPROVAL.value
+                    if hasattr(InvoiceStatusEnum.PENDING_APPROVAL, "value")
+                    else "PENDING_APPROVAL"
+                ),
+            ]
+            if curr_status in allowed_approval_statuses:
+                await self.approve(db, invoice.id, actor_id, org_id)
+                auto_approved = True
+            elif curr_status == (
+                InvoiceStatusEnum.APPROVED.value if hasattr(InvoiceStatusEnum.APPROVED, "value") else "APPROVED"
+            ):
+                auto_approved = True
+                await db.commit()
+            else:
+                await db.commit()
         elif overall_status == "VARIANCE_DETECTED":
             invoice.match_status = "DISCREPANCY"
             await db.commit()

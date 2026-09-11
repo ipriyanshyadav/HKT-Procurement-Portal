@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { ShieldAlert, Crown, ArrowLeft, LifeBuoy, Users, CheckCircle, AlertTriangle } from "lucide-react";
+import { Lock, Crown, ArrowLeft, LifeBuoy, Users, CheckCircle, Shield } from "lucide-react";
 import Link from "next/link";
 import { ENTERPRISE_PERSONAS, EnterprisePersona } from "@procurement/stores";
 
@@ -35,58 +35,51 @@ export function AccessRestrictedCard({
   const [showPersonaPicker, setShowPersonaPicker] = React.useState(false);
 
   return (
-    <div className="w-full max-w-3xl mx-auto my-8 px-4">
-      <div className="relative overflow-hidden rounded-3xl border border-red-500/30 dark:border-red-500/40 bg-gradient-to-b from-red-500/10 via-white/95 to-amber-500/5 dark:from-red-950/40 dark:via-neutral-900/95 dark:to-neutral-950/90 backdrop-blur-2xl shadow-2xl p-6 sm:p-10 text-center">
-        {/* Ambient background glow */}
-        <div className="absolute -top-24 -left-24 w-60 h-60 rounded-full bg-red-500/15 blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-24 -right-24 w-60 h-60 rounded-full bg-amber-500/15 blur-3xl pointer-events-none" />
-
-        {/* Big Pulsing Danger Sign */}
-        <div className="relative mx-auto w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center mb-6">
-          <div className="absolute inset-0 rounded-3xl bg-red-500/20 dark:bg-red-500/30 blur-xl animate-pulse" />
-          <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-gradient-to-tr from-red-600 via-red-500 to-amber-500 flex items-center justify-center text-white shadow-xl shadow-red-500/30 ring-4 ring-red-500/20">
-            <ShieldAlert className="w-10 h-10 sm:w-12 sm:h-12" />
-          </div>
+    <div className="w-full max-w-2xl mx-auto my-10 px-4">
+      <div className="relative overflow-hidden rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-6 sm:p-8 text-center">
+        {/* Refined Icon */}
+        <div className="mx-auto w-14 h-14 rounded-2xl bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center text-neutral-600 dark:text-neutral-300 mb-4">
+          <Lock className="w-7 h-7 stroke-[1.75]" />
         </div>
 
-        {/* Danger Pill Badge */}
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-red-100 dark:bg-red-950/60 text-red-700 dark:text-red-300 border border-red-300 dark:border-red-800 mb-3 shadow-xs">
-          <AlertTriangle className="w-3.5 h-3.5 text-red-600 dark:text-red-400" />
-          <span>Access Restricted &bull; Authorization Required</span>
+        {/* Clean Neutral Badge */}
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 border border-neutral-200 dark:border-neutral-700 mb-3">
+          <Shield className="w-3.5 h-3.5" />
+          <span>Access Restricted</span>
         </div>
 
         {/* Title */}
-        <h2 className="text-xl sm:text-2xl font-black text-neutral-900 dark:text-white tracking-tight mb-2">
-          You are not authorized to use {moduleName}
+        <h2 className="text-xl font-bold text-neutral-900 dark:text-neutral-100 tracking-tight mb-2">
+          Authorization Required for {moduleName}
         </h2>
 
         {/* Description */}
-        <p className="text-sm text-neutral-600 dark:text-neutral-300 max-w-xl mx-auto mb-6">
+        <p className="text-sm text-neutral-500 dark:text-neutral-400 max-w-md mx-auto mb-6">
           {reason ||
-            `Your active persona (${activePersonaName}) does not have the required role permissions to view or execute operations in this section.`}
+            `Your current role as ${activePersonaName} does not have access permissions for this section.`}
         </p>
 
         {/* Security Clearance Breakdown Box */}
-        <div className="text-left rounded-2xl bg-white/80 dark:bg-neutral-950/70 border border-red-500/20 dark:border-red-500/30 p-4 sm:p-5 mb-6 shadow-sm space-y-3">
-          <div className="flex items-center justify-between border-b border-neutral-100 dark:border-neutral-800/80 pb-2.5">
-            <span className="text-xs font-semibold text-neutral-500 dark:text-neutral-400">
-              Active Persona / User:
+        <div className="text-left rounded-xl bg-neutral-50 dark:bg-neutral-950/60 border border-neutral-200 dark:border-neutral-800 p-4 mb-6 space-y-3">
+          <div className="flex items-center justify-between border-b border-neutral-200/60 dark:border-neutral-800 pb-2.5">
+            <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
+              Active Persona:
             </span>
-            <span className="text-xs font-bold text-neutral-900 dark:text-white">
-              {activePersonaName} <span className="opacity-75 font-normal">({activePersonaTitle})</span>
+            <span className="text-xs font-semibold text-neutral-900 dark:text-neutral-100">
+              {activePersonaName} <span className="text-neutral-400 font-normal">({activePersonaTitle})</span>
             </span>
           </div>
 
-          <div className="flex items-center justify-between border-b border-neutral-100 dark:border-neutral-800/80 pb-2.5">
-            <span className="text-xs font-semibold text-neutral-500 dark:text-neutral-400">
-              Assigned Roles:
+          <div className="flex items-center justify-between border-b border-neutral-200/60 dark:border-neutral-800 pb-2.5">
+            <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
+              Your Current Roles:
             </span>
             <div className="flex flex-wrap gap-1 justify-end max-w-md">
               {activeRoles.length > 0 ? (
                 activeRoles.map((role) => (
                   <span
                     key={role}
-                    className="px-2 py-0.5 rounded-md bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 text-[11px] font-mono font-medium"
+                    className="px-2 py-0.5 rounded-md bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 text-[11px] font-mono"
                   >
                     {role}
                   </span>
@@ -98,14 +91,14 @@ export function AccessRestrictedCard({
           </div>
 
           <div className="flex items-center justify-between pt-0.5">
-            <span className="text-xs font-semibold text-red-600 dark:text-red-400">
-              Required Role(s) for Access:
+            <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
+              Required Role(s):
             </span>
             <div className="flex flex-wrap gap-1 justify-end max-w-md">
               {requiredRoles.map((role) => (
                 <span
                   key={role}
-                  className="px-2 py-0.5 rounded-md bg-red-100 dark:bg-red-950/80 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-800/60 text-[11px] font-mono font-bold"
+                  className="px-2 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/60 text-[11px] font-mono font-medium"
                 >
                   {role}
                 </span>

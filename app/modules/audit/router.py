@@ -46,6 +46,7 @@ async def list_audit_logs(
     search: str | None = Query(None, description="Keyword search across field changes and metadata"),
     date_from: datetime | None = Query(None, description="Start timestamp"),
     date_to: datetime | None = Query(None, description="End timestamp"),
+    exclude_token_refresh: bool = Query(True, description="Exclude noisy TOKEN_REFRESH events"),
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
@@ -72,6 +73,7 @@ async def list_audit_logs(
         search=search,
         date_from=date_from,
         date_to=date_to,
+        exclude_token_refresh=exclude_token_refresh,
         page=page,
         page_size=page_size,
     )

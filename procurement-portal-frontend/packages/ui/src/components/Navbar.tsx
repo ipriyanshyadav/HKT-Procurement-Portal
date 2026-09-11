@@ -247,13 +247,6 @@ export function Navbar({
               Procurement
             </span>
           </span>
-          {portalBadge && (
-            <span
-              className={`text-[11px] font-semibold px-2 py-0.5 border rounded-full transition-all ${badgeColorClass}`}
-            >
-              {portalBadge}
-            </span>
-          )}
         </Link>
 
         {showSidebarToggle && onSidebarModeChange && (

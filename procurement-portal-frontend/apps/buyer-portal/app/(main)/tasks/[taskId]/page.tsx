@@ -104,13 +104,83 @@ export default function TaskDetailPage() {
         </Link>
       </div>
 
+      {/* Request details summary */}
+      {task && (
+        <section className="bg-white dark:bg-slate-900 rounded-xl shadow ring-1 ring-gray-200 dark:ring-slate-800 p-5 space-y-3">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div className="flex items-center gap-2">
+              {task.entity_type && (
+                <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-indigo-50 text-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
+                  {task.entity_type.replace(/_/g, " ")}
+                </span>
+              )}
+              {task.entity_number && (
+                <span className="font-mono text-xs font-bold text-slate-800 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 px-2.5 py-0.5 rounded border border-slate-200 dark:border-slate-700">
+                  {task.entity_number}
+                </span>
+              )}
+              {task.priority && (
+                <span className={`px-2 py-0.5 text-[11px] font-semibold rounded-full ${
+                  task.priority === "CRITICAL" ? "bg-rose-100 text-rose-700 dark:bg-rose-950/50 dark:text-rose-300" :
+                  task.priority === "HIGH" ? "bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300" :
+                  "bg-blue-100 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300"
+                }`}>
+                  {task.priority}
+                </span>
+              )}
+            </div>
+            <span className="text-xs text-slate-400">Step #{task.step_number}{task.assigned_role ? ` · ${task.assigned_role}` : ""}</span>
+          </div>
+
+          <h1 className="text-xl font-bold text-slate-900 dark:text-white">
+            {task.title || `Approval Task #${task.id.slice(0, 8)}`}
+          </h1>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-slate-100 dark:border-slate-800 text-xs">
+            <div>
+              <span className="text-slate-400 block mb-0.5">Raised By</span>
+              <span className="font-semibold text-slate-800 dark:text-slate-200">
+                {task.raised_by_name || "Procurement User"}
+              </span>
+              {task.raised_by_email && (
+                <span className="text-slate-400 block text-[11px]">{task.raised_by_email}</span>
+              )}
+            </div>
+
+            {task.department && (
+              <div>
+                <span className="text-slate-400 block mb-0.5">Department</span>
+                <span className="font-semibold text-slate-800 dark:text-slate-200">{task.department}</span>
+              </div>
+            )}
+
+            {task.total_amount !== null && task.total_amount !== undefined && (
+              <div>
+                <span className="text-slate-400 block mb-0.5">Total Amount</span>
+                <span className="font-mono text-sm font-bold text-slate-900 dark:text-white">
+                  {task.currency === "INR" || !task.currency ? "₹" : task.currency}{" "}
+                  {Number(task.total_amount).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </span>
+              </div>
+            )}
+
+            <div>
+              <span className="text-slate-400 block mb-0.5">Submitted On</span>
+              <span className="text-slate-700 dark:text-slate-300">
+                {new Date(task.created_at).toLocaleString()}
+              </span>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Instance details */}
       {instance && (
-        <section className="bg-white rounded-lg shadow ring-1 ring-gray-200 p-5">
+        <section className="bg-white dark:bg-slate-900 rounded-xl shadow ring-1 ring-gray-200 dark:ring-slate-800 p-5">
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-lg font-semibold text-gray-900 dark:text-white">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
               Workflow Instance
-            </h1>
+            </h2>
             <StatusBadge status={instance.status} />
           </div>
 

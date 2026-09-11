@@ -148,8 +148,8 @@ class InvoiceRejectRequest(BaseModel):
 
 class AdvancedReconciliationRequest(BaseModel):
     match_mode: str = Field(default="FOUR_WAY", description="THREE_WAY or FOUR_WAY")
-    price_tolerance_pct: float = Field(default=2.0, ge=0.0, le=20.0)
-    quantity_tolerance_pct: float = Field(default=5.0, ge=0.0, le=20.0)
+    price_tolerance_pct: float = Field(default=2.0, ge=0.0, le=50.0)
+    quantity_tolerance_pct: float = Field(default=5.0, ge=0.0, le=50.0)
     auto_approve_if_matched: bool = Field(default=True)
 
 

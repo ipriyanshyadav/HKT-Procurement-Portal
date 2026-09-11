@@ -185,6 +185,13 @@ def create_app() -> FastAPI:
     setup_telemetry(app)
     Instrumentator().instrument(app).expose(app)
 
+    @app.get("/api/v1/metrics", include_in_schema=False)
+    async def metrics_v1():
+        from fastapi import Response
+        from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
+
+        return Response(content=generate_latest(), media_type=CONTENT_TYPE_LATEST)
+
     # Root & Health endpoints
     @app.get("/")
     async def root():

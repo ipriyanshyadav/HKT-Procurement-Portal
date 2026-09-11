@@ -76,6 +76,18 @@ export default function RolesManagementPage() {
   const [permSearch, setPermSearch] = useState("");
   const [createError, setCreateError] = useState<string | null>(null);
 
+  useEffect(() => {
+    const isAnyModalOpen = Boolean(inspectRole || editRole || showCreateModal);
+    if (isAnyModalOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [inspectRole, editRole, showCreateModal]);
+
   const roleList = useMemo(() => {
     const list = roles || [];
     const map = new Map<string, RoleItem>();

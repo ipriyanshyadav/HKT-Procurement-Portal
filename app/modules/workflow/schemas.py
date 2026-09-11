@@ -62,6 +62,19 @@ class WorkflowTaskResponse(BaseModel):
     sla_status: str
     created_at: datetime
 
+    # Rich metadata for Approval Inbox
+    entity_type: str | None = None
+    entity_id: UUID | None = None
+    entity_number: str | None = None
+    title: str | None = None
+    raised_by_id: UUID | None = None
+    raised_by_name: str | None = None
+    raised_by_email: str | None = None
+    department: str | None = None
+    total_amount: float | None = None
+    currency: str | None = "INR"
+    priority: str | None = "MEDIUM"
+
     model_config = {"from_attributes": True}
 
 

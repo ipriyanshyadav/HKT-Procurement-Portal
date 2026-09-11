@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useLiveAuction } from "@procurement/hooks";
 import { ArrowLeft, Gavel, Loader2 } from "lucide-react";
 
-export default function BuyerAuctionRedirectPage() {
+export default function SupplierAuctionRedirectPage() {
   const params = useParams();
   const router = useRouter();
   const auctionId = params?.id as string;
@@ -34,7 +34,7 @@ export default function BuyerAuctionRedirectPage() {
         {isLoading ? (
           <div className="flex flex-col items-center gap-3 text-neutral-500 dark:text-neutral-400">
             <Loader2 className="w-8 h-8 animate-spin text-blue-600 dark:text-blue-400" />
-            <p className="text-sm font-medium">Entering reverse auction room...</p>
+            <p className="text-sm font-medium">Entering reverse auction floor...</p>
           </div>
         ) : auction ? (
           <div className="space-y-4">
@@ -50,7 +50,7 @@ export default function BuyerAuctionRedirectPage() {
                 href={`/rfqs/${auction.rfq_id}/auction`}
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 text-white font-medium text-xs hover:bg-blue-500 shadow-sm"
               >
-                <span>Enter Live Auction Floor</span>
+                <span>Enter Bidding Floor</span>
               </Link>
             )}
           </div>

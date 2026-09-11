@@ -360,6 +360,13 @@ routes:
         config:
           minute: 3000
 
+  - name: metrics-route
+    service: api
+    strip_path: false
+    paths:
+      - /metrics
+      - /api/v1/metrics
+
 plugins:
   - name: correlation-id
     config:

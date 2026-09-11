@@ -82,9 +82,9 @@ export function NotificationToast({ toast, onDismiss, onClick }: NotificationToa
     <div
       role="status"
       aria-live="polite"
-      className="pointer-events-auto flex items-start gap-3 p-3.5 rounded-2xl bg-neutral-900/90 dark:bg-[#1C1C1F]/95 backdrop-blur-xl border border-neutral-700/40 dark:border-white/10 shadow-2xl text-white transition-all duration-300 transform hover:scale-[1.01] max-w-sm w-full"
+      className="pointer-events-auto flex items-start gap-3 p-3.5 rounded-2xl bg-neutral-950/95 dark:bg-[#1C1C1F]/98 backdrop-blur-2xl border border-neutral-700/80 dark:border-neutral-700 shadow-2xl text-white transition-all duration-300 transform hover:scale-[1.01] max-w-sm w-full border-l-4 border-l-blue-500"
     >
-      <div className="mt-0.5 p-1 rounded-lg bg-white/5 border border-white/10">
+      <div className="mt-0.5 p-1.5 rounded-xl bg-white/10 border border-white/10 shadow-xs">
         {getCategoryIcon(toast.notification_type, toast.type)}
       </div>
 
@@ -93,7 +93,7 @@ export function NotificationToast({ toast, onDismiss, onClick }: NotificationToa
         onClick={() => onClick && onClick(toast)}
       >
         <div className="flex items-center justify-between gap-2">
-          <h5 className="text-xs font-semibold tracking-tight text-neutral-100 truncate">
+          <h5 className="text-xs font-bold tracking-tight text-white truncate">
             {toast.title}
           </h5>
           <span className="text-[10px] text-neutral-400 font-mono flex-shrink-0">
@@ -101,7 +101,7 @@ export function NotificationToast({ toast, onDismiss, onClick }: NotificationToa
           </span>
         </div>
         {toast.body && (
-          <p className="text-[11px] text-neutral-300 mt-1 line-clamp-2 leading-relaxed">
+          <p className="text-[11px] text-neutral-200 mt-1 line-clamp-2 leading-relaxed">
             {toast.body}
           </p>
         )}
@@ -144,7 +144,7 @@ export function NotificationToastContainer({
   return (
     <div
       aria-label="Notifications"
-      className="fixed bottom-6 right-6 z-50 flex flex-col-reverse gap-2.5 max-w-sm pointer-events-none"
+      className="fixed top-6 right-6 z-50 flex flex-col gap-2.5 max-w-sm pointer-events-none"
     >
       {toasts.map((toast) => (
         <NotificationToast

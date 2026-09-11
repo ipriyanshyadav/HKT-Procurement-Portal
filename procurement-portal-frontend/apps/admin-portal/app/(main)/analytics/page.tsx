@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
+import Link from "next/link";
 import {
   useAnalyticsDashboard,
   useBusinessUnits,
@@ -21,6 +22,7 @@ import {
   Users,
   CheckCircle2,
   FileCheck,
+  ArrowRight,
 } from "lucide-react";
 
 export default function AdminOrgAnalyticsPage() {
@@ -264,84 +266,117 @@ export default function AdminOrgAnalyticsPage() {
 
       {/* Governance & Compliance Overview */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <div className="rounded-2xl border border-neutral-200/80 dark:border-neutral-800/80 bg-white dark:bg-neutral-900 p-6 shadow-sm">
-          <div className="flex items-center justify-between">
-            <h3 className="font-semibold text-neutral-900 dark:text-white">Supplier Pool Health</h3>
-            <Users className="w-4 h-4 text-blue-500" />
+        <div className="rounded-2xl border border-neutral-200/80 dark:border-neutral-800/80 bg-white dark:bg-neutral-900 p-6 shadow-sm flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between">
+              <h3 className="font-semibold text-neutral-900 dark:text-white">Supplier Pool Health</h3>
+              <Users className="w-4 h-4 text-blue-500" />
+            </div>
+            <div className="mt-4 space-y-3">
+              <div className="flex justify-between text-sm">
+                <span className="text-neutral-500 dark:text-neutral-400">Active Vendors:</span>
+                <span className="font-bold text-neutral-900 dark:text-white">
+                  {compliance?.active_vendors ?? 0}
+                </span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-neutral-500 dark:text-neutral-400">Total Registered Vendors:</span>
+                <span className="font-semibold text-neutral-700 dark:text-neutral-300">
+                  {compliance?.total_vendors ?? 0}
+                </span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-neutral-500 dark:text-neutral-400">Vendor Compliance Rate:</span>
+                <span className="font-semibold text-emerald-600 dark:text-emerald-400">
+                  {kpis?.vendor_compliance_rate?.toFixed(1) ?? "0.0"}%
+                </span>
+              </div>
+            </div>
           </div>
-          <div className="mt-4 space-y-3">
-            <div className="flex justify-between text-sm">
-              <span className="text-neutral-500 dark:text-neutral-400">Active Vendors:</span>
-              <span className="font-bold text-neutral-900 dark:text-white">
-                {compliance?.active_vendors ?? 0}
-              </span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-neutral-500 dark:text-neutral-400">Total Registered Vendors:</span>
-              <span className="font-semibold text-neutral-700 dark:text-neutral-300">
-                {compliance?.total_vendors ?? 0}
-              </span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-neutral-500 dark:text-neutral-400">Vendor Compliance Rate:</span>
-              <span className="font-semibold text-emerald-600 dark:text-emerald-400">
-                {kpis?.vendor_compliance_rate?.toFixed(1) ?? "0.0"}%
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <div className="rounded-2xl border border-neutral-200/80 dark:border-neutral-800/80 bg-white dark:bg-neutral-900 p-6 shadow-sm">
-          <div className="flex items-center justify-between">
-            <h3 className="font-semibold text-neutral-900 dark:text-white">Contract Risk Radar</h3>
-            <FileCheck className="w-4 h-4 text-amber-500" />
-          </div>
-          <div className="mt-4 space-y-3">
-            <div className="flex justify-between text-sm">
-              <span className="text-neutral-500 dark:text-neutral-400">Active Executed Contracts:</span>
-              <span className="font-bold text-neutral-900 dark:text-white">
-                {compliance?.active_contracts ?? 0}
-              </span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-neutral-500 dark:text-neutral-400">Expiring Soon (30 Days):</span>
-              <span className="font-semibold text-amber-600 dark:text-amber-400">
-                {compliance?.contracts_expiring_soon ?? 0}
-              </span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-neutral-500 dark:text-neutral-400">Contract Utilization Rate:</span>
-              <span className="font-semibold text-neutral-700 dark:text-neutral-300">
-                {kpis?.contract_utilization_rate?.toFixed(1) ?? "92.0"}%
-              </span>
-            </div>
+          <div className="mt-5 pt-3 border-t border-neutral-100 dark:border-neutral-800">
+            <Link
+              href="/vendors"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
+            >
+              <span>Inspect Supplier Registry</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
           </div>
         </div>
 
-        <div className="rounded-2xl border border-neutral-200/80 dark:border-neutral-800/80 bg-white dark:bg-neutral-900 p-6 shadow-sm">
-          <div className="flex items-center justify-between">
-            <h3 className="font-semibold text-neutral-900 dark:text-white">Sourcing Integrity</h3>
-            <AlertTriangle className="w-4 h-4 text-purple-500" />
+        <div className="rounded-2xl border border-neutral-200/80 dark:border-neutral-800/80 bg-white dark:bg-neutral-900 p-6 shadow-sm flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between">
+              <h3 className="font-semibold text-neutral-900 dark:text-white">Contract Risk Radar</h3>
+              <FileCheck className="w-4 h-4 text-amber-500" />
+            </div>
+            <div className="mt-4 space-y-3">
+              <div className="flex justify-between text-sm">
+                <span className="text-neutral-500 dark:text-neutral-400">Active Executed Contracts:</span>
+                <span className="font-bold text-neutral-900 dark:text-white">
+                  {compliance?.active_contracts ?? 0}
+                </span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-neutral-500 dark:text-neutral-400">Expiring Soon (30 Days):</span>
+                <span className="font-semibold text-amber-600 dark:text-amber-400">
+                  {compliance?.contracts_expiring_soon ?? 0}
+                </span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-neutral-500 dark:text-neutral-400">Contract Utilization Rate:</span>
+                <span className="font-semibold text-neutral-700 dark:text-neutral-300">
+                  {kpis?.contract_utilization_rate?.toFixed(1) ?? "92.0"}%
+                </span>
+              </div>
+            </div>
           </div>
-          <div className="mt-4 space-y-3">
-            <div className="flex justify-between text-sm">
-              <span className="text-neutral-500 dark:text-neutral-400">Emergency RFQ Procurements:</span>
-              <span className="font-semibold text-neutral-700 dark:text-neutral-300">
-                {compliance?.emergency_rfqs ?? 0}
-              </span>
+          <div className="mt-5 pt-3 border-t border-neutral-100 dark:border-neutral-800">
+            <Link
+              href="/contracts"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-600 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300 transition-colors"
+            >
+              <span>Inspect Active Contracts</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-neutral-200/80 dark:border-neutral-800/80 bg-white dark:bg-neutral-900 p-6 shadow-sm flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between">
+              <h3 className="font-semibold text-neutral-900 dark:text-white">Sourcing Integrity</h3>
+              <AlertTriangle className="w-4 h-4 text-purple-500" />
             </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-neutral-500 dark:text-neutral-400">Single-Vendor Sourced:</span>
-              <span className="font-semibold text-neutral-700 dark:text-neutral-300">
-                {compliance?.single_vendor_rfqs ?? 0}
-              </span>
+            <div className="mt-4 space-y-3">
+              <div className="flex justify-between text-sm">
+                <span className="text-neutral-500 dark:text-neutral-400">Emergency RFQ Procurements:</span>
+                <span className="font-semibold text-neutral-700 dark:text-neutral-300">
+                  {compliance?.emergency_rfqs ?? 0}
+                </span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-neutral-500 dark:text-neutral-400">Single-Vendor Sourced:</span>
+                <span className="font-semibold text-neutral-700 dark:text-neutral-300">
+                  {compliance?.single_vendor_rfqs ?? 0}
+                </span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-neutral-500 dark:text-neutral-400">On-Time Delivery Rate:</span>
+                <span className="font-semibold text-emerald-600 dark:text-emerald-400">
+                  {kpis?.on_time_delivery_rate?.toFixed(1) ?? "0.0"}%
+                </span>
+              </div>
             </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-neutral-500 dark:text-neutral-400">On-Time Delivery Rate:</span>
-              <span className="font-semibold text-emerald-600 dark:text-emerald-400">
-                {kpis?.on_time_delivery_rate?.toFixed(1) ?? "0.0"}%
-              </span>
-            </div>
+          </div>
+          <div className="mt-5 pt-3 border-t border-neutral-100 dark:border-neutral-800">
+            <Link
+              href="/audit-trail"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 transition-colors"
+            >
+              <span>View Audit Trail &amp; Events</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
           </div>
         </div>
       </div>

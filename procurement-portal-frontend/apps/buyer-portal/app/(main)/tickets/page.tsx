@@ -22,7 +22,10 @@ import {
   useTickets,
   useBulkAssignTickets,
   useBulkStatusTickets,
+  useAssignTicket,
+  useAppToast,
 } from "@procurement/hooks";
+import { useAuthStore } from "@procurement/stores";
 import { CreateTicketModal, TicketSLAIndicator } from "@procurement/ui";
 import type {
   TicketListResponse,
@@ -65,8 +68,30 @@ export default function BuyerTicketsPage() {
     page_size: 20,
   });
 
+  const { toast } = useAppToast();
+  const currentUser = useAuthStore((state) => state.user);
+  const currentUserId = currentUser?.id;
+  const assignMutation = useAssignTicket();
   const bulkAssignMutation = useBulkAssignTickets();
   const bulkStatusMutation = useBulkStatusTickets();
+
+  const handleAssignToMe = async (ticketId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!currentUserId) {
+      toast.error("User not identified");
+      return;
+    }
+    try {
+      await assignMutation.mutateAsync({
+        id: ticketId,
+        data: { user_id: currentUserId },
+      });
+      toast.success("Ticket assigned to you successfully");
+      refetch();
+    } catch {
+      toast.error("Failed to assign ticket");
+    }
+  };
 
   const handleSelectAll = () => {
     if (selectedTicketIds.length === tickets.length) {
@@ -308,8 +333,15 @@ export default function BuyerTicketsPage() {
                       <td className="p-3.5 font-mono text-xs font-semibold text-blue-600">
                         {ticket.ticket_number}
                       </td>
-                      <td className="p-3.5 font-medium text-slate-900 max-w-xs truncate">
-                        {ticket.title}
+                      <td className="p-3.5 max-w-xs">
+                        <div className="flex flex-col">
+                          <span className="font-medium text-slate-900 truncate">{ticket.title}</span>
+                          {ticket.raised_by_name ? (
+                            <span className="text-[11px] text-slate-500 truncate">
+                              Raised by {ticket.raised_by_name}
+                            </span>
+                          ) : null}
+                        </div>
                       </td>
                       <td className="p-3.5">
                         <span className="text-[11px] font-medium uppercase tracking-wider text-slate-600 bg-slate-100 px-2 py-0.5 rounded">
@@ -340,15 +372,37 @@ export default function BuyerTicketsPage() {
                           compact
                         />
                       </td>
-                      <td className="p-3.5 text-xs text-slate-500">
-                        {ticket.assigned_to ? (
-                          <span className="flex items-center gap-1 text-slate-800 font-medium">
-                            <User className="w-3.5 h-3.5 text-slate-400" />
-                            <span>{ticket.assigned_to.slice(0, 8)}</span>
-                          </span>
-                        ) : (
-                          <span className="text-slate-400 italic">Unassigned</span>
-                        )}
+                      <td className="p-3.5 text-xs text-slate-500 whitespace-nowrap">
+                        <div className="flex items-center gap-2 group/assignee">
+                          {ticket.assigned_to ? (
+                            <div className="flex flex-col">
+                              <span className="flex items-center gap-1.5 text-slate-800 font-medium">
+                                <User className="w-3.5 h-3.5 text-slate-400" />
+                                <span>{ticket.assigned_to === currentUserId ? "Assigned to You" : (ticket.assigned_to_name || "Manager")}</span>
+                              </span>
+                              {ticket.assigned_to !== currentUserId && (
+                                <button
+                                  type="button"
+                                  onClick={(e) => handleAssignToMe(ticket.id, e)}
+                                  className="text-[11px] text-blue-600 hover:text-blue-800 font-semibold opacity-0 group-hover/assignee:opacity-100 transition-opacity text-left underline mt-0.5"
+                                >
+                                  Assign to me
+                                </button>
+                              )}
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-2">
+                              <span className="text-slate-400 italic">Unassigned</span>
+                              <button
+                                type="button"
+                                onClick={(e) => handleAssignToMe(ticket.id, e)}
+                                className="px-2 py-0.5 rounded text-[11px] font-semibold bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors"
+                              >
+                                Assign to me
+                              </button>
+                            </div>
+                          )}
+                        </div>
                       </td>
                       <td className="p-3.5 text-right" onClick={(e) => e.stopPropagation()}>
                         <Link
@@ -400,6 +454,44 @@ export default function BuyerTicketsPage() {
                 <span className="text-xs px-2.5 py-1 rounded-full bg-blue-100 text-blue-800 font-medium">
                   {drawerTicket.priority}
                 </span>
+              </div>
+            </div>
+
+            <div>
+              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">
+                Raised By &amp; Assignee
+              </span>
+              <div className="bg-slate-50 rounded-xl p-3 border border-slate-200 space-y-2 text-xs">
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Raised By:</span>
+                  <span className="font-medium text-slate-800">{drawerTicket.raised_by_name || "Procurement User"}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-500">Assigned To:</span>
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium text-slate-800">
+                      {drawerTicket.assigned_to === currentUserId
+                        ? "You"
+                        : (drawerTicket.assigned_to_name || "Manager")}
+                    </span>
+                    {drawerTicket.assigned_to !== currentUserId && (
+                      <button
+                        type="button"
+                        onClick={async (e) => {
+                          await handleAssignToMe(drawerTicket.id, e);
+                          setDrawerTicket({
+                            ...drawerTicket,
+                            assigned_to: currentUserId || null,
+                            assigned_to_name: currentUser?.full_name || currentUser?.email || "You",
+                          });
+                        }}
+                        className="px-2 py-0.5 text-[11px] font-semibold bg-blue-50 text-blue-700 hover:bg-blue-100 rounded"
+                      >
+                        Assign to me
+                      </button>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
 

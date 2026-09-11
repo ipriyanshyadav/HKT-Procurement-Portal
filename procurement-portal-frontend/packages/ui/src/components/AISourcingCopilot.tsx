@@ -35,7 +35,10 @@ import {
   useSupplierRadarScores,
   useVendors,
 } from "@procurement/hooks";
-import type { AiRfqDraft, NegotiationSession, SupplierRadarScore } from "@procurement/types";
+const formatINR = (val: number | null | undefined, fallback: string = "—"): string => {
+  if (val === null || val === undefined || isNaN(Number(val))) return fallback;
+  return Number(val).toLocaleString("en-IN");
+};
 
 export function AISourcingCopilot() {
   const [activeTab, setActiveTab] = useState<"smart-rfq" | "negotiation-bot" | "supplier-radar">("smart-rfq");
@@ -242,7 +245,7 @@ export function AISourcingCopilot() {
                       </div>
                       <p className="text-xs text-[#71717A] mt-0.5">
                         Generated: {new Date(d.created_at).toLocaleDateString()} • Estimated Value: ₹
-                        {d.estimated_total_value.toLocaleString("en-IN")}
+                        {formatINR(d.estimated_total_value)}
                       </p>
                     </div>
 
@@ -300,10 +303,10 @@ export function AISourcingCopilot() {
                             <td className="py-2.5 font-medium text-white">{lot.lot_name}</td>
                             <td className="py-2.5 text-[#A1A1AA]">{lot.quantity}</td>
                             <td className="py-2.5 font-semibold text-white">
-                              ₹{lot.estimated_unit_price.toLocaleString("en-IN")}
+                              ₹{formatINR(lot.estimated_unit_price)}
                             </td>
                             <td className="py-2.5 text-[#A1A1AA]">
-                              ₹{lot.benchmark_price?.toLocaleString("en-IN") || "—"}
+                              ₹{formatINR(lot.benchmark_price)}
                             </td>
                             <td className="py-2.5 font-mono">
                               {lot.variance_pct > 15 ? (
@@ -385,11 +388,11 @@ export function AISourcingCopilot() {
                     </div>
 
                     <div className="pt-2 border-t border-[#222226] flex items-center justify-between w-full text-xs">
-                      <span className="text-[#A1A1AA]">Current: ₹{s.current_bid_price.toLocaleString("en-IN")}</span>
+                      <span className="text-[#A1A1AA]">Current: ₹{formatINR(s.current_bid_price)}</span>
                       {s.savings_achieved > 0 && (
                         <span className="text-emerald-400 font-semibold flex items-center gap-1">
                           <TrendingDown className="w-3 h-3" />
-                          -₹{s.savings_achieved.toLocaleString("en-IN")}
+                          -₹{formatINR(s.savings_achieved)}
                         </span>
                       )}
                     </div>
@@ -421,13 +424,13 @@ export function AISourcingCopilot() {
                     <div className="text-right">
                       <span className="text-[#71717A] block">Target Price</span>
                       <span className="font-bold text-emerald-400">
-                        ₹{selectedSession.target_price.toLocaleString("en-IN")}
+                        ₹{formatINR(selectedSession.target_price)}
                       </span>
                     </div>
                     <div className="text-right">
                       <span className="text-[#71717A] block">Max Ceiling</span>
                       <span className="font-bold text-white">
-                        ₹{selectedSession.max_acceptable_price.toLocaleString("en-IN")}
+                        ₹{formatINR(selectedSession.max_acceptable_price)}
                       </span>
                     </div>
                   </div>
@@ -452,7 +455,7 @@ export function AISourcingCopilot() {
                           </span>
                         </div>
                         <span className="text-xs font-mono font-bold text-white">
-                          ₹{r.counter_offer_price?.toLocaleString("en-IN") || r.offer_price.toLocaleString("en-IN")}
+                          ₹{formatINR(r.counter_offer_price ?? r.offer_price)}
                         </span>
                       </div>
                       <p className="text-xs text-[#A1A1AA] leading-relaxed">{r.rationale}</p>
@@ -501,7 +504,7 @@ export function AISourcingCopilot() {
                 ) : (
                   <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-center">
                     <p className="text-xs font-semibold text-emerald-400">
-                      Negotiation Concluded: Total Savings of ₹{selectedSession.savings_achieved.toLocaleString("en-IN")} achieved!
+                      Negotiation Concluded: Total Savings of ₹{formatINR(selectedSession.savings_achieved)} achieved!
                     </p>
                   </div>
                 )}

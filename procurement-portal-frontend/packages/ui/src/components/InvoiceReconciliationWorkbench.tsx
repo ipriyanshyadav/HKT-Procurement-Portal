@@ -39,33 +39,60 @@ export function InvoiceReconciliationWorkbench() {
   const [disputeNote, setDisputeNote] = useState<string>("");
   const [isDisputing, setIsDisputing] = useState<boolean>(false);
   const [reconcileError, setReconcileError] = useState<string | null>(null);
+  const [isReconciling, setIsReconciling] = useState<boolean>(false);
 
   // Queries & Mutations
-  const { data: dashboardStats, isLoading: loadingStats, refetch: refetchStats } = useReconciliationDashboard();
+  const { data: dashboardStats, refetch: refetchStats } = useReconciliationDashboard();
   const { data: invoices = [], isLoading: loadingInvoices, refetch: refetchInvoices } = useInvoices();
   const reconcileMutation = usePerformReconciliation();
   const approveMutation = useApproveInvoice();
   const disputeMutation = useDisputeInvoice();
 
-  const handleRunReconcile = async (invoice: InvoiceResponse) => {
-    setSelectedInvoice(invoice);
+  const executeReconcile = async (
+    invoice: InvoiceResponse,
+    currentMatchMode: "THREE_WAY" | "FOUR_WAY",
+    priceTol: number = priceTolerance,
+    qtyTol: number = qtyTolerance,
+    autoApp: boolean = autoApprove
+  ) => {
+    setIsReconciling(true);
     setReconcileError(null);
     try {
       const result = await reconcileMutation.mutateAsync({
         invoiceId: invoice.id,
         payload: {
-          match_mode: matchMode,
-          price_tolerance_pct: priceTolerance,
-          quantity_tolerance_pct: qtyTolerance,
-          auto_approve_if_matched: autoApprove,
+          match_mode: currentMatchMode,
+          price_tolerance_pct: priceTol,
+          quantity_tolerance_pct: qtyTol,
+          auto_approve_if_matched: invoice.status !== "APPROVED" && autoApp,
         },
       });
       setReconcileResult(result);
-      refetchStats();
-      refetchInvoices();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Failed to execute invoice reconciliation.";
       setReconcileError(msg);
+    } finally {
+      setIsReconciling(false);
+    }
+  };
+
+  const handleSelectInvoice = (invoice: InvoiceResponse) => {
+    setSelectedInvoice(invoice);
+    executeReconcile(invoice, matchMode);
+  };
+
+  const handleMatchModeChange = (newMode: "THREE_WAY" | "FOUR_WAY") => {
+    setMatchMode(newMode);
+    if (selectedInvoice) {
+      executeReconcile(selectedInvoice, newMode);
+    }
+  };
+
+  const handleToleranceChange = (newPrice: number, newQty: number) => {
+    setPriceTolerance(newPrice);
+    setQtyTolerance(newQty);
+    if (selectedInvoice) {
+      executeReconcile(selectedInvoice, matchMode, newPrice, newQty);
     }
   };
 
@@ -199,10 +226,10 @@ export function InvoiceReconciliationWorkbench() {
             <div className="flex bg-white dark:bg-gray-800 rounded-lg p-1 border border-gray-200 dark:border-gray-700">
               <button
                 type="button"
-                onClick={() => setMatchMode("THREE_WAY")}
+                onClick={() => handleMatchModeChange("THREE_WAY")}
                 className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors ${
                   matchMode === "THREE_WAY"
-                    ? "bg-indigo-600 text-white"
+                    ? "bg-indigo-600 text-white shadow-xs"
                     : "text-gray-600 dark:text-gray-300 hover:text-gray-900"
                 }`}
               >
@@ -210,10 +237,10 @@ export function InvoiceReconciliationWorkbench() {
               </button>
               <button
                 type="button"
-                onClick={() => setMatchMode("FOUR_WAY")}
+                onClick={() => handleMatchModeChange("FOUR_WAY")}
                 className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors ${
                   matchMode === "FOUR_WAY"
-                    ? "bg-indigo-600 text-white"
+                    ? "bg-indigo-600 text-white shadow-xs"
                     : "text-gray-600 dark:text-gray-300 hover:text-gray-900"
                 }`}
               >
@@ -228,9 +255,9 @@ export function InvoiceReconciliationWorkbench() {
               type="number"
               step="0.5"
               min="0"
-              max="20"
+              max="50"
               value={priceTolerance}
-              onChange={(e) => setPriceTolerance(parseFloat(e.target.value) || 0)}
+              onChange={(e) => handleToleranceChange(parseFloat(e.target.value) || 0, qtyTolerance)}
               className="w-16 px-2 py-1 text-xs font-semibold bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md text-center"
             />
             <span className="text-xs text-gray-500">%</span>
@@ -244,7 +271,7 @@ export function InvoiceReconciliationWorkbench() {
               min="0"
               max="50"
               value={qtyTolerance}
-              onChange={(e) => setQtyTolerance(parseFloat(e.target.value) || 0)}
+              onChange={(e) => handleToleranceChange(priceTolerance, parseFloat(e.target.value) || 0)}
               className="w-16 px-2 py-1 text-xs font-semibold bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md text-center"
             />
             <span className="text-xs text-gray-500">%</span>
@@ -291,7 +318,7 @@ export function InvoiceReconciliationWorkbench() {
                   return (
                     <div
                       key={inv.id}
-                      onClick={() => handleRunReconcile(inv)}
+                      onClick={() => handleSelectInvoice(inv)}
                       className={`p-3.5 rounded-lg border text-left cursor-pointer transition-all ${
                         isSelected
                           ? "border-indigo-600 bg-indigo-50/50 dark:bg-indigo-950/20 dark:border-indigo-500"
@@ -339,7 +366,7 @@ export function InvoiceReconciliationWorkbench() {
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleRunReconcile(inv);
+                            handleSelectInvoice(inv);
                           }}
                           className="flex items-center gap-1 text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline"
                         >
@@ -372,10 +399,19 @@ export function InvoiceReconciliationWorkbench() {
               {/* Active Inspection Header */}
               <div className="p-5 border-b border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50 dark:bg-slate-900/40">
                 <div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 flex-wrap">
                     <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">
                       Reconciliation: {selectedInvoice.invoice_number}
                     </h2>
+                    <span
+                      className={`text-xs px-2.5 py-1 rounded-full font-bold ${
+                        matchMode === "FOUR_WAY"
+                          ? "bg-indigo-100 text-indigo-800 dark:bg-indigo-950/50 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800"
+                          : "bg-blue-100 text-blue-800 dark:bg-blue-950/50 dark:text-blue-300 border border-blue-200 dark:border-blue-800"
+                      }`}
+                    >
+                      {matchMode === "FOUR_WAY" ? "4-Way (+ QC Dock Active)" : "3-Way Match Active"}
+                    </span>
                     {reconcileResult && (
                       <span
                         className={`text-xs px-2.5 py-1 rounded-full font-bold ${
@@ -385,6 +421,12 @@ export function InvoiceReconciliationWorkbench() {
                         }`}
                       >
                         {reconcileResult.overall_status}
+                      </span>
+                    )}
+                    {isReconciling && (
+                      <span className="flex items-center gap-1.5 text-xs font-semibold text-indigo-600 dark:text-indigo-400">
+                        <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                        Re-analyzing...
                       </span>
                     )}
                   </div>
@@ -506,10 +548,17 @@ export function InvoiceReconciliationWorkbench() {
                               {line.grn_received_quantity}
                             </span>
                           </div>
-                          <div className="flex justify-between font-semibold text-emerald-600 dark:text-emerald-400">
-                            <span>QC Accepted Qty:</span>
-                            <span>{line.quality_inspected_quantity}</span>
-                          </div>
+                          {matchMode === "FOUR_WAY" ? (
+                            <div className="flex justify-between font-semibold text-emerald-600 dark:text-emerald-400">
+                              <span>QC Dock Accepted Qty:</span>
+                              <span>{line.quality_inspected_quantity}</span>
+                            </div>
+                          ) : (
+                            <div className="flex justify-between text-gray-400 dark:text-gray-500 italic">
+                              <span>QC Dock Inspection:</span>
+                              <span>Bypassed in 3-Way</span>
+                            </div>
+                          )}
                         </div>
 
                         {/* Right: Vendor Invoiced Values */}

@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiClient } from "@procurement/utils";
+import { apiClient, playNotificationChime } from "@procurement/utils";
 import { useAuthStore, useNotificationStore } from "@procurement/stores";
 import type {
   NotificationItem,
@@ -105,6 +105,7 @@ export function useNotifications() {
                 retry_count: 0,
               };
               addNotification(notification);
+              playNotificationChime();
               queryClient.invalidateQueries({ queryKey: ["notifications"] });
 
               // Reactively invalidate related entity queries to synchronize all open views

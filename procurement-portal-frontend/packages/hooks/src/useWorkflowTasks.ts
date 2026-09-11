@@ -14,6 +14,17 @@ export interface WorkflowTask {
   sla_deadline: string | null;
   sla_status: "WITHIN_SLA" | "WARNING" | "ESCALATED" | "REASSIGNED" | "CRITICAL";
   created_at: string;
+  entity_type?: string | null;
+  entity_id?: string | null;
+  entity_number?: string | null;
+  title?: string | null;
+  raised_by_id?: string | null;
+  raised_by_name?: string | null;
+  raised_by_email?: string | null;
+  department?: string | null;
+  total_amount?: number | null;
+  currency?: string | null;
+  priority?: string | null;
 }
 
 export interface WorkflowInstance {

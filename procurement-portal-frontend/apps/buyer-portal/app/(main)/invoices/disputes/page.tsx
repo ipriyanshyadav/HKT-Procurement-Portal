@@ -7,6 +7,7 @@ import {
   useAddDisputeMessage,
   useResolveDispute,
 } from "@procurement/hooks";
+import { useAuthStore } from "@procurement/stores";
 import type { DisputeResponse, DisputeMessageResponse } from "@procurement/types";
 import {
   AlertCircle,
@@ -23,6 +24,8 @@ import {
 } from "lucide-react";
 
 export default function BuyerDisputeInboxPage() {
+  const currentUser = useAuthStore((state) => state.user);
+  const currentUserId = currentUser?.id;
   const [selectedDisputeId, setSelectedDisputeId] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [searchQuery, setSearchQuery] = useState("");
@@ -268,51 +271,65 @@ export default function BuyerDisputeInboxPage() {
                 </div>
               )}
 
-              {/* Message Thread */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50/30 dark:bg-slate-950/40">
+              {/* Message Thread (Apple iMessage Style) */}
+              <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-[#F2F2F7]/50 dark:bg-[#1C1C1E]/50">
                 {(!activeDispute.messages || activeDispute.messages.length === 0) ? (
                   <div className="text-center py-12 text-slate-400 text-xs">
                     <MessageSquare className="w-8 h-8 text-slate-300 dark:text-slate-600 mx-auto mb-2" />
                     No communication messages exchanged yet. Use the message box below to ask the vendor for clarifications or corrected bill copies.
                   </div>
                 ) : (
-                  activeDispute.messages.map((msg: DisputeMessageResponse) => (
-                    <div
-                      key={msg.id}
-                      className="p-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 shadow-xs space-y-1"
-                    >
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="font-semibold text-slate-800 dark:text-slate-200">
-                          {msg.sender_name || "Authorized Party"}
-                        </span>
-                        <span className="text-[11px] text-slate-400">
-                          {new Date(msg.created_at).toLocaleString()}
-                        </span>
+                  activeDispute.messages.map((msg: DisputeMessageResponse) => {
+                    const isMe =
+                      msg.sender_id === currentUserId ||
+                      (!msg.sender_id && msg.sender_name?.toLowerCase().includes("buyer")) ||
+                      Boolean((msg as any).sender_role?.toUpperCase().includes("BUYER"));
+
+                    return (
+                      <div key={msg.id} className={`flex flex-col ${isMe ? "items-end" : "items-start"}`}>
+                        {!isMe && (
+                          <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 mb-1 ml-2">
+                            {msg.sender_name || "Supplier Representative"}
+                          </span>
+                        )}
+                        <div
+                          className={`relative max-w-[80%] sm:max-w-[70%] px-4 py-2.5 shadow-xs ${
+                            isMe
+                              ? "bg-[#007AFF] text-white rounded-2xl rounded-tr-xs"
+                              : "bg-[#E9E9EB] dark:bg-[#2C2C2E] text-slate-900 dark:text-white rounded-2xl rounded-tl-xs"
+                          }`}
+                        >
+                          <p className="text-xs sm:text-sm whitespace-pre-wrap leading-relaxed">{msg.message}</p>
+                          <div
+                            className={`text-[10px] mt-1 ${
+                              isMe ? "text-white/75 text-right" : "text-slate-400 dark:text-slate-500 text-left"
+                            }`}
+                          >
+                            {new Date(msg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                          </div>
+                        </div>
                       </div>
-                      <p className="text-xs text-slate-700 dark:text-slate-300 whitespace-pre-wrap leading-relaxed">
-                        {msg.message}
-                      </p>
-                    </div>
-                  ))
+                    );
+                  })
                 )}
               </div>
 
-              {/* Message Input Footer */}
-              <form onSubmit={handleSendMessage} className="p-3 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex gap-2">
+              {/* Message Input Footer (Apple Pill Bar) */}
+              <form onSubmit={handleSendMessage} className="p-3 border-t border-slate-200/80 dark:border-white/10 bg-white dark:bg-slate-900 flex items-center gap-2">
                 <input
                   type="text"
-                  placeholder="Type clarification message to supplier..."
+                  placeholder="iMessage · Message supplier..."
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
-                  className="flex-1 border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  className="flex-1 border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 text-xs sm:text-sm rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition-all"
                 />
                 <button
                   type="submit"
                   disabled={!newMessage.trim() || addMessageMutation.isPending}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-semibold shadow-sm transition-colors disabled:opacity-50"
+                  className="w-8 h-8 rounded-full bg-[#007AFF] hover:bg-[#0062CC] disabled:bg-slate-200 dark:disabled:bg-slate-800 text-white flex items-center justify-center transition-all disabled:opacity-40 shrink-0 shadow-xs"
+                  title="Send message"
                 >
-                  <Send className="w-3.5 h-3.5" />
-                  Send
+                  <Send className="w-3.5 h-3.5 ml-0.5" />
                 </button>
               </form>
             </>

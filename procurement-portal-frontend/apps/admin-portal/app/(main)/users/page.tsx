@@ -159,6 +159,18 @@ export default function UsersManagementPage() {
   const [sessionToRevoke, setSessionToRevoke] = useState<UserSessionItem | null>(null);
   const [userToRevokeAll, setUserToRevokeAll] = useState<{ id: string; email: string; name: string } | null>(null);
   const [revokeReason, setRevokeReason] = useState("Security administrative action");
+ 
+  useEffect(() => {
+    const isAnyModalOpen = Boolean(showCreateModal || roleModalUser || sessionToRevoke || userToRevokeAll);
+    if (isAnyModalOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [showCreateModal, roleModalUser, sessionToRevoke, userToRevokeAll]);
 
   const {
     data: sessionsResponse,

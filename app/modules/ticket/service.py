@@ -110,6 +110,31 @@ class TicketService:
         now = datetime.now(UTC)
         sla_breach_at = await self.sla.compute_breach_at(db, org_id, data.priority, now)
 
+        assigned_to = getattr(data, "assigned_to", None)
+        assigned_team = getattr(data, "assigned_team", None)
+        if not assigned_to:
+            from app.core.constants import RoleCode
+            from app.db.enums import UserStatusEnum
+            from app.modules.user.models import Role, User, UserRoleAssignment
+
+            mgr_stmt = (
+                select(User.id)
+                .join(UserRoleAssignment, UserRoleAssignment.user_id == User.id)
+                .join(Role, Role.id == UserRoleAssignment.role_id)
+                .where(
+                    UserRoleAssignment.org_id == org_id,
+                    User.status == UserStatusEnum.ACTIVE,
+                    Role.code.in_([
+                        RoleCode.PROCUREMENT_MANAGER,
+                        RoleCode.SOURCING_MANAGER,
+                        RoleCode.PROCUREMENT_HEAD,
+                        RoleCode.ORG_ADMIN,
+                    ]),
+                )
+                .limit(1)
+            )
+            assigned_to = (await db.execute(mgr_stmt)).scalar_one_or_none()
+
         ticket = Ticket(
             org_id=org_id,
             ticket_number=ticket_number,
@@ -122,6 +147,8 @@ class TicketService:
             status="OPEN",
             raised_by=actor_id,
             raised_by_portal=portal,
+            assigned_to=assigned_to,
+            assigned_team=assigned_team,
             entity_type=data.entity_type,
             entity_id=data.entity_id,
             entity_number=data.entity_number,

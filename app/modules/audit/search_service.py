@@ -25,6 +25,7 @@ class AuditSearchQuery(BaseModel):
     date_from: datetime | None = None
     date_to: datetime | None = None
     search: str | None = None
+    exclude_token_refresh: bool = True
     page: int = Field(default=1, ge=1)
     page_size: int = Field(default=20, ge=1, le=100)
 
@@ -185,8 +186,12 @@ class AuditSearchService:
                         }
                     })
 
+                bool_query: dict[str, Any] = {"must": must}
+                if query.exclude_token_refresh and not query.action:
+                    bool_query["must_not"] = [{"term": {"action": "TOKEN_REFRESH"}}]
+
                 body = {
-                    "query": {"bool": {"must": must}},
+                    "query": {"bool": bool_query},
                     "sort": [{"created_at": {"order": "desc"}}],
                     "from": query.offset,
                     "size": query.limit,
@@ -241,6 +246,8 @@ class AuditSearchService:
 
         if query.action:
             stmt = stmt.where(AuditLog.action.ilike(f"%{query.action}%"))
+        elif query.exclude_token_refresh:
+            stmt = stmt.where(AuditLog.action != "TOKEN_REFRESH")
         if query.actor_id:
             stmt = stmt.where(AuditLog.actor_id == query.actor_id)
         if query.actor_email:

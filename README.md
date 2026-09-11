@@ -66,10 +66,10 @@ The platform supports strict enterprise role separation (where each user only se
 
 
 ## Current Session State
-- **Planned**: Eliminate all legacy browser alerts/confirms, harmonize accessible Apple-style Radix dialogs & Sonner toasts across portals, verify 100% test & lint gates, and synchronize Graphify.
-- **Implemented**: (1) Replaced 100% of native `alert()` and `confirm()` calls across all 3 portals (Buyer, Supplier, Admin) and `@procurement/ui` components with accessible Radix `ConfirmDialog` / `useConfirm()` and modern `useAppToast()` toasts; (2) Resolved all backend ruff lint issues and mid-file imports (`app/core/middleware.py`, `app/core/redis_client.py`); (3) Synchronized `packages/components/tickets/TicketCommentFeed.tsx` with `@procurement/ui`.
-- **Verified**: 17/17 Docker containers UP & Healthy; 453/453 backend unit tests passing in 10.43s (100%); 7/7 Turbo TypeScript packages passing (0 errors); 3/3 Next.js portals ESLint passing (0 errors, 0 warnings); 0 remaining raw browser alert/confirm calls; Graphify AST synchronized (10,819 nodes, 29,590 edges, 592 communities).
-- **Next**: Persona-driven end-to-end regression workflows, live auction reverse bidding stress tests, and automated CI pipelines.
+- **Planned**: Resolve user defects across Buyer, Supplier, Admin portals & shared UI: remove topbar portal badges, fix AI copilot crash, 3-way/4-way match 400 error & animation, table spacing, access restricted banner, ticket manager auto-assignment & self-assignment, approval inbox details, dispute chat redesign, notification date grouping & Web Audio chime, backtrack navigation, and verify 100% test gates.
+- **Implemented**: (1) Removed Buyer/Supplier/Admin badges from topbars across all portals; (2) Added Web Audio API harmonic chime synthesis and date grouping (Today, Yesterday, Older) with high-contrast unread cards; (3) Added `/auctions/[id]` backtrack routing and improved light mode contrast in LiveAuctionList; (4) Fixed ticket auto-assignment to manager, self-assignment ("Assign to me"), and assignor/assignee display; (5) Enriched Approval Inbox `/tasks` with full entity, amount, and requestor details; (6) Redesigned dispute chat into Apple iMessage style; (7) Fixed 3-way/4-way reconciliation limits & QC dock indicators; (8) Standardized table spacing across RFQs, Buyer Payments, and Supplier Payments.
+- **Verified**: 453/453 backend unit tests passing (100%); 7/7 Turbo TypeScript packages passing (0 errors); 3/3 Next.js portals ESLint passing (0 errors, 0 warnings); Graphify knowledge graph synchronized (10,829 nodes, 29,640 edges, 586 communities).
+- **Next**: Live reverse auction socket stress test, multi-tenant automated end-to-end integration workflows.
 
 
 

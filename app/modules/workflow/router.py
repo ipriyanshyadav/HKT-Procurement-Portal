@@ -12,6 +12,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.dependencies import get_current_user, require_permission
@@ -59,8 +60,83 @@ async def get_my_tasks(
         db, current_user.id, current_user.org_id
     )
     total_pages = max(1, (total + page_size - 1) // page_size) if page_size else 1
+
+    task_responses: list[WorkflowTaskResponse] = []
+    if tasks:
+        from app.modules.workflow.models import WorkflowInstance
+
+        inst_stmt = select(WorkflowInstance).where(
+            WorkflowInstance.id.in_({t.workflow_instance_id for t in tasks})
+        )
+        instances = {inst.id: inst for inst in (await db.execute(inst_stmt)).scalars().all()}
+
+        user_ids: set[UUID] = set()
+        for inst in instances.values():
+            ctx = inst.entity_context or {}
+            uid_candidate = ctx.get("created_by") or ctx.get("submitted_by") or ctx.get("requestor_id")
+            if uid_candidate:
+                try:
+                    user_ids.add(UUID(str(uid_candidate)))
+                except (ValueError, TypeError):
+                    pass
+
+        users: dict[UUID, User] = {}
+        if user_ids:
+            u_stmt = select(User).where(User.id.in_(user_ids))
+            users = {u.id: u for u in (await db.execute(u_stmt)).scalars().all()}
+
+        for t in tasks:
+            resp = WorkflowTaskResponse.model_validate(t)
+            inst = instances.get(t.workflow_instance_id)
+            if inst:
+                resp.entity_type = inst.entity_type
+                resp.entity_id = inst.entity_id
+                ctx = inst.entity_context or {}
+                resp.entity_number = (
+                    ctx.get("entity_number")
+                    or ctx.get("po_number")
+                    or ctx.get("pr_number")
+                    or ctx.get("invoice_number")
+                    or ctx.get("number")
+                    or str(inst.entity_id)[:8]
+                )
+                resp.title = (
+                    ctx.get("title")
+                    or ctx.get("description")
+                    or f"{inst.entity_type.replace('_', ' ').title()} #{resp.entity_number}"
+                )
+                resp.department = ctx.get("department") or ctx.get("business_unit") or ctx.get("dept")
+                resp.priority = ctx.get("priority") or "MEDIUM"
+                raw_amount = (
+                    ctx.get("total_amount")
+                    or ctx.get("amount")
+                    or ctx.get("estimated_value")
+                    or ctx.get("total_value")
+                )
+                if raw_amount is not None:
+                    try:
+                        resp.total_amount = float(raw_amount)
+                    except (ValueError, TypeError):
+                        pass
+                resp.currency = ctx.get("currency") or "INR"
+
+                uid_str = ctx.get("created_by") or ctx.get("submitted_by") or ctx.get("requestor_id")
+                if uid_str:
+                    try:
+                        uid = UUID(str(uid_str))
+                        u = users.get(uid)
+                        if u:
+                            resp.raised_by_id = u.id
+                            resp.raised_by_name = f"{u.first_name} {u.last_name}".strip()
+                            resp.raised_by_email = u.email
+                    except (ValueError, TypeError):
+                        pass
+                if not resp.raised_by_name and ctx.get("created_by_name"):
+                    resp.raised_by_name = ctx.get("created_by_name")
+            task_responses.append(resp)
+
     return success_response(
-        [WorkflowTaskResponse.model_validate(t) for t in tasks],
+        task_responses,
         meta=PaginationMeta(
             page=page,
             page_size=page_size,

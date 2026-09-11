@@ -245,8 +245,14 @@ export type TicketType = "RFQ_QUERY" | "INVOICE_DISPUTE" | "PO_QUERY" | "CONTRAC
 export type TicketPriority = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
 export type TicketStatus = "OPEN" | "IN_PROGRESS" | "PENDING_RESPONSE" | "RESOLVED" | "CLOSED";
 
-export type TicketDetailResponse = components["schemas"]["TicketDetailResponse"];
-export type TicketListResponse = components["schemas"]["TicketListResponse"];
+export type TicketDetailResponse = components["schemas"]["TicketDetailResponse"] & {
+  assigned_to_name?: string | null;
+  raised_by_name?: string | null;
+};
+export type TicketListResponse = components["schemas"]["TicketListResponse"] & {
+  assigned_to_name?: string | null;
+  raised_by_name?: string | null;
+};
 export type TicketCreateRequest = components["schemas"]["TicketCreateRequest"];
 export type TicketUpdateRequest = components["schemas"]["TicketUpdateRequest"];
 export type TicketCommentResponse = components["schemas"]["TicketCommentResponse"];

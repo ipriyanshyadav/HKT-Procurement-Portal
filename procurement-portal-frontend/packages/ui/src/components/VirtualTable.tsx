@@ -56,7 +56,26 @@ export function VirtualTable<T>({
     <div
       className={`apple-table-container relative overflow-hidden flex flex-col ${className}`}
     >
-      {/* Scrollable container */}
+      {/* Fixed Sticky Header Table */}
+      <div className="w-full overflow-hidden border-b border-[var(--apple-separator)] bg-[var(--apple-bg-well)] z-10">
+        <table className="apple-table w-full border-collapse" style={{ tableLayout: 'fixed' }}>
+          <thead>
+            <tr>
+              {columns.map((col) => (
+                <th
+                  key={col.key}
+                  style={col.width ? { width: col.width } : undefined}
+                  className={`px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-[var(--apple-label-secondary)] ${col.headerClassName || ''}`}
+                >
+                  {col.header}
+                </th>
+              ))}
+            </tr>
+          </thead>
+        </table>
+      </div>
+
+      {/* Scrollable container for Virtual Rows */}
       <div
         ref={parentRef}
         style={{
@@ -66,89 +85,65 @@ export function VirtualTable<T>({
         }}
         className="w-full relative apple-scroll-container overscroll-contain"
       >
-        <table className="apple-table w-full border-collapse">
-          {/* Sticky Header */}
-          <thead className="sticky top-0 z-10 shadow-xs">
-            <tr>
-              {columns.map((col) => (
-                <th
-                  key={col.key}
-                  style={col.width ? { width: col.width } : undefined}
-                  className={`px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-[var(--apple-label-secondary)] border-b border-[var(--apple-separator)] bg-[var(--apple-bg-well)] ${col.headerClassName || ''}`}
-                >
-                  {col.header}
-                </th>
-              ))}
-            </tr>
-          </thead>
+        <div
+          style={{
+            height: `${totalSize}px`,
+            position: 'relative',
+            width: '100%',
+          }}
+        >
+          {isLoading ? (
+            <div className="text-center py-16 text-[var(--apple-label-secondary)]">
+              <div className="inline-block w-6 h-6 border-2 border-[var(--apple-blue)] border-t-transparent rounded-full animate-spin mb-2" />
+              <p className="text-xs">Loading items...</p>
+            </div>
+          ) : data.length === 0 ? (
+            <div className="text-center py-16 text-sm text-[var(--apple-label-secondary)]">
+              {emptyMessage}
+            </div>
+          ) : (
+            virtualItems.map((virtualRow) => {
+              const item = data[virtualRow.index];
+              if (!item) return null;
 
-          {/* Virtual Body */}
-          <tbody
-            style={{
-              height: `${totalSize}px`,
-              position: 'relative',
-              width: '100%',
-            }}
-          >
-            {isLoading ? (
-              <tr>
-                <td
-                  colSpan={columns.length}
-                  className="text-center py-16 text-[var(--apple-label-secondary)]"
+              return (
+                <div
+                  key={virtualRow.index}
+                  data-index={virtualRow.index}
+                  ref={rowVirtualizer.measureElement}
+                  onClick={() => onRowClick && onRowClick(item)}
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    transform: `translateY(${virtualRow.start}px)`,
+                    cursor: onRowClick ? 'pointer' : 'default',
+                  }}
+                  className="border-b border-[var(--apple-separator)] transition-colors hover:bg-black/5 dark:hover:bg-white/5"
                 >
-                  <div className="inline-block w-6 h-6 border-2 border-[var(--apple-blue)] border-t-transparent rounded-full animate-spin mb-2" />
-                  <p className="text-xs">Loading items...</p>
-                </td>
-              </tr>
-            ) : data.length === 0 ? (
-              <tr>
-                <td
-                  colSpan={columns.length}
-                  className="text-center py-16 text-sm text-[var(--apple-label-secondary)]"
-                >
-                  {emptyMessage}
-                </td>
-              </tr>
-            ) : (
-              virtualItems.map((virtualRow) => {
-                const item = data[virtualRow.index];
-                if (!item) return null;
-
-                return (
-                  <tr
-                    key={virtualRow.index}
-                    data-index={virtualRow.index}
-                    ref={rowVirtualizer.measureElement}
-                    onClick={() => onRowClick && onRowClick(item)}
-                    style={{
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      width: '100%',
-                      transform: `translateY(${virtualRow.start}px)`,
-                      cursor: onRowClick ? 'pointer' : 'default',
-                      display: 'table',
-                      tableLayout: 'fixed',
-                    }}
-                    className="border-b border-[var(--apple-separator)] transition-colors hover:bg-black/5 dark:hover:bg-white/5"
-                  >
-                    {columns.map((col) => (
-                      <td
-                        key={col.key}
-                        style={col.width ? { width: col.width } : undefined}
-                        className={`px-4 py-3 text-sm text-[var(--apple-label-primary)] ${col.className || ''}`}
-                      >
-                        {col.render
-                          ? col.render(item, virtualRow.index)
-                          : ((item as Record<string, unknown>)[col.key] as ReactNode) ?? '—'}
-                      </td>
-                    ))}
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
+                  <table className="apple-table w-full border-collapse" style={{ tableLayout: 'fixed' }}>
+                    <tbody>
+                      <tr>
+                        {columns.map((col) => (
+                          <td
+                            key={col.key}
+                            style={col.width ? { width: col.width } : undefined}
+                            className={`px-4 py-3 text-sm text-[var(--apple-label-primary)] ${col.className || ''}`}
+                          >
+                            {col.render
+                              ? col.render(item, virtualRow.index)
+                              : ((item as Record<string, unknown>)[col.key] as ReactNode) ?? '—'}
+                          </td>
+                        ))}
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              );
+            })
+          )}
+        </div>
       </div>
 
       {/* Row counter footer */}

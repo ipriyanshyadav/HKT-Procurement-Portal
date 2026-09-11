@@ -58,12 +58,29 @@ def _is_supplier(current_user) -> bool:
     return bool(getattr(current_user, "is_supplier_user", False))
 
 
+async def _resolve_user_names(db: AsyncSession, user_ids: set[UUID]) -> dict[UUID, str]:
+    cleaned_ids = {u for u in user_ids if u is not None}
+    if not cleaned_ids:
+        return {}
+    from app.modules.user.models import User
+
+    stmt = select(User.id, User.first_name, User.last_name, User.email).where(User.id.in_(cleaned_ids))
+    rows = (await db.execute(stmt)).all()
+    res = {}
+    for uid, fn, ln, em in rows:
+        name = f"{fn or ''} {ln or ''}".strip()
+        res[uid] = name if name else (em or str(uid))
+    return res
+
+
 def _to_detail_response(
     ticket: Ticket,
     links: list | None = None,
     custom_fields: list | None = None,
+    user_names: dict[UUID, str] | None = None,
 ) -> TicketDetailResponse:
     from sqlalchemy import inspect as sa_inspect
+
     insp = sa_inspect(ticket)
     unloaded = insp.unloaded if insp is not None else set()
 
@@ -107,6 +124,9 @@ def _to_detail_response(
                 formatted_cfs.append(CustomFieldValueResponse.model_validate(cf))
 
     base_dict = TicketListResponse.model_validate(ticket).model_dump()
+    if user_names:
+        base_dict["raised_by_name"] = user_names.get(ticket.raised_by)
+        base_dict["assigned_to_name"] = user_names.get(ticket.assigned_to)
     base_dict.update({
         "comments": comments,
         "watchers": watchers,
@@ -116,6 +136,26 @@ def _to_detail_response(
         "custom_fields": formatted_cfs,
     })
     return TicketDetailResponse(**base_dict)
+
+
+async def _build_ticket_list_response(
+    db: AsyncSession, tickets: list[Ticket], total: int, params: PaginationParams
+) -> APIResponse[list[TicketListResponse]]:
+    user_ids: set[UUID] = set()
+    for t in tickets:
+        if getattr(t, "raised_by", None):
+            user_ids.add(t.raised_by)
+        if getattr(t, "assigned_to", None):
+            user_ids.add(t.assigned_to)
+    names_map = await _resolve_user_names(db, user_ids)
+    items: list[TicketListResponse] = []
+    for t in tickets:
+        item = TicketListResponse.model_validate(t)
+        item.raised_by_name = names_map.get(t.raised_by)
+        item.assigned_to_name = names_map.get(t.assigned_to)
+        items.append(item)
+    meta = PaginationMeta(total=total, page=params.page, page_size=params.limit)
+    return success_response(items, meta=meta)
 
 
 # --- Dashboard ---
@@ -311,11 +351,7 @@ async def list_my_raised_tickets(
     tickets, total = await ticket_service.get_list(
         db, filters, current_user.id, current_user.org_id, _is_supplier(current_user)
     )
-    meta = PaginationMeta(total=total, page=params.page, page_size=params.limit)
-    return success_response(
-        [TicketListResponse.model_validate(t) for t in tickets],
-        meta=meta,
-    )
+    return await _build_ticket_list_response(db, tickets, total, params)
 
 
 @router.get("/my/assigned")
@@ -328,11 +364,7 @@ async def list_my_assigned_tickets(
     tickets, total = await ticket_service.get_list(
         db, filters, current_user.id, current_user.org_id, _is_supplier(current_user)
     )
-    meta = PaginationMeta(total=total, page=params.page, page_size=params.limit)
-    return success_response(
-        [TicketListResponse.model_validate(t) for t in tickets],
-        meta=meta,
-    )
+    return await _build_ticket_list_response(db, tickets, total, params)
 
 
 @router.get("/entity/{entity_type}/{entity_id}")
@@ -352,11 +384,7 @@ async def list_tickets_for_entity(
     tickets, total = await ticket_service.get_list(
         db, filters, current_user.id, current_user.org_id, _is_supplier(current_user)
     )
-    meta = PaginationMeta(total=total, page=params.page, page_size=params.limit)
-    return success_response(
-        [TicketListResponse.model_validate(t) for t in tickets],
-        meta=meta,
-    )
+    return await _build_ticket_list_response(db, tickets, total, params)
 
 
 # --- Core CRUD ---
@@ -389,6 +417,7 @@ async def list_tickets(
         return success_response(results)
 
     from datetime import date as d_date
+
     parsed_due_from = d_date.fromisoformat(due_date_from) if due_date_from else None
     parsed_due_to = d_date.fromisoformat(due_date_to) if due_date_to else None
 
@@ -408,8 +437,7 @@ async def list_tickets(
     tickets, total = await ticket_service.get_list(
         db, filters, current_user.id, current_user.org_id, _is_supplier(current_user)
     )
-    meta = PaginationMeta(total=total, page=params.page, page_size=params.limit)
-    return success_response([TicketListResponse.model_validate(t) for t in tickets], meta=meta)
+    return await _build_ticket_list_response(db, tickets, total, params)
 
 
 @router.post("", response_model=APIResponse[TicketDetailResponse], status_code=status.HTTP_201_CREATED)
@@ -425,7 +453,8 @@ async def create_ticket(
     await db.refresh(ticket)
     links = await ticket_service.get_ticket_links(db, ticket.id, current_user.org_id)
     cfs = await ticket_service.get_ticket_custom_field_values(db, ticket.id, current_user.org_id)
-    return created_response(_to_detail_response(ticket, links=links, custom_fields=cfs))
+    names_map = await _resolve_user_names(db, {ticket.raised_by, ticket.assigned_to})
+    return created_response(_to_detail_response(ticket, links=links, custom_fields=cfs, user_names=names_map))
 
 
 @router.get("/{ticket_id}", response_model=APIResponse[TicketDetailResponse])
@@ -439,7 +468,8 @@ async def get_ticket(
     )
     links = await ticket_service.get_ticket_links(db, ticket_id, current_user.org_id)
     cfs = await ticket_service.get_ticket_custom_field_values(db, ticket_id, current_user.org_id)
-    return success_response(_to_detail_response(ticket, links=links, custom_fields=cfs))
+    names_map = await _resolve_user_names(db, {ticket.raised_by, ticket.assigned_to})
+    return success_response(_to_detail_response(ticket, links=links, custom_fields=cfs, user_names=names_map))
 
 
 @router.put("/{ticket_id}", response_model=APIResponse[TicketDetailResponse])
@@ -454,7 +484,8 @@ async def update_ticket(
     await db.refresh(ticket)
     links = await ticket_service.get_ticket_links(db, ticket_id, current_user.org_id)
     cfs = await ticket_service.get_ticket_custom_field_values(db, ticket_id, current_user.org_id)
-    return success_response(_to_detail_response(ticket, links=links, custom_fields=cfs))
+    names_map = await _resolve_user_names(db, {ticket.raised_by, ticket.assigned_to})
+    return success_response(_to_detail_response(ticket, links=links, custom_fields=cfs, user_names=names_map))
 
 
 @router.delete("/{ticket_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -472,9 +503,15 @@ async def delete_ticket(
 async def assign_ticket(
     ticket_id: UUID,
     data: TicketAssignRequest,
-    current_user=Depends(require_permission(PermissionCode.TICKET_ASSIGN)),
+    current_user=Depends(require_ticket_view),
     db: AsyncSession = Depends(get_db),
 ):
+    if data.user_id != current_user.id:
+        user_permissions = getattr(current_user, "permissions", [])
+        if PermissionCode.TICKET_ASSIGN not in user_permissions and not getattr(current_user, "is_superuser", False):
+            is_admin = await ticket_service._is_admin(db, current_user.id, current_user.org_id)
+            if not is_admin:
+                raise ForbiddenError("Only managers and admins can reassign tickets to other members")
     ticket = await ticket_service.assign(
         db, ticket_id, data.user_id, data.team, current_user.id, current_user.org_id
     )
@@ -482,7 +519,8 @@ async def assign_ticket(
     await db.refresh(ticket)
     links = await ticket_service.get_ticket_links(db, ticket_id, current_user.org_id)
     cfs = await ticket_service.get_ticket_custom_field_values(db, ticket_id, current_user.org_id)
-    return success_response(_to_detail_response(ticket, links=links, custom_fields=cfs))
+    names_map = await _resolve_user_names(db, {ticket.raised_by, ticket.assigned_to})
+    return success_response(_to_detail_response(ticket, links=links, custom_fields=cfs, user_names=names_map))
 
 
 @router.post("/{ticket_id}/start-progress")
