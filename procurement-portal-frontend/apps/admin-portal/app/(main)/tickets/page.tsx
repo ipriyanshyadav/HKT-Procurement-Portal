@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import Link from "next/link";
 import {
   LifeBuoy,
-  Search,
   User,
   ExternalLink,
   RefreshCw,
@@ -19,7 +18,7 @@ import {
 } from "lucide-react";
 import { useTickets, useBulkStatusTickets, useBulkAssignTickets, useAssignTicket, useAppToast } from "@procurement/hooks";
 import { useAuthStore } from "@procurement/stores";
-import { TicketSLAIndicator } from "@procurement/ui";
+import { TicketSLAIndicator, SearchInput, TableSkeleton, EmptyState } from "@procurement/ui";
 import type { TicketStatus, TicketPriority, TicketType, TicketListResponse } from "@procurement/types";
 
 export default function AdminTicketsPage() {
@@ -152,16 +151,12 @@ export default function AdminTicketsPage() {
 
       {/* Filter Bar */}
       <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-wrap items-center gap-3">
-        <div className="relative flex-1 min-w-[240px]">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search tickets, titles, or authors..."
-            className="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50/50"
-          />
-        </div>
+        <SearchInput
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search tickets, titles, or authors..."
+          className="flex-1 min-w-[240px]"
+        />
 
         <select
           value={status}
@@ -231,12 +226,13 @@ export default function AdminTicketsPage() {
       {/* Tickets Table */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
         {isLoading ? (
-          <div className="py-20 text-center text-slate-400 text-sm">Loading tickets...</div>
+          <TableSkeleton rows={8} columns={7} />
         ) : tickets.length === 0 ? (
-          <div className="py-20 text-center space-y-2">
-            <AlertCircle className="w-8 h-8 text-slate-300 mx-auto" />
-            <p className="text-sm font-semibold text-slate-700">No tickets found</p>
-          </div>
+          <EmptyState
+            icon={<LifeBuoy className="w-6 h-6" />}
+            title="No tickets found"
+            description="All clear — no support tickets match the current filters."
+          />
         ) : (
           <table className="w-full text-left border-collapse text-sm">
             <thead>

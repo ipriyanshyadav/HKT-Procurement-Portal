@@ -446,14 +446,16 @@ services:
       celery -A app.tasks.celery_app beat
         --loglevel=info
         --scheduler celery.beat:PersistentScheduler
-        --schedule /tmp/celerybeat-schedule
+        --schedule /app/celery-beat/celerybeat-schedule
     env_file:
       - ../.env
     environment:
       <<: *api-env
       DATABASE_POOL_CLASS: "NullPool"
       IS_CELERY_WORKER: "true"
-    volumes: *api-volumes
+    volumes:
+      - ../keys:/app/keys:ro
+      - celery_beat_data:/app/celery-beat
     networks:
       - procurement_net
     depends_on:
@@ -579,6 +581,7 @@ volumes:
   prometheus_data:
   grafana_data:
   jaeger_data:
+  celery_beat_data:
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Network — isolated bridge network for all services

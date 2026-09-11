@@ -66,10 +66,10 @@ The platform supports strict enterprise role separation (where each user only se
 
 
 ## Current Session State
-- **Planned**: Execute full user issue audit across Buyer, Supplier, and Admin portals: theme contrast in light mode, overscroll containment & modal scroll locking, backtrack navigation, Web Audio chime synthesis, unread notification toasts, ERP gateway and AI Copilot dark theme remediation.
-- **Implemented**: (1) Fixed modal background scroll lock (`lockScroll`, `overscroll-contain`) across users/roles/popups; (2) Added Web Audio chime synthesis, date grouping, and login unread notification toasts; (3) Standardized theme adaptability (`bg-white dark:bg-...`) across AISourcingCopilot, ERPGateway, and Rollup Analytics; (4) Added backtrack navigation across supplier RFQs, buyer contracts, supplier contracts; (5) Added `overscroll-contain` to Apple user dropdown.
-- **Verified**: 453/453 backend unit tests passing (100%); 7/7 Turbo TypeScript packages passing (0 errors); 3/3 Next.js portals ESLint passing (0 errors, 0 warnings); Graphify knowledge graph synchronized (10,835 nodes, 29,656 edges, 601 communities).
-- **Next**: Complete multi-portal container rebuild and E2E reverse auction stress tests.
+- **Planned**: Enterprise-grade transformation — full design system adoption across all portals, Docker hardening, security posture improvements, font delivery, API surface reduction.
+- **Implemented**: (1) Created `EmptyState` + `TableSkeleton` in `@procurement/ui`; (2) Upgraded ALL buyer portal list pages (requisitions, POs, invoices, vendors, payments, unmapped-prs); (3) Upgraded ALL supplier portal list pages (invoices, POs, contracts, payments); (4) Upgraded ALL admin master-data pages (currencies, tax-codes, payment-terms, items, holidays, locations) + admin tickets page; (5) Added native `HEALTHCHECK` to all 3 frontend Dockerfiles; (6) Created `/api/health` route in all 3 portals; (7) Restricted `/openapi.json` and `openapi_url` to `DEBUG=True` only; (8) Celery-beat schedule moved from `/tmp` to named Docker volume `celery_beat_data`; (9) Removed render-blocking Google Fonts `@import`, replaced with `next/font/google` in all 3 root layouts; (10) Added HTTP security headers to all 3 `next.config.js` files.
+- **Verified**: 453/453 backend unit tests passing (100%); 7/7 TypeScript packages clean (0 errors); 3/3 ESLint portals clean (0 warnings/errors); Graphify updated.
+- **Next**: E2E stress tests (reverse auction concurrent bidding); git commit all session changes.
 
 
 

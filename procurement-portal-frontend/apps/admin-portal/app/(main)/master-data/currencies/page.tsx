@@ -11,8 +11,8 @@ import {
   type CurrencyMaster,
 } from "@procurement/hooks";
 import { useAppToast } from "@procurement/hooks";
-import { Badge, Button, PermissionGuard, useConfirm } from "@procurement/ui";
-import { Coins, Plus, Search, Edit2, Trash2, ArrowLeft, RefreshCw, Star } from "lucide-react";
+import { Badge, Button, PermissionGuard, useConfirm, SearchInput, TableSkeleton, EmptyState } from "@procurement/ui";
+import { Coins, Plus, Edit2, Trash2, ArrowLeft, RefreshCw, Star } from "lucide-react";
 
 export default function CurrenciesManagementPage() {
   const { toast } = useAppToast();
@@ -182,16 +182,12 @@ export default function CurrenciesManagementPage() {
 
       {/* Filter and Control Bar */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white dark:bg-neutral-900 p-3 rounded-lg border border-gray-200 dark:border-neutral-800 shadow-sm">
-        <div className="relative flex-1 max-w-md w-full">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          <input
-            type="text"
+        <SearchInput
             placeholder="Search by code, symbol, or name..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-4 py-1.5 text-xs rounded-md border border-gray-200 dark:border-neutral-700 bg-gray-50 dark:bg-neutral-800 text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="flex-1 max-w-md"
           />
-        </div>
 
         <div className="flex items-center gap-4">
           <label className="flex items-center gap-2 text-xs text-gray-700 dark:text-neutral-300 cursor-pointer">
@@ -211,20 +207,22 @@ export default function CurrenciesManagementPage() {
 
       {/* Table */}
       <div className="bg-white dark:bg-neutral-900 rounded-lg border border-gray-200 dark:border-neutral-800 overflow-hidden shadow-sm">
-        {isLoading ? (
-          <div className="p-12 text-center text-sm text-gray-500">
-            <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-amber-500 mb-2"></div>
-            <p>Loading currencies...</p>
-          </div>
+      {isLoading ? (
+          <TableSkeleton rows={6} columns={7} />
         ) : error ? (
-          <div className="p-8 text-center text-sm text-red-600">
-            Failed to load currencies. Please verify the backend connection.
-          </div>
+          <EmptyState
+            icon={<Coins className="w-6 h-6" />}
+            title="Failed to load currencies"
+            description="Verify the backend connection and try again."
+            action={<Button variant="secondary" size="sm" onClick={() => refetch()}>Retry</Button>}
+          />
         ) : filteredCurrencies.length === 0 ? (
-          <div className="p-12 text-center text-gray-500">
-            <p className="text-sm font-medium">No currencies configured</p>
-            <p className="text-xs text-gray-400 mt-1">Configure your base reference currency to begin.</p>
-          </div>
+          <EmptyState
+            icon={<Coins className="w-6 h-6" />}
+            title="No currencies configured"
+            description="Configure your base reference currency to begin."
+            action={<PermissionGuard permission="master.create"><Button size="sm" onClick={openCreateModal}>Add Currency</Button></PermissionGuard>}
+          />
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">

@@ -10,8 +10,8 @@ import {
   getErrorMessage,
 } from "@procurement/hooks";
 
-import { VendorStatusBadge, PermissionGuard, Button } from "@procurement/ui";
-import { ArrowRight, FileSpreadsheet, UploadCloud, CheckCircle2, AlertCircle, X, ShieldAlert } from "lucide-react";
+import { VendorStatusBadge, PermissionGuard, Button, TableSkeleton, EmptyState, PageHeader, SearchInput } from "@procurement/ui";
+import { ArrowRight, FileSpreadsheet, UploadCloud, CheckCircle2, AlertCircle, X, ShieldAlert, ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function VendorsListPage() {
   const [page, setPage] = useState(1);
@@ -78,10 +78,7 @@ export default function VendorsListPage() {
       const res = await bulkMappingMut.mutateAsync(mappings);
       setBulkResult(res);
     } catch (err: unknown) {
-
-      
-
-
+      setBulkError(getErrorMessage(err, "Failed to bulk map categories"));
     }
   };
 
@@ -99,57 +96,50 @@ export default function VendorsListPage() {
   return (
     <div className="w-full space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Vendor Management</h1>
-          <p className="text-sm text-gray-500 mt-1">
-            Manage vendor lifecycle, qualification, compliance, and scorecards.
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <Link
-            href="/vendors/risk"
-            className="inline-flex items-center gap-2 px-3.5 py-2 border border-slate-200 dark:border-white/15 bg-white dark:bg-[#1C1C1F] hover:bg-slate-50 dark:hover:bg-[#252529] text-slate-700 dark:text-slate-200 text-sm font-semibold rounded-lg shadow-sm transition-colors"
-          >
-            <ShieldAlert className="w-4 h-4 text-amber-500" />
-            <span>Risk & ESG Dashboard</span>
-          </Link>
-          <button
-            type="button"
-            onClick={() => {
-              setIsBulkModalOpen(true);
-              setBulkResult(null);
-              setBulkError(null);
-            }}
-            className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 bg-white hover:bg-gray-50 dark:hover:bg-slate-800/50 text-gray-700 text-sm font-semibold rounded-lg shadow-sm transition-colors"
-          >
-            <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
-            <span>Bulk Map Categories</span>
-          </button>
-          <PermissionGuard permission="vendor.invite">
-            <Link
-              href="/vendors/invite"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors"
-            >
-              <span aria-hidden="true">+</span>
-              <span>Invite Vendor</span>
+      <PageHeader
+        title="Vendor Management"
+        subtitle="Manage vendor lifecycle, qualification, compliance, and scorecards."
+        actions={
+          <div className="flex items-center gap-3">
+            <Link href="/vendors/risk">
+              <Button variant="secondary" size="sm" leftIcon={<ShieldAlert className="w-4 h-4 text-amber-500" />}>
+                Risk & ESG Dashboard
+              </Button>
             </Link>
-          </PermissionGuard>
-        </div>
-      </div>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => {
+                setIsBulkModalOpen(true);
+                setBulkResult(null);
+                setBulkError(null);
+              }}
+              leftIcon={<FileSpreadsheet className="w-4 h-4 text-emerald-600" />}
+            >
+              Bulk Map Categories
+            </Button>
+            <PermissionGuard permission="vendor.invite">
+              <Link href="/vendors/invite">
+                <Button size="sm">
+                  <span aria-hidden="true">+</span> Invite Vendor
+                </Button>
+              </Link>
+            </PermissionGuard>
+          </div>
+        }
+      />
 
       {/* Filters */}
       <div className="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 flex flex-col md:flex-row gap-4 items-center justify-between">
         <div className="w-full md:w-80">
-          <input
-            type="text"
+          <SearchInput
             placeholder="Search by name, GSTIN, PAN, code, email..."
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
               setPage(1);
             }}
-            className="w-full px-3.5 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full"
           />
         </div>
 
@@ -185,22 +175,19 @@ export default function VendorsListPage() {
       {/* Vendors Table */}
       <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden">
         {isLoading ? (
-          <div className="p-12 space-y-4 animate-pulse">
-            <div className="h-6 bg-gray-200 rounded w-1/4" />
-            <div className="h-12 bg-gray-100 rounded" />
-            <div className="h-12 bg-gray-100 rounded" />
-            <div className="h-12 bg-gray-100 rounded" />
-          </div>
+          <TableSkeleton rows={8} columns={6} />
         ) : isError ? (
-          <div className="p-8 text-center text-red-600 text-sm">
-            Failed to load vendors. Please try again.
-          </div>
+          <EmptyState
+            icon={<AlertCircle className="w-8 h-8 text-red-500" />}
+            title="Failed to load vendors"
+            description="Please try again later."
+          />
         ) : vendors.length === 0 ? (
-          <div className="p-12 text-center text-gray-500">
-            <div className="text-4xl mb-2">🏢</div>
-            <p className="font-medium">No vendors found</p>
-            <p className="text-sm text-gray-400 mt-1">Try adjusting your search or filters.</p>
-          </div>
+          <EmptyState
+            icon={<div className="text-4xl">🏢</div>}
+            title="No vendors found"
+            description="Try adjusting your search or filters."
+          />
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-800 text-left text-sm">
@@ -264,7 +251,7 @@ export default function VendorsListPage() {
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">
                         <Link href={`/vendors/${vendor.id}`}>
-                          <Button variant="secondary" size="sm" icon={<ArrowRight className="w-3.5 h-3.5" />}>
+                          <Button variant="secondary" size="sm" rightIcon={<ArrowRight className="w-3.5 h-3.5" />}>
                             View
                           </Button>
                         </Link>
@@ -284,20 +271,24 @@ export default function VendorsListPage() {
               Page {page} of {totalPages} ({meta?.total_count ?? 0} total vendors)
             </span>
             <div className="flex gap-2">
-              <button
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
+              <Button
+                variant="secondary"
+                size="sm"
                 disabled={page <= 1}
-                className="px-3 py-1.5 border border-gray-300 rounded-md text-xs font-semibold text-gray-700 hover:bg-gray-50 dark:hover:bg-slate-800/50 disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                leftIcon={<ChevronLeft className="w-3.5 h-3.5" />}
               >
                 Previous
-              </button>
-              <button
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              </Button>
+              <Button
+                variant="secondary"
+                size="sm"
                 disabled={page >= totalPages}
-                className="px-3 py-1.5 border border-gray-300 rounded-md text-xs font-semibold text-gray-700 hover:bg-gray-50 dark:hover:bg-slate-800/50 disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                rightIcon={<ChevronRight className="w-3.5 h-3.5" />}
               >
                 Next
-              </button>
+              </Button>
             </div>
           </div>
         )}
@@ -408,22 +399,19 @@ export default function VendorsListPage() {
 
             {/* Actions */}
             <div className="flex items-center justify-end gap-2 pt-3 border-t border-gray-100">
-              <button
-                type="button"
+              <Button
+                variant="secondary"
                 onClick={() => setIsBulkModalOpen(false)}
-                className="px-4 py-2 border border-gray-300 rounded-xl text-xs font-semibold text-gray-700 hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors"
               >
                 Close
-              </button>
-              <button
-                type="button"
+              </Button>
+              <Button
                 onClick={handleBulkSubmit}
                 disabled={bulkMappingMut.isPending || !csvText.trim()}
-                className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold shadow-sm transition-colors disabled:opacity-50"
+                leftIcon={<UploadCloud className="w-3.5 h-3.5" />}
               >
-                <UploadCloud className="w-3.5 h-3.5" />
                 {bulkMappingMut.isPending ? "Importing Mappings..." : "Execute Bulk Import"}
-              </button>
+              </Button>
             </div>
           </div>
         </div>

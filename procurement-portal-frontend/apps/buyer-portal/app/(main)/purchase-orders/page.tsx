@@ -3,7 +3,7 @@
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import { usePurchaseOrders, POResponse } from "@procurement/hooks";
-import { PermissionGuard } from "@procurement/ui";
+import { PermissionGuard, TableSkeleton, EmptyState, PageHeader, SearchInput, Button } from "@procurement/ui";
 import {
   FileText,
   ArrowRight,
@@ -16,6 +16,8 @@ import {
   Package,
   Send,
   Truck,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 export default function PurchaseOrdersListPage() {
@@ -24,20 +26,25 @@ export default function PurchaseOrdersListPage() {
   const [page, setPage] = useState(1);
   const PAGE_SIZE = 20;
 
-  const { data: purchaseOrders = [], isLoading, isError, refetch } = usePurchaseOrders({
+  const { data = [], isLoading, isError, refetch } = usePurchaseOrders({
     search: search || undefined,
     status: statusFilter || undefined,
     page,
     page_size: PAGE_SIZE,
   });
 
+  const purchaseOrders = useMemo(() => Array.isArray(data) ? data : (data as any).purchase_orders || [], [data]);
+  // Assuming meta might be returned if paginated
+  const meta = (data as any).meta;
+  const totalPages = meta?.total_pages ?? 1;
+
   const kpis = useMemo(() => {
     const total = purchaseOrders.length;
-    const pendingApproval = purchaseOrders.filter((po) => po.status === "PENDING_APPROVAL").length;
-    const sentToVendor = purchaseOrders.filter((po) => po.status === "SENT_TO_VENDOR").length;
-    const acknowledged = purchaseOrders.filter((po) => po.status === "VENDOR_ACKNOWLEDGED").length;
+    const pendingApproval = purchaseOrders.filter((po: any) => po.status === "PENDING_APPROVAL").length;
+    const sentToVendor = purchaseOrders.filter((po: any) => po.status === "SENT_TO_VENDOR").length;
+    const acknowledged = purchaseOrders.filter((po: any) => po.status === "VENDOR_ACKNOWLEDGED").length;
     const received = purchaseOrders.filter(
-      (po) => po.status === "PARTIALLY_RECEIVED" || po.status === "RECEIVED" || po.status === "CLOSED"
+      (po: any) => po.status === "PARTIALLY_RECEIVED" || po.status === "RECEIVED" || po.status === "CLOSED"
     ).length;
     return { total, pendingApproval, sentToVendor, acknowledged, received };
   }, [purchaseOrders]);
@@ -74,38 +81,29 @@ export default function PurchaseOrdersListPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2.5">
-            <Package className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
-            Purchase Orders
-          </h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Manage purchase orders, release orders to suppliers, and track line deliveries & GRNs.
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <PermissionGuard permission="grn.create">
-            <Link
-              href="/grn/new"
-              className="inline-flex items-center gap-2 px-4 py-2 border border-slate-200 dark:border-slate-800 text-sm font-medium rounded-lg text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 shadow-sm transition-colors"
-            >
-              <Truck className="h-4 w-4 text-slate-600 dark:text-slate-300" />
-              Create GRN
-            </Link>
-          </PermissionGuard>
-          <PermissionGuard permission="po.create">
-            <Link
-              href="/purchase-orders/new"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg shadow-sm transition-colors"
-            >
-              <Plus className="h-4 w-4" />
-              New Purchase Order
-            </Link>
-          </PermissionGuard>
-        </div>
-      </div>
+      {/* Page Header */}
+      <PageHeader
+        title="Purchase Orders"
+        subtitle="Manage purchase orders, release orders to suppliers, and track line deliveries & GRNs."
+        actions={
+          <div className="flex items-center gap-3">
+            <PermissionGuard permission="grn.create">
+              <Link href="/grn/new">
+                <Button variant="secondary" size="sm" leftIcon={<Truck className="w-4 h-4" />}>
+                  Create GRN
+                </Button>
+              </Link>
+            </PermissionGuard>
+            <PermissionGuard permission="po.create">
+              <Link href="/purchase-orders/new">
+                <Button size="sm" leftIcon={<Plus className="w-4 h-4" />}>
+                  New Purchase Order
+                </Button>
+              </Link>
+            </PermissionGuard>
+          </div>
+        }
+      />
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
@@ -148,14 +146,12 @@ export default function PurchaseOrdersListPage() {
 
       {/* Filter and Search Bar */}
       <div className="flex flex-col sm:flex-row items-center gap-3 bg-white dark:bg-slate-900 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
-        <div className="relative flex-1 w-full">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-          <input
-            type="text"
+        <div className="flex-1 w-full">
+          <SearchInput
             placeholder="Search by PO number, title, or vendor..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:bg-white dark:focus:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+            className="w-full"
           />
         </div>
         <div className="flex items-center gap-2 w-full sm:w-auto">
@@ -182,31 +178,23 @@ export default function PurchaseOrdersListPage() {
       {/* Table Section */}
       <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
         {isLoading ? (
-          <div className="p-8 text-center text-slate-500 dark:text-slate-400">
-            <div className="animate-pulse space-y-3">
-              <div className="h-6 bg-slate-100 dark:bg-slate-800 rounded w-1/3 mx-auto"></div>
-              <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-1/2 mx-auto"></div>
-            </div>
-          </div>
+          <TableSkeleton rows={8} columns={7} />
         ) : isError ? (
-          <div className="p-8 text-center text-red-500">
-            <AlertTriangle className="h-8 w-8 mx-auto mb-2 text-red-400" />
-            <p className="font-semibold">Failed to load purchase orders</p>
-            <button
-              onClick={() => refetch()}
-              className="mt-2 text-sm text-indigo-600 dark:text-indigo-400 hover:underline font-medium"
-            >
-              Try again
-            </button>
-          </div>
+          <EmptyState
+            icon={<AlertTriangle className="h-8 w-8 text-red-400" />}
+            title="Failed to load purchase orders"
+            action={
+              <Button variant="secondary" size="sm" onClick={() => refetch()}>
+                Try again
+              </Button>
+            }
+          />
         ) : purchaseOrders.length === 0 ? (
-          <div className="p-12 text-center text-slate-500 dark:text-slate-400">
-            <FileText className="h-10 w-10 mx-auto mb-3 text-slate-300 dark:text-slate-600" />
-            <h3 className="text-base font-semibold text-slate-800 dark:text-slate-200">No purchase orders found</h3>
-            <p className="text-sm mt-1 max-w-sm mx-auto text-slate-500 dark:text-slate-400">
-              There are no purchase orders matching your search filters.
-            </p>
-          </div>
+          <EmptyState
+            icon={<FileText className="h-10 w-10 text-slate-300 dark:text-slate-600" />}
+            title="No purchase orders found"
+            description="There are no purchase orders matching your search filters."
+          />
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-800 text-sm text-left">
@@ -221,7 +209,7 @@ export default function PurchaseOrdersListPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                {purchaseOrders.map((po) => (
+                {purchaseOrders.map((po: any) => (
                   <tr key={po.id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/50 transition-colors">
                     <td className="px-5 py-4 whitespace-nowrap">
                       <span className="font-mono font-semibold text-indigo-600 dark:text-indigo-400">
@@ -255,18 +243,45 @@ export default function PurchaseOrdersListPage() {
                       </span>
                     </td>
                     <td className="px-5 py-4 whitespace-nowrap text-right">
-                      <Link
-                        href={`/purchase-orders/${po.id}`}
-                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-600 hover:text-indigo-800 hover:underline"
-                      >
-                        View Details
-                        <ArrowRight className="h-3.5 w-3.5" />
+                      <Link href={`/purchase-orders/${po.id}`}>
+                        <Button variant="secondary" size="sm" rightIcon={<ArrowRight className="h-3.5 w-3.5" />}>
+                          View Details
+                        </Button>
                       </Link>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
+          </div>
+        )}
+
+        {/* Pagination UI for PO if needed */}
+        {totalPages > 1 && (
+          <div className="px-4 py-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+            <span className="text-xs text-slate-500">
+              Page {page} of {totalPages}
+            </span>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="secondary"
+                size="sm"
+                disabled={page <= 1}
+                onClick={() => setPage((p) => p - 1)}
+                leftIcon={<ChevronLeft className="w-3.5 h-3.5" />}
+              >
+                Previous
+              </Button>
+              <Button
+                variant="secondary"
+                size="sm"
+                disabled={page >= totalPages}
+                onClick={() => setPage((p) => p + 1)}
+                rightIcon={<ChevronRight className="w-3.5 h-3.5" />}
+              >
+                Next
+              </Button>
+            </div>
           </div>
         )}
       </div>

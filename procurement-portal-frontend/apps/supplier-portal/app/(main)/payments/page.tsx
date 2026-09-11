@@ -23,6 +23,7 @@ import {
   Calendar,
   Download,
 } from "lucide-react";
+import { TableSkeleton, EmptyState, PageHeader, SearchInput, Button } from "@procurement/ui";
 
 export default function SupplierPaymentsPage() {
   const { toast } = useAppToast();
@@ -204,13 +205,11 @@ export default function SupplierPaymentsPage() {
       {/* Filter and Search Bar */}
       <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md rounded-2xl border border-slate-200/80 dark:border-slate-800 p-4 shadow-xs flex flex-col sm:flex-row gap-3 items-center justify-between">
         <div className="relative w-full sm:w-80">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400 dark:text-slate-500" />
-          <input
-            type="text"
-            placeholder="Search by UTR or invoice #..."
+          <SearchInput
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-slate-800/90 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500"
+            placeholder="Search by UTR or invoice #..."
+            className="w-full"
           />
         </div>
 
@@ -231,10 +230,7 @@ export default function SupplierPaymentsPage() {
       {/* Remittances Table */}
       <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md rounded-2xl border border-slate-200/80 dark:border-slate-800 overflow-hidden shadow-xs">
         {isLoading ? (
-          <div className="py-16 text-center text-slate-400 flex flex-col items-center gap-2">
-            <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
-            <span className="text-sm">Loading remittance records...</span>
-          </div>
+          <TableSkeleton rows={8} columns={10} />
         ) : isError ? (
           <div className="py-16 text-center text-rose-500 flex flex-col items-center gap-2">
             <AlertCircle className="h-8 w-8 text-rose-400" />
@@ -247,13 +243,11 @@ export default function SupplierPaymentsPage() {
             </button>
           </div>
         ) : filteredPayments.length === 0 ? (
-          <div className="py-16 text-center text-slate-400">
-            <CreditCard className="h-10 w-10 mx-auto text-slate-300 dark:text-slate-600 mb-2" />
-            <p className="text-sm font-medium text-slate-600 dark:text-slate-300">No payment records found</p>
-            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
-              Disbursements appear here once your submitted invoices are 3-way verified and approved.
-            </p>
-          </div>
+          <EmptyState
+            icon={<CreditCard className="w-6 h-6" />}
+            title="No payment records found"
+            description="Disbursements appear here once your submitted invoices are 3-way verified and approved."
+          />
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-800 text-xs">

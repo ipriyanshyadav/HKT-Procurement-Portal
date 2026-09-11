@@ -10,8 +10,8 @@ import {
   type HolidayMaster,
 } from "@procurement/hooks";
 import { useAppToast } from "@procurement/hooks";
-import { Badge, Button, PermissionGuard, useConfirm } from "@procurement/ui";
-import { Calendar, Plus, Search, Trash2, ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
+import { Badge, Button, PermissionGuard, useConfirm, SearchInput, TableSkeleton, EmptyState } from "@procurement/ui";
+import { Calendar, Plus, Trash2, ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function HolidayCalendarPage() {
   const { toast } = useAppToast();
@@ -186,16 +186,12 @@ export default function HolidayCalendarPage() {
 
       {/* Search and Main Table */}
       <div className="flex items-center justify-between gap-4 bg-white dark:bg-neutral-900 p-3 rounded-lg border border-gray-200 dark:border-neutral-800 shadow-sm">
-        <div className="relative flex-1 max-w-md">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search by name, date (YYYY-MM-DD), or plant..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-4 py-1.5 text-xs rounded-md border border-gray-200 dark:border-neutral-700 bg-gray-50 dark:bg-neutral-800 text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-          />
-        </div>
+        <SearchInput
+          placeholder="Search by name, date (YYYY-MM-DD), or plant..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="flex-1 max-w-md"
+        />
         <div className="text-xs text-gray-500 font-mono">
           {filteredHolidays.length} holidays scheduled
         </div>
@@ -203,19 +199,20 @@ export default function HolidayCalendarPage() {
 
       <div className="bg-white dark:bg-neutral-900 rounded-lg border border-gray-200 dark:border-neutral-800 overflow-hidden shadow-sm">
         {isLoading ? (
-          <div className="p-12 text-center text-sm text-gray-500">
-            <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-cyan-600 mb-2"></div>
-            <p>Loading holidays for {selectedYear}...</p>
-          </div>
+          <TableSkeleton rows={6} columns={5} />
         ) : error ? (
-          <div className="p-8 text-center text-sm text-red-600">
-            Failed to load holidays. Please verify backend connection.
-          </div>
+          <EmptyState
+            icon={<Calendar className="w-6 h-6" />}
+            title="Failed to load holidays"
+            description="Verify the backend connection and try again."
+          />
         ) : filteredHolidays.length === 0 ? (
-          <div className="p-12 text-center text-gray-500">
-            <p className="text-sm font-medium">No holidays found for {selectedYear}</p>
-            <p className="text-xs text-gray-400 mt-1">Add holidays to factor into procurement SLAs.</p>
-          </div>
+          <EmptyState
+            icon={<Calendar className="w-6 h-6" />}
+            title={`No holidays found for ${selectedYear}`}
+            description="Add holidays to factor into procurement SLAs."
+            action={<PermissionGuard permission="master.create"><Button size="sm" onClick={() => {}}>Add Holiday</Button></PermissionGuard>}
+          />
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">

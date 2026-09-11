@@ -1,5 +1,7 @@
 /* Apple Base Global Styles */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+/* NOTE: Inter font is loaded via next/font/google in each portal's root layout.tsx
+   This avoids render-blocking network requests and CSP violations. */
+
 
 *,
 *::before,

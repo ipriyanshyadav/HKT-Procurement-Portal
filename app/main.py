@@ -149,16 +149,18 @@ def create_app() -> FastAPI:
         title="Procurement Portal",
         version=settings.APP_VERSION,
         lifespan=lifespan,
-        openapi_url="/api/v1/openapi.json",
+        openapi_url="/api/v1/openapi.json" if settings.DEBUG else None,
         docs_url="/docs" if settings.DEBUG else None,
         redoc_url="/redoc" if settings.DEBUG else None,
     )
 
-    @app.get("/openapi.json", include_in_schema=False)
-    async def openapi_alias():
-        from fastapi.responses import JSONResponse
+    if settings.DEBUG:
+        @app.get("/openapi.json", include_in_schema=False)
+        async def openapi_alias():
+            from fastapi.responses import JSONResponse
 
-        return JSONResponse(app.openapi())
+            return JSONResponse(app.openapi())
+
 
     # Middleware order: Outermost first -> SecurityHeaders -> Timing -> LoggingContext -> RequestID -> Idempotency
     app.add_middleware(SecurityHeadersMiddleware)

@@ -8,7 +8,6 @@ import { useAppToast } from "@procurement/hooks";
 import type { PaymentRecordResponse } from "@procurement/types";
 import {
   CreditCard,
-  Search,
   CheckCircle2,
   Clock,
   AlertCircle,
@@ -24,6 +23,7 @@ import {
   Download,
   X,
 } from "lucide-react";
+import { SearchInput, TableSkeleton, EmptyState, Button } from "@procurement/ui";
 
 export default function BuyerPaymentsPage() {
   const { toast } = useAppToast();
@@ -340,16 +340,12 @@ export default function BuyerPaymentsPage() {
 
       {/* Filter and Search Bar */}
       <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md rounded-2xl border border-slate-200/80 dark:border-slate-800 p-4 shadow-xs flex flex-col md:flex-row gap-3 items-center justify-between">
-        <div className="relative w-full md:w-96">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400 dark:text-slate-500" />
-          <input
-            type="text"
-            placeholder="Search by UTR, invoice #, vendor, ERP ref..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-slate-800/90 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500"
-          />
-        </div>
+        <SearchInput
+          placeholder="Search by UTR, invoice #, vendor, ERP ref..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full md:w-96"
+        />
 
         <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
           <select
@@ -383,29 +379,20 @@ export default function BuyerPaymentsPage() {
       {/* Payments Table */}
       <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md rounded-2xl border border-slate-200/80 dark:border-slate-800 overflow-hidden shadow-xs">
         {isLoading ? (
-          <div className="py-16 text-center text-slate-400 dark:text-slate-500 flex flex-col items-center gap-2">
-            <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
-            <span className="text-sm">Loading payment records...</span>
-          </div>
+          <TableSkeleton rows={8} columns={7} />
         ) : isError ? (
-          <div className="py-16 text-center text-rose-500 flex flex-col items-center gap-2">
-            <AlertCircle className="h-8 w-8 text-rose-400" />
-            <span className="text-sm font-medium">Failed to load payment ledger.</span>
-            <button
-              onClick={() => refetch()}
-              className="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 underline mt-1"
-            >
-              Try again
-            </button>
-          </div>
+          <EmptyState
+            icon={<CreditCard className="w-6 h-6" />}
+            title="Failed to load payment ledger"
+            description="Check your backend connection and try again."
+            action={<Button variant="secondary" size="sm" onClick={() => refetch()}>Retry</Button>}
+          />
         ) : filteredPayments.length === 0 ? (
-          <div className="py-16 text-center text-slate-400 dark:text-slate-500">
-            <CreditCard className="h-10 w-10 mx-auto text-slate-300 dark:text-slate-600 mb-2" />
-            <p className="text-sm font-medium text-slate-600 dark:text-slate-300">No payment records found</p>
-            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
-              Payments are automatically scheduled upon approving 3-way matched invoices.
-            </p>
-          </div>
+          <EmptyState
+            icon={<CreditCard className="w-6 h-6" />}
+            title="No payment records found"
+            description="Payments are automatically scheduled upon approving 3-way matched invoices."
+          />
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-800 text-xs">

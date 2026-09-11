@@ -23,6 +23,7 @@ import {
   ChevronUp,
   Edit3,
 } from "lucide-react";
+import { TableSkeleton, EmptyState, PageHeader, SearchInput, Button } from "@procurement/ui";
 
 export default function SupplierPurchaseOrdersPage() {
   const { toast } = useAppToast();
@@ -204,13 +205,11 @@ export default function SupplierPurchaseOrdersPage() {
       {/* Search and Filters */}
       <div className="flex flex-col sm:flex-row items-center gap-3 bg-white dark:bg-[#1C1C1F] p-3.5 rounded-xl border border-slate-200 dark:border-white/15 shadow-sm">
         <div className="relative flex-1 w-full">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 dark:text-slate-500" />
-          <input
-            type="text"
-            placeholder="Search by PO number or title..."
+          <SearchInput
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 border border-slate-200 dark:border-white/15 rounded-lg text-sm bg-slate-50 dark:bg-[#252529] text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:bg-white dark:focus:bg-[#252529] focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-colors"
+            placeholder="Search by PO number or title..."
+            className="w-full"
           />
         </div>
         <div className="flex items-center gap-2 w-full sm:w-auto">
@@ -233,12 +232,7 @@ export default function SupplierPurchaseOrdersPage() {
       {/* Purchase Orders List */}
       <div className="bg-white dark:bg-[#1C1C1F] rounded-xl border border-slate-200 dark:border-white/15 shadow-sm overflow-hidden">
         {isLoading ? (
-          <div className="p-8 text-center text-slate-500 dark:text-slate-400">
-            <div className="animate-pulse space-y-3">
-              <div className="h-6 bg-slate-100 dark:bg-white/10 rounded w-1/3 mx-auto"></div>
-              <div className="h-4 bg-slate-100 dark:bg-white/10 rounded w-1/2 mx-auto"></div>
-            </div>
-          </div>
+          <TableSkeleton rows={8} columns={5} />
         ) : isError ? (
           <div className="p-8 text-center text-rose-500">
             <AlertCircle className="h-8 w-8 mx-auto mb-2 text-rose-400" />
@@ -251,13 +245,11 @@ export default function SupplierPurchaseOrdersPage() {
             </button>
           </div>
         ) : purchaseOrders.length === 0 ? (
-          <div className="p-12 text-center text-slate-500">
-            <Package className="h-10 w-10 mx-auto mb-3 text-slate-300 dark:text-slate-600" />
-            <h3 className="text-base font-semibold text-slate-800 dark:text-slate-200">No purchase orders found</h3>
-            <p className="text-sm mt-1 max-w-sm mx-auto text-slate-500 dark:text-slate-400">
-              Orders released to your organization will appear here for acknowledgment and fulfillment.
-            </p>
-          </div>
+          <EmptyState
+            icon={<Package className="w-6 h-6" />}
+            title="No purchase orders found"
+            description="Orders released to your organization will appear here for acknowledgment and fulfillment."
+          />
         ) : (
           <div className="divide-y divide-slate-100 dark:divide-white/10">
             {purchaseOrders.map((po) => {

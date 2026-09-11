@@ -7,9 +7,28 @@ import {
   useRequisitions,
   useMergeRequisitions,
   Requisition,
+  getErrorMessage,
 } from "@procurement/hooks";
-import { PermissionGuard, Badge, Button } from "@procurement/ui";
-import { ArrowRight } from "lucide-react";
+import { PermissionGuard, Badge, Button, SearchInput, PageHeader, TableSkeleton, EmptyState } from "@procurement/ui";
+import { ArrowRight, FileText, Plus, GitMerge, ChevronLeft, ChevronRight } from "lucide-react";
+
+const STATUS_OPTIONS = [
+  { value: "", label: "All Statuses" },
+  { value: "DRAFT", label: "Draft" },
+  { value: "SUBMITTED", label: "Submitted" },
+  { value: "PENDING_APPROVAL", label: "Pending Approval" },
+  { value: "APPROVED", label: "Approved" },
+  { value: "IN_SOURCING", label: "In Sourcing" },
+  { value: "CONVERTED", label: "Converted" },
+  { value: "REJECTED", label: "Rejected" },
+  { value: "WITHDRAWN", label: "Withdrawn" },
+];
+
+const SCOPE_OPTIONS = [
+  { value: "mine", label: "My Requisitions" },
+  { value: "bu", label: "My Business Unit" },
+  { value: "all", label: "All Requisitions" },
+];
 
 export default function RequisitionsListPage() {
   const router = useRouter();
@@ -18,6 +37,7 @@ export default function RequisitionsListPage() {
   const [scope, setScope] = useState<"all" | "mine" | "bu">("mine");
   const [search, setSearch] = useState<string>("");
   const [selectedPRs, setSelectedPRs] = useState<string[]>([]);
+  const [mergeError, setMergeError] = useState<string | null>(null);
   const PAGE_SIZE = 20;
 
   const { data, isLoading, isError } = useRequisitions({
@@ -48,31 +68,23 @@ export default function RequisitionsListPage() {
     }
   };
 
-  const [mergeError, setMergeError] = useState<string | null>(null);
-
   const handleMerge = async () => {
     if (selectedPRs.length < 2) return;
     setMergeError(null);
     try {
-      const merged = await mergeMutation.mutateAsync({
-        pr_ids: selectedPRs,
-      });
+      const merged = await mergeMutation.mutateAsync({ pr_ids: selectedPRs });
       setSelectedPRs([]);
       router.push(`/requisitions/${merged.id}`);
     } catch (err: unknown) {
-      const message =
-        (err as { response?: { data?: { error?: { message?: string } } } })
-          ?.response?.data?.error?.message ?? "Failed to merge PRs";
-      setMergeError(message);
+      setMergeError(getErrorMessage(err, "Failed to merge PRs"));
     }
   };
-
 
   return (
     <div className="w-full space-y-6">
       {/* Merge Error Banner */}
       {mergeError && (
-        <div className="flex items-center gap-3 px-4 py-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-sm text-red-700 dark:text-red-400">
+        <div className="flex items-center gap-3 px-4 py-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl text-sm text-red-700 dark:text-red-400">
           <span className="shrink-0">⚠️</span>
           <span className="flex-1">{mergeError}</span>
           <button
@@ -86,225 +98,224 @@ export default function RequisitionsListPage() {
         </div>
       )}
 
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Purchase Requisitions</h1>
-          <p className="text-sm text-gray-500 mt-1">
-            Create, track, and manage material and service requisition lifecycles.
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          {selectedPRs.length >= 2 && (
+      {/* Page Header */}
+      <PageHeader
+        title="Purchase Requisitions"
+        subtitle="Create, track, and manage material and service requisition lifecycles."
+        actions={
+          <>
+            {selectedPRs.length >= 2 && (
+              <PermissionGuard permission="pr.create">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={handleMerge}
+                  loading={mergeMutation.isPending}
+                  leftIcon={<GitMerge className="w-3.5 h-3.5" />}
+                >
+                  Merge {selectedPRs.length} PRs
+                </Button>
+              </PermissionGuard>
+            )}
             <PermissionGuard permission="pr.create">
-              <button
-                onClick={handleMerge}
-                disabled={mergeMutation.isPending}
-                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors"
-              >
-                {mergeMutation.isPending ? "Merging..." : `Merge (${selectedPRs.length}) PRs`}
-              </button>
+              <Link href="/requisitions/new">
+                <Button size="sm" leftIcon={<Plus className="w-3.5 h-3.5" />}>
+                  New Requisition
+                </Button>
+              </Link>
             </PermissionGuard>
-          )}
-          <PermissionGuard permission="pr.create">
-            <Link
-              href="/requisitions/import"
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 text-gray-700 dark:text-slate-200 border border-gray-300 dark:border-slate-700 text-sm font-semibold rounded-lg shadow-sm transition-colors"
+          </>
+        }
+      />
+
+      {/* Filters */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        {/* Scope Segmented Control */}
+        <div className="flex items-center bg-neutral-100 dark:bg-neutral-800 rounded-xl p-1 gap-1">
+          {SCOPE_OPTIONS.map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => { setScope(opt.value as "all" | "mine" | "bu"); setPage(1); }}
+              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+                scope === opt.value
+                  ? "bg-white dark:bg-neutral-700 text-blue-600 dark:text-blue-400 shadow-sm"
+                  : "text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
+              }`}
             >
-              <span>📥 Import CSV</span>
-            </Link>
-          </PermissionGuard>
-          <PermissionGuard permission="pr.create">
-            <Link
-              href="/requisitions/new"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors"
-            >
-              <span>+ New Requisition</span>
-            </Link>
-          </PermissionGuard>
+              {opt.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="flex items-center gap-3 flex-1 sm:justify-end">
+          <SearchInput
+            placeholder="Search PR number, title..."
+            value={search}
+            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+            className="w-full sm:w-64"
+          />
+          <select
+            value={statusFilter}
+            onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
+            className="px-3 py-2 border border-neutral-300 dark:border-neutral-700 rounded-xl text-sm bg-white dark:bg-neutral-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 min-w-[160px]"
+          >
+            {STATUS_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            ))}
+          </select>
         </div>
       </div>
 
-      {/* Scope Toggles & Filters */}
-      <div className="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 space-y-4">
-        <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-          {/* Scope Segmented Control */}
-          <div className="flex w-full md:w-auto min-w-[360px] bg-gray-100 dark:bg-slate-800 p-1.5 rounded-xl gap-1">
-            <button
-              type="button"
-              onClick={() => { setScope("mine"); setPage(1); }}
-              className={`flex-1 px-3 py-2 text-xs font-semibold rounded-lg text-center justify-center flex items-center transition-all ${
-                scope === "mine" ? "bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm" : "text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white"
-              }`}
-            >
-              My Requisitions
-            </button>
-            <button
-              type="button"
-              onClick={() => { setScope("bu"); setPage(1); }}
-              className={`flex-1 px-3 py-2 text-xs font-semibold rounded-lg text-center justify-center flex items-center transition-all ${
-                scope === "bu" ? "bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm" : "text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white"
-              }`}
-            >
-              My Business Unit
-            </button>
-            <button
-              type="button"
-              onClick={() => { setScope("all"); setPage(1); }}
-              className={`flex-1 px-3 py-2 text-xs font-semibold rounded-lg text-center justify-center flex items-center transition-all ${
-                scope === "all" ? "bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm" : "text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white"
-              }`}
-            >
-              All Requisitions
-            </button>
-          </div>
-
-          <div className="flex items-center gap-3 w-full md:w-auto">
-            {/* Search */}
-            <input
-              type="text"
-              placeholder="Search PR number, title..."
-              value={search}
-              onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-              className="w-full md:w-64 px-3.5 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-
-            {/* Status Filter */}
-            <select
-              value={statusFilter}
-              onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-              className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm bg-white dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">All Statuses</option>
-              <option value="DRAFT">Draft</option>
-              <option value="SUBMITTED">Submitted</option>
-              <option value="PENDING_APPROVAL">Pending Approval</option>
-              <option value="APPROVED">Approved</option>
-              <option value="IN_SOURCING">In Sourcing</option>
-              <option value="CONVERTED">Converted</option>
-              <option value="REJECTED">Rejected</option>
-              <option value="WITHDRAWN">Withdrawn</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      {/* PR Table */}
-      <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-800 text-sm text-left">
-            <thead className="bg-gray-50 dark:bg-slate-800/60 text-gray-600 dark:text-slate-400 uppercase text-xs tracking-wider">
-              <tr>
-                <th scope="col" className="px-4 py-3.5 w-10 text-center">
-                  <input
-                    type="checkbox"
-                    checked={requisitions.length > 0 && selectedPRs.length === requisitions.length}
-                    onChange={handleSelectAll}
-                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                  />
-                </th>
-                <th scope="col" className="px-4 py-3.5 font-semibold">PR Number</th>
-                <th scope="col" className="px-4 py-3.5 font-semibold">Title</th>
-                <th scope="col" className="px-4 py-3.5 font-semibold">Type</th>
-                <th scope="col" className="px-4 py-3.5 font-semibold text-right">Estimated Value</th>
-                <th scope="col" className="px-4 py-3.5 font-semibold">Status</th>
-                <th scope="col" className="px-4 py-3.5 font-semibold">Required By</th>
-                <th scope="col" className="px-4 py-3.5 font-semibold text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100 dark:divide-slate-800 text-gray-800">
-              {isLoading ? (
+      {/* Table */}
+      {isLoading ? (
+        <TableSkeleton rows={8} columns={8} />
+      ) : isError ? (
+        <EmptyState
+          icon={<FileText className="w-6 h-6" />}
+          title="Failed to load requisitions"
+          description="An error occurred while fetching your requisitions. Please try again."
+          action={
+            <Button variant="secondary" size="sm" onClick={() => window.location.reload()}>
+              Retry
+            </Button>
+          }
+        />
+      ) : (
+        <div className="apple-table-container">
+          <div className="overflow-x-auto">
+            <table className="apple-table">
+              <thead>
                 <tr>
-                  <td colSpan={8} className="text-center py-12 text-gray-500">
-                    Loading requisitions...
-                  </td>
+                  <th className="w-10 text-center">
+                    <input
+                      type="checkbox"
+                      checked={requisitions.length > 0 && selectedPRs.length === requisitions.length}
+                      onChange={handleSelectAll}
+                      className="rounded border-neutral-300 text-blue-600 focus:ring-blue-500"
+                    />
+                  </th>
+                  <th>PR Number</th>
+                  <th>Title</th>
+                  <th>Type</th>
+                  <th className="text-right">Est. Value</th>
+                  <th>Status</th>
+                  <th>Required By</th>
+                  <th className="text-right">Actions</th>
                 </tr>
-              ) : isError ? (
-                <tr>
-                  <td colSpan={8} className="text-center py-12 text-red-500">
-                    Failed to load requisitions. Please refresh.
-                  </td>
-                </tr>
-              ) : requisitions.length === 0 ? (
-                <tr>
-                  <td colSpan={8} className="text-center py-12 text-gray-400">
-                    No requisitions found matching your filter criteria.
-                  </td>
-                </tr>
-              ) : (
-                requisitions.map((pr) => (
-                  <tr key={pr.id} className="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
-
-                    <td className="px-4 py-3.5 text-center">
-                      <input
-                        type="checkbox"
-                        checked={selectedPRs.includes(pr.id)}
-                        onChange={() => handleSelectPR(pr.id)}
-                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              </thead>
+              <tbody>
+                {requisitions.length === 0 ? (
+                  <tr>
+                    <td colSpan={8}>
+                      <EmptyState
+                        icon={<FileText className="w-6 h-6" />}
+                        title="No requisitions found"
+                        description="No purchase requisitions match your current filters."
+                        action={
+                          <PermissionGuard permission="pr.create">
+                            <Link href="/requisitions/new">
+                              <Button size="sm" leftIcon={<Plus className="w-3.5 h-3.5" />}>
+                                Create Requisition
+                              </Button>
+                            </Link>
+                          </PermissionGuard>
+                        }
                       />
                     </td>
-                    <td className="px-4 py-3.5 font-mono text-xs font-semibold text-blue-600 hover:underline">
-                      <Link href={`/requisitions/${pr.id}`}>{pr.pr_number}</Link>
-                    </td>
-                    <td className="px-4 py-3.5 font-medium text-gray-900 max-w-xs truncate">
-                      {pr.title}
-                    </td>
-                    <td className="px-4 py-3.5 text-gray-600 text-xs">
-                      {pr.procurement_type}
-                    </td>
-                    <td className="px-4 py-3.5 text-right font-semibold text-gray-900">
-                      {pr.currency} {Number(pr.estimated_value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </td>
-                    <td className="px-4 py-3.5">
-                      <Badge variant={pr.status}>
-                        {pr.status.replace(/_/g, " ")}
-                      </Badge>
-                    </td>
-                    <td className="px-4 py-3.5 text-xs text-gray-500">
-                      {pr.required_by_date ? new Date(pr.required_by_date).toLocaleDateString() : "—"}
-                    </td>
-                    <td className="px-4 py-3.5 text-right">
-                      <div className="flex items-center justify-end gap-2">
+                  </tr>
+                ) : (
+                  requisitions.map((pr: Requisition) => (
+                    <tr key={pr.id}>
+                      <td className="text-center">
+                        <input
+                          type="checkbox"
+                          checked={selectedPRs.includes(pr.id)}
+                          onChange={() => handleSelectPR(pr.id)}
+                          className="rounded border-neutral-300 text-blue-600 focus:ring-blue-500"
+                        />
+                      </td>
+                      <td>
+                        <Link
+                          href={`/requisitions/${pr.id}`}
+                          className="font-mono text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline"
+                        >
+                          {pr.pr_number}
+                        </Link>
+                      </td>
+                      <td>
+                        <span className="font-medium text-neutral-900 dark:text-neutral-100 line-clamp-1 max-w-xs">
+                          {pr.title}
+                        </span>
+                      </td>
+                      <td>
+                        <span className="text-xs text-neutral-500 dark:text-neutral-400">
+                          {pr.procurement_type}
+                        </span>
+                      </td>
+                      <td className="text-right">
+                        <span className="font-semibold text-neutral-900 dark:text-neutral-100">
+                          {pr.currency}{" "}
+                          {Number(pr.estimated_value).toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
+                        </span>
+                      </td>
+                      <td>
+                        <Badge variant={pr.status}>{pr.status.replace(/_/g, " ")}</Badge>
+                      </td>
+                      <td>
+                        <span className="text-xs text-neutral-500 dark:text-neutral-400">
+                          {pr.required_by_date
+                            ? new Date(pr.required_by_date).toLocaleDateString()
+                            : "—"}
+                        </span>
+                      </td>
+                      <td className="text-right">
                         <Link href={`/requisitions/${pr.id}`}>
-                          <Button variant="secondary" size="sm" icon={<ArrowRight className="w-3.5 h-3.5" />}>
+                          <Button variant="secondary" size="sm" rightIcon={<ArrowRight className="w-3.5 h-3.5" />}>
                             View
                           </Button>
                         </Link>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="p-4 border-t border-gray-200 dark:border-slate-800 flex items-center justify-between text-xs text-gray-600">
-            <span>
-              Page {page} of {totalPages}
-            </span>
-            <div className="flex gap-2">
-              <button
-                disabled={page <= 1}
-                onClick={() => setPage((p) => p - 1)}
-                className="px-3 py-1 border border-gray-300 dark:border-slate-700 rounded bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 text-gray-700 dark:text-slate-200 disabled:opacity-50"
-              >
-                Previous
-              </button>
-              <button
-                disabled={page >= totalPages}
-                onClick={() => setPage((p) => p + 1)}
-                className="px-3 py-1 border border-gray-300 dark:border-slate-700 rounded bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 text-gray-700 dark:text-slate-200 disabled:opacity-50"
-              >
-                Next
-              </button>
-            </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
           </div>
-        )}
-      </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="px-4 py-3 border-t border-neutral-200 dark:border-neutral-800 flex items-center justify-between">
+              <span className="text-xs text-neutral-500">
+                Page {page} of {totalPages}
+              </span>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  disabled={page <= 1}
+                  onClick={() => setPage((p) => p - 1)}
+                  leftIcon={<ChevronLeft className="w-3.5 h-3.5" />}
+                >
+                  Previous
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  disabled={page >= totalPages}
+                  onClick={() => setPage((p) => p + 1)}
+                  rightIcon={<ChevronRight className="w-3.5 h-3.5" />}
+                >
+                  Next
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
