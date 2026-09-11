@@ -1,36 +1,37 @@
 from __future__ import annotations
-from datetime import datetime, timedelta, timezone
-from dataclasses import dataclass, field
-from typing import Optional
-from uuid import UUID, uuid4
-from sqlalchemy.ext.asyncio import AsyncSession
-from loguru import logger
 
+from dataclasses import dataclass
+from datetime import UTC, datetime, timedelta
+from uuid import UUID, uuid4
+
+from loguru import logger
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.auth.jwt import create_access_token, create_mfa_token, create_refresh_token, decode_jwt
+from app.auth.mfa import decrypt_totp_secret, verify_backup_code, verify_totp
 from app.config import settings
-from app.core.security import verify_password, hash_password, validate_password_strength
+from app.core.constants import RoleCode
 from app.core.exceptions import AppException, AuthenticationError, ForbiddenError
 from app.core.redis_client import RedisKeys, get_redis_client
-from app.auth.jwt import create_access_token, create_refresh_token, create_mfa_token, decode_jwt
-from app.auth.mfa import verify_totp, verify_backup_code, decrypt_totp_secret
-from app.core.constants import RoleCode
+from app.core.security import verify_password
+from app.db.enums import UserStatusEnum
+from app.modules.audit.service import audit_service
 from app.modules.user.models import User, UserSession
 from app.modules.user.repository import user_repository
-from app.modules.user.session_repository import session_repository
 from app.modules.user.role_repository import role_repository
+from app.modules.user.session_repository import session_repository
 from app.modules.vendor.repository import vendor_repository
-from app.modules.audit.service import audit_service
-from app.db.enums import UserStatusEnum
 
 
 @dataclass
 class LoginResult:
-    access_token: Optional[str] = None
-    refresh_token: Optional[str] = None
+    access_token: str | None = None
+    refresh_token: str | None = None
     access_expires_in: int = 0
     mfa_required: bool = False
-    mfa_token: Optional[str] = None
+    mfa_token: str | None = None
     password_expired: bool = False
-    user_id: Optional[UUID] = None
+    user_id: UUID | None = None
 
     def to_response(self) -> dict:
         data: dict = {}
@@ -55,8 +56,8 @@ class AuthService:
         db: AsyncSession,
         email: str,
         password: str,
-        org_id: Optional[UUID] = None,
-        portal_type: Optional[str] = None,
+        org_id: UUID | None = None,
+        portal_type: str | None = None,
     ) -> LoginResult:
         redis = get_redis_client(settings.REDIS_SESSION_DB)
         email = email.strip()
@@ -105,7 +106,7 @@ class AuthService:
 
         # Password expiry check
         if user.password_changed_at:
-            days = (datetime.now(timezone.utc) - user.password_changed_at.replace(tzinfo=timezone.utc)).days
+            days = (datetime.now(UTC) - user.password_changed_at.replace(tzinfo=UTC)).days
             if days > settings.PASSWORD_EXPIRY_DAYS:
                 return LoginResult(password_expired=True, user_id=user.id)
 
@@ -133,7 +134,7 @@ class AuthService:
         self,
         db: AsyncSession,
         refresh_token_str: str,
-        portal_type: Optional[str] = None,
+        portal_type: str | None = None,
     ) -> LoginResult:
         redis = get_redis_client(settings.REDIS_SESSION_DB)
 
@@ -184,7 +185,7 @@ class AuthService:
                 raise ForbiddenError("Buyer portal cannot refresh session for a supplier account.")
 
         # Mark old token as revoked in Redis
-        remaining_ttl = int(payload["exp"]) - int(datetime.now(timezone.utc).timestamp())
+        remaining_ttl = int(payload["exp"]) - int(datetime.now(UTC).timestamp())
         if remaining_ttl > 0:
             await redis.setex(RedisKeys.revoked_token(old_jti), remaining_ttl, "1")
 
@@ -228,7 +229,7 @@ class AuthService:
             payload = decode_jwt(refresh_token_str)
             jti = payload.get("jti", "")
             if jti:
-                remaining_ttl = int(payload["exp"]) - int(datetime.now(timezone.utc).timestamp())
+                remaining_ttl = int(payload["exp"]) - int(datetime.now(UTC).timestamp())
                 if remaining_ttl > 0:
                     await redis.setex(RedisKeys.revoked_token(jti), remaining_ttl, "1")
                 session = await session_repository.get_by_jti(db, jti)
@@ -250,9 +251,9 @@ class AuthService:
     async def verify_mfa(
         self, db: AsyncSession, mfa_token: str, code: str
     ) -> LoginResult:
-        from app.auth.jwt import decode_jwt
-        from app.db.session import async_session
         from sqlalchemy import select
+
+        from app.auth.jwt import decode_jwt
         from app.modules.user.models import UserMfa
 
         payload = decode_jwt(mfa_token)
@@ -308,8 +309,9 @@ class AuthService:
 
     async def enroll_mfa(self, db: AsyncSession, user: User) -> dict:
         """Generate TOTP secret and return URI for QR code. Not enabled until confirm_mfa."""
-        from app.auth.mfa import generate_totp_secret, get_totp_uri, encrypt_totp_secret, generate_backup_codes
         from sqlalchemy import select
+
+        from app.auth.mfa import encrypt_totp_secret, generate_backup_codes, generate_totp_secret, get_totp_uri
         from app.modules.user.models import UserMfa
 
         secret = generate_totp_secret()
@@ -341,6 +343,7 @@ class AuthService:
     async def confirm_mfa(self, db: AsyncSession, user: User, code: str) -> None:
         """Verify TOTP code and mark MFA as enabled."""
         from sqlalchemy import select
+
         from app.modules.user.models import UserMfa
 
         mfa_result = await db.execute(
@@ -355,7 +358,7 @@ class AuthService:
             raise AppException("Invalid TOTP code", "INVALID_MFA_CODE")
 
         mfa.is_verified = True
-        mfa.enabled_at = datetime.now(timezone.utc)
+        mfa.enabled_at = datetime.now(UTC)
         user.mfa_enabled = True
 
         await audit_service.log(
@@ -407,7 +410,7 @@ class AuthService:
             org_id=org_id,
             user_id=user.id,
             token_jti=session_jti,
-            expires_at=datetime.now(timezone.utc)
+            expires_at=datetime.now(UTC)
             + timedelta(hours=settings.JWT_REFRESH_TOKEN_EXPIRE_HOURS),
         )
         db.add(session)
@@ -433,7 +436,7 @@ class AuthService:
     async def _clear_fail_count(redis, email: str) -> None:
         await redis.delete(RedisKeys.failed_login(email))
 
-    async def verify_turnstile(self, token: str, remote_ip: Optional[str] = None) -> bool:
+    async def verify_turnstile(self, token: str, remote_ip: str | None = None) -> bool:
         """Verifies Cloudflare Turnstile token. Returns True if valid or if Turnstile is disabled."""
         if not getattr(settings, "TURNSTILE_ENABLED", False):
             return True

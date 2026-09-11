@@ -1,22 +1,25 @@
 from __future__ import annotations
-from typing import Optional, List
+
 from uuid import UUID
+
 import httpx
 from loguru import logger
+
 from app.config import settings
 from app.core.exceptions import ExternalServiceError
+
 
 class SMSChannel:
     """MSG91 SMS dispatch channel."""
 
     SMS_CHAR_LIMIT = 160
 
-    def __init__(self, api_url: Optional[str] = None, sender_id: Optional[str] = None):
+    def __init__(self, api_url: str | None = None, sender_id: str | None = None):
         self.api_url = api_url or settings.MSG91_API_URL
         self.sender_id = sender_id or settings.MSG91_SENDER_ID or "HKTPRC"
 
     @classmethod
-    def split_message(cls, message: str) -> List[str]:
+    def split_message(cls, message: str) -> list[str]:
         """Split messages longer than 160 characters into chunks."""
         if len(message) <= cls.SMS_CHAR_LIMIT:
             return [message]
@@ -29,8 +32,8 @@ class SMSChannel:
         self,
         to_phone: str,
         message: str,
-        org_id: Optional[UUID] = None,
-        template_id: Optional[str] = None,
+        org_id: UUID | None = None,
+        template_id: str | None = None,
     ) -> bool:
         chunks = self.split_message(message)
         auth_key = settings.MSG91_AUTH_KEY

@@ -1,23 +1,23 @@
 from __future__ import annotations
-from typing import Optional, List
+
 from uuid import UUID
-from fastapi import APIRouter, Depends, Query, WebSocket, status
+
+from fastapi import APIRouter, Depends, Query, WebSocket
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.dependencies import get_current_user
-from app.core.responses import success_response, PaginationMeta
-from app.db.session import get_db
+from app.core.responses import PaginationMeta, success_response
 from app.db.enums import NotificationChannelEnum
+from app.db.session import get_db
 from app.modules.notification.schemas import (
-    NotificationResponse,
-    NotificationPreferenceItem,
     NotificationPreferencesUpdateRequest,
-    NotificationTemplateResponse,
+    NotificationResponse,
+    NotificationSendRequest,
     NotificationTemplateCreateRequest,
-    NotificationTemplateUpdateRequest,
     NotificationTemplatePreviewRequest,
     NotificationTemplatePreviewResponse,
-    NotificationSendRequest,
+    NotificationTemplateResponse,
+    NotificationTemplateUpdateRequest,
 )
 from app.modules.notification.service import notification_service
 from app.modules.notification.websocket import ws_manager
@@ -112,10 +112,10 @@ async def update_notification_preferences(
 
 @router.get("/templates", summary="List notification templates")
 async def list_notification_templates(
-    channel: Optional[NotificationChannelEnum] = Query(None, description="Filter by channel"),
-    language: Optional[str] = Query(None, description="Filter by language"),
-    search: Optional[str] = Query(None, description="Search by code, subject or body"),
-    is_active: Optional[bool] = Query(None, description="Filter by active state"),
+    channel: NotificationChannelEnum | None = Query(None, description="Filter by channel"),
+    language: str | None = Query(None, description="Filter by language"),
+    search: str | None = Query(None, description="Search by code, subject or body"),
+    is_active: bool | None = Query(None, description="Filter by active state"),
     page: int = Query(1, ge=1, description="Page number"),
     page_size: int = Query(50, ge=1, le=200, description="Page size"),
     current_user: User = Depends(get_current_user),
@@ -219,7 +219,7 @@ async def delete_notification_template(
         db, template_id=template_id, org_id=current_user.org_id
     )
     return success_response(data={"message": "Notification template deleted successfully"})
-    
+
 @router.post("/dispatch-test", summary="Dispatch notification test event")
 async def dispatch_test_notification(
     body: NotificationSendRequest,
@@ -269,7 +269,7 @@ async def dispatch_test_notification(
 @router.websocket("/ws")
 async def notification_ws(
     websocket: WebSocket,
-    token: Optional[str] = Query(None),
+    token: str | None = Query(None),
 ):
     """WebSocket stream for real-time notifications."""
     await ws_manager.handle_connection(websocket, token=token)

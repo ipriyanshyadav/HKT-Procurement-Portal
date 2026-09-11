@@ -1,15 +1,16 @@
 from __future__ import annotations
-from datetime import datetime, date
-from decimal import Decimal
-from typing import Optional, List, Any, Literal
-from uuid import UUID
-from pydantic import BaseModel, Field, ConfigDict
 
+from datetime import datetime
+from decimal import Decimal
+from typing import Literal
+from uuid import UUID
+
+from pydantic import BaseModel, ConfigDict, Field
 
 # ─── Request Schemas ─────────────────────────────────────────────────────────
 
 class BidLineSubmitRequest(BaseModel):
-    lot_id: Optional[UUID] = None
+    lot_id: UUID | None = None
     rfq_line_id: UUID
     unit_price: Decimal = Field(gt=0, max_digits=18, decimal_places=4)
     total_price: Decimal = Field(gt=0, max_digits=18, decimal_places=2)
@@ -19,29 +20,29 @@ class BidLineSubmitRequest(BaseModel):
     tax_rate_declared: Decimal = Field(default=Decimal("0.0"), ge=0)
     freight_quoted: Decimal = Field(default=Decimal("0.0"), ge=0)
     country_of_origin: str = Field(default="IN", max_length=2)
-    remarks: Optional[str] = None
+    remarks: str | None = None
 
 
 class BidSubmitRequest(BaseModel):
     has_deviations: bool = False
-    deviation_details: Optional[str] = None
+    deviation_details: str | None = None
     technical_offer_compliant: bool = True
-    payment_terms_code: Optional[str] = None
-    delivery_terms_incoterm: Optional[str] = None
+    payment_terms_code: str | None = None
+    delivery_terms_incoterm: str | None = None
     bid_validity_days: int = Field(default=90, ge=1)
-    covering_letter: Optional[str] = None
-    lines: List[BidLineSubmitRequest] = Field(min_length=1)
+    covering_letter: str | None = None
+    lines: list[BidLineSubmitRequest] = Field(min_length=1)
 
 
 class BidReviseRequest(BaseModel):
-    has_deviations: Optional[bool] = None
-    deviation_details: Optional[str] = None
-    technical_offer_compliant: Optional[bool] = None
-    payment_terms_code: Optional[str] = None
-    delivery_terms_incoterm: Optional[str] = None
-    bid_validity_days: Optional[int] = Field(None, ge=1)
-    covering_letter: Optional[str] = None
-    lines: List[BidLineSubmitRequest] = Field(min_length=1)
+    has_deviations: bool | None = None
+    deviation_details: str | None = None
+    technical_offer_compliant: bool | None = None
+    payment_terms_code: str | None = None
+    delivery_terms_incoterm: str | None = None
+    bid_validity_days: int | None = Field(None, ge=1)
+    covering_letter: str | None = None
+    lines: list[BidLineSubmitRequest] = Field(min_length=1)
 
 
 class BidWithdrawRequest(BaseModel):
@@ -56,19 +57,19 @@ class BidLineDetailResponse(BaseModel):
     id: UUID
     bid_id: UUID
     rfq_line_id: UUID
-    lot_id: Optional[UUID] = None
+    lot_id: UUID | None = None
     currency: str
     quantity: Decimal
     delivery_days: int
     # Price only populated after bids opened
-    unit_price: Optional[Decimal] = None
-    total_price: Optional[Decimal] = None
-    normalized_price_inr: Optional[Decimal] = None
-    exchange_rate_used: Optional[Decimal] = None
+    unit_price: Decimal | None = None
+    total_price: Decimal | None = None
+    normalized_price_inr: Decimal | None = None
+    exchange_rate_used: Decimal | None = None
     tax_rate_declared: Decimal
     freight_quoted: Decimal
     country_of_origin: str
-    remarks: Optional[str] = None
+    remarks: str | None = None
 
 
 class BidDetailResponse(BaseModel):
@@ -80,22 +81,22 @@ class BidDetailResponse(BaseModel):
     vendor_id: UUID
     status: str
     current_version: int
-    submitted_at: Optional[datetime] = None
+    submitted_at: datetime | None = None
     has_deviations: bool
-    deviation_details: Optional[str] = None
+    deviation_details: str | None = None
     technical_offer_compliant: bool
-    payment_terms_code: Optional[str] = None
-    delivery_terms_incoterm: Optional[str] = None
+    payment_terms_code: str | None = None
+    delivery_terms_incoterm: str | None = None
     bid_validity_days: int
-    covering_letter: Optional[str] = None
+    covering_letter: str | None = None
     is_single_vendor_situation: bool
-    bid_opened_at: Optional[datetime] = None
-    is_technically_qualified: Optional[bool] = None
-    technical_score: Optional[Decimal] = None
+    bid_opened_at: datetime | None = None
+    is_technically_qualified: bool | None = None
+    technical_score: Decimal | None = None
     created_at: datetime
     updated_at: datetime
     # Lines included — prices masked until bids_opened
-    lines: List[BidLineDetailResponse] = Field(default_factory=list)
+    lines: list[BidLineDetailResponse] = Field(default_factory=list)
 
 
 class BidListResponse(BaseModel):
@@ -106,7 +107,7 @@ class BidListResponse(BaseModel):
     vendor_id: UUID
     status: str
     current_version: int
-    submitted_at: Optional[datetime] = None
+    submitted_at: datetime | None = None
     is_single_vendor_situation: bool
     created_at: datetime
 
@@ -122,7 +123,7 @@ class BidCountResponse(BaseModel):
     rfq_id: UUID
     bid_count: int
     bids_opened: bool
-    bids_opened_at: Optional[datetime] = None
+    bids_opened_at: datetime | None = None
 
 
 # ─── Live Auction Schemas (SPEC_11B) ──────────────────────────────────────────
@@ -132,7 +133,7 @@ class AuctionConfig(BaseModel):
     auction_start_at: datetime            # Scheduled start time (UTC)
     auction_duration_minutes: int = Field(ge=5, le=480, default=60)
     lot_ids: list[UUID] = Field(default_factory=list) # Which lots are in auction (all lots if empty)
-    reserve_price_inr: Optional[Decimal] = None   # Hidden from suppliers; bid rejected if above
+    reserve_price_inr: Decimal | None = None   # Hidden from suppliers; bid rejected if above
     min_decrement_type: Literal["PERCENTAGE", "ABSOLUTE"] = "PERCENTAGE"
     min_decrement_value: Decimal = Field(gt=0, default=Decimal("0.5"))  # 0.5% or INR amount
     rank_visibility: Literal["RANK_ONLY", "PRICE_AND_RANK", "NO_RANK"] = "RANK_ONLY"
@@ -155,16 +156,16 @@ class LiveAuctionDetailResponse(BaseModel):
     id: UUID
     org_id: UUID
     rfq_id: UUID
-    rfq_number: Optional[str] = None
-    rfq_title: Optional[str] = None
+    rfq_number: str | None = None
+    rfq_title: str | None = None
     status: str
     config: dict
     scheduled_start_at: datetime
-    actual_start_at: Optional[datetime] = None
+    actual_start_at: datetime | None = None
     current_close_at: datetime
     extension_count: int
-    winner_vendor_id: Optional[UUID] = None
-    winning_bid_id: Optional[UUID] = None
+    winner_vendor_id: UUID | None = None
+    winning_bid_id: UUID | None = None
     created_by: UUID
     created_at: datetime
     updated_at: datetime

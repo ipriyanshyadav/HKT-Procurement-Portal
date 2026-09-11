@@ -1,8 +1,9 @@
 from __future__ import annotations
-from datetime import datetime, date, timezone
-from typing import Optional, Any
-from loguru import logger
-from sqlalchemy import select, and_
+
+from datetime import date, datetime
+from typing import Any
+
+from sqlalchemy import and_, select
 
 from app.config import settings
 from app.db.enums import PRStatus
@@ -18,7 +19,7 @@ def check_pr_aging() -> None:
     run_async(async_check_pr_aging())
 
 
-async def async_check_pr_aging(session_factory: Optional[Any] = None) -> dict:
+async def async_check_pr_aging(session_factory: Any | None = None) -> dict:
     today = date.today()
     factory = session_factory or async_session
     alerts_sent = 0

@@ -1,54 +1,47 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 from uuid import UUID
-from fastapi import APIRouter, Depends, Query, Response
+
+from fastapi import APIRouter, Depends, Query
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.dependencies import get_current_user
 from app.config import settings
 from app.core.responses import success_response
+from app.core.streaming import generate_table_pdf, stream_csv, stream_pdf
 from app.db.session import get_db
 from app.modules.analytics.esg_service import carbon_esg_service
 from app.modules.analytics.export_service import analytics_export_service
 from app.modules.analytics.schemas import (
-    CarbonFootprintResponse,
     CategoryEmissionFactorCreate,
-    CategoryEmissionFactorItem,
     ClusterStatusUpdateRequest,
-    ComplianceAuditResponse,
     CustomReportRequest,
-    CustomReportResponse,
-    MaverickClusterResponse,
-    MaverickSpendResponse,
-    SpendCubeResponse,
-    SupplierESGScorecardItem,
     SupplierESGScorecardUpdate,
 )
 from app.modules.analytics.service import analytics_service
 from app.modules.user.models import User
-from app.core.streaming import stream_csv, stream_pdf, generate_table_pdf
 from app.modules.user.role_repository import role_repository
 
 router = APIRouter(tags=["Analytics"])
 
 
 class ExportRequest(BaseModel):
-    data: Optional[List[Dict[str, Any]]] = None
-    columns: Optional[List[str]] = None
-    filename: Optional[str] = None
-    sheet_name: Optional[str] = "Analytics"
-    report_type: Optional[str] = None
-    fiscal_year: Optional[str] = None
-    group_by: Optional[str] = None
+    data: list[dict[str, Any]] | None = None
+    columns: list[str] | None = None
+    filename: str | None = None
+    sheet_name: str | None = "Analytics"
+    report_type: str | None = None
+    fiscal_year: str | None = None
+    group_by: str | None = None
 
 
 async def get_user_bu_scope(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
-    business_unit_id: Optional[UUID] = Query(None, description="Optional Business Unit filter"),
-) -> List[UUID]:
+    business_unit_id: UUID | None = Query(None, description="Optional Business Unit filter"),
+) -> list[UUID]:
     user_roles: set[str] = set()
     if hasattr(current_user, "roles") and current_user.roles:
         user_roles.update(r if isinstance(r, str) else getattr(r, "code", "") for r in current_user.roles)
@@ -84,9 +77,9 @@ async def health():
 # 1. Dashboard (pre-aggregated)
 @router.get("/dashboard")
 async def get_dashboard(
-    fiscal_year: Optional[str] = Query(None),
+    fiscal_year: str | None = Query(None),
     current_user: User = Depends(get_current_user),
-    user_bu_scope: List[UUID] = Depends(get_user_bu_scope),
+    user_bu_scope: list[UUID] = Depends(get_user_bu_scope),
     db: AsyncSession = Depends(get_db),
 ):
     data = await analytics_service.get_dashboard(db, current_user.org_id, fiscal_year, user_bu_scope)
@@ -96,10 +89,10 @@ async def get_dashboard(
 # 2. Spend summary
 @router.get("/spend")
 async def get_spend(
-    group_by: Optional[str] = Query(None, description="category, vendor, bu, or all"),
-    fiscal_year: Optional[str] = Query(None),
+    group_by: str | None = Query(None, description="category, vendor, bu, or all"),
+    fiscal_year: str | None = Query(None),
     current_user: User = Depends(get_current_user),
-    user_bu_scope: List[UUID] = Depends(get_user_bu_scope),
+    user_bu_scope: list[UUID] = Depends(get_user_bu_scope),
     db: AsyncSession = Depends(get_db),
 ):
     if group_by in ("category", "vendor", "bu"):
@@ -114,9 +107,9 @@ async def get_spend(
 # 2a. Spend Cube (Multi-dimensional slicing & Pareto 80/20)
 @router.get("/spend-cube")
 async def get_spend_cube(
-    fiscal_year: Optional[str] = Query(None),
+    fiscal_year: str | None = Query(None),
     current_user: User = Depends(get_current_user),
-    user_bu_scope: List[UUID] = Depends(get_user_bu_scope),
+    user_bu_scope: list[UUID] = Depends(get_user_bu_scope),
     db: AsyncSession = Depends(get_db),
 ):
     data = await analytics_service.get_spend_cube(db, current_user.org_id, fiscal_year, user_bu_scope)
@@ -126,10 +119,10 @@ async def get_spend_cube(
 # 2b. Maverick Spend Identification
 @router.get("/maverick-spend")
 async def get_maverick_spend(
-    fiscal_year: Optional[str] = Query(None),
+    fiscal_year: str | None = Query(None),
     limit: int = Query(50, ge=1, le=200),
     current_user: User = Depends(get_current_user),
-    user_bu_scope: List[UUID] = Depends(get_user_bu_scope),
+    user_bu_scope: list[UUID] = Depends(get_user_bu_scope),
     db: AsyncSession = Depends(get_db),
 ):
     data = await analytics_service.get_maverick_spend(db, current_user.org_id, fiscal_year, user_bu_scope, limit=limit)
@@ -138,10 +131,10 @@ async def get_maverick_spend(
 
 @router.get("/maverick-spend/clusters")
 async def get_maverick_clusters(
-    status: Optional[str] = Query(
+    status: str | None = Query(
         None, description="Filter by status (DETECTED, INVESTIGATING, RESOLVED, FALSE_POSITIVE)"
     ),
-    cluster_type: Optional[str] = Query(None, description="Filter by cluster type"),
+    cluster_type: str | None = Query(None, description="Filter by cluster type"),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -179,9 +172,9 @@ async def update_maverick_cluster_status(
 # 3. Savings analysis
 @router.get("/savings")
 async def get_savings(
-    fiscal_year: Optional[str] = Query(None),
+    fiscal_year: str | None = Query(None),
     current_user: User = Depends(get_current_user),
-    user_bu_scope: List[UUID] = Depends(get_user_bu_scope),
+    user_bu_scope: list[UUID] = Depends(get_user_bu_scope),
     db: AsyncSession = Depends(get_db),
 ):
     data = await analytics_service.get_savings_analysis(db, current_user.org_id, fiscal_year, user_bu_scope)
@@ -191,9 +184,9 @@ async def get_savings(
 # 4. Cycle time analysis
 @router.get("/cycle-times")
 async def get_cycle_times(
-    fiscal_year: Optional[str] = Query(None),
+    fiscal_year: str | None = Query(None),
     current_user: User = Depends(get_current_user),
-    user_bu_scope: List[UUID] = Depends(get_user_bu_scope),
+    user_bu_scope: list[UUID] = Depends(get_user_bu_scope),
     db: AsyncSession = Depends(get_db),
 ):
     data = await analytics_service.get_cycle_time_analysis(db, current_user.org_id, fiscal_year, user_bu_scope)
@@ -204,7 +197,7 @@ async def get_cycle_times(
 @router.get("/vendor-performance")
 async def get_all_vendor_performance(
     current_user: User = Depends(get_current_user),
-    user_bu_scope: List[UUID] = Depends(get_user_bu_scope),
+    user_bu_scope: list[UUID] = Depends(get_user_bu_scope),
     db: AsyncSession = Depends(get_db),
 ):
     data = await analytics_service.get_vendor_performance(
@@ -218,7 +211,7 @@ async def get_all_vendor_performance(
 async def get_single_vendor_performance(
     vendor_id: UUID,
     current_user: User = Depends(get_current_user),
-    user_bu_scope: List[UUID] = Depends(get_user_bu_scope),
+    user_bu_scope: list[UUID] = Depends(get_user_bu_scope),
     db: AsyncSession = Depends(get_db),
 ):
     data = await analytics_service.get_vendor_performance(
@@ -231,7 +224,7 @@ async def get_single_vendor_performance(
 @router.get("/sla-compliance")
 async def get_sla_compliance(
     current_user: User = Depends(get_current_user),
-    user_bu_scope: List[UUID] = Depends(get_user_bu_scope),
+    user_bu_scope: list[UUID] = Depends(get_user_bu_scope),
     db: AsyncSession = Depends(get_db),
 ):
     data = await analytics_service.get_sla_compliance(db, current_user.org_id, user_bu_scope)
@@ -251,8 +244,8 @@ async def get_compliance(
 # 8b. Compliance Audit Reports (Emergency RFQs, Single-Vendor, Force-Approvals, SoD Violations)
 @router.get("/compliance-reports")
 async def get_compliance_reports(
-    report_type: Optional[str] = Query(None),
-    fiscal_year: Optional[str] = Query(None),
+    report_type: str | None = Query(None),
+    fiscal_year: str | None = Query(None),
     page: int = Query(1, ge=1),
     page_size: int = Query(50, ge=1, le=100),
     current_user: User = Depends(get_current_user),
@@ -269,7 +262,7 @@ async def get_compliance_reports(
 async def execute_custom_report(
     req: CustomReportRequest,
     current_user: User = Depends(get_current_user),
-    user_bu_scope: List[UUID] = Depends(get_user_bu_scope),
+    user_bu_scope: list[UUID] = Depends(get_user_bu_scope),
     db: AsyncSession = Depends(get_db),
 ):
     data = await analytics_service.execute_custom_report(db, current_user.org_id, req, user_bu_scope=user_bu_scope)
@@ -290,7 +283,7 @@ async def get_unmapped_prs(
 @router.get("/invoices")
 async def get_invoices(
     current_user: User = Depends(get_current_user),
-    user_bu_scope: List[UUID] = Depends(get_user_bu_scope),
+    user_bu_scope: list[UUID] = Depends(get_user_bu_scope),
     db: AsyncSession = Depends(get_db),
 ):
     data = await analytics_service.get_invoice_analytics(db, current_user.org_id, user_bu_scope)
@@ -300,11 +293,11 @@ async def get_invoices(
 # 11. Ad-hoc CSV export
 @router.get("/export/csv")
 async def get_export_csv(
-    report_type: Optional[str] = Query("spend", description="spend, vendors, or kpis"),
-    fiscal_year: Optional[str] = Query(None),
-    group_by: Optional[str] = Query("category"),
+    report_type: str | None = Query("spend", description="spend, vendors, or kpis"),
+    fiscal_year: str | None = Query(None),
+    group_by: str | None = Query("category"),
     current_user: User = Depends(get_current_user),
-    user_bu_scope: List[UUID] = Depends(get_user_bu_scope),
+    user_bu_scope: list[UUID] = Depends(get_user_bu_scope),
     db: AsyncSession = Depends(get_db),
 ):
     """Stream CSV export for analytics report."""
@@ -328,11 +321,11 @@ async def get_export_csv(
 
 @router.get("/export/pdf")
 async def get_export_pdf(
-    report_type: Optional[str] = Query("spend", description="spend, vendors, or kpis"),
-    fiscal_year: Optional[str] = Query(None),
-    group_by: Optional[str] = Query("category"),
+    report_type: str | None = Query("spend", description="spend, vendors, or kpis"),
+    fiscal_year: str | None = Query(None),
+    group_by: str | None = Query("category"),
     current_user: User = Depends(get_current_user),
-    user_bu_scope: List[UUID] = Depends(get_user_bu_scope),
+    user_bu_scope: list[UUID] = Depends(get_user_bu_scope),
     db: AsyncSession = Depends(get_db),
 ):
     """Stream PDF export for analytics report."""
@@ -360,7 +353,7 @@ async def get_export_pdf(
 async def export_csv(
     req: ExportRequest,
     current_user: User = Depends(get_current_user),
-    user_bu_scope: List[UUID] = Depends(get_user_bu_scope),
+    user_bu_scope: list[UUID] = Depends(get_user_bu_scope),
     db: AsyncSession = Depends(get_db),
 ):
     data = req.data
@@ -385,7 +378,7 @@ async def export_csv(
 async def export_excel(
     req: ExportRequest,
     current_user: User = Depends(get_current_user),
-    user_bu_scope: List[UUID] = Depends(get_user_bu_scope),
+    user_bu_scope: list[UUID] = Depends(get_user_bu_scope),
     db: AsyncSession = Depends(get_db),
 ):
     data = req.data

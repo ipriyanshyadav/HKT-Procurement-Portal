@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 import re
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID, uuid4
-import httpx
-from app.config import settings
 
+import httpx
+
+from app.config import settings
 
 IFSC_REGEX = re.compile(r"^[A-Z]{4}0[A-Z0-9]{6}$")
 ACCOUNT_REGEX = re.compile(r"^[0-9]{9,18}$")

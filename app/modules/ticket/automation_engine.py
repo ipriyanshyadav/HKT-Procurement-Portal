@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import date, datetime, timedelta, timezone
+from datetime import UTC, date, datetime, timedelta
 from typing import Any
 from uuid import UUID
 
@@ -50,7 +50,7 @@ class TicketAutomationEngine:
                 action_results = await self._execute_actions(db, rule, ticket, org_id)
 
                 rule.execution_count = (rule.execution_count or 0) + 1
-                rule.last_executed_at = datetime.now(timezone.utc)
+                rule.last_executed_at = datetime.now(UTC)
                 executed_rules.append({
                     "rule_id": str(rule.id),
                     "rule_name": rule.name,
@@ -93,17 +93,17 @@ class TicketAutomationEngine:
     def _eval_single_condition(self, actual: Any, op: str, expected: Any) -> bool:
         if op == "eq":
             return str(actual) == str(expected) if actual is not None else expected is None
-        elif op == "ne":
+        if op == "ne":
             return str(actual) != str(expected)
-        elif op == "in":
+        if op == "in":
             if isinstance(expected, list):
                 return actual in expected or str(actual) in [str(x) for x in expected]
             return False
-        elif op == "not_in":
+        if op == "not_in":
             if isinstance(expected, list):
                 return actual not in expected and str(actual) not in [str(x) for x in expected]
             return True
-        elif op == "contains":
+        if op == "contains":
             if expected is None:
                 return False
             if isinstance(actual, list):
@@ -111,17 +111,17 @@ class TicketAutomationEngine:
             if isinstance(actual, str):
                 return str(expected).lower() in actual.lower()
             return False
-        elif op in ("gt", "gte", "lt", "lte"):
+        if op in ("gt", "gte", "lt", "lte"):
             try:
                 if actual is None or expected is None:
                     return False
                 if op == "gt":
                     return float(actual) > float(expected)
-                elif op == "gte":
+                if op == "gte":
                     return float(actual) >= float(expected)
-                elif op == "lt":
+                if op == "lt":
                     return float(actual) < float(expected)
-                elif op == "lte":
+                if op == "lte":
                     return float(actual) <= float(expected)
             except (ValueError, TypeError):
                 return False

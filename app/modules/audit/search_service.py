@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional
+from datetime import UTC, datetime
+from typing import Any
 from uuid import UUID
+
 from loguru import logger
 from pydantic import BaseModel, Field
 
@@ -16,14 +17,14 @@ except ImportError:
 
 
 class AuditSearchQuery(BaseModel):
-    entity_type: Optional[str] = None
-    action: Optional[str] = None
-    actor_id: Optional[UUID] = None
-    actor_email: Optional[str] = None
-    entity_id: Optional[UUID] = None
-    date_from: Optional[datetime] = None
-    date_to: Optional[datetime] = None
-    search: Optional[str] = None
+    entity_type: str | None = None
+    action: str | None = None
+    actor_id: UUID | None = None
+    actor_email: str | None = None
+    entity_id: UUID | None = None
+    date_from: datetime | None = None
+    date_to: datetime | None = None
+    search: str | None = None
     page: int = Field(default=1, ge=1)
     page_size: int = Field(default=20, ge=1, le=100)
 
@@ -39,11 +40,11 @@ class AuditSearchQuery(BaseModel):
 class AuditSearchService:
     """Elasticsearch-backed audit log indexing and search service with SQL fallback."""
 
-    def __init__(self, es_url: Optional[str] = None, enabled: Optional[bool] = None) -> None:
+    def __init__(self, es_url: str | None = None, enabled: bool | None = None) -> None:
         self.url = es_url or getattr(settings, "ELASTICSEARCH_URL", "http://localhost:9200")
         self.index_prefix = getattr(settings, "ELASTICSEARCH_INDEX_PREFIX", "audit-logs")
-        self._enabled: Optional[bool] = enabled
-        self._es: Optional[Any] = None
+        self._enabled: bool | None = enabled
+        self._es: Any | None = None
         self._last_failure_time: float = 0.0
         self._failure_cooldown: float = 60.0
 
@@ -77,7 +78,7 @@ class AuditSearchService:
         self._last_failure_time = 0.0
 
     @property
-    def es(self) -> Optional[Any]:
+    def es(self) -> Any | None:
         if not self.is_available:
             return None
         if self._es is None and AsyncElasticsearch is not None:
@@ -103,7 +104,7 @@ class AuditSearchService:
             logger.debug("Elasticsearch client unavailable; skipping index_audit_log")
             return
 
-        created_dt = log.created_at or datetime.now(timezone.utc)
+        created_dt = log.created_at or datetime.now(UTC)
         index_name = f"{self.index_prefix}-{created_dt.strftime('%Y.%m')}"
 
         entity_type_str = (
@@ -135,7 +136,7 @@ class AuditSearchService:
             self._mark_failure(exc, "indexing")
 
     @staticmethod
-    def _exact_term(field: str, value: str) -> Dict[str, Any]:
+    def _exact_term(field: str, value: str) -> dict[str, Any]:
         """Match either direct keyword or .keyword subfield for robust ES querying."""
         return {
             "bool": {
@@ -151,13 +152,13 @@ class AuditSearchService:
         self,
         org_id: UUID,
         query: AuditSearchQuery,
-        db_fallback: Optional[Any] = None,
-    ) -> Dict[str, Any]:
+        db_fallback: Any | None = None,
+    ) -> dict[str, Any]:
         """Search audit logs using Elasticsearch with SQL database fallback."""
         client = self.es
         if client is not None:
             try:
-                must: List[Dict[str, Any]] = [self._exact_term("org_id", str(org_id))]
+                must: list[dict[str, Any]] = [self._exact_term("org_id", str(org_id))]
 
                 if query.entity_type:
                     must.append(self._exact_term("entity_type", query.entity_type.upper()))
@@ -171,7 +172,7 @@ class AuditSearchService:
                     must.append(self._exact_term("actor_email", query.actor_email.lower()))
 
                 if query.date_from or query.date_to:
-                    range_filter: Dict[str, str] = {}
+                    range_filter: dict[str, str] = {}
                     if query.date_from:
                         range_filter["gte"] = query.date_from.isoformat()
                     if query.date_to:
@@ -225,9 +226,10 @@ class AuditSearchService:
         org_id: UUID,
         query: AuditSearchQuery,
         db: Any,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Fallback querying PostgreSQL audit_logs directly."""
         from sqlalchemy import func, select
+
         from app.db.enums import AuditEntityTypeEnum
 
         stmt = select(AuditLog).where(AuditLog.org_id == org_id)

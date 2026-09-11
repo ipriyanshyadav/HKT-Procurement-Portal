@@ -1,9 +1,11 @@
 from __future__ import annotations
-from datetime import datetime, timezone
+
+import builtins
+from datetime import UTC, datetime
 from decimal import Decimal
-from typing import Optional, List, Tuple
 from uuid import UUID
-from sqlalchemy import select, func, and_, desc
+
+from sqlalchemy import and_, desc, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -15,7 +17,7 @@ class UnmappedPrRepository:
 
     async def get(
         self, db: AsyncSession, exception_id: UUID, org_id: UUID
-    ) -> Optional[UnmappedPrException]:
+    ) -> UnmappedPrException | None:
         stmt = (
             select(UnmappedPrException)
             .where(
@@ -33,10 +35,10 @@ class UnmappedPrRepository:
         self,
         db: AsyncSession,
         org_id: UUID,
-        status: Optional[str] = None,
+        status: str | None = None,
         skip: int = 0,
         limit: int = 20,
-    ) -> Tuple[List[UnmappedPrException], int]:
+    ) -> tuple[builtins.list[UnmappedPrException], int]:
         filters = [UnmappedPrException.org_id == org_id]
         if status:
             filters.append(UnmappedPrException.status == status)
@@ -59,8 +61,8 @@ class UnmappedPrRepository:
         return items, total
 
     async def get_all_pending(
-        self, db: AsyncSession, org_id: Optional[UUID] = None
-    ) -> List[UnmappedPrException]:
+        self, db: AsyncSession, org_id: UUID | None = None
+    ) -> builtins.list[UnmappedPrException]:
         filters = [
             UnmappedPrException.status.in_([
                 UnmappedPrStatusEnum.PENDING,
@@ -90,7 +92,7 @@ class UnmappedPrRepository:
     async def update(
         self, db: AsyncSession, exception: UnmappedPrException
     ) -> UnmappedPrException:
-        exception.updated_at = datetime.now(timezone.utc)
+        exception.updated_at = datetime.now(UTC)
         await db.flush()
         return exception
 
@@ -103,7 +105,7 @@ class UnmappedPrRepository:
 
     async def get_mapping_history(
         self, db: AsyncSession, org_id: UUID, field_name: str, source_value: str
-    ) -> Optional[UnmappedPrMappingLog]:
+    ) -> UnmappedPrMappingLog | None:
         stmt = (
             select(UnmappedPrMappingLog)
             .where(
@@ -121,7 +123,7 @@ class UnmappedPrRepository:
 
     async def get_similar_history(
         self, db: AsyncSession, org_id: UUID, limit: int = 100
-    ) -> List[UnmappedPrMappingLog]:
+    ) -> builtins.list[UnmappedPrMappingLog]:
         stmt = (
             select(UnmappedPrMappingLog)
             .where(UnmappedPrMappingLog.org_id == org_id)

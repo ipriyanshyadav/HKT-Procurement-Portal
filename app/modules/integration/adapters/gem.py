@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional
-from urllib.parse import urlparse
+from datetime import UTC, datetime
+from typing import Any
 from uuid import UUID
 
 from ..http_client import SafeHTTPClient
@@ -11,7 +10,7 @@ from ..http_client import SafeHTTPClient
 class GEMAdapter:
     """Government e-Marketplace (GeM) async portal integration adapter."""
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None) -> None:
+    def __init__(self, config: dict[str, Any] | None = None) -> None:
         self.config = config or {}
         self.endpoint_url = self.config.get("gem_api_url", "https://api.gem.gov.in")
         self.api_key = self.config.get("gem_api_key", "")
@@ -20,13 +19,13 @@ class GEMAdapter:
     async def sync_bids(
         self,
         org_id: UUID,
-        category: Optional[str] = None,
+        category: str | None = None,
         page: int = 1,
         limit: int = 50,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Async sync of published Government e-Marketplace bids/tenders."""
-        now = datetime.now(timezone.utc).isoformat()
-        bids: List[Dict[str, Any]] = [
+        now = datetime.now(UTC).isoformat()
+        bids: list[dict[str, Any]] = [
             {
                 "gem_bid_number": f"GEM/2026/B/{page * 1000 + i}",
                 "category": category or "Information Technology Services",
@@ -63,10 +62,10 @@ class GEMAdapter:
     async def sync_contracts(
         self,
         org_id: UUID,
-        contract_number: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        contract_number: str | None = None,
+    ) -> dict[str, Any]:
         """Sync GeM contracts, awards, or purchase orders."""
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(UTC).isoformat()
         num = contract_number or f"GEMC-5116877{str(org_id)[:4].upper()}"
         return {
             "status": "SUCCESS",
@@ -79,9 +78,9 @@ class GEMAdapter:
             "synced_at": now,
         }
 
-    async def verify_seller(self, seller_id: str, org_id: UUID) -> Dict[str, Any]:
+    async def verify_seller(self, seller_id: str, org_id: UUID) -> dict[str, Any]:
         """Verify credentials of a GeM registered seller/vendor."""
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(UTC).isoformat()
         return {
             "status": "VERIFIED",
             "provider": "GEM",

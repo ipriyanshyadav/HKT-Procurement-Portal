@@ -11,7 +11,7 @@ At 90, 60, 30 days:
 from __future__ import annotations
 
 from datetime import date, timedelta
-from typing import Any, Dict, Optional
+from typing import Any
 
 from loguru import logger
 
@@ -30,7 +30,7 @@ def check_contract_expiry() -> None:
     run_async(async_check_contract_expiry())
 
 
-async def async_check_contract_expiry(session_factory: Optional[Any] = None) -> Dict[str, int]:
+async def async_check_contract_expiry(session_factory: Any | None = None) -> dict[str, int]:
     """
     Core contract expiry and auto-renewal check logic.
     Returns counts of alerts sent, renewals processed, and expirations marked.

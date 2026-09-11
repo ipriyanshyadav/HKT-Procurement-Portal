@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID
+
 import httpx
 from loguru import logger
 
@@ -18,9 +19,9 @@ class WhatsAppChannel:
         self,
         to_phone: str,
         message: str = "",
-        template_code: Optional[str] = None,
-        context: Optional[dict[str, Any]] = None,
-        org_id: Optional[UUID] = None,
+        template_code: str | None = None,
+        context: dict[str, Any] | None = None,
+        org_id: UUID | None = None,
     ) -> int:
         clean_phone = to_phone.strip().replace(" ", "").replace("-", "")
         if not clean_phone.startswith("+") and not clean_phone.startswith("whatsapp:"):
@@ -41,18 +42,17 @@ class WhatsAppChannel:
 
         if provider == "meta":
             return await self._send_meta(clean_phone, message, template_code, context)
-        elif provider == "twilio":
+        if provider == "twilio":
             return await self._send_twilio(clean_phone, message)
-        else:
-            logger.warning(f"Unknown WhatsApp provider: {provider}, defaulting to mock log")
-            return 202
+        logger.warning(f"Unknown WhatsApp provider: {provider}, defaulting to mock log")
+        return 202
 
     async def _send_meta(
         self,
         to_phone: str,
         message: str,
-        template_code: Optional[str],
-        context: Optional[dict[str, Any]],
+        template_code: str | None,
+        context: dict[str, Any] | None,
     ) -> int:
         phone_id = settings.WHATSAPP_PHONE_NUMBER_ID
         token = settings.WHATSAPP_ACCESS_TOKEN

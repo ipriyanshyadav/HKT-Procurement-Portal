@@ -1,13 +1,12 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from decimal import Decimal
-from typing import Optional, List
 from uuid import UUID, uuid4
 
-from loguru import logger
-from pydantic import BaseModel as PydanticBaseModel, Field, model_validator
-from sqlalchemy import and_, select, func, or_
+from pydantic import BaseModel as PydanticBaseModel
+from pydantic import Field
+from sqlalchemy import and_, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.constants import AuditAction
@@ -22,29 +21,29 @@ _ENTITY_TYPE = "MASTER_DATA"
 class ItemCreateRequest(PydanticBaseModel):
     code: str = Field(..., min_length=1, max_length=50)
     name: str = Field(..., min_length=1, max_length=200)
-    description: Optional[str] = Field(default=None, max_length=500)
+    description: str | None = Field(default=None, max_length=500)
     category_id: UUID
     uom_id: UUID
     standard_price: Decimal = Field(default=Decimal("0.0"), ge=0)
     currency: str = Field(default="INR", max_length=3)
-    hsn_code: Optional[str] = Field(default=None, max_length=20)
-    image_url: Optional[str] = Field(default=None, max_length=500)
+    hsn_code: str | None = Field(default=None, max_length=20)
+    image_url: str | None = Field(default=None, max_length=500)
     is_punchout: bool = False
-    punchout_vendor_id: Optional[UUID] = None
+    punchout_vendor_id: UUID | None = None
 
 
 class ItemUpdateRequest(PydanticBaseModel):
-    name: Optional[str] = Field(default=None, min_length=1, max_length=200)
-    description: Optional[str] = Field(default=None, max_length=500)
-    category_id: Optional[UUID] = None
-    uom_id: Optional[UUID] = None
-    standard_price: Optional[Decimal] = Field(default=None, ge=0)
-    currency: Optional[str] = Field(default=None, max_length=3)
-    hsn_code: Optional[str] = Field(default=None, max_length=20)
-    image_url: Optional[str] = Field(default=None, max_length=500)
-    is_punchout: Optional[bool] = None
-    punchout_vendor_id: Optional[UUID] = None
-    is_active: Optional[bool] = None
+    name: str | None = Field(default=None, min_length=1, max_length=200)
+    description: str | None = Field(default=None, max_length=500)
+    category_id: UUID | None = None
+    uom_id: UUID | None = None
+    standard_price: Decimal | None = Field(default=None, ge=0)
+    currency: str | None = Field(default=None, max_length=3)
+    hsn_code: str | None = Field(default=None, max_length=20)
+    image_url: str | None = Field(default=None, max_length=500)
+    is_punchout: bool | None = None
+    punchout_vendor_id: UUID | None = None
+    is_active: bool | None = None
 
 
 class ItemResponse(PydanticBaseModel):
@@ -54,15 +53,15 @@ class ItemResponse(PydanticBaseModel):
     org_id: UUID
     code: str
     name: str
-    description: Optional[str] = None
+    description: str | None = None
     category_id: UUID
     uom_id: UUID
     standard_price: Decimal
     currency: str
-    hsn_code: Optional[str] = None
-    image_url: Optional[str] = None
+    hsn_code: str | None = None
+    image_url: str | None = None
     is_punchout: bool
-    punchout_vendor_id: Optional[UUID] = None
+    punchout_vendor_id: UUID | None = None
     is_active: bool
     created_at: datetime
     updated_at: datetime
@@ -70,7 +69,7 @@ class ItemResponse(PydanticBaseModel):
 
 class PunchOutSessionResponse(PydanticBaseModel):
     session_id: str
-    vendor_id: Optional[str] = None
+    vendor_id: str | None = None
     punchout_url: str
     return_url: str
     status: str
@@ -79,12 +78,12 @@ class PunchOutSessionResponse(PydanticBaseModel):
 class PunchOutCartItem(PydanticBaseModel):
     item_code: str
     item_description: str
-    category_id: Optional[str] = None
-    uom_id: Optional[str] = None
+    category_id: str | None = None
+    uom_id: str | None = None
     quantity: int = 1
     unit_price: Decimal
     currency: str = "INR"
-    hsn_code: Optional[str] = None
+    hsn_code: str | None = None
 
 
 class ItemService:
@@ -95,12 +94,12 @@ class ItemService:
         self,
         db: AsyncSession,
         org_id: UUID,
-        search: Optional[str] = None,
-        category_id: Optional[UUID] = None,
+        search: str | None = None,
+        category_id: UUID | None = None,
         active_only: bool = True,
         page: int = 1,
         page_size: int = 50,
-    ) -> tuple[List[ItemMaster], int]:
+    ) -> tuple[list[ItemMaster], int]:
         conditions = [ItemMaster.org_id == org_id, ItemMaster.deleted_at.is_(None)]
         if active_only:
             conditions.append(ItemMaster.is_active.is_(True))
@@ -132,7 +131,7 @@ class ItemService:
         except NotFoundError:
             raise NotFoundError("Item not found", {"item_id": str(item_id)})
 
-    async def get_by_code(self, db: AsyncSession, code: str, org_id: UUID) -> Optional[ItemMaster]:
+    async def get_by_code(self, db: AsyncSession, code: str, org_id: UUID) -> ItemMaster | None:
         stmt = select(ItemMaster).where(
             and_(
                 ItemMaster.org_id == org_id,
@@ -196,7 +195,7 @@ class ItemService:
         data = req.model_dump(exclude_unset=True)
         for field_name, value in data.items():
             setattr(item, field_name, value)
-        item.updated_at = datetime.now(timezone.utc)
+        item.updated_at = datetime.now(UTC)
         await db.flush()
 
         await audit_service.log(
@@ -212,7 +211,7 @@ class ItemService:
 
     async def delete(self, db: AsyncSession, item_id: UUID, actor_id: UUID, org_id: UUID) -> None:
         item = await self.get_by_id(db, item_id, org_id)
-        item.deleted_at = datetime.now(timezone.utc)
+        item.deleted_at = datetime.now(UTC)
         item.is_active = False
         await db.flush()
 

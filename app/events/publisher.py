@@ -1,9 +1,11 @@
 from __future__ import annotations
+
 import json
-from typing import Optional, Any
+from typing import Any
 from uuid import UUID
-from sqlalchemy.ext.asyncio import AsyncSession
+
 from sqlalchemy import text
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class OutboxPublisher:
@@ -12,9 +14,9 @@ class OutboxPublisher:
         session: AsyncSession,
         exchange_or_event: str = "procurement.events",
         routing_key: str = "",
-        payload: Optional[dict[str, Any]] = None,
-        org_id: Optional[UUID] = None,
-        event_type: Optional[str] = None,
+        payload: dict[str, Any] | None = None,
+        org_id: UUID | None = None,
+        event_type: str | None = None,
         **kwargs: Any,
     ) -> None:
         """

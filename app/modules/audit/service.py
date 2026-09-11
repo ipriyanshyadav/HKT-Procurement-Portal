@@ -1,9 +1,9 @@
 from __future__ import annotations
+
 import csv
 import io
-import json
-from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional
+from datetime import UTC, datetime
+from typing import Any
 from uuid import UUID
 
 from loguru import logger
@@ -58,13 +58,13 @@ class AuditService:
         entity_type: str,
         entity_id: UUID,
         action: str,
-        actor_id: Optional[UUID],
+        actor_id: UUID | None,
         org_id: UUID,
-        old_values: Optional[dict[str, Any]] = None,
-        new_values: Optional[dict[str, Any]] = None,
-        metadata: Optional[dict[str, Any]] = None,
-        actor_email: Optional[str] = None,
-        actor_ip: Optional[str] = None,
+        old_values: dict[str, Any] | None = None,
+        new_values: dict[str, Any] | None = None,
+        metadata: dict[str, Any] | None = None,
+        actor_email: str | None = None,
+        actor_ip: str | None = None,
         trace_id: str = "",
     ) -> None:
         """Insert an immutable, cryptographically chained audit log entry."""
@@ -74,7 +74,7 @@ class AuditService:
         except ValueError:
             entity_type_enum = AuditEntityTypeEnum.USER  # fallback for auth events
 
-        now_utc = datetime.now(timezone.utc)
+        now_utc = datetime.now(UTC)
         created_at_iso = now_utc.isoformat()
 
         # Resolve previous hash in chain
@@ -133,7 +133,7 @@ class AuditService:
         db: AsyncSession,
         org_id: UUID,
         query: AuditSearchQuery,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Search and list audit logs using Elasticsearch or SQL fallback."""
         return await audit_search_service.search_audit_logs(db, org_id=org_id, query=query)
 
@@ -141,9 +141,9 @@ class AuditService:
         self,
         db: AsyncSession,
         org_id: UUID,
-        entity_type: Optional[str] = None,
+        entity_type: str | None = None,
         limit: int = 500,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Run cryptographic SHA-256 chain of custody verification across audit records.
         """
@@ -163,10 +163,10 @@ class AuditService:
         self,
         db: AsyncSession,
         org_id: UUID,
-        date_from: Optional[datetime] = None,
-        date_to: Optional[datetime] = None,
+        date_from: datetime | None = None,
+        date_to: datetime | None = None,
         format_type: str = "json",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Generate tamper-evident compliance audit export with cryptographic hash manifest.
         """
@@ -201,7 +201,7 @@ class AuditService:
 
         manifest = {
             "org_id": str(org_id),
-            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "generated_at": datetime.now(UTC).isoformat(),
             "record_count": len(records_data),
             "chain_valid": verification["is_valid"],
             "head_hash": verification.get("head_hash"),

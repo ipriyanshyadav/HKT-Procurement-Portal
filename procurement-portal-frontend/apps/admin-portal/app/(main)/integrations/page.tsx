@@ -66,7 +66,7 @@ export default function IntegrationMonitorPage() {
     page_size: 100,
   });
 
-  const jobs: IntegrationJob[] = jobsData?.data ?? [];
+  const jobs: IntegrationJob[] = useMemo(() => jobsData?.data ?? [], [jobsData?.data]);
   const { data: schedules = [] } = useScheduledRuns();
   const retryMutation = useRetryIntegrationJob();
   const triggerSyncMutation = useTriggerSync();

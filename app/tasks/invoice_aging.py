@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-from datetime import date, datetime, timezone
-from typing import Any, Optional
+from datetime import date
+from typing import Any
 
-from loguru import logger
 from sqlalchemy import and_, select
 
 from app.config import settings
@@ -20,7 +19,7 @@ def check_invoice_aging() -> None:
     run_async(async_check_invoice_aging())
 
 
-async def async_check_invoice_aging(session_factory: Optional[Any] = None) -> dict:
+async def async_check_invoice_aging(session_factory: Any | None = None) -> dict:
     """
     Scans unpaid or pending invoices and generates aging alerts
     based on configured day thresholds past due_date.

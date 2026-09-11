@@ -1,12 +1,14 @@
 from __future__ import annotations
-from typing import Any, Dict, Optional
-from sqlalchemy import and_, or_, between
+
+from typing import Any
+
+from sqlalchemy import and_
 
 
 class FilterBuilder:
     """Builds SQLAlchemy filter conditions from query parameters and dictionary specs."""
 
-    def apply(self, query: Any, model: Any, filters: Dict[str, Any]) -> Any:
+    def apply(self, query: Any, model: Any, filters: dict[str, Any]) -> Any:
         conditions = []
         for field, value in filters.items():
             if not hasattr(model, field):

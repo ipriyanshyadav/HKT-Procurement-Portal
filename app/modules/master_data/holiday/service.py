@@ -9,15 +9,13 @@ Invariants:
 """
 from __future__ import annotations
 
-from datetime import date, datetime, timezone
-from typing import Optional
+from datetime import UTC, date, datetime
 from uuid import UUID, uuid4
 
 from loguru import logger
-from sqlalchemy import and_, between, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.exceptions import ConflictError, NotFoundError, ValidationError
+from app.core.exceptions import ConflictError, ValidationError
 from app.modules.audit.service import audit_service
 from app.modules.master_data.holiday.repository import (
     HolidayRepository,
@@ -120,7 +118,7 @@ class HolidayService:
 
         The caller's transaction is responsible for committing.
         """
-        today = datetime.now(timezone.utc).date()
+        today = datetime.now(UTC).date()
         if data.holiday_date < today:
             raise ValidationError(
                 "PAST_DATE_NOT_ALLOWED",

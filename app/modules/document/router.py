@@ -1,14 +1,14 @@
 from __future__ import annotations
+
 from datetime import date
-from typing import Optional, List
 from uuid import UUID
+
 from fastapi import APIRouter, Depends, File, Form, UploadFile, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.dependencies import get_current_user
 from app.config import settings
-from app.core.responses import APIResponse, PaginationMeta, created_response, success_response
-from app.db.enums import DocumentCategory
+from app.core.responses import PaginationMeta, created_response, success_response
 from app.db.session import get_db
 from app.modules.document.schemas import (
     DocumentResponse,
@@ -31,9 +31,9 @@ async def upload_document(
     file: UploadFile = File(...),
     entity_type: str = Form(...),
     entity_id: UUID = Form(...),
-    document_type: Optional[str] = Form(None),
-    category: Optional[str] = Form(None),
-    compliance_expiry: Optional[date] = Form(None),
+    document_type: str | None = Form(None),
+    category: str | None = Form(None),
+    compliance_expiry: date | None = Form(None),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):

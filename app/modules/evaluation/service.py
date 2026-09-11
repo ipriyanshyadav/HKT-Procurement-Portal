@@ -1,40 +1,39 @@
 from __future__ import annotations
-from datetime import datetime, timezone
+
+from datetime import UTC, datetime
 from decimal import Decimal
-from typing import Optional, List, Tuple
 from uuid import UUID
+
 from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
-from app.core.exceptions import AppException, NotFoundError, ValidationError, ForbiddenError
-from app.core.constants import AuditAction
+from app.core.exceptions import AppException, NotFoundError, ValidationError
 from app.db.enums import AuditEntityType
 from app.events.publisher import OutboxPublisher
-from app.modules.audit.service import audit_service
-from app.modules.sourcing.repository import rfq_repository
-from app.modules.bid.repository import bid_repository
-from app.modules.vendor.repository import vendor_repository
-from app.modules.workflow.service import workflow_engine
 from app.modules.approval_rules.service import rules_engine
+from app.modules.audit.service import audit_service
+from app.modules.bid.repository import bid_repository
 from app.modules.evaluation.models import (
+    AwardDetail,
+    AwardRecommendation,
     ComparativeStatement,
     CsLineRanking,
-    CSLineRanking,
     Negotiation,
-    AwardRecommendation,
-    AwardDetail,
-)
-from app.modules.evaluation.repository import (
-    EvaluationRepository,
-    evaluation_repository,
-    NegotiationRepository,
-    negotiation_repository,
-    AwardRepository,
-    award_repository,
 )
 from app.modules.evaluation.pdf_generator import CSPDFGenerator, pdf_generator
+from app.modules.evaluation.repository import (
+    AwardRepository,
+    EvaluationRepository,
+    NegotiationRepository,
+    award_repository,
+    evaluation_repository,
+    negotiation_repository,
+)
 from app.modules.evaluation.schemas import AwardRecommendationItem
+from app.modules.sourcing.repository import rfq_repository
+from app.modules.vendor.repository import vendor_repository
+from app.modules.workflow.service import workflow_engine
 
 
 class EvaluationService:
@@ -66,8 +65,8 @@ class EvaluationService:
         rfq_id: UUID,
         actor_id: UUID,
         org_id: UUID,
-        cost_of_capital_rate: Optional[Decimal] = None,
-        evaluation_methodology: Optional[str] = None,
+        cost_of_capital_rate: Decimal | None = None,
+        evaluation_methodology: str | None = None,
     ) -> ComparativeStatement:
         rfq = await self.rfq_repo.get(db, rfq_id, org_id)
         if not rfq:
@@ -124,7 +123,7 @@ class EvaluationService:
         tech_weight = Decimal(str(weights.get("technical", settings.DEFAULT_EVALUATION_TECHNICAL_WEIGHT)))
         comm_weight = Decimal(str(weights.get("commercial", settings.DEFAULT_EVALUATION_COMMERCIAL_WEIGHT)))
 
-        all_rankings: List[CsLineRanking] = []
+        all_rankings: list[CsLineRanking] = []
         lots = rfq.lots or []
 
         if lots:
@@ -145,7 +144,7 @@ class EvaluationService:
 
                 l1_lot_total = min(bid_lot_totals.values()) if bid_lot_totals else Decimal("0.0")
 
-                lot_rankings: List[CsLineRanking] = []
+                lot_rankings: list[CsLineRanking] = []
                 for bid in lot_bids:
                     lot_total = bid_lot_totals[bid.id]
                     comm_score = (
@@ -197,7 +196,7 @@ class EvaluationService:
             rfq_lines = rfq.lines or []
             if rfq_lines:
                 for rfq_line in rfq_lines:
-                    line_rankings: List[CsLineRanking] = []
+                    line_rankings: list[CsLineRanking] = []
                     bids_with_line = [b for b in bids if any(l.rfq_line_id == rfq_line.id for l in b.lines)]
                     if not bids_with_line:
                         continue
@@ -262,7 +261,7 @@ class EvaluationService:
                     )
                 min_tot = min(bid_totals.values()) if bid_totals else Decimal("0.0")
 
-                fallback_rankings: List[CsLineRanking] = []
+                fallback_rankings: list[CsLineRanking] = []
                 for bid in bids:
                     tot = bid_totals[bid.id]
                     comm_score = (min_tot / tot * Decimal("100")) if tot > Decimal("0.0") else Decimal("100.0")
@@ -344,10 +343,10 @@ class EvaluationService:
         return reloaded_cs or cs
 
     async def _apply_tie_breaking(
-        self, db: AsyncSession, rankings: List[CsLineRanking], org_id: UUID
+        self, db: AsyncSession, rankings: list[CsLineRanking], org_id: UUID
     ) -> None:
         """Apply tie-breaking rules: Rule 1: Delivery days; Rule 2: Vendor performance score; Rule 3: Admin discretion."""
-        cost_groups: dict[Decimal, List[CsLineRanking]] = {}
+        cost_groups: dict[Decimal, list[CsLineRanking]] = {}
         for r in rankings:
             key = r.lot_total_inr or r.npv_adjusted_cost
             cost_groups.setdefault(key, []).append(r)
@@ -366,11 +365,11 @@ class EvaluationService:
         self,
         db: AsyncSession,
         cs_id: UUID,
-        vendor_ids: List[UUID],
+        vendor_ids: list[UUID],
         actor_id: UUID,
         org_id: UUID,
-        criteria: Optional[str] = None,
-    ) -> List[UUID]:
+        criteria: str | None = None,
+    ) -> list[UUID]:
         cs = await self.eval_repo.get_cs(db, cs_id, org_id)
         if not cs:
             raise NotFoundError(f"Comparative Statement {cs_id} not found")
@@ -412,16 +411,16 @@ class EvaluationService:
         self,
         db: AsyncSession,
         cs_id: UUID,
-        vendor_ids: List[UUID],
+        vendor_ids: list[UUID],
         actor_id: UUID,
         org_id: UUID,
-        notes: Optional[str] = None,
-    ) -> List[Negotiation]:
+        notes: str | None = None,
+    ) -> list[Negotiation]:
         cs = await self.eval_repo.get_cs(db, cs_id, org_id)
         if not cs:
             raise NotFoundError(f"Comparative Statement {cs_id} not found")
 
-        negotiations: List[Negotiation] = []
+        negotiations: list[Negotiation] = []
         for vendor_id in vendor_ids:
             # Find original price from rankings
             vendor_ranking = next((r for r in cs.rankings if r.vendor_id == vendor_id), None)
@@ -467,7 +466,7 @@ class EvaluationService:
         new_price: Decimal,
         actor_id: UUID,
         org_id: UUID,
-        notes: Optional[str] = None,
+        notes: str | None = None,
     ) -> Negotiation:
         neg = await self.neg_repo.get(db, negotiation_id, org_id)
         if not neg:
@@ -522,7 +521,7 @@ class EvaluationService:
         self,
         db: AsyncSession,
         cs_id: UUID,
-        awards: List[AwardRecommendationItem],
+        awards: list[AwardRecommendationItem],
         justification: str,
         actor_id: UUID,
         org_id: UUID,
@@ -608,7 +607,7 @@ class EvaluationService:
         arn_id: UUID,
         actor_id: UUID,
         org_id: UUID,
-        comments: Optional[str] = None,
+        comments: str | None = None,
     ) -> AwardRecommendation:
         rec = await self.award_repo.get(db, arn_id, org_id)
         if not rec:
@@ -616,14 +615,14 @@ class EvaluationService:
 
         rec.status = "APPROVED"
         rec.approved_by = actor_id
-        rec.approved_at = datetime.now(timezone.utc)
+        rec.approved_at = datetime.now(UTC)
 
         # Also update parent CS status
         cs = await self.eval_repo.get_cs(db, rec.cs_id, org_id)
         if cs:
             cs.status = "APPROVED"
             cs.approved_by = actor_id
-            cs.approved_at = datetime.now(timezone.utc)
+            cs.approved_at = datetime.now(UTC)
 
         await self.audit.log(
             db, AuditEntityType.EVALUATION, rec.id, "AWARD_APPROVED", actor_id, org_id
@@ -646,7 +645,7 @@ class EvaluationService:
         cs_id: UUID,
         actor_id: UUID,
         org_id: UUID,
-    ) -> Tuple[List[UUID], int]:
+    ) -> tuple[list[UUID], int]:
         cs = await self.eval_repo.get_cs(db, cs_id, org_id)
         if not cs:
             raise NotFoundError(f"Comparative Statement {cs_id} not found")

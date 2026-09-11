@@ -1,8 +1,7 @@
 from __future__ import annotations
-from typing import Union
+
 from app.core.exceptions import ConflictError
 from app.db.enums import PRStatus
-
 
 # 12-status PR FSM according to SPEC_08 Section 9
 PR_FSM: dict[str, list[str]] = {
@@ -62,8 +61,8 @@ class InvalidPrTransitionError(ConflictError):
 
 
 def validate_pr_transition(
-    current: Union[str, PRStatus],
-    target: Union[str, PRStatus],
+    current: str | PRStatus,
+    target: str | PRStatus,
 ) -> None:
     current_val = current.value if isinstance(current, PRStatus) else str(current)
     target_val = target.value if isinstance(target, PRStatus) else str(target)

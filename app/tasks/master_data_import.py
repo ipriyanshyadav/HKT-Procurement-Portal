@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+from decimal import Decimal
 from uuid import UUID
 
 from loguru import logger
@@ -13,21 +14,20 @@ from app.modules.master_data.category.service import (
     CategoryCreateRequest,
     category_service,
 )
-from app.modules.master_data.uom.service import (
-    UomCreateRequest,
-    uom_service,
-)
-from app.modules.master_data.tax.service import (
-    TaxCreateRequest,
-    tax_service,
-)
-from app.modules.master_data.payment_terms.schemas import PaymentTermCreateRequest
-from app.modules.master_data.payment_terms.service import payment_terms_service
 from app.modules.master_data.location.service import (
     LocationCreateRequest,
     delivery_location_service,
 )
-from decimal import Decimal
+from app.modules.master_data.payment_terms.schemas import PaymentTermCreateRequest
+from app.modules.master_data.payment_terms.service import payment_terms_service
+from app.modules.master_data.tax.service import (
+    TaxCreateRequest,
+    tax_service,
+)
+from app.modules.master_data.uom.service import (
+    UomCreateRequest,
+    uom_service,
+)
 from app.tasks.async_runner import run_async
 from app.tasks.celery_app import celery_app
 
@@ -123,7 +123,7 @@ async def _async_import(job_id: str, org_id: str) -> None:
                 logger.warning(f"Error importing row {idx + 1} ({code}): {e}")
                 errors.append({"row": str(idx + 1), "code": code, "error": str(e)})
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         job.completed_at = now
         job.response_payload = {
             "total_rows": len(rows),
@@ -132,9 +132,7 @@ async def _async_import(job_id: str, org_id: str) -> None:
             "errors": errors[:100],  # cap error details
         }
 
-        if len(errors) == 0:
-            job.status = IntegrationJobStatusEnum.COMPLETED
-        elif success_count > 0:
+        if len(errors) == 0 or success_count > 0:
             job.status = IntegrationJobStatusEnum.COMPLETED
         else:
             job.status = IntegrationJobStatusEnum.FAILED

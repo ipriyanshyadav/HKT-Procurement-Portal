@@ -1,20 +1,21 @@
 from __future__ import annotations
-from typing import Optional
+
 from uuid import UUID
+
 from pydantic import BaseModel, EmailStr
 
 
 class LoginRequest(BaseModel):
     email: EmailStr
     password: str
-    org_id: Optional[UUID] = None
-    turnstile_token: Optional[str] = None
-    portal: Optional[str] = None
+    org_id: UUID | None = None
+    turnstile_token: str | None = None
+    portal: str | None = None
 
 
 class TurnstileVerifyRequest(BaseModel):
     token: str
-    remote_ip: Optional[str] = None
+    remote_ip: str | None = None
 
 
 class LoginResponse(BaseModel):
@@ -41,5 +42,5 @@ class ChangePasswordRequest(BaseModel):
 
 
 class RefreshRequest(BaseModel):
-    refresh_token: Optional[str] = None
+    refresh_token: str | None = None
 

@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, File, Query, Request, UploadFile, status
@@ -92,11 +92,11 @@ def _to_detail_response(
 
     formatted_links = []
     if links is not None:
-        for l in links:
-            if isinstance(l, dict):
-                formatted_links.append(TicketLinkResponse(**l))
+        for link_item in links:
+            if isinstance(link_item, dict):
+                formatted_links.append(TicketLinkResponse(**link_item))
             else:
-                formatted_links.append(TicketLinkResponse.model_validate(l))
+                formatted_links.append(TicketLinkResponse.model_validate(link_item))
 
     formatted_cfs = []
     if custom_fields is not None:
@@ -277,7 +277,7 @@ async def export_tickets(
         for t in tickets
     ]
     headers = ["number", "title", "type", "priority", "status", "due_date", "created"]
-    filename = f"tickets_export_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}"
+    filename = f"tickets_export_{datetime.now(UTC).strftime('%Y%m%d_%H%M%S')}"
     return stream_csv(headers, rows, filename)
 
 
@@ -775,7 +775,7 @@ async def get_ticket_links(
     db: AsyncSession = Depends(get_db),
 ):
     links = await ticket_service.get_ticket_links(db, ticket_id, current_user.org_id)
-    return success_response([TicketLinkResponse(**l) for l in links])
+    return success_response([TicketLinkResponse(**item) for item in links])
 
 
 @router.post("/{ticket_id}/links", status_code=status.HTTP_201_CREATED)
@@ -791,7 +791,7 @@ async def create_ticket_link(
     await db.commit()
     await db.refresh(link)
     links = await ticket_service.get_ticket_links(db, ticket_id, current_user.org_id)
-    matched = next((l for l in links if l["id"] == link.id), None)
+    matched = next((item for item in links if item["id"] == link.id), None)
     if matched:
         return created_response(TicketLinkResponse(**matched))
     return created_response(TicketLinkResponse.model_validate(link))

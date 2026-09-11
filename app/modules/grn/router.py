@@ -11,17 +11,16 @@ Provides endpoints for:
 """
 from __future__ import annotations
 
-import math
-from typing import Any, List, Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.auth.dependencies import get_current_user, require_any_permission, require_permission
+from app.auth.dependencies import require_any_permission, require_permission
 from app.core.constants import PermissionCode
 from app.core.responses import APIResponse, PaginationMeta, created_response, success_response
 from app.db.session import get_db
+from app.modules.grn.models import GoodsReceiptNote
 from app.modules.grn.schemas import (
     GrnCreateRequest,
     GrnFilterParams,
@@ -31,7 +30,6 @@ from app.modules.grn.schemas import (
     QualityInspectionResponse,
 )
 from app.modules.grn.service import grn_service
-from app.modules.grn.models import GoodsReceiptNote
 from app.modules.user.models import User
 
 router = APIRouter(tags=["GRN"])
@@ -101,10 +99,10 @@ async def health():
     return {"status": "ok", "module": "grn"}
 
 
-@router.get("", response_model=APIResponse[List[GrnResponse]])
+@router.get("", response_model=APIResponse[list[GrnResponse]])
 async def list_grns(
-    po_id: Optional[UUID] = Query(None),
-    status: Optional[str] = Query(None),
+    po_id: UUID | None = Query(None),
+    status: str | None = Query(None),
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     db: AsyncSession = Depends(get_db),

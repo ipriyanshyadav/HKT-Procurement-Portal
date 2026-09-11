@@ -1,8 +1,9 @@
 from __future__ import annotations
+
 import asyncio
 import json
-from typing import Optional
 from uuid import UUID
+
 import aio_pika
 from loguru import logger
 
@@ -10,11 +11,12 @@ from app.config import settings
 from app.core.exceptions import ExternalServiceError
 from app.db.enums import NotificationChannelEnum, NotificationStatusEnum
 from app.db.session import get_db_ctx
-from app.modules.notification.channels.email import email_channel, EmailChannel
-from app.modules.notification.channels.sms import sms_channel, SMSChannel
-from app.modules.notification.channels.inapp import inapp_channel, InAppChannel
+from app.modules.notification.channels.email import EmailChannel, email_channel
+from app.modules.notification.channels.inapp import InAppChannel, inapp_channel
+from app.modules.notification.channels.sms import SMSChannel, sms_channel
 from app.modules.notification.models import Notification
 from app.modules.notification.repository import notification_repo
+
 
 class NotificationConsumer:
     """aio-pika consumer for all notification queues (email, sms, inapp, digest)."""
@@ -30,9 +32,9 @@ class NotificationConsumer:
 
     def __init__(
         self,
-        email_ch: Optional[EmailChannel] = None,
-        sms_ch: Optional[SMSChannel] = None,
-        inapp_ch: Optional[InAppChannel] = None,
+        email_ch: EmailChannel | None = None,
+        sms_ch: SMSChannel | None = None,
+        inapp_ch: InAppChannel | None = None,
     ):
         self.email_channel = email_ch or email_channel
         self.sms_channel = sms_ch or sms_channel

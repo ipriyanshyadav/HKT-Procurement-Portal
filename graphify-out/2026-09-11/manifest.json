@@ -948,8 +948,8 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/types/src/api.ts": {
-    "mtime": 1789060188.948052,
-    "seen": 1789060667.913895,
+    "mtime": 1789099345.6464217,
+    "seen": 1789100198.605641,
     "ast_hash": "78361e250bde117fcfd1a864cd6243cb",
     "semantic_hash": ""
   },
@@ -1482,9 +1482,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1789058707.5768993,
-    "seen": 1789060667.920594,
-    "ast_hash": "fb7cafebcbd06a8404ee975e49b1cacc",
+    "mtime": 1789100178.520264,
+    "seen": 1789100198.611579,
+    "ast_hash": "c30f121e4069b071c7848cf111f190da",
     "semantic_hash": ""
   },
   "graphify_diff_20260904_014322.txt": {
@@ -6054,9 +6054,9 @@
     "semantic_hash": ""
   },
   "app/modules/catalog/router.py": {
-    "mtime": 1789054255.2142906,
-    "seen": 1789054899.698793,
-    "ast_hash": "03a1db0dbf421010edd6cc6aa0610f8d",
+    "mtime": 1789099945.2930102,
+    "seen": 1789100198.5929441,
+    "ast_hash": "eb4689afc7022c5264248eb06c07004f",
     "semantic_hash": ""
   },
   "app/modules/catalog/schemas.py": {
@@ -6066,9 +6066,9 @@
     "semantic_hash": ""
   },
   "app/modules/catalog/service.py": {
-    "mtime": 1788984059.9864194,
-    "seen": 1788987488.2586648,
-    "ast_hash": "b69e713905982d96edcac9ac79c1ca34",
+    "mtime": 1789099950.1559908,
+    "seen": 1789100198.5929658,
+    "ast_hash": "436fe056232cab3207600e21a4656aa6",
     "semantic_hash": ""
   },
   "app/modules/einvoicing/__init__.py": {
@@ -6138,9 +6138,9 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/hooks/src/useCatalogMarketplace.ts": {
-    "mtime": 1788982282.2033565,
-    "seen": 1788983040.267572,
-    "ast_hash": "52bc6136b774d0c56ec80fd3d57853b7",
+    "mtime": 1789099952.9728127,
+    "seen": 1789100198.6046588,
+    "ast_hash": "bb28af7ca888b40ea55b78c992effe74",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/hooks/src/useEInvoicing.ts": {
@@ -6633,6 +6633,24 @@
     "mtime": 1789059874.7317214,
     "seen": 1789060667.917439,
     "ast_hash": "b34e1a46fcb03de4196e96ecb397d0a7",
+    "semantic_hash": ""
+  },
+  "tests/e2e/playwright/exhaustive_workflow_and_portal_audit.spec.ts": {
+    "mtime": 1789100022.328849,
+    "seen": 1789100198.6086311,
+    "ast_hash": "74a7628c77ec726e6c221345af117842",
+    "semantic_hash": ""
+  },
+  "docs/CROSS_PORTAL_WORKFLOW_AUDIT_REPORT.md": {
+    "mtime": 1789100125.833358,
+    "seen": 1789100198.611723,
+    "ast_hash": "063ec71b8b30224148a56cbd5cedeff9",
+    "semantic_hash": ""
+  },
+  "docs/PLATFORM_WORKFLOW_AND_FEATURES_GUIDE.md": {
+    "mtime": 1789100150.023519,
+    "seen": 1789100198.611864,
+    "ast_hash": "7e23dd0b107aca6753c8bc72fe683f52",
     "semantic_hash": ""
   }
 }

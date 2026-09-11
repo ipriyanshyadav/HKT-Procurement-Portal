@@ -1,16 +1,19 @@
 from __future__ import annotations
-from typing import Optional, Dict, Any
-from datetime import datetime, timezone
+
+from datetime import UTC, datetime
+from typing import Any
 from uuid import UUID
+
 from pydantic import BaseModel, Field
 
+
 class BaseEvent(BaseModel):
-    entity_id: Optional[UUID] = None
+    entity_id: UUID | None = None
     org_id: UUID
     event_type: str = Field(...)
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    actor_id: Optional[UUID] = None
-    metadata: Dict[str, Any] = Field(default_factory=dict)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    actor_id: UUID | None = None
+    metadata: dict[str, Any] = Field(default_factory=dict)
 
 # Org
 class OrgCreatedEvent(BaseEvent): event_type: str = "org.created"
@@ -24,8 +27,8 @@ class UserRoleChangedEvent(BaseEvent): event_type: str = "user.role_changed"
 # Vendor
 class VendorInvitedEvent(BaseEvent):
     event_type: str = "vendor.invited"
-    vendor_id: Optional[UUID] = None
-    email: Optional[str] = None
+    vendor_id: UUID | None = None
+    email: str | None = None
 
     def model_post_init(self, __context: Any) -> None:
         if self.entity_id is None and self.vendor_id is not None:
@@ -54,8 +57,8 @@ class UnmappedPRMappedEvent(BaseEvent): event_type: str = "unmapped_pr.mapped"
 class RFQCreatedEvent(BaseEvent): event_type: str = "rfq.created"
 class RFQPublishedEvent(BaseEvent):
     event_type: str = "rfq.published"
-    rfq_id: Optional[UUID] = None
-    rfq_number: Optional[str] = None
+    rfq_id: UUID | None = None
+    rfq_number: str | None = None
     invited_vendor_count: int = 0
 
     def model_post_init(self, __context: Any) -> None:

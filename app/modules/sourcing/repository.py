@@ -1,18 +1,20 @@
 from __future__ import annotations
-from datetime import datetime, timezone
-from typing import Optional, List, Tuple
+
+import builtins
+from datetime import datetime
 from uuid import UUID
-from sqlalchemy import select, func, and_, or_, desc
+
+from sqlalchemy import and_, desc, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.db.enums import RFQStatus
-from app.modules.sourcing.models import Rfq, RfqLot, RfqLine, RfqParticipant, RfqClarification, RfqAmendment
+from app.modules.sourcing.models import Rfq, RfqClarification, RfqParticipant
 
 
 class RfqRepository:
 
-    async def get(self, db: AsyncSession, rfq_id: UUID, org_id: UUID) -> Optional[Rfq]:
+    async def get(self, db: AsyncSession, rfq_id: UUID, org_id: UUID) -> Rfq | None:
         stmt = (
             select(Rfq)
             .where(
@@ -36,15 +38,15 @@ class RfqRepository:
         self,
         db: AsyncSession,
         org_id: UUID,
-        status: Optional[str] = None,
-        rfq_type: Optional[str] = None,
-        business_unit_id: Optional[UUID] = None,
-        category_id: Optional[UUID] = None,
-        buyer_id: Optional[UUID] = None,
-        search: Optional[str] = None,
+        status: str | None = None,
+        rfq_type: str | None = None,
+        business_unit_id: UUID | None = None,
+        category_id: UUID | None = None,
+        buyer_id: UUID | None = None,
+        search: str | None = None,
         skip: int = 0,
         limit: int = 20,
-    ) -> Tuple[List[Rfq], int]:
+    ) -> tuple[builtins.list[Rfq], int]:
         filters = [Rfq.org_id == org_id, Rfq.deleted_at.is_(None)]
 
         if status:
@@ -85,11 +87,11 @@ class RfqRepository:
         db: AsyncSession,
         org_id: UUID,
         vendor_id: UUID,
-        status: Optional[str] = None,
-        search: Optional[str] = None,
+        status: str | None = None,
+        search: str | None = None,
         skip: int = 0,
         limit: int = 20,
-    ) -> Tuple[List[Rfq], int]:
+    ) -> tuple[builtins.list[Rfq], int]:
         invited_subq = (
             select(RfqParticipant.rfq_id)
             .where(
@@ -140,7 +142,7 @@ class RfqRepository:
         result = await db.execute(stmt)
         return list(result.scalars().all()), total
 
-    async def get_published_past_deadline(self, db: AsyncSession, now: datetime) -> List[Rfq]:
+    async def get_published_past_deadline(self, db: AsyncSession, now: datetime) -> builtins.list[Rfq]:
         stmt = (
             select(Rfq)
             .where(
@@ -178,7 +180,7 @@ class RfqRepository:
 
 class RfqParticipantRepository:
 
-    async def get_all(self, db: AsyncSession, rfq_id: UUID, org_id: UUID) -> List[RfqParticipant]:
+    async def get_all(self, db: AsyncSession, rfq_id: UUID, org_id: UUID) -> list[RfqParticipant]:
         stmt = (
             select(RfqParticipant)
             .where(
@@ -192,7 +194,7 @@ class RfqParticipantRepository:
         result = await db.execute(stmt)
         return list(result.scalars().all())
 
-    async def get_by_vendor(self, db: AsyncSession, rfq_id: UUID, vendor_id: UUID, org_id: UUID) -> Optional[RfqParticipant]:
+    async def get_by_vendor(self, db: AsyncSession, rfq_id: UUID, vendor_id: UUID, org_id: UUID) -> RfqParticipant | None:
         stmt = (
             select(RfqParticipant)
             .where(
@@ -210,7 +212,7 @@ class RfqParticipantRepository:
 
 class RfqClarificationRepository:
 
-    async def get(self, db: AsyncSession, clarification_id: UUID, org_id: UUID) -> Optional[RfqClarification]:
+    async def get(self, db: AsyncSession, clarification_id: UUID, org_id: UUID) -> RfqClarification | None:
         stmt = (
             select(RfqClarification)
             .where(
@@ -224,7 +226,7 @@ class RfqClarificationRepository:
         result = await db.execute(stmt)
         return result.scalar_one_or_none()
 
-    async def get_all_for_rfq(self, db: AsyncSession, rfq_id: UUID, org_id: UUID) -> List[RfqClarification]:
+    async def get_all_for_rfq(self, db: AsyncSession, rfq_id: UUID, org_id: UUID) -> list[RfqClarification]:
         stmt = (
             select(RfqClarification)
             .where(

@@ -1,9 +1,13 @@
 from __future__ import annotations
+
 from urllib.parse import urlparse, urlunparse
+
 from celery import Celery
-from kombu import Queue
 from celery.schedules import crontab
+from kombu import Queue
+
 from app.config import settings
+
 
 def _get_result_backend_url(redis_url: str | None, db_index: int) -> str | None:
     if not redis_url:
@@ -161,7 +165,7 @@ from celery.signals import worker_process_init
 def on_worker_process_init(**kwargs):
     """Dispose parent connection pools, engines, and async loops in child workers post-fork."""
     try:
-        from app.db.session import engine, analytics_engine
+        from app.db.session import analytics_engine, engine
         engine.sync_engine.dispose()
         analytics_engine.sync_engine.dispose()
     except Exception:

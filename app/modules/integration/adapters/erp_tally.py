@@ -1,12 +1,11 @@
 from __future__ import annotations
 
-import xml.etree.ElementTree as ET
-from datetime import datetime, timezone
-from typing import Any, Dict, Optional
+from datetime import UTC, datetime
+from typing import Any
 from uuid import UUID
 
-from .erp_base import ERPAdapterBase
 from ..http_client import SafeHTTPClient
+from .erp_base import ERPAdapterBase
 
 
 class TallyXMLAdapter(ERPAdapterBase):
@@ -15,7 +14,7 @@ class TallyXMLAdapter(ERPAdapterBase):
     Translates procurement entities into Tally XML Envelopes for automated ledger and voucher posting.
     """
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None) -> None:
+    def __init__(self, config: dict[str, Any] | None = None) -> None:
         super().__init__(config)
         self.endpoint_url = self.config.get("endpoint_url")
         self.company_name = self.config.get("company_name", "DEFAULT_COMPANY")
@@ -37,9 +36,9 @@ class TallyXMLAdapter(ERPAdapterBase):
             f"</ENVELOPE>"
         )
 
-    async def sync_vendor(self, vendor_id: UUID, org_id: UUID) -> Dict[str, Any]:
+    async def sync_vendor(self, vendor_id: UUID, org_id: UUID) -> dict[str, Any]:
         """Generate and post Tally Sundry Creditor Ledger XML."""
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(UTC).isoformat()
         ledger_name = f"SUPPLIER-{str(vendor_id)[:8].upper()}"
 
         xml_payload = self._build_envelope(
@@ -52,7 +51,7 @@ class TallyXMLAdapter(ERPAdapterBase):
             f"        </LEDGER>",
         )
 
-        result: Dict[str, Any] = {
+        result: dict[str, Any] = {
             "status": "SYNCHRONIZED",
             "provider": "TALLY",
             "entity": "VENDOR",
@@ -77,16 +76,16 @@ class TallyXMLAdapter(ERPAdapterBase):
 
         return result
 
-    async def create_po(self, po_id: UUID, org_id: UUID) -> Dict[str, Any]:
+    async def create_po(self, po_id: UUID, org_id: UUID) -> dict[str, Any]:
         """Generate and post Tally Purchase Order Voucher XML."""
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(UTC).isoformat()
         vch_number = f"TALLY-PO-{str(po_id)[:8].upper()}"
 
         xml_payload = self._build_envelope(
             "Import Data",
             f"        <VOUCHER VCHTYPE=\"Purchase Order\" ACTION=\"Create\">\n"
             f"          <VOUCHERNUMBER>{vch_number}</VOUCHERNUMBER>\n"
-            f"          <DATE>{datetime.now(timezone.utc).strftime('%Y%m%d')}</DATE>\n"
+            f"          <DATE>{datetime.now(UTC).strftime('%Y%m%d')}</DATE>\n"
             f"          <PARTYLEDGERNAME>Sundry Creditors</PARTYLEDGERNAME>\n"
             f"        </VOUCHER>",
         )
@@ -102,16 +101,16 @@ class TallyXMLAdapter(ERPAdapterBase):
             "synced_at": now,
         }
 
-    async def sync_invoice(self, invoice_id: UUID, org_id: UUID) -> Dict[str, Any]:
+    async def sync_invoice(self, invoice_id: UUID, org_id: UUID) -> dict[str, Any]:
         """Generate and post Tally Purchase Voucher XML."""
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(UTC).isoformat()
         vch_number = f"TALLY-PINV-{str(invoice_id)[:8].upper()}"
 
         xml_payload = self._build_envelope(
             "Import Data",
             f"        <VOUCHER VCHTYPE=\"Purchase\" ACTION=\"Create\">\n"
             f"          <VOUCHERNUMBER>{vch_number}</VOUCHERNUMBER>\n"
-            f"          <DATE>{datetime.now(timezone.utc).strftime('%Y%m%d')}</DATE>\n"
+            f"          <DATE>{datetime.now(UTC).strftime('%Y%m%d')}</DATE>\n"
             f"        </VOUCHER>",
         )
 
@@ -126,16 +125,16 @@ class TallyXMLAdapter(ERPAdapterBase):
             "synced_at": now,
         }
 
-    async def confirm_payment(self, payment_id: UUID, org_id: UUID) -> Dict[str, Any]:
+    async def confirm_payment(self, payment_id: UUID, org_id: UUID) -> dict[str, Any]:
         """Generate and post Tally Payment Voucher XML."""
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(UTC).isoformat()
         vch_number = f"TALLY-PAY-{str(payment_id)[:8].upper()}"
 
         xml_payload = self._build_envelope(
             "Import Data",
             f"        <VOUCHER VCHTYPE=\"Payment\" ACTION=\"Create\">\n"
             f"          <VOUCHERNUMBER>{vch_number}</VOUCHERNUMBER>\n"
-            f"          <DATE>{datetime.now(timezone.utc).strftime('%Y%m%d')}</DATE>\n"
+            f"          <DATE>{datetime.now(UTC).strftime('%Y%m%d')}</DATE>\n"
             f"        </VOUCHER>",
         )
 
@@ -150,9 +149,9 @@ class TallyXMLAdapter(ERPAdapterBase):
             "synced_at": now,
         }
 
-    async def get_material_master(self, material_code: str, org_id: UUID) -> Dict[str, Any]:
+    async def get_material_master(self, material_code: str, org_id: UUID) -> dict[str, Any]:
         """Query Tally Stock Item XML."""
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(UTC).isoformat()
         return {
             "status": "SUCCESS",
             "provider": "TALLY",

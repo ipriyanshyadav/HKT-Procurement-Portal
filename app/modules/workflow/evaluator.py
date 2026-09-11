@@ -4,8 +4,6 @@ Security: ALLOWED_NAMES whitelist; functions stripped; fails safe on error.
 """
 from __future__ import annotations
 
-from typing import Optional
-
 from loguru import logger
 from simpleeval import EvalWithCompoundTypes, InvalidExpression
 
@@ -37,7 +35,7 @@ ALLOWED_NAMES: frozenset[str] = frozenset({
 })
 
 
-def safe_eval(expression: Optional[str], context: dict) -> bool:
+def safe_eval(expression: str | None, context: dict) -> bool:
     """
     Evaluate a boolean expression against entity context using simpleeval.
 

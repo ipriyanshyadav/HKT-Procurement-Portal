@@ -1,38 +1,36 @@
 from __future__ import annotations
-from datetime import datetime, timezone
-from decimal import Decimal
-from typing import Optional, List, Tuple
-from uuid import UUID
+
 import re
+from datetime import UTC, datetime
+from decimal import Decimal
+from uuid import UUID
+
 from loguru import logger
 from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.config import settings
 from app.core.constants import AuditAction
-from app.core.metrics import pr_created_total, pr_approval_duration_hours
-from app.core.exceptions import AppException, ConflictError, ForbiddenError, NotFoundError, ValidationError
+from app.core.exceptions import AppException, ForbiddenError, NotFoundError, ValidationError
+from app.core.metrics import pr_approval_duration_hours, pr_created_total
 from app.core.redis_client import RedisKeys, get_redis_client
-from app.db.enums import PRStatus, PRSource, ProcurementType, POStatus, VendorStatus
+from app.db.enums import POStatus, PRSource, PRStatus, VendorStatus
 from app.events.publisher import OutboxPublisher
 from app.modules.approval_rules.service import rules_engine
 from app.modules.audit.service import audit_service
 from app.modules.organization.models import BusinessUnit, CostCenter, Organization
-from app.modules.purchase_order.models import PurchaseOrder, PoLine
+from app.modules.purchase_order.models import PoLine, PurchaseOrder
 from app.modules.purchase_order.repository import purchase_order_repository
 from app.modules.requisition.fsm import validate_pr_transition
 from app.modules.requisition.models import Requisition, RequisitionLine
 from app.modules.requisition.repository import RequisitionRepository, requisition_repository
-from app.modules.vendor.models import Vendor
 from app.modules.requisition.schemas import (
     BudgetCheckResult,
     PRCreateRequest,
-    PRMergeRequest,
     PRSplitRequest,
     PRUpdateRequest,
-    SourcingPathResult,
 )
 from app.modules.user.models import User
+from app.modules.vendor.models import Vendor
 from app.modules.workflow.models import WorkflowTask
 from app.modules.workflow.service import workflow_engine
 
@@ -137,16 +135,16 @@ class RequisitionService:
         self,
         db: AsyncSession,
         org_id: UUID,
-        status: Optional[str] = None,
-        business_unit_id: Optional[UUID] = None,
-        category_id: Optional[UUID] = None,
-        requestor_id: Optional[UUID] = None,
-        search: Optional[str] = None,
+        status: str | None = None,
+        business_unit_id: UUID | None = None,
+        category_id: UUID | None = None,
+        requestor_id: UUID | None = None,
+        search: str | None = None,
         scope: str = "all",
-        current_user: Optional[User] = None,
+        current_user: User | None = None,
         skip: int = 0,
         limit: int = 20,
-    ) -> Tuple[List[Requisition], int]:
+    ) -> tuple[list[Requisition], int]:
         req_user_id = requestor_id
         bu_filter = business_unit_id
 
@@ -374,8 +372,8 @@ class RequisitionService:
         self,
         db: AsyncSession,
         pr_id: UUID,
-        task_id: Optional[UUID],
-        comment: Optional[str],
+        task_id: UUID | None,
+        comment: str | None,
         actor_id: UUID,
         org_id: UUID,
     ) -> Requisition:
@@ -406,12 +404,12 @@ class RequisitionService:
                 )
 
         pr.status = PRStatus.APPROVED
-        pr.approved_at = datetime.now(timezone.utc)
+        pr.approved_at = datetime.now(UTC)
         pr.updated_by = actor_id
         await self.repo.update(db, pr)
 
         if pr.created_at:
-            c_at = pr.created_at if pr.created_at.tzinfo is not None else pr.created_at.replace(tzinfo=timezone.utc)
+            c_at = pr.created_at if pr.created_at.tzinfo is not None else pr.created_at.replace(tzinfo=UTC)
             duration_hours = max(0.0, (pr.approved_at - c_at).total_seconds() / 3600.0)
             pr_approval_duration_hours.labels(org_id=str(org_id)).observe(duration_hours)
 
@@ -438,7 +436,7 @@ class RequisitionService:
         self,
         db: AsyncSession,
         pr_id: UUID,
-        task_id: Optional[UUID],
+        task_id: UUID | None,
         comment: str,
         actor_id: UUID,
         org_id: UUID,
@@ -571,7 +569,7 @@ class RequisitionService:
         pr_ids: list[UUID],
         actor_id: UUID,
         org_id: UUID,
-        merged_title: Optional[str] = None,
+        merged_title: str | None = None,
     ) -> Requisition:
         if len(pr_ids) < 2:
             raise ValidationError("MERGE_REQUIRES_TWO", "At least 2 PRs required for merge")
@@ -587,7 +585,7 @@ class RequisitionService:
             raise AppException("All PRs must belong to same category", "MERGE_DIFFERENT_CATEGORY")
 
         first_pr = prs[0]
-        title = merged_title or f"Merged PR - {datetime.now(timezone.utc).strftime('%Y%m%d%H%M')}"
+        title = merged_title or f"Merged PR - {datetime.now(UTC).strftime('%Y%m%d%H%M')}"
         pr_number = await self._generate_pr_number(db, first_pr.business_unit_id, org_id)
 
         merged_pr = Requisition(
@@ -608,7 +606,7 @@ class RequisitionService:
             estimated_value=Decimal("0.0"),
             is_capex=any(p.is_capex for p in prs),
             merged_from=[p.id for p in prs],
-            approved_at=datetime.now(timezone.utc),
+            approved_at=datetime.now(UTC),
             created_by=actor_id,
             updated_by=actor_id,
         )
@@ -622,23 +620,23 @@ class RequisitionService:
 
         for pr in prs:
             lines = await self.repo.get_lines(db, pr.id, org_id)
-            for l in lines:
-                key = (l.item_code or l.item_description, l.uom_id)
+            for line in lines:
+                key = (line.item_code or line.item_description, line.uom_id)
                 if key in merged_lines_map:
-                    merged_lines_map[key].quantity += l.quantity
+                    merged_lines_map[key].quantity += line.quantity
                 else:
                     new_line = RequisitionLine(
                         org_id=org_id,
                         requisition_id=merged_pr.id,
                         line_number=line_num,
-                        item_description=l.item_description,
-                        item_code=l.item_code,
-                        category_id=l.category_id,
-                        uom_id=l.uom_id,
-                        quantity=l.quantity,
-                        estimated_unit_price=l.estimated_unit_price,
-                        hsn_code=l.hsn_code,
-                        specifications=l.specifications,
+                        item_description=line.item_description,
+                        item_code=line.item_code,
+                        category_id=line.category_id,
+                        uom_id=line.uom_id,
+                        quantity=line.quantity,
+                        estimated_unit_price=line.estimated_unit_price,
+                        hsn_code=line.hsn_code,
+                        specifications=line.specifications,
                     )
                     merged_lines_map[key] = new_line
                     line_num += 1
@@ -691,7 +689,7 @@ class RequisitionService:
             raise AppException("PR must be in APPROVED state to split", "PR_NOT_APPROVED")
 
         source_lines = await self.repo.get_lines(db, pr_id, org_id)
-        lines_by_number = {l.line_number: l for l in source_lines}
+        lines_by_number = {line.line_number: line for line in source_lines}
 
         child_prs: list[Requisition] = []
         for split in data.splits:
@@ -717,7 +715,7 @@ class RequisitionService:
                 is_capex=source_pr.is_capex,
                 budget_check_status="PASSED",
                 split_from=source_pr.id,
-                approved_at=datetime.now(timezone.utc),
+                approved_at=datetime.now(UTC),
                 created_by=actor_id,
                 updated_by=actor_id,
             )
@@ -814,7 +812,7 @@ class RequisitionService:
         pr_id: UUID,
         actor_id: UUID,
         org_id: UUID,
-        vendor_id: Optional[UUID] = None,
+        vendor_id: UUID | None = None,
     ) -> Requisition:
         pr = await self.get_by_id(db, pr_id, org_id)
         if pr.status not in (PRStatus.APPROVED, PRStatus.IN_SOURCING):
@@ -927,7 +925,7 @@ class RequisitionService:
         bu_res = await db.execute(bu_stmt)
         bu = bu_res.scalar_one_or_none()
         bu_code = bu.code.upper() if bu else "CORP"
-        year = datetime.now(timezone.utc).year
+        year = datetime.now(UTC).year
         clean_code = re.sub(r"[^a-zA-Z0-9_]", "_", bu_code.lower())
         seq_name = f"seq_pr_{clean_code}_{year}"
 
@@ -947,9 +945,9 @@ class RequisitionService:
         cost_center_id: UUID,
         amount: Decimal,
         org_id: UUID,
-        bu_id: Optional[UUID] = None,
-        category_id: Optional[UUID] = None,
-        mode: Optional[str] = None,
+        bu_id: UUID | None = None,
+        category_id: UUID | None = None,
+        mode: str | None = None,
     ) -> BudgetCheckResult:
         # Determine budget mode: org settings -> overrides -> default
         org_stmt = select(Organization).where(Organization.id == org_id)
@@ -1006,8 +1004,8 @@ class RequisitionService:
         cost_center_id: UUID,
         amount: Decimal,
         org_id: UUID,
-        bu_id: Optional[UUID] = None,
-        category_id: Optional[UUID] = None,
+        bu_id: UUID | None = None,
+        category_id: UUID | None = None,
     ) -> BudgetCheckResult:
         """Pre-flight check of budget availability before PR submission."""
         try:

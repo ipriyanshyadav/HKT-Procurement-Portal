@@ -1,8 +1,12 @@
 from __future__ import annotations
+
 import re
+
 import bcrypt
-from app.config import settings
 from loguru import logger
+
+from app.config import settings
+
 PASSWORD_REGEX = re.compile(
     r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#^()_+=\-]).{12,}$'
 )

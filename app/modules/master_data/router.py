@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from typing import Any, List, Optional
+from datetime import UTC, datetime
 from uuid import UUID, uuid4
 
 from fastapi import APIRouter, Body, Depends, File, Query, UploadFile, status
@@ -12,7 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.auth.dependencies import get_current_user, get_optional_current_user, require_permission
 from app.core.constants import DEFAULT_ORG_ID, PermissionCode
 from app.core.exceptions import ConflictError, NotFoundError
-from app.core.responses import APIResponse, PaginationMeta, created_response, success_response
+from app.core.responses import PaginationMeta, created_response, success_response
 from app.db.session import get_db
 from app.modules.master_data.category.service import (
     CategoryCreateRequest,
@@ -78,8 +77,8 @@ class IncotermResponse(BaseModel):
     risk_transfer_point: str
     is_active: bool
     version: int
-    created_at: Optional[datetime] = None
-    updated_at: Optional[datetime] = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
 
     model_config = {"from_attributes": True}
 
@@ -92,10 +91,10 @@ class IncotermCreateRequest(BaseModel):
 
 
 class IncotermUpdateRequest(BaseModel):
-    name: Optional[str] = Field(default=None, min_length=1, max_length=100)
-    edition_year: Optional[int] = Field(default=None)
-    risk_transfer_point: Optional[str] = Field(default=None, min_length=1, max_length=500)
-    is_active: Optional[bool] = None
+    name: str | None = Field(default=None, min_length=1, max_length=100)
+    edition_year: int | None = Field(default=None)
+    risk_transfer_point: str | None = Field(default=None, min_length=1, max_length=500)
+    is_active: bool | None = None
 
 
 # -----------------------------------------------------------------------------
@@ -107,7 +106,7 @@ class IncotermUpdateRequest(BaseModel):
 async def list_categories(
     flat: bool = Query(default=True, description="If false, returns nested tree structure"),
     active_only: bool = Query(default=True),
-    current_user: Optional[User] = Depends(get_optional_current_user),
+    current_user: User | None = Depends(get_optional_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     """List categories (flat or tree view). Accessible by all authenticated users and during registration."""
@@ -124,8 +123,8 @@ async def list_categories(
 
 @router.get("/categories/tree")
 async def get_category_tree(
-    root_id: Optional[UUID] = Query(default=None, description="Optional root category to scope tree to"),
-    current_user: Optional[User] = Depends(get_optional_current_user),
+    root_id: UUID | None = Query(default=None, description="Optional root category to scope tree to"),
+    current_user: User | None = Depends(get_optional_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     """Get full category hierarchy tree or subtree via recursive CTE. Accessible by all authenticated users and during registration."""
@@ -377,7 +376,7 @@ async def create_incoterm(
     if existing.scalar_one_or_none():
         raise ConflictError(f"Incoterm with code '{norm_code}' already exists")
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     incoterm = Incoterm(
         id=uuid4(),
         org_id=current_user.org_id,
@@ -448,7 +447,7 @@ async def delete_incoterm(
     if not incoterm:
         raise NotFoundError("Incoterm not found")
 
-    incoterm.deleted_at = datetime.now(timezone.utc)
+    incoterm.deleted_at = datetime.now(UTC)
     incoterm.is_active = False
     await db.commit()
     return success_response({"message": "Incoterm deleted successfully"})
@@ -461,7 +460,7 @@ async def delete_incoterm(
 
 @router.get("/tax-codes")
 async def list_tax_codes(
-    tax_type: Optional[str] = Query(default=None, description="Optional filter by GST/TDS/CESS"),
+    tax_type: str | None = Query(default=None, description="Optional filter by GST/TDS/CESS"),
     active_only: bool = Query(default=True),
     current_user: User = Depends(require_permission(PermissionCode.MASTER_VIEW)),
     db: AsyncSession = Depends(get_db),
@@ -518,7 +517,7 @@ async def delete_tax_code(
 @router.get("/delivery-locations")
 async def list_delivery_locations(
     active_only: bool = Query(default=True),
-    country_code: Optional[str] = Query(default=None),
+    country_code: str | None = Query(default=None),
     current_user: User = Depends(require_permission(PermissionCode.MASTER_VIEW)),
     db: AsyncSession = Depends(get_db),
 ):
@@ -685,12 +684,12 @@ async def get_any_import_job_status(
 
 @router.get("/items")
 async def list_items(
-    search: Optional[str] = Query(default=None),
-    category_id: Optional[UUID] = Query(default=None),
+    search: str | None = Query(default=None),
+    category_id: UUID | None = Query(default=None),
     active_only: bool = Query(default=True),
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=50, ge=1, le=200),
-    current_user: Optional[User] = Depends(get_optional_current_user),
+    current_user: User | None = Depends(get_optional_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     """Search and list catalog item master records."""
@@ -719,7 +718,7 @@ async def create_item(
 @router.get("/items/{item_id}")
 async def get_item(
     item_id: UUID,
-    current_user: Optional[User] = Depends(get_optional_current_user),
+    current_user: User | None = Depends(get_optional_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     """Retrieve catalog item by ID."""
@@ -759,13 +758,13 @@ async def delete_item(
 
 
 class PunchOutSessionRequest(BaseModel):
-    vendor_id: Optional[UUID] = None
-    return_url: Optional[str] = None
+    vendor_id: UUID | None = None
+    return_url: str | None = None
 
 
 @router.post("/punchout/session")
 async def create_punchout_session(
-    data: Optional[PunchOutSessionRequest] = None,
+    data: PunchOutSessionRequest | None = None,
     current_user: User = Depends(get_current_user),
 ):
     """Initiate an OCI/cXML PunchOut session for external catalog shopping."""
@@ -783,7 +782,7 @@ async def create_punchout_session(
 
 @router.post("/punchout/cart")
 async def receive_punchout_cart(
-    items: List[PunchOutCartItem] = Body(...),
+    items: list[PunchOutCartItem] = Body(...),
     current_user: User = Depends(get_current_user),
 ):
     """Receive transferred cart items from PunchOut vendor and format into PR lines."""

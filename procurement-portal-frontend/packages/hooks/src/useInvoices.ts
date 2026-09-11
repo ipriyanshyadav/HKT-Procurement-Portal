@@ -6,6 +6,7 @@ import type {
   InvoiceDisputeRequest,
   InvoiceRejectRequest,
   EligibleLineResponse,
+  PoFlipDraftResponse,
 } from "@procurement/types";
 
 export interface InvoiceFilterParams {
@@ -133,3 +134,48 @@ export function useMatchInvoice() {
     },
   });
 }
+
+export function usePoFlipDraft(poId: string, vendorId?: string) {
+  return useQuery({
+    queryKey: ["invoices", "po-flip-draft", poId, vendorId],
+    queryFn: async () => {
+      const res = await apiClient.get(`/invoices/po-flip/${poId}`, {
+        params: vendorId ? { vendor_id: vendorId } : undefined,
+      });
+      return res.data.data as PoFlipDraftResponse;
+    },
+    enabled: Boolean(poId),
+  });
+}
+
+export function useCreatePoFlipInvoice() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      poId,
+      vendorId,
+      vendorInvoiceNumber,
+    }: {
+      poId: string;
+      vendorId?: string;
+      vendorInvoiceNumber?: string;
+    }) => {
+      const res = await apiClient.post(
+        `/invoices/po-flip/${poId}`,
+        {},
+        {
+          params: {
+            ...(vendorId ? { vendor_id: vendorId } : {}),
+            ...(vendorInvoiceNumber ? { vendor_invoice_number: vendorInvoiceNumber } : {}),
+          },
+        }
+      );
+      return res.data.data as InvoiceResponse;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["invoices"] });
+      queryClient.invalidateQueries({ queryKey: ["purchase-orders"] });
+    },
+  });
+}
+

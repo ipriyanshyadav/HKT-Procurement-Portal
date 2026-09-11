@@ -1,22 +1,23 @@
 from __future__ import annotations
+
 import io
-from datetime import datetime, timezone
-from decimal import Decimal
-from typing import Any, List, Optional
+from datetime import UTC, datetime
+from typing import Any
 from uuid import UUID
+
 from loguru import logger
 from minio import Minio
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4, landscape
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
+from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 
 from app.config import settings
 
 
 class CSPDFGenerator:
     def __init__(self) -> None:
-        self._minio_client: Optional[Minio] = None
+        self._minio_client: Minio | None = None
 
     def _get_minio(self) -> Minio:
         if self._minio_client is None:
@@ -32,10 +33,10 @@ class CSPDFGenerator:
         self,
         cs: Any,
         rfq: Any,
-        bids: List[Any],
-        lots: List[Any],
-        vendor_names: Optional[dict[UUID, str]] = None,
-        rankings: Optional[List[Any]] = None,
+        bids: list[Any],
+        lots: list[Any],
+        vendor_names: dict[UUID, str] | None = None,
+        rankings: list[Any] | None = None,
     ) -> bytes:
         """Build the Comparative Statement PDF in memory using ReportLab."""
         buffer = io.BytesIO()
@@ -92,7 +93,7 @@ class CSPDFGenerator:
         elements.append(Paragraph("COMPARATIVE STATEMENT (CS)", title_style))
         elements.append(
             Paragraph(
-                f"CS Number: {cs.cs_number} (v{cs.cs_version}) &bull; Status: {cs.status} &bull; Generated: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')}",
+                f"CS Number: {cs.cs_number} (v{cs.cs_version}) &bull; Status: {cs.status} &bull; Generated: {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S UTC')}",
                 subtitle_style,
             )
         )
@@ -217,17 +218,17 @@ class CSPDFGenerator:
         self,
         cs: Any,
         rfq: Any,
-        bids: List[Any],
-        lots: List[Any],
+        bids: list[Any],
+        lots: list[Any],
         org_id: UUID,
-        vendor_names: Optional[dict[UUID, str]] = None,
-        rankings: Optional[List[Any]] = None,
+        vendor_names: dict[UUID, str] | None = None,
+        rankings: list[Any] | None = None,
     ) -> str:
         """
         Generate CS PDF using ReportLab, upload to MinIO 'comparative-statement' bucket,
         and return the MinIO storage path.
         """
-        filename = f"cs_{cs.id}_{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}.pdf"
+        filename = f"cs_{cs.id}_{datetime.now(UTC).strftime('%Y%m%d%H%M%S')}.pdf"
         minio_path = f"{org_id}/rfq/{rfq.id}/cs/{filename}"
         bucket_name = getattr(settings, "MINIO_BUCKET_COMPARATIVE_STATEMENT", "comparative-statement")
 

@@ -1,28 +1,30 @@
 from __future__ import annotations
-from datetime import datetime, timezone
-from typing import Generic, TypeVar, Optional, Any, Dict, List
+
+from datetime import UTC, datetime
+from typing import Any, Generic, TypeVar
+
 from pydantic import BaseModel, Field
 
 T = TypeVar("T")
 
 
 class PaginationMeta(BaseModel):
-    total: Optional[int] = None
-    page: Optional[int] = 1
-    page_size: Optional[int] = 20
+    total: int | None = None
+    page: int | None = 1
+    page_size: int | None = 20
     total_count: int = 0
     total_pages: int = 1
     has_next: bool = False
     has_prev: bool = False
-    next_cursor: Optional[str] = None
-    prev_cursor: Optional[str] = None
+    next_cursor: str | None = None
+    prev_cursor: str | None = None
 
     # Tolerant aliases / compatibility fields
-    page_number: Optional[int] = None
-    total_records: Optional[int] = None
-    has_next_page: Optional[bool] = None
-    has_prev_page: Optional[bool] = None
-    unread_count: Optional[int] = None
+    page_number: int | None = None
+    total_records: int | None = None
+    has_next_page: bool | None = None
+    has_prev_page: bool | None = None
+    unread_count: int | None = None
 
     def model_post_init(self, __context: Any) -> None:
         if self.page_number is not None and self.page == 1:
@@ -50,15 +52,15 @@ class PaginationMeta(BaseModel):
 
 
 class Links(BaseModel):
-    self: Optional[str] = None
-    next: Optional[str] = None
-    prev: Optional[str] = None
-    related: Optional[Dict[str, str]] = None
+    self: str | None = None
+    next: str | None = None
+    prev: str | None = None
+    related: dict[str, str] | None = None
 
     # Tolerant aliases
-    self_: Optional[str] = None
-    next_: Optional[str] = None
-    prev_: Optional[str] = None
+    self_: str | None = None
+    next_: str | None = None
+    prev_: str | None = None
 
     def model_post_init(self, __context: Any) -> None:
         if self.self_ and not self.self:
@@ -77,18 +79,18 @@ class Links(BaseModel):
 
 class APIResponse(BaseModel, Generic[T]):
     data: T
-    meta: Optional[PaginationMeta] = None
-    links: Optional[Links] = None
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    meta: PaginationMeta | None = None
+    links: Links | None = None
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 def _filter_fields(data: Any, field_set: set[str]) -> Any:
     """Filter fields in a dictionary or list of dictionaries based on field_set."""
     if isinstance(data, dict):
         return {k: v for k, v in data.items() if k in field_set}
-    elif isinstance(data, list):
+    if isinstance(data, list):
         return [_filter_fields(item, field_set) for item in data]
-    elif hasattr(data, "model_dump"):
+    if hasattr(data, "model_dump"):
         dumped = data.model_dump()
         return {k: v for k, v in dumped.items() if k in field_set}
     return data
@@ -96,10 +98,10 @@ def _filter_fields(data: Any, field_set: set[str]) -> Any:
 
 def success_response(
     data: Any,
-    meta: Optional[PaginationMeta | dict] = None,
-    links: Optional[Links | dict] = None,
+    meta: PaginationMeta | dict | None = None,
+    links: Links | dict | None = None,
     status_code: int = 200,
-    fields: Optional[str] = None,
+    fields: str | None = None,
 ) -> dict:
     if fields:
         field_set = {f.strip() for f in fields.split(",") if f.strip()}
@@ -148,14 +150,14 @@ def success_response(
         "data": data,
         "meta": serialized_meta,
         "links": serialized_links,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
     }
 
 
 def created_response(
     data: Any,
-    links: Optional[Links | dict] = None,
-    meta: Optional[PaginationMeta | dict] = None,
+    links: Links | dict | None = None,
+    meta: PaginationMeta | dict | None = None,
 ) -> dict:
     return success_response(data=data, meta=meta, links=links, status_code=201)
 

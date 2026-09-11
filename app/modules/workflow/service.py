@@ -9,16 +9,16 @@ All SLA thresholds and business rules come from settings (no magic numbers).
 """
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
-from typing import Any, Optional
+from datetime import UTC, datetime, timedelta
+from typing import Any
 from uuid import UUID, uuid4
 
 from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.constants import AuditAction
+from app.core.exceptions import AppException, ForbiddenError
 from app.core.metrics import workflow_tasks_pending
-from app.core.exceptions import AppException, ForbiddenError, NotFoundError
 from app.db.enums import (
     ApprovalTaskStatusEnum,
     WorkflowInstanceStatusEnum,
@@ -35,7 +35,6 @@ from app.modules.workflow.group_repository import (
 from app.modules.workflow.models import WorkflowEvent, WorkflowInstance, WorkflowTask
 from app.modules.workflow.repository import WorkflowRepository, workflow_repository
 from app.modules.workflow.resolver import ApproverResolver
-
 
 ENTITY_ALIAS_MAP: dict[str, set[str]] = {
     "PR": {"PR", "REQUISITION", "PURCHASE_REQUISITION"},
@@ -145,7 +144,7 @@ class WorkflowEngine:
         if task.assigned_to != actor_id:
             # Check if actor_id is an active authorized delegate of task.assigned_to
             from sqlalchemy import text
-            now_dt = datetime.now(timezone.utc)
+            now_dt = datetime.now(UTC)
             delegation_stmt = text(
                 """
                 SELECT id, entity_types, max_amount_threshold, bu_ids FROM delegation_rules
@@ -255,7 +254,7 @@ class WorkflowEngine:
         task.status = action_to_status.get(str(action).upper(), ApprovalTaskStatusEnum.PENDING)
         task.action = action
         task.comment = f"[Delegated to {actor_id}] {comment}" if is_delegated and comment else comment
-        task.acted_at = datetime.now(timezone.utc)
+        task.acted_at = datetime.now(UTC)
         if instance.entity_context is not None:
             instance.entity_context["last_actor_id"] = str(actor_id)
 
@@ -288,7 +287,7 @@ class WorkflowEngine:
                 "INVALID_STATUS_TRANSITION",
             )
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         instance.status = WorkflowInstanceStatusEnum.CANCELLED
         instance.cancelled_at = now
         instance.cancel_reason = reason
@@ -498,7 +497,7 @@ class WorkflowEngine:
 
         group_id = uuid4() if step.get("step_type") == "PARALLEL" else None
         sla_hours: int = step.get("sla_hours", 24)
-        sla_deadline = datetime.now(timezone.utc) + timedelta(hours=sla_hours)
+        sla_deadline = datetime.now(UTC) + timedelta(hours=sla_hours)
 
         for approver in eligible:
             task = WorkflowTask(
@@ -560,7 +559,7 @@ class WorkflowEngine:
         """Handle post-task-action step logic based on action and step type."""
         if action in ("REJECT", "RETURN"):
             instance.status = WorkflowInstanceStatusEnum.FAILED
-            instance.completed_at = datetime.now(timezone.utc)
+            instance.completed_at = datetime.now(UTC)
             await self._publisher.instance_failed(
                 db,
                 instance.id,
@@ -611,7 +610,7 @@ class WorkflowEngine:
         if convergence == "ALL":
             if rejected:
                 instance.status = WorkflowInstanceStatusEnum.FAILED
-                instance.completed_at = datetime.now(timezone.utc)
+                instance.completed_at = datetime.now(UTC)
                 for t in group_tasks:
                     if t.status == ApprovalTaskStatusEnum.PENDING:
                         t.status = ApprovalTaskStatusEnum.CANCELLED
@@ -634,7 +633,7 @@ class WorkflowEngine:
                 await self._advance_to_next_step(db, instance)
             elif len(rejected) >= total / 2:
                 instance.status = WorkflowInstanceStatusEnum.FAILED
-                instance.completed_at = datetime.now(timezone.utc)
+                instance.completed_at = datetime.now(UTC)
                 await self._sync_entity_on_completion(db, instance, final_action="REJECT")
 
         elif convergence.startswith("QUORUM_"):
@@ -648,7 +647,7 @@ class WorkflowEngine:
                 await self._advance_to_next_step(db, instance)
             elif len(rejected) > total - required:
                 instance.status = WorkflowInstanceStatusEnum.FAILED
-                instance.completed_at = datetime.now(timezone.utc)
+                instance.completed_at = datetime.now(UTC)
                 await self._sync_entity_on_completion(db, instance, final_action="REJECT")
 
     async def _advance_to_next_step(
@@ -678,7 +677,7 @@ class WorkflowEngine:
 
         # No more steps → completed
         instance.status = WorkflowInstanceStatusEnum.COMPLETED
-        instance.completed_at = datetime.now(timezone.utc)
+        instance.completed_at = datetime.now(UTC)
         await self._publisher.instance_completed(
             db, instance.id, instance.entity_type, instance.entity_id, instance.org_id
         )
@@ -693,8 +692,8 @@ class WorkflowEngine:
         db: AsyncSession,
         approvers: list[User],
         org_id: UUID,
-        entity_type: Optional[str] = None,
-        entity_context: Optional[dict[str, Any]] = None,
+        entity_type: str | None = None,
+        entity_context: dict[str, Any] | None = None,
     ) -> list[User]:
         """Replace delegating users with their delegates (checked at task creation time).
 
@@ -703,7 +702,7 @@ class WorkflowEngine:
         """
         from sqlalchemy import text
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         result_users: list[User] = []
         alias_map = ENTITY_ALIAS_MAP
 
@@ -873,7 +872,9 @@ class WorkflowEngine:
         """
         try:
             from decimal import Decimal
+
             from sqlalchemy import select
+
             from app.events.publisher import OutboxPublisher
 
             entity_type_upper = str(instance.entity_type).upper()
@@ -882,8 +883,8 @@ class WorkflowEngine:
 
             # 1. Requisitions (PR)
             if entity_type_upper in ("REQUISITION", "PR", "PURCHASE_REQUISITION"):
-                from app.modules.requisition.models import Requisition
                 from app.db.enums import PRStatus
+                from app.modules.requisition.models import Requisition
                 stmt = select(Requisition).where(
                     Requisition.id == instance.entity_id,
                     Requisition.org_id == instance.org_id,
@@ -895,7 +896,7 @@ class WorkflowEngine:
                     if final_action in ("APPROVE", "FORCE_APPROVE"):
                         if pr.status in (PRStatus.PENDING_APPROVAL, PRStatus.SUBMITTED):
                             pr.status = PRStatus.APPROVED
-                            pr.approved_at = datetime.now(timezone.utc)
+                            pr.approved_at = datetime.now(UTC)
                             pr.updated_by = actor
                             await db.flush()
                             await OutboxPublisher.publish(
@@ -939,8 +940,8 @@ class WorkflowEngine:
 
             # 2. Purchase Orders (PO)
             elif entity_type_upper in ("PO", "PURCHASE_ORDER"):
-                from app.modules.purchase_order.models import PurchaseOrder
                 from app.db.enums import POStatus
+                from app.modules.purchase_order.models import PurchaseOrder
                 stmt = select(PurchaseOrder).where(
                     PurchaseOrder.id == instance.entity_id,
                     PurchaseOrder.org_id == instance.org_id,
@@ -997,7 +998,7 @@ class WorkflowEngine:
                     if final_action in ("APPROVE", "FORCE_APPROVE"):
                         arn.status = "APPROVED"
                         arn.approved_by = actor
-                        arn.approved_at = datetime.now(timezone.utc)
+                        arn.approved_at = datetime.now(UTC)
                         if arn.cs_id:
                             cs_stmt = select(ComparativeStatement).where(
                                 ComparativeStatement.id == arn.cs_id,
@@ -1008,7 +1009,7 @@ class WorkflowEngine:
                             if cs and isinstance(cs, ComparativeStatement):
                                 cs.status = "APPROVED"
                                 cs.approved_by = actor
-                                cs.approved_at = datetime.now(timezone.utc)
+                                cs.approved_at = datetime.now(UTC)
                         await db.flush()
                         await OutboxPublisher.publish(
                             db,
@@ -1039,8 +1040,8 @@ class WorkflowEngine:
 
             # 4. Invoices
             elif entity_type_upper in ("INVOICE", "INVOICES"):
-                from app.modules.invoice.models import Invoice
                 from app.db.enums import InvoiceStatusEnum
+                from app.modules.invoice.models import Invoice
                 stmt = select(Invoice).where(
                     Invoice.id == instance.entity_id,
                     Invoice.org_id == instance.org_id,
@@ -1116,8 +1117,8 @@ class WorkflowEngine:
 
             # 6. Vendors
             elif entity_type_upper in ("VENDOR", "VENDORS"):
-                from app.modules.vendor.models import Vendor
                 from app.db.enums import VendorStatus
+                from app.modules.vendor.models import Vendor
                 stmt = select(Vendor).where(
                     Vendor.id == instance.entity_id,
                     Vendor.org_id == instance.org_id,

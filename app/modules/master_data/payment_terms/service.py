@@ -13,14 +13,13 @@ All writes are un-committed; the caller's AsyncSession transaction owns the comm
 from __future__ import annotations
 
 from decimal import Decimal
-from typing import Optional
 from uuid import UUID
 
 from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.constants import AuditAction
-from app.core.exceptions import ConflictError, NotFoundError, ValidationError
+from app.core.exceptions import ConflictError, ValidationError
 from app.modules.audit.service import audit_service
 from app.modules.master_data.models import PaymentTerm
 from app.modules.master_data.payment_terms.repository import (
@@ -92,7 +91,7 @@ class PaymentTermsService:
         db: AsyncSession,
         code: str,
         org_id: UUID,
-        exclude_id: Optional[UUID] = None,
+        exclude_id: UUID | None = None,
     ) -> None:
         """Raise ConflictError if the given code already exists for the org."""
         existing = await self._repo.get_by_code(db, code, org_id, exclude_id=exclude_id)

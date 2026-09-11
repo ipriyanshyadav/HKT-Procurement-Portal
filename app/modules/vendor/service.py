@@ -21,7 +21,7 @@ from app.core.exceptions import (
     NotFoundError,
 )
 from app.core.security import mask_pii
-from app.db.enums import VendorStatusEnum, UserStatusEnum
+from app.db.enums import UserStatusEnum, VendorStatusEnum
 from app.events.publisher import OutboxPublisher
 from app.modules.audit.service import audit_service
 from app.modules.vendor.fsm import validate_transition
@@ -161,7 +161,6 @@ class VendorService:
 
         # 5. Bank account + IFSC exact match — FRAUD FLAG
         if bank_account and ifsc:
-            account_enc = encrypt_field(bank_account.strip())
             # Search by decrypting matching IFSC accounts
             stmt = select(VendorBankAccount).where(
                 VendorBankAccount.org_id == org_id,

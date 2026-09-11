@@ -56,26 +56,29 @@ export default function AwardRecommendationPage() {
 
   // Pre-fill award items from L1 rankings when CS loads and no award exists yet
   useEffect(() => {
-    if (cs && cs.rankings && (!existingAward || existingAward.status === "DRAFT") && awardItems.length === 0) {
-      // Find L1 per lot or overall L1
-      const l1Rankings = cs.rankings.filter((r) => r.is_l1 || r.rank === 1);
-      const items: AwardDraftItem[] = (l1Rankings.length > 0 ? l1Rankings : [cs.rankings[0]]).map((r) => {
-        const val = Number(r.lot_total_inr || r.landed_cost || 0);
-        return {
-          lot_id: r.lot_id || null,
-          rfq_line_id: r.rfq_line_id || null,
-          vendor_id: r.vendor_id,
-          bid_id: r.bid_id,
-          value: val,
-          quantity: 1,
-          unit_price: val,
-          award_type: "FULL",
-          justification: `Awarded to L1 supplier based on lowest landed cost evaluation (₹${val.toLocaleString()})`,
-        };
+    if (cs && cs.rankings && (!existingAward || existingAward.status === "DRAFT")) {
+      setAwardItems((prev) => {
+        if (prev.length > 0) return prev;
+        const l1Rankings = cs.rankings.filter((r) => r.is_l1 || r.rank === 1);
+        return (l1Rankings.length > 0 ? l1Rankings : [cs.rankings[0]]).map((r) => {
+          const val = Number(r.lot_total_inr || r.landed_cost || 0);
+          return {
+            lot_id: r.lot_id || null,
+            rfq_line_id: r.rfq_line_id || null,
+            vendor_id: r.vendor_id,
+            bid_id: r.bid_id,
+            value: val,
+            quantity: 1,
+            unit_price: val,
+            award_type: "FULL",
+            justification: `Awarded to L1 supplier based on lowest landed cost evaluation (₹${val.toLocaleString()})`,
+          };
+        });
       });
-      setAwardItems(items);
       setOverallJustification(
-        `Award recommendation following technical qualification and commercial evaluation. Total recommended value is within estimated budget.`
+        (prev) =>
+          prev ||
+          `Award recommendation following technical qualification and commercial evaluation. Total recommended value is within estimated budget.`
       );
     }
   }, [cs, existingAward]);

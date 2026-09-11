@@ -1,11 +1,13 @@
 from __future__ import annotations
-from typing import Optional
+
 from uuid import UUID
+
+from sqlalchemy import and_, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, and_, or_, func
+
 from app.core.constants import RoleCode
 from app.db.repository_base import BaseRepository
-from app.modules.user.models import Role, UserRoleAssignment, RolePermission, Permission
+from app.modules.user.models import Permission, Role, RolePermission, UserRoleAssignment
 
 
 class RoleRepository(BaseRepository[Role]):
@@ -107,8 +109,8 @@ class RoleRepository(BaseRepository[Role]):
         self,
         db: AsyncSession,
         org_id: UUID,
-        module: Optional[str] = None,
-        search: Optional[str] = None,
+        module: str | None = None,
+        search: str | None = None,
     ) -> list[dict]:
         stmt = select(Permission)
         if module and module.upper() != "ALL":
@@ -234,8 +236,9 @@ class RoleRepository(BaseRepository[Role]):
         granted: bool,
         actor_id: UUID,
     ) -> bool:
-        from app.core.exceptions import AppException
         from sqlalchemy import case
+
+        from app.core.exceptions import AppException
 
         role_stmt = (
             select(Role)

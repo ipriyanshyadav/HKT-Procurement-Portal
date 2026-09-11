@@ -7,9 +7,11 @@ simulate() enforces auth; zero DB writes guaranteed by service layer.
 """
 from __future__ import annotations
 
+from typing import Any
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
+from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.dependencies import get_current_user, require_permission
@@ -23,7 +25,6 @@ from app.modules.workflow.schemas import (
     SimulateRequest,
     TaskActionRequest,
     WorkflowInstanceResponse,
-    WorkflowSimulateResponse,
     WorkflowTaskResponse,
 )
 from app.modules.workflow.service import workflow_engine
@@ -193,30 +194,29 @@ async def simulate(
 
 # ── Workflow Template Authoring Endpoints ─────────────────────────────────────
 
-from pydantic import BaseModel
-from typing import List, Dict, Any, Optional
 
 class WorkflowTemplateCreateRequest(BaseModel):
     code: str
     name: str
     entity_type: str
-    steps: List[Dict[str, Any]]
+    steps: list[dict[str, Any]]
     is_active: bool = True
 
 class WorkflowTemplateUpdateRequest(BaseModel):
-    name: Optional[str] = None
-    steps: Optional[List[Dict[str, Any]]] = None
-    is_active: Optional[bool] = None
+    name: str | None = None
+    steps: list[dict[str, Any]] | None = None
+    is_active: bool | None = None
 
 
 @router.get("/templates")
 async def list_templates(
-    entity_type: Optional[str] = None,
+    entity_type: str | None = None,
     current_user: User = Depends(require_permission(PermissionCode.WORKFLOW_VIEW)),
     db: AsyncSession = Depends(get_db),
 ):
     """GET /api/v1/workflows/templates — list all workflow templates for the organization."""
-    from sqlalchemy import select, and_
+    from sqlalchemy import and_, select
+
     from app.modules.workflow.models import WorkflowTemplate
 
     stmt = select(WorkflowTemplate).where(
@@ -255,9 +255,10 @@ async def create_template(
     db: AsyncSession = Depends(get_db),
 ):
     """POST /api/v1/workflows/templates — author a new workflow template."""
-    from sqlalchemy import select, and_
-    from app.modules.workflow.models import WorkflowTemplate
+    from sqlalchemy import and_, select
+
     from app.core.exceptions import ConflictError
+    from app.modules.workflow.models import WorkflowTemplate
 
     existing_stmt = select(WorkflowTemplate).where(
         and_(
@@ -299,9 +300,10 @@ async def get_template_detail(
     db: AsyncSession = Depends(get_db),
 ):
     """GET /api/v1/workflows/templates/{id} — get detailed template configuration."""
-    from app.modules.workflow.models import WorkflowTemplate
-    from sqlalchemy import select, and_
+    from sqlalchemy import and_, select
+
     from app.core.exceptions import NotFoundError
+    from app.modules.workflow.models import WorkflowTemplate
 
     stmt = select(WorkflowTemplate).where(
         and_(
@@ -333,9 +335,10 @@ async def update_template(
     db: AsyncSession = Depends(get_db),
 ):
     """PUT /api/v1/workflows/templates/{id} — update template configuration."""
-    from app.modules.workflow.models import WorkflowTemplate
-    from sqlalchemy import select, and_
+    from sqlalchemy import and_, select
+
     from app.core.exceptions import NotFoundError
+    from app.modules.workflow.models import WorkflowTemplate
 
     stmt = select(WorkflowTemplate).where(
         and_(

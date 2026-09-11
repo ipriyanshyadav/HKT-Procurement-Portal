@@ -1,5 +1,7 @@
 import enum
+
 from sqlalchemy.dialects.postgresql import ENUM as PGENUM
+
 
 class UserStatus(str, enum.Enum):
     ACTIVE = "ACTIVE"

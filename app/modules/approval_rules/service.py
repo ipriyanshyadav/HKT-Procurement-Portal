@@ -7,15 +7,14 @@ PENDING_RULE_RESOLUTION: fires alert when neither specific nor catch-all matches
 """
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from typing import Any, Optional
+from datetime import UTC, datetime
+from typing import Any
 from uuid import UUID
 
 from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.constants import AuditAction
-from app.core.exceptions import AppException, ConflictError, NotFoundError
+from app.core.exceptions import ConflictError
 from app.events.publisher import OutboxPublisher
 from app.modules.approval_rules.models import ApprovalRule, ApprovalRuleVersion
 from app.modules.approval_rules.repository import (
@@ -85,11 +84,11 @@ class RulesEngine:
             if actual is None and expected is not None:
                 return False
             return str(actual).lower() == str(expected).lower() if isinstance(expected, (str, bool)) else actual == expected
-        elif operator == "neq":
+        if operator == "neq":
             if actual is None and expected is not None:
                 return True
             return str(actual).lower() != str(expected).lower() if isinstance(expected, (str, bool)) else actual != expected
-        elif operator in ("gt", "gte", "lt", "lte"):
+        if operator in ("gt", "gte", "lt", "lte"):
             if actual is None:
                 return False
             try:
@@ -97,11 +96,11 @@ class RulesEngine:
                 exp_num = float(expected)
                 if operator == "gt":
                     return act_num > exp_num
-                elif operator == "gte":
+                if operator == "gte":
                     return act_num >= exp_num
-                elif operator == "lt":
+                if operator == "lt":
                     return act_num < exp_num
-                elif operator == "lte":
+                if operator == "lte":
                     return act_num <= exp_num
             except (ValueError, TypeError):
                 return False
@@ -136,13 +135,13 @@ class RulesEngine:
         entity_type: str,
         entity_context: dict,
         org_id: UUID,
-    ) -> Optional[ApprovalRule]:
+    ) -> ApprovalRule | None:
         """
         Evaluate all active rules for entity_type in priority order (ascending = higher first)
         and specificity order (more conditions = higher specificity).
         Catch-all is reserved as last resort. Fires alert event if nothing matches.
         """
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         active_rules = await self._repo.get_active_rules(db, entity_type, org_id, now)
 
         matching_rules = []
@@ -210,16 +209,14 @@ class RulesEngine:
         """
         Evaluate all active rules, resolve priority & specificity ties, and return approval chain (SPEC_06).
         """
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         active_rules = await self._repo.get_active_rules(db, transaction_type, org_id, now)
 
         matching_rules = []
         for rule in active_rules:
             if rule.is_catch_all:
                 continue
-            if rule.condition_expression and safe_eval(rule.condition_expression, entity_context):
-                matching_rules.append(rule)
-            elif rule.conditions and self._evaluate_conditions(rule.conditions, entity_context):
+            if rule.condition_expression and safe_eval(rule.condition_expression, entity_context) or rule.conditions and self._evaluate_conditions(rule.conditions, entity_context):
                 matching_rules.append(rule)
 
         if not matching_rules:

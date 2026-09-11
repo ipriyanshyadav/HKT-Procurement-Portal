@@ -8,7 +8,6 @@ All mutations are audit-logged via AuditService (INSERT-ONLY, no commit).
 from __future__ import annotations
 
 from decimal import Decimal
-from typing import Optional
 from uuid import UUID, uuid4
 
 from loguru import logger
@@ -17,11 +16,10 @@ from sqlalchemy import and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.constants import AuditAction
-from app.core.exceptions import ConflictError, NotFoundError, ValidationError
+from app.core.exceptions import ConflictError, ValidationError
 from app.db.repository_base import BaseRepository
 from app.modules.audit.service import audit_service
 from app.modules.master_data.models import TaxCode
-
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -61,7 +59,7 @@ class TaxCreateRequest(BaseModel):
     name: str
     rate: Decimal
     tax_type: str
-    hsn_chapter: Optional[str] = None
+    hsn_chapter: str | None = None
 
     @field_validator("rate")
     @classmethod
@@ -100,21 +98,21 @@ class TaxCreateRequest(BaseModel):
 class TaxUpdateRequest(BaseModel):
     """Validated payload for updating an existing TaxCode. All fields optional."""
 
-    name: Optional[str] = None
-    rate: Optional[Decimal] = None
-    tax_type: Optional[str] = None
-    hsn_chapter: Optional[str] = None
+    name: str | None = None
+    rate: Decimal | None = None
+    tax_type: str | None = None
+    hsn_chapter: str | None = None
 
     @field_validator("rate")
     @classmethod
-    def _validate_rate(cls, v: Optional[Decimal]) -> Optional[Decimal]:
+    def _validate_rate(cls, v: Decimal | None) -> Decimal | None:
         if v is not None and (v < Decimal("0") or v > Decimal("100")):
             raise ValueError("rate must be between 0 and 100 inclusive")
         return v
 
     @field_validator("tax_type")
     @classmethod
-    def _validate_tax_type(cls, v: Optional[str]) -> Optional[str]:
+    def _validate_tax_type(cls, v: str | None) -> str | None:
         if v is None:
             return v
         normalised = v.upper().strip()
@@ -126,7 +124,7 @@ class TaxUpdateRequest(BaseModel):
 
     @field_validator("name")
     @classmethod
-    def _validate_name(cls, v: Optional[str]) -> Optional[str]:
+    def _validate_name(cls, v: str | None) -> str | None:
         if v is not None and not v.strip():
             raise ValueError("name must not be blank")
         return v.strip() if v else v
@@ -150,7 +148,7 @@ class TaxResponse(BaseModel):
     name: str
     rate: Decimal
     tax_type: str
-    hsn_chapter: Optional[str]
+    hsn_chapter: str | None
     is_active: bool
     version: int
 
@@ -173,8 +171,8 @@ class TaxCodeRepository(BaseRepository[TaxCode]):
         db: AsyncSession,
         code: str,
         org_id: UUID,
-        exclude_id: Optional[UUID] = None,
-    ) -> Optional[TaxCode]:
+        exclude_id: UUID | None = None,
+    ) -> TaxCode | None:
         """Return a non-deleted TaxCode matching (code, org_id), optionally excluding one id."""
         stmt = select(TaxCode).where(
             and_(
@@ -192,7 +190,7 @@ class TaxCodeRepository(BaseRepository[TaxCode]):
         self,
         db: AsyncSession,
         org_id: UUID,
-        tax_type: Optional[str] = None,
+        tax_type: str | None = None,
         active_only: bool = True,
     ) -> list[TaxCode]:
         """Return all non-deleted TaxCodes for an org, with optional type/active filters."""
@@ -263,7 +261,7 @@ class TaxService:
         self,
         db: AsyncSession,
         org_id: UUID,
-        tax_type: Optional[str] = None,
+        tax_type: str | None = None,
         active_only: bool = True,
     ) -> list[TaxCode]:
         """
@@ -495,7 +493,7 @@ class TaxService:
         db: AsyncSession,
         code: str,
         org_id: UUID,
-        exclude_id: Optional[UUID] = None,
+        exclude_id: UUID | None = None,
     ) -> None:
         """Raise ConflictError if code already exists for this org."""
         existing = await self._repo.get_by_code_and_org(

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from datetime import date, datetime
 from decimal import Decimal
-from typing import List, Optional
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -12,14 +11,14 @@ class InvoiceLineCreate(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     po_line_id: UUID
-    grn_line_id: Optional[UUID] = None
+    grn_line_id: UUID | None = None
     line_number: int = Field(..., ge=1)
     item_description: str = Field(..., min_length=1, max_length=500)
     quantity: Decimal = Field(..., gt=0)
     unit_price: Decimal = Field(..., gt=0)
     tax_rate: Decimal = Field(default=Decimal("0.0"), ge=0)
     tax_amount: Decimal = Field(default=Decimal("0.0"), ge=0)
-    line_total: Optional[Decimal] = None
+    line_total: Decimal | None = None
 
 
 class InvoiceLineResponse(BaseModel):
@@ -28,7 +27,7 @@ class InvoiceLineResponse(BaseModel):
     id: UUID
     invoice_id: UUID
     po_line_id: UUID
-    grn_line_id: Optional[UUID] = None
+    grn_line_id: UUID | None = None
     line_number: int
     item_description: str
     quantity: Decimal
@@ -45,14 +44,14 @@ class InvoiceMatchLineResultResponse(BaseModel):
     invoice_line_id: UUID
     po_line_id: UUID
     price_match: bool
-    price_deviation: Optional[Decimal] = None
+    price_deviation: Decimal | None = None
     quantity_match: bool
-    quantity_deviation: Optional[Decimal] = None
+    quantity_deviation: Decimal | None = None
     po_reference_valid: bool
     tax_match: bool
     tax_deviation: Decimal
     overall_match: bool
-    mismatch_reasons: Optional[List[str]] = None
+    mismatch_reasons: list[str] | None = None
     created_at: datetime
 
 
@@ -62,14 +61,14 @@ class InvoiceSubmitRequest(BaseModel):
     po_id: UUID
     vendor_invoice_number: str = Field(..., min_length=1, max_length=50)
     invoice_date: date
-    due_date: Optional[date] = None
+    due_date: date | None = None
     currency: str = Field(default="INR", max_length=3)
     subtotal: Decimal = Field(..., ge=0)
     tax_amount: Decimal = Field(default=Decimal("0.0"), ge=0)
     total_amount: Decimal = Field(..., gt=0)
-    payment_terms_code: Optional[str] = None
-    notes: Optional[str] = None
-    lines: List[InvoiceLineCreate] = Field(..., min_length=1)
+    payment_terms_code: str | None = None
+    notes: str | None = None
+    lines: list[InvoiceLineCreate] = Field(..., min_length=1)
 
 
 class InvoiceResponse(BaseModel):
@@ -80,9 +79,9 @@ class InvoiceResponse(BaseModel):
     invoice_number: str
     vendor_invoice_number: str
     vendor_id: UUID
-    vendor_name: Optional[str] = None
+    vendor_name: str | None = None
     po_id: UUID
-    po_number: Optional[str] = None
+    po_number: str | None = None
     status: str
     invoice_date: date
     due_date: date
@@ -90,20 +89,20 @@ class InvoiceResponse(BaseModel):
     subtotal: Decimal
     tax_amount: Decimal
     total_amount: Decimal
-    tds_amount: Optional[Decimal] = Decimal("0.0")
-    financial_year: Optional[str] = None
-    payment_terms_code: Optional[str] = None
+    tds_amount: Decimal | None = Decimal("0.0")
+    financial_year: str | None = None
+    payment_terms_code: str | None = None
     match_status: str
     price_tolerance: Decimal
-    erp_invoice_number: Optional[str] = None
+    erp_invoice_number: str | None = None
     erp_sync_status: str
     payment_status: str
     paid_amount: Decimal
-    notes: Optional[str] = None
+    notes: str | None = None
     created_at: datetime
     updated_at: datetime
-    lines: List[InvoiceLineResponse] = Field(default_factory=list)
-    match_results: List[InvoiceMatchLineResultResponse] = Field(default_factory=list)
+    lines: list[InvoiceLineResponse] = Field(default_factory=list)
+    match_results: list[InvoiceMatchLineResultResponse] = Field(default_factory=list)
 
 
 class EligibleLineResponse(BaseModel):
@@ -123,13 +122,13 @@ class EligibleLineResponse(BaseModel):
 
 
 class InvoiceFilterParams(BaseModel):
-    po_id: Optional[UUID] = None
-    vendor_id: Optional[UUID] = None
-    status: Optional[str] = None
-    match_status: Optional[str] = None
-    payment_status: Optional[str] = None
-    financial_year: Optional[str] = None
-    search: Optional[str] = None
+    po_id: UUID | None = None
+    vendor_id: UUID | None = None
+    status: str | None = None
+    match_status: str | None = None
+    payment_status: str | None = None
+    financial_year: str | None = None
+    search: str | None = None
     page: int = 1
     page_size: int = 20
 
@@ -180,3 +179,39 @@ class AdvancedReconciliationResponse(BaseModel):
     auto_approved: bool
     line_details: list[ReconciliationDiscrepancyItem]
     reconciliation_timestamp: datetime
+
+
+class PoFlipLineDraft(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    po_line_id: UUID
+    line_number: int
+    item_description: str
+    po_quantity: Decimal
+    received_quantity: Decimal
+    invoiced_quantity: Decimal
+    invoiceable_quantity: Decimal
+    unit_price: Decimal
+    tax_rate: Decimal
+    tax_amount: Decimal
+    line_total: Decimal
+
+
+class PoFlipDraftResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    po_id: UUID
+    po_number: str
+    vendor_id: UUID
+    vendor_name: str | None = None
+    currency: str
+    payment_terms_code: str | None = None
+    suggested_invoice_date: date
+    suggested_due_date: date | None = None
+    suggested_vendor_invoice_number: str
+    lines: list[PoFlipLineDraft]
+    subtotal: Decimal
+    tax_amount: Decimal
+    total_amount: Decimal
+    can_invoice: bool
+    blocking_reason: str | None = None

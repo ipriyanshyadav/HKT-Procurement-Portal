@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
-from typing import Any, Dict, List, Optional
+from datetime import UTC, datetime, timedelta
+from typing import Any
 from uuid import UUID
 
 from sqlalchemy import select
@@ -37,12 +37,12 @@ class IntegrationJobProcessor:
         job_type: str,
         entity_type: str,
         entity_id: UUID,
-        payload: Optional[Dict[str, Any]] = None,
-        org_id: Optional[UUID] = None,
+        payload: dict[str, Any] | None = None,
+        org_id: UUID | None = None,
         direction: str = "OUTBOUND",
         adapter_type: str = "SAP",
-        request_payload: Optional[Dict[str, Any]] = None,
-        max_retries: Optional[int] = None,
+        request_payload: dict[str, Any] | None = None,
+        max_retries: int | None = None,
     ) -> IntegrationJob:
         """Create a new integration job initialized in PENDING state."""
         actual_payload = request_payload if request_payload is not None else payload
@@ -57,7 +57,7 @@ class IntegrationJobProcessor:
             request_payload=actual_payload,
             retry_count=0,
             max_retries=max_retries or settings.INTEGRATION_JOB_MAX_RETRIES,
-            next_retry_at=datetime.now(timezone.utc),
+            next_retry_at=datetime.now(UTC),
         )
         db.add(job)
         await db.flush()
@@ -66,21 +66,21 @@ class IntegrationJobProcessor:
     async def get_due_jobs(
         self,
         db: AsyncSession,
-        now: Optional[datetime] = None,
+        now: datetime | None = None,
         limit: int = 50,
-    ) -> List[IntegrationJob]:
+    ) -> list[IntegrationJob]:
         """Fetch pending and retry-scheduled jobs whose retry deadline has arrived."""
         return await self.repo.get_due_jobs(db, now=now, limit=limit)
 
     async def process_pending_jobs(
         self,
         db: AsyncSession,
-        now: Optional[datetime] = None,
+        now: datetime | None = None,
         limit: int = 50,
-    ) -> List[IntegrationJob]:
+    ) -> list[IntegrationJob]:
         """Fetch and execute all due jobs."""
         jobs = await self.get_due_jobs(db, now=now, limit=limit)
-        processed: List[IntegrationJob] = []
+        processed: list[IntegrationJob] = []
         for job in jobs:
             await self._process_job(db, job)
             processed.append(job)
@@ -95,7 +95,7 @@ class IntegrationJobProcessor:
 
         try:
             # 1. Fetch tenant ERP settings
-            erp_config: Dict[str, Any] = {}
+            erp_config: dict[str, Any] = {}
             erp_provider = job.adapter_type or "SAP"
 
             stmt = select(TenantSetting).where(
@@ -133,7 +133,7 @@ class IntegrationJobProcessor:
 
             job.status = IntegrationJobStatusEnum.COMPLETED
             job.response_payload = result
-            job.completed_at = datetime.now(timezone.utc)
+            job.completed_at = datetime.now(UTC)
             job.error_message = None
 
             await self.audit.log(
@@ -199,7 +199,7 @@ class IntegrationJobProcessor:
                 delays = settings.INTEGRATION_RETRY_DELAYS_SECONDS
                 delay_index = min(job.retry_count - 1, len(delays) - 1)
                 delay_seconds = delays[delay_index]
-                job.next_retry_at = datetime.now(timezone.utc) + timedelta(seconds=delay_seconds)
+                job.next_retry_at = datetime.now(UTC) + timedelta(seconds=delay_seconds)
 
         return job
 

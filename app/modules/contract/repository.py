@@ -5,6 +5,7 @@ Provides data access for contracts, contract_lines, contract_milestones,
 contract_amendments, and contract_templates.
 Follows clean layer discipline: router -> service -> repository -> model.
 """
+
 from __future__ import annotations
 
 import builtins
@@ -32,6 +33,7 @@ class ContractRepository:
         db: AsyncSession,
         contract_id: UUID,
         org_id: UUID,
+        for_update: bool = False,
     ) -> Contract | None:
         stmt = (
             select(Contract)
@@ -48,6 +50,8 @@ class ContractRepository:
                 selectinload(Contract.amendments),
             )
         )
+        if for_update:
+            stmt = stmt.with_for_update()
         res = await db.execute(stmt)
         return res.scalar_one_or_none()
 
@@ -239,7 +243,6 @@ class ContractRepository:
         stmt = select(ContractMilestone).where(and_(*filters))
         res = await db.execute(stmt)
         return res.scalar_one_or_none()
-
 
     async def get_milestones(
         self,

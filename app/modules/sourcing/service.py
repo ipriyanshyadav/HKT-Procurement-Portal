@@ -1,39 +1,35 @@
 from __future__ import annotations
-import hashlib
-from datetime import datetime, timezone
-from decimal import Decimal
-from typing import Optional, List
+
+from datetime import UTC, datetime
 from uuid import UUID
-from loguru import logger
-from sqlalchemy import select, func, text
+
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
-from app.core.constants import AuditAction, PermissionCode
+from app.core.constants import AuditAction
+from app.core.exceptions import AppException, ForbiddenError, NotFoundError, ValidationError
 from app.core.metrics import rfq_published_total
-from app.core.exceptions import AppException, ConflictError, ForbiddenError, NotFoundError, ValidationError
-from app.core.redis_client import RedisKeys, get_redis_client
-from app.db.enums import RFQStatus, RFQType, AuditEntityType, PRStatus
+from app.db.enums import AuditEntityType, PRStatus, RFQStatus, RFQType
 from app.events.publisher import OutboxPublisher
 from app.modules.audit.service import audit_service
-from app.modules.requisition.models import Requisition
 from app.modules.requisition.repository import requisition_repository
 from app.modules.sourcing.fsm import validate_rfq_transition
-from app.modules.sourcing.models import Rfq, RfqLot, RfqLine, RfqParticipant, RfqClarification, RfqAmendment
+from app.modules.sourcing.models import Rfq, RfqAmendment, RfqClarification, RfqLine, RfqLot, RfqParticipant
 from app.modules.sourcing.repository import (
-    rfq_repository,
-    rfq_participant_repository,
     rfq_clarification_repository,
+    rfq_participant_repository,
+    rfq_repository,
 )
 from app.modules.sourcing.schemas import (
-    RfqCreateRequest,
-    RfqUpdateRequest,
     AddParticipantsRequest,
     AmendRequest,
     CancelRequest,
-    ExtendDeadlineRequest,
     ClarificationCreateRequest,
     ClarificationRespondRequest,
+    ExtendDeadlineRequest,
+    RfqCreateRequest,
+    RfqUpdateRequest,
 )
 
 
@@ -173,12 +169,12 @@ class RfqService:
         self,
         db: AsyncSession,
         org_id: UUID,
-        status: Optional[str] = None,
-        rfq_type: Optional[str] = None,
-        business_unit_id: Optional[UUID] = None,
-        category_id: Optional[UUID] = None,
-        buyer_id: Optional[UUID] = None,
-        search: Optional[str] = None,
+        status: str | None = None,
+        rfq_type: str | None = None,
+        business_unit_id: UUID | None = None,
+        category_id: UUID | None = None,
+        buyer_id: UUID | None = None,
+        search: str | None = None,
         skip: int = 0,
         limit: int = 20,
     ):
@@ -200,8 +196,8 @@ class RfqService:
         db: AsyncSession,
         org_id: UUID,
         vendor_id: UUID,
-        status: Optional[str] = None,
-        search: Optional[str] = None,
+        status: str | None = None,
+        search: str | None = None,
         skip: int = 0,
         limit: int = 20,
     ):
@@ -268,7 +264,7 @@ class RfqService:
         await self._validate_bid_window(rfq)
 
         rfq.status = RFQStatus.PUBLISHED
-        rfq.published_at = datetime.now(timezone.utc)
+        rfq.published_at = datetime.now(UTC)
         rfq.updated_by = actor_id
         await db.flush()
 
@@ -362,7 +358,7 @@ class RfqService:
         rfq = await self.get_by_id(db, rfq_id, org_id)
         validate_rfq_transition(rfq.status, RFQStatus.CANCELLED)
         rfq.status = RFQStatus.CANCELLED
-        rfq.cancelled_at = datetime.now(timezone.utc)
+        rfq.cancelled_at = datetime.now(UTC)
         rfq.cancel_reason = data.reason
         rfq.updated_by = actor_id
         await db.flush()
@@ -400,7 +396,7 @@ class RfqService:
         if rfq.status not in (RFQStatus.PUBLISHED.value, RFQStatus.BID_OPEN.value, RFQStatus.AMENDMENT_PENDING.value):
             raise AppException("RFQ_NOT_EXTENDABLE", "Only PUBLISHED, BID_OPEN, or AMENDMENT_PENDING RFQs can have deadline extended")
 
-        if data.new_bid_close_at <= datetime.now(timezone.utc):
+        if data.new_bid_close_at <= datetime.now(UTC):
             raise ValidationError("INVALID_DEADLINE", "New deadline must be in the future")
 
         old_deadline = rfq.bid_close_at
@@ -435,7 +431,7 @@ class RfqService:
         data: AddParticipantsRequest,
         actor_id: UUID,
         org_id: UUID,
-    ) -> List[RfqParticipant]:
+    ) -> list[RfqParticipant]:
         rfq = await self.get_by_id(db, rfq_id, org_id)
         if rfq.status not in (RFQStatus.DRAFT.value, RFQStatus.APPROVED.value, RFQStatus.PUBLISHED.value, RFQStatus.AMENDMENT_PENDING.value):
             raise AppException("RFQ_PARTICIPANTS_LOCKED", "Cannot add participants in current status")
@@ -451,7 +447,7 @@ class RfqService:
                 rfq_id=rfq_id,
                 vendor_id=vendor_id,
                 invitation_status="INVITED",
-                invited_at=datetime.now(timezone.utc),
+                invited_at=datetime.now(UTC),
             )
             db.add(participant)
             added.append(participant)
@@ -496,7 +492,7 @@ class RfqService:
         if not participant:
             raise NotFoundError(f"Vendor {vendor_id} is not a participant of RFQ {rfq_id}")
 
-        participant.deleted_at = datetime.now(timezone.utc)
+        participant.deleted_at = datetime.now(UTC)
         await db.flush()
         await audit_service.log(
             db, AuditEntityType.RFQ, rfq_id, "RFQ_PARTICIPANT_REMOVED", actor_id, org_id,
@@ -514,7 +510,7 @@ class RfqService:
         if rfq.status != RFQStatus.PUBLISHED.value:
             raise AppException("RFQ_NOT_PUBLISHED", "Only PUBLISHED RFQs can have bids opened")
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         if rfq.bid_close_at and now < rfq.bid_close_at:
             raise AppException(
                 "BID_WINDOW_STILL_OPEN",
@@ -559,7 +555,7 @@ class RfqService:
             )
 
         validate_rfq_transition(rfq.status, RFQStatus.BID_OPEN)
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         rfq.status = RFQStatus.BID_OPEN
         rfq.bids_opened_at = now
         rfq.bids_opened_by = actor_id
@@ -593,7 +589,7 @@ class RfqService:
         data: ClarificationCreateRequest,
         actor_id: UUID,
         org_id: UUID,
-        vendor_id: Optional[UUID] = None,
+        vendor_id: UUID | None = None,
     ) -> RfqClarification:
         rfq = await self.get_by_id(db, rfq_id, org_id)
         if rfq.status not in (RFQStatus.PUBLISHED.value, RFQStatus.BID_OPEN.value):
@@ -631,11 +627,11 @@ class RfqService:
 
         clarif.answer = data.answer
         clarif.answered_by = actor_id
-        clarif.answered_at = datetime.now(timezone.utc)
+        clarif.answered_at = datetime.now(UTC)
 
         if data.broadcast:
             clarif.is_published = True
-            clarif.published_at = datetime.now(timezone.utc)
+            clarif.published_at = datetime.now(UTC)
             # CRITICAL (SPEC_10 A-10-3): broadcast WITHOUT vendor identity
             participants = await rfq_participant_repository.get_all(db, clarif.rfq_id, org_id)
             for p in participants:
@@ -665,8 +661,8 @@ class RfqService:
         db: AsyncSession,
         rfq_id: UUID,
         org_id: UUID,
-        actor_vendor_id: Optional[UUID] = None,
-    ) -> List[RfqClarification]:
+        actor_vendor_id: UUID | None = None,
+    ) -> list[RfqClarification]:
         """
         Buyers see all clarifications. Vendors see only published ones,
         with asker identity masked (SPEC_10 A-10-3).
@@ -692,7 +688,7 @@ class RfqService:
         bid_count = await bid_repository.count_submitted(db, rfq_id, org_id)
         unanswered = [c for c in clarifications if c.answer is None]
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         days_to_deadline = None
         if rfq.bid_close_at:
             delta = rfq.bid_close_at - now
@@ -728,7 +724,7 @@ class RfqService:
         )
         bu_code = bu_result.scalar_one_or_none() or "GEN"
 
-        year = datetime.now(timezone.utc).year
+        year = datetime.now(UTC).year
         seq = await rfq_repository.next_sequence(db, org_id, year)
         return f"{bu_code}-RFQ-{year}-{seq:06d}"
 
@@ -737,10 +733,10 @@ class RfqService:
         if not rfq.bid_close_at:
             return
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         bid_close = rfq.bid_close_at
         if bid_close.tzinfo is None:
-            bid_close = bid_close.replace(tzinfo=timezone.utc)
+            bid_close = bid_close.replace(tzinfo=UTC)
 
         window_hours = (bid_close - now).total_seconds() / 3600
         is_emergency = (

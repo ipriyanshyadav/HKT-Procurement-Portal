@@ -1,34 +1,36 @@
 from __future__ import annotations
-from typing import AsyncGenerator
-from uuid import UUID
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
-from sqlalchemy import text
-from app.config import settings
-
-# Import all module models so SQLAlchemy Base.metadata is fully populated for FK resolution
-import app.modules.organization.models  # noqa: F401
-import app.modules.user.models  # noqa: F401
-import app.modules.master_data.models  # noqa: F401
-import app.modules.vendor.models  # noqa: F401
-import app.modules.requisition.models  # noqa: F401
-import app.modules.sourcing.models  # noqa: F401
-import app.modules.bid.models  # noqa: F401
-import app.modules.evaluation.models  # noqa: F401
-import app.modules.contract.models  # noqa: F401
-import app.modules.purchase_order.models  # noqa: F401
-import app.modules.grn.models  # noqa: F401
-import app.modules.invoice.models  # noqa: F401
-import app.modules.payment.models  # noqa: F401
-import app.modules.workflow.models  # noqa: F401
-import app.modules.approval_rules.models  # noqa: F401
-import app.modules.document.models  # noqa: F401
-import app.modules.notification.models  # noqa: F401
-import app.modules.audit.models  # noqa: F401
-import app.modules.integration.models  # noqa: F401
 
 import os
 import sys
+from collections.abc import AsyncGenerator
+from uuid import UUID
+
+from sqlalchemy import text
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.pool import NullPool
+
+import app.modules.approval_rules.models  # noqa: F401
+import app.modules.audit.models  # noqa: F401
+import app.modules.bid.models  # noqa: F401
+import app.modules.contract.models  # noqa: F401
+import app.modules.document.models  # noqa: F401
+import app.modules.evaluation.models  # noqa: F401
+import app.modules.grn.models  # noqa: F401
+import app.modules.integration.models  # noqa: F401
+import app.modules.invoice.models  # noqa: F401
+import app.modules.master_data.models  # noqa: F401
+import app.modules.notification.models  # noqa: F401
+
+# Import all module models so SQLAlchemy Base.metadata is fully populated for FK resolution
+import app.modules.organization.models  # noqa: F401
+import app.modules.payment.models  # noqa: F401
+import app.modules.purchase_order.models  # noqa: F401
+import app.modules.requisition.models  # noqa: F401
+import app.modules.sourcing.models  # noqa: F401
+import app.modules.user.models  # noqa: F401
+import app.modules.vendor.models  # noqa: F401
+import app.modules.workflow.models  # noqa: F401
+from app.config import settings
 
 _is_celery = (
     os.getenv("IS_CELERY_WORKER", "").lower() in ("true", "1", "yes")
@@ -77,7 +79,7 @@ analytics_session = async_sessionmaker(analytics_engine, expire_on_commit=False,
 analytics_session_factory = analytics_session
 
 @asynccontextmanager
-async def get_db_ctx() -> AsyncGenerator[AsyncSession, None]:
+async def get_db_ctx() -> AsyncGenerator[AsyncSession]:
     async with async_session() as session:
         try:
             yield session
@@ -86,7 +88,7 @@ async def get_db_ctx() -> AsyncGenerator[AsyncSession, None]:
             await session.rollback()
             raise
 
-async def get_db() -> AsyncGenerator[AsyncSession, None]:
+async def get_db() -> AsyncGenerator[AsyncSession]:
     async with async_session() as session:
         try:
             yield session
@@ -95,7 +97,7 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
             await session.rollback()
             raise
 
-async def get_db_with_rls(org_id: UUID) -> AsyncGenerator[AsyncSession, None]:
+async def get_db_with_rls(org_id: UUID) -> AsyncGenerator[AsyncSession]:
     async with async_session() as session:
         try:
             await session.execute(

@@ -1,16 +1,16 @@
 from __future__ import annotations
+
 from collections import Counter
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from decimal import Decimal
-from typing import Optional, List, Dict, Any, Union
 from uuid import UUID
-from loguru import logger
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
 from app.core.constants import AuditAction
-from app.core.exceptions import AppException, ConflictError, NotFoundError, ValidationError
+from app.core.exceptions import AppException, ConflictError, NotFoundError
 from app.db.enums import PRStatus, UnmappedPrStatusEnum
 from app.events.publisher import OutboxPublisher
 from app.modules.audit.service import audit_service
@@ -18,7 +18,7 @@ from app.modules.master_data.models import Category
 from app.modules.requisition.models import Requisition, UnmappedPrException, UnmappedPrMappingLog
 from app.modules.requisition.repository import requisition_repository
 from app.modules.unmapped_pr.repository import UnmappedPrRepository, unmapped_pr_repository
-from app.modules.unmapped_pr.schemas import UnmappedPRMappingItem, UnmappedPRMapRequest
+from app.modules.unmapped_pr.schemas import UnmappedPRMappingItem
 
 
 class UnmappedPRService:
@@ -35,9 +35,9 @@ class UnmappedPRService:
         self,
         db: AsyncSession,
         requisition_id: UUID,
-        failed_fields: Union[dict, list],
+        failed_fields: dict | list,
         org_id: UUID,
-        erp_reference: Optional[str] = None,
+        erp_reference: str | None = None,
     ) -> UnmappedPrException:
         pr = await self.pr_repo.get(db, requisition_id, org_id)
         if not pr:
@@ -54,7 +54,7 @@ class UnmappedPRService:
             requisition_id=requisition_id,
             failed_fields=failed_fields if isinstance(failed_fields, (dict, list)) else {},
             status=UnmappedPrStatusEnum.PENDING,
-            sla_deadline=datetime.now(timezone.utc) + timedelta(hours=sla_hours),
+            sla_deadline=datetime.now(UTC) + timedelta(hours=sla_hours),
             sla_breach_level=0,
         )
         await self.repo.create(db, exception)
@@ -94,10 +94,10 @@ class UnmappedPRService:
         self,
         db: AsyncSession,
         exception_id: UUID,
-        mappings: Union[list[dict], list[UnmappedPRMappingItem], dict],
+        mappings: list[dict] | list[UnmappedPRMappingItem] | dict,
         actor_id: UUID,
         org_id: UUID,
-        notes: Optional[str] = None,
+        notes: str | None = None,
     ) -> Requisition:
         exception = await self.get_by_id(db, exception_id, org_id)
         if exception.status == UnmappedPrStatusEnum.RESOLVED:
@@ -142,7 +142,7 @@ class UnmappedPRService:
             await self.repo.log_mapping(db, log)
 
         exception.status = UnmappedPrStatusEnum.RESOLVED
-        exception.resolved_at = datetime.now(timezone.utc)
+        exception.resolved_at = datetime.now(UTC)
         exception.resolved_by = actor_id
         exception.resolution_notes = notes
         await self.repo.update(db, exception)
@@ -174,6 +174,8 @@ class UnmappedPRService:
     ) -> dict:
         exception = await self.get_by_id(db, exception_id, org_id)
         pr = await self.pr_repo.get(db, exception.requisition_id, org_id)
+        if not pr:
+            raise NotFoundError("Requisition not found")
 
         history = await self.repo.get_similar_history(db, org_id, limit=100)
 

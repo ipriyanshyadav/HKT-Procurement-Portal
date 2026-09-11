@@ -3,7 +3,7 @@ from __future__ import annotations
 import hashlib
 import hmac
 import json
-from typing import Any, Dict, Optional
+from typing import Any
 
 import httpx
 
@@ -35,9 +35,9 @@ class WebhookDeliveryService:
         self,
         endpoint_url: str,
         secret: str,
-        payload: Dict[str, Any],
+        payload: dict[str, Any],
         event_type: str,
-        allowed_domains: Optional[list[str]] = None,
+        allowed_domains: list[str] | None = None,
         timeout: float = 10.0,
     ) -> bool:
         """Deliver payload to endpoint with X-Procurement-Signature header."""

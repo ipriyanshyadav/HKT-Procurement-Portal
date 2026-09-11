@@ -4,7 +4,6 @@ Approval Rules Repository — DB queries for approval rules and versions.
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Optional
 from uuid import UUID
 
 from sqlalchemy import and_, select

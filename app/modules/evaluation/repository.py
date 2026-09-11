@@ -1,19 +1,17 @@
 from __future__ import annotations
-from typing import Optional, List, Tuple
+
 from uuid import UUID
-from datetime import datetime, timezone
-from sqlalchemy import select, func, and_, desc
+
+from sqlalchemy import and_, desc, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.modules.evaluation.models import (
+    AwardRecommendation,
     ComparativeStatement,
-    CsLineRanking,
     Evaluation,
     EvaluationScore,
     Negotiation,
-    AwardRecommendation,
-    AwardDetail,
 )
 
 
@@ -21,7 +19,7 @@ class EvaluationRepository:
 
     async def get_cs(
         self, db: AsyncSession, cs_id: UUID, org_id: UUID
-    ) -> Optional[ComparativeStatement]:
+    ) -> ComparativeStatement | None:
         stmt = (
             select(ComparativeStatement)
             .where(
@@ -42,7 +40,7 @@ class EvaluationRepository:
 
     async def get_latest_cs_by_rfq(
         self, db: AsyncSession, rfq_id: UUID, org_id: UUID
-    ) -> Optional[ComparativeStatement]:
+    ) -> ComparativeStatement | None:
         stmt = (
             select(ComparativeStatement)
             .where(
@@ -65,7 +63,7 @@ class EvaluationRepository:
 
     async def list_cs_versions(
         self, db: AsyncSession, rfq_id: UUID, org_id: UUID
-    ) -> List[ComparativeStatement]:
+    ) -> list[ComparativeStatement]:
         stmt = (
             select(ComparativeStatement)
             .where(
@@ -97,7 +95,7 @@ class EvaluationRepository:
 
     async def get_evaluation_by_rfq(
         self, db: AsyncSession, rfq_id: UUID, org_id: UUID
-    ) -> Optional[Evaluation]:
+    ) -> Evaluation | None:
         stmt = (
             select(Evaluation)
             .where(
@@ -116,7 +114,7 @@ class EvaluationRepository:
 
     async def get_scores_for_rfq(
         self, db: AsyncSession, rfq_id: UUID, org_id: UUID
-    ) -> List[EvaluationScore]:
+    ) -> list[EvaluationScore]:
         stmt = (
             select(EvaluationScore)
             .join(Evaluation, EvaluationScore.evaluation_id == Evaluation.id)
@@ -136,7 +134,7 @@ class NegotiationRepository:
 
     async def get(
         self, db: AsyncSession, negotiation_id: UUID, org_id: UUID
-    ) -> Optional[Negotiation]:
+    ) -> Negotiation | None:
         stmt = select(Negotiation).where(
             and_(
                 Negotiation.id == negotiation_id,
@@ -149,7 +147,7 @@ class NegotiationRepository:
 
     async def list_by_cs(
         self, db: AsyncSession, cs_id: UUID, org_id: UUID
-    ) -> List[Negotiation]:
+    ) -> list[Negotiation]:
         stmt = (
             select(Negotiation)
             .where(
@@ -166,7 +164,7 @@ class NegotiationRepository:
 
     async def list_by_rfq(
         self, db: AsyncSession, rfq_id: UUID, org_id: UUID
-    ) -> List[Negotiation]:
+    ) -> list[Negotiation]:
         stmt = (
             select(Negotiation)
             .where(
@@ -186,7 +184,7 @@ class AwardRepository:
 
     async def get(
         self, db: AsyncSession, arn_id: UUID, org_id: UUID
-    ) -> Optional[AwardRecommendation]:
+    ) -> AwardRecommendation | None:
         stmt = (
             select(AwardRecommendation)
             .where(
@@ -203,7 +201,7 @@ class AwardRepository:
 
     async def get_by_cs(
         self, db: AsyncSession, cs_id: UUID, org_id: UUID
-    ) -> Optional[AwardRecommendation]:
+    ) -> AwardRecommendation | None:
         stmt = (
             select(AwardRecommendation)
             .where(
@@ -222,7 +220,7 @@ class AwardRepository:
 
     async def get_by_rfq(
         self, db: AsyncSession, rfq_id: UUID, org_id: UUID
-    ) -> Optional[AwardRecommendation]:
+    ) -> AwardRecommendation | None:
         stmt = (
             select(AwardRecommendation)
             .where(

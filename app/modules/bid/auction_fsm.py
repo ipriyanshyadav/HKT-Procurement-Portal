@@ -1,5 +1,4 @@
 from __future__ import annotations
-from typing import Dict, List
 
 AUCTION_FSM: dict[str, list[str]] = {
     "SCHEDULED":        ["OPEN", "CANCELLED"],

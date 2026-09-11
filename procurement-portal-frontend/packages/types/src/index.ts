@@ -26,6 +26,38 @@ export type EligibleLineResponse = components["schemas"]["EligibleLineResponse"]
 export type InvoiceDisputeRequest = components["schemas"]["InvoiceDisputeRequest"];
 export type InvoiceRejectRequest = components["schemas"]["InvoiceRejectRequest"];
 
+export interface PoFlipLineDraft {
+  po_line_id: string;
+  line_number: number;
+  item_description: string;
+  po_quantity: number | string;
+  received_quantity: number | string;
+  invoiced_quantity: number | string;
+  invoiceable_quantity: number | string;
+  unit_price: number | string;
+  tax_rate: number | string;
+  tax_amount: number | string;
+  line_total: number | string;
+}
+
+export interface PoFlipDraftResponse {
+  po_id: string;
+  po_number: string;
+  vendor_id: string;
+  vendor_name?: string | null;
+  currency: string;
+  payment_terms_code?: string | null;
+  suggested_invoice_date: string;
+  suggested_due_date?: string | null;
+  suggested_vendor_invoice_number: string;
+  lines: PoFlipLineDraft[];
+  subtotal: number | string;
+  tax_amount: number | string;
+  total_amount: number | string;
+  can_invoice: boolean;
+  blocking_reason?: string | null;
+}
+
 export type PaymentRecordResponse = components["schemas"]["PaymentRecordResponse"];
 export type PaymentProcessRequest = components["schemas"]["PaymentProcessRequest"];
 export type DisputeResponse = components["schemas"]["DisputeResponse"];

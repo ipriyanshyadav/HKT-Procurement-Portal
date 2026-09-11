@@ -1,7 +1,9 @@
 from __future__ import annotations
-from typing import Any
+
 from uuid import UUID
+
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.core.constants import PermissionCode
 
 PERMANENTLY_DENIED_PERMISSIONS = {PermissionCode.RFQ_VIEW_BIDS_BEFORE_OPENING}

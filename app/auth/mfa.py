@@ -1,8 +1,12 @@
 from __future__ import annotations
-import pyotp
+
 import secrets
+
 import bcrypt
-from app.core.encryption import encrypt_field, decrypt_field
+import pyotp
+
+from app.core.encryption import decrypt_field, encrypt_field
+
 
 def generate_totp_secret() -> str:
     """Generate a new TOTP secret (base32)."""

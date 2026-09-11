@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from typing import List, Optional
 from uuid import UUID
 
 from sqlalchemy import select
@@ -26,7 +25,7 @@ class LegalEntityRepository(BaseRepository[LegalEntity]):
         self,
         db: AsyncSession,
         org_id: UUID,
-    ) -> List[LegalEntity]:
+    ) -> list[LegalEntity]:
         stmt = (
             select(LegalEntity)
             .where(
@@ -43,7 +42,7 @@ class LegalEntityRepository(BaseRepository[LegalEntity]):
         db: AsyncSession,
         org_id: UUID,
         registration_number: str,
-    ) -> Optional[LegalEntity]:
+    ) -> LegalEntity | None:
         stmt = select(LegalEntity).where(
             LegalEntity.org_id == org_id,
             LegalEntity.registration_number == registration_number,
@@ -62,8 +61,8 @@ class BusinessUnitRepository(BaseRepository[BusinessUnit]):
         db: AsyncSession,
         org_id: UUID,
         active_only: bool = True,
-        legal_entity_id: Optional[UUID] = None,
-    ) -> List[BusinessUnit]:
+        legal_entity_id: UUID | None = None,
+    ) -> list[BusinessUnit]:
         stmt = (
             select(BusinessUnit)
             .where(
@@ -84,7 +83,7 @@ class BusinessUnitRepository(BaseRepository[BusinessUnit]):
         db: AsyncSession,
         org_id: UUID,
         code: str,
-    ) -> Optional[BusinessUnit]:
+    ) -> BusinessUnit | None:
         stmt = select(BusinessUnit).where(
             BusinessUnit.org_id == org_id,
             BusinessUnit.code == code,
@@ -102,9 +101,9 @@ class PlantRepository(BaseRepository[Plant]):
         self,
         db: AsyncSession,
         org_id: UUID,
-        business_unit_id: Optional[UUID] = None,
+        business_unit_id: UUID | None = None,
         active_only: bool = True,
-    ) -> List[Plant]:
+    ) -> list[Plant]:
         stmt = (
             select(Plant)
             .where(
@@ -125,7 +124,7 @@ class PlantRepository(BaseRepository[Plant]):
         db: AsyncSession,
         org_id: UUID,
         code: str,
-    ) -> Optional[Plant]:
+    ) -> Plant | None:
         stmt = select(Plant).where(
             Plant.org_id == org_id,
             Plant.code == code,
@@ -143,9 +142,9 @@ class DepartmentRepository(BaseRepository[Department]):
         self,
         db: AsyncSession,
         org_id: UUID,
-        business_unit_id: Optional[UUID] = None,
+        business_unit_id: UUID | None = None,
         active_only: bool = True,
-    ) -> List[Department]:
+    ) -> list[Department]:
         stmt = (
             select(Department)
             .where(
@@ -166,7 +165,7 @@ class DepartmentRepository(BaseRepository[Department]):
         db: AsyncSession,
         org_id: UUID,
         code: str,
-    ) -> Optional[Department]:
+    ) -> Department | None:
         stmt = select(Department).where(
             Department.org_id == org_id,
             Department.code == code,
@@ -184,9 +183,9 @@ class CostCenterRepository(BaseRepository[CostCenter]):
         self,
         db: AsyncSession,
         org_id: UUID,
-        business_unit_id: Optional[UUID] = None,
+        business_unit_id: UUID | None = None,
         active_only: bool = True,
-    ) -> List[CostCenter]:
+    ) -> list[CostCenter]:
         stmt = (
             select(CostCenter)
             .where(
@@ -207,7 +206,7 @@ class CostCenterRepository(BaseRepository[CostCenter]):
         db: AsyncSession,
         org_id: UUID,
         code: str,
-    ) -> Optional[CostCenter]:
+    ) -> CostCenter | None:
         stmt = select(CostCenter).where(
             CostCenter.org_id == org_id,
             CostCenter.code == code,
@@ -221,12 +220,12 @@ class OrganizationRepository(BaseRepository[Organization]):
     def __init__(self) -> None:
         super().__init__(Organization)
 
-    async def get_all_active(self, db: AsyncSession) -> List[Organization]:
+    async def get_all_active(self, db: AsyncSession) -> list[Organization]:
         stmt = select(Organization).where(Organization.deleted_at.is_(None))
         result = await db.execute(stmt)
         return list(result.scalars().all())
 
-    async def get(self, db: AsyncSession, org_id: UUID) -> Optional[Organization]:
+    async def get(self, db: AsyncSession, org_id: UUID) -> Organization | None:
         stmt = select(Organization).where(Organization.id == org_id, Organization.deleted_at.is_(None))
         result = await db.execute(stmt)
         return result.scalar_one_or_none()
@@ -240,7 +239,7 @@ class UserCompanyAccessRepository(BaseRepository[UserCompanyAccess]):
         self,
         db: AsyncSession,
         user_id: UUID,
-    ) -> List[UserCompanyAccess]:
+    ) -> list[UserCompanyAccess]:
         stmt = (
             select(UserCompanyAccess)
             .where(UserCompanyAccess.user_id == user_id)
@@ -254,8 +253,8 @@ class UserCompanyAccessRepository(BaseRepository[UserCompanyAccess]):
         db: AsyncSession,
         user_id: UUID,
         target_org_id: UUID,
-        legal_entity_id: Optional[UUID] = None,
-    ) -> Optional[UserCompanyAccess]:
+        legal_entity_id: UUID | None = None,
+    ) -> UserCompanyAccess | None:
         stmt = select(UserCompanyAccess).where(
             UserCompanyAccess.user_id == user_id,
             UserCompanyAccess.target_org_id == target_org_id,

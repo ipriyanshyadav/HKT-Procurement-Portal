@@ -5,8 +5,8 @@ Provides database operations for goods_receipt_notes, grn_lines, and quality_ins
 """
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from typing import List, Optional, Tuple
+import builtins
+from datetime import UTC, datetime
 from uuid import UUID
 
 from sqlalchemy import and_, func, or_, select, text
@@ -25,7 +25,7 @@ class GrnRepository:
         db: AsyncSession,
         grn_id: UUID,
         org_id: UUID,
-    ) -> Optional[GoodsReceiptNote]:
+    ) -> GoodsReceiptNote | None:
         stmt = (
             select(GoodsReceiptNote)
             .where(
@@ -47,7 +47,7 @@ class GrnRepository:
         db: AsyncSession,
         grn_number: str,
         org_id: UUID,
-    ) -> Optional[GoodsReceiptNote]:
+    ) -> GoodsReceiptNote | None:
         stmt = (
             select(GoodsReceiptNote)
             .where(
@@ -69,7 +69,7 @@ class GrnRepository:
         db: AsyncSession,
         org_id: UUID,
         filters: GrnFilterParams,
-    ) -> Tuple[List[GoodsReceiptNote], int]:
+    ) -> tuple[builtins.list[GoodsReceiptNote], int]:
         conditions = [
             GoodsReceiptNote.org_id == org_id,
             GoodsReceiptNote.deleted_at.is_(None),
@@ -131,7 +131,7 @@ class GrnRepository:
         db: AsyncSession,
         grn_line_id: UUID,
         org_id: UUID,
-    ) -> Optional[GrnLine]:
+    ) -> GrnLine | None:
         stmt = (
             select(GrnLine)
             .where(
@@ -159,7 +159,7 @@ class GrnRepository:
         db: AsyncSession,
         org_id: UUID,
     ) -> str:
-        year = datetime.now(timezone.utc).year
+        year = datetime.now(UTC).year
         seq_name = f"seq_grn_{year}"
 
         try:

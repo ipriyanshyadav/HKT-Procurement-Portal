@@ -11,9 +11,9 @@ Handles:
 """
 from __future__ import annotations
 
-from datetime import date, datetime, timezone
+import builtins
+from datetime import UTC, date, datetime
 from decimal import Decimal
-from typing import List, Optional, Tuple
 from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -59,7 +59,7 @@ class GrnService:
         db: AsyncSession,
         org_id: UUID,
         filters: GrnFilterParams,
-    ) -> Tuple[List[GoodsReceiptNote], int]:
+    ) -> tuple[builtins.list[GoodsReceiptNote], int]:
         return await self.repo.list(db, org_id, filters)
 
     async def create_grn(
@@ -90,7 +90,7 @@ class GrnService:
         grn_number = await self.repo.generate_grn_number(db, org_id)
 
         has_qc_required = False
-        lines_to_add: List[GrnLine] = []
+        lines_to_add: list[GrnLine] = []
 
         for line_data in data.lines:
             po_line = await self.po_service.repo.get_line(db, line_data.po_line_id, org_id)
@@ -207,7 +207,7 @@ class GrnService:
         grn_line.accepted_quantity = data.accepted_quantity
         grn_line.rejected_quantity = data.rejected_quantity
         grn_line.qc_status = data.result
-        grn_line.inspected_at = datetime.now(timezone.utc)
+        grn_line.inspected_at = datetime.now(UTC)
         grn_line.inspected_by = inspector_id
 
         await db.flush()
@@ -270,7 +270,7 @@ class GrnService:
                     f"Cannot confirm GRN: Quality inspection is pending on line {line.id}",
                 )
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         grn.status = "CONFIRMED"
         grn.confirmed_at = now
         grn.confirmed_by = actor_id

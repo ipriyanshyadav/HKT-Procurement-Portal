@@ -1,33 +1,31 @@
 from __future__ import annotations
+
 import hashlib
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from decimal import Decimal
-from typing import Optional, List
 from uuid import UUID
-from loguru import logger
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.config import settings
 from app.core.constants import AuditAction
-from app.core.encryption import encrypt_field, decrypt_field
+from app.core.encryption import decrypt_field, encrypt_field
+from app.core.exceptions import AppException, ConflictError, ForbiddenError, NotFoundError
 from app.core.metrics import bid_submitted_total
-from app.core.exceptions import AppException, ConflictError, ForbiddenError, NotFoundError, ValidationError
 from app.core.redis_client import get_redis_client
-from app.db.enums import BidStatus, AuditEntityType
+from app.db.enums import AuditEntityType, BidStatus
 from app.events.publisher import OutboxPublisher
 from app.modules.audit.service import audit_service
 from app.modules.bid.fsm import validate_bid_transition
-from app.modules.bid.models import BidResponse, BidLineResponse, BidVersion
+from app.modules.bid.models import BidLineResponse, BidResponse, BidVersion
 from app.modules.bid.repository import bid_repository
 from app.modules.bid.schemas import (
-    BidSubmitRequest,
-    BidReviseRequest,
-    BidWithdrawRequest,
     BidDetailResponse,
     BidLineDetailResponse,
+    BidReviseRequest,
+    BidSubmitRequest,
+    BidWithdrawRequest,
 )
-from app.modules.sourcing.models import Rfq
-from app.modules.sourcing.repository import rfq_repository, rfq_participant_repository
+from app.modules.sourcing.repository import rfq_participant_repository, rfq_repository
 
 
 class BidService:
@@ -48,11 +46,11 @@ class BidService:
             raise NotFoundError(f"RFQ {rfq_id} not found")
 
         # Late bid rejection (SPEC_11 S11-13 / A-11-3)
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         if rfq.bid_close_at:
             close_at = rfq.bid_close_at
             if close_at.tzinfo is None:
-                close_at = close_at.replace(tzinfo=timezone.utc)
+                close_at = close_at.replace(tzinfo=UTC)
             if now > close_at:
                 await audit_service.log(
                     db, AuditEntityType.BID, rfq_id, "BID_LATE_REJECTED", actor_id, org_id,
@@ -171,11 +169,11 @@ class BidService:
         if not rfq:
             raise NotFoundError(f"RFQ {rfq_id} not found")
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         if rfq.bid_close_at:
             close_at = rfq.bid_close_at
             if close_at.tzinfo is None:
-                close_at = close_at.replace(tzinfo=timezone.utc)
+                close_at = close_at.replace(tzinfo=UTC)
             if now > close_at:
                 raise ConflictError("LATE_BID_REJECTED", "Cannot revise bid after deadline")
 
@@ -247,17 +245,17 @@ class BidService:
         vendor_id: UUID,
         actor_id: UUID,
         org_id: UUID,
-        data: Optional[BidWithdrawRequest] = None,
+        data: BidWithdrawRequest | None = None,
     ) -> BidResponse:
         rfq = await rfq_repository.get(db, rfq_id, org_id)
         if not rfq:
             raise NotFoundError(f"RFQ {rfq_id} not found")
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         if rfq.bid_close_at:
             close_at = rfq.bid_close_at
             if close_at.tzinfo is None:
-                close_at = close_at.replace(tzinfo=timezone.utc)
+                close_at = close_at.replace(tzinfo=UTC)
             if now > close_at:
                 raise ConflictError("DEADLINE_PASSED", "Cannot withdraw bid after submission deadline")
 
@@ -286,7 +284,7 @@ class BidService:
         bid_id: UUID,
         actor_id: UUID,
         org_id: UUID,
-        actor_vendor_id: Optional[UUID] = None,
+        actor_vendor_id: UUID | None = None,
     ) -> BidDetailResponse:
         bid = await bid_repository.get(db, bid_id, org_id)
         if not bid:
@@ -394,7 +392,7 @@ class BidService:
                     line.normalized_price_inr = unit_price * rate
                     line.exchange_rate_used = rate
 
-            bid.bid_opened_at = datetime.now(timezone.utc)
+            bid.bid_opened_at = datetime.now(UTC)
 
         await db.flush()
 

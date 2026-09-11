@@ -2,15 +2,15 @@ from __future__ import annotations
 
 import json
 import re
-from typing import Any, Optional
+from typing import Any
 from urllib.parse import urlparse
 
 import httpx
 
 from app.config import settings
 from app.core.redis_client import RedisKeys, get_redis_client
-from ..http_client import SafeHTTPClient
 
+from ..http_client import SafeHTTPClient
 
 GSTIN_REGEX = re.compile(r"^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$")
 
@@ -32,7 +32,7 @@ class GSTAdapter:
             return False
         return bool(GSTIN_REGEX.match(gstin.strip().upper()))
 
-    async def validate(self, gstin: str, vendor_legal_name: Optional[str] = None) -> dict[str, Any]:
+    async def validate(self, gstin: str, vendor_legal_name: str | None = None) -> dict[str, Any]:
         cleaned_gstin = gstin.strip().upper() if gstin else ""
         if not self.validate_format(cleaned_gstin):
             return {

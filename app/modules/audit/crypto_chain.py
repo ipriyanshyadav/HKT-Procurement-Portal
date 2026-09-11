@@ -3,14 +3,13 @@ from __future__ import annotations
 import hashlib
 import ipaddress
 import json
-from typing import Any, Dict, List, Optional
+from typing import Any
 from uuid import UUID
-
 
 GENESIS_HASH = "0000000000000000000000000000000000000000000000000000000000000000"
 
 
-def compute_payload_digest(data: Optional[Dict[str, Any]]) -> str:
+def compute_payload_digest(data: dict[str, Any] | None) -> str:
     """Generate deterministic SHA-256 digest of JSON-serializable dictionary."""
     if not data:
         return "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"  # sha256("")
@@ -29,8 +28,8 @@ def compute_record_hash(
     entity_id: UUID,
     action: str,
     created_at_iso: str,
-    actor_id: Optional[UUID],
-    payload_data: Optional[Dict[str, Any]] = None,
+    actor_id: UUID | None,
+    payload_data: dict[str, Any] | None = None,
 ) -> str:
     """
     Compute cryptographic SHA-256 chain hash for an audit record.
@@ -54,7 +53,7 @@ def compute_record_hash(
     return hashlib.sha256(canonical_string.encode("utf-8")).hexdigest()
 
 
-def resolve_ip_geolocation(ip_str: Optional[str]) -> Dict[str, Any]:
+def resolve_ip_geolocation(ip_str: str | None) -> dict[str, Any]:
     """
     Resolve IP address to geolocation and ISP classification.
     Safely differentiates private / intranet corporate subnets from public ingress addresses.
@@ -128,7 +127,7 @@ def resolve_ip_geolocation(ip_str: Optional[str]) -> Dict[str, Any]:
     }
 
 
-def verify_audit_log_chain(logs: List[Any]) -> Dict[str, Any]:
+def verify_audit_log_chain(logs: list[Any]) -> dict[str, Any]:
     """
     Verify chronological sequence of audit logs for cryptographic tampering or record drop.
     Expects logs sorted in ascending order of created_at.

@@ -1,12 +1,14 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   usePurchaseOrder,
   useAcknowledgePO,
   useDownloadPOPDF,
+  usePoFlipDraft,
+  useCreatePoFlipInvoice,
 } from "@procurement/hooks";
 import { Button, Badge, Modal } from "@procurement/ui";
 import {
@@ -22,6 +24,7 @@ import {
   Clock,
   Receipt,
   FileText,
+  Zap,
 } from "lucide-react";
 
 export default function SupplierPODetailPage() {
@@ -38,6 +41,41 @@ export default function SupplierPODetailPage() {
   const [amendmentModalOpen, setAmendmentModalOpen] = useState(false);
   const [proposedDate, setProposedDate] = useState("");
   const [amendmentReason, setAmendmentReason] = useState("");
+
+  const [poFlipModalOpen, setPoFlipModalOpen] = useState(false);
+  const [vendorInvoiceNumber, setVendorInvoiceNumber] = useState("");
+  const [flipError, setFlipError] = useState<string | null>(null);
+
+  const poFlipMutation = useCreatePoFlipInvoice();
+  const {
+    data: poFlipDraft,
+    isLoading: isPoFlipLoading,
+    refetch: refetchPoFlip,
+  } = usePoFlipDraft(id);
+
+  useEffect(() => {
+    if (poFlipDraft?.suggested_vendor_invoice_number && !vendorInvoiceNumber) {
+      setVendorInvoiceNumber(poFlipDraft.suggested_vendor_invoice_number);
+    }
+  }, [poFlipDraft, vendorInvoiceNumber]);
+
+  const handleExecutePoFlip = async () => {
+    if (!vendorInvoiceNumber.trim()) {
+      setFlipError("Vendor invoice number is required.");
+      return;
+    }
+    setFlipError(null);
+    try {
+      await poFlipMutation.mutateAsync({
+        poId: id,
+        vendorInvoiceNumber: vendorInvoiceNumber.trim(),
+      });
+      setPoFlipModalOpen(false);
+      router.push("/invoices");
+    } catch (err: any) {
+      setFlipError(err?.response?.data?.detail || err?.message || "Failed to generate invoice from PO.");
+    }
+  };
 
   if (isLoading) {
     return (
@@ -192,11 +230,25 @@ export default function SupplierPODetailPage() {
           )}
 
           {(po.status === "VENDOR_ACKNOWLEDGED" || po.status === "PARTIALLY_RECEIVED") && (
-            <Link href={`/invoices/new?po_id=${po.id}`}>
-              <Button variant="primary" size="sm" icon={<Receipt className="w-4 h-4 mr-1.5" />}>
-                Create Invoice
+            <>
+              <Button
+                variant="primary"
+                size="sm"
+                icon={<Zap className="w-4 h-4 mr-1.5" />}
+                onClick={() => {
+                  setPoFlipModalOpen(true);
+                  setFlipError(null);
+                  refetchPoFlip();
+                }}
+              >
+                Flip PO to Invoice
               </Button>
-            </Link>
+              <Link href={`/invoices/new?po_id=${po.id}`}>
+                <Button variant="secondary" size="sm" icon={<Receipt className="w-4 h-4 mr-1.5" />}>
+                  Manual Invoice
+                </Button>
+              </Link>
+            </>
           )}
         </div>
       </div>
@@ -341,6 +393,141 @@ export default function SupplierPODetailPage() {
               Submit Request
             </Button>
           </div>
+        </div>
+      </Modal>
+
+      {/* PO Flip to Invoice Modal */}
+      <Modal
+        isOpen={poFlipModalOpen}
+        onClose={() => setPoFlipModalOpen(false)}
+        maxWidth="max-w-4xl"
+        title="⚡ 1-Click PO Flip to Invoice"
+        description="Automatically prepares an invoice based on confirmed Goods Receipts and PO terms (SAP Ariba / Coupa standard)."
+      >
+        <div className="space-y-5 pt-2">
+          {isPoFlipLoading ? (
+            <div className="py-12 text-center space-y-3">
+              <div className="h-8 w-8 mx-auto border-2 border-[#0071E3] border-t-transparent rounded-full animate-spin" />
+              <p className="text-sm text-neutral-500">Calculating invoiceable balances and tax lines from receipts...</p>
+            </div>
+          ) : poFlipDraft ? (
+            <>
+              {flipError && (
+                <div className="p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 rounded-xl text-red-600 dark:text-red-400 text-sm flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  <span>{flipError}</span>
+                </div>
+              )}
+
+              {!poFlipDraft.can_invoice && (
+                <div className="p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 rounded-xl text-amber-700 dark:text-amber-300 text-sm flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  <span>
+                    {poFlipDraft.blocking_reason || "Cannot create invoice: items must be received and accepted before invoicing."}
+                  </span>
+                </div>
+              )}
+
+              {/* Order Metadata */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 bg-neutral-50 dark:bg-neutral-800/50 rounded-xl text-xs">
+                <div>
+                  <span className="text-neutral-500 dark:text-neutral-400">Order Number</span>
+                  <p className="font-semibold text-neutral-800 dark:text-neutral-200 mt-0.5">{poFlipDraft.po_number}</p>
+                </div>
+                <div>
+                  <span className="text-neutral-500 dark:text-neutral-400">Payment Terms</span>
+                  <p className="font-semibold text-neutral-800 dark:text-neutral-200 mt-0.5">{poFlipDraft.payment_terms_code || "Standard Net 30"}</p>
+                </div>
+                <div>
+                  <span className="text-neutral-500 dark:text-neutral-400">Currency</span>
+                  <p className="font-semibold text-neutral-800 dark:text-neutral-200 mt-0.5">{poFlipDraft.currency}</p>
+                </div>
+              </div>
+
+              {/* Invoice Number Input */}
+              <div>
+                <label className="apple-label text-xs font-semibold">Vendor Invoice / Reference Number *</label>
+                <input
+                  type="text"
+                  value={vendorInvoiceNumber}
+                  onChange={(e) => setVendorInvoiceNumber(e.target.value)}
+                  placeholder="e.g. INV-2026-0099"
+                  className="apple-input w-full font-mono text-sm"
+                />
+                <span className="text-xs text-neutral-500 mt-1 block">
+                  Suggested reference prefilled based on order number and date.
+                </span>
+              </div>
+
+              {/* Line Items Table */}
+              <div className="border border-neutral-200 dark:border-neutral-800 rounded-xl overflow-hidden">
+                <div className="overflow-x-auto max-h-56">
+                  <table className="w-full text-left text-xs">
+                    <thead className="bg-neutral-50 dark:bg-neutral-800/60 sticky top-0 border-b border-neutral-200 dark:border-neutral-800 font-semibold text-neutral-500">
+                      <tr>
+                        <th className="py-2 px-3">#</th>
+                        <th className="py-2 px-3">Description</th>
+                        <th className="py-2 px-3 text-right">PO Qty</th>
+                        <th className="py-2 px-3 text-right">Recv Qty</th>
+                        <th className="py-2 px-3 text-right">To Invoice</th>
+                        <th className="py-2 px-3 text-right">Unit Price</th>
+                        <th className="py-2 px-3 text-right">Line Total</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-neutral-100 dark:divide-neutral-800">
+                      {poFlipDraft.lines.map((l, idx) => (
+                        <tr key={l.po_line_id || idx} className="hover:bg-neutral-50/50 dark:hover:bg-neutral-800/30">
+                          <td className="py-2 px-3 text-neutral-400">{l.line_number}</td>
+                          <td className="py-2 px-3 font-medium text-neutral-800 dark:text-neutral-200">{l.item_description}</td>
+                          <td className="py-2 px-3 text-right">{Number(l.po_quantity).toFixed(2)}</td>
+                          <td className="py-2 px-3 text-right text-neutral-500">{Number(l.received_quantity).toFixed(2)}</td>
+                          <td className="py-2 px-3 text-right font-semibold text-[#0071E3]">{Number(l.invoiceable_quantity).toFixed(2)}</td>
+                          <td className="py-2 px-3 text-right">{poFlipDraft.currency} {Number(l.unit_price).toFixed(2)}</td>
+                          <td className="py-2 px-3 text-right font-medium">{poFlipDraft.currency} {Number(l.line_total).toFixed(2)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Financial Totals */}
+              <div className="flex flex-col items-end gap-1.5 pt-2 text-xs border-t border-neutral-200 dark:border-neutral-800">
+                <div className="flex justify-between w-64 text-neutral-600 dark:text-neutral-400">
+                  <span>Subtotal:</span>
+                  <span className="font-mono">{poFlipDraft.currency} {Number(poFlipDraft.subtotal).toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between w-64 text-neutral-600 dark:text-neutral-400">
+                  <span>Estimated Tax:</span>
+                  <span className="font-mono">{poFlipDraft.currency} {Number(poFlipDraft.tax_amount).toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between w-64 text-sm font-bold text-neutral-900 dark:text-white pt-1 border-t border-neutral-200 dark:border-neutral-700">
+                  <span>Net Payable:</span>
+                  <span className="font-mono text-[#0071E3]">{poFlipDraft.currency} {Number(poFlipDraft.total_amount).toFixed(2)}</span>
+                </div>
+              </div>
+
+              {/* Modal Actions */}
+              <div className="flex justify-end gap-2.5 pt-3 border-t border-neutral-200 dark:border-neutral-800">
+                <Button variant="secondary" onClick={() => setPoFlipModalOpen(false)}>
+                  Cancel
+                </Button>
+                <Button
+                  variant="primary"
+                  onClick={handleExecutePoFlip}
+                  disabled={!poFlipDraft.can_invoice || !vendorInvoiceNumber.trim()}
+                  loading={poFlipMutation.isPending}
+                  icon={<Zap className="w-4 h-4 mr-1.5" />}
+                >
+                  Confirm & Submit Invoice
+                </Button>
+              </div>
+            </>
+          ) : (
+            <div className="py-8 text-center text-sm text-neutral-500">
+              Failed to load order receipt balances for flipping.
+            </div>
+          )}
         </div>
       </Modal>
     </div>

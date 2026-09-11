@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 import json
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from datetime import date, datetime, timedelta, timezone
+from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal
-from typing import Any, AsyncGenerator, Dict, List, Optional
+from typing import Any
 from uuid import UUID
 
 from loguru import logger
@@ -34,7 +35,7 @@ class AnalyticsService:
             return None
 
     @asynccontextmanager
-    async def _get_db(self, db: Any = None) -> AsyncGenerator[Any, None]:
+    async def _get_db(self, db: Any = None) -> AsyncGenerator[Any]:
         if db is not None:
             yield db
         else:
@@ -49,10 +50,10 @@ class AnalyticsService:
         self,
         db: Any,
         org_id: UUID,
-        fiscal_year: Optional[str] = None,
-        user_bu_scope: Optional[List[UUID]] = None,
+        fiscal_year: str | None = None,
+        user_bu_scope: list[UUID] | None = None,
         group_by: str = "category",
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         fy = fiscal_year or _current_fy()
         year = int(str(fy)[:4])
         bu_scope_list = [str(b) for b in (user_bu_scope or [])]
@@ -67,7 +68,7 @@ class AnalyticsService:
             except Exception as e:
                 logger.warning(f"Redis get spend cache failed: {e}")
 
-        data: List[Dict[str, Any]] = []
+        data: list[dict[str, Any]] = []
 
         async with self._get_db(db) as analytics_db:
             if group_by == "vendor":
@@ -155,9 +156,9 @@ class AnalyticsService:
         self,
         db: Any,
         org_id: UUID,
-        fiscal_year: Optional[str] = None,
-        user_bu_scope: Optional[List[UUID]] = None,
-    ) -> Dict[str, Any]:
+        fiscal_year: str | None = None,
+        user_bu_scope: list[UUID] | None = None,
+    ) -> dict[str, Any]:
         by_cat = await self.get_spend_summary(db, org_id, fiscal_year, user_bu_scope, group_by="category")
         by_vend = await self.get_spend_summary(db, org_id, fiscal_year, user_bu_scope, group_by="vendor")
         by_bu = await self.get_spend_summary(db, org_id, fiscal_year, user_bu_scope, group_by="bu")
@@ -173,9 +174,9 @@ class AnalyticsService:
         self,
         db: Any,
         org_id: UUID,
-        fiscal_year: Optional[str] = None,
-        user_bu_scope: Optional[List[UUID]] = None,
-    ) -> Dict[str, Any]:
+        fiscal_year: str | None = None,
+        user_bu_scope: list[UUID] | None = None,
+    ) -> dict[str, Any]:
         fy = fiscal_year or _current_fy()
         bu_scope_list = [str(b) for b in (user_bu_scope or [])]
         cache_key = RedisKeys.analytics_cache("kpis", org_id, fy, ",".join(sorted(bu_scope_list)))
@@ -189,7 +190,7 @@ class AnalyticsService:
             except Exception as e:
                 logger.warning(f"Redis get kpi cache failed: {e}")
 
-        metrics: Dict[str, Any] = {}
+        metrics: dict[str, Any] = {}
 
         async with self._get_db(db) as analytics_db:
             params = {
@@ -378,8 +379,8 @@ class AnalyticsService:
         self,
         db: Any,
         org_id: UUID,
-        vendor_id: Optional[UUID] = None,
-        user_bu_scope: Optional[List[UUID]] = None,
+        vendor_id: UUID | None = None,
+        user_bu_scope: list[UUID] | None = None,
     ) -> Any:
         bu_scope_list = [str(b) for b in (user_bu_scope or [])]
 
@@ -465,7 +466,7 @@ class AnalyticsService:
                 data.append(d)
             return data
 
-    async def get_unmapped_pr_analytics(self, db: Any, org_id: UUID) -> Dict[str, Any]:
+    async def get_unmapped_pr_analytics(self, db: Any, org_id: UUID) -> dict[str, Any]:
         async with self._get_db(db) as analytics_db:
             r = await analytics_db.execute(
                 text("""
@@ -490,9 +491,9 @@ class AnalyticsService:
         self,
         db: Any,
         org_id: UUID,
-        fiscal_year: Optional[str] = None,
-        user_bu_scope: Optional[List[UUID]] = None,
-    ) -> Dict[str, Any]:
+        fiscal_year: str | None = None,
+        user_bu_scope: list[UUID] | None = None,
+    ) -> dict[str, Any]:
         fy = fiscal_year or _current_fy()
         year = int(str(fy)[:4])
         bu_scope_list = [str(b) for b in (user_bu_scope or [])]
@@ -596,9 +597,9 @@ class AnalyticsService:
         self,
         db: Any,
         org_id: UUID,
-        fiscal_year: Optional[str] = None,
-        user_bu_scope: Optional[List[UUID]] = None,
-    ) -> Dict[str, Any]:
+        fiscal_year: str | None = None,
+        user_bu_scope: list[UUID] | None = None,
+    ) -> dict[str, Any]:
         fy = fiscal_year or _current_fy()
         bu_scope_list = [str(b) for b in (user_bu_scope or [])]
 
@@ -720,8 +721,8 @@ class AnalyticsService:
         self,
         db: Any,
         org_id: UUID,
-        user_bu_scope: Optional[List[UUID]] = None,
-    ) -> Dict[str, Any]:
+        user_bu_scope: list[UUID] | None = None,
+    ) -> dict[str, Any]:
         async with self._get_db(db) as analytics_db:
             r = await analytics_db.execute(
                 text("""
@@ -750,7 +751,7 @@ class AnalyticsService:
         self,
         db: Any,
         org_id: UUID,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         async with self._get_db(db) as analytics_db:
             v_res = await analytics_db.execute(
                 text("""
@@ -802,8 +803,8 @@ class AnalyticsService:
         self,
         db: Any,
         org_id: UUID,
-        user_bu_scope: Optional[List[UUID]] = None,
-    ) -> Dict[str, Any]:
+        user_bu_scope: list[UUID] | None = None,
+    ) -> dict[str, Any]:
         async with self._get_db(db) as analytics_db:
             r = await analytics_db.execute(
                 text("""
@@ -847,9 +848,9 @@ class AnalyticsService:
         self,
         db: Any,
         org_id: UUID,
-        fiscal_year: Optional[str] = None,
-        user_bu_scope: Optional[List[UUID]] = None,
-    ) -> Dict[str, Any]:
+        fiscal_year: str | None = None,
+        user_bu_scope: list[UUID] | None = None,
+    ) -> dict[str, Any]:
         kpis = await self.get_procurement_kpis(db, org_id, fiscal_year, user_bu_scope)
         spend = await self.get_all_spend(db, org_id, fiscal_year, user_bu_scope)
         savings = await self.get_savings_analysis(db, org_id, fiscal_year, user_bu_scope)
@@ -868,9 +869,9 @@ class AnalyticsService:
         self,
         db: Any,
         org_id: UUID,
-        fiscal_year: Optional[str] = None,
-        user_bu_scope: Optional[List[UUID]] = None,
-    ) -> Dict[str, Any]:
+        fiscal_year: str | None = None,
+        user_bu_scope: list[UUID] | None = None,
+    ) -> dict[str, Any]:
         fy = fiscal_year or _current_fy()
         year = int(str(fy)[:4])
         bu_scope_list = [str(b) for b in (user_bu_scope or [])]
@@ -1059,10 +1060,10 @@ class AnalyticsService:
         self,
         db: Any,
         org_id: UUID,
-        fiscal_year: Optional[str] = None,
-        user_bu_scope: Optional[List[UUID]] = None,
+        fiscal_year: str | None = None,
+        user_bu_scope: list[UUID] | None = None,
         limit: int = 50,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         fy = fiscal_year or _current_fy()
         year = int(str(fy)[:4])
         bu_scope_list = [str(b) for b in (user_bu_scope or [])]
@@ -1227,8 +1228,8 @@ class AnalyticsService:
         db: Any,
         org_id: UUID,
         req: Any,
-        user_bu_scope: Optional[List[UUID]] = None,
-    ) -> Dict[str, Any]:
+        user_bu_scope: list[UUID] | None = None,
+    ) -> dict[str, Any]:
         DIM_MAP = {
             "category_name": "c.name AS category_name",
             "bu_name": "bu.name AS bu_name",
@@ -1272,7 +1273,7 @@ class AnalyticsService:
             "po.status NOT IN ('DRAFT', 'REJECTED', 'CANCELLED', 'VENDOR_REJECTED', 'REJECTED_BY_SUPPLIER')",
             "po.deleted_at IS NULL",
         ]
-        sql_params: Dict[str, Any] = {
+        sql_params: dict[str, Any] = {
             "org_id": org_id,
         }
 
@@ -1399,11 +1400,11 @@ class AnalyticsService:
         self,
         db: Any,
         org_id: UUID,
-        report_type: Optional[str] = None,
-        fiscal_year: Optional[str] = None,
+        report_type: str | None = None,
+        fiscal_year: str | None = None,
         page: int = 1,
         page_size: int = 50,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         async with self._get_db(db) as analytics_db:
             p_size = min(page_size, 100)
             offset = max(0, (page - 1) * p_size)
@@ -1528,8 +1529,8 @@ class AnalyticsService:
                 "summary": summary,
             }
 
-    async def detect_maverick_clusters(self, db: Any, org_id: UUID) -> Dict[str, Any]:
-        clusters_to_insert: List[Dict[str, Any]] = []
+    async def detect_maverick_clusters(self, db: Any, org_id: UUID) -> dict[str, Any]:
+        clusters_to_insert: list[dict[str, Any]] = []
 
         async with self._get_db(db) as analytics_db:
             # 1. RETROACTIVE_PO: POs created after invoice arrival or within 24h of invoice date
@@ -1787,9 +1788,9 @@ class AnalyticsService:
         self,
         db: Any,
         org_id: UUID,
-        status: Optional[str] = None,
-        cluster_type: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        status: str | None = None,
+        cluster_type: str | None = None,
+    ) -> dict[str, Any]:
         clusters = await analytics_repository.list_maverick_clusters(
             db, org_id, status=status, cluster_type=cluster_type
         )
@@ -1831,7 +1832,7 @@ class AnalyticsService:
         cluster_id: UUID,
         org_id: UUID,
         status: str,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         cluster = await analytics_repository.update_cluster_status(
             db, cluster_id=cluster_id, org_id=org_id, status=status
         )
@@ -1843,7 +1844,7 @@ class AnalyticsService:
         return {
             "id": c_id,
             "status": c_status,
-            "updated_at": datetime.now(timezone.utc).isoformat(),
+            "updated_at": datetime.now(UTC).isoformat(),
         }
 
 

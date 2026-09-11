@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import Link from "next/link";
 import {
   useCatalogItems,
@@ -174,7 +174,7 @@ export default function ItemMasterManagementPage() {
     }
   };
 
-  const handleDelete = async (item: ItemMaster) => {
+  const handleDelete = useCallback(async (item: ItemMaster) => {
     if (!window.confirm(`Are you sure you want to deactivate / delete catalog item "${item.code}"?`)) {
       return;
     }
@@ -189,7 +189,7 @@ export default function ItemMasterManagementPage() {
           "Failed to delete item"
       );
     }
-  };
+  }, [deleteMutation]);
 
   const activeCount = useMemo(() => items.filter((i) => i.is_active).length, [items]);
   const punchoutCount = useMemo(() => items.filter((i) => i.is_punchout).length, [items]);
@@ -317,7 +317,7 @@ export default function ItemMasterManagementPage() {
         ),
       },
     ],
-    [categoryMap, uomMap]
+    [categoryMap, uomMap, handleDelete]
   );
 
   return (

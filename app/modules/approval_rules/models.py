@@ -13,8 +13,8 @@ workflow_template_code, is_catch_all) for clean API/service compatibility.
 """
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional
+from datetime import UTC, datetime
+from typing import Any
 from uuid import UUID
 
 from sqlalchemy import Boolean, ForeignKey, Integer, String, Text
@@ -34,12 +34,12 @@ class ApprovalRule(BaseModel):
     name: Mapped[str] = mapped_column(String(200), nullable=False)
     transaction_type: Mapped[str] = mapped_column(String(50), nullable=False)
     priority: Mapped[int] = mapped_column(Integer, nullable=False)
-    conditions: Mapped[List[Any]] = mapped_column(JSONB, default=list, nullable=False)
-    approval_steps: Mapped[List[Any]] = mapped_column(JSONB, default=list, nullable=False)
+    conditions: Mapped[list[Any]] = mapped_column(JSONB, default=list, nullable=False)
+    approval_steps: Mapped[list[Any]] = mapped_column(JSONB, default=list, nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
-    current_version_id: Mapped[Optional[UUID]] = mapped_column(nullable=True)
-    created_by: Mapped[Optional[UUID]] = mapped_column(nullable=True)
-    updated_by: Mapped[Optional[UUID]] = mapped_column(nullable=True)
+    current_version_id: Mapped[UUID | None] = mapped_column(nullable=True)
+    created_by: Mapped[UUID | None] = mapped_column(nullable=True)
+    updated_by: Mapped[UUID | None] = mapped_column(nullable=True)
 
     # ── Convenient property aliases for SPEC_06 API / Service ──────────────────
 
@@ -68,7 +68,7 @@ class ApprovalRule(BaseModel):
         self.transaction_type = val
 
     @property
-    def condition_expression(self) -> Optional[str]:
+    def condition_expression(self) -> str | None:
         if isinstance(self.conditions, dict):
             return self.conditions.get("expression")
         if isinstance(self.conditions, list):
@@ -78,7 +78,7 @@ class ApprovalRule(BaseModel):
         return None
 
     @condition_expression.setter
-    def condition_expression(self, val: Optional[str]) -> None:
+    def condition_expression(self, val: str | None) -> None:
         if isinstance(self.conditions, dict):
             self.conditions["expression"] = val
         elif isinstance(self.conditions, list):
@@ -136,11 +136,11 @@ class ApprovalRule(BaseModel):
             self.conditions = [{"is_catch_all": False}]
 
     @property
-    def effective_from(self) -> Optional[datetime]:
+    def effective_from(self) -> datetime | None:
         return self.created_at
 
     @property
-    def effective_to(self) -> Optional[datetime]:
+    def effective_to(self) -> datetime | None:
         return None
 
 
@@ -156,15 +156,15 @@ class ApprovalRuleVersion(BaseModel):
         ForeignKey("approval_rules.id", ondelete="CASCADE"), nullable=False
     )
     version_number: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
-    conditions: Mapped[List[Any]] = mapped_column(JSONB, nullable=False, default=list)
-    approval_steps: Mapped[List[Any]] = mapped_column(JSONB, nullable=False, default=list)
+    conditions: Mapped[list[Any]] = mapped_column(JSONB, nullable=False, default=list)
+    approval_steps: Mapped[list[Any]] = mapped_column(JSONB, nullable=False, default=list)
     effective_from: Mapped[datetime] = mapped_column(
-        nullable=False, default=lambda: datetime.now(timezone.utc)
+        nullable=False, default=lambda: datetime.now(UTC)
     )
-    effective_to: Mapped[Optional[datetime]] = mapped_column(nullable=True, default=None)
-    change_reason: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
-    impact_assessment: Mapped[Optional[Dict[str, Any]]] = mapped_column(JSONB, nullable=True)
-    created_by: Mapped[Optional[UUID]] = mapped_column(nullable=True)
+    effective_to: Mapped[datetime | None] = mapped_column(nullable=True, default=None)
+    change_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
+    impact_assessment: Mapped[dict[str, Any] | None] = mapped_column(JSONB, nullable=True)
+    created_by: Mapped[UUID | None] = mapped_column(nullable=True)
 
     @property
     def rule_id(self) -> UUID:
@@ -175,7 +175,7 @@ class ApprovalRuleVersion(BaseModel):
         self.approval_rule_id = val
 
     @property
-    def snapshot(self) -> Dict[str, Any]:
+    def snapshot(self) -> dict[str, Any]:
         return {
             "version_number": self.version_number,
             "conditions": self.conditions,
@@ -187,18 +187,18 @@ class ApprovalRuleVersion(BaseModel):
         }
 
     @snapshot.setter
-    def snapshot(self, val: Dict[str, Any]) -> None:
+    def snapshot(self, val: dict[str, Any]) -> None:
         if isinstance(val, dict):
             self.conditions = val.get("conditions", [])
             self.approval_steps = val.get("approval_steps", [])
             self.impact_assessment = val
 
     @property
-    def activated_by(self) -> Optional[UUID]:
+    def activated_by(self) -> UUID | None:
         return self.created_by
 
     @activated_by.setter
-    def activated_by(self, val: Optional[UUID]) -> None:
+    def activated_by(self, val: UUID | None) -> None:
         self.created_by = val
 
     @property

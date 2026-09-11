@@ -1,18 +1,17 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from decimal import Decimal
-from typing import List, Optional, Tuple
 from uuid import UUID
 
 from sqlalchemy import and_, func, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.db.repository_base import BaseRepository
 from app.db.enums import InvoiceStatusEnum, POStatus
+from app.db.repository_base import BaseRepository
 from app.modules.grn.models import GoodsReceiptNote, GrnLine
-from app.modules.invoice.models import Invoice, InvoiceLine, InvoiceMatchResult
+from app.modules.invoice.models import Invoice, InvoiceLine
 from app.modules.invoice.schemas import InvoiceFilterParams
 from app.modules.purchase_order.models import PoLine, PurchaseOrder
 
@@ -26,7 +25,7 @@ class InvoiceRepository(BaseRepository[Invoice]):
         db: AsyncSession,
         invoice_id: UUID,
         org_id: UUID,
-    ) -> Optional[Invoice]:
+    ) -> Invoice | None:
         stmt = (
             select(Invoice)
             .options(
@@ -50,8 +49,8 @@ class InvoiceRepository(BaseRepository[Invoice]):
         org_id: UUID,
         vendor_id: UUID,
         vendor_invoice_number: str,
-        financial_year: Optional[str] = None,
-    ) -> Optional[Invoice]:
+        financial_year: str | None = None,
+    ) -> Invoice | None:
         conditions = [
             Invoice.org_id == org_id,
             Invoice.vendor_id == vendor_id,
@@ -70,7 +69,7 @@ class InvoiceRepository(BaseRepository[Invoice]):
         db: AsyncSession,
         org_id: UUID,
         invoice_number: str,
-    ) -> Optional[Invoice]:
+    ) -> Invoice | None:
         stmt = select(Invoice).where(
             and_(
                 Invoice.org_id == org_id,
@@ -86,7 +85,7 @@ class InvoiceRepository(BaseRepository[Invoice]):
         db: AsyncSession,
         org_id: UUID,
         filters: InvoiceFilterParams,
-    ) -> Tuple[List[Invoice], int]:
+    ) -> tuple[list[Invoice], int]:
         conditions = [
             Invoice.org_id == org_id,
             Invoice.deleted_at.is_(None),
@@ -134,7 +133,7 @@ class InvoiceRepository(BaseRepository[Invoice]):
         db: AsyncSession,
         org_id: UUID,
     ) -> str:
-        year = datetime.now(timezone.utc).year
+        year = datetime.now(UTC).year
         seq_name = f"seq_inv_{year}"
 
         try:
@@ -157,7 +156,7 @@ class InvoiceRepository(BaseRepository[Invoice]):
         db: AsyncSession,
         po_line_id: UUID,
         org_id: UUID,
-        exclude_invoice_id: Optional[UUID] = None,
+        exclude_invoice_id: UUID | None = None,
     ) -> Decimal:
         conditions = [
             InvoiceLine.po_line_id == po_line_id,
@@ -180,7 +179,7 @@ class InvoiceRepository(BaseRepository[Invoice]):
         db: AsyncSession,
         vendor_id: UUID,
         org_id: UUID,
-    ) -> List[dict]:
+    ) -> list[dict]:
         """
         Returns PO lines where GRN accepted quantity > previously invoiced quantity.
         """

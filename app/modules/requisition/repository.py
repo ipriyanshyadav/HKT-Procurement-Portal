@@ -1,9 +1,10 @@
 from __future__ import annotations
-from datetime import datetime, timezone
-from decimal import Decimal
-from typing import Optional, List, Tuple
+
+import builtins
+from datetime import UTC, datetime
 from uuid import UUID
-from sqlalchemy import select, func, and_, or_, desc, delete
+
+from sqlalchemy import and_, delete, desc, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -13,7 +14,7 @@ from app.modules.requisition.models import Requisition, RequisitionLine
 
 class RequisitionRepository:
 
-    async def get(self, db: AsyncSession, pr_id: UUID, org_id: UUID) -> Optional[Requisition]:
+    async def get(self, db: AsyncSession, pr_id: UUID, org_id: UUID) -> Requisition | None:
         stmt = (
             select(Requisition)
             .where(
@@ -28,10 +29,10 @@ class RequisitionRepository:
         result = await db.execute(stmt)
         return result.scalar_one_or_none()
 
-    async def get_with_lines(self, db: AsyncSession, pr_id: UUID, org_id: UUID) -> Optional[Requisition]:
+    async def get_with_lines(self, db: AsyncSession, pr_id: UUID, org_id: UUID) -> Requisition | None:
         return await self.get(db, pr_id, org_id)
 
-    async def find_by_number(self, db: AsyncSession, pr_number: str, org_id: UUID) -> Optional[Requisition]:
+    async def find_by_number(self, db: AsyncSession, pr_number: str, org_id: UUID) -> Requisition | None:
         stmt = (
             select(Requisition)
             .where(
@@ -52,7 +53,7 @@ class RequisitionRepository:
         return pr
 
     async def update(self, db: AsyncSession, pr: Requisition) -> Requisition:
-        pr.updated_at = datetime.now(timezone.utc)
+        pr.updated_at = datetime.now(UTC)
         await db.flush()
         return pr
 
@@ -60,14 +61,14 @@ class RequisitionRepository:
         self,
         db: AsyncSession,
         org_id: UUID,
-        status: Optional[str] = None,
-        business_unit_id: Optional[UUID] = None,
-        category_id: Optional[UUID] = None,
-        requestor_id: Optional[UUID] = None,
-        search: Optional[str] = None,
+        status: str | None = None,
+        business_unit_id: UUID | None = None,
+        category_id: UUID | None = None,
+        requestor_id: UUID | None = None,
+        search: str | None = None,
         skip: int = 0,
         limit: int = 20,
-    ) -> Tuple[List[Requisition], int]:
+    ) -> tuple[builtins.list[Requisition], int]:
         filters = [Requisition.org_id == org_id, Requisition.deleted_at.is_(None)]
 
         if status:
@@ -116,7 +117,7 @@ class RequisitionRepository:
         res = await db.execute(stmt)
         return res.scalar_one() or 0
 
-    async def get_lines(self, db: AsyncSession, pr_id: UUID, org_id: UUID) -> List[RequisitionLine]:
+    async def get_lines(self, db: AsyncSession, pr_id: UUID, org_id: UUID) -> builtins.list[RequisitionLine]:
         stmt = (
             select(RequisitionLine)
             .where(
@@ -150,8 +151,8 @@ class RequisitionRepository:
         await db.flush()
 
     async def get_pending_prs_older_than(
-        self, db: AsyncSession, check_date: datetime, org_id: Optional[UUID] = None
-    ) -> List[Requisition]:
+        self, db: AsyncSession, check_date: datetime, org_id: UUID | None = None
+    ) -> builtins.list[Requisition]:
         filters = [
             Requisition.status.in_([PRStatus.SUBMITTED.value, PRStatus.PENDING_APPROVAL.value]),
             Requisition.created_at <= check_date,
@@ -164,8 +165,8 @@ class RequisitionRepository:
         return list(res.scalars().all())
 
     async def get_approved_not_in_sourcing(
-        self, db: AsyncSession, org_id: Optional[UUID] = None
-    ) -> List[Requisition]:
+        self, db: AsyncSession, org_id: UUID | None = None
+    ) -> builtins.list[Requisition]:
         filters = [
             Requisition.status == PRStatus.APPROVED.value,
             Requisition.approved_at.is_not(None),

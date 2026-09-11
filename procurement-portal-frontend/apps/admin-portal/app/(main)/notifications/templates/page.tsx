@@ -88,7 +88,7 @@ export default function NotificationTemplatesPage() {
     page_size: 100,
   });
 
-  const templates: NotificationTemplateItem[] = response?.data || [];
+  const templates: NotificationTemplateItem[] = useMemo(() => response?.data || [], [response?.data]);
 
   // Mutations
   const createMutation = useCreateNotificationTemplate();

@@ -111,8 +111,8 @@ export default function NewContractPage() {
       setTitle((prev) => prev || `Contract for ${rfq.title} (${rfq.rfq_number})`);
       if (rfq.category_id) setCategoryId((prev) => prev || rfq.category_id);
       if (rfq.business_unit_id) setBusinessUnitId((prev) => prev || rfq.business_unit_id);
-      if (rfq.estimated_value && !totalValue) {
-        setTotalValue(String(rfq.estimated_value));
+      if (rfq.estimated_value) {
+        setTotalValue((prev) => prev || String(rfq.estimated_value));
       }
     }
   }, [rfq]);

@@ -1,23 +1,23 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from typing import Any, Dict, Optional
+from datetime import UTC, datetime
+from typing import Any
 from uuid import UUID
 
-from .erp_base import ERPAdapterBase
 from ..http_client import SafeHTTPClient
+from .erp_base import ERPAdapterBase
 
 
 class OracleAdapter(ERPAdapterBase):
     """Oracle ERP Cloud & E-Business Suite (EBS) REST Adapter."""
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None) -> None:
+    def __init__(self, config: dict[str, Any] | None = None) -> None:
         super().__init__(config)
         self.endpoint_url = self.config.get("endpoint_url")
         self.ledger_id = self.config.get("ledger_id", "PRIMARY_LEDGER")
 
-    async def sync_vendor(self, vendor_id: UUID, org_id: UUID) -> Dict[str, Any]:
-        now = datetime.now(timezone.utc).isoformat()
+    async def sync_vendor(self, vendor_id: UUID, org_id: UUID) -> dict[str, Any]:
+        now = datetime.now(UTC).isoformat()
         supplier_num = f"ORA-SUP-{str(vendor_id)[:8].upper()}"
 
         result = {
@@ -44,8 +44,8 @@ class OracleAdapter(ERPAdapterBase):
 
         return result
 
-    async def create_po(self, po_id: UUID, org_id: UUID) -> Dict[str, Any]:
-        now = datetime.now(timezone.utc).isoformat()
+    async def create_po(self, po_id: UUID, org_id: UUID) -> dict[str, Any]:
+        now = datetime.now(UTC).isoformat()
         return {
             "status": "POSTED",
             "provider": "ORACLE",
@@ -56,8 +56,8 @@ class OracleAdapter(ERPAdapterBase):
             "synced_at": now,
         }
 
-    async def get_material_master(self, material_code: str, org_id: UUID) -> Dict[str, Any]:
-        now = datetime.now(timezone.utc).isoformat()
+    async def get_material_master(self, material_code: str, org_id: UUID) -> dict[str, Any]:
+        now = datetime.now(UTC).isoformat()
         return {
             "status": "SUCCESS",
             "provider": "ORACLE",
@@ -68,8 +68,8 @@ class OracleAdapter(ERPAdapterBase):
             "synced_at": now,
         }
 
-    async def confirm_payment(self, payment_id: UUID, org_id: UUID) -> Dict[str, Any]:
-        now = datetime.now(timezone.utc).isoformat()
+    async def confirm_payment(self, payment_id: UUID, org_id: UUID) -> dict[str, Any]:
+        now = datetime.now(UTC).isoformat()
         return {
             "status": "CLEARED",
             "provider": "ORACLE",
@@ -79,8 +79,8 @@ class OracleAdapter(ERPAdapterBase):
             "synced_at": now,
         }
 
-    async def sync_invoice(self, invoice_id: UUID, org_id: UUID) -> Dict[str, Any]:
-        now = datetime.now(timezone.utc).isoformat()
+    async def sync_invoice(self, invoice_id: UUID, org_id: UUID) -> dict[str, Any]:
+        now = datetime.now(UTC).isoformat()
         return {
             "status": "VALIDATED",
             "provider": "ORACLE",

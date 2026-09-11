@@ -4,7 +4,7 @@ Approval Rules Schemas — request/response Pydantic models.
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 from uuid import UUID
 
 from pydantic import BaseModel, Field
@@ -18,26 +18,26 @@ class ApprovalRuleCreateRequest(BaseModel):
     rule_code: str = Field(..., min_length=3, max_length=100)
     rule_name: str = Field(..., min_length=3, max_length=255)
     priority: int = Field(..., ge=1, le=1000)
-    conditions: Dict[str, Any] = Field(default_factory=dict)
-    condition_expression: Optional[str] = Field(None, max_length=1000)
+    conditions: dict[str, Any] = Field(default_factory=dict)
+    condition_expression: str | None = Field(None, max_length=1000)
     workflow_template_code: str = Field(..., min_length=1, max_length=100)
     is_catch_all: bool = Field(default=False)
-    effective_from: Optional[datetime] = None
-    effective_to: Optional[datetime] = None
+    effective_from: datetime | None = None
+    effective_to: datetime | None = None
 
 
 class ApprovalRuleUpdateRequest(BaseModel):
-    rule_name: Optional[str] = Field(None, min_length=3, max_length=255)
-    priority: Optional[int] = Field(None, ge=1, le=1000)
-    conditions: Optional[Dict[str, Any]] = None
-    condition_expression: Optional[str] = Field(None, max_length=1000)
-    workflow_template_code: Optional[str] = Field(None, min_length=1, max_length=100)
-    effective_to: Optional[datetime] = None
+    rule_name: str | None = Field(None, min_length=3, max_length=255)
+    priority: int | None = Field(None, ge=1, le=1000)
+    conditions: dict[str, Any] | None = None
+    condition_expression: str | None = Field(None, max_length=1000)
+    workflow_template_code: str | None = Field(None, min_length=1, max_length=100)
+    effective_to: datetime | None = None
 
 
 class ApprovalRuleSimulateRequest(BaseModel):
     entity_type: str
-    entity_context: Dict[str, Any] = Field(default_factory=dict)
+    entity_context: dict[str, Any] = Field(default_factory=dict)
 
 
 class ApprovalRuleResponse(BaseModel):
@@ -47,14 +47,14 @@ class ApprovalRuleResponse(BaseModel):
     rule_name: str
     priority: int
     conditions: Any = Field(default_factory=dict)
-    condition_expression: Optional[str] = None
+    condition_expression: str | None = None
     workflow_template_code: str = ""
     is_active: bool = True
     is_catch_all: bool = False
-    effective_from: Optional[datetime] = None
-    effective_to: Optional[datetime] = None
-    created_by: Optional[UUID] = None
-    created_at: Optional[datetime] = None
+    effective_from: datetime | None = None
+    effective_to: datetime | None = None
+    created_by: UUID | None = None
+    created_at: datetime | None = None
 
     model_config = {"from_attributes": True}
 
@@ -62,7 +62,7 @@ class ApprovalRuleResponse(BaseModel):
 class ApprovalRuleVersionResponse(BaseModel):
     id: UUID
     rule_id: UUID
-    snapshot: Dict[str, Any]
+    snapshot: dict[str, Any]
     activated_by: UUID
     activated_at: datetime
 
@@ -70,7 +70,7 @@ class ApprovalRuleVersionResponse(BaseModel):
 
 
 class ApprovalRuleSimulateResponse(BaseModel):
-    matched_rule: Optional[ApprovalRuleResponse]
-    workflow_template_code: Optional[str]
+    matched_rule: ApprovalRuleResponse | None
+    workflow_template_code: str | None
     match_type: str  # "SPECIFIC", "CATCH_ALL", or "NONE"
     evaluated_rules_count: int

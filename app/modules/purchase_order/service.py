@@ -13,9 +13,10 @@ Core domain service managing the entire PO lifecycle:
 """
 from __future__ import annotations
 
-from datetime import datetime, timezone
+import builtins
+from datetime import UTC, datetime
 from decimal import Decimal
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 from uuid import UUID
 
 from loguru import logger
@@ -75,7 +76,7 @@ class PurchaseOrderService:
         db: AsyncSession,
         org_id: UUID,
         filters: POFilterParams,
-    ) -> Tuple[List[PurchaseOrder], int]:
+    ) -> tuple[builtins.list[PurchaseOrder], int]:
         return await self.repo.list(db, org_id, filters)
 
     async def create(
@@ -168,8 +169,8 @@ class PurchaseOrderService:
         )
         await self.repo.create(db, po)
         if data.source_pr_id:
-            from app.modules.requisition.repository import requisition_repository
             from app.db.enums import PRStatus
+            from app.modules.requisition.repository import requisition_repository
             source_pr = await requisition_repository.get(db, data.source_pr_id, org_id)
             if source_pr and source_pr.status in (PRStatus.APPROVED, PRStatus.IN_SOURCING):
                 source_pr.status = PRStatus.CONVERTED
@@ -232,7 +233,7 @@ class PurchaseOrderService:
         data: POFromAwardRequest,
         actor_id: UUID,
         org_id: UUID,
-    ) -> List[PurchaseOrder]:
+    ) -> builtins.list[PurchaseOrder]:
         arn = await self.award_repo.get(db, data.arn_id, org_id)
         if not arn:
             raise NotFoundError(f"Award recommendation {data.arn_id} not found")
@@ -250,17 +251,17 @@ class PurchaseOrderService:
         if not award_details:
             raise ValidationError(f"No award lines found for ARN {arn.id}")
 
-        rfq_line_map = {l.id: l for l in getattr(rfq, "lines", [])}
+        rfq_line_map = {rfq_line.id: rfq_line for rfq_line in getattr(rfq, "lines", [])}
 
         # Group by vendor to handle single and split awards
-        by_vendor: Dict[UUID, List[Any]] = {}
+        by_vendor: dict[UUID, list[Any]] = {}
         for d in award_details:
             by_vendor.setdefault(d.vendor_id, []).append(d)
 
-        created_pos: List[PurchaseOrder] = []
+        created_pos: list[PurchaseOrder] = []
 
         for vendor_id, details in by_vendor.items():
-            lines_create: List[POLineCreate] = []
+            lines_create: list[POLineCreate] = []
             for d in details:
                 line_obj = rfq_line_map.get(d.rfq_line_id)
                 item_desc = line_obj.item_description if line_obj else f"Item {d.rfq_line_id}"
@@ -383,7 +384,7 @@ class PurchaseOrderService:
             logger.warning("PO PDF generation failed for {}: {}", po.id, e)
 
         po.status = POStatus.RELEASED
-        po.sent_at = datetime.now(timezone.utc)
+        po.sent_at = datetime.now(UTC)
         po.updated_by = actor_id
 
         # Write to outbox for ERP Sync & Vendor Notification
@@ -426,7 +427,7 @@ class PurchaseOrderService:
         db: AsyncSession,
         po_id: UUID,
         accepted: bool,
-        rejection_reason: Optional[str],
+        rejection_reason: str | None,
         actor_id: UUID,
         org_id: UUID,
     ) -> PurchaseOrder:
@@ -434,7 +435,7 @@ class PurchaseOrderService:
         target = POStatus.ACKNOWLEDGED if accepted else POStatus.REJECTED_BY_SUPPLIER
         validate_po_transition(po.status, target)
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         po.status = target
         po.updated_by = actor_id
 
@@ -535,7 +536,7 @@ class PurchaseOrderService:
         self,
         db: AsyncSession,
         po_id: UUID,
-        received_lines: List[Dict[str, Any]],
+        received_lines: builtins.list[dict[str, Any]],
         org_id: UUID,
     ) -> PurchaseOrder:
         """

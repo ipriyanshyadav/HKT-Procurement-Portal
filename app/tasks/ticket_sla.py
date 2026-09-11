@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import asyncio
-from datetime import date, datetime, timedelta, timezone
+from datetime import UTC, date, datetime, timedelta
 
 from app.config import settings
 from app.db.session import async_session_factory
@@ -108,7 +108,7 @@ async def _check_sla() -> None:
 
 async def _auto_close() -> None:
     async with async_session_factory() as db:
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         r_cutoff = now - timedelta(days=settings.TICKET_AUTO_CLOSE_RESOLVED_DAYS)
         resolved = await ticket_repository.get_stale_resolved(db, r_cutoff)
         for t in resolved:
@@ -169,6 +169,7 @@ async def _send_digest() -> None:
 async def _check_due_dates() -> None:
     async with async_session_factory() as db:
         from sqlalchemy import select
+
         from app.modules.ticket.models import Ticket
 
         today = date.today()

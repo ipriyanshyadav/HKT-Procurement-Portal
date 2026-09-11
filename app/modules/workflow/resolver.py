@@ -123,9 +123,10 @@ class ApproverResolver:
         self, db: AsyncSession, user_id: UUID, bu_id: UUID, org_id: UUID
     ) -> bool:
         """Check if user's assigned business_unit_id matches the given BU."""
-        from sqlalchemy import select, and_
-        from app.modules.user.models import User as UserModel
+        from sqlalchemy import and_, select
         from sqlalchemy.orm import load_only
+
+        from app.modules.user.models import User as UserModel
 
         stmt = (
             select(UserModel)
@@ -146,7 +147,7 @@ class ApproverResolver:
         self, db: AsyncSession, user_id: UUID, category_id: UUID, org_id: UUID
     ) -> bool:
         """Check if user has explicit category scope (via user_category_scopes table)."""
-        from sqlalchemy import select, and_, text
+        from sqlalchemy import text
 
         stmt = text(
             """

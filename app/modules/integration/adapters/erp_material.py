@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any
 from uuid import UUID
 
 from sqlalchemy import select
@@ -14,7 +14,7 @@ class ERPMaterialAdapter:
 
     async def lookup_material(
         self, db: AsyncSession, material_code: str, org_id: UUID
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         stmt = select(Category).where(
             Category.code == material_code,
             Category.org_id == org_id,

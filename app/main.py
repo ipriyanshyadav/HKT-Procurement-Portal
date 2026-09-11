@@ -45,9 +45,9 @@ from app.core.middleware import (
 )
 from app.core.telemetry import setup_telemetry
 from app.modules.admin.router import router as admin_router
+from app.modules.ai_sourcing.router import router as ai_sourcing_router
 from app.modules.analytics.router import router as analytics_router
 from app.modules.approval_rules.router import router as approval_rules_router
-from app.modules.ai_sourcing.router import router as ai_sourcing_router
 from app.modules.asn.router import router as asn_router
 from app.modules.audit.router import router as audit_router
 from app.modules.award.router import router as award_router

@@ -9,7 +9,6 @@ Responsibilities:
 """
 from __future__ import annotations
 
-from typing import Optional
 from uuid import UUID, uuid4
 
 from loguru import logger
@@ -21,7 +20,6 @@ from app.core.constants import AuditAction
 from app.core.exceptions import ConflictError, NotFoundError, ValidationError
 from app.modules.audit.service import audit_service
 from app.modules.master_data.models import DeliveryLocation
-
 
 # ---------------------------------------------------------------------------
 # Pydantic Schemas
@@ -38,7 +36,7 @@ class LocationCreateRequest(BaseModel):
     state: str = Field(..., min_length=1, max_length=100)
     postal_code: str = Field(..., min_length=1, max_length=20)
     country_code: str = Field(default="IN", min_length=2, max_length=2, description="ISO 3166-1 alpha-2 country code")
-    plant_id: Optional[UUID] = Field(default=None, description="Optional FK to plants table")
+    plant_id: UUID | None = Field(default=None, description="Optional FK to plants table")
 
     @field_validator("country_code", mode="before")
     @classmethod
@@ -62,17 +60,17 @@ class LocationCreateRequest(BaseModel):
 class LocationUpdateRequest(BaseModel):
     """Payload for partial update of a DeliveryLocation. All fields optional."""
 
-    name: Optional[str] = Field(default=None, min_length=1, max_length=200)
-    address: Optional[str] = Field(default=None, min_length=1)
-    city: Optional[str] = Field(default=None, min_length=1, max_length=100)
-    state: Optional[str] = Field(default=None, min_length=1, max_length=100)
-    postal_code: Optional[str] = Field(default=None, min_length=1, max_length=20)
-    country_code: Optional[str] = Field(default=None, min_length=2, max_length=2)
-    plant_id: Optional[UUID] = Field(default=None)
+    name: str | None = Field(default=None, min_length=1, max_length=200)
+    address: str | None = Field(default=None, min_length=1)
+    city: str | None = Field(default=None, min_length=1, max_length=100)
+    state: str | None = Field(default=None, min_length=1, max_length=100)
+    postal_code: str | None = Field(default=None, min_length=1, max_length=20)
+    country_code: str | None = Field(default=None, min_length=2, max_length=2)
+    plant_id: UUID | None = Field(default=None)
 
     @field_validator("country_code", mode="before")
     @classmethod
-    def _uppercase_country_code(cls, v: Optional[str]) -> Optional[str]:
+    def _uppercase_country_code(cls, v: str | None) -> str | None:
         if v is None:
             return v
         if not isinstance(v, str):
@@ -98,7 +96,7 @@ class LocationResponse(BaseModel):
     state: str
     postal_code: str
     country_code: str
-    plant_id: Optional[UUID]
+    plant_id: UUID | None
     is_active: bool
     version: int
 
@@ -144,8 +142,8 @@ class DeliveryLocationRepository:
         db: AsyncSession,
         code: str,
         org_id: UUID,
-        exclude_id: Optional[UUID] = None,
-    ) -> Optional[DeliveryLocation]:
+        exclude_id: UUID | None = None,
+    ) -> DeliveryLocation | None:
         """Return a location matching *code* within the org, optionally excluding a row id."""
         stmt = select(DeliveryLocation).where(
             DeliveryLocation.code == code,
@@ -162,7 +160,7 @@ class DeliveryLocationRepository:
         db: AsyncSession,
         org_id: UUID,
         active_only: bool = True,
-        country_code: Optional[str] = None,
+        country_code: str | None = None,
     ) -> list[DeliveryLocation]:
         """Return all delivery locations for an org, with optional active/country filters."""
         stmt = select(DeliveryLocation).where(
@@ -253,7 +251,7 @@ class DeliveryLocationService:
         db: AsyncSession,
         org_id: UUID,
         active_only: bool = True,
-        country_code: Optional[str] = None,
+        country_code: str | None = None,
     ) -> list[DeliveryLocation]:
         """
         Return delivery locations for *org_id*.

@@ -1,20 +1,21 @@
 from __future__ import annotations
-from typing import Optional, Dict, Any, Tuple
+
 from uuid import UUID
+
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.auth.dependencies import get_current_user
 from app.auth.schemas import (
     LoginRequest,
-    MFAVerifyRequest,
     MFAConfirmRequest,
-    TurnstileVerifyRequest,
+    MFAVerifyRequest,
     RefreshRequest,
+    TurnstileVerifyRequest,
 )
 from app.auth.service import auth_service
-from app.auth.dependencies import get_current_user
-from app.auth.sso import handle_oidc_callback, SAML_AVAILABLE
+from app.auth.sso import SAML_AVAILABLE, handle_oidc_callback
 from app.config import settings
 from app.core.exceptions import AppException
 from app.db.session import get_db
@@ -23,7 +24,7 @@ from app.modules.user.models import User
 router = APIRouter(tags=["Auth"])
 
 
-def _get_portal(request: Request, body_portal: Optional[str] = None) -> Optional[str]:
+def _get_portal(request: Request, body_portal: str | None = None) -> str | None:
     if body_portal and body_portal.strip().lower() in ("buyer", "supplier", "admin"):
         return body_portal.strip().lower()
     portal = request.headers.get("x-portal-id", "").strip().lower()
@@ -44,13 +45,13 @@ def _get_portal(request: Request, body_portal: Optional[str] = None) -> Optional
     return portal if portal in ("buyer", "supplier", "admin") else None
 
 
-def _get_cookie_key(portal: Optional[str]) -> str:
+def _get_cookie_key(portal: str | None) -> str:
     return f"refresh_token_{portal}" if portal in ("buyer", "supplier", "admin") else "refresh_token"
 
 
 def _get_refresh_token_and_key(
-    request: Request, body_token: Optional[str] = None
-) -> tuple[str, str, Optional[str]]:
+    request: Request, body_token: str | None = None
+) -> tuple[str, str, str | None]:
     portal = _get_portal(request)
     cookie_key = _get_cookie_key(portal)
     token = (body_token or "").strip()
@@ -122,7 +123,7 @@ async def login(
 @router.post("/refresh")
 async def refresh(
     request: Request,
-    body: Optional[RefreshRequest] = None,
+    body: RefreshRequest | None = None,
     db: AsyncSession = Depends(get_db),
 ) -> JSONResponse:
     """POST /api/v1/auth/refresh — reads refresh_token from body, header, or portal-scoped httpOnly cookie."""
@@ -242,7 +243,7 @@ async def confirm_mfa(
 async def sso_initiate(
     provider: str,
     org_id: str,
-    portal: Optional[str] = "buyer",
+    portal: str | None = "buyer",
 ) -> dict:
     """GET /api/v1/auth/sso/initiate — SAML or OIDC redirect initiation."""
     from uuid import uuid4
@@ -259,7 +260,7 @@ async def sso_initiate(
         idp_sso = saml_settings.get("idp", {}).get("singleSignOnService", {}).get("url")
         return {"data": {"provider": "saml", "redirect_url": idp_sso or "/api/v1/auth/sso/callback", "state": state}}
 
-    elif provider == "oidc":
+    if provider == "oidc":
         from app.auth.sso import build_oidc_auth_url
         auth_url = await build_oidc_auth_url(state=state)
         return {"data": {"provider": "oidc", "redirect_url": auth_url, "state": state}}
@@ -270,11 +271,11 @@ async def sso_initiate(
 @router.post("/sso/callback")
 async def sso_callback(
     request: Request,
-    state: Optional[str] = None,
+    state: str | None = None,
     db: AsyncSession = Depends(get_db),
 ) -> JSONResponse:
     """POST /api/v1/auth/sso/callback — SAML 2.0 ACS URL handler."""
-    from app.auth.sso import get_saml_auth, provision_or_login_sso_user, SSOResult
+    from app.auth.sso import SSOResult, get_saml_auth, provision_or_login_sso_user
     form = await request.form()
     relay_state = form.get("RelayState") or state or ""
     parts = relay_state.split(":") if relay_state else []
@@ -343,7 +344,7 @@ async def oidc_callback(
     db: AsyncSession = Depends(get_db),
 ) -> JSONResponse:
     """GET /api/v1/auth/sso/oidc/callback — OIDC authorization code exchange."""
-    from app.auth.sso import handle_oidc_callback, provision_or_login_sso_user
+    from app.auth.sso import provision_or_login_sso_user
 
     parts = state.split(":") if state else []
     org_id_str = parts[0] if len(parts) > 0 else None

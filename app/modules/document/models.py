@@ -1,13 +1,17 @@
 from __future__ import annotations
+
 from datetime import datetime
-from typing import Optional, Dict, Any
+from typing import Any
 from uuid import UUID, uuid4
-from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import String, Boolean, Integer, BigInteger, ForeignKey
+
+from sqlalchemy import BigInteger, Boolean, ForeignKey, Integer, String
 from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql import func
-from app.db.base import BaseModel, Base
-from app.db.enums import DocumentCategoryEnum, DOCUMENT_CATEGORY_PG
+
+from app.db.base import Base, BaseModel
+from app.db.enums import DOCUMENT_CATEGORY_PG, DocumentCategoryEnum
+
 
 class Document(BaseModel):
     __tablename__ = "documents"
@@ -23,12 +27,12 @@ class Document(BaseModel):
     file_size_bytes: Mapped[int] = mapped_column(BigInteger, nullable=False)
     sha256_hash: Mapped[str] = mapped_column(String(64), nullable=False)
     scan_status: Mapped[str] = mapped_column(String(20), default="PENDING", nullable=False)
-    scan_result: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
+    scan_result: Mapped[str | None] = mapped_column(String(20), nullable=True)
     is_encrypted: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
-    encryption_key_ref: Mapped[Optional[str]] = mapped_column(String(200), nullable=True)
-    ocr_extracted_data: Mapped[Optional[Dict[str, Any]]] = mapped_column(JSONB, nullable=True)
+    encryption_key_ref: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    ocr_extracted_data: Mapped[dict[str, Any] | None] = mapped_column(JSONB, nullable=True)
     current_version: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
-    created_by: Mapped[Optional[UUID]] = mapped_column(ForeignKey("users.id"), nullable=True)
+    created_by: Mapped[UUID | None] = mapped_column(ForeignKey("users.id"), nullable=True)
 
 class DocumentVersion(Base):
     __tablename__ = "document_versions"

@@ -7,8 +7,7 @@ All endpoints and credentials are read from application settings.
 from __future__ import annotations
 
 import base64
-from typing import Any, Dict, List, Optional
-from uuid import UUID
+from typing import Any
 
 import httpx
 from loguru import logger
@@ -24,7 +23,7 @@ class DigioAdapter:
         self.client_id = settings.DIGIO_CLIENT_ID
         self.client_secret = settings.DIGIO_CLIENT_SECRET
 
-    def _get_auth_header(self) -> Dict[str, str]:
+    def _get_auth_header(self) -> dict[str, str]:
         if not self.client_id or not self.client_secret:
             return {}
         creds = f"{self.client_id}:{self.client_secret}"
@@ -35,8 +34,8 @@ class DigioAdapter:
         self,
         contract: Any,
         doc_path: str,
-        signatories: Optional[List[Dict[str, Any]]] = None,
-    ) -> Dict[str, Any]:
+        signatories: list[dict[str, Any]] | None = None,
+    ) -> dict[str, Any]:
         """
         Create a signature request in Digio.
         Falls back cleanly to sandbox/mock response when credentials are not configured.
@@ -79,8 +78,7 @@ class DigioAdapter:
                         "signing_url": data.get("signing_url", signing_url),
                         "status": data.get("status", "PENDING"),
                     }
-                else:
-                    logger.warning("Digio API returned status {}: {}", resp.status_code, resp.text)
+                logger.warning("Digio API returned status {}: {}", resp.status_code, resp.text)
         except Exception as exc:
             logger.warning("Digio connection error: {}, returning sandbox mock", exc)
 
@@ -91,7 +89,7 @@ class DigioAdapter:
             "status": "PENDING",
         }
 
-    async def get_status(self, request_id: str) -> Dict[str, Any]:
+    async def get_status(self, request_id: str) -> dict[str, Any]:
         """Check status of signature request."""
         if not self.client_id or not self.client_secret:
             return {

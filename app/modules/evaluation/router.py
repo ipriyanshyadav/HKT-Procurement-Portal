@@ -1,31 +1,32 @@
 from __future__ import annotations
-from typing import Optional, List
+
 from uuid import UUID
-from fastapi import APIRouter, Depends, Query, status
+
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.auth.dependencies import get_current_user, require_permission, require_any_permission
+from app.auth.dependencies import get_current_user, require_any_permission, require_permission
 from app.core.constants import PermissionCode
 from app.core.exceptions import NotFoundError
 from app.core.responses import APIResponse, PaginationMeta, created_response, success_response
 from app.db.session import get_db
-from app.modules.user.models import User
-from app.modules.evaluation.service import evaluation_service
-from app.modules.evaluation.repository import evaluation_repository, negotiation_repository, award_repository
+from app.modules.evaluation.repository import award_repository, evaluation_repository, negotiation_repository
 from app.modules.evaluation.schemas import (
-    CSGenerateRequest,
+    AwardApprovalRequest,
+    AwardRecommendationResponse,
+    AwardRecommendRequest,
     ComparativeStatementResponse,
+    CSGenerateRequest,
     CSVersionSummaryResponse,
-    ShortlistVendorsRequest,
-    ShortlistResponse,
-    NegotiationStartRequest,
     NegotiatedPriceSubmitRequest,
     NegotiationResponse,
-    AwardRecommendRequest,
-    AwardRecommendationResponse,
-    AwardApprovalRequest,
+    NegotiationStartRequest,
     RegretLettersResponse,
+    ShortlistResponse,
+    ShortlistVendorsRequest,
 )
+from app.modules.evaluation.service import evaluation_service
+from app.modules.user.models import User
 
 router = APIRouter(tags=["Evaluation"])
 
@@ -44,7 +45,7 @@ async def health():
 )
 async def generate_comparative_statement(
     rfq_id: UUID,
-    body: Optional[CSGenerateRequest] = None,
+    body: CSGenerateRequest | None = None,
     current_user: User = Depends(
         require_any_permission([
             PermissionCode.EVAL_SUBMIT_RECOMMENDATION,
@@ -95,7 +96,7 @@ async def get_latest_cs_for_rfq(
 
 @router.get(
     "/rfq/{rfq_id}/cs-versions",
-    response_model=APIResponse[List[CSVersionSummaryResponse]],
+    response_model=APIResponse[list[CSVersionSummaryResponse]],
 )
 async def list_cs_versions(
     rfq_id: UUID,
@@ -177,7 +178,7 @@ async def shortlist_vendors(
 
 @router.post(
     "/{cs_id}/negotiations",
-    response_model=APIResponse[List[NegotiationResponse]],
+    response_model=APIResponse[list[NegotiationResponse]],
     status_code=status.HTTP_201_CREATED,
 )
 async def start_negotiation(
@@ -208,7 +209,7 @@ async def start_negotiation(
 
 @router.get(
     "/{cs_id}/negotiations",
-    response_model=APIResponse[List[NegotiationResponse]],
+    response_model=APIResponse[list[NegotiationResponse]],
 )
 async def get_negotiations_for_cs(
     cs_id: UUID,
@@ -313,7 +314,7 @@ async def get_award_recommendation(
 )
 async def approve_award(
     arn_id: UUID,
-    body: Optional[AwardApprovalRequest] = None,
+    body: AwardApprovalRequest | None = None,
     current_user: User = Depends(require_permission(PermissionCode.AWARD_APPROVE)),
     db: AsyncSession = Depends(get_db),
 ):

@@ -1,36 +1,36 @@
 from __future__ import annotations
+
 import math
-from typing import Optional, List
 from uuid import UUID
+
 from fastapi import APIRouter, Depends, Query, status
-from sqlalchemy import select, and_, desc
+from sqlalchemy import and_, desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.auth.dependencies import get_current_user, require_permission, require_any_permission
-from app.core.constants import PermissionCode, AuditAction
-from app.core.exceptions import ForbiddenError, NotFoundError
+from app.auth.dependencies import require_any_permission, require_permission
+from app.core.constants import PermissionCode
+from app.core.exceptions import ForbiddenError
 from app.core.responses import APIResponse, PaginationMeta, created_response, success_response
+from app.core.streaming import generate_table_pdf, stream_csv, stream_pdf
 from app.db.enums import AuditEntityTypeEnum
 from app.db.session import get_db
 from app.modules.audit.models import AuditLog
 from app.modules.sourcing.schemas import (
-    RfqCreateRequest,
-    RfqUpdateRequest,
     AddParticipantsRequest,
     AmendRequest,
     CancelRequest,
-    ExtendDeadlineRequest,
     ClarificationCreateRequest,
     ClarificationRespondRequest,
+    ExtendDeadlineRequest,
+    RfqClarificationResponse,
+    RfqCreateRequest,
+    RfqDashboardResponse,
     RfqDetailResponse,
     RfqListResponse,
     RfqParticipantResponse,
-    RfqClarificationResponse,
-    BidCountResponse,
-    RfqDashboardResponse,
+    RfqUpdateRequest,
 )
 from app.modules.sourcing.service import rfq_service
-from app.core.streaming import stream_csv, stream_pdf, generate_table_pdf
 from app.modules.user.models import User
 
 router = APIRouter(tags=["RFQ"])
@@ -62,13 +62,13 @@ async def create_rfq(
 
 # ─── LIST ──────────────────────────────────────────────────────────────────────
 
-@router.get("", response_model=APIResponse[List[RfqListResponse]])
+@router.get("", response_model=APIResponse[list[RfqListResponse]])
 async def list_rfqs(
-    status_filter: Optional[str] = Query(None, alias="status"),
-    rfq_type: Optional[str] = Query(None),
-    business_unit_id: Optional[UUID] = Query(None),
-    category_id: Optional[UUID] = Query(None),
-    search: Optional[str] = Query(None),
+    status_filter: str | None = Query(None, alias="status"),
+    rfq_type: str | None = Query(None),
+    business_unit_id: UUID | None = Query(None),
+    category_id: UUID | None = Query(None),
+    search: str | None = Query(None),
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     current_user: User = Depends(require_any_permission(PermissionCode.RFQ_VIEW_ALL, PermissionCode.RFQ_VIEW_OWN)),
@@ -120,11 +120,11 @@ async def list_rfqs(
 
 @router.get("/export/csv")
 async def export_rfqs_csv(
-    status_filter: Optional[str] = Query(None, alias="status"),
-    rfq_type: Optional[str] = Query(None),
-    business_unit_id: Optional[UUID] = Query(None),
-    category_id: Optional[UUID] = Query(None),
-    search: Optional[str] = Query(None),
+    status_filter: str | None = Query(None, alias="status"),
+    rfq_type: str | None = Query(None),
+    business_unit_id: UUID | None = Query(None),
+    category_id: UUID | None = Query(None),
+    search: str | None = Query(None),
     current_user: User = Depends(require_any_permission(PermissionCode.RFQ_VIEW_ALL, PermissionCode.RFQ_VIEW_OWN)),
     db: AsyncSession = Depends(get_db),
 ):
@@ -171,11 +171,11 @@ async def export_rfqs_csv(
 
 @router.get("/export/pdf")
 async def export_rfqs_pdf(
-    status_filter: Optional[str] = Query(None, alias="status"),
-    rfq_type: Optional[str] = Query(None),
-    business_unit_id: Optional[UUID] = Query(None),
-    category_id: Optional[UUID] = Query(None),
-    search: Optional[str] = Query(None),
+    status_filter: str | None = Query(None, alias="status"),
+    rfq_type: str | None = Query(None),
+    business_unit_id: UUID | None = Query(None),
+    category_id: UUID | None = Query(None),
+    search: str | None = Query(None),
     current_user: User = Depends(require_any_permission(PermissionCode.RFQ_VIEW_ALL, PermissionCode.RFQ_VIEW_OWN)),
     db: AsyncSession = Depends(get_db),
 ):
@@ -276,8 +276,7 @@ async def submit_rfq(
         db, rfq_id=id, actor_id=current_user.id, org_id=current_user.org_id
     )
     await db.commit()
-    full_rfq = await rfq_service.get_by_id(db, id, current_user.org_id)
-    return success_response(RfqDetailResponse.model_validate(full_rfq))
+    return success_response(RfqDetailResponse.model_validate(rfq))
 
 
 # ─── PUBLISH ───────────────────────────────────────────────────────────────────
@@ -292,8 +291,7 @@ async def publish_rfq(
         db, rfq_id=id, actor_id=current_user.id, org_id=current_user.org_id
     )
     await db.commit()
-    full_rfq = await rfq_service.get_by_id(db, id, current_user.org_id)
-    return success_response(RfqDetailResponse.model_validate(full_rfq))
+    return success_response(RfqDetailResponse.model_validate(rfq))
 
 
 # ─── AMEND ─────────────────────────────────────────────────────────────────────
@@ -309,8 +307,7 @@ async def amend_rfq(
         db, rfq_id=id, data=data, actor_id=current_user.id, org_id=current_user.org_id
     )
     await db.commit()
-    full_rfq = await rfq_service.get_by_id(db, id, current_user.org_id)
-    return success_response(RfqDetailResponse.model_validate(full_rfq))
+    return success_response(RfqDetailResponse.model_validate(rfq))
 
 
 # ─── CANCEL ────────────────────────────────────────────────────────────────────
@@ -326,8 +323,7 @@ async def cancel_rfq(
         db, rfq_id=id, data=data, actor_id=current_user.id, org_id=current_user.org_id
     )
     await db.commit()
-    full_rfq = await rfq_service.get_by_id(db, id, current_user.org_id)
-    return success_response(RfqDetailResponse.model_validate(full_rfq))
+    return success_response(RfqDetailResponse.model_validate(rfq))
 
 
 # ─── EXTEND DEADLINE ───────────────────────────────────────────────────────────
@@ -343,14 +339,13 @@ async def extend_deadline(
         db, rfq_id=id, data=data, actor_id=current_user.id, org_id=current_user.org_id
     )
     await db.commit()
-    full_rfq = await rfq_service.get_by_id(db, id, current_user.org_id)
-    return success_response(RfqDetailResponse.model_validate(full_rfq))
+    return success_response(RfqDetailResponse.model_validate(rfq))
 
 
 # ─── PARTICIPANTS ──────────────────────────────────────────────────────────────
 
-@router.post("/{id}/add-participants", response_model=APIResponse[List[RfqParticipantResponse]])
-@router.post("/{id}/participants", response_model=APIResponse[List[RfqParticipantResponse]])
+@router.post("/{id}/add-participants", response_model=APIResponse[list[RfqParticipantResponse]])
+@router.post("/{id}/participants", response_model=APIResponse[list[RfqParticipantResponse]])
 async def add_participants(
     id: UUID,
     data: AddParticipantsRequest,
@@ -415,7 +410,7 @@ async def co_authorize_bid_opening(
 
 # ─── CLARIFICATIONS ────────────────────────────────────────────────────────────
 
-@router.get("/{id}/clarifications", response_model=APIResponse[List[RfqClarificationResponse]])
+@router.get("/{id}/clarifications", response_model=APIResponse[list[RfqClarificationResponse]])
 async def get_clarifications(
     id: UUID,
     current_user: User = Depends(require_any_permission(PermissionCode.RFQ_VIEW_ALL, PermissionCode.RFQ_VIEW_OWN)),
@@ -490,7 +485,7 @@ async def respond_to_clarification(
 
 # ─── AUDIT TRAIL ───────────────────────────────────────────────────────────────
 
-@router.get("/{id}/audit-trail", response_model=APIResponse[List[dict]])
+@router.get("/{id}/audit-trail", response_model=APIResponse[list[dict]])
 async def get_rfq_audit_trail(
     id: UUID,
     current_user: User = Depends(require_permission(PermissionCode.RFQ_VIEW_ALL)),
@@ -512,16 +507,16 @@ async def get_rfq_audit_trail(
     logs = res.scalars().all()
     data = [
         {
-            "id": str(l.id),
-            "action": l.action,
-            "actor_id": str(l.actor_id) if l.actor_id else None,
-            "actor_email": l.actor_email,
-            "old_values": l.old_values,
-            "new_values": l.new_values,
-            "metadata": l.metadata_,
-            "created_at": l.created_at.isoformat() if l.created_at else None,
+            "id": str(log_entry.id),
+            "action": log_entry.action,
+            "actor_id": str(log_entry.actor_id) if log_entry.actor_id else None,
+            "actor_email": log_entry.actor_email,
+            "old_values": log_entry.old_values,
+            "new_values": log_entry.new_values,
+            "metadata": log_entry.metadata_,
+            "created_at": log_entry.created_at.isoformat() if log_entry.created_at else None,
         }
-        for l in logs
+        for log_entry in logs
     ]
     meta = PaginationMeta(total=len(data), page=1, page_size=len(data) or 20)
     return success_response(data, meta=meta)

@@ -1,19 +1,20 @@
 from __future__ import annotations
-import json
-from typing import Optional, Dict, Any
+
+from typing import Any
 from uuid import UUID, uuid4
-from loguru import logger
+
 import httpx
 from fastapi import Request
-from sqlalchemy.ext.asyncio import AsyncSession
+from loguru import logger
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.auth.service import LoginResult, auth_service
 from app.config import settings
 from app.core.exceptions import AppException, ForbiddenError
 from app.db.enums import UserStatusEnum
-from app.modules.user.models import User, Role, UserRoleAssignment
 from app.modules.audit.service import audit_service
-from app.auth.service import auth_service, LoginResult
+from app.modules.user.models import Role, User, UserRoleAssignment
 
 try:
     from onelogin.saml2.auth import OneLogin_Saml2_Auth
@@ -32,7 +33,7 @@ class SSOResult:
         last_name: str,
         sso_provider: str,
         sso_subject_id: str,
-        extra: Optional[dict] = None,
+        extra: dict | None = None,
     ) -> None:
         self.email = email.lower().strip()
         self.first_name = first_name or "SSO"
@@ -42,10 +43,10 @@ class SSOResult:
         self.extra = extra or {}
 
 
-_OIDC_CACHE: Dict[str, Dict[str, Any]] = {}
+_OIDC_CACHE: dict[str, dict[str, Any]] = {}
 
 
-async def get_oidc_endpoints(discovery_url: Optional[str] = None) -> Dict[str, str]:
+async def get_oidc_endpoints(discovery_url: str | None = None) -> dict[str, str]:
     url = (discovery_url or settings.OIDC_DISCOVERY_URL).rstrip("/")
     if not url:
         return {
@@ -79,7 +80,7 @@ async def get_oidc_endpoints(discovery_url: Optional[str] = None) -> Dict[str, s
         }
 
 
-async def build_oidc_auth_url(state: str, redirect_uri: Optional[str] = None) -> str:
+async def build_oidc_auth_url(state: str, redirect_uri: str | None = None) -> str:
     endpoints = await get_oidc_endpoints()
     auth_ep = endpoints.get("authorization_endpoint")
     if not auth_ep:
@@ -103,7 +104,7 @@ async def build_oidc_auth_url(state: str, redirect_uri: Optional[str] = None) ->
 async def handle_oidc_callback(
     code: str,
     state: str,
-    redirect_uri: Optional[str] = None,
+    redirect_uri: str | None = None,
 ) -> SSOResult:
     endpoints = await get_oidc_endpoints()
     token_ep = endpoints.get("token_endpoint")
@@ -158,7 +159,7 @@ async def handle_oidc_callback(
     )
 
 
-def build_saml_settings(org_id: UUID) -> Dict[str, Any]:
+def build_saml_settings(org_id: UUID) -> dict[str, Any]:
     return {
         "strict": True,
         "debug": settings.DEBUG,
@@ -180,7 +181,7 @@ def build_saml_settings(org_id: UUID) -> Dict[str, Any]:
     }
 
 
-async def get_saml_auth(request: Request, org_id: UUID) -> Optional[object]:
+async def get_saml_auth(request: Request, org_id: UUID) -> object | None:
     if not SAML_AVAILABLE:
         return None
     saml_settings = build_saml_settings(org_id)

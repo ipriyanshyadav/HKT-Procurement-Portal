@@ -5,6 +5,7 @@ Handles contract lifecycle, creation from award recommendations, FSM validation,
 eSignature initiation & completion (Digio / DocuSign), versioned amendments,
 rate contract utilization with optimistic locking, milestone completion, and auto-renewal.
 """
+
 from __future__ import annotations
 
 import difflib
@@ -195,7 +196,9 @@ class ContractService:
         ]
         lines_data = [lines_header]
         for line in contract.lines or []:
-            qty_str = f"{float(line.contracted_quantity):,.2f}" if line.contracted_quantity is not None else "As Ordered"
+            qty_str = (
+                f"{float(line.contracted_quantity):,.2f}" if line.contracted_quantity is not None else "As Ordered"
+            )
             lines_data.append(
                 [
                     Paragraph(str(line.line_number), cell_style),
@@ -261,7 +264,9 @@ class ContractService:
         sig_data = [
             [
                 Paragraph("<b>FOR BUYER:</b><br/><br/>_____________________<br/>Authorized Signatory", cell_style),
-                Paragraph("<b>FOR SUPPLIER / VENDOR:</b><br/><br/>_____________________<br/>Authorized Signatory", cell_style),
+                Paragraph(
+                    "<b>FOR SUPPLIER / VENDOR:</b><br/><br/>_____________________<br/>Authorized Signatory", cell_style
+                ),
             ]
         ]
         sig_table = Table(sig_data, colWidths=[260, 260])
@@ -435,6 +440,7 @@ class ContractService:
             default_uom_id = rfq.lines[0].uom_id
         else:
             from app.modules.master_data.models import UomMaster
+
             uom_stmt = select(UomMaster.id).where(UomMaster.org_id == org_id).limit(1)
             uom_res = await db.execute(uom_stmt)
             default_uom_id = uom_res.scalar_one_or_none()
@@ -798,20 +804,22 @@ class ContractService:
         po_value: float,
         org_id: UUID,
     ) -> Contract:
-        """Update utilized value for RATE_CONTRACT with optimistic locking (S13-17)."""
-        contract = await self.repo.get(db, contract_id, org_id)
+        """Update utilized value for RATE_CONTRACT with pessimistic row locking and Decimal precision (S13-17)."""
+        contract = await self.repo.get(db, contract_id, org_id, for_update=True)
         if not contract:
             raise NotFoundError("Contract not found")
 
         if contract.contract_type == "RATE_CONTRACT":
-            new_utilization = float(contract.utilized_value or 0) + float(po_value)
-            if new_utilization > float(contract.total_value):
-                available = float(contract.total_value) - float(contract.utilized_value or 0)
+            po_decimal = Decimal(str(po_value))
+            current_util = contract.utilized_value or Decimal("0.0")
+            new_utilization = current_util + po_decimal
+            if new_utilization > contract.total_value:
+                available = max(Decimal("0.0"), contract.total_value - current_util)
                 raise ValidationError(
                     "CONTRACT_VALUE_EXCEEDED",
-                    f"This PO would exceed contract value. Available: {available:,.2f}",
+                    f"This PO would exceed contract value. Available: {float(available):,.2f}",
                 )
-            contract.utilized_value = Decimal(str(new_utilization))
+            contract.utilized_value = new_utilization
             contract.version += 1
 
         await db.flush()
@@ -1024,7 +1032,6 @@ class ContractService:
             metadata={"line_id": str(line_id)},
         )
 
-
     async def auto_renew_contract(
         self,
         db: AsyncSession,
@@ -1226,9 +1233,7 @@ class ContractService:
             res = await self.seed_default_clauses(db, org_id)
         return res
 
-    async def create_clause(
-        self, db: AsyncSession, org_id: UUID, payload: ContractClauseCreate
-    ) -> ContractClause:
+    async def create_clause(self, db: AsyncSession, org_id: UUID, payload: ContractClauseCreate) -> ContractClause:
         clause = ContractClause(
             org_id=org_id,
             clause_code=payload.clause_code.upper().replace(" ", "_"),
@@ -1387,9 +1392,7 @@ class ContractService:
         await db.refresh(redline)
         return redline
 
-    async def get_contract_redlines(
-        self, db: AsyncSession, contract_id: UUID, org_id: UUID
-    ) -> list[ContractRedline]:
+    async def get_contract_redlines(self, db: AsyncSession, contract_id: UUID, org_id: UUID) -> list[ContractRedline]:
         stmt = (
             select(ContractRedline)
             .where(
@@ -1431,7 +1434,9 @@ class ContractService:
                 },
             ]
 
-        raw_manifest = f"{contract.contract_number}:{contract.title}:{contract.total_value}:{datetime.now(UTC).isoformat()}"
+        raw_manifest = (
+            f"{contract.contract_number}:{contract.title}:{contract.total_value}:{datetime.now(UTC).isoformat()}"
+        )
         audit_hash = hashlib.sha256(raw_manifest.encode()).hexdigest()
 
         for s in signers:
@@ -1476,7 +1481,7 @@ class ContractService:
 
         all_signed = True
         updated_signers = []
-        for s in (session.signers or []):
+        for s in session.signers or []:
             signer_copy = dict(s)
             if signer_copy.get("email") == payload.signer_email:
                 signer_copy["signed"] = True
@@ -1489,6 +1494,7 @@ class ContractService:
             updated_signers.append(signer_copy)
 
         from sqlalchemy.orm.attributes import flag_modified
+
         session.signers = updated_signers
         flag_modified(session, "signers")
 
@@ -1504,4 +1510,3 @@ class ContractService:
 
 
 contract_service = ContractService()
-

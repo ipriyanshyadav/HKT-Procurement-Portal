@@ -1,14 +1,13 @@
 from __future__ import annotations
-from datetime import datetime, timezone
-from typing import List
-from uuid import UUID
+
+from datetime import UTC, datetime
+
 from loguru import logger
 from sqlalchemy import select
 
-from app.db.enums import NotificationChannelEnum, NotificationStatusEnum
+from app.db.enums import NotificationStatusEnum
 from app.db.session import get_db_ctx
 from app.modules.notification.channels.email import email_channel
-from app.modules.notification.models import Notification
 from app.modules.notification.repository import notification_repo
 from app.modules.user.models import User
 from app.tasks.async_runner import run_async
@@ -47,7 +46,7 @@ async def compile_notification_digests_async() -> int:
 
             # CRITICAL RULE: NEVER digest SLA_BREACH or COMPLIANCE alerts
             eligible = [n for n in pending if not is_digest_excluded(n.notification_type)]
-            
+
             # If any non-eligible were accidentally marked DIGEST, mark them FAILED or log
             excluded = [n for n in pending if is_digest_excluded(n.notification_type)]
             for ex in excluded:
@@ -92,7 +91,7 @@ async def compile_notification_digests_async() -> int:
                     body_html=html_body,
                     org_id=org_id,
                 )
-                now = datetime.now(timezone.utc)
+                now = datetime.now(UTC)
                 for n in eligible:
                     n.status = NotificationStatusEnum.SENT
                     n.sent_at = now

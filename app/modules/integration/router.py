@@ -6,16 +6,19 @@ Endpoints for managing integrations, monitoring sync jobs, retrying failures, an
 from __future__ import annotations
 
 import math
-from typing import List, Optional
+from datetime import UTC
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.dependencies import get_current_user, require_any_permission
 from app.core.constants import PermissionCode
 from app.core.responses import APIResponse, PaginationMeta, success_response
 from app.db.session import get_db
+from app.modules.integration.adapters.bank import bank_adapter
+from app.modules.integration.adapters.gst import GSTAdapter
+from app.modules.integration.adapters.pan import pan_adapter
 from app.modules.integration.schemas import (
     BankPennyDropRequest,
     ERPConfigResponse,
@@ -33,9 +36,6 @@ from app.modules.integration.schemas import (
     SyncTriggerRequest,
     SyncTriggerResponse,
 )
-from app.modules.integration.adapters.gst import GSTAdapter
-from app.modules.integration.adapters.pan import pan_adapter
-from app.modules.integration.adapters.bank import bank_adapter
 from app.modules.integration.service import integration_service
 from app.modules.user.models import User
 
@@ -60,11 +60,11 @@ async def get_integration_stats(
     return success_response(data=IntegrationStatsResponse(**stats))
 
 
-@router.get("/jobs", response_model=APIResponse[List[IntegrationJobResponse]])
+@router.get("/jobs", response_model=APIResponse[list[IntegrationJobResponse]])
 async def list_integration_jobs(
-    status: Optional[str] = Query(None, description="Filter by job status (e.g. FAILED, COMPLETED, PENDING)"),
-    job_type: Optional[str] = Query(None, description="Filter by job type"),
-    adapter_type: Optional[str] = Query(None, description="Filter by adapter (e.g. SAP, ORACLE, WORKDAY, DIGIO)"),
+    status: str | None = Query(None, description="Filter by job status (e.g. FAILED, COMPLETED, PENDING)"),
+    job_type: str | None = Query(None, description="Filter by job type"),
+    adapter_type: str | None = Query(None, description="Filter by adapter (e.g. SAP, ORACLE, WORKDAY, DIGIO)"),
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     current_user: User = Depends(
@@ -199,7 +199,7 @@ async def retry_integration_job(
     )
 
 
-@router.get("/scheduled-runs", response_model=APIResponse[List[ScheduledJobRunResponse]])
+@router.get("/scheduled-runs", response_model=APIResponse[list[ScheduledJobRunResponse]])
 async def list_scheduled_runs(
     limit: int = Query(20, ge=1, le=100),
     current_user: User = Depends(
@@ -363,13 +363,13 @@ async def inbound_erp_sync(
     ),
 ):
     """Process inbound synchronization payload pushed from SAP / Oracle / Tally ERP systems."""
-    from datetime import datetime, timezone
+    from datetime import datetime
 
     result = {
         "status": "ACCEPTED",
         "provider": payload.provider,
         "entity_type": payload.entity_type,
-        "received_at": datetime.now(timezone.utc).isoformat(),
+        "received_at": datetime.now(UTC).isoformat(),
         "processed_records": 1,
         "details": payload.data,
     }
@@ -381,11 +381,11 @@ async def inbound_erp_sync(
 # ---------------------------------------------------------------------------
 
 
-@router.get("/erp-gateway/mappings", response_model=APIResponse[List[ERPEntityMappingResponse]])
+@router.get("/erp-gateway/mappings", response_model=APIResponse[list[ERPEntityMappingResponse]])
 async def list_erp_mappings(
-    erp_system: Optional[str] = Query(None, description="Filter by ERP (SAP_S4HANA, NETSUITE, ORACLE_CLOUD)"),
-    entity_type: Optional[str] = Query(None, description="Filter by entity (PURCHASE_ORDER, INVOICE, VENDOR)"),
-    sync_status: Optional[str] = Query(None, description="Filter by status (SUCCESS, PENDING, FAILED, DEAD_LETTER)"),
+    erp_system: str | None = Query(None, description="Filter by ERP (SAP_S4HANA, NETSUITE, ORACLE_CLOUD)"),
+    entity_type: str | None = Query(None, description="Filter by entity (PURCHASE_ORDER, INVOICE, VENDOR)"),
+    sync_status: str | None = Query(None, description="Filter by status (SUCCESS, PENDING, FAILED, DEAD_LETTER)"),
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     current_user: User = Depends(get_current_user),
@@ -453,7 +453,7 @@ async def inbound_gateway_sync(
 
 @router.get("/erp-gateway/reconciliation", response_model=APIResponse[ERPReconciliationReportResponse])
 async def get_erp_reconciliation(
-    erp_system: Optional[str] = Query(None, description="Optional ERP system filter"),
+    erp_system: str | None = Query(None, description="Optional ERP system filter"),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):

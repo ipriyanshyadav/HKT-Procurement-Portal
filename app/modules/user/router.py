@@ -1,25 +1,27 @@
 from __future__ import annotations
-from datetime import datetime, timezone
+
+from datetime import UTC, datetime
 from decimal import Decimal
-from typing import Optional, List, Any
+from typing import Any
 from uuid import UUID, uuid4
-from fastapi import APIRouter, Depends, HTTPException, Query
+
+from fastapi import APIRouter, Depends, Query
+from pydantic import BaseModel, EmailStr
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from pydantic import BaseModel, EmailStr
 
 from app.auth.dependencies import get_current_user, require_permission
-from app.core.exceptions import AppException, ForbiddenError
+from app.core.constants import PermissionCode
+from app.core.exceptions import AppException
 from app.core.responses import APIResponse, PaginationMeta, created_response, success_response
-from app.core.security import hash_password, verify_password, validate_password_strength
+from app.core.security import hash_password, validate_password_strength, verify_password
+from app.db.enums import UserStatusEnum
 from app.db.session import get_db
-from app.modules.user.models import User, DelegationRule
-from app.modules.user.repository import user_repository, delegation_repository
+from app.modules.audit.service import audit_service
+from app.modules.user.models import DelegationRule, User
+from app.modules.user.repository import delegation_repository, user_repository
 from app.modules.user.role_repository import role_repository
 from app.modules.user.session_repository import session_repository
-from app.modules.audit.service import audit_service
-from app.core.constants import PermissionCode
-from app.db.enums import UserStatusEnum
 
 router = APIRouter(tags=["User"])
 
@@ -29,9 +31,9 @@ class DelegationRuleCreateRequest(BaseModel):
     reason: str
     valid_from: datetime
     valid_until: datetime
-    entity_types: Optional[list[str]] = None
-    max_amount_threshold: Optional[float] = None
-    bu_ids: Optional[list[UUID]] = None
+    entity_types: list[str] | None = None
+    max_amount_threshold: float | None = None
+    bu_ids: list[UUID] | None = None
 
 
 class DelegationRuleResponse(BaseModel):
@@ -39,16 +41,16 @@ class DelegationRuleResponse(BaseModel):
     org_id: UUID
     delegator_id: UUID
     delegate_id: UUID
-    delegate_name: Optional[str] = None
-    delegate_email: Optional[str] = None
+    delegate_name: str | None = None
+    delegate_email: str | None = None
     reason: str
     valid_from: datetime
     valid_until: datetime
     entity_types: list[str] = []
-    max_amount_threshold: Optional[float] = None
+    max_amount_threshold: float | None = None
     bu_ids: list[Any] = []
     is_active: bool
-    created_at: Optional[datetime] = None
+    created_at: datetime | None = None
 
     model_config = {"from_attributes": True}
 
@@ -61,7 +63,7 @@ class UserResponse(BaseModel):
     status: str
     mfa_enabled: bool
     is_supplier_user: bool
-    vendor_id: Optional[UUID] = None
+    vendor_id: UUID | None = None
     org_id: UUID
 
     model_config = {"from_attributes": True}
@@ -72,8 +74,8 @@ class UserCreateRequest(BaseModel):
     first_name: str
     last_name: str
     password: str
-    employee_id: Optional[str] = None
-    roles: Optional[list[str]] = None
+    employee_id: str | None = None
+    roles: list[str] | None = None
 
 
 class ChangePasswordRequest(BaseModel):
@@ -82,12 +84,12 @@ class ChangePasswordRequest(BaseModel):
 
 
 class UserUpdateRequest(BaseModel):
-    first_name: Optional[str] = None
-    last_name: Optional[str] = None
-    phone: Optional[str] = None
-    language: Optional[str] = None
-    timezone: Optional[str] = None
-    roles: Optional[list[str]] = None
+    first_name: str | None = None
+    last_name: str | None = None
+    phone: str | None = None
+    language: str | None = None
+    timezone: str | None = None
+    roles: list[str] | None = None
 
 
 class AssignRoleRequest(BaseModel):
@@ -97,15 +99,15 @@ class AssignRoleRequest(BaseModel):
 class RoleCreateRequest(BaseModel):
     code: str
     name: str
-    description: Optional[str] = None
+    description: str | None = None
     is_supplier_role: bool = False
-    permission_codes: Optional[list[str]] = None
+    permission_codes: list[str] | None = None
 
 
 class RoleUpdateRequest(BaseModel):
-    name: Optional[str] = None
-    description: Optional[str] = None
-    is_active: Optional[bool] = None
+    name: str | None = None
+    description: str | None = None
+    is_active: bool | None = None
 
 
 class RolePermissionsUpdateRequest(BaseModel):
@@ -119,7 +121,7 @@ class ToggleRolePermissionRequest(BaseModel):
 
 
 class RevokeSessionRequest(BaseModel):
-    reason: Optional[str] = "Revoked by Administrator"
+    reason: str | None = "Revoked by Administrator"
 
 
 @router.get("/me")
@@ -151,7 +153,8 @@ async def get_my_permissions(
 ) -> dict:
     """GET /api/v1/users/me/permissions — returns user's permission codes."""
     from sqlalchemy import select
-    from app.modules.user.models import UserRoleAssignment, Role, RolePermission, Permission
+
+    from app.modules.user.models import Permission, Role, RolePermission, UserRoleAssignment
 
     stmt = (
         select(Permission.code)
@@ -185,8 +188,8 @@ async def change_my_password(
         raise AppException(msg, "WEAK_PASSWORD")
 
     current_user.password_hash = hash_password(data.new_password)
-    from datetime import datetime, timezone
-    current_user.password_changed_at = datetime.now(timezone.utc)
+    from datetime import datetime
+    current_user.password_changed_at = datetime.now(UTC)
 
     await audit_service.log(
         db,
@@ -224,7 +227,7 @@ async def list_my_delegations(
                 max_amount_threshold=float(rule.max_amount_threshold) if rule.max_amount_threshold is not None else None,
                 bu_ids=rule.bu_ids or [],
                 is_active=rule.is_active,
-                created_at=rule.created_at or datetime.now(timezone.utc),
+                created_at=rule.created_at or datetime.now(UTC),
             )
         )
     return success_response(response_items)
@@ -265,7 +268,7 @@ async def list_org_delegation_matrix(
                 max_amount_threshold=float(rule.max_amount_threshold) if rule.max_amount_threshold is not None else None,
                 bu_ids=rule.bu_ids or [],
                 is_active=rule.is_active,
-                created_at=rule.created_at or datetime.now(timezone.utc),
+                created_at=rule.created_at or datetime.now(UTC),
             )
         )
     return success_response(response_items)
@@ -353,7 +356,7 @@ async def create_my_delegation(
             max_amount_threshold=float(rule.max_amount_threshold) if rule.max_amount_threshold is not None else None,
             bu_ids=rule.bu_ids or [],
             is_active=rule.is_active,
-            created_at=rule.created_at or datetime.now(timezone.utc),
+            created_at=rule.created_at or datetime.now(UTC),
         )
     )
 
@@ -372,7 +375,7 @@ async def delete_my_delegation(
         raise AppException("Delegation rule not found", "NOT_FOUND")
 
     rule.is_active = False
-    rule.deleted_at = datetime.now(timezone.utc)
+    rule.deleted_at = datetime.now(UTC)
     await db.commit()
 
     await audit_service.log(
@@ -428,7 +431,8 @@ async def create_role(
 ) -> dict:
     """POST /api/v1/users/roles — create a new role with description and permissions."""
     from sqlalchemy import select
-    from app.modules.user.models import Role, RolePermission, Permission
+
+    from app.modules.user.models import Permission, Role, RolePermission
 
     code = data.code.strip().upper()
     stmt = select(Role).where(
@@ -486,7 +490,8 @@ async def get_role(
 ) -> dict:
     """GET /api/v1/users/roles/{role_id} — get detailed role metadata and its assigned permissions."""
     from sqlalchemy import select
-    from app.modules.user.models import Role, RolePermission, Permission
+
+    from app.modules.user.models import Permission, Role, RolePermission
 
     stmt = select(Role).where(
         Role.id == role_id,
@@ -534,6 +539,7 @@ async def update_role(
 ) -> dict:
     """PUT /api/v1/users/roles/{role_id} — update role details."""
     from sqlalchemy import select
+
     from app.modules.user.models import Role
 
     stmt = select(Role).where(Role.id == role_id, Role.deleted_at.is_(None))
@@ -569,8 +575,9 @@ async def update_role_permissions(
     db: AsyncSession = Depends(get_db),
 ) -> dict:
     """PUT /api/v1/users/roles/{role_id}/permissions — batch update permissions assigned to a role."""
-    from sqlalchemy import select, delete
-    from app.modules.user.models import Role, RolePermission, Permission
+    from sqlalchemy import delete, select
+
+    from app.modules.user.models import Permission, Role, RolePermission
 
     stmt = select(Role).where(Role.id == role_id, Role.deleted_at.is_(None))
     role = (await db.execute(stmt)).scalar_one_or_none()
@@ -605,8 +612,8 @@ async def update_role_permissions(
 
 @router.get("/permissions")
 async def list_permissions(
-    module: Optional[str] = Query(None, description="Module filter, e.g. PR, RFQ, USER"),
-    search: Optional[str] = Query(None, description="Search in permission code, name, description"),
+    module: str | None = Query(None, description="Module filter, e.g. PR, RFQ, USER"),
+    search: str | None = Query(None, description="Search in permission code, name, description"),
     current_user: User = Depends(require_permission(PermissionCode.USER_VIEW_ALL)),
     db: AsyncSession = Depends(get_db),
 ) -> dict:
@@ -662,14 +669,14 @@ async def toggle_role_permission(
 @router.get("/sessions")
 async def list_sessions(
     active_only: bool = Query(False, description="Filter for active, unexpired sessions"),
-    search: Optional[str] = Query(None, description="Search by user email, name, or IP"),
+    search: str | None = Query(None, description="Search by user email, name, or IP"),
     page: int = Query(1, ge=1),
     page_size: int = Query(50, ge=1, le=100),
     current_user: User = Depends(require_permission(PermissionCode.USER_VIEW_ALL)),
     db: AsyncSession = Depends(get_db),
 ) -> dict:
     """GET /api/v1/users/sessions — list user sessions across the organization."""
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     sessions_with_users, total = await session_repository.list_sessions(
         db,
         current_user.org_id,
@@ -708,7 +715,7 @@ async def list_sessions(
 @router.post("/sessions/{session_id}/revoke")
 async def revoke_session(
     session_id: UUID,
-    data: Optional[RevokeSessionRequest] = None,
+    data: RevokeSessionRequest | None = None,
     current_user: User = Depends(require_permission(PermissionCode.USER_UPDATE_ALL)),
     db: AsyncSession = Depends(get_db),
 ) -> dict:
@@ -735,7 +742,7 @@ async def revoke_session(
 @router.post("/sessions/user/{user_id}/revoke-all")
 async def revoke_all_user_sessions(
     user_id: UUID,
-    data: Optional[RevokeSessionRequest] = None,
+    data: RevokeSessionRequest | None = None,
     current_user: User = Depends(require_permission(PermissionCode.USER_UPDATE_ALL)),
     db: AsyncSession = Depends(get_db),
 ) -> dict:
@@ -763,6 +770,7 @@ async def create_user(
 ) -> dict:
     """POST /api/v1/users — create a new user."""
     from sqlalchemy import select
+
     from app.modules.user.models import Role, UserRoleAssignment
 
     valid, msg = validate_password_strength(data.password)
@@ -822,6 +830,7 @@ async def assign_user_role(
 ) -> dict:
     """POST /api/v1/users/{user_id}/roles — assign a role to user."""
     from sqlalchemy import select
+
     from app.modules.user.models import Role, UserRoleAssignment
 
     user = await user_repository.get_by_id(db, user_id, current_user.org_id)
@@ -859,7 +868,8 @@ async def remove_user_role(
     db: AsyncSession = Depends(get_db),
 ) -> dict:
     """DELETE /api/v1/users/{user_id}/roles/{role_code} — remove role from user."""
-    from sqlalchemy import select, delete
+    from sqlalchemy import delete, select
+
     from app.modules.user.models import Role, UserRoleAssignment
 
     stmt = select(Role).where(Role.code == role_code, Role.org_id == current_user.org_id)
