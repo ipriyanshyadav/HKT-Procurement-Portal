@@ -37,6 +37,10 @@ from app.modules.invoice.repository import InvoiceRepository, invoice_repository
 from app.modules.invoice.schemas import (
     AdvancedReconciliationRequest,
     AdvancedReconciliationResponse,
+    EarlyDiscountActionResponse,
+    EarlyDiscountOption,
+    EarlyDiscountOptionsResponse,
+    EarlyDiscountRequest,
     EligibleLineResponse,
     InvoiceFilterParams,
     InvoiceSubmitRequest,
@@ -233,13 +237,14 @@ class InvoiceService:
         match_result = await self.perform_three_way_match(db, invoice, po, org_id)
 
         # 8. Set status and trigger workflow based on match result
-        if match_result["all_match"]:
+        is_all_match = match_result.get("all_match") if "all_match" in match_result else match_result.get("overall_match", False)
+        if is_all_match:
             invoice.match_status = "MATCHED"
             invoice.status = InvoiceStatusEnum.PENDING_APPROVAL
             await self._trigger_approval_workflow(db, invoice, org_id, actor_id)
         else:
             discrepancy_types = set()
-            for disc in match_result["discrepancies"]:
+            for disc in match_result.get("discrepancies", []):
                 discrepancy_types.update(disc.get("reasons", []))
 
             if "PRICE_MISMATCH" in discrepancy_types:
@@ -493,8 +498,10 @@ class InvoiceService:
         return {
             "invoice_id": invoice.id,
             "overall_match": overall_match,
+            "all_match": overall_match,
             "mismatch_count": mismatch_count,
             "line_results": line_results,
+            "discrepancies": discrepancies,
             "status": invoice.status,
             "vendor_id": invoice.vendor_id,
             "po_id": invoice.po_id,
@@ -983,6 +990,291 @@ class InvoiceService:
             "total_matched_value": float(sum(i.total_amount for i in matched)),
             "total_at_risk_value": float(sum(i.total_amount for i in discrepant)),
         }
+
+    async def calculate_early_discount_options(
+        self,
+        db: AsyncSession,
+        invoice_id: UUID,
+        org_id: UUID,
+        custom_apr: float | None = None,
+    ) -> EarlyDiscountOptionsResponse:
+        invoice = await self.get(db, invoice_id, org_id)
+        today = date.today()
+        remaining_days = (invoice.due_date - today).days
+
+        min_days_early = settings.EARLY_DISCOUNT_MIN_DAYS_EARLY
+        max_discount_cap = Decimal(str(settings.EARLY_DISCOUNT_MAX_DISCOUNT_PCT))
+
+        invalid_statuses = (InvoiceStatusEnum.CANCELLED, InvoiceStatusEnum.PAID, InvoiceStatusEnum.DISPUTED)
+        if invoice.status in invalid_statuses:
+            status_val = invoice.status.value if hasattr(invoice.status, "value") else str(invoice.status)
+            return EarlyDiscountOptionsResponse(
+                invoice_id=invoice.id,
+                invoice_number=invoice.invoice_number,
+                original_due_date=invoice.due_date,
+                currency=invoice.currency,
+                total_amount=invoice.total_amount,
+                eligible=False,
+                blocking_reason=f"Invoices in status '{status_val}' cannot receive early discount payment acceleration.",
+                options=[],
+            )
+
+        if remaining_days < min_days_early:
+            return EarlyDiscountOptionsResponse(
+                invoice_id=invoice.id,
+                invoice_number=invoice.invoice_number,
+                original_due_date=invoice.due_date,
+                currency=invoice.currency,
+                total_amount=invoice.total_amount,
+                eligible=False,
+                blocking_reason=f"Invoice is due in {remaining_days} days (minimum required for acceleration: {min_days_early} days).",
+                options=[],
+            )
+
+        aprs = [custom_apr] if custom_apr else [0.12, settings.EARLY_DISCOUNT_DEFAULT_APR, 0.24]
+        candidate_days = [5, 10, 15, 20, 25]
+        valid_days = [d for d in candidate_days if d < remaining_days]
+        if not valid_days:
+            valid_days = [max(min_days_early, remaining_days - 2)]
+
+        options: list[EarlyDiscountOption] = []
+        for days in valid_days:
+            for apr in aprs:
+                raw_pct = (Decimal(str(days)) / Decimal("365.0")) * Decimal(str(apr))
+                discount_pct = min(max_discount_cap, raw_pct)
+                discount_amt = (invoice.total_amount * discount_pct).quantize(Decimal("0.01"))
+                tds = invoice.tds_amount or Decimal("0.0")
+                net_amt = (invoice.total_amount - discount_amt - tds).quantize(Decimal("0.01"))
+                payout_date = invoice.due_date - timedelta(days=days)
+
+                options.append(
+                    EarlyDiscountOption(
+                        days_early=days,
+                        accelerated_payout_date=payout_date,
+                        annual_percentage_rate=float(apr),
+                        discount_percentage=round(float(discount_pct * 100), 2),
+                        discount_amount=discount_amt,
+                        gross_amount=invoice.total_amount,
+                        net_payout_amount=net_amt,
+                        cash_yield_annualized_pct=round(float(apr * 100), 1),
+                    )
+                )
+
+        return EarlyDiscountOptionsResponse(
+            invoice_id=invoice.id,
+            invoice_number=invoice.invoice_number,
+            original_due_date=invoice.due_date,
+            currency=invoice.currency,
+            total_amount=invoice.total_amount,
+            eligible=True,
+            blocking_reason=None,
+            options=options,
+        )
+
+    async def request_early_payment(
+        self,
+        db: AsyncSession,
+        invoice_id: UUID,
+        payload: EarlyDiscountRequest,
+        actor_id: UUID,
+        org_id: UUID,
+        vendor_id: UUID | None = None,
+    ) -> EarlyDiscountActionResponse:
+        invoice = await self.get(db, invoice_id, org_id)
+        if vendor_id and invoice.vendor_id != vendor_id:
+            raise ForbiddenError("You are not authorized to request early discount on another vendor's invoice")
+
+        if payload.accelerated_payout_date >= invoice.due_date:
+            raise ValidationError(
+                f"Accelerated payout date ({payload.accelerated_payout_date}) must precede due date ({invoice.due_date})"
+            )
+
+        days_early = (invoice.due_date - payload.accelerated_payout_date).days
+        if days_early < settings.EARLY_DISCOUNT_MIN_DAYS_EARLY:
+            raise ValidationError(
+                f"Accelerated payment requires at least {settings.EARLY_DISCOUNT_MIN_DAYS_EARLY} days acceleration"
+            )
+
+        if payload.discount_amount <= Decimal("0.0") or payload.discount_amount >= invoice.total_amount:
+            raise ValidationError("Invalid discount amount")
+
+        invoice.early_discount_status = "REQUESTED"
+        invoice.early_discount_amount = payload.discount_amount
+        invoice.early_discount_payout_date = payload.accelerated_payout_date
+        invoice.early_discount_apr = Decimal(str(payload.annual_percentage_rate))
+        invoice.updated_by = actor_id
+
+        await self.audit.log(
+            db,
+            "INVOICE",
+            invoice.id,
+            "EARLY_DISCOUNT_REQUESTED",
+            actor_id,
+            org_id,
+            new_values={
+                "discount_amount": str(payload.discount_amount),
+                "accelerated_date": str(payload.accelerated_payout_date),
+                "apr": str(payload.annual_percentage_rate),
+            },
+        )
+        await self.publisher.publish(
+            db,
+            "procurement.invoice",
+            routing_key="invoice.early_discount.requested",
+            payload={
+                "invoice_id": str(invoice.id),
+                "invoice_number": invoice.invoice_number,
+                "discount_amount": float(payload.discount_amount),
+                "payout_date": str(payload.accelerated_payout_date),
+            },
+            org_id=org_id,
+        )
+
+        await db.commit()
+        net_payable = invoice.total_amount - payload.discount_amount - (invoice.tds_amount or Decimal("0.0"))
+        return EarlyDiscountActionResponse(
+            invoice_id=invoice.id,
+            invoice_number=invoice.invoice_number,
+            early_discount_status=invoice.early_discount_status,
+            original_due_date=invoice.due_date,
+            accelerated_payout_date=invoice.early_discount_payout_date,
+            discount_amount=payload.discount_amount,
+            net_payable_amount=net_payable,
+            currency=invoice.currency,
+            message=f"Early payment request of {invoice.currency} {payload.discount_amount} submitted successfully.",
+        )
+
+    async def accept_early_payment(
+        self,
+        db: AsyncSession,
+        invoice_id: UUID,
+        actor_id: UUID,
+        org_id: UUID,
+    ) -> EarlyDiscountActionResponse:
+        invoice = await self.get(db, invoice_id, org_id)
+        if invoice.early_discount_status != "REQUESTED":
+            raise ValidationError(
+                f"Cannot accept early payment for invoice with early_discount_status '{invoice.early_discount_status}'. Must be 'REQUESTED'."
+            )
+
+        invoice.early_discount_status = "ACCEPTED"
+        invoice.updated_by = actor_id
+
+        from app.modules.payment.models import PaymentRecord
+        stmt = select(PaymentRecord).where(
+            PaymentRecord.invoice_id == invoice.id,
+            PaymentRecord.org_id == org_id,
+            PaymentRecord.status == "PENDING",
+        )
+        res = await db.execute(stmt)
+        record = None
+        if hasattr(res, "scalars"):
+            sc = res.scalars()
+            if hasattr(sc, "first"):
+                record = sc.first()
+        tds = invoice.tds_amount or Decimal("0.0")
+        net_amount = invoice.total_amount - (invoice.early_discount_amount or Decimal("0.0")) - tds
+
+        if record:
+            record.amount = net_amount
+            record.net_amount = net_amount
+            record.discount_amount = invoice.early_discount_amount or Decimal("0.0")
+            if invoice.early_discount_payout_date:
+                record.payment_due_date = invoice.early_discount_payout_date
+                record.payment_date = invoice.early_discount_payout_date
+
+        await self.audit.log(
+            db,
+            "INVOICE",
+            invoice.id,
+            "EARLY_DISCOUNT_ACCEPTED",
+            actor_id,
+            org_id,
+            new_values={
+                "discount_amount": str(invoice.early_discount_amount),
+                "net_amount": str(net_amount),
+                "payout_date": str(invoice.early_discount_payout_date),
+            },
+        )
+        await self.publisher.publish(
+            db,
+            "procurement.invoice",
+            routing_key="invoice.early_discount.accepted",
+            payload={
+                "invoice_id": str(invoice.id),
+                "invoice_number": invoice.invoice_number,
+                "discount_amount": float(invoice.early_discount_amount or 0),
+                "net_amount": float(net_amount),
+                "payout_date": str(invoice.early_discount_payout_date),
+            },
+            org_id=org_id,
+        )
+
+        await db.commit()
+        return EarlyDiscountActionResponse(
+            invoice_id=invoice.id,
+            invoice_number=invoice.invoice_number,
+            early_discount_status=invoice.early_discount_status,
+            original_due_date=invoice.due_date,
+            accelerated_payout_date=invoice.early_discount_payout_date,
+            discount_amount=invoice.early_discount_amount or Decimal("0.0"),
+            net_payable_amount=net_amount,
+            currency=invoice.currency,
+            message=f"Early payment discount accepted. Accelerated payout scheduled for {invoice.early_discount_payout_date}.",
+        )
+
+    async def reject_early_payment(
+        self,
+        db: AsyncSession,
+        invoice_id: UUID,
+        rejection_reason: str,
+        actor_id: UUID,
+        org_id: UUID,
+    ) -> EarlyDiscountActionResponse:
+        invoice = await self.get(db, invoice_id, org_id)
+        if invoice.early_discount_status != "REQUESTED":
+            raise ValidationError(
+                f"Cannot reject early payment for invoice with early_discount_status '{invoice.early_discount_status}'"
+            )
+
+        invoice.early_discount_status = "REJECTED"
+        invoice.updated_by = actor_id
+
+        await self.audit.log(
+            db,
+            "INVOICE",
+            invoice.id,
+            "EARLY_DISCOUNT_REJECTED",
+            actor_id,
+            org_id,
+            new_values={"reason": rejection_reason},
+        )
+        await self.publisher.publish(
+            db,
+            "procurement.invoice",
+            routing_key="invoice.early_discount.rejected",
+            payload={
+                "invoice_id": str(invoice.id),
+                "invoice_number": invoice.invoice_number,
+                "reason": rejection_reason,
+            },
+            org_id=org_id,
+        )
+
+        await db.commit()
+        tds = invoice.tds_amount or Decimal("0.0")
+        net_amount = invoice.total_amount - tds
+        return EarlyDiscountActionResponse(
+            invoice_id=invoice.id,
+            invoice_number=invoice.invoice_number,
+            early_discount_status=invoice.early_discount_status,
+            original_due_date=invoice.due_date,
+            accelerated_payout_date=None,
+            discount_amount=Decimal("0.0"),
+            net_payable_amount=net_amount,
+            currency=invoice.currency,
+            message=f"Early payment discount request rejected: {rejection_reason}",
+        )
 
 
 invoice_service = InvoiceService()

@@ -98,6 +98,10 @@ class InvoiceResponse(BaseModel):
     erp_sync_status: str
     payment_status: str
     paid_amount: Decimal
+    early_discount_amount: Decimal | None = Decimal("0.0")
+    early_discount_status: str | None = "NONE"
+    early_discount_payout_date: date | None = None
+    early_discount_apr: Decimal | None = None
     notes: str | None = None
     created_at: datetime
     updated_at: datetime
@@ -215,3 +219,44 @@ class PoFlipDraftResponse(BaseModel):
     total_amount: Decimal
     can_invoice: bool
     blocking_reason: str | None = None
+
+
+class EarlyDiscountOption(BaseModel):
+    days_early: int
+    accelerated_payout_date: date
+    annual_percentage_rate: float
+    discount_percentage: float
+    discount_amount: Decimal
+    gross_amount: Decimal
+    net_payout_amount: Decimal
+    cash_yield_annualized_pct: float
+
+
+class EarlyDiscountOptionsResponse(BaseModel):
+    invoice_id: UUID
+    invoice_number: str
+    original_due_date: date
+    currency: str
+    total_amount: Decimal
+    eligible: bool
+    blocking_reason: str | None = None
+    options: list[EarlyDiscountOption] = Field(default_factory=list)
+
+
+class EarlyDiscountRequest(BaseModel):
+    accelerated_payout_date: date
+    annual_percentage_rate: float = Field(..., ge=0.01, le=0.50)
+    discount_amount: Decimal = Field(..., gt=Decimal("0.0"))
+    notes: str | None = None
+
+
+class EarlyDiscountActionResponse(BaseModel):
+    invoice_id: UUID
+    invoice_number: str
+    early_discount_status: str
+    original_due_date: date
+    accelerated_payout_date: date | None = None
+    discount_amount: Decimal
+    net_payable_amount: Decimal
+    currency: str
+    message: str

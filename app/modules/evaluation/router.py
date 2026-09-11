@@ -12,7 +12,9 @@ from app.core.responses import APIResponse, PaginationMeta, created_response, su
 from app.db.session import get_db
 from app.modules.evaluation.repository import award_repository, evaluation_repository, negotiation_repository
 from app.modules.evaluation.schemas import (
+    ApplyOptimizationScenarioRequest,
     AwardApprovalRequest,
+    AwardOptimizationScenariosResponse,
     AwardRecommendationResponse,
     AwardRecommendRequest,
     ComparativeStatementResponse,
@@ -136,6 +138,55 @@ async def get_cs_by_id(
     if not cs:
         raise NotFoundError(f"Comparative Statement {cs_id} not found")
     return success_response(ComparativeStatementResponse.model_validate(cs))
+
+
+@router.get(
+    "/{cs_id}/optimization-scenarios",
+    response_model=APIResponse[AwardOptimizationScenariosResponse],
+)
+async def get_award_optimization_scenarios(
+    cs_id: UUID,
+    current_user: User = Depends(
+        require_any_permission([
+            PermissionCode.EVAL_VIEW_COMPARATIVE,
+            PermissionCode.EVAL_VIEW,
+            PermissionCode.RFQ_VIEW_ALL,
+        ])
+    ),
+    db: AsyncSession = Depends(get_db),
+):
+    """Generates 3 canonical award optimization scenarios (Winner-Take-All, Line-Item Best, Dual Sourcing 70/30) per SAP Ariba Sourcing standard."""
+    scenarios = await evaluation_service.generate_award_optimization_scenarios(
+        db, cs_id=cs_id, org_id=current_user.org_id
+    )
+    return success_response(scenarios)
+
+
+@router.post(
+    "/{cs_id}/apply-scenario",
+    response_model=APIResponse[AwardRecommendationResponse],
+    status_code=status.HTTP_201_CREATED,
+)
+async def apply_award_optimization_scenario(
+    cs_id: UUID,
+    body: ApplyOptimizationScenarioRequest,
+    current_user: User = Depends(
+        require_any_permission([
+            PermissionCode.EVAL_SUBMIT_RECOMMENDATION,
+            PermissionCode.RFQ_CREATE,
+        ])
+    ),
+    db: AsyncSession = Depends(get_db),
+):
+    """Applies an award optimization scenario directly to generate an Award Recommendation."""
+    award_rec = await evaluation_service.apply_optimization_scenario(
+        db,
+        cs_id=cs_id,
+        payload=body,
+        actor_id=current_user.id,
+        org_id=current_user.org_id,
+    )
+    return created_response(AwardRecommendationResponse.model_validate(award_rec))
 
 
 # ─── Shortlisting ─────────────────────────────────────────────────────────────

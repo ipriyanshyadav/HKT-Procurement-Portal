@@ -475,8 +475,67 @@ class PurchaseOrderService:
     ) -> PurchaseOrder:
         po = await self.get(db, po_id, org_id)
 
-        val_change = data.value_change or Decimal("0.0")
-        val_change_pct = (val_change / po.total_value) if po.total_value > 0 else Decimal("0.0")
+        old_total = po.total_value
+        field_changes = dict(data.field_changes)
+        line_changes: list[dict[str, Any]] = []
+
+        # 1. Process Line Item Updates if provided
+        if data.line_updates:
+            lines_by_id = {line.id: line for line in po.lines}
+            for update in data.line_updates:
+                po_line = lines_by_id.get(update.po_line_id)
+                if not po_line:
+                    raise NotFoundError(f"PO Line {update.po_line_id} not found on PO {po.po_number}")
+
+                line_diff: dict[str, Any] = {"po_line_id": str(po_line.id), "line_number": po_line.line_number}
+
+                if update.ordered_quantity is not None:
+                    if update.ordered_quantity < (po_line.received_quantity or Decimal("0.0")):
+                        raise ValidationError(
+                            f"Cannot reduce ordered quantity to {update.ordered_quantity} below already received quantity {po_line.received_quantity} on line {po_line.line_number}"
+                        )
+                    line_diff["ordered_quantity"] = {
+                        "before": str(po_line.ordered_quantity),
+                        "after": str(update.ordered_quantity),
+                    }
+                    po_line.ordered_quantity = update.ordered_quantity
+                    po_line.open_quantity = max(
+                        Decimal("0.0"),
+                        po_line.ordered_quantity - (po_line.received_quantity or Decimal("0.0")),
+                    )
+
+                if update.unit_price is not None:
+                    line_diff["unit_price"] = {
+                        "before": str(po_line.unit_price),
+                        "after": str(update.unit_price),
+                    }
+                    po_line.unit_price = update.unit_price
+
+                if update.delivery_date is not None:
+                    line_diff["delivery_date"] = {
+                        "before": str(po_line.delivery_date) if po_line.delivery_date else None,
+                        "after": str(update.delivery_date),
+                    }
+                    po_line.delivery_date = update.delivery_date
+
+                if update.item_description is not None:
+                    line_diff["item_description"] = {
+                        "before": po_line.item_description,
+                        "after": update.item_description,
+                    }
+                    po_line.item_description = update.item_description
+
+                line_changes.append(line_diff)
+
+            new_total = sum(l.ordered_quantity * l.unit_price for l in po.lines)
+            val_change = new_total - old_total
+            po.total_value = new_total
+            field_changes["line_changes"] = line_changes
+        else:
+            val_change = data.value_change or Decimal("0.0")
+            po.total_value += val_change
+
+        val_change_pct = (abs(val_change) / old_total) if old_total > 0 else Decimal("0.0")
         re_approval = val_change_pct > Decimal(str(settings.PO_AMENDMENT_REAPPROVAL_THRESHOLD_PCT))
 
         next_amendment_num = await self.repo.next_amendment_number(db, po.id, org_id)
@@ -486,7 +545,7 @@ class PurchaseOrderService:
             po_id=po.id,
             amendment_number=next_amendment_num,
             reason=data.reason,
-            field_changes=data.field_changes,
+            field_changes=field_changes,
             value_change=val_change,
             re_approval_required=re_approval,
             amended_by=actor_id,
@@ -494,7 +553,6 @@ class PurchaseOrderService:
         await self.repo.create_amendment(db, amendment)
 
         po.amendment_count += 1
-        po.total_value += val_change
         po.updated_by = actor_id
 
         # Check rate contract utilization change
@@ -505,6 +563,27 @@ class PurchaseOrderService:
 
         if re_approval:
             po.status = POStatus.PENDING_APPROVAL
+            entity_context = {
+                "amount": float(po.total_value),
+                "bu_id": str(po.business_unit_id),
+                "vendor_id": str(po.vendor_id),
+                "has_contract": po.contract_id is not None,
+                "has_rfq": po.rfq_id is not None,
+            }
+            try:
+                rule = await self.rules_engine.find_matching_rule(db, "PO", entity_context, org_id)
+                if rule:
+                    await self.workflow_engine.instantiate(
+                        db,
+                        rule.workflow_template_code,
+                        "PURCHASE_ORDER",
+                        po.id,
+                        entity_context,
+                        org_id,
+                        actor_id,
+                    )
+            except Exception as e:
+                logger.warning("PO amendment approval workflow trigger skipped: {}", e)
         else:
             po.status = POStatus.AMENDED
 
@@ -516,6 +595,7 @@ class PurchaseOrderService:
                 "po_id": str(po.id),
                 "amendment_number": next_amendment_num,
                 "re_approval_required": re_approval,
+                "value_change": float(val_change),
             },
             org_id=org_id,
         )
@@ -530,7 +610,8 @@ class PurchaseOrderService:
             new_values={"amendment_number": next_amendment_num, "value_change": str(val_change)},
         )
 
-        return po
+        await db.commit()
+        return await self.get(db, po.id, org_id)
 
     async def record_grn_receipt(
         self,

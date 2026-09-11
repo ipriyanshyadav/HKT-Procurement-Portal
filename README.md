@@ -66,10 +66,10 @@ The platform supports strict enterprise role separation (where each user only se
 
 
 ## Current Session State
-- **Planned**: Enterprise optimization loop per GEMINI.md: reverse auction anti-sniping concurrency lock, contract drawdown thread-safety, 1-click PO flip to invoice (SAP Ariba/Coupa UX), database index optimization for high-volume foreign keys, and zero-warning frontend hardening.
-- **Implemented**: Added pessimistic row locking with `with_for_update` in `live_bid_service.py` & `contract/service.py`; implemented 1-click PO Flip draft engine `POST /api/v1/invoices/po-flip/{po_id}` with receipt verification and open balance calculation; added `usePoFlipDraft` & `useCreatePoFlipInvoice` hooks and Supplier Portal PO detail interactive modal; created migration `0052_foreign_key_line_indexes.py` adding concurrent indexes on all line tables (`po_lines`, `requisition_lines`, `grn_lines`, `rfq_lines`, `contract_lines`).
-- **Verified**: 445/445 unit tests passed; 397/397 integration tests passed; full E2E walkthrough tests passed; Turbo typecheck 0 errors; ESLint 0 errors & 0 warnings across all 3 portals; production Next.js build clean across all portals; migration 0052 forward & downgrade verified.
-- **Graphify**: Knowledge graph updated to 10,732 nodes, 28,955 edges, 606 communities.
+- **Planned**: Enterprise optimization loop per GEMINI.md: Dynamic Early Payment Discounting (Supply Chain Finance), Sourcing Award Optimization Scenarios Engine (Winner-Take-All, Line-Item Best, 70/30 Dual Sourcing), and Purchase Order Change Orders / Line Amendments with over-receipt prevention and auto re-approval triggers.
+- **Implemented**: Migration `0053_early_payment_discounting`; invoice early discounting service & endpoints (`calculate_early_discount_options`, `request_early_payment`, `accept_early_payment`, `reject_early_payment`); evaluation optimization scenarios engine (`generate_award_optimization_scenarios`, `apply_optimization_scenario`); PO change order engine with line-level modifications and before/after diffs; frontend hooks & responsive UI widgets across Buyer, Supplier, and Admin portals.
+- **Verified**: 453/453 backend unit tests passed; 397/397 backend integration tests passed (850 total backend tests, 100% pass rate); Turbo typecheck 0 errors; ESLint 0 errors & 0 warnings across all portals; production Next.js build clean across all portals; migration 0053 forward & downgrade verified.
+- **Graphify**: Knowledge graph updated to 10,800 nodes, 29,209 edges, 585 communities.
 - **Next**: Production ready. S2P platform fully enterprise-grade, hardened, and verified.
 
 
@@ -681,6 +681,13 @@ docker compose logs -f -t
 | A-FLOW-3 | Active delegation matrix authorizes runtime delegates to act on pending tasks at execution time if validity dates, BU, financial threshold, and Maker-Checker constraints are satisfied | LOW |
 | A-FLOW-4 | Sourcing RFQ creation linked to source_pr_id transitions PR to IN_SOURCING, and PO creation from award transitions PR to CONVERTED, preserving bidirectional relational state | LOW |
 | A-FLOW-5 | Full synchronous end-to-end flow from Requisition through Approval, RFQ, Bidding, CS/Award, Contract, PO, ASN, Fast GRN, 3-Way Invoice, Payment, Scorecard, ESG, Maverick AI, and Multi-ERP Gateway operates atomically with 0 broken linkages | LOW |
+| A-DISC-1 | Early payment sliding-scale discount rate defaults to 18% annual APR (settings.EARLY_DISCOUNT_DEFAULT_APR), with a minimum 3 days early window and a maximum 5% discount cap | LOW |
+| A-DISC-2 | Early payment requests can only be initiated by suppliers for invoices in SUBMITTED, MATCHED, or PARTIALLY_MATCHED statuses with remaining days to due date >= 3 | LOW |
+| A-DISC-3 | Buyer acceptance of early payment updates the invoice payable amount and schedules immediate or accelerated payment on the requested date | LOW |
+| A-OPT-5 | Sourcing award optimization generates 3 canonical industry scenarios: WINNER_TAKE_ALL (Single Source), LINE_ITEM_BEST (Cherry Pick), and DUAL_SOURCING_70_30 (Volume Split) | LOW |
+| A-OPT-6 | Dual sourcing 70/30 scenario requires at least 2 qualified bids; if fewer than 2 exist, it falls back gracefully to winner-take-all with an explanatory note | LOW |
+| A-PO-1 | PO amendments cannot reduce ordered quantity below already received quantity (received_quantity). Attempting to do so raises ValidationError | LOW |
+| A-PO-2 | PO amendment captures complete line-level diffs in PoAmendment.field_changes and recalculates line total prices and PO total value atomically | LOW |
 
 ---
 
@@ -873,4 +880,20 @@ PR.5 | Bidirectional PR <-> PO Linkage & Navigation   | [DONE] | POResponse.sour
 PO.1 | Vendor Acknowledgement / Rejection / Amendment | [DONE] | supplier-portal/purchase-orders/[id]/page.tsx
 OVERALL: 6/6 (100%) | BACKEND 100% | FRONTEND 100% | TESTS 100%
 ```
+
+### 📊 SPEC Audit: Dynamic Early Payment Discounting, Sourcing Optimization & PO Change Orders (2026-09-11)
+```
+MODULE | SPEC REQUIREMENT | STATUS | ARTIFACT / CODE
+DISC.1 | Alembic Migration & Early Discount Schema (Invoice + Payment) | [DONE] | 0053_early_payment_discounting.py, models.py
+DISC.2 | Dynamic Sliding-Scale APR Options Calculator Engine            | [DONE] | invoice/service.py, app/config.py
+DISC.3 | Supplier Early Payout Request & AP 1-Click Acceptance Engine   | [DONE] | invoice/router.py, useInvoices.ts, supplier & buyer portals
+OPT.1  | Sourcing Award Optimization Scenarios Engine (Ariba/Coupa)    | [DONE] | evaluation/service.py, test_award_optimization_scenarios.py
+OPT.2  | Winner-Take-All vs Cherry-Picking vs 70/30 Dual Sourcing Deck   | [DONE] | evaluation/page.tsx, useEvaluation.ts
+OPT.3  | 1-Click Optimization Scenario Application to CS Rankings      | [DONE] | evaluation/router.py, evaluation/service.py
+PO.2   | Line-Level PO Amendment / Change Orders Engine                | [DONE] | purchase_order/service.py, test_po_amendment_line_updates.py
+PO.3   | Over-Receipt Reduction Prevention & Before/After Line Diffs   | [DONE] | purchase_order/service.py, buyer-portal/purchase-orders/[id]
+PO.4   | Auto Re-Approval Triggering on >10% PO Value Delta            | [DONE] | purchase_order/service.py, test_po_amendment_line_updates.py
+OVERALL: 9/9 (100%) | BACKEND 100% | FRONTEND 100% | TESTS 100%
+```
+
 

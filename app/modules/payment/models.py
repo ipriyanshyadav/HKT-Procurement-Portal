@@ -24,6 +24,7 @@ class PaymentRecord(BaseModel):
     gross_amount: Mapped[Decimal | None] = mapped_column(Numeric(18, 2), default=Decimal("0.0"), nullable=True)
     tds_amount: Mapped[Decimal | None] = mapped_column(Numeric(18, 2), default=Decimal("0.0"), nullable=True)
     net_amount: Mapped[Decimal | None] = mapped_column(Numeric(18, 2), default=Decimal("0.0"), nullable=True)
+    discount_amount: Mapped[Decimal | None] = mapped_column(Numeric(18, 2), default=Decimal("0.0"), nullable=True)
     payment_due_date: Mapped[date | None] = mapped_column(Date, nullable=True)
     currency: Mapped[str] = mapped_column(CHAR(3), default="INR", nullable=False)
     utr_number: Mapped[str | None] = mapped_column(String(50), nullable=True)

@@ -195,3 +195,48 @@ class RegretLettersResponse(BaseModel):
     sent_to_vendors: list[UUID]
     count: int
     message: str
+
+
+# ─── Award Optimization Scenarios (SAP Ariba Sourcing standard) ───────────────
+
+class ScenarioLineItemAllocation(BaseModel):
+    rfq_line_id: UUID | None = None
+    lot_id: UUID | None = None
+    line_number: int | None = None
+    item_description: str | None = None
+    vendor_id: UUID
+    vendor_name: str | None = None
+    bid_id: UUID
+    unit_price: Decimal
+    quantity: Decimal
+    total_value: Decimal
+    allocation_percentage: float = 100.0
+
+
+class AwardOptimizationScenario(BaseModel):
+    scenario_type: str  # WINNER_TAKE_ALL, LINE_ITEM_BEST, DUAL_SOURCING_70_30
+    title: str
+    description: str
+    total_value: Decimal
+    baseline_estimated_value: Decimal
+    projected_savings_value: Decimal
+    projected_savings_percentage: float
+    vendor_count: int
+    risk_rating: str  # LOW, MEDIUM, HIGH, VERY_LOW
+    awarded_vendor_names: list[str] = []
+    line_allocations: list[ScenarioLineItemAllocation] = []
+
+
+class AwardOptimizationScenariosResponse(BaseModel):
+    cs_id: UUID
+    cs_number: str
+    rfq_id: UUID
+    currency: str
+    total_estimated_value: Decimal
+    recommended_scenario: str
+    scenarios: list[AwardOptimizationScenario] = []
+
+
+class ApplyOptimizationScenarioRequest(BaseModel):
+    scenario_type: str  # WINNER_TAKE_ALL, LINE_ITEM_BEST, DUAL_SOURCING_70_30
+    justification: str = Field(..., min_length=5)

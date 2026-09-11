@@ -3,7 +3,13 @@
 import React from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { useInvoice, usePayments } from "@procurement/hooks";
+import {
+  useInvoice,
+  usePayments,
+  useEarlyDiscountOptions,
+  useRequestEarlyPayment,
+} from "@procurement/hooks";
+import type { EarlyDiscountOption } from "@procurement/types";
 import {
   ThreeWayMatchResult,
   PaymentSchedule,
@@ -21,15 +27,42 @@ import {
   Building,
   AlertCircle,
   MessageSquare,
+  Zap,
+  TrendingDown,
+  Sparkles,
 } from "lucide-react";
 
 export default function SupplierInvoiceDetailPage() {
   const params = useParams();
   const invoiceId = params?.id as string;
 
-  const { data: invoice, isLoading, isError } = useInvoice(invoiceId);
+  const { data: invoice, isLoading, isError, refetch } = useInvoice(invoiceId);
   const { data: payments = [] } = usePayments({ invoice_id: invoiceId });
   const paymentRecord = payments[0] || null;
+
+  const { data: discountOptions, refetch: refetchOptions } = useEarlyDiscountOptions(invoiceId);
+  const requestDiscountMutation = useRequestEarlyPayment();
+  const [selectedOptionIndex, setSelectedOptionIndex] = React.useState<number>(0);
+  const [discountNotes, setDiscountNotes] = React.useState<string>("");
+  const [successMessage, setSuccessMessage] = React.useState<string | null>(null);
+
+  const handleRequestEarlyPayment = async (option: EarlyDiscountOption) => {
+    try {
+      await requestDiscountMutation.mutateAsync({
+        invoiceId,
+        data: {
+          payout_date: option.payout_date,
+          discount_percentage: option.discount_percentage,
+          notes: discountNotes || undefined,
+        },
+      });
+      setSuccessMessage("Accelerated early payment request submitted! Buyer AP will review and disburse funds.");
+      refetch();
+      refetchOptions();
+    } catch (err: any) {
+      alert(err?.response?.data?.error?.message || "Failed to submit early payment request");
+    }
+  };
 
   if (isLoading) {
     return (
@@ -177,6 +210,195 @@ export default function SupplierInvoiceDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Success Notification */}
+      {successMessage && (
+        <div className="bg-emerald-50 dark:bg-emerald-950/40 rounded-2xl border border-emerald-200 dark:border-emerald-800 p-4 flex items-center justify-between gap-3 text-xs text-emerald-800 dark:text-emerald-200">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+            <span>{successMessage}</span>
+          </div>
+          <button onClick={() => setSuccessMessage(null)} className="font-semibold hover:underline">
+            Dismiss
+          </button>
+        </div>
+      )}
+
+      {/* ⚡ Early Payment / Dynamic Discounting Status & Options */}
+      {invoice.early_discount_status === "ACCEPTED" ? (
+        <div className="bg-emerald-500/10 dark:bg-emerald-950/30 rounded-2xl border border-emerald-500/30 p-5 shadow-xs">
+          <div className="flex items-start gap-4">
+            <div className="p-2.5 rounded-xl bg-emerald-500 text-white shadow-xs">
+              <Zap className="h-5 w-5" />
+            </div>
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <h3 className="font-bold text-sm text-emerald-950 dark:text-emerald-200">
+                  Accelerated Early Payment Approved & Scheduled
+                </h3>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300">
+                  Payout Scheduled
+                </span>
+              </div>
+              <p className="text-xs text-emerald-800/80 dark:text-emerald-300/80">
+                Buyer Accounts Payable approved early settlement. Payout is scheduled for{" "}
+                <span className="font-bold text-emerald-950 dark:text-emerald-100">
+                  {invoice.early_discount_payout_date ? new Date(invoice.early_discount_payout_date).toLocaleDateString() : "Shortly"}
+                </span>.
+              </p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-3">
+                <div className="bg-white/60 dark:bg-white/5 rounded-lg p-2.5 border border-emerald-500/20">
+                  <div className="text-[10px] uppercase font-semibold text-emerald-700 dark:text-emerald-400">Discount Concession</div>
+                  <div className="font-mono text-sm font-bold text-emerald-950 dark:text-emerald-100">
+                    {invoice.currency} {Number(invoice.early_discount_amount || 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                  </div>
+                </div>
+                <div className="bg-white/60 dark:bg-white/5 rounded-lg p-2.5 border border-emerald-500/20">
+                  <div className="text-[10px] uppercase font-semibold text-emerald-700 dark:text-emerald-400">Net Accelerated Payout</div>
+                  <div className="font-mono text-sm font-bold text-emerald-950 dark:text-emerald-100">
+                    {invoice.currency} {(Number(invoice.total_amount) - Number(invoice.early_discount_amount || 0)).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                  </div>
+                </div>
+                <div className="bg-white/60 dark:bg-white/5 rounded-lg p-2.5 border border-emerald-500/20 col-span-2 sm:col-span-1">
+                  <div className="text-[10px] uppercase font-semibold text-emerald-700 dark:text-emerald-400">APR Applied</div>
+                  <div className="font-mono text-sm font-bold text-emerald-950 dark:text-emerald-100">
+                    {(Number(invoice.early_discount_apr || 0.18) * 100).toFixed(1)}% Annualized
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : invoice.early_discount_status === "REQUESTED" ? (
+        <div className="bg-amber-500/10 dark:bg-amber-950/30 rounded-2xl border border-amber-500/30 p-5 shadow-xs">
+          <div className="flex items-start gap-4">
+            <div className="p-2.5 rounded-xl bg-amber-500 text-white shadow-xs">
+              <Clock className="h-5 w-5" />
+            </div>
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <h3 className="font-bold text-sm text-amber-950 dark:text-amber-200">
+                  Early Payment Request Pending Buyer AP Review
+                </h3>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300">
+                  Under Review
+                </span>
+              </div>
+              <p className="text-xs text-amber-800/80 dark:text-amber-300/80">
+                You requested accelerated payout on{" "}
+                <span className="font-bold text-amber-950 dark:text-amber-100">
+                  {invoice.early_discount_payout_date ? new Date(invoice.early_discount_payout_date).toLocaleDateString() : "Earliest Date"}
+                </span>{" "}
+                with an offered discount of {invoice.currency} {Number(invoice.early_discount_amount || 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}.
+              </p>
+            </div>
+          </div>
+        </div>
+      ) : discountOptions?.eligible_for_early_discount && discountOptions.options.length > 0 ? (
+        <div className="bg-gradient-to-br from-indigo-50/70 via-white to-sky-50/70 dark:from-[#1E1F2E] dark:via-[#1C1C1F] dark:to-[#172230] rounded-2xl border border-indigo-200/80 dark:border-indigo-900/50 p-6 shadow-sm">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-indigo-100 dark:border-white/10 pb-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-indigo-600 text-white">
+                  <Zap className="h-3 w-3" /> Supply Chain Finance
+                </span>
+                <h3 className="font-bold text-base text-slate-900 dark:text-white">
+                  Accelerate Cash Flow (Dynamic Early Payment)
+                </h3>
+              </div>
+              <p className="text-xs text-slate-600 dark:text-slate-300 mt-1">
+                Receive working capital immediately before standard maturity date ({invoice.due_date ? new Date(invoice.due_date).toLocaleDateString() : "Net 30/45"}) by offering an automated sliding-scale discount.
+              </p>
+            </div>
+            <div className="text-right">
+              <span className="text-[11px] text-slate-400 block font-medium">Standard Due Date</span>
+              <span className="text-xs font-mono font-bold text-slate-800 dark:text-slate-200">
+                {invoice.due_date ? new Date(invoice.due_date).toLocaleDateString() : "Standard Terms"} ({discountOptions.days_until_due} days remaining)
+              </span>
+            </div>
+          </div>
+
+          <div className="mt-5 space-y-4">
+            <div className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              Select Desired Accelerated Payout Date:
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {discountOptions.options.map((opt, idx) => {
+                const isSelected = selectedOptionIndex === idx;
+                return (
+                  <button
+                    key={opt.payout_date}
+                    type="button"
+                    onClick={() => setSelectedOptionIndex(idx)}
+                    className={`text-left p-4 rounded-xl border transition-all relative ${
+                      isSelected
+                        ? "bg-indigo-600 text-white border-indigo-600 shadow-md ring-2 ring-indigo-400/40"
+                        : "bg-white dark:bg-white/5 text-slate-800 dark:text-slate-200 border-slate-200 dark:border-white/10 hover:border-indigo-300 dark:hover:border-indigo-700"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between text-xs font-semibold">
+                      <span>In {opt.payout_days_from_now} Days</span>
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                        isSelected ? "bg-white/20 text-white" : "bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300"
+                      }`}>
+                        +{opt.days_accelerated}d Earlier
+                      </span>
+                    </div>
+                    <div className="font-mono text-base font-bold mt-2">
+                      {new Date(opt.payout_date).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                    </div>
+                    <div className="mt-2 pt-2 border-t border-current/15 text-[11px] space-y-0.5 opacity-90">
+                      <div className="flex justify-between">
+                        <span>Discount:</span>
+                        <span className="font-mono font-semibold">{(opt.discount_percentage * 100).toFixed(2)}%</span>
+                      </div>
+                      <div className="flex justify-between font-bold">
+                        <span>Net Cash:</span>
+                        <span className="font-mono">{invoice.currency} {opt.net_payout_amount.toLocaleString("en-IN", { maximumFractionDigits: 0 })}</span>
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Selected Option Detail Breakdown */}
+            {discountOptions.options[selectedOptionIndex] && (
+              <div className="bg-white dark:bg-slate-900/80 rounded-xl border border-indigo-100 dark:border-white/10 p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 text-xs">
+                <div className="space-y-1">
+                  <div className="font-semibold text-slate-900 dark:text-white flex items-center gap-1.5">
+                    <Sparkles className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+                    Selected Terms: Payout on {new Date(discountOptions.options[selectedOptionIndex].payout_date).toLocaleDateString()}
+                  </div>
+                  <div className="text-slate-500 dark:text-slate-400">
+                    Gross Invoice: {invoice.currency} {Number(invoice.total_amount).toLocaleString("en-IN")} &nbsp;•&nbsp; 
+                    Discount Fee: <span className="font-mono text-rose-600 dark:text-rose-400 font-medium">-{invoice.currency} {discountOptions.options[selectedOptionIndex].discount_amount.toLocaleString("en-IN")}</span> &nbsp;•&nbsp;
+                    Net Immediate Cash: <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">{invoice.currency} {discountOptions.options[selectedOptionIndex].net_payout_amount.toLocaleString("en-IN")}</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 shrink-0">
+                  <input
+                    type="text"
+                    placeholder="Optional reference note..."
+                    value={discountNotes}
+                    onChange={(e) => setDiscountNotes(e.target.value)}
+                    className="px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-xs bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500 w-48"
+                  />
+                  <Button
+                    onClick={() => handleRequestEarlyPayment(discountOptions.options[selectedOptionIndex])}
+                    disabled={requestDiscountMutation.isPending}
+                    className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs px-4 py-2"
+                    leftIcon={<Zap className="h-3.5 w-3.5" />}
+                  >
+                    {requestDiscountMutation.isPending ? "Submitting..." : "Submit Early Payment Request"}
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      ) : null}
 
       {/* Discrepancy Callout if Discrepancy */}
       {hasDiscrepancy && (

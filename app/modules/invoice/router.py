@@ -29,6 +29,9 @@ from app.db.session import get_db
 from app.modules.invoice.schemas import (
     AdvancedReconciliationRequest,
     AdvancedReconciliationResponse,
+    EarlyDiscountActionResponse,
+    EarlyDiscountOptionsResponse,
+    EarlyDiscountRequest,
     EligibleLineResponse,
     InvoiceDisputeRequest,
     InvoiceFilterParams,
@@ -114,6 +117,10 @@ def _to_invoice_response(inv: Any, vendor_name: str | None = None, po_number: st
         erp_sync_status=inv.erp_sync_status,
         payment_status=payment_status_str,
         paid_amount=inv.paid_amount,
+        early_discount_amount=getattr(inv, "early_discount_amount", Decimal("0.0")),
+        early_discount_status=getattr(inv, "early_discount_status", "NONE"),
+        early_discount_payout_date=getattr(inv, "early_discount_payout_date", None),
+        early_discount_apr=getattr(inv, "early_discount_apr", None),
         notes=getattr(inv, "notes", None),
         created_at=inv.created_at,
         updated_at=inv.updated_at,
@@ -468,3 +475,75 @@ async def dispute_invoice(
     user_id = current_user.id
     invoice = await invoice_service.dispute(db, invoice_id, request.reason_code, request.description, user_id, org_id)
     return success_response(data=_to_invoice_response(invoice))
+
+
+@router.get("/{invoice_id}/early-discount/options", response_model=APIResponse[EarlyDiscountOptionsResponse])
+async def get_early_discount_options(
+    invoice_id: UUID,
+    apr: float | None = Query(None, ge=0.01, le=0.50),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(
+        require_any_permission([PermissionCode.INVOICE_VIEW_OWN, PermissionCode.INVOICE_VIEW_ALL])
+    ),
+):
+    """Calculate sliding-scale early payment discount options and cash yield rates (SAP Ariba / Coupa Pay standard)."""
+    options = await invoice_service.calculate_early_discount_options(
+        db, invoice_id, current_user.org_id, custom_apr=apr
+    )
+    return success_response(data=options)
+
+
+@router.post("/{invoice_id}/early-discount/request", response_model=APIResponse[EarlyDiscountActionResponse])
+async def request_early_payment(
+    invoice_id: UUID,
+    request: EarlyDiscountRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(
+        require_any_permission([PermissionCode.INVOICE_SUBMIT, PermissionCode.INVOICE_VIEW_OWN])
+    ),
+):
+    """Supplier requests accelerated payment by offering an early payment discount."""
+    vendor_id = current_user.vendor_id if current_user.is_supplier_user else None
+    action = await invoice_service.request_early_payment(
+        db,
+        invoice_id=invoice_id,
+        payload=request,
+        actor_id=current_user.id,
+        org_id=current_user.org_id,
+        vendor_id=vendor_id,
+    )
+    return success_response(data=action)
+
+
+@router.post("/{invoice_id}/early-discount/accept", response_model=APIResponse[EarlyDiscountActionResponse])
+async def accept_early_payment(
+    invoice_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_permission(PermissionCode.INVOICE_APPROVE)),
+):
+    """Buyer approves early payment discount request, captures working capital return, and advances payout schedule."""
+    action = await invoice_service.accept_early_payment(
+        db,
+        invoice_id=invoice_id,
+        actor_id=current_user.id,
+        org_id=current_user.org_id,
+    )
+    return success_response(data=action)
+
+
+@router.post("/{invoice_id}/early-discount/reject", response_model=APIResponse[EarlyDiscountActionResponse])
+async def reject_early_payment(
+    invoice_id: UUID,
+    rejection_reason: str = Query("Declined by finance", min_length=3),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_permission(PermissionCode.INVOICE_APPROVE)),
+):
+    """Buyer declines early payment discount request."""
+    action = await invoice_service.reject_early_payment(
+        db,
+        invoice_id=invoice_id,
+        rejection_reason=rejection_reason,
+        actor_id=current_user.id,
+        org_id=current_user.org_id,
+    )
+    return success_response(data=action)

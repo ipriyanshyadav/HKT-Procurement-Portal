@@ -30,7 +30,13 @@ from app.modules.evaluation.repository import (
     evaluation_repository,
     negotiation_repository,
 )
-from app.modules.evaluation.schemas import AwardRecommendationItem
+from app.modules.evaluation.schemas import (
+    ApplyOptimizationScenarioRequest,
+    AwardOptimizationScenario,
+    AwardOptimizationScenariosResponse,
+    AwardRecommendationItem,
+    ScenarioLineItemAllocation,
+)
 from app.modules.sourcing.repository import rfq_repository
 from app.modules.vendor.repository import vendor_repository
 from app.modules.workflow.service import workflow_engine
@@ -683,6 +689,301 @@ class EvaluationService:
         )
 
         return non_awarded, len(non_awarded)
+
+    # ─── 6. Award Optimization Scenarios ──────────────────────────────────────
+
+    async def generate_award_optimization_scenarios(
+        self,
+        db: AsyncSession,
+        cs_id: UUID,
+        org_id: UUID,
+    ) -> AwardOptimizationScenariosResponse:
+        cs = await self.eval_repo.get_cs(db, cs_id, org_id)
+        if not cs:
+            raise NotFoundError(f"Comparative Statement {cs_id} not found")
+
+        rfq = await self.rfq_repo.get(db, cs.rfq_id, org_id)
+        if not rfq:
+            raise NotFoundError(f"RFQ {cs.rfq_id} not found")
+
+        rankings = cs.rankings or []
+        if not rankings:
+            raise ValidationError("NO_RANKINGS", "Comparative statement has no bid rankings to evaluate scenarios")
+
+        unique_vendor_ids = list({r.vendor_id for r in rankings if r.vendor_id})
+        vendor_names: dict[UUID, str] = {}
+        if unique_vendor_ids:
+            vendors = await self.vendor_repo.find_by_ids(db, unique_vendor_ids, org_id)
+            for v in vendors:
+                vendor_names[v.id] = v.company_name or v.legal_name or f"Vendor {str(v.id)[:8]}"
+
+        rfq_lines_map = {line.id: line for line in getattr(rfq, "lines", [])}
+        estimated_val = (
+            rfq.estimated_value
+            if (rfq.estimated_value and rfq.estimated_value > 0)
+            else cs.total_estimated_value
+        )
+        if not estimated_val or estimated_val <= Decimal("0.0"):
+            estimated_val = sum((r.landed_cost for r in rankings if r.is_l1), Decimal("0.0")) or Decimal("1.0")
+
+        line_rankings_map: dict[UUID, list[CsLineRanking]] = {}
+        for r in rankings:
+            key = r.rfq_line_id or r.lot_id or r.id
+            line_rankings_map.setdefault(key, []).append(r)
+
+        for key in line_rankings_map:
+            line_rankings_map[key].sort(key=lambda x: (x.rank, x.landed_cost or x.npv_adjusted_cost))
+
+        scenarios: list[AwardOptimizationScenario] = []
+
+        # ─── SCENARIO 1: WINNER_TAKE_ALL ───
+        vendor_totals: dict[UUID, Decimal] = {}
+        vendor_allocations: dict[UUID, list[ScenarioLineItemAllocation]] = {}
+        for line_key, ranked_lines in line_rankings_map.items():
+            rfq_line = rfq_lines_map.get(line_key)
+            qty = Decimal(str(getattr(rfq_line, "quantity", 1.0))) if rfq_line else Decimal("1.0")
+            for r in ranked_lines:
+                v_id = r.vendor_id
+                rate = r.raw_unit_price or r.landed_cost or Decimal("0.0")
+                line_val = (r.lot_total_inr or (rate * qty)).quantize(Decimal("0.01"))
+                vendor_totals[v_id] = vendor_totals.get(v_id, Decimal("0.0")) + line_val
+                vendor_allocations.setdefault(v_id, []).append(
+                    ScenarioLineItemAllocation(
+                        rfq_line_id=r.rfq_line_id,
+                        lot_id=r.lot_id,
+                        line_number=getattr(rfq_line, "line_number", None),
+                        item_description=getattr(rfq_line, "item_description", None),
+                        vendor_id=r.vendor_id,
+                        vendor_name=vendor_names.get(r.vendor_id),
+                        bid_id=r.bid_id,
+                        unit_price=rate,
+                        quantity=qty,
+                        total_value=line_val,
+                        allocation_percentage=100.0,
+                    )
+                )
+
+        if vendor_totals:
+            best_single_vendor = min(vendor_totals.keys(), key=lambda v: vendor_totals[v])
+            wta_total = vendor_totals[best_single_vendor]
+            wta_savings = max(Decimal("0.0"), estimated_val - wta_total)
+            wta_savings_pct = round(float((wta_savings / estimated_val) * 100), 2) if estimated_val > 0 else 0.0
+
+            scenarios.append(
+                AwardOptimizationScenario(
+                    scenario_type="WINNER_TAKE_ALL",
+                    title="Single Source Consolidation (Winner-Take-All)",
+                    description="Awards 100% of line items to the single lowest aggregate bidder. Minimizes vendor relationship overhead, shipping handoffs, and contracting complexity.",
+                    total_value=wta_total,
+                    baseline_estimated_value=estimated_val,
+                    projected_savings_value=wta_savings,
+                    projected_savings_percentage=wta_savings_pct,
+                    vendor_count=1,
+                    risk_rating="MEDIUM",
+                    awarded_vendor_names=[vendor_names.get(best_single_vendor, str(best_single_vendor)[:8])],
+                    line_allocations=vendor_allocations.get(best_single_vendor, []),
+                )
+            )
+
+        # ─── SCENARIO 2: LINE_ITEM_BEST (Cherry Pick) ───
+        cherry_total = Decimal("0.0")
+        cherry_allocations: list[ScenarioLineItemAllocation] = []
+        cherry_vendors: set[UUID] = set()
+
+        for line_key, ranked_lines in line_rankings_map.items():
+            best_r = ranked_lines[0]
+            rfq_line = rfq_lines_map.get(line_key)
+            qty = Decimal(str(getattr(rfq_line, "quantity", 1.0))) if rfq_line else Decimal("1.0")
+            rate = best_r.raw_unit_price or best_r.landed_cost or Decimal("0.0")
+            line_val = (best_r.lot_total_inr or (rate * qty)).quantize(Decimal("0.01"))
+
+            cherry_total += line_val
+            cherry_vendors.add(best_r.vendor_id)
+            cherry_allocations.append(
+                ScenarioLineItemAllocation(
+                    rfq_line_id=best_r.rfq_line_id,
+                    lot_id=best_r.lot_id,
+                    line_number=getattr(rfq_line, "line_number", None),
+                    item_description=getattr(rfq_line, "item_description", None),
+                    vendor_id=best_r.vendor_id,
+                    vendor_name=vendor_names.get(best_r.vendor_id),
+                    bid_id=best_r.bid_id,
+                    unit_price=rate,
+                    quantity=qty,
+                    total_value=line_val,
+                    allocation_percentage=100.0,
+                )
+            )
+
+        cherry_savings = max(Decimal("0.0"), estimated_val - cherry_total)
+        cherry_savings_pct = round(float((cherry_savings / estimated_val) * 100), 2) if estimated_val > 0 else 0.0
+
+        scenarios.append(
+            AwardOptimizationScenario(
+                scenario_type="LINE_ITEM_BEST",
+                title="Line-Item Best Bid (Maximum Savings)",
+                description="Cherry-picks the lowest qualified bidder for each individual line item, maximizing aggregate financial savings across the entire basket.",
+                total_value=cherry_total,
+                baseline_estimated_value=estimated_val,
+                projected_savings_value=cherry_savings,
+                projected_savings_percentage=cherry_savings_pct,
+                vendor_count=len(cherry_vendors),
+                risk_rating="LOW",
+                awarded_vendor_names=[vendor_names.get(v, str(v)[:8]) for v in cherry_vendors],
+                line_allocations=cherry_allocations,
+            )
+        )
+
+        # ─── SCENARIO 3: DUAL_SOURCING_70_30 ───
+        dual_total = Decimal("0.0")
+        dual_allocations: list[ScenarioLineItemAllocation] = []
+        dual_vendors: set[UUID] = set()
+
+        for line_key, ranked_lines in line_rankings_map.items():
+            rfq_line = rfq_lines_map.get(line_key)
+            total_qty = Decimal(str(getattr(rfq_line, "quantity", 1.0))) if rfq_line else Decimal("1.0")
+
+            if len(ranked_lines) >= 2:
+                r1 = ranked_lines[0]
+                r2 = ranked_lines[1]
+                q1 = (total_qty * Decimal("0.70")).quantize(Decimal("0.01"))
+                q2 = total_qty - q1
+                rate1 = r1.raw_unit_price or r1.landed_cost or Decimal("0.0")
+                rate2 = r2.raw_unit_price or r2.landed_cost or Decimal("0.0")
+                val1 = (q1 * rate1).quantize(Decimal("0.01"))
+                val2 = (q2 * rate2).quantize(Decimal("0.01"))
+
+                dual_total += val1 + val2
+                dual_vendors.add(r1.vendor_id)
+                dual_vendors.add(r2.vendor_id)
+
+                dual_allocations.append(
+                    ScenarioLineItemAllocation(
+                        rfq_line_id=r1.rfq_line_id,
+                        lot_id=r1.lot_id,
+                        line_number=getattr(rfq_line, "line_number", None),
+                        item_description=getattr(rfq_line, "item_description", None),
+                        vendor_id=r1.vendor_id,
+                        vendor_name=vendor_names.get(r1.vendor_id),
+                        bid_id=r1.bid_id,
+                        unit_price=rate1,
+                        quantity=q1,
+                        total_value=val1,
+                        allocation_percentage=70.0,
+                    )
+                )
+                dual_allocations.append(
+                    ScenarioLineItemAllocation(
+                        rfq_line_id=r2.rfq_line_id,
+                        lot_id=r2.lot_id,
+                        line_number=getattr(rfq_line, "line_number", None),
+                        item_description=getattr(rfq_line, "item_description", None),
+                        vendor_id=r2.vendor_id,
+                        vendor_name=vendor_names.get(r2.vendor_id),
+                        bid_id=r2.bid_id,
+                        unit_price=rate2,
+                        quantity=q2,
+                        total_value=val2,
+                        allocation_percentage=30.0,
+                    )
+                )
+            else:
+                r1 = ranked_lines[0]
+                rate1 = r1.raw_unit_price or r1.landed_cost or Decimal("0.0")
+                val1 = (total_qty * rate1).quantize(Decimal("0.01"))
+                dual_total += val1
+                dual_vendors.add(r1.vendor_id)
+                dual_allocations.append(
+                    ScenarioLineItemAllocation(
+                        rfq_line_id=r1.rfq_line_id,
+                        lot_id=r1.lot_id,
+                        line_number=getattr(rfq_line, "line_number", None),
+                        item_description=getattr(rfq_line, "item_description", None),
+                        vendor_id=r1.vendor_id,
+                        vendor_name=vendor_names.get(r1.vendor_id),
+                        bid_id=r1.bid_id,
+                        unit_price=rate1,
+                        quantity=total_qty,
+                        total_value=val1,
+                        allocation_percentage=100.0,
+                    )
+                )
+
+        dual_savings = max(Decimal("0.0"), estimated_val - dual_total)
+        dual_savings_pct = round(float((dual_savings / estimated_val) * 100), 2) if estimated_val > 0 else 0.0
+
+        scenarios.append(
+            AwardOptimizationScenario(
+                scenario_type="DUAL_SOURCING_70_30",
+                title="Business Continuity (70/30 Dual Sourcing Split)",
+                description="Splits volume 70% to primary supplier and 30% to secondary supplier to mitigate supply chain disruption risks while keeping both suppliers engaged.",
+                total_value=dual_total,
+                baseline_estimated_value=estimated_val,
+                projected_savings_value=dual_savings,
+                projected_savings_percentage=dual_savings_pct,
+                vendor_count=len(dual_vendors),
+                risk_rating="VERY_LOW",
+                awarded_vendor_names=[vendor_names.get(v, str(v)[:8]) for v in dual_vendors],
+                line_allocations=dual_allocations,
+            )
+        )
+
+        recommended = "LINE_ITEM_BEST" if cherry_savings_pct >= (dual_savings_pct + 3.0) else "DUAL_SOURCING_70_30"
+
+        return AwardOptimizationScenariosResponse(
+            cs_id=cs.id,
+            cs_number=cs.cs_number,
+            rfq_id=cs.rfq_id,
+            currency=rfq.currency if hasattr(rfq, "currency") else "INR",
+            total_estimated_value=estimated_val,
+            recommended_scenario=recommended,
+            scenarios=scenarios,
+        )
+
+    async def apply_optimization_scenario(
+        self,
+        db: AsyncSession,
+        cs_id: UUID,
+        payload: ApplyOptimizationScenarioRequest,
+        actor_id: UUID,
+        org_id: UUID,
+    ) -> AwardRecommendation:
+        scenarios_resp = await self.generate_award_optimization_scenarios(db, cs_id, org_id)
+        selected = next((s for s in scenarios_resp.scenarios if s.scenario_type == payload.scenario_type), None)
+        if not selected:
+            raise ValidationError(
+                f"Optimization scenario '{payload.scenario_type}' not found for this comparative statement"
+            )
+
+        award_items: list[AwardRecommendationItem] = []
+        for alloc in selected.line_allocations:
+            award_items.append(
+                AwardRecommendationItem(
+                    vendor_id=alloc.vendor_id,
+                    bid_id=alloc.bid_id,
+                    value=alloc.total_value,
+                    lot_id=alloc.lot_id,
+                    rfq_line_id=alloc.rfq_line_id,
+                    unit_price=alloc.unit_price,
+                    quantity=alloc.quantity,
+                    award_type="SPLIT" if alloc.allocation_percentage < 100.0 else "FULL",
+                    justification=f"Awarded via {selected.title} ({alloc.allocation_percentage}% volume)",
+                )
+            )
+
+        full_justification = (
+            f"[{selected.title}] {payload.justification}. "
+            f"Total awarded: {scenarios_resp.currency} {selected.total_value} (Projected Savings: {selected.projected_savings_percentage}%)."
+        )
+
+        return await self.recommend_award(
+            db,
+            cs_id=cs_id,
+            awards=award_items,
+            justification=full_justification,
+            actor_id=actor_id,
+            org_id=org_id,
+        )
 
 
 evaluation_service = EvaluationService()

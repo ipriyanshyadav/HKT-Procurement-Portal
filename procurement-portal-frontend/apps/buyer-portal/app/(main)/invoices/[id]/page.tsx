@@ -10,6 +10,8 @@ import {
   useDisputeInvoice,
   useMatchInvoice,
   usePayments,
+  useAcceptEarlyPayment,
+  useRejectEarlyPayment,
 } from "@procurement/hooks";
 import { ThreeWayMatchResult, PaymentSchedule, DocumentList, PermissionGuard, SplitScreenViewer, Button } from "@procurement/ui";
 import {
@@ -27,6 +29,8 @@ import {
   AlertCircle,
   RefreshCw,
   Columns,
+  Zap,
+  TrendingDown,
 } from "lucide-react";
 
 export default function InvoiceDetailPage() {
@@ -42,6 +46,9 @@ export default function InvoiceDetailPage() {
   const rejectMutation = useRejectInvoice();
   const disputeMutation = useDisputeInvoice();
   const matchMutation = useMatchInvoice();
+  const acceptDiscountMutation = useAcceptEarlyPayment();
+  const rejectDiscountMutation = useRejectEarlyPayment();
+  const [discountActionMessage, setDiscountActionMessage] = useState<string | null>(null);
 
   // Modals state
   const [rejectModalOpen, setRejectModalOpen] = useState(false);
@@ -112,6 +119,28 @@ export default function InvoiceDetailPage() {
   const handleRematch = async () => {
     await matchMutation.mutateAsync(invoiceId);
     refetch();
+  };
+
+  const handleAcceptDiscount = async () => {
+    if (!confirm("Confirm acceptance of early payment discount? Payout will be scheduled accordingly.")) return;
+    try {
+      const res = await acceptDiscountMutation.mutateAsync(invoiceId);
+      setDiscountActionMessage(res?.message || "Early payment discount accepted successfully!");
+      refetch();
+    } catch (err: any) {
+      alert(err?.response?.data?.error?.message || "Failed to accept early discount");
+    }
+  };
+
+  const handleRejectDiscount = async () => {
+    const reason = prompt("Enter reason for declining early payment discount (optional):");
+    try {
+      const res = await rejectDiscountMutation.mutateAsync({ invoiceId, reason: reason || undefined });
+      setDiscountActionMessage(res?.message || "Early payment discount request rejected.");
+      refetch();
+    } catch (err: any) {
+      alert(err?.response?.data?.error?.message || "Failed to reject early discount");
+    }
   };
 
   const isPendingApproval =
@@ -237,6 +266,98 @@ export default function InvoiceDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Discount Action Message Banner */}
+      {discountActionMessage && (
+        <div className="bg-emerald-50 dark:bg-emerald-950/40 rounded-2xl border border-emerald-200 dark:border-emerald-800 p-4 flex items-center justify-between gap-3 text-xs text-emerald-800 dark:text-emerald-200">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+            <span>{discountActionMessage}</span>
+          </div>
+          <button onClick={() => setDiscountActionMessage(null)} className="font-semibold hover:underline">
+            Dismiss
+          </button>
+        </div>
+      )}
+
+      {/* ⚡ Early Payment Discount Review & Actions */}
+      {invoice.early_discount_status === "REQUESTED" ? (
+        <div className="bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent dark:from-amber-950/30 rounded-2xl border border-amber-500/30 p-5 shadow-xs">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex items-start gap-3.5">
+              <div className="p-2.5 rounded-xl bg-amber-500 text-white shadow-xs shrink-0">
+                <Zap className="h-5 w-5" />
+              </div>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <h3 className="font-bold text-sm text-slate-900 dark:text-white">
+                    Vendor Requested Early Payment Acceleration (Dynamic Discount)
+                  </h3>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300">
+                    AP Action Required
+                  </span>
+                </div>
+                <p className="text-xs text-slate-600 dark:text-slate-300">
+                  The supplier offers an immediate dynamic discount concession of{" "}
+                  <span className="font-bold text-slate-900 dark:text-white font-mono">
+                    {invoice.currency} {Number(invoice.early_discount_amount || 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                  </span>{" "}
+                  if payment is disbursed early on{" "}
+                  <span className="font-bold text-slate-900 dark:text-white">
+                    {invoice.early_discount_payout_date ? new Date(invoice.early_discount_payout_date).toLocaleDateString() : "Accelerated Date"}
+                  </span>.
+                </p>
+                <div className="flex flex-wrap items-center gap-4 text-xs pt-1 font-mono">
+                  <span className="text-slate-500 dark:text-slate-400">
+                    Gross: {invoice.currency} {Number(invoice.total_amount).toLocaleString("en-IN")}
+                  </span>
+                  <span>•</span>
+                  <span className="text-emerald-600 dark:text-emerald-400 font-bold">
+                    Net Payout: {invoice.currency} {(Number(invoice.total_amount) - Number(invoice.early_discount_amount || 0)).toLocaleString("en-IN")}
+                  </span>
+                  <span>•</span>
+                  <span className="text-indigo-600 dark:text-indigo-400 font-bold">
+                    Effective Return: {(Number(invoice.early_discount_apr || 0.18) * 100).toFixed(1)}% Annualized
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <PermissionGuard permission="payment.process">
+              <div className="flex items-center gap-2 shrink-0">
+                <Button
+                  onClick={handleRejectDiscount}
+                  disabled={rejectDiscountMutation.isPending}
+                  variant="secondary"
+                  className="text-xs px-3 py-2 text-slate-700 dark:text-slate-300"
+                >
+                  Decline
+                </Button>
+                <Button
+                  onClick={handleAcceptDiscount}
+                  disabled={acceptDiscountMutation.isPending}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs px-4 py-2"
+                  leftIcon={<Zap className="h-3.5 w-3.5" />}
+                >
+                  {acceptDiscountMutation.isPending ? "Accepting..." : "Accept & Capture Savings"}
+                </Button>
+              </div>
+            </PermissionGuard>
+          </div>
+        </div>
+      ) : invoice.early_discount_status === "ACCEPTED" ? (
+        <div className="bg-emerald-500/10 dark:bg-emerald-950/30 rounded-2xl border border-emerald-500/30 p-4 flex items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-2 text-emerald-800 dark:text-emerald-200">
+            <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+            <span>
+              Early payment discount accepted! Net payout of{" "}
+              <strong className="font-mono">{invoice.currency} {(Number(invoice.total_amount) - Number(invoice.early_discount_amount || 0)).toLocaleString("en-IN")}</strong>{" "}
+              scheduled for {invoice.early_discount_payout_date ? new Date(invoice.early_discount_payout_date).toLocaleDateString() : "payout date"} (Company captured{" "}
+              <strong className="font-mono">{invoice.currency} {Number(invoice.early_discount_amount || 0).toLocaleString("en-IN")}</strong> cash savings).
+            </span>
+          </div>
+        </div>
+      ) : null}
 
       {/* Discrepancy Alert Callout if Discrepancy */}
       {invoice.match_status === "DISCREPANCY" && (

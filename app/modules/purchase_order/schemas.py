@@ -68,11 +68,19 @@ class POFromAwardRequest(BaseModel):
     deviation_justification: str | None = None
 
 
+class POLineUpdate(BaseModel):
+    po_line_id: UUID
+    ordered_quantity: Decimal | None = None
+    unit_price: Decimal | None = None
+    delivery_date: date | None = None
+    item_description: str | None = None
+
+
 class POAmendRequest(BaseModel):
     reason: str = Field(..., min_length=3)
     value_change: Decimal | None = Decimal("0.0")
     field_changes: dict[str, Any] = Field(default_factory=dict)
-    line_updates: list[dict[str, Any]] | None = None
+    line_updates: list[POLineUpdate] | None = None
 
 
 class POAmendmentResponse(BaseModel):

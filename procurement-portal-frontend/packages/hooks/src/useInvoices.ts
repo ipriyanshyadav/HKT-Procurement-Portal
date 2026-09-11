@@ -7,7 +7,16 @@ import type {
   InvoiceRejectRequest,
   EligibleLineResponse,
   PoFlipDraftResponse,
+  EarlyDiscountOptionsResponse,
+  EarlyDiscountRequest,
+  EarlyDiscountActionResponse,
 } from "@procurement/types";
+
+export type {
+  EarlyDiscountOptionsResponse,
+  EarlyDiscountRequest,
+  EarlyDiscountActionResponse,
+};
 
 export interface InvoiceFilterParams {
   po_id?: string;
@@ -175,6 +184,76 @@ export function useCreatePoFlipInvoice() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["invoices"] });
       queryClient.invalidateQueries({ queryKey: ["purchase-orders"] });
+    },
+  });
+}
+
+export function useEarlyDiscountOptions(invoiceId: string) {
+  return useQuery({
+    queryKey: ["invoices", invoiceId, "early-discount-options"],
+    queryFn: async () => {
+      const res = await apiClient.get(`/invoices/${invoiceId}/early-discount/options`);
+      return res.data.data as EarlyDiscountOptionsResponse;
+    },
+    enabled: Boolean(invoiceId),
+  });
+}
+
+export function useRequestEarlyPayment() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      invoiceId,
+      data,
+    }: {
+      invoiceId: string;
+      data: EarlyDiscountRequest;
+    }) => {
+      const res = await apiClient.post(`/invoices/${invoiceId}/early-discount/request`, data);
+      return res.data.data as EarlyDiscountActionResponse;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["invoices", variables.invoiceId] });
+      queryClient.invalidateQueries({ queryKey: ["invoices"] });
+    },
+  });
+}
+
+export function useAcceptEarlyPayment() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (invoiceId: string) => {
+      const res = await apiClient.post(`/invoices/${invoiceId}/early-discount/accept`);
+      return res.data.data as EarlyDiscountActionResponse;
+    },
+    onSuccess: (_, invoiceId) => {
+      queryClient.invalidateQueries({ queryKey: ["invoices", invoiceId] });
+      queryClient.invalidateQueries({ queryKey: ["invoices"] });
+      queryClient.invalidateQueries({ queryKey: ["payments"] });
+    },
+  });
+}
+
+export function useRejectEarlyPayment() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      invoiceId,
+      reason,
+    }: {
+      invoiceId: string;
+      reason?: string;
+    }) => {
+      const res = await apiClient.post(
+        `/invoices/${invoiceId}/early-discount/reject`,
+        {},
+        { params: reason ? { reason } : undefined }
+      );
+      return res.data.data as EarlyDiscountActionResponse;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["invoices", variables.invoiceId] });
+      queryClient.invalidateQueries({ queryKey: ["invoices"] });
     },
   });
 }
