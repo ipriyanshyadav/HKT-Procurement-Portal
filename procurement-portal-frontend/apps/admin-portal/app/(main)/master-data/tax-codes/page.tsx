@@ -1,4 +1,5 @@
 "use client";
+import { getErrorMessage } from "@procurement/utils";
 
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
@@ -9,12 +10,15 @@ import {
   useDeleteTaxCode,
   type TaxCode,
 } from "@procurement/hooks";
-import { Badge, Button, PermissionGuard } from "@procurement/ui";
+import { useAppToast } from "@procurement/hooks";
+import { Badge, Button, PermissionGuard, useConfirm } from "@procurement/ui";
 import { Percent, Plus, Search, Edit2, Trash2, ArrowLeft } from "lucide-react";
 
 const TAX_TYPES = ["ALL", "GST", "TDS", "CESS", "CUSTOMS", "OTHER"] as const;
 
 export default function TaxCodesManagementPage() {
+  const { toast } = useAppToast();
+  const { confirm } = useConfirm();
   const [selectedType, setSelectedType] = useState<string>("ALL");
   const { data: taxCodes = [], isLoading, error } = useTaxCodes({
     tax_type: selectedType === "ALL" ? undefined : selectedType,
@@ -107,24 +111,25 @@ export default function TaxCodesManagementPage() {
         });
       }
       setShowModal(false);
-    } catch (err: any) {
-      setFormError(
-        err?.response?.data?.error?.message ||
-          err?.response?.data?.message ||
-          err?.message ||
-          "Failed to save Tax Code"
-      );
+    } catch (err: unknown) {
+      setFormError(getErrorMessage(err, "Failed to save Tax Code"));
     }
   };
 
   const handleDelete = async (item: TaxCode) => {
-    if (!window.confirm(`Are you sure you want to deactivate tax code "${item.code}"?`)) {
+    const ok = await confirm({
+      title: "Deactivate Tax Code",
+      description: `Are you sure you want to deactivate tax code "${item.code}"?`,
+      confirmLabel: "Deactivate",
+      variant: "danger",
+    });
+    if (!ok) {
       return;
     }
     try {
       await deleteMutation.mutateAsync(item.id);
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || err?.message || "Failed to delete Tax Code");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to delete Tax Code"));
     }
   };
 

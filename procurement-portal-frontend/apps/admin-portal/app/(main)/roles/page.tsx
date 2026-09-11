@@ -1,4 +1,5 @@
 "use client";
+import { getErrorMessage } from "@procurement/utils";
 
 import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
@@ -11,6 +12,7 @@ import {
   useToggleRolePermission,
   RoleItem,
 } from "@procurement/hooks";
+import { useAppToast } from "@procurement/hooks";
 import { PageHeader, HeroKPIStrip, Card, Badge, Button, Tabs } from "@procurement/ui";
 import {
   Shield,
@@ -27,6 +29,7 @@ import {
 } from "lucide-react";
 
 export default function RolesManagementPage() {
+  const { toast } = useAppToast();
   const [activeTab, setActiveTab] = useState<"roles" | "matrix">("roles");
 
   // Read ?tab=matrix from URL on mount
@@ -126,8 +129,8 @@ export default function RolesManagementPage() {
         },
       });
       setEditRole(null);
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to update role");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to update role"));
     }
   };
 
@@ -148,8 +151,11 @@ export default function RolesManagementPage() {
       setNewDescription("");
       setNewIsSupplier(false);
       setNewSelectedPerms([]);
-    } catch (err: any) {
-      setCreateError(err?.response?.data?.error?.message || "Failed to create role");
+    } catch (err: unknown) {
+
+      
+
+
     }
   };
 
@@ -236,8 +242,8 @@ export default function RolesManagementPage() {
         permission_code: permissionCode,
         granted: !currentlyGranted,
       });
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to update permission");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to update permission"));
     }
   };
 

@@ -362,16 +362,16 @@ class PaymentService:
         payment.updated_by = actor_id
 
         # If completed, update invoice
-        if payment.status == PaymentStatusEnum.COMPLETED:
-            if invoice:
-                invoice.paid_amount = (invoice.paid_amount or Decimal("0.00")) + payment.amount
-                net_expected = invoice.total_amount - (invoice.tds_amount or Decimal("0.00"))
-                if invoice.paid_amount >= net_expected or payment.amount >= net_expected:
-                    invoice.payment_status = PaymentStatusEnum.COMPLETED
-                    invoice.status = InvoiceStatusEnum.PAID
-                else:
-                    invoice.payment_status = PaymentStatusEnum.PROCESSING
-                    invoice.status = InvoiceStatusEnum.PARTIALLY_PAID
+        if payment.status == PaymentStatusEnum.COMPLETED and invoice:
+            invoice.paid_amount = (invoice.paid_amount or Decimal("0.00")) + payment.amount
+            net_expected = invoice.total_amount - (invoice.tds_amount or Decimal("0.00"))
+            if invoice.paid_amount >= net_expected or payment.amount >= net_expected:
+                invoice.payment_status = PaymentStatusEnum.COMPLETED
+                invoice.status = InvoiceStatusEnum.PAID
+            else:
+                invoice.payment_status = PaymentStatusEnum.PROCESSING
+                invoice.status = InvoiceStatusEnum.PARTIALLY_PAID
+
 
         await db.flush()
 

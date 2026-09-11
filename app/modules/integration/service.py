@@ -554,7 +554,8 @@ class IntegrationService:
                 retry_count=retry_count,
                 last_error=err_msg,
             )
-            raise ValidationError(f"ERP synchronization to {norm_system} failed: {err_msg}")
+            raise ValidationError(f"ERP synchronization to {norm_system} failed: {err_msg}") from e
+
 
     async def process_inbound_erp_payload(
         self,

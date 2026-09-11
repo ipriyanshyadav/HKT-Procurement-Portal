@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 import sys
 from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager
 from uuid import UUID
 
 from sqlalchemy import text
@@ -38,6 +39,7 @@ _is_celery = (
 )
 _pool_class = (getattr(settings, "DATABASE_POOL_CLASS", "") or "").lower()
 use_null_pool = _pool_class == "nullpool" or (_pool_class != "queuepool" and _is_celery)
+_connect_args = {"statement_cache_size": 0, "prepared_statement_cache_size": 0}
 
 if use_null_pool:
     engine = create_async_engine(
@@ -45,12 +47,14 @@ if use_null_pool:
         poolclass=NullPool,
         pool_pre_ping=True,
         echo=settings.SQL_ECHO,
+        connect_args=_connect_args,
     )
     analytics_engine = create_async_engine(
         settings.ANALYTICS_DATABASE_URL or settings.DATABASE_URL,
         poolclass=NullPool,
         pool_pre_ping=True,
         echo=settings.SQL_ECHO,
+        connect_args=_connect_args,
     )
 else:
     engine = create_async_engine(
@@ -60,6 +64,7 @@ else:
         pool_recycle=settings.DATABASE_POOL_RECYCLE,
         pool_pre_ping=True,
         echo=settings.SQL_ECHO,
+        connect_args=_connect_args,
     )
     analytics_engine = create_async_engine(
         settings.ANALYTICS_DATABASE_URL or settings.DATABASE_URL,
@@ -68,9 +73,8 @@ else:
         pool_recycle=settings.DATABASE_POOL_RECYCLE,
         pool_pre_ping=True,
         echo=settings.SQL_ECHO,
+        connect_args=_connect_args,
     )
-
-from contextlib import asynccontextmanager
 
 async_session = async_sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
 async_session_factory = async_session

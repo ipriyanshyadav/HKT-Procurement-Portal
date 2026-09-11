@@ -100,6 +100,10 @@ export type { ToggleProps } from "./components/Toggle";
 export { Modal } from "./components/Modal";
 export type { ModalProps } from "./components/Modal";
 
+export { ConfirmDialog, ConfirmDialogProvider, useConfirm } from "./components/ConfirmDialog";
+export type { ConfirmDialogOptions, ConfirmDialogVariant } from "./components/ConfirmDialog";
+
+
 export { Toast } from "./components/Toast";
 export type { ToastProps, ToastType } from "./components/Toast";
 

@@ -1,4 +1,5 @@
 "use client";
+import { getErrorMessage } from "@procurement/utils";
 
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
@@ -11,6 +12,7 @@ import {
   IntegrationJob,
   ScheduledJobRun,
 } from "@procurement/hooks";
+import { useAppToast } from "@procurement/hooks";
 import {
   Cpu,
   RefreshCw,
@@ -36,6 +38,7 @@ import {
 } from "lucide-react";
 
 export default function IntegrationMonitorPage() {
+  const { toast } = useAppToast();
   const [statusFilter, setStatusFilter] = useState<string>("");
   const [adapterFilter, setAdapterFilter] = useState<string>("");
   const [jobTypeFilter, setJobTypeFilter] = useState<string>("");
@@ -80,8 +83,8 @@ export default function IntegrationMonitorPage() {
     try {
       await retryMutation.mutateAsync(jobId);
       handleRefresh();
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to retry integration job");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to retry integration job"));
     }
   };
 
@@ -98,10 +101,10 @@ export default function IntegrationMonitorPage() {
       setIsSyncModalOpen(false);
       handleRefresh();
       setTimeout(() => setSyncNotification(null), 8000);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setSyncNotification({
         type: "error",
-        text: err?.response?.data?.error?.message || err?.message || "Failed to trigger ERP synchronization.",
+        text: getErrorMessage(err, "Failed to trigger ERP synchronization."),
       });
     }
   };

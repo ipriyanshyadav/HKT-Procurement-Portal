@@ -209,7 +209,7 @@ async def approve_purchase_order(
 ):
     org_id = current_user.org_id
     user_id = current_user.id
-    po = await purchase_order_service.approve(db, po_id, user_id, org_id)
+    await purchase_order_service.approve(db, po_id, user_id, org_id)
     await db.commit()
     updated = await purchase_order_service.get(db, po_id, org_id)
     return success_response(data=_to_po_response(updated))
@@ -224,7 +224,7 @@ async def reject_purchase_order(
 ):
     org_id = current_user.org_id
     user_id = current_user.id
-    po = await purchase_order_service.reject(db, po_id, rejection_reason, user_id, org_id)
+    await purchase_order_service.reject(db, po_id, rejection_reason, user_id, org_id)
     await db.commit()
     updated = await purchase_order_service.get(db, po_id, org_id)
     return success_response(data=_to_po_response(updated))
@@ -238,7 +238,7 @@ async def send_to_vendor(
 ):
     org_id = current_user.org_id
     user_id = current_user.id
-    po = await purchase_order_service.send_to_vendor(db, po_id, user_id, org_id)
+    await purchase_order_service.send_to_vendor(db, po_id, user_id, org_id)
     await db.commit()
     updated = await purchase_order_service.get(db, po_id, org_id)
     return success_response(data=_to_po_response(updated))
@@ -253,7 +253,7 @@ async def acknowledge_purchase_order(
 ):
     org_id = current_user.org_id
     user_id = current_user.id
-    po = await purchase_order_service.record_vendor_acknowledgement(
+    await purchase_order_service.record_vendor_acknowledgement(
         db,
         po_id,
         accepted=request.accepted,
@@ -263,6 +263,7 @@ async def acknowledge_purchase_order(
     )
     await db.commit()
     updated = await purchase_order_service.get(db, po_id, org_id)
+
     return success_response(data=_to_po_response(updated))
 
 

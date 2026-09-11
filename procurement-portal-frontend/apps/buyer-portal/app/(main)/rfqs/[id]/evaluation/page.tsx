@@ -1,4 +1,5 @@
 "use client";
+import { getErrorMessage } from "@procurement/utils";
 
 import React, { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
@@ -13,8 +14,9 @@ import {
   useAwardOptimizationScenarios,
   useApplyOptimizationScenario,
 } from "@procurement/hooks";
+import { useAppToast } from "@procurement/hooks";
 import type { AwardOptimizationScenario } from "@procurement/types";
-import { ComparativeStatementTable, Button, Badge, PermissionGuard } from "@procurement/ui";
+import { ComparativeStatementTable, Button, Badge, PermissionGuard, useConfirm } from "@procurement/ui";
 import {
   Zap,
   Sparkles,
@@ -27,6 +29,8 @@ import {
 } from "lucide-react";
 
 export default function EvaluationPage() {
+  const { toast } = useAppToast();
+  const { confirm } = useConfirm();
   const params = useParams();
   const router = useRouter();
   const rfqId = params?.id as string;
@@ -47,7 +51,13 @@ export default function EvaluationPage() {
 
   const handleApplyScenario = async (scenario: AwardOptimizationScenario) => {
     if (!cs) return;
-    if (!confirm(`Apply "${scenario.title}" allocation scenario to this Comparative Statement? This will update line-level rankings.`)) return;
+    const ok = await confirm({
+      title: "Apply Optimization Scenario",
+      description: `Apply "${scenario.title}" allocation scenario to this Comparative Statement? This will update line-level rankings.`,
+      confirmLabel: "Apply Scenario",
+      variant: "primary",
+    });
+    if (!ok) return;
     try {
       await applyScenarioMutation.mutateAsync({
         csId: cs.id,
@@ -56,8 +66,8 @@ export default function EvaluationPage() {
       setFeedbackMessage(`Sourcing optimization scenario "${scenario.title}" applied successfully!`);
       refetchCS();
       refetchScenarios();
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to apply optimization scenario");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to apply optimization scenario"));
     }
   };
 
@@ -73,19 +83,25 @@ export default function EvaluationPage() {
       await generateCSMutation.mutateAsync({ rfqId });
       setFeedbackMessage("Comparative Statement generated successfully!");
       refetchCS();
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to generate Comparative Statement");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to generate Comparative Statement"));
     }
   };
 
   const handleSendRegretLetters = async () => {
     if (!cs) return;
-    if (!confirm("Are you sure you want to dispatch regret letters to non-awarded vendors?")) return;
+    const ok = await confirm({
+      title: "Send Regret Letters",
+      description: "Are you sure you want to dispatch regret letters to non-awarded vendors?",
+      confirmLabel: "Dispatch Letters",
+      variant: "danger",
+    });
+    if (!ok) return;
     try {
       const res = await sendRegretsMutation.mutateAsync({ csId: cs.id });
       setFeedbackMessage(res?.message || "Regret letters dispatched successfully!");
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to send regret letters");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to send regret letters"));
     }
   };
 

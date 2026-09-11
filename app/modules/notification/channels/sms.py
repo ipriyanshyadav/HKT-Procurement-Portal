@@ -38,7 +38,7 @@ class SMSChannel:
         chunks = self.split_message(message)
         auth_key = settings.MSG91_AUTH_KEY
 
-        if not auth_key or auth_key.startswith("test") or auth_key.startswith("mock") or auth_key == "disabled":
+        if not auth_key or auth_key.startswith(("test", "mock")) or auth_key == "disabled":
             logger.info(f"[SMSChannel MOCK] Sending SMS to={to_phone} parts={len(chunks)}: '{message[:50]}...'")
             return True
 

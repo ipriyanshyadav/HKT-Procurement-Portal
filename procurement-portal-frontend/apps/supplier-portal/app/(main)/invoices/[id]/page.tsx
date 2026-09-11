@@ -8,7 +8,9 @@ import {
   usePayments,
   useEarlyDiscountOptions,
   useRequestEarlyPayment,
+  getErrorMessage,
 } from "@procurement/hooks";
+import { useAppToast } from "@procurement/hooks";
 import type { EarlyDiscountOption } from "@procurement/types";
 import {
   ThreeWayMatchResult,
@@ -33,6 +35,7 @@ import {
 } from "lucide-react";
 
 export default function SupplierInvoiceDetailPage() {
+  const { toast } = useAppToast();
   const params = useParams();
   const invoiceId = params?.id as string;
 
@@ -59,8 +62,8 @@ export default function SupplierInvoiceDetailPage() {
       setSuccessMessage("Accelerated early payment request submitted! Buyer AP will review and disburse funds.");
       refetch();
       refetchOptions();
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to submit early payment request");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to submit early payment request"));
     }
   };
 

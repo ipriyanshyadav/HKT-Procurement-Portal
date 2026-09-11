@@ -87,10 +87,10 @@ def paginate_query(
         return query, meta, links
 
     model = model_or_total
-    if params.sort_by and allowed_sort_fields and params.sort_by in allowed_sort_fields:
-        if hasattr(model, params.sort_by):
-            col = getattr(model, params.sort_by)
-            query = query.order_by(col.desc() if params.sort_dir == "desc" else col.asc())
+    if params.sort_by and allowed_sort_fields and params.sort_by in allowed_sort_fields and hasattr(model, params.sort_by):
+        col = getattr(model, params.sort_by)
+        query = query.order_by(col.desc() if params.sort_dir == "desc" else col.asc())
+
     if params.cursor:
         last_id = decode_cursor(params.cursor)
         if last_id and hasattr(model, "id"):

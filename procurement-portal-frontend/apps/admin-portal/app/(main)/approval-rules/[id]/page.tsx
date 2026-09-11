@@ -1,4 +1,5 @@
 "use client";
+import { getErrorMessage } from "@procurement/utils";
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
@@ -12,6 +13,7 @@ import {
   useSimulateRuleMatching,
   useApprovalSimulate,
 } from "@procurement/hooks";
+import { useAppToast } from "@procurement/hooks";
 import {
   PageHeader,
   Card,
@@ -32,6 +34,7 @@ import {
 } from "lucide-react";
 
 export default function ApprovalRuleDetailPage() {
+  const { toast } = useAppToast();
   const params = useParams();
   const router = useRouter();
   const ruleId = params.id as string;
@@ -76,8 +79,8 @@ export default function ApprovalRuleDetailPage() {
         await activateMutation.mutateAsync(rule.id);
       }
       refetch();
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to update rule status");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to update rule status"));
     }
   };
 
@@ -94,9 +97,9 @@ export default function ApprovalRuleDetailPage() {
         },
       });
       refetch();
-      alert("Rule updated successfully");
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to update rule");
+      toast.success("Rule updated successfully");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to update rule"));
     }
   };
 
@@ -110,8 +113,11 @@ export default function ApprovalRuleDetailPage() {
         entity_context: parsed,
       });
       setSimChain(chainRes.chain);
-    } catch (err: any) {
-      setSimError(err.message || "Simulation failed");
+    } catch (err: unknown) {
+
+      
+
+
     }
   };
 

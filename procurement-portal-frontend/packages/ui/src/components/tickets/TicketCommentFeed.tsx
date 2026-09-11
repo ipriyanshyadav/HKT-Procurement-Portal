@@ -6,6 +6,7 @@ import remarkGfm from "remark-gfm";
 import { Lock, Edit2, Trash2, Check, X, User } from "lucide-react";
 import type { TicketCommentResponse } from "@procurement/types";
 import { useEditTicketComment, useDeleteTicketComment } from "@procurement/hooks";
+import { useConfirm } from "../ConfirmDialog";
 
 interface TicketCommentFeedProps {
   ticketId: string;
@@ -33,6 +34,7 @@ export function TicketCommentFeed({
   currentUserId,
   isBuyerOrAdmin = false,
 }: TicketCommentFeedProps) {
+  const { confirm } = useConfirm();
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
   const [editContent, setEditContent] = useState("");
 
@@ -61,12 +63,17 @@ export function TicketCommentFeed({
   };
 
   const handleDelete = async (commentId: string) => {
-    if (confirm("Are you sure you want to delete this comment?")) {
-      await deleteMutation.mutateAsync({
-        ticketId,
-        commentId,
-      });
-    }
+    const ok = await confirm({
+      title: "Delete Comment",
+      description: "Are you sure you want to delete this comment?",
+      confirmLabel: "Delete",
+      variant: "danger",
+    });
+    if (!ok) return;
+    await deleteMutation.mutateAsync({
+      ticketId,
+      commentId,
+    });
   };
 
   // Check if comment was created less than 15 minutes ago (900 seconds)

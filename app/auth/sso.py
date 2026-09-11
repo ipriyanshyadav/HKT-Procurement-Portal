@@ -18,7 +18,7 @@ from app.modules.user.models import Role, User, UserRoleAssignment
 
 try:
     from onelogin.saml2.auth import OneLogin_Saml2_Auth
-    from onelogin.saml2.settings import OneLogin_Saml2_Settings
+
     SAML_AVAILABLE = True
 except ImportError:
     SAML_AVAILABLE = False

@@ -323,7 +323,7 @@ class AnalyticsRepository:
         org_id: UUID,
     ) -> list[dict[str, Any]]:
         stmt = text("""
-            SELECT 
+            SELECT
                 c.name as category_name,
                 COALESCE(SUM(po.total_value), 0) as total_spend,
                 COUNT(po.id) as po_count
@@ -345,7 +345,7 @@ class AnalyticsRepository:
         org_id: UUID,
     ) -> list[dict[str, Any]]:
         stmt = text("""
-            SELECT 
+            SELECT
                 v.id as vendor_id,
                 v.company_name as vendor_name,
                 COALESCE(SUM(po.total_value), 0) as total_spend,

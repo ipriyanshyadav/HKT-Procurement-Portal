@@ -1,4 +1,5 @@
 "use client";
+import { getErrorMessage } from "@procurement/utils";
 
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
@@ -8,10 +9,13 @@ import {
   useDeleteHoliday,
   type HolidayMaster,
 } from "@procurement/hooks";
-import { Badge, Button, PermissionGuard } from "@procurement/ui";
+import { useAppToast } from "@procurement/hooks";
+import { Badge, Button, PermissionGuard, useConfirm } from "@procurement/ui";
 import { Calendar, Plus, Search, Trash2, ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function HolidayCalendarPage() {
+  const { toast } = useAppToast();
+  const { confirm } = useConfirm();
   const currentYear = new Date().getFullYear();
   const [selectedYear, setSelectedYear] = useState<number>(currentYear);
 
@@ -64,24 +68,25 @@ export default function HolidayCalendarPage() {
         plant_id: plantId.trim() || null,
       });
       setShowModal(false);
-    } catch (err: any) {
-      setFormError(
-        err?.response?.data?.error?.message ||
-          err?.response?.data?.message ||
-          err?.message ||
-          "Failed to save holiday"
-      );
+    } catch (err: unknown) {
+      setFormError(getErrorMessage(err, "Failed to save holiday"));
     }
   };
 
   const handleDelete = async (item: HolidayMaster) => {
-    if (!window.confirm(`Are you sure you want to remove holiday "${item.name}" on ${item.holiday_date}?`)) {
+    const ok = await confirm({
+      title: "Remove Holiday",
+      description: `Are you sure you want to remove holiday "${item.name}" on ${item.holiday_date}?`,
+      confirmLabel: "Remove",
+      variant: "danger",
+    });
+    if (!ok) {
       return;
     }
     try {
       await deleteMutation.mutateAsync(item.id);
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || err?.message || "Failed to remove holiday");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to remove holiday"));
     }
   };
 

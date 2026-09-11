@@ -16,11 +16,9 @@ class WebhookDeliveryService:
     @staticmethod
     def generate_signature(secret: str, body: bytes | str) -> str:
         """Compute HMAC-SHA256 hex digest for body with secret."""
-        if isinstance(body, str):
-            body_bytes = body.encode("utf-8")
-        else:
-            body_bytes = body
+        body_bytes = body.encode("utf-8") if isinstance(body, str) else body
         return hmac.new(secret.encode("utf-8"), body_bytes, hashlib.sha256).hexdigest()
+
 
     @staticmethod
     def verify_signature(secret: str, body: bytes | str, signature_header: str) -> bool:

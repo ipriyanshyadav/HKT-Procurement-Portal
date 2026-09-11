@@ -1,4 +1,5 @@
 "use client";
+import { getErrorMessage } from "@procurement/utils";
 
 import React, { useState } from "react";
 import Link from "next/link";
@@ -18,9 +19,11 @@ import {
   useCalculateVendorScorecard,
   VendorDocument,
 } from "@procurement/hooks";
+import { useAppToast } from "@procurement/hooks";
 import { ComplianceExpiryAlert, VendorStatusBadge, PermissionGuard, DocumentList, Button, Badge } from "@procurement/ui";
 
 export default function VendorDetailPage() {
+  const { toast } = useAppToast();
   const params = useParams();
   const router = useRouter();
   const vendorId = params.id as string;
@@ -94,10 +97,11 @@ export default function VendorDetailPage() {
       setModalAction(null);
       setModalInput("");
       refetch();
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || err.message || "Action failed");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Action failed"));
     }
   };
+
 
   return (
     <div className="w-full space-y-6">
@@ -455,10 +459,11 @@ export default function VendorDetailPage() {
                     try {
                       await calculateScorecardMutation.mutateAsync({});
                       refetch();
-                    } catch (err: any) {
-                      alert(err?.response?.data?.error?.message || err.message || "Failed to calculate scorecard");
-                    }
+                    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to calculate scorecard"));
+    }
                   }}
+
                   className="text-xs h-7 px-2.5"
                 >
                   {calculateScorecardMutation.isPending ? "Calculating..." : "Recalculate"}
@@ -748,16 +753,15 @@ export default function VendorDetailPage() {
                           "Amount verification mismatch. Account validation failed.",
                       });
                     }
-                  } catch (err: any) {
+                  } catch (err: unknown) {
                     setPennyFeedback({
                       type: "error",
                       message:
-                        err?.response?.data?.error?.message ||
-                        err.message ||
                         "Failed to confirm penny test",
                     });
                   }
                 }}
+
                 disabled={confirmPennyTest.isPending || !pennyAmountInput}
                 className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
               >

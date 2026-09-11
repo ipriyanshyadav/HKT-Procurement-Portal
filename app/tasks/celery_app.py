@@ -4,6 +4,7 @@ from urllib.parse import urlparse, urlunparse
 
 from celery import Celery
 from celery.schedules import crontab
+from celery.signals import worker_process_init
 from kombu import Queue
 
 from app.config import settings
@@ -157,8 +158,6 @@ celery_app.conf.beat_schedule = {
     },
 }
 celery_app.conf.timezone = 'UTC'
-
-from celery.signals import worker_process_init
 
 
 @worker_process_init.connect

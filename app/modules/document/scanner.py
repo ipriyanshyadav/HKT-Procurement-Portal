@@ -112,10 +112,8 @@ def validate_mime_type(
             "docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
             "zip": "application/zip",
         }
-        if ext in ext_map:
-            detected_mime = ext_map[ext]
-        else:
-            detected_mime = detected_mime or "application/octet-stream"
+        detected_mime = ext_map.get(ext, detected_mime or "application/octet-stream")
+
 
     if detected_mime in DISALLOWED_MIME_TYPES:
         raise ValidationError(
@@ -175,12 +173,13 @@ async def scan_with_clamav(file_path: str) -> tuple[bool, str]:
     """
     try:
         def _run():
-            return subprocess.run(
-                ["clamscan", "--no-summary", file_path],
+            return subprocess.run(  # noqa: S603
+                ["clamscan", "--no-summary", file_path],  # noqa: S607
                 capture_output=True,
                 timeout=30,
             )
         result = await asyncio.to_thread(_run)
+
         if result.returncode == 0:
             return True, ""
         stdout = result.stdout.decode("utf-8", errors="replace")
@@ -277,7 +276,8 @@ class ClamAVScanner:
                 logger.warning(f"ClamAV daemon offline at {self.host}:{self.port} ({exc}); skipping scan in {settings.ENVIRONMENT} mode.")
                 return True, "SKIPPED_UNAVAILABLE"
             logger.error(f"ClamAV scanner unavailable in production: {exc}")
-            raise ValidationError("VIRUS_SCAN_UNAVAILABLE", "Antivirus scanning service is currently unavailable")
+            raise ValidationError("VIRUS_SCAN_UNAVAILABLE", "Antivirus scanning service is currently unavailable") from exc
+
 
 
 def validate_file_magic(

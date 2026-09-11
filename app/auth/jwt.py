@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
+from functools import lru_cache
 from uuid import UUID
 
 from jose import JWTError, jwt
@@ -14,10 +15,16 @@ def _read_key(path: str) -> str:
     with open(path) as f:
         return f.read()
 
+
+@lru_cache(maxsize=1)
 def _load_private_key() -> str:
+    """Load and cache the RSA private key (read once per process)."""
     return _read_key(settings.JWT_PRIVATE_KEY_PATH)
 
+
+@lru_cache(maxsize=1)
 def _load_public_key() -> str:
+    """Load and cache the RSA public key (read once per process)."""
     return _read_key(settings.JWT_PUBLIC_KEY_PATH)
 
 def create_access_token(
@@ -88,4 +95,5 @@ def decode_jwt(token: str) -> dict:
     try:
         return jwt.decode(token, _load_public_key(), algorithms=[settings.JWT_ALGORITHM])
     except JWTError as e:
-        raise AuthenticationError(f"Token validation failed: {e}")
+        raise AuthenticationError(f"Token validation failed: {e}") from e
+

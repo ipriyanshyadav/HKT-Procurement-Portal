@@ -63,9 +63,7 @@ class AuditSearchService:
         if not self.is_enabled:
             return False
         import time
-        if time.time() - self._last_failure_time < self._failure_cooldown:
-            return False
-        return True
+        return not time.time() - self._last_failure_time < self._failure_cooldown
 
     def _mark_failure(self, exc: Exception, context: str) -> None:
         import time

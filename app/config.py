@@ -39,7 +39,8 @@ class Settings(BaseSettings):
     # MinIO
     MINIO_ENDPOINT: str = "localhost:9000"
     MINIO_ACCESS_KEY: str = "minioadmin"
-    MINIO_SECRET_KEY: str = "minioadmin"
+    MINIO_SECRET_KEY: str = "minioadmin"  # noqa: S105 — dev default, overridden by env in prod
+
     MINIO_USE_SSL: bool = False
     MINIO_MAX_FILE_SIZE_MB: int = 50
 
@@ -204,13 +205,10 @@ class Settings(BaseSettings):
     CONTRACT_EXPIRY_ALERT_DAYS: list[int] = [90, 60, 30, 0]
     DEFAULT_ESIGN_PROVIDER: str = "digio"
     DIGIO_API_URL: str = "https://api.digio.in"
-    DIGIO_CLIENT_ID: str = ""
-    DIGIO_CLIENT_SECRET: str = ""
     DOCUSIGN_API_URL: str = "https://demo.docusign.net/restapi"
-    DOCUSIGN_ACCOUNT_ID: str = ""
-    DOCUSIGN_INTEGRATION_KEY: str = ""
     CONTRACT_NUMBER_PREFIX: str = "CNT"
     CELERY_CONTRACT_EXPIRY_CHECK_HOURS: int = 24
+
 
     # ML & Matching Thresholds
     ML_AUTO_MAP_CONFIDENCE_THRESHOLD: float = 0.85
@@ -280,7 +278,21 @@ class Settings(BaseSettings):
     CELERY_AUCTION_REMINDER_SECONDS: float = 60.0
     CELERY_INTEGRATION_JOB_SECONDS: float = 60.0
     CELERY_TICKET_DUE_DATE_CHECK_SECONDS: int = 3600
+
+    @field_validator("FIELD_ENCRYPTION_KEY", mode="after")
+    @classmethod
+    def _validate_encryption_key(cls, v: str) -> str:
+        import os
+        env = os.environ.get("ENVIRONMENT", "local")
+        if v == "default_key_needs_replacement" and env not in ("local", "dev"):
+            raise ValueError(
+                "FIELD_ENCRYPTION_KEY must be set to a secure value in "
+                f"environment '{env}'. The default placeholder is not acceptable for production."
+            )
+        return v
+
 @lru_cache
+
 def get_settings() -> Settings:
     return Settings()
 

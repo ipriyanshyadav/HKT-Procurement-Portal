@@ -9,7 +9,9 @@ import {
   useConfirmContractEsign,
   ContractLine,
   ContractAmendment,
+  getErrorMessage,
 } from "@procurement/hooks";
+import { useAppToast } from "@procurement/hooks";
 import {
   ContractExpiryCountdown,
   MilestoneTracker,
@@ -35,6 +37,7 @@ import {
 } from "lucide-react";
 
 export default function SupplierContractDetailPage() {
+  const { toast } = useAppToast();
   const params = useParams();
   const id = params?.id as string;
 
@@ -80,16 +83,16 @@ export default function SupplierContractDetailPage() {
         contractId: id,
         data: { status: "COMPLETED", completion_notes: notes },
       });
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to complete milestone");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to complete milestone"));
     }
   };
 
   const handleSignContract = async () => {
     try {
       await confirmEsignMut.mutateAsync({ contractId: id });
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to sign contract");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to sign contract"));
     }
   };
 

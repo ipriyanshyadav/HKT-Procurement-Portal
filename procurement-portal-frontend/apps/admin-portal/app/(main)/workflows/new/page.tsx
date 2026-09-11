@@ -1,4 +1,5 @@
 "use client";
+import { getErrorMessage } from "@procurement/utils";
 
 import React, { useState } from "react";
 import Link from "next/link";
@@ -7,6 +8,7 @@ import {
   useCreateWorkflowTemplate,
   WorkflowStepConfig,
 } from "@procurement/hooks";
+import { useAppToast } from "@procurement/hooks";
 import { PageHeader, Card, Button } from "@procurement/ui";
 import {
   GitFork,
@@ -35,6 +37,7 @@ const STANDARD_ROLES = [
 ];
 
 export default function NewWorkflowTemplatePage() {
+  const { toast } = useAppToast();
   const router = useRouter();
   const createMutation = useCreateWorkflowTemplate();
 
@@ -87,7 +90,7 @@ export default function NewWorkflowTemplatePage() {
 
   const handleDeleteStep = (index: number) => {
     if (steps.length <= 1) {
-      alert("A workflow must have at least one step.");
+      toast.error("A workflow must have at least one step.");
       return;
     }
     const filtered = steps.filter((_, idx) => idx !== index);
@@ -109,7 +112,7 @@ export default function NewWorkflowTemplatePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!code.trim() || !name.trim()) {
-      alert("Please fill in template code and name.");
+      toast.error("Please fill in template code and name.");
       return;
     }
 
@@ -122,8 +125,8 @@ export default function NewWorkflowTemplatePage() {
         is_active: isActive,
       });
       router.push("/workflows");
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to create workflow template");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to create workflow template"));
     }
   };
 

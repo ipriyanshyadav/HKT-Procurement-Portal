@@ -1,4 +1,5 @@
 "use client";
+import { getErrorMessage } from "@procurement/utils";
 
 import React, { useState, useMemo, useCallback } from "react";
 import Link from "next/link";
@@ -12,7 +13,9 @@ import {
   useCurrencies,
   type ItemMaster,
 } from "@procurement/hooks";
-import { Badge, Button, PermissionGuard, VirtualTable, type VirtualTableColumn } from "@procurement/ui";
+import { useAppToast } from "@procurement/hooks";
+import { Badge, Button, PermissionGuard, VirtualTable, type VirtualTableColumn, useConfirm } from "@procurement/ui";
+
 import {
   Package,
   Plus,
@@ -29,7 +32,10 @@ import {
 } from "lucide-react";
 
 export default function ItemMasterManagementPage() {
+  const { toast } = useAppToast();
+  const confirm = useConfirm();
   const [searchTerm, setSearchTerm] = useState("");
+
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [activeOnly, setActiveOnly] = useState(false);
 
@@ -164,32 +170,27 @@ export default function ItemMasterManagementPage() {
         });
       }
       setShowModal(false);
-    } catch (err: any) {
-      setFormError(
-        err?.response?.data?.error?.message ||
-          err?.response?.data?.message ||
-          err?.message ||
-          "Failed to save catalog item"
-      );
+    } catch (err: unknown) {
+      setFormError(getErrorMessage(err, "Failed to save catalog item"));
     }
   };
 
   const handleDelete = useCallback(async (item: ItemMaster) => {
-    if (!window.confirm(`Are you sure you want to deactivate / delete catalog item "${item.code}"?`)) {
-      return;
-    }
+    const ok = await confirm({
+      title: "Deactivate Catalog Item",
+      description: `Are you sure you want to deactivate or delete catalog item "${item.code}"?`,
+      confirmLabel: "Deactivate",
+      variant: "danger",
+    });
+    if (!ok) return;
 
     try {
       await deleteMutation.mutateAsync(item.id);
-    } catch (err: any) {
-      alert(
-        err?.response?.data?.error?.message ||
-          err?.response?.data?.message ||
-          err?.message ||
-          "Failed to delete item"
-      );
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to delete item"));
     }
-  }, [deleteMutation]);
+  }, [deleteMutation, toast, confirm]);
+
 
   const activeCount = useMemo(() => items.filter((i) => i.is_active).length, [items]);
   const punchoutCount = useMemo(() => items.filter((i) => i.is_punchout).length, [items]);

@@ -1,8 +1,10 @@
 "use client";
+import { getErrorMessage } from "@procurement/utils";
 
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import { usePayments, useProcessPayment, useDownloadRemittancePDF } from "@procurement/hooks";
+import { useAppToast } from "@procurement/hooks";
 import type { PaymentRecordResponse } from "@procurement/types";
 import {
   CreditCard,
@@ -24,6 +26,7 @@ import {
 } from "lucide-react";
 
 export default function BuyerPaymentsPage() {
+  const { toast } = useAppToast();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [methodFilter, setMethodFilter] = useState("");
@@ -47,8 +50,8 @@ export default function BuyerPaymentsPage() {
   const handleDownloadRemittance = async (paymentId: string) => {
     try {
       await downloadRemittanceMutation.mutateAsync(paymentId);
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to download remittance advice PDF");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to download remittance advice PDF"));
     }
   };
 
@@ -63,7 +66,7 @@ export default function BuyerPaymentsPage() {
       const paymentsToExport = pendingPayments.length > 0 ? pendingPayments : filteredPayments;
 
       if (paymentsToExport.length === 0) {
-        alert("No payments available for bank batch export.");
+        toast.error("No payments available for bank batch export.");
         return;
       }
 
@@ -110,8 +113,8 @@ export default function BuyerPaymentsPage() {
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
-    } catch (err: any) {
-      alert("Failed to export bank payment batch file.");
+    } catch (err: unknown) {
+      toast.error("Failed to export bank payment batch file.");
     } finally {
       setDownloadingBatch(false);
     }
@@ -207,9 +210,8 @@ export default function BuyerPaymentsPage() {
       });
       closeProcessModal();
       refetch();
-    } catch (err: any) {
-      const message = err.response?.data?.error?.message || err.message || "Failed to process payment disbursement";
-      setProcessError(message);
+    } catch (err: unknown) {
+      setProcessError(getErrorMessage(err, "Failed to process payment."));
     }
   };
 

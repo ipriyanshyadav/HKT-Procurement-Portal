@@ -392,7 +392,7 @@ class NotificationService:
             vars_found = set(re.findall(r"\{\{\s*([a-zA-Z0-9_]+)\s*\}\}", body_template))
             if subject_template:
                 vars_found.update(re.findall(r"\{\{\s*([a-zA-Z0-9_]+)\s*\}\}", subject_template))
-            variables = sorted(list(vars_found))
+            variables = sorted(vars_found)
 
         tmpl = await self.tmpl_repo.create_template(
             db=db,
@@ -428,7 +428,7 @@ class NotificationService:
             vars_found = set(re.findall(r"\{\{\s*([a-zA-Z0-9_]+)\s*\}\}", body_to_scan or ""))
             if subject_to_scan:
                 vars_found.update(re.findall(r"\{\{\s*([a-zA-Z0-9_]+)\s*\}\}", subject_to_scan))
-            variables = sorted(list(vars_found))
+            variables = sorted(vars_found)
 
         updated = await self.tmpl_repo.update_template(
             db=db,
@@ -472,7 +472,7 @@ class NotificationService:
         return {
             "rendered_subject": rendered_subject,
             "rendered_body": rendered_body,
-            "detected_variables": sorted(list(vars_found)),
+            "detected_variables": sorted(vars_found),
         }
 
 notification_service = NotificationService()

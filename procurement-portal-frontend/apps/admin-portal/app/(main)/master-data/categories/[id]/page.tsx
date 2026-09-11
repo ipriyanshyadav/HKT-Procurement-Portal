@@ -1,4 +1,5 @@
 "use client";
+import { getErrorMessage } from "@procurement/utils";
 
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
@@ -9,6 +10,8 @@ import {
   useDeleteCategory,
   type CategoryTreeNode,
 } from "@procurement/hooks";
+import { useAppToast } from "@procurement/hooks";
+import { useConfirm } from "@procurement/ui";
 
 function findNodeAndAncestors(
   nodes: CategoryTreeNode[],
@@ -28,6 +31,8 @@ function findNodeAndAncestors(
 }
 
 export default function CategoryDetailPage() {
+  const { toast } = useAppToast();
+  const { confirm } = useConfirm();
   const params = useParams();
   const router = useRouter();
   const categoryId = params.id as string;
@@ -65,19 +70,25 @@ export default function CategoryDetailPage() {
       });
       setIsEditing(false);
       refetch();
-    } catch (err: any) {
-      setFormError(err?.response?.data?.error?.message || err?.message || "Failed to update category");
+    } catch (err: unknown) {
+      setFormError(getErrorMessage(err, "Failed to update category"));
     }
   };
 
   const handleDelete = async () => {
     if (!category) return;
-    if (!window.confirm(`Are you sure you want to delete "${category.name}"?`)) return;
+    const ok = await confirm({
+      title: "Delete Category",
+      description: `Are you sure you want to delete "${category.name}"?`,
+      confirmLabel: "Delete",
+      variant: "danger",
+    });
+    if (!ok) return;
     try {
       await deleteMutation.mutateAsync(category.id);
       router.push("/master-data/categories");
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || err?.message || "Failed to delete category");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to delete category"));
     }
   };
 

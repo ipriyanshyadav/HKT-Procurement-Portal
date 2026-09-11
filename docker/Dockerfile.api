@@ -1,18 +1,54 @@
-FROM python:3.14-slim AS base
+# ─── Stage 1: System dependencies (cached aggressively) ──────────────────────
+FROM python:3.14-slim AS system-deps
+LABEL maintainer="procurement-portal"
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+        libmagic1 \
+        curl \
+        tini \
+ && rm -rf /var/lib/apt/lists/*
+
+# ─── Stage 2: Python dependencies (separate layer = faster rebuilds) ──────────
+FROM system-deps AS python-deps
+WORKDIR /build
+
+COPY pyproject.toml ./
+# Install deps into a virtual env for clean isolation
+RUN python -m venv /venv \
+ && /venv/bin/pip install --upgrade pip "setuptools>=83.0.0" "msgpack>=1.2.1" \
+ && /venv/bin/pip install .
+
+# ─── Stage 3: Final production image ─────────────────────────────────────────
+FROM system-deps AS production
 WORKDIR /app
-RUN apt-get update && apt-get install -y --no-install-recommends libmagic1 curl tini && rm -rf /var/lib/apt/lists/*
 
-FROM base AS deps
-COPY pyproject.toml .
-RUN pip install --no-cache-dir --upgrade pip "setuptools>=83.0.0" "msgpack>=1.2.1" && pip install --no-cache-dir .
+# Create non-root user with fixed UID/GID for predictable k8s security contexts
+RUN groupadd -g 10001 appgroup \
+ && useradd -u 10001 -g appgroup -d /app -s /sbin/nologin appuser
 
+# Copy virtualenv from deps stage (no pip needed in prod)
+COPY --from=python-deps /venv /venv
 
-FROM deps AS app
-RUN groupadd -g 10001 appgroup && useradd -u 10001 -g appgroup -d /app -s /sbin/nologin appuser
-COPY . .
-COPY docker/entrypoint.sh /entrypoint.sh
-RUN sed -i 's/\r$//' /entrypoint.sh && chmod +x /entrypoint.sh && mkdir -p /app/keys && chown -R 10001:10001 /app
+# Copy application code (this layer changes most often - keep last)
+COPY --chown=10001:10001 . .
+COPY --chown=10001:10001 docker/entrypoint.sh /entrypoint.sh
+
+RUN sed -i 's/\r$//' /entrypoint.sh \
+ && chmod +x /entrypoint.sh \
+ && mkdir -p /app/keys \
+ && chown -R 10001:10001 /app
+
+# Use venv Python
+ENV PATH="/venv/bin:$PATH"
 
 USER 10001
 EXPOSE 8000
+
+# tini handles PID 1 and zombie reaping correctly
 ENTRYPOINT ["/usr/bin/tini", "--", "/entrypoint.sh"]

@@ -180,9 +180,10 @@ async def get_current_user_ws(
 
     try:
         payload = decode_jwt(token)
-    except Exception:
+    except Exception as exc:
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
-        raise AppException("UNAUTHORIZED", "Invalid token", 401)
+        raise AppException("UNAUTHORIZED", "Invalid token", 401) from exc
+
 
     if payload.get("mfa_required"):
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION)

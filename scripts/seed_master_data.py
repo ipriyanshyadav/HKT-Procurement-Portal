@@ -478,7 +478,11 @@ ROLE_PERMISSIONS: dict[str, list[str]] = {
 
 async def seed_data() -> None:
     logger.info("Starting master data seeding...")
-    engine = create_async_engine(settings.DATABASE_URL, echo=False)
+    engine = create_async_engine(
+        settings.DATABASE_URL,
+        echo=False,
+        connect_args={"statement_cache_size": 0, "prepared_statement_cache_size": 0},
+    )
     session_factory = async_sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
 
     async with session_factory() as session:

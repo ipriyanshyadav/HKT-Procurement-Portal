@@ -1,4 +1,5 @@
 "use client";
+import { getErrorMessage } from "@procurement/utils";
 
 import React, { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
@@ -11,9 +12,11 @@ import {
   useSubmitNegotiatedPrice,
   useVendors,
 } from "@procurement/hooks";
+import { useAppToast } from "@procurement/hooks";
 import { NegotiationPriceInput, Button, Badge } from "@procurement/ui";
 
 export default function NegotiationPage() {
+  const { toast } = useAppToast();
   const params = useParams();
   const router = useRouter();
   const rfqId = params?.id as string;
@@ -55,7 +58,7 @@ export default function NegotiationPage() {
 
   const handleStartRound = async () => {
     if (selectedVendorIds.length === 0) {
-      alert("Please select at least one vendor to initiate negotiations.");
+      toast.error("Please select at least one vendor to initiate negotiations.");
       return;
     }
     try {
@@ -66,15 +69,15 @@ export default function NegotiationPage() {
       setFeedback(`Initiated negotiation round with ${selectedVendorIds.length} vendor(s)`);
       setSelectedVendorIds([]);
       refetchNegs();
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to start negotiation");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to start negotiation"));
     }
   };
 
   const handleSubmitPrice = async (negotiationId: string) => {
     const entry = negotiatedPrices[negotiationId];
     if (!entry || !entry.price || !entry.isValid) {
-      alert("Please enter a valid negotiated price within the allowed tolerance.");
+      toast.error("Please enter a valid negotiated price within the allowed tolerance.");
       return;
     }
     try {
@@ -84,8 +87,8 @@ export default function NegotiationPage() {
       });
       setFeedback("Negotiated price submitted successfully!");
       refetchNegs();
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to submit negotiated price");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to submit negotiated price"));
     }
   };
 

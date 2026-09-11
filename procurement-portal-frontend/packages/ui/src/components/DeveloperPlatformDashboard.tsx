@@ -31,8 +31,10 @@ import {
   useDeveloperScopes,
 } from "@procurement/hooks";
 import type { ApiKeyCreatedResponse, WebhookSubscriptionResponse } from "@procurement/types";
+import { useConfirm } from "./ConfirmDialog";
 
 export function DeveloperPlatformDashboard() {
+  const { confirm } = useConfirm();
   const [activeTab, setActiveTab] = useState<"keys" | "webhooks" | "quickstart">("keys");
 
   // API Key state
@@ -305,10 +307,15 @@ export function DeveloperPlatformDashboard() {
                         {!isRevoked && (
                           <button
                             type="button"
-                            onClick={() => {
-                              if (confirm(`Revoke API Key "${key.name}"? External integrations using this key will immediately fail.`)) {
-                                revokeKeyMutation.mutate({ id: key.id, payload: { reason: "User manual revocation" } });
-                              }
+                            onClick={async () => {
+                              const ok = await confirm({
+                                title: "Revoke API Key",
+                                description: `Revoke API Key "${key.name}"? External integrations using this key will immediately fail.`,
+                                confirmLabel: "Revoke Key",
+                                variant: "danger",
+                              });
+                              if (!ok) return;
+                              revokeKeyMutation.mutate({ id: key.id, payload: { reason: "User manual revocation" } });
                             }}
                             disabled={revokeKeyMutation.isPending}
                             className="px-3 py-1.5 text-xs font-medium rounded-lg text-red-400 hover:text-red-300 hover:bg-red-500/10 border border-red-500/30 transition-colors"
@@ -422,10 +429,15 @@ export function DeveloperPlatformDashboard() {
 
                       <button
                         type="button"
-                        onClick={() => {
-                          if (confirm("Delete this webhook subscription?")) {
-                            deleteWebhookMutation.mutate(hook.id);
-                          }
+                        onClick={async () => {
+                          const ok = await confirm({
+                            title: "Delete Webhook",
+                            description: "Are you sure you want to delete this webhook subscription?",
+                            confirmLabel: "Delete",
+                            variant: "danger",
+                          });
+                          if (!ok) return;
+                          deleteWebhookMutation.mutate(hook.id);
                         }}
                         className="p-1.5 text-neutral-400 hover:text-red-400 transition-colors"
                         title="Delete Webhook"

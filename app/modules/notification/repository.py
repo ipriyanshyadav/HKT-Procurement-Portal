@@ -256,7 +256,7 @@ class NotificationTemplateRepository:
             NotificationTemplate.template_code == template_code,
             NotificationTemplate.channel == channel,
             NotificationTemplate.language == language,
-            NotificationTemplate.is_active == True,
+            NotificationTemplate.is_active,
         )
         if org_id:
             # First check for org-specific template, fallback to any
@@ -274,7 +274,7 @@ class NotificationTemplateRepository:
         db: AsyncSession,
         org_id: UUID | None = None,
     ) -> list[NotificationTemplate]:
-        stmt = select(NotificationTemplate).where(NotificationTemplate.is_active == True)
+        stmt = select(NotificationTemplate).where(NotificationTemplate.is_active)
         if org_id:
             stmt = stmt.where(NotificationTemplate.org_id == org_id)
         result = await db.execute(stmt)

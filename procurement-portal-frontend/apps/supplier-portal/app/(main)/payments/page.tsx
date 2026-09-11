@@ -2,7 +2,9 @@
 
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
-import { usePayments, useDownloadRemittancePDF } from "@procurement/hooks";
+import { usePayments, useDownloadRemittancePDF, getErrorMessage } from "@procurement/hooks";
+
+import { useAppToast } from "@procurement/hooks";
 import type { PaymentRecordResponse } from "@procurement/types";
 import {
   CreditCard,
@@ -23,6 +25,7 @@ import {
 } from "lucide-react";
 
 export default function SupplierPaymentsPage() {
+  const { toast } = useAppToast();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [copiedUtr, setCopiedUtr] = useState<string | null>(null);
@@ -36,8 +39,8 @@ export default function SupplierPaymentsPage() {
   const handleDownloadRemittance = async (paymentId: string) => {
     try {
       await downloadRemittanceMutation.mutateAsync(paymentId);
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to download remittance advice PDF");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to download remittance advice PDF"));
     }
   };
 

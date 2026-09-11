@@ -8,13 +8,14 @@ import {
   Plus,
   ArrowRight,
 } from "lucide-react";
-import { useLiveAuctions, useCreateLiveAuction, useRfqs } from "@procurement/hooks";
+import { useLiveAuctions, useCreateLiveAuction, useRfqs, useAppToast } from "@procurement/hooks";
 
 interface LiveAuctionListProps {
   portalType: "buyer" | "supplier";
 }
 
 export function LiveAuctionList({ portalType }: LiveAuctionListProps) {
+  const { toast } = useAppToast();
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [createModalOpen, setCreateModalOpen] = useState(false);
 
@@ -35,7 +36,7 @@ export function LiveAuctionList({ portalType }: LiveAuctionListProps) {
 
   const handleCreateAuction = async () => {
     if (!selectedRfqId) {
-      alert("Please select an eligible RFQ.");
+      toast.warning("Please select an eligible RFQ.");
       return;
     }
     try {
@@ -58,8 +59,9 @@ export function LiveAuctionList({ portalType }: LiveAuctionListProps) {
         },
       });
       setCreateModalOpen(false);
+      toast.success("Reverse auction created successfully");
     } catch (e: any) {
-      alert(`Failed to create auction: ${e?.response?.data?.detail || e?.message}`);
+      toast.error(`Failed to create auction: ${e?.response?.data?.detail || e?.message}`);
     }
   };
 

@@ -9,7 +9,9 @@ import {
   useDownloadPOPDF,
   usePoFlipDraft,
   useCreatePoFlipInvoice,
+  getErrorMessage,
 } from "@procurement/hooks";
+
 import { Button, Badge, Modal } from "@procurement/ui";
 import {
   Package,
@@ -72,10 +74,11 @@ export default function SupplierPODetailPage() {
       });
       setPoFlipModalOpen(false);
       router.push("/invoices");
-    } catch (err: any) {
-      setFlipError(err?.response?.data?.detail || err?.message || "Failed to generate invoice from PO.");
+    } catch (err: unknown) {
+      setFlipError(getErrorMessage(err, "Failed to generate invoice from PO."));
     }
   };
+
 
   if (isLoading) {
     return (

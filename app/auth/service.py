@@ -74,10 +74,7 @@ class AuthService:
             user = await user_repository.find_by_email(db, email, org_id)
         else:
             user = await user_repository.find_by_email_any_org(db, email)
-            if user:
-                org_id = user.org_id
-            else:
-                org_id = UUID("00000000-0000-0000-0000-000000000001")
+            org_id = user.org_id if user else UUID("00000000-0000-0000-0000-000000000001")
 
         if not user or not verify_password(password, user.password_hash or ""):
             await self._increment_fail_count(redis, email)
@@ -444,7 +441,8 @@ class AuthService:
         if not secret:
             logger.warning("TURNSTILE_ENABLED is True but TURNSTILE_SECRET_KEY is not configured; allowing in mock mode")
             return True
-        if token == "mock-turnstile-pass-token":
+        if token == "mock-turnstile-pass-token":  # noqa: S105
+
             return True
         try:
             import httpx

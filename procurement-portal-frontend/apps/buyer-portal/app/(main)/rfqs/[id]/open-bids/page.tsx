@@ -1,4 +1,5 @@
 "use client";
+import { getErrorMessage } from "@procurement/utils";
 
 import React, { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
@@ -9,10 +10,12 @@ import {
   useInitiateBidOpening,
   useCoAuthorizeBidOpening,
 } from "@procurement/hooks";
+import { useAppToast } from "@procurement/hooks";
 import { PermissionGuard, Button, Badge } from "@procurement/ui";
 import { Lock, ShieldCheck, CheckCircle2, KeyRound, ArrowLeft, BarChart3 } from "lucide-react";
 
 export default function DualAuthBidOpeningPage() {
+  const { toast } = useAppToast();
   const params = useParams();
   const router = useRouter();
   const id = params?.id as string;
@@ -41,8 +44,8 @@ export default function DualAuthBidOpeningPage() {
       await initiateMutation.mutateAsync(id);
       setMessage("Bid opening initiated successfully! Awaiting co-authorization from a second committee member.");
       refetch();
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to initiate bid opening");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to initiate bid opening"));
     }
   };
 
@@ -54,8 +57,8 @@ export default function DualAuthBidOpeningPage() {
       setTimeout(() => {
         router.push(`/rfqs/${id}/evaluation`);
       }, 2000);
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to co-authorize bid opening");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to co-authorize bid opening"));
     }
   };
 

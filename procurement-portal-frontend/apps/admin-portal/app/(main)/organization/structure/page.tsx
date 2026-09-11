@@ -1,4 +1,5 @@
 "use client";
+import { getErrorMessage } from "@procurement/utils";
 
 import React, { useState, useMemo, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -20,7 +21,8 @@ import {
   type DepartmentResponse,
   type CostCenterResponse,
 } from "@procurement/hooks";
-import { Badge, Button, Tabs, type TabOption } from "@procurement/ui";
+import { useAppToast } from "@procurement/hooks";
+import { Badge, Button, Tabs, type TabOption, useConfirm } from "@procurement/ui";
 import {
   Layers,
   Network,
@@ -38,8 +40,10 @@ import {
 } from "lucide-react";
 
 function OperatingStructureContent() {
+  const { confirm } = useConfirm();
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { toast } = useAppToast();
   const initialTab = searchParams?.get("tab") || "business-units";
   const [activeTab, setActiveTab] = useState<string>(
     ["business-units", "departments", "cost-centers"].includes(initialTab)
@@ -152,17 +156,26 @@ function OperatingStructureContent() {
         });
       }
       setShowBuModal(false);
-    } catch (err: any) {
-      setBuFormError(err?.response?.data?.message || err?.message || "Failed to save business unit");
+    } catch (err: unknown) {
+
+      
+
+
     }
   };
 
   const handleDeleteBu = async (id: string, name: string) => {
-    if (!window.confirm(`Are you sure you want to deactivate or delete business unit "${name}"?`)) return;
+    const ok = await confirm({
+      title: "Deactivate Business Unit",
+      description: `Are you sure you want to deactivate or delete business unit "${name}"?`,
+      confirmLabel: "Deactivate",
+      variant: "danger",
+    });
+    if (!ok) return;
     try {
       await deleteBuMutation.mutateAsync(id);
-    } catch (err: any) {
-      alert(err?.response?.data?.message || err?.message || "Failed to delete business unit");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to delete business unit"));
     }
   };
 
@@ -256,17 +269,26 @@ function OperatingStructureContent() {
         });
       }
       setShowDeptModal(false);
-    } catch (err: any) {
-      setDeptFormError(err?.response?.data?.message || err?.message || "Failed to save department");
+    } catch (err: unknown) {
+
+      
+
+
     }
   };
 
   const handleDeleteDept = async (id: string, name: string) => {
-    if (!window.confirm(`Are you sure you want to delete department "${name}"?`)) return;
+    const ok = await confirm({
+      title: "Delete Department",
+      description: `Are you sure you want to delete department "${name}"?`,
+      confirmLabel: "Delete",
+      variant: "danger",
+    });
+    if (!ok) return;
     try {
       await deleteDeptMutation.mutateAsync(id);
-    } catch (err: any) {
-      alert(err?.response?.data?.message || err?.message || "Failed to delete department");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to delete department"));
     }
   };
 
@@ -393,17 +415,26 @@ function OperatingStructureContent() {
         });
       }
       setShowCcModal(false);
-    } catch (err: any) {
-      setCcFormError(err?.response?.data?.message || err?.message || "Failed to save cost center");
+    } catch (err: unknown) {
+
+      
+
+
     }
   };
 
   const handleDeleteCc = async (id: string, name: string) => {
-    if (!window.confirm(`Are you sure you want to delete cost center "${name}"?`)) return;
+    const ok = await confirm({
+      title: "Delete Cost Center",
+      description: `Are you sure you want to delete cost center "${name}"?`,
+      confirmLabel: "Delete",
+      variant: "danger",
+    });
+    if (!ok) return;
     try {
       await deleteCcMutation.mutateAsync(id);
-    } catch (err: any) {
-      alert(err?.response?.data?.message || err?.message || "Failed to delete cost center");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to delete cost center"));
     }
   };
 
@@ -1239,6 +1270,7 @@ function OperatingStructureContent() {
 }
 
 export default function OperatingStructurePage() {
+  const { toast } = useAppToast();
   return (
     <Suspense fallback={<div className="p-12 text-center text-sm text-gray-500">Loading structure...</div>}>
       <OperatingStructureContent />

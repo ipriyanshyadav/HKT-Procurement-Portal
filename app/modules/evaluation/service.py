@@ -88,7 +88,7 @@ class EvaluationService:
         # Validate all bids have normalized prices (A-12-1)
         missing_normalized = [
             b for b in bids
-            if not b.lines or any(l.normalized_price_inr is None for l in b.lines)
+            if not b.lines or any(line.normalized_price_inr is None for line in b.lines)
         ]
         if missing_normalized:
             raise AppException(
@@ -134,17 +134,17 @@ class EvaluationService:
 
         if lots:
             for lot in lots:
-                lot_bids = [b for b in bids if any(l.lot_id == lot.id for l in b.lines)]
+                lot_bids = [b for b in bids if any(line.lot_id == lot.id for line in b.lines)]
                 if not lot_bids:
                     continue
 
                 # Calculate lot totals per bid
                 bid_lot_totals: dict[UUID, Decimal] = {}
                 for bid in lot_bids:
-                    lines_for_lot = [l for l in bid.lines if l.lot_id == lot.id]
+                    lines_for_lot = [line for line in bid.lines if line.lot_id == lot.id]
                     tot = sum(
-                        (l.normalized_price_inr or Decimal("0.0")) * (l.quantity or Decimal("1.0"))
-                        for l in lines_for_lot
+                        (line.normalized_price_inr or Decimal("0.0")) * (line.quantity or Decimal("1.0"))
+                        for line in lines_for_lot
                     )
                     bid_lot_totals[bid.id] = tot
 
@@ -161,7 +161,7 @@ class EvaluationService:
                     tech_score = Decimal(str(bid.technical_score or 100.0))
                     comp_score = (tech_score * tech_weight) + (comm_score * comm_weight)
 
-                    first_line = next((l for l in bid.lines if l.lot_id == lot.id), None)
+                    first_line = next((line for line in bid.lines if line.lot_id == lot.id), None)
                     rfq_line_id = first_line.rfq_line_id if first_line else None
 
                     ranking = CsLineRanking(
@@ -203,19 +203,19 @@ class EvaluationService:
             if rfq_lines:
                 for rfq_line in rfq_lines:
                     line_rankings: list[CsLineRanking] = []
-                    bids_with_line = [b for b in bids if any(l.rfq_line_id == rfq_line.id for l in b.lines)]
+                    bids_with_line = [b for b in bids if any(line.rfq_line_id == rfq_line.id for line in b.lines)]
                     if not bids_with_line:
                         continue
 
                     # Find minimum price
                     prices = []
                     for bid in bids_with_line:
-                        bl = next(l for l in bid.lines if l.rfq_line_id == rfq_line.id)
+                        bl = next(line for line in bid.lines if line.rfq_line_id == rfq_line.id)
                         prices.append(bl.normalized_price_inr or Decimal("0.0"))
                     min_price = min(prices) if prices else Decimal("0.0")
 
                     for bid in bids_with_line:
-                        bl = next(l for l in bid.lines if l.rfq_line_id == rfq_line.id)
+                        bl = next(line for line in bid.lines if line.rfq_line_id == rfq_line.id)
                         line_price = bl.normalized_price_inr or Decimal("0.0")
                         comm_score = (
                             (min_price / line_price) * Decimal("100")
@@ -262,8 +262,8 @@ class EvaluationService:
                 bid_totals = {}
                 for bid in bids:
                     bid_totals[bid.id] = sum(
-                        (l.normalized_price_inr or Decimal("0.0")) * (l.quantity or Decimal("1.0"))
-                        for l in bid.lines
+                        (line.normalized_price_inr or Decimal("0.0")) * (line.quantity or Decimal("1.0"))
+                        for line in bid.lines
                     )
                 min_tot = min(bid_totals.values()) if bid_totals else Decimal("0.0")
 
@@ -357,7 +357,8 @@ class EvaluationService:
             key = r.lot_total_inr or r.npv_adjusted_cost
             cost_groups.setdefault(key, []).append(r)
 
-        for cost, tied in cost_groups.items():
+        for _cost, tied in cost_groups.items():
+
             if len(tied) <= 1:
                 continue
 

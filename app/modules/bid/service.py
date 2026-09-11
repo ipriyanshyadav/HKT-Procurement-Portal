@@ -199,7 +199,7 @@ class BidService:
         # Encrypt new line prices
         for line_data in data.lines:
             existing_line = next(
-                (l for l in bid.lines if l.rfq_line_id == line_data.rfq_line_id), None
+                (line for line in bid.lines if line.rfq_line_id == line_data.rfq_line_id), None
             )
             if existing_line:
                 existing_line.unit_price_encrypted = encrypt_field(str(line_data.unit_price))

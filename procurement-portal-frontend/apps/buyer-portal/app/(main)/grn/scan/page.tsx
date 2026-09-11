@@ -1,4 +1,5 @@
 "use client";
+import { getErrorMessage } from "@procurement/utils";
 
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
@@ -56,12 +57,8 @@ export default function WarehouseBarcodeScanPage() {
       setActiveAsn(data);
       setChallanNumberOverride(data.asn_number);
       setDockNotes("");
-    } catch (err: any) {
-      setActiveAsn(null);
-      setErrorMessage(
-        err?.response?.data?.message ||
-          `No Advance Shipping Notice found for barcode or tracking code "${code}".`
-      );
+    } catch (err: unknown) {
+      setErrorMessage(getErrorMessage(err, "An unexpected error occurred"));
     }
   };
 
@@ -83,10 +80,8 @@ export default function WarehouseBarcodeScanPage() {
         asnNumber: activeAsn.asn_number,
       });
       setActiveAsn(res.asn);
-    } catch (err: any) {
-      setErrorMessage(
-        err?.response?.data?.message || "Failed to process warehouse fast-track intake."
-      );
+    } catch (err: unknown) {
+      setErrorMessage(getErrorMessage(err, "Failed to process warehouse fast-track intake."));
     }
   };
 

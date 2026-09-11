@@ -314,8 +314,8 @@ class GrnService:
         )
 
         # 3. Update Vendor Scorecard Performance Metrics
-        total_received = sum(l.received_quantity for l in grn.lines)
-        total_accepted = sum(l.accepted_quantity for l in grn.lines)
+        total_received = sum(line.received_quantity for line in grn.lines)
+        total_accepted = sum(line.accepted_quantity for line in grn.lines)
 
         quality_rate = (
             (total_accepted / total_received) * Decimal("100.0")

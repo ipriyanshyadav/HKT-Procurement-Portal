@@ -6,7 +6,9 @@ import {
   useAcknowledgePO,
   useDownloadPOPDF,
   POResponse,
+  getErrorMessage,
 } from "@procurement/hooks";
+import { useAppToast } from "@procurement/hooks";
 import {
   Package,
   CheckCircle2,
@@ -23,6 +25,7 @@ import {
 } from "lucide-react";
 
 export default function SupplierPurchaseOrdersPage() {
+  const { toast } = useAppToast();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [selectedPO, setSelectedPO] = useState<POResponse | null>(null);
@@ -108,8 +111,8 @@ export default function SupplierPurchaseOrdersPage() {
       setProposedNotes("");
       setSelectedPO(null);
       refetch();
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to submit amendment request");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to submit amendment request"));
     }
   };
 

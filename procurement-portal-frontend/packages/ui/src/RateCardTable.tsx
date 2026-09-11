@@ -13,6 +13,7 @@ import {
   X,
 } from "lucide-react";
 import { Button } from "./components/Button";
+import { useConfirm } from "./components/ConfirmDialog";
 
 export interface RateCardLineItem {
   id: string;
@@ -60,6 +61,7 @@ export function RateCardTable({
   uoms = [],
   className = "",
 }: RateCardTableProps) {
+  const { confirm } = useConfirm();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [itemDesc, setItemDesc] = useState("");
   const [uomId, setUomId] = useState(uoms[0]?.id || "");
@@ -87,9 +89,11 @@ export function RateCardTable({
 
   const handleAddSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!onAddLine || !itemDesc.trim() || !unitRate) return;
+    if (!itemDesc.trim() || !unitRate || isNaN(Number(unitRate))) return;
+    if (!onAddLine) return;
+
+    setIsSubmitting(true);
     try {
-      setIsSubmitting(true);
       const nextLineNum = lines.length > 0 ? Math.max(...lines.map((l) => l.line_number)) + 1 : 1;
       await onAddLine({
         line_number: nextLineNum,
@@ -110,7 +114,14 @@ export function RateCardTable({
   };
 
   const handleDelete = async (lineId: string) => {
-    if (!onDeleteLine || !confirm("Remove this rate card line item from the contract?")) return;
+    if (!onDeleteLine) return;
+    const ok = await confirm({
+      title: "Remove Rate Card Item",
+      description: "Remove this rate card line item from the contract?",
+      confirmLabel: "Remove",
+      variant: "danger",
+    });
+    if (!ok) return;
     try {
       setDeletingId(lineId);
       await onDeleteLine(lineId);

@@ -35,10 +35,12 @@ import {
   useGenerateEWayBill,
   useGenerateDispatchCompliance,
   useAsns,
+  useAppToast,
 } from "@procurement/hooks";
 import type { EInvoice, EWayBill } from "@procurement/types";
 
 export function EInvoiceComplianceViewer() {
+  const { toast } = useAppToast();
   const [activeTab, setActiveTab] = useState<"invoices" | "eway-bills" | "peppol" | "dispatch-pack">("invoices");
 
   // Queries
@@ -102,8 +104,9 @@ export function EInvoiceComplianceViewer() {
       });
       setCreateInvoiceModalOpen(false);
       setNewDocNumber(`INV-${Date.now().toString().slice(-6)}`);
+      toast.success("E-Invoice generated successfully");
     } catch (e: any) {
-      alert(`Error generating E-Invoice: ${e?.message || "Internal error"}`);
+      toast.error(`Error generating E-Invoice: ${e?.message || "Internal error"}`);
     }
   };
 
@@ -116,8 +119,9 @@ export function EInvoiceComplianceViewer() {
         cancellation_remarks: cancelRemarks,
       });
       setCancelModalInvoice(null);
+      toast.success("E-Invoice cancelled successfully");
     } catch (e: any) {
-      alert(`Cancellation failed: ${e?.response?.data?.detail || e?.message}`);
+      toast.error(`Cancellation failed: ${e?.response?.data?.detail || e?.message}`);
     }
   };
 
@@ -131,14 +135,15 @@ export function EInvoiceComplianceViewer() {
         transporter_name: newTransporterName,
       });
       setCreateEwbModalOpen(false);
+      toast.success("E-Way Bill generated successfully");
     } catch (e: any) {
-      alert(`Error generating E-Way Bill: ${e?.message || "Internal error"}`);
+      toast.error(`Error generating E-Way Bill: ${e?.message || "Internal error"}`);
     }
   };
 
   const handleDispatchPack = async () => {
     if (!packAsnId) {
-      alert("Please select or specify an Advance Shipping Notice (ASN).");
+      toast.warning("Please select or specify an Advance Shipping Notice (ASN).");
       return;
     }
     try {
@@ -148,8 +153,9 @@ export function EInvoiceComplianceViewer() {
         distance_km: packDistance,
       });
       setPackResult(res);
+      toast.success("Dispatch compliance generated successfully");
     } catch (e: any) {
-      alert(`Dispatch compliance generation failed: ${e?.message || "Internal error"}`);
+      toast.error(`Dispatch compliance generation failed: ${e?.message || "Internal error"}`);
     }
   };
 

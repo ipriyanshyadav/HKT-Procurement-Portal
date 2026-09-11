@@ -2,12 +2,13 @@
 
 import React, { ReactNode, useState, useEffect, useMemo } from 'react';
 import { usePathname } from 'next/navigation';
-import { useAuthStore, checkRouteAccess, EnterprisePersona } from '@procurement/stores';
+import { useAuthStore, checkRouteAccess, EnterprisePersona, SUPERADMIN_PERSONA } from '@procurement/stores';
 import { Navbar, NavItem, UserProfile } from './Navbar';
 import { Sidebar, SidebarItemData, SidebarMode } from './Sidebar';
 import { PageTransition } from './PageTransition';
 import { AccessRestrictedCard } from './AccessRestrictedCard';
 import { PersonaSimulationBanner } from './PersonaSimulationBanner';
+
 
 export interface AppShellProps {
   portalName?: string;
@@ -69,7 +70,6 @@ export function AppShell({
   }, [portalBadge]);
 
   const isRealSuperAdmin = useMemo(() => {
-    const email = (user?.email || storeUser?.email || '').toLowerCase();
     const roles = [
       ...(storeUser?.role_names || []),
       ...(user?.roles || []),
@@ -78,11 +78,12 @@ export function AppShell({
       .filter(Boolean)
       .map((r) => String(r).toUpperCase());
 
-    return (
-      email === 'superadmin@procurement.com' ||
-      roles.includes('SUPERADMIN')
-    );
+    // Check by role (primary) or by email match against SUPERADMIN_PERSONA
+    const superadminEmail = SUPERADMIN_PERSONA.email.toLowerCase();
+    const email = (user?.email || storeUser?.email || '').toLowerCase();
+    return roles.includes('SUPERADMIN') || email === superadminEmail;
   }, [user, storeUser]);
+
 
   const isEmulating = isRealSuperAdmin && !!emulatedPersona;
 

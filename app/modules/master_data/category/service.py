@@ -254,7 +254,8 @@ class CategoryService:
             }
             node_map[node_id] = node_data
 
-        for node_id, node in node_map.items():
+        for _node_id, node in node_map.items():
+
             parent_id = node["parent_id"]
             if parent_id and parent_id in node_map:
                 node_map[parent_id]["children"].append(node)

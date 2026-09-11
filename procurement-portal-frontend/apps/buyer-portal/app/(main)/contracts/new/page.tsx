@@ -1,4 +1,5 @@
 "use client";
+import { getErrorMessage } from "@procurement/utils";
 
 import React, { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -277,12 +278,11 @@ export default function NewContractPage() {
     try {
       const created = await createContractMutation.mutateAsync(payload);
       router.push(`/contracts/${created.id}`);
-    } catch (err: any) {
-      setErrorMsg(
-        err?.response?.data?.message || err?.message || "Failed to create contract"
-      );
+    } catch (err: unknown) {
+      setErrorMsg(getErrorMessage(err, "Failed to create contract"));
     }
   };
+
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto p-4 sm:p-6">

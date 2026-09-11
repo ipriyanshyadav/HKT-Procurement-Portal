@@ -1,3 +1,4 @@
+import asyncio
 from typing import TYPE_CHECKING
 from urllib.parse import urlparse, urlunparse
 
@@ -89,7 +90,6 @@ class RedisKeys:
     def analytics_cache(prefix: str, org_id: str | UUID, fiscal_year: str, bu_scope: str = "") -> str:
         return f"analytics:{prefix}:{org_id}:{fiscal_year}:{bu_scope}"
 
-import asyncio
 
 _redis_pools: dict[tuple[int, int], redis.ConnectionPool] = {}
 

@@ -48,23 +48,47 @@ export default function RequisitionsListPage() {
     }
   };
 
+  const [mergeError, setMergeError] = useState<string | null>(null);
+
   const handleMerge = async () => {
     if (selectedPRs.length < 2) return;
+    setMergeError(null);
     try {
       const merged = await mergeMutation.mutateAsync({
         pr_ids: selectedPRs,
       });
       setSelectedPRs([]);
       router.push(`/requisitions/${merged.id}`);
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to merge PRs");
+    } catch (err: unknown) {
+      const message =
+        (err as { response?: { data?: { error?: { message?: string } } } })
+          ?.response?.data?.error?.message ?? "Failed to merge PRs";
+      setMergeError(message);
     }
   };
 
+
   return (
     <div className="w-full space-y-6">
+      {/* Merge Error Banner */}
+      {mergeError && (
+        <div className="flex items-center gap-3 px-4 py-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-sm text-red-700 dark:text-red-400">
+          <span className="shrink-0">⚠️</span>
+          <span className="flex-1">{mergeError}</span>
+          <button
+            type="button"
+            onClick={() => setMergeError(null)}
+            className="shrink-0 text-red-500 hover:text-red-700"
+            aria-label="Dismiss error"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Purchase Requisitions</h1>
           <p className="text-sm text-gray-500 mt-1">
@@ -210,7 +234,8 @@ export default function RequisitionsListPage() {
                 </tr>
               ) : (
                 requisitions.map((pr) => (
-                  <tr key={pr.id} className="hover:bg-gray-50 dark:hover:bg-slate-800/50/75 dark:hover:bg-slate-800/50 transition-colors">
+                  <tr key={pr.id} className="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
+
                     <td className="px-4 py-3.5 text-center">
                       <input
                         type="checkbox"

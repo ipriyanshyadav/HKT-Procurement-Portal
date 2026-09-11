@@ -411,7 +411,7 @@ async def list_erp_mappings(
 
 
 @router.post("/erp-gateway/sync", response_model=APIResponse[ERPSyncTriggerResponse])
-async def trigger_erp_sync(
+async def trigger_erp_gateway_sync(
     payload: ERPSyncTriggerRequest,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
@@ -427,6 +427,7 @@ async def trigger_erp_sync(
     )
     await db.commit()
     return success_response(data=ERPSyncTriggerResponse(**result))
+
 
 
 @router.post("/erp-gateway/inbound")

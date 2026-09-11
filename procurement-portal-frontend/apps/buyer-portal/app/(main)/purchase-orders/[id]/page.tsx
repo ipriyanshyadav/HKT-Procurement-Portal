@@ -1,4 +1,5 @@
 "use client";
+import { getErrorMessage } from "@procurement/utils";
 
 import React, { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
@@ -12,6 +13,7 @@ import {
   useGRNs,
   useAmendPO,
 } from "@procurement/hooks";
+import { useAppToast } from "@procurement/hooks";
 import type { POLineUpdate } from "@procurement/types";
 import {
   DeliveryScheduleTable,
@@ -42,6 +44,7 @@ import {
 } from "lucide-react";
 
 export default function PurchaseOrderDetailPage() {
+  const { toast } = useAppToast();
   const params = useParams();
   const router = useRouter();
   const id = params.id as string;
@@ -171,7 +174,7 @@ export default function PurchaseOrderDetailPage() {
     for (const line of po.lines || []) {
       const edit = lineEdits[line.id];
       if (edit && edit.quantity < Number(line.received_quantity || 0)) {
-        alert(`Line ${line.line_number}: Cannot reduce ordered quantity to ${edit.quantity} below received quantity ${line.received_quantity}`);
+        toast.error(`Line ${line.line_number}: Cannot reduce ordered quantity to ${edit.quantity} below received quantity ${line.received_quantity}`);
         return;
       }
     }
@@ -206,8 +209,8 @@ export default function PurchaseOrderDetailPage() {
       });
       setAmendModalOpen(false);
       refetch();
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to amend purchase order");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to amend purchase order"));
     }
   };
 

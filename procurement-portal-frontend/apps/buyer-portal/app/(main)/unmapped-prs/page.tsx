@@ -1,4 +1,5 @@
 "use client";
+import { getErrorMessage } from "@procurement/utils";
 
 import React, { useState } from "react";
 import Link from "next/link";
@@ -10,10 +11,12 @@ import {
   useSuggestMapping,
   UnmappedPRException,
 } from "@procurement/hooks";
+import { useAppToast } from "@procurement/hooks";
 import { CategoryTreeSelect, Badge, Button } from "@procurement/ui";
 import { Sparkles, Sliders } from "lucide-react";
 
 export default function UnmappedPRsDashboardPage() {
+  const { toast } = useAppToast();
   const [page, setPage] = useState(1);
   const [selectedException, setSelectedException] = useState<UnmappedPRException | null>(null);
   const [manualCategoryId, setManualCategoryId] = useState("");
@@ -76,8 +79,8 @@ export default function UnmappedPRsDashboardPage() {
       setManualCategoryId("");
       setManualNotes("");
       refetch();
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to map PR");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to map PR"));
     }
   };
 
@@ -85,8 +88,8 @@ export default function UnmappedPRsDashboardPage() {
     try {
       await autoMapMutation.mutateAsync(exceptionId);
       refetch();
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Auto-mapping rejected: confidence below 0.85 threshold");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Auto-mapping rejected: confidence below 0.85 threshold"));
     }
   };
 
@@ -169,7 +172,8 @@ export default function UnmappedPRsDashboardPage() {
                     : Object.keys(exc.failed_fields || {});
 
                   return (
-                    <tr key={exc.id} className="hover:bg-gray-50 dark:hover:bg-slate-800/50/75 dark:hover:bg-slate-800/50 transition-colors">
+                    <tr key={exc.id} className="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
+
                       <td className="px-4 py-3.5">{getSlaBadge(exc.sla_breach_level)}</td>
                       <td className="px-4 py-3.5 font-mono text-xs font-semibold text-blue-600">
                         {exc.requisition?.pr_number || "PR-ERP-TEMP"}

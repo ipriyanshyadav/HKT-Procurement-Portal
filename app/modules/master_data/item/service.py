@@ -128,8 +128,9 @@ class ItemService:
     async def get_by_id(self, db: AsyncSession, item_id: UUID, org_id: UUID) -> ItemMaster:
         try:
             return await self.repo.get(db, item_id, org_id)
-        except NotFoundError:
-            raise NotFoundError("Item not found", {"item_id": str(item_id)})
+        except NotFoundError as exc:
+            raise NotFoundError("Item not found", {"item_id": str(item_id)}) from exc
+
 
     async def get_by_code(self, db: AsyncSession, code: str, org_id: UUID) -> ItemMaster | None:
         stmt = select(ItemMaster).where(

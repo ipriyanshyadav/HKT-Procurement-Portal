@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -25,7 +26,11 @@ import {
   useUpdateAutomationRule,
   useDeleteAutomationRule,
   useRunAutomationRule,
+  getErrorMessage,
+  useAppToast,
 } from "@procurement/hooks";
+import { useConfirm } from "@procurement/ui";
+
 import type {
   AutomationRuleItem,
   AutomationRuleCreatePayload,
@@ -53,6 +58,8 @@ const ACTION_LABELS: Record<AutomationActionType, string> = {
 };
 
 export default function AdminTicketAutomationPage() {
+  const { toast } = useAppToast();
+  const { confirm } = useConfirm();
   const { data: rules = [], isLoading, refetch } = useAutomationRules();
   const createRule = useCreateAutomationRule();
   const updateRule = useUpdateAutomationRule();
@@ -89,9 +96,20 @@ export default function AdminTicketAutomationPage() {
   };
 
   const handleDelete = async (ruleId: string) => {
-    if (!confirm("Are you sure you want to delete this automation rule?")) return;
-    await deleteRule.mutateAsync(ruleId);
-    refetch();
+    const ok = await confirm({
+      title: "Delete Automation Rule",
+      description: "Are you sure you want to delete this automation rule?",
+      confirmLabel: "Delete",
+      variant: "danger",
+    });
+    if (!ok) return;
+    try {
+      await deleteRule.mutateAsync(ruleId);
+      toast.success("Automation rule deleted successfully");
+      refetch();
+    } catch (err: any) {
+      toast.error(err?.response?.data?.error?.message || "Failed to delete automation rule");
+    }
   };
 
   const handleCreateSubmit = async (e: React.FormEvent) => {
@@ -178,8 +196,12 @@ export default function AdminTicketAutomationPage() {
       });
       setTestResult(res);
       refetch();
-    } catch (err: any) {
-      setTestResult({ error: err.message || "Failed to execute automation rule" });
+    } catch (err: unknown) {
+      setTestResult({
+        matched: false,
+        actions_triggered: 0,
+        logs: [getErrorMessage(err, "Simulation execution failed")],
+      });
     } finally {
       setTestLoading(false);
     }

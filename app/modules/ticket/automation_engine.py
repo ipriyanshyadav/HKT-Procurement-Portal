@@ -64,10 +64,7 @@ class TicketAutomationEngine:
     def _matches_trigger_config(self, trigger_config: dict[str, Any], context: dict[str, Any]) -> bool:
         if not trigger_config:
             return True
-        for key, expected in trigger_config.items():
-            if context.get(key) != expected:
-                return False
-        return True
+        return all(context.get(key) == expected for key, expected in trigger_config.items())
 
     def _evaluate_conditions(
         self,

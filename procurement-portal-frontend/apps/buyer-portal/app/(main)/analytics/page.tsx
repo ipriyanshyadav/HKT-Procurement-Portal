@@ -41,9 +41,13 @@ import {
 type AnalyticsTab = "overview" | "spend_cube" | "maverick" | "reports" | "compliance" | "carbon_esg";
 
 export default function BuyerAnalyticsDashboardPage() {
+  const currentYear = new Date().getFullYear();
+  const availableYears = [currentYear, currentYear - 1, currentYear - 2, currentYear - 3];
+
   const [activeTab, setActiveTab] = useState<AnalyticsTab>("overview");
-  const [fiscalYear, setFiscalYear] = useState<string>("2026");
+  const [fiscalYear, setFiscalYear] = useState<string>(() => currentYear.toString());
   const [isExporting, setIsExporting] = useState<boolean>(false);
+
 
   const { data: dashboard, isLoading, error } = useAnalyticsDashboard({
     fiscal_year: fiscalYear,
@@ -138,10 +142,13 @@ export default function BuyerAnalyticsDashboardPage() {
             onChange={(e) => setFiscalYear(e.target.value)}
             className="rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-3 py-2 text-xs font-medium text-neutral-900 dark:text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
           >
-            <option value="2026">FY 2026</option>
-            <option value="2025">FY 2025</option>
-            <option value="2024">FY 2024</option>
+            {availableYears.map((yr) => (
+              <option key={yr} value={yr.toString()}>
+                FY {yr}
+              </option>
+            ))}
           </select>
+
 
           {activeTab === "overview" && (
             <div className="inline-flex rounded-xl shadow-sm">

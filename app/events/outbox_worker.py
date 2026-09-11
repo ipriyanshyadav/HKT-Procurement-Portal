@@ -30,11 +30,11 @@ async def publish_outbox_messages():
 
             # Claim PENDING messages
             stmt = text("""
-                SELECT id, exchange, routing_key, payload, headers 
-                FROM outbox_messages 
-                WHERE status = 'PENDING' 
-                ORDER BY created_at ASC 
-                LIMIT :batch_size 
+                SELECT id, exchange, routing_key, payload, headers
+                FROM outbox_messages
+                WHERE status = 'PENDING'
+                ORDER BY created_at ASC
+                LIMIT :batch_size
                 FOR UPDATE SKIP LOCKED
             """)
             result = await session.execute(stmt, {"batch_size": settings.OUTBOX_BATCH_SIZE})
@@ -79,8 +79,8 @@ async def publish_outbox_messages():
                 except Exception as e:
                     logger.error(f"Failed to publish message {msg['id']}: {e}")
                     update_stmt = text("""
-                        UPDATE outbox_messages 
-                        SET retry_count = retry_count + 1, 
+                        UPDATE outbox_messages
+                        SET retry_count = retry_count + 1,
                             last_error = :last_error,
                             status = CASE WHEN retry_count + 1 >= :retry_max THEN 'FAILED' ELSE 'PENDING' END
                         WHERE id = :id

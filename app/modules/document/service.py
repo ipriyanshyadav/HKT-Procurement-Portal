@@ -158,7 +158,8 @@ class DocumentService:
         except Exception as exc:
             logger.error(f"MinIO storage failure: {exc}")
             if settings.ENVIRONMENT not in ("local", "dev"):
-                raise ValidationError("STORAGE_ERROR", "Failed to save document to storage")
+                raise ValidationError("STORAGE_ERROR", "Failed to save document to storage") from exc
+
 
         # 7. Record DocumentVersion
         version = DocumentVersion(
@@ -253,7 +254,8 @@ class DocumentService:
         except Exception as exc:
             logger.error(f"MinIO storage failure: {exc}")
             if settings.ENVIRONMENT not in ("local", "dev"):
-                raise ValidationError("STORAGE_ERROR", "Failed to save document to storage")
+                raise ValidationError("STORAGE_ERROR", "Failed to save document to storage") from exc
+
 
         doc = Document(
             org_id=org_id,

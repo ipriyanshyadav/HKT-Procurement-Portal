@@ -167,14 +167,19 @@ def create_app() -> FastAPI:
     app.add_middleware(RequestIDMiddleware)
     app.add_middleware(IdempotencyMiddleware)
 
-    if settings.ENVIRONMENT == "local":
-        app.add_middleware(
-            CORSMiddleware,
-            allow_origins=settings.CORS_ORIGINS,
-            allow_credentials=True,
-            allow_methods=["*"],
-            allow_headers=["*"],
-        )
+    # CORS: always enabled, with origins controlled by CORS_ORIGINS setting.
+    # In local/dev: allows all origins in CORS_ORIGINS list.
+    # In staging/production: restrict to explicit CORS_ORIGINS only.
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.CORS_ORIGINS,
+        allow_credentials=True,
+        allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+        allow_headers=["Authorization", "Content-Type", "X-Request-ID", "X-Idempotency-Key", "Accept"],
+        expose_headers=["X-Request-ID", "X-Process-Time", "X-Total-Count"],
+        max_age=600,
+    )
+
 
     register_exception_handlers(app)
     setup_telemetry(app)

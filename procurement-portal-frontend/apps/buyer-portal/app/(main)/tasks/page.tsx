@@ -9,8 +9,11 @@ import {
   useCreateDelegation,
   useDeleteDelegation,
   useUsers,
+  useAppToast,
+  getErrorMessage,
 } from "@procurement/hooks";
-import { SLAIndicator } from "@procurement/ui";
+import { SLAIndicator, useConfirm } from "@procurement/ui";
+
 import {
   CheckCircle2,
   Clock,
@@ -58,7 +61,10 @@ function StepBadge({ stepNumber, role }: { stepNumber: number; role: string | nu
  * 2. Out of Office / Approval Delegation Rules
  */
 export default function TasksPage() {
+  const { toast } = useAppToast();
+  const confirm = useConfirm();
   const [page, setPage] = useState(1);
+
   const PAGE_SIZE = 25;
 
   const { data, isLoading, isError, refetch } = useMyWorkflowTasks({
@@ -125,8 +131,8 @@ export default function TasksPage() {
       setSelectedTaskIds([]);
       setShowBatchModal(false);
       refetch();
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to batch approve selected tasks");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to batch approve selected tasks"));
     }
   };
 
@@ -152,20 +158,25 @@ export default function TasksPage() {
       setDelegateId("");
       setDelegationReason("");
       refetchDelegations();
-    } catch (err: any) {
-      setDelegationError(
-        err?.response?.data?.error?.message || err?.message || "Failed to create delegation rule."
-      );
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to create delegation rule."));
     }
   };
 
   const handleDeleteDelegation = async (ruleId: string) => {
-    if (!confirm("Revoke this delegation rule?")) return;
+    const ok = await confirm({
+      title: "Revoke Delegation",
+      description: "Are you sure you want to revoke this approval delegation rule?",
+      confirmLabel: "Revoke",
+      variant: "danger",
+    });
+    if (!ok) return;
+
     try {
       await deleteDelegationMutation.mutateAsync(ruleId);
       refetchDelegations();
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to revoke delegation.");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to revoke delegation."));
     }
   };
 

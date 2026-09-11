@@ -1,4 +1,5 @@
 "use client";
+import { getErrorMessage } from "@procurement/utils";
 
 import React, { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
@@ -12,8 +13,9 @@ import {
   usePayments,
   useAcceptEarlyPayment,
   useRejectEarlyPayment,
+  useAppToast,
 } from "@procurement/hooks";
-import { ThreeWayMatchResult, PaymentSchedule, DocumentList, PermissionGuard, SplitScreenViewer, Button } from "@procurement/ui";
+import { ThreeWayMatchResult, PaymentSchedule, DocumentList, PermissionGuard, SplitScreenViewer, Button, useConfirm } from "@procurement/ui";
 import {
   ArrowLeft,
   Receipt,
@@ -34,6 +36,8 @@ import {
 } from "lucide-react";
 
 export default function InvoiceDetailPage() {
+  const { toast } = useAppToast();
+  const { confirm } = useConfirm();
   const params = useParams();
   const router = useRouter();
   const invoiceId = params?.id as string;
@@ -86,7 +90,13 @@ export default function InvoiceDetailPage() {
   }
 
   const handleApprove = async () => {
-    if (!confirm("Are you sure you want to approve this invoice for payment settlement?")) return;
+    const ok = await confirm({
+      title: "Approve Invoice",
+      description: "Are you sure you want to approve this invoice for payment settlement?",
+      confirmLabel: "Approve",
+      variant: "primary",
+    });
+    if (!ok) return;
     await approveMutation.mutateAsync(invoiceId);
     refetch();
   };
@@ -122,13 +132,19 @@ export default function InvoiceDetailPage() {
   };
 
   const handleAcceptDiscount = async () => {
-    if (!confirm("Confirm acceptance of early payment discount? Payout will be scheduled accordingly.")) return;
+    const ok = await confirm({
+      title: "Accept Early Payment Discount",
+      description: "Confirm acceptance of early payment discount? Payout will be scheduled accordingly.",
+      confirmLabel: "Accept Discount",
+      variant: "primary",
+    });
+    if (!ok) return;
     try {
       const res = await acceptDiscountMutation.mutateAsync(invoiceId);
       setDiscountActionMessage(res?.message || "Early payment discount accepted successfully!");
       refetch();
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to accept early discount");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to accept early discount"));
     }
   };
 
@@ -138,8 +154,8 @@ export default function InvoiceDetailPage() {
       const res = await rejectDiscountMutation.mutateAsync({ invoiceId, reason: reason || undefined });
       setDiscountActionMessage(res?.message || "Early payment discount request rejected.");
       refetch();
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to reject early discount");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to reject early discount"));
     }
   };
 

@@ -1,4 +1,5 @@
 "use client";
+import { getErrorMessage } from "@procurement/utils";
 
 import React, { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
@@ -240,12 +241,8 @@ export default function NewRequisitionPage() {
       }
 
       router.push(`/requisitions/${createdPr.id}`);
-    } catch (err: any) {
-      setError(
-        err?.response?.data?.error?.message ||
-          err?.response?.data?.message ||
-          "Failed to create requisition"
-      );
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, "Failed to create requisition"));
     } finally {
       isSubmittingRef.current = false;
       setIsSubmitting(false);

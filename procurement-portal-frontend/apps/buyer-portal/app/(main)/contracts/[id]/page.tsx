@@ -1,4 +1,5 @@
 "use client";
+import { getErrorMessage } from "@procurement/utils";
 
 import React, { useState } from "react";
 import { useParams } from "next/navigation";
@@ -20,6 +21,7 @@ import {
   ContractLine,
   ContractAmendment,
 } from "@procurement/hooks";
+import { useAppToast } from "@procurement/hooks";
 import {
   ContractExpiryCountdown,
   MilestoneTracker,
@@ -29,6 +31,7 @@ import {
   PermissionGuard,
   UnderlineTabs,
   Button,
+  useConfirm,
 } from "@procurement/ui";
 import {
   FileText,
@@ -55,6 +58,8 @@ import {
 } from "lucide-react";
 
 export default function ContractWorkspacePage() {
+  const { toast } = useAppToast();
+  const { confirm } = useConfirm();
   const params = useParams();
   const id = params?.id as string;
 
@@ -114,41 +119,57 @@ export default function ContractWorkspacePage() {
 
   // Handlers
   const handleSubmitReview = async () => {
-    if (!confirm("Submit this contract for managerial review and approval?")) return;
+    const ok = await confirm({
+      title: "Submit Contract for Review",
+      description: "Submit this contract for managerial review and approval?",
+      confirmLabel: "Submit",
+      variant: "primary",
+    });
+    if (!ok) return;
     try {
       await submitReviewMut.mutateAsync({ contractId: id });
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to submit contract for review");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to submit contract for review"));
     }
   };
 
   const handleApprove = async () => {
-    if (!confirm("Approve this contract? Once approved, it can be routed for electronic signing."))
-      return;
+    const ok = await confirm({
+      title: "Approve Contract",
+      description: "Approve this contract? Once approved, it can be routed for electronic signing.",
+      confirmLabel: "Approve",
+      variant: "primary",
+    });
+    if (!ok) return;
     try {
       await approveMut.mutateAsync({ contractId: id });
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to approve contract");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to approve contract"));
     }
   };
 
   const handleReturn = async () => {
     if (!returnReason.trim()) {
-      alert("Please provide comments/reasons for returning the contract");
+      toast.error("Please provide comments/reasons for returning the contract");
       return;
     }
     try {
       await returnMut.mutateAsync({ contractId: id, reason: returnReason });
       setIsReturnModalOpen(false);
       setReturnReason("");
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to return contract");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to return contract"));
     }
   };
 
   const handleInitiateEsign = async (provider: "DIGIO" | "DOCUSIGN") => {
-    if (!confirm(`Initiate eSign execution via ${provider}? Signatory notifications will be dispatched.`))
-      return;
+    const ok = await confirm({
+      title: "Initiate eSign Execution",
+      description: `Initiate eSign execution via ${provider}? Signatory notifications will be dispatched.`,
+      confirmLabel: "Initiate eSign",
+      variant: "primary",
+    });
+    if (!ok) return;
     try {
       await initiateEsignMut.mutateAsync({
         contractId: id,
@@ -168,64 +189,76 @@ export default function ContractWorkspacePage() {
           ],
         },
       });
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to initiate eSign");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to initiate eSign"));
     }
   };
 
   const handleConfirmEsign = async () => {
     try {
       await confirmEsignMut.mutateAsync({ contractId: id });
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to confirm eSign signatures");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to confirm eSign signatures"));
     }
   };
 
   const handleActivate = async () => {
-    if (!confirm("Activate this contract? Once active, purchase orders can be drawn against it.")) return;
+    const ok = await confirm({
+      title: "Activate Contract",
+      description: "Activate this contract? Once active, purchase orders can be drawn against it.",
+      confirmLabel: "Activate",
+      variant: "primary",
+    });
+    if (!ok) return;
     try {
       await activateMut.mutateAsync({ contractId: id });
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to activate contract");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to activate contract"));
     }
   };
 
   const handleTerminate = async () => {
     if (!terminateReason.trim()) {
-      alert("Please provide a reason or clause for contract termination.");
+      toast.error("Please provide a reason or clause for contract termination.");
       return;
     }
     try {
       await terminateMut.mutateAsync({ contractId: id, reason: terminateReason });
       setIsTerminateModalOpen(false);
       setTerminateReason("");
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to terminate contract");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to terminate contract"));
     }
   };
 
   const handleAddLine = async (lineData: any) => {
     try {
       await addLineMut.mutateAsync({ contractId: id, data: lineData });
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to add rate card line");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to add rate card line"));
     }
   };
 
   const handleDeleteLine = async (lineId: string) => {
-    if (!confirm("Remove this rate card line item?")) return;
+    const ok = await confirm({
+      title: "Remove Rate Card Line",
+      description: "Remove this rate card line item?",
+      confirmLabel: "Remove",
+      variant: "danger",
+    });
+    if (!ok) return;
     try {
       await deleteLineMut.mutateAsync({ contractId: id, lineId });
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to delete rate card line");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to delete rate card line"));
     }
   };
 
   const handleAddMilestone = async (milestoneData: any) => {
     try {
       await createMilestoneMut.mutateAsync({ contractId: id, data: milestoneData });
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to add milestone");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to add milestone"));
     }
   };
 
@@ -240,8 +273,8 @@ export default function ContractWorkspacePage() {
           new_end_date: amendData.new_end_date,
         },
       });
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to submit contract amendment");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to submit contract amendment"));
     }
   };
 
@@ -252,8 +285,8 @@ export default function ContractWorkspacePage() {
         contractId: id,
         data: { status: "COMPLETED", completion_notes: notes },
       });
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to complete milestone");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to complete milestone"));
     }
   };
 

@@ -4,13 +4,14 @@ import re
 import time
 from uuid import uuid4
 
-_UUID_REGEX = re.compile(r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}")
 from loguru import logger
 from starlette.datastructures import Headers, MutableHeaders
 
 from app.config import settings
 from app.core.metrics import http_request_duration_seconds, http_requests_total
 from app.core.telemetry import get_current_trace_id
+
+_UUID_REGEX = re.compile(r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}")
 
 
 class RequestIDMiddleware:

@@ -1,4 +1,5 @@
 "use client";
+import { getErrorMessage } from "@procurement/utils";
 
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
@@ -9,10 +10,13 @@ import {
   useDeletePaymentTerm,
   type PaymentTerm,
 } from "@procurement/hooks";
-import { Badge, Button, PermissionGuard } from "@procurement/ui";
+import { useAppToast } from "@procurement/hooks";
+import { Badge, Button, PermissionGuard, useConfirm } from "@procurement/ui";
 import { CreditCard, Plus, Search, Edit2, Trash2, ArrowLeft } from "lucide-react";
 
 export default function PaymentTermsManagementPage() {
+  const { toast } = useAppToast();
+  const { confirm } = useConfirm();
   const { data: paymentTerms = [], isLoading, error } = usePaymentTerms({ active_only: false });
   const createMutation = useCreatePaymentTerm();
   const updateMutation = useUpdatePaymentTerm();
@@ -108,24 +112,24 @@ export default function PaymentTermsManagementPage() {
         });
       }
       setShowModal(false);
-    } catch (err: any) {
-      setFormError(
-        err?.response?.data?.error?.message ||
-          err?.response?.data?.message ||
-          err?.message ||
-          "Failed to save Payment Term"
-      );
+    } catch (err: unknown) {
+      setFormError(getErrorMessage(err, "Failed to save Payment Term"));
     }
   };
 
   const handleDelete = async (item: PaymentTerm) => {
-    if (!window.confirm(`Are you sure you want to deactivate payment term "${item.code}"?`)) {
-      return;
-    }
+    const ok = await confirm({
+      title: "Deactivate Payment Term",
+      description: `Are you sure you want to deactivate payment term "${item.code}"?`,
+      confirmLabel: "Deactivate",
+      variant: "danger",
+    });
+    if (!ok) return;
     try {
       await deleteMutation.mutateAsync(item.id);
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || err?.message || "Failed to delete Payment Term");
+      toast.success("Payment term deactivated successfully");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to delete Payment Term"));
     }
   };
 

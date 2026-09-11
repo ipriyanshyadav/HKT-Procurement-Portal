@@ -8,6 +8,7 @@ import {
   useRegisterVendor,
   useSubmitVendor,
   useCategoryTree,
+  getErrorMessage,
 } from "@procurement/hooks";
 import { CategoryTreeSelect } from "@procurement/ui";
 
@@ -163,14 +164,11 @@ export default function SupplierRegistrationWizard() {
       // 2. Submit for review
       await submitMutation.mutateAsync();
       setIsSubmitted(true);
-    } catch (err: any) {
-      setErrorMessage(
-        err?.response?.data?.error?.message ||
-          err?.message ||
-          "Registration submission failed."
-      );
+    } catch (err: unknown) {
+      setErrorMessage(getErrorMessage(err, "Registration submission failed."));
     }
   };
+
 
   if (isSubmitted) {
     return (

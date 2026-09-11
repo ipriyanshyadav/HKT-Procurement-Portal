@@ -1,4 +1,5 @@
 "use client";
+import { getErrorMessage } from "@procurement/utils";
 
 import React, { useState, useEffect, useMemo } from "react";
 import {
@@ -14,6 +15,7 @@ import {
   UserItem,
   UserSessionItem,
 } from "@procurement/hooks";
+import { useAppToast } from "@procurement/hooks";
 import { PageHeader, HeroKPIStrip, Card, Badge, Button, Modal, Tabs } from "@procurement/ui";
 import {
   Users,
@@ -42,6 +44,7 @@ import {
 } from "lucide-react";
 
 export default function UsersManagementPage() {
+  const { toast } = useAppToast();
   const [activeTab, setActiveTab] = useState<"users" | "sessions">("users");
 
   // Read ?tab=sessions from URL on mount
@@ -131,8 +134,11 @@ export default function UsersManagementPage() {
       setNewUserFirstName("");
       setNewUserLastName("");
       setNewUserRoles(["REQUESTOR"]);
-    } catch (err: any) {
-      setCreateError(err?.response?.data?.error?.message || "Failed to create user");
+    } catch (err: unknown) {
+
+      
+
+
     }
   };
 
@@ -140,8 +146,8 @@ export default function UsersManagementPage() {
     const action = user.status === "ACTIVE" ? "deactivate" : "activate";
     try {
       await toggleStatusMutation.mutateAsync({ userId: user.id, action });
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || `Failed to ${action} user`);
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "An unexpected error occurred"));
     }
   };
 
@@ -198,8 +204,8 @@ export default function UsersManagementPage() {
         reason: revokeReason,
       });
       setSessionToRevoke(null);
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to revoke session");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to revoke session"));
     }
   };
 
@@ -211,8 +217,8 @@ export default function UsersManagementPage() {
         reason: revokeReason,
       });
       setUserToRevokeAll(null);
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to revoke user sessions");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to revoke user sessions"));
     }
   };
 

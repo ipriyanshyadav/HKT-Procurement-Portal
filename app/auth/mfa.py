@@ -1,11 +1,14 @@
 from __future__ import annotations
 
+import logging
 import secrets
 
 import bcrypt
 import pyotp
 
 from app.core.encryption import decrypt_field, encrypt_field
+
+logger = logging.getLogger(__name__)
 
 
 def generate_totp_secret() -> str:
@@ -43,8 +46,10 @@ def verify_backup_code(plain_code: str, hashed_codes: list[str]) -> tuple[bool, 
         try:
             if bcrypt.checkpw(plain_code.encode("utf-8")[:72], hashed.encode("utf-8")):
                 return True, i
-        except Exception:
+        except Exception as exc:  # noqa: BLE001 — bcrypt may raise ValueError on malformed hash
+            logger.debug("bcrypt check failed for code at index %d: %s", i, exc)
             continue
+
     return False, -1
 
 def encrypt_totp_secret(secret: str) -> str:

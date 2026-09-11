@@ -1,4 +1,5 @@
 "use client";
+import { getErrorMessage } from "@procurement/utils";
 
 import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
@@ -13,7 +14,8 @@ import {
   useSendRegretLetters,
   useCreatePOFromAward,
 } from "@procurement/hooks";
-import { Button, Badge, Input, Textarea, PermissionGuard } from "@procurement/ui";
+import { useAppToast } from "@procurement/hooks";
+import { Button, Badge, Input, Textarea, PermissionGuard, useConfirm } from "@procurement/ui";
 import { Mail, CheckCircle2, AlertCircle, Package } from "lucide-react";
 
 interface AwardDraftItem {
@@ -29,6 +31,8 @@ interface AwardDraftItem {
 }
 
 export default function AwardRecommendationPage() {
+  const { toast } = useAppToast();
+  const { confirm } = useConfirm();
   const params = useParams();
   const router = useRouter();
   const rfqId = params?.id as string;
@@ -101,11 +105,11 @@ export default function AwardRecommendationPage() {
 
   const handleRecommend = async () => {
     if (awardItems.length === 0) {
-      alert("At least one award item must be specified.");
+      toast.error("At least one award item must be specified.");
       return;
     }
     if (!overallJustification || overallJustification.length < 5) {
-      alert("Please provide a comprehensive business justification for the award.");
+      toast.error("Please provide a comprehensive business justification for the award.");
       return;
     }
     try {
@@ -116,14 +120,20 @@ export default function AwardRecommendationPage() {
       });
       setFeedback("Award recommendation submitted successfully for approval!");
       refetchAward();
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to submit award recommendation");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to submit award recommendation"));
     }
   };
 
   const handleApprove = async () => {
     if (!existingAward) return;
-    if (!confirm(`Approve award recommendation ${existingAward.arn_number}?`)) return;
+    const ok = await confirm({
+      title: "Approve Award Recommendation",
+      description: `Approve award recommendation ${existingAward.arn_number}?`,
+      confirmLabel: "Approve",
+      variant: "primary",
+    });
+    if (!ok) return;
     try {
       await approveMutation.mutateAsync({
         arnId: existingAward.id,
@@ -131,31 +141,38 @@ export default function AwardRecommendationPage() {
       });
       setFeedback("Award recommendation approved successfully!");
       refetchAward();
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to approve award");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to approve award"));
     }
   };
 
   const handleDispatchRegretLetters = async () => {
     if (!cs?.id) return;
-    if (
-      !confirm(
-        "Dispatch regret letters to all unsuccessful bidders for this RFQ? Formal non-award notices will be recorded and communicated."
-      )
-    ) {
-      return;
-    }
+    const ok = await confirm({
+      title: "Dispatch Regret Letters",
+      description:
+        "Dispatch regret letters to all unsuccessful bidders for this RFQ? Formal non-award notices will be recorded and communicated.",
+      confirmLabel: "Dispatch Letters",
+      variant: "danger",
+    });
+    if (!ok) return;
     try {
       await sendRegretLettersMutation.mutateAsync({ csId: cs.id });
       setFeedback("Regret letters dispatched successfully to all unawarded suppliers!");
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to dispatch regret letters");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to dispatch regret letters"));
     }
   };
 
   const handleGeneratePurchaseOrders = async () => {
     if (!existingAward) return;
-    if (!confirm(`Generate official Purchase Order(s) for Award Notice ${existingAward.arn_number}?`)) return;
+    const ok = await confirm({
+      title: "Generate Purchase Orders",
+      description: `Generate official Purchase Order(s) for Award Notice ${existingAward.arn_number}?`,
+      confirmLabel: "Generate POs",
+      variant: "primary",
+    });
+    if (!ok) return;
     try {
       const pos = await createPOMutation.mutateAsync({
         arn_id: existingAward.id,
@@ -166,9 +183,11 @@ export default function AwardRecommendationPage() {
       } else {
         router.push("/purchase-orders");
       }
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to generate Purchase Order(s)");
+    } catch (err: unknown) {
+      const message = (err as { response?: { data?: { error?: { message?: string } } } })?.response?.data?.error?.message ?? "Failed to generate Purchase Order(s)";
+      toast.error(message);
     }
+
   };
 
   const totalAwarded = awardItems.reduce((sum, item) => sum + (Number(item.value) || 0), 0);

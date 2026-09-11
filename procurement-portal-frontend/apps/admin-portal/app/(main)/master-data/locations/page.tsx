@@ -1,4 +1,5 @@
 "use client";
+import { getErrorMessage } from "@procurement/utils";
 
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
@@ -10,10 +11,13 @@ import {
   usePlants,
   type DeliveryLocation,
 } from "@procurement/hooks";
-import { Badge, Button, PermissionGuard } from "@procurement/ui";
+import { useAppToast } from "@procurement/hooks";
+import { Badge, Button, PermissionGuard, useConfirm } from "@procurement/ui";
 import { MapPin, Plus, Search, Edit2, Trash2, ArrowLeft, Factory } from "lucide-react";
 
 export default function DeliveryLocationsManagementPage() {
+  const { toast } = useAppToast();
+  const { confirm } = useConfirm();
   const { data: locations = [], isLoading, error } = useDeliveryLocations({ active_only: false });
   const { data: plants = [] } = usePlants({ active_only: false });
   const createMutation = useCreateLocation();
@@ -126,24 +130,25 @@ export default function DeliveryLocationsManagementPage() {
         });
       }
       setShowModal(false);
-    } catch (err: any) {
-      setFormError(
-        err?.response?.data?.error?.message ||
-          err?.response?.data?.message ||
-          err?.message ||
-          "Failed to save Delivery Location"
-      );
+    } catch (err: unknown) {
+      setFormError(getErrorMessage(err, "Failed to save Delivery Location"));
     }
   };
 
   const handleDelete = async (item: DeliveryLocation) => {
-    if (!window.confirm(`Are you sure you want to deactivate delivery location "${item.code}"?`)) {
+    const ok = await confirm({
+      title: "Deactivate Delivery Location",
+      description: `Are you sure you want to deactivate delivery location "${item.code}"?`,
+      confirmLabel: "Deactivate",
+      variant: "danger",
+    });
+    if (!ok) {
       return;
     }
     try {
       await deleteMutation.mutateAsync(item.id);
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || err?.message || "Failed to delete Location");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to delete Location"));
     }
   };
 

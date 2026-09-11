@@ -126,7 +126,7 @@ celery_workers_active = Gauge(
 
 def get_metric_value(metric_name: str, **labels: Any) -> float:
     """Helper for testing and programmatic metric verification.
-    
+
     Finds a metric by name in the default collector registry and matches label values.
     """
     valid_metric_names = {metric_name, metric_name.removesuffix("_total")}

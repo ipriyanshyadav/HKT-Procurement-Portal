@@ -170,10 +170,11 @@ async def dispatch_asn(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    asn = await asn_service.dispatch_asn(db, asn_id, payload, current_user.id, current_user.org_id)
+    await asn_service.dispatch_asn(db, asn_id, payload, current_user.id, current_user.org_id)
     await db.commit()
     full_asn = await asn_service.get(db, asn_id, current_user.org_id)
     return success_response(data=_to_asn_response(full_asn))
+
 
 
 @router.post("/{id}/fast-grn", response_model=APIResponse[dict])

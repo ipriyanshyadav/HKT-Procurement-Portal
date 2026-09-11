@@ -527,7 +527,7 @@ class PurchaseOrderService:
 
                 line_changes.append(line_diff)
 
-            new_total = sum(l.ordered_quantity * l.unit_price for l in po.lines)
+            new_total = sum(line.ordered_quantity * line.unit_price for line in po.lines)
             val_change = new_total - old_total
             po.total_value = new_total
             field_changes["line_changes"] = line_changes

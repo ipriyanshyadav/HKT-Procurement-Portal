@@ -183,17 +183,17 @@ class AuditService:
         verification = verify_audit_log_chain(logs)
 
         records_data = []
-        for l in logs:
-            meta = l.metadata_ or {}
+        for log_entry in logs:
+            meta = log_entry.metadata_ or {}
             geo = meta.get("geo", {})
             records_data.append({
-                "id": str(l.id),
-                "timestamp": l.created_at.isoformat() if l.created_at else "",
-                "entity_type": l.entity_type.value if hasattr(l.entity_type, "value") else str(l.entity_type),
-                "entity_id": str(l.entity_id),
-                "action": l.action,
-                "actor_email": l.actor_email or "SYSTEM",
-                "actor_ip": l.actor_ip or "INTERNAL",
+                "id": str(log_entry.id),
+                "timestamp": log_entry.created_at.isoformat() if log_entry.created_at else "",
+                "entity_type": log_entry.entity_type.value if hasattr(log_entry.entity_type, "value") else str(log_entry.entity_type),
+                "entity_id": str(log_entry.entity_id),
+                "action": log_entry.action,
+                "actor_email": log_entry.actor_email or "SYSTEM",
+                "actor_ip": log_entry.actor_ip or "INTERNAL",
                 "location": f"{geo.get('city', 'Unknown')}, {geo.get('country', 'Unknown')}",
                 "record_hash": meta.get("record_hash", ""),
                 "prev_hash": meta.get("prev_hash", ""),

@@ -53,9 +53,9 @@ router = APIRouter(tags=["Vendor"])
 
 def _assert_vendor_access(user: User, vendor_id: UUID) -> None:
     """Enforce supplier portal boundary: supplier user can only access their own vendor."""
-    if user.is_supplier_user:
-        if not user.vendor_id or str(user.vendor_id) != str(vendor_id):
-            raise ForbiddenError("Supplier cannot access another vendor's data")
+    if user.is_supplier_user and (not user.vendor_id or str(user.vendor_id) != str(vendor_id)):
+        raise ForbiddenError("Supplier cannot access another vendor's data")
+
 
 
 # ─────────────────────────────────────────────────────────────────────────────

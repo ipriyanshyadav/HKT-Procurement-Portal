@@ -361,7 +361,8 @@ class SwitchCompanyContextRequest(BaseModel):
 
 class SwitchCompanyContextResponse(BaseModel):
     access_token: str
-    token_type: str = "bearer"
+    token_type: str = "bearer"  # noqa: S105
+
     active_company: CompanyContextResponse
     user_id: UUID
     email: str

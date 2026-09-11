@@ -915,9 +915,9 @@ class WorkflowEngine:
                                 instance.org_id,
                                 new_values={"status": PRStatus.APPROVED.value, "approved_at": pr.approved_at.isoformat()},
                             )
-                    elif final_action in ("REJECT", "RETURN", "CANCEL"):
-                        if pr.status in (PRStatus.PENDING_APPROVAL, PRStatus.SUBMITTED):
+                    elif final_action in ("REJECT", "RETURN", "CANCEL") and pr.status in (PRStatus.PENDING_APPROVAL, PRStatus.SUBMITTED):
                             pr.status = PRStatus.CANCELLED if final_action == "CANCEL" else PRStatus.REJECTED
+
                             pr.budget_reserved_amount = Decimal("0.0")
                             pr.updated_by = actor
                             await db.flush()
@@ -970,9 +970,9 @@ class WorkflowEngine:
                                 actor,
                                 instance.org_id,
                             )
-                    elif final_action in ("REJECT", "RETURN", "CANCEL"):
-                        if po.status in (POStatus.PENDING_APPROVAL, POStatus.DRAFT):
+                    elif final_action in ("REJECT", "RETURN", "CANCEL") and po.status in (POStatus.PENDING_APPROVAL, POStatus.DRAFT):
                             po.status = POStatus.CANCELLED if final_action == "CANCEL" else POStatus.REJECTED
+
                             po.updated_by = actor
                             await db.flush()
                             await audit_service.log(

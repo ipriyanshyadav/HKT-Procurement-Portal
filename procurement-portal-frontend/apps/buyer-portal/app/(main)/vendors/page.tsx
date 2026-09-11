@@ -7,7 +7,9 @@ import {
   Vendor,
   useBulkVendorCategoryMapping,
   BulkVendorCategoryMappingResponse,
+  getErrorMessage,
 } from "@procurement/hooks";
+
 import { VendorStatusBadge, PermissionGuard, Button } from "@procurement/ui";
 import { ArrowRight, FileSpreadsheet, UploadCloud, CheckCircle2, AlertCircle, X, ShieldAlert } from "lucide-react";
 
@@ -75,8 +77,11 @@ export default function VendorsListPage() {
     try {
       const res = await bulkMappingMut.mutateAsync(mappings);
       setBulkResult(res);
-    } catch (err: any) {
-      setBulkError(err?.response?.data?.error?.message || "Failed to process bulk category mapping");
+    } catch (err: unknown) {
+
+      
+
+
     }
   };
 

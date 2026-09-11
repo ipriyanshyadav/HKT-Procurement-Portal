@@ -29,6 +29,7 @@ import {
   useTriggerPITRSnapshot,
   useVerifyCheckpoint,
   useRunFailoverDrill,
+  useAppToast,
 } from "@procurement/hooks";
 import type { DRBackupCheckpoint, DRFailoverDrill, DRPostureMetrics } from "@procurement/types";
 
@@ -215,6 +216,7 @@ function DrillRow({ drill, isExpanded, onToggle }: DrillRowProps) {
 }
 
 export function DisasterRecoveryConsole() {
+  const { toast } = useAppToast();
   const [activeTab, setActiveTab] = useState<"posture" | "checkpoints" | "drills">("posture");
   const [expandedDrill, setExpandedDrill] = useState<string | null>(null);
   const [showDrillForm, setShowDrillForm] = useState(false);
@@ -237,16 +239,18 @@ export function DisasterRecoveryConsole() {
         worm_locked: true,
         retention_days: 30,
       });
+      toast.success("Snapshot triggered successfully");
     } catch {
-      alert("Failed to trigger snapshot. Check API status.");
+      toast.error("Failed to trigger snapshot. Check API status.");
     }
   };
 
   const handleVerify = async (id: string) => {
     try {
       await verifyCheckpoint.mutateAsync(id);
+      toast.success("Checkpoint verified successfully");
     } catch {
-      alert("Verification failed. Checkpoint may be inaccessible.");
+      toast.error("Verification failed. Checkpoint may be inaccessible.");
     }
   };
 
@@ -259,9 +263,10 @@ export function DisasterRecoveryConsole() {
         target_rpo_minutes: 60,
         target_rto_minutes: 240,
       });
+      toast.success("Drill execution started");
       setShowDrillForm(false);
     } catch {
-      alert("Drill execution failed. Ensure secondary cluster is configured.");
+      toast.error("Drill execution failed. Ensure secondary cluster is configured.");
     }
   };
 

@@ -600,8 +600,9 @@ class AnalyticsService:
         fiscal_year: str | None = None,
         user_bu_scope: list[UUID] | None = None,
     ) -> dict[str, Any]:
-        fy = fiscal_year or _current_fy()
+        _fy = fiscal_year or _current_fy()
         bu_scope_list = [str(b) for b in (user_bu_scope or [])]
+
 
         async with self._get_db(db) as analytics_db:
             params = {
@@ -1230,7 +1231,7 @@ class AnalyticsService:
         req: Any,
         user_bu_scope: list[UUID] | None = None,
     ) -> dict[str, Any]:
-        DIM_MAP = {
+        dim_map = {
             "category_name": "c.name AS category_name",
             "bu_name": "bu.name AS bu_name",
             "vendor_name": "v.company_name AS vendor_name",
@@ -1240,14 +1241,14 @@ class AnalyticsService:
             "year": "TO_CHAR(po.created_at, 'YYYY') AS year",
             "status": "po.status::text AS status",
         }
-        METRIC_MAP = {
+        metric_map = {
             "total_po_value": "COALESCE(SUM(po.total_value), 0) AS total_po_value",
             "po_count": "COUNT(DISTINCT po.id) AS po_count",
             "avg_po_value": "ROUND(COALESCE(AVG(po.total_value), 0)::numeric, 2) AS avg_po_value",
             "line_count": "COUNT(pol.id) AS line_count",
             "vendor_count": "COUNT(DISTINCT po.vendor_id) AS vendor_count",
         }
-        FILTER_FIELD_MAP = {
+        filter_field_map = {
             "business_unit_id": "po.business_unit_id",
             "category_id": "po.category_id",
             "vendor_id": "po.vendor_id",
@@ -1259,11 +1260,11 @@ class AnalyticsService:
 
         req_dims = getattr(req, "dimensions", []) or []
         req_metrics = getattr(req, "metrics", []) or []
-        selected_dims = [d for d in req_dims if d in DIM_MAP] or ["category_name"]
-        selected_metrics = [m for m in req_metrics if m in METRIC_MAP] or ["total_po_value", "po_count"]
+        selected_dims = [d for d in req_dims if d in dim_map] or ["category_name"]
+        selected_metrics = [m for m in req_metrics if m in metric_map] or ["total_po_value", "po_count"]
 
-        dim_selects = [DIM_MAP[d] for d in selected_dims]
-        metric_selects = [METRIC_MAP[m] for m in selected_metrics]
+        dim_selects = [dim_map[d] for d in selected_dims]
+        metric_selects = [metric_map[m] for m in selected_metrics]
         all_selects = ", ".join(dim_selects + metric_selects)
 
         group_by_cols = ", ".join([d.split(" AS ")[0] for d in dim_selects])
@@ -1289,9 +1290,9 @@ class AnalyticsService:
             val = (
                 getattr(f, "value", None) if hasattr(f, "value") else (f.get("value") if isinstance(f, dict) else None)
             )
-            if field_name not in FILTER_FIELD_MAP:
+            if field_name not in filter_field_map:
                 continue
-            col_expr = FILTER_FIELD_MAP[field_name]
+            col_expr = filter_field_map[field_name]
             param_name = f"filter_{idx}"
             if op == "eq":
                 where_clauses.append(f"{col_expr} = :{param_name}")
@@ -1310,6 +1311,9 @@ class AnalyticsService:
                 sql_params[param_name] = val
             elif op == "lte":
                 where_clauses.append(f"{col_expr} <= :{param_name}")
+                sql_params[param_name] = val
+            elif op == "in" and isinstance(val, list):
+                where_clauses.append(f"{col_expr} = ANY(:{param_name})")
                 sql_params[param_name] = val
             elif op == "like":
                 where_clauses.append(f"{col_expr} ILIKE :{param_name}")
@@ -1358,7 +1362,7 @@ class AnalyticsService:
                 WHERE {where_sql}
                 GROUP BY {group_by_cols}
             ) sub
-        """
+            """  # noqa: S608
 
         data_query = f"""
             SELECT {all_selects}
@@ -1367,7 +1371,7 @@ class AnalyticsService:
             GROUP BY {group_by_cols}
             ORDER BY {order_by_sql}
             LIMIT {page_size} OFFSET {offset}
-        """
+            """  # noqa: S608
 
         async with self._get_db(db) as analytics_db:
             cnt_res = await analytics_db.execute(text(count_query), sql_params)

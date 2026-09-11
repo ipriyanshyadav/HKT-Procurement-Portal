@@ -51,15 +51,15 @@ class ERPPOAdapter:
             "delivery_date": str(po.expected_delivery_date) if getattr(po, "expected_delivery_date", None) else None,
             "lines": [
                 {
-                    "line_number": l.line_number,
-                    "description": getattr(l, "item_description", getattr(l, "description", "")),
-                    "quantity": str(l.quantity),
-                    "unit_price": str(l.unit_price),
-                    "uom": getattr(l, "uom_id", None),
-                    "tax_rate": str(getattr(l, "tax_rate", 0)),
-                    "total_amount": str(getattr(l, "total_amount", l.quantity * l.unit_price)),
+                    "line_number": line.line_number,
+                    "description": getattr(line, "item_description", getattr(line, "description", "")),
+                    "quantity": str(line.quantity),
+                    "unit_price": str(line.unit_price),
+                    "uom": getattr(line, "uom_id", None),
+                    "tax_rate": str(getattr(line, "tax_rate", 0)),
+                    "total_amount": str(getattr(line, "total_amount", line.quantity * line.unit_price)),
                 }
-                for l in lines
+                for line in lines
             ],
         }
         payload["idempotency_key"] = self.generate_idempotency_key(payload)

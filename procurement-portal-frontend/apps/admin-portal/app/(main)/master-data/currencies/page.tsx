@@ -1,4 +1,5 @@
 "use client";
+import { getErrorMessage } from "@procurement/utils";
 
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
@@ -9,10 +10,13 @@ import {
   useDeleteCurrency,
   type CurrencyMaster,
 } from "@procurement/hooks";
-import { Badge, Button, PermissionGuard } from "@procurement/ui";
+import { useAppToast } from "@procurement/hooks";
+import { Badge, Button, PermissionGuard, useConfirm } from "@procurement/ui";
 import { Coins, Plus, Search, Edit2, Trash2, ArrowLeft, RefreshCw, Star } from "lucide-react";
 
 export default function CurrenciesManagementPage() {
+  const { toast } = useAppToast();
+  const { confirm } = useConfirm();
   const [includeRates, setIncludeRates] = useState(false);
   const { data: currencies = [], isLoading, error, refetch, isFetching } = useCurrencies({
     include_rates: includeRates,
@@ -104,28 +108,29 @@ export default function CurrenciesManagementPage() {
         });
       }
       setShowModal(false);
-    } catch (err: any) {
-      setFormError(
-        err?.response?.data?.error?.message ||
-          err?.response?.data?.message ||
-          err?.message ||
-          "Failed to save Currency"
-      );
+    } catch (err: unknown) {
+      setFormError(getErrorMessage(err, "Failed to save Currency"));
     }
   };
 
   const handleDelete = async (item: CurrencyMaster) => {
     if (item.is_base_currency) {
-      alert("Cannot delete the base currency.");
+      toast.error("Cannot delete the base currency.");
       return;
     }
-    if (!window.confirm(`Are you sure you want to deactivate currency "${item.code}"?`)) {
+    const ok = await confirm({
+      title: "Deactivate Currency",
+      description: `Are you sure you want to deactivate currency "${item.code}"?`,
+      confirmLabel: "Deactivate",
+      variant: "danger",
+    });
+    if (!ok) {
       return;
     }
     try {
       await deleteMutation.mutateAsync(item.id);
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || err?.message || "Failed to delete Currency");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to delete Currency"));
     }
   };
 

@@ -34,7 +34,7 @@ class EmailChannel:
 
         # Allow tests or local runs with empty/dummy keys to succeed without live external network call
         api_key = settings.SENDGRID_API_KEY
-        if not api_key or api_key.startswith("test") or api_key.startswith("mock") or api_key == "disabled":
+        if not api_key or api_key.startswith(("test", "mock")) or api_key == "disabled":
             logger.info(f"[EmailChannel MOCK] Sending email to={to_email} subject='{subject_text}'")
             return True
 
