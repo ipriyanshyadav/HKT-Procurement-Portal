@@ -73,61 +73,61 @@ export function MaverickIntelligenceWorkbench({
     <div className={`space-y-6 ${className}`}>
       {/* Metric Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-2xl border border-white/10 bg-[#1A1A1E] p-5 shadow-sm">
+        <div className="rounded-2xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#1A1A1E] p-5 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-neutral-400">Total Anomaly Clusters</span>
-            <BrainCircuit className="h-5 w-5 text-indigo-400" />
+            <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Total Anomaly Clusters</span>
+            <BrainCircuit className="h-5 w-5 text-indigo-500 dark:text-indigo-400" />
           </div>
           <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-2xl font-bold tracking-tight text-white">
+            <span className="text-2xl font-bold tracking-tight text-neutral-900 dark:text-white">
               {data?.total_clusters ?? 0}
             </span>
-            <span className="text-xs text-neutral-400">active patterns</span>
+            <span className="text-xs text-neutral-500 dark:text-neutral-400">active patterns</span>
           </div>
         </div>
 
-        <div className="rounded-2xl border border-red-500/20 bg-red-950/20 p-5 shadow-sm">
+        <div className="rounded-2xl border border-red-200 dark:border-red-500/20 bg-red-50 dark:bg-red-950/20 p-5 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-red-300">High & Critical Risk</span>
-            <ShieldAlert className="h-5 w-5 text-red-400" />
+            <span className="text-xs font-medium text-red-700 dark:text-red-300">High & Critical Risk</span>
+            <ShieldAlert className="h-5 w-5 text-red-500 dark:text-red-400" />
           </div>
           <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-2xl font-bold tracking-tight text-red-400">
+            <span className="text-2xl font-bold tracking-tight text-red-600 dark:text-red-400">
               {(data?.critical_count ?? 0) + (data?.high_count ?? 0)}
             </span>
-            <span className="text-xs text-red-400/80">urgent triage</span>
+            <span className="text-xs text-red-600/80 dark:text-red-400/80">urgent triage</span>
           </div>
         </div>
 
-        <div className="rounded-2xl border border-amber-500/20 bg-amber-950/20 p-5 shadow-sm">
+        <div className="rounded-2xl border border-amber-200 dark:border-amber-500/20 bg-amber-50 dark:bg-amber-950/20 p-5 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-amber-300">Total Leaked Spend</span>
-            <TrendingDown className="h-5 w-5 text-amber-400" />
+            <span className="text-xs font-medium text-amber-700 dark:text-amber-300">Total Leaked Spend</span>
+            <TrendingDown className="h-5 w-5 text-amber-500 dark:text-amber-400" />
           </div>
           <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-2xl font-bold tracking-tight text-amber-400">
+            <span className="text-2xl font-bold tracking-tight text-amber-600 dark:text-amber-400">
               {formatCurrency(data?.total_leaked_spend ?? 0)}
             </span>
-            <span className="text-xs text-amber-400/80">maverick volume</span>
+            <span className="text-xs text-amber-600/80 dark:text-amber-400/80">maverick volume</span>
           </div>
         </div>
 
-        <div className="rounded-2xl border border-emerald-500/20 bg-emerald-950/20 p-5 shadow-sm">
+        <div className="rounded-2xl border border-emerald-200 dark:border-emerald-500/20 bg-emerald-50 dark:bg-emerald-950/20 p-5 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-emerald-300">Projected Recovery Savings</span>
-            <DollarSign className="h-5 w-5 text-emerald-400" />
+            <span className="text-xs font-medium text-emerald-700 dark:text-emerald-300">Projected Recovery Savings</span>
+            <DollarSign className="h-5 w-5 text-emerald-500 dark:text-emerald-400" />
           </div>
           <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-2xl font-bold tracking-tight text-emerald-400">
+            <span className="text-2xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400">
               {formatCurrency(data?.projected_savings_recovery ?? 0)}
             </span>
-            <span className="text-xs text-emerald-400/80">negotiation ROI</span>
+            <span className="text-xs text-emerald-600/80 dark:text-emerald-400/80">negotiation ROI</span>
           </div>
         </div>
       </div>
 
       {/* Control Bar */}
-      <div className="flex flex-col gap-4 rounded-2xl border border-white/10 bg-[#1A1A1E] p-4 lg:flex-row lg:items-center lg:justify-between">
+      <div className="flex flex-col gap-4 rounded-2xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#1A1A1E] p-4 lg:flex-row lg:items-center lg:justify-between shadow-xs">
         <div className="flex flex-wrap items-center gap-3">
           <div className="relative min-w-[240px]">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-neutral-400" />
@@ -136,14 +136,14 @@ export function MaverickIntelligenceWorkbench({
               placeholder="Search anomalies, root causes, AI actions..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-xl border border-white/10 bg-[#252529] py-2 pl-9 pr-3 text-xs text-white placeholder-neutral-500 focus:border-blue-500 focus:outline-none"
+              className="w-full rounded-xl border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-[#252529] py-2 pl-9 pr-3 text-xs text-neutral-900 dark:text-white placeholder-neutral-400 dark:placeholder-neutral-500 focus:border-blue-500 focus:outline-none"
             />
           </div>
 
           <select
             value={selectedType}
             onChange={(e) => setSelectedType(e.target.value)}
-            className="rounded-xl border border-white/10 bg-[#252529] px-3 py-2 text-xs text-neutral-200 focus:border-blue-500 focus:outline-none"
+            className="rounded-xl border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-[#252529] px-3 py-2 text-xs text-neutral-800 dark:text-neutral-200 focus:border-blue-500 focus:outline-none"
           >
             <option value="ALL">All Cluster Types</option>
             <option value="RETROACTIVE_PO">Retroactive POs</option>
@@ -155,7 +155,7 @@ export function MaverickIntelligenceWorkbench({
           <select
             value={selectedStatus}
             onChange={(e) => setSelectedStatus(e.target.value)}
-            className="rounded-xl border border-white/10 bg-[#252529] px-3 py-2 text-xs text-neutral-200 focus:border-blue-500 focus:outline-none"
+            className="rounded-xl border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-[#252529] px-3 py-2 text-xs text-neutral-800 dark:text-neutral-200 focus:border-blue-500 focus:outline-none"
           >
             <option value="ALL">All Triage Statuses</option>
             <option value="DETECTED">Detected</option>
@@ -169,7 +169,7 @@ export function MaverickIntelligenceWorkbench({
           <button
             onClick={() => refetch()}
             disabled={isLoading}
-            className="flex items-center gap-1.5 rounded-xl border border-white/10 bg-[#252529] px-3 py-2 text-xs font-medium text-neutral-300 hover:bg-white/5 hover:text-white"
+            className="flex items-center gap-1.5 rounded-xl border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-[#252529] px-3 py-2 text-xs font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-white/5 hover:text-neutral-900 dark:hover:text-white transition-colors"
           >
             <RefreshCw className={`h-3.5 w-3.5 ${isLoading ? "animate-spin" : ""}`} />
             Refresh
@@ -189,9 +189,9 @@ export function MaverickIntelligenceWorkbench({
       {/* Cluster List */}
       <div className="space-y-4">
         {filteredClusters.length === 0 ? (
-          <div className="rounded-2xl border border-white/10 bg-[#1A1A1E] p-12 text-center">
-            <BrainCircuit className="mx-auto h-10 w-10 text-neutral-600" />
-            <p className="mt-3 text-sm font-medium text-neutral-400">No maverick spend clusters match current filters.</p>
+          <div className="rounded-2xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#1A1A1E] p-12 text-center shadow-xs">
+            <BrainCircuit className="mx-auto h-10 w-10 text-neutral-400 dark:text-neutral-600" />
+            <p className="mt-3 text-sm font-medium text-neutral-600 dark:text-neutral-400">No maverick spend clusters match current filters.</p>
             <p className="mt-1 text-xs text-neutral-500">
               Click &quot;Run AI Anomaly Scan&quot; to evaluate active purchase orders and invoices.
             </p>
@@ -204,7 +204,7 @@ export function MaverickIntelligenceWorkbench({
             return (
               <div
                 key={cluster.id}
-                className="rounded-2xl border border-white/10 bg-[#1A1A1E] p-5 shadow-sm transition-all hover:border-white/20"
+                className="rounded-2xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#1A1A1E] p-5 shadow-xs transition-all hover:border-neutral-300 dark:hover:border-white/20"
               >
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div className="space-y-1">
@@ -212,41 +212,41 @@ export function MaverickIntelligenceWorkbench({
                       <span
                         className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
                           isCritical
-                            ? "border border-red-500/30 bg-red-500/10 text-red-400"
+                            ? "border border-red-500/30 bg-red-500/10 text-red-600 dark:text-red-400"
                             : isHigh
-                            ? "border border-amber-500/30 bg-amber-500/10 text-amber-400"
-                            : "border border-blue-500/30 bg-blue-500/10 text-blue-400"
+                            ? "border border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-400"
+                            : "border border-blue-500/30 bg-blue-500/10 text-blue-600 dark:text-blue-400"
                         }`}
                       >
                         {cluster.severity}
                       </span>
-                      <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5 text-[10px] font-mono font-medium text-neutral-300">
+                      <span className="rounded-full border border-neutral-200 dark:border-white/10 bg-neutral-100 dark:bg-white/5 px-2.5 py-0.5 text-[10px] font-mono font-medium text-neutral-700 dark:text-neutral-300">
                         {cluster.cluster_type}
                       </span>
                       <span
                         className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${
                           cluster.status === "RESOLVED"
-                            ? "bg-emerald-500/20 text-emerald-300"
+                            ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
                             : cluster.status === "INVESTIGATING"
-                            ? "bg-blue-500/20 text-blue-300"
+                            ? "bg-blue-500/10 text-blue-700 dark:text-blue-300"
                             : cluster.status === "FALSE_POSITIVE"
-                            ? "bg-neutral-500/20 text-neutral-400"
-                            : "bg-purple-500/20 text-purple-300"
+                            ? "bg-neutral-200 dark:bg-neutral-500/20 text-neutral-700 dark:text-neutral-400"
+                            : "bg-purple-500/10 text-purple-700 dark:text-purple-300"
                         }`}
                       >
                         {cluster.status}
                       </span>
                     </div>
 
-                    <h3 className="text-base font-semibold text-white">{cluster.cluster_title}</h3>
+                    <h3 className="text-base font-semibold text-neutral-900 dark:text-white">{cluster.cluster_title}</h3>
                   </div>
 
                   {/* Spend Impact & Actions */}
                   <div className="flex flex-wrap items-center gap-4 sm:flex-col sm:items-end sm:gap-2">
-                    <div className="text-right">
-                      <div className="text-xs text-neutral-400">Leaked Spend Impact</div>
-                      <div className="text-base font-bold text-amber-400">{formatCurrency(cluster.affected_spend)}</div>
-                      <div className="text-[11px] text-emerald-400 font-medium">
+                    <div className="text-left sm:text-right">
+                      <div className="text-xs text-neutral-500 dark:text-neutral-400">Leaked Spend Impact</div>
+                      <div className="text-base font-bold text-amber-600 dark:text-amber-400">{formatCurrency(cluster.affected_spend)}</div>
+                      <div className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
                         Potential Savings: {formatCurrency(cluster.potential_savings)}
                       </div>
                     </div>
@@ -256,7 +256,7 @@ export function MaverickIntelligenceWorkbench({
                         <button
                           onClick={() => handleStatusChange(cluster.id, "INVESTIGATING")}
                           disabled={statusMutation.isPending}
-                          className="rounded-lg border border-white/10 bg-[#252529] px-2.5 py-1 text-[11px] font-medium text-neutral-300 hover:bg-white/5 hover:text-white"
+                          className="rounded-lg border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-[#252529] px-2.5 py-1 text-[11px] font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-white/5 hover:text-neutral-900 dark:hover:text-white transition-colors"
                         >
                           Investigate
                         </button>
@@ -265,7 +265,7 @@ export function MaverickIntelligenceWorkbench({
                         <button
                           onClick={() => handleStatusChange(cluster.id, "RESOLVED")}
                           disabled={statusMutation.isPending}
-                          className="flex items-center gap-1 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-[11px] font-medium text-emerald-300 hover:bg-emerald-500/20"
+                          className="flex items-center gap-1 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-[11px] font-medium text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/20 transition-colors"
                         >
                           <CheckCircle2 className="h-3 w-3" />
                           Resolve
@@ -275,7 +275,7 @@ export function MaverickIntelligenceWorkbench({
                         <button
                           onClick={() => handleStatusChange(cluster.id, "FALSE_POSITIVE")}
                           disabled={statusMutation.isPending}
-                          className="rounded-lg border border-white/10 bg-[#252529] px-2.5 py-1 text-[11px] font-medium text-neutral-400 hover:bg-white/5 hover:text-neutral-200"
+                          className="rounded-lg border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-[#252529] px-2.5 py-1 text-[11px] font-medium text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-white/5 hover:text-neutral-900 dark:hover:text-neutral-200 transition-colors"
                         >
                           False Positive
                         </button>
@@ -285,21 +285,21 @@ export function MaverickIntelligenceWorkbench({
                 </div>
 
                 {/* Analysis & AI Recommendations */}
-                <div className="mt-4 grid grid-cols-1 gap-3 rounded-xl border border-white/5 bg-[#252529]/60 p-4 md:grid-cols-2">
+                <div className="mt-4 grid grid-cols-1 gap-3 rounded-xl border border-neutral-200/70 dark:border-white/5 bg-neutral-50 dark:bg-[#252529]/60 p-4 md:grid-cols-2">
                   <div className="space-y-1">
-                    <div className="flex items-center gap-1.5 text-xs font-semibold text-neutral-300">
-                      <AlertTriangle className="h-3.5 w-3.5 text-amber-400" />
+                    <div className="flex items-center gap-1.5 text-xs font-semibold text-neutral-800 dark:text-neutral-300">
+                      <AlertTriangle className="h-3.5 w-3.5 text-amber-500 dark:text-amber-400" />
                       Root Cause Analysis
                     </div>
-                    <p className="text-xs text-neutral-400 leading-relaxed">{cluster.root_cause_analysis}</p>
+                    <p className="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed">{cluster.root_cause_analysis}</p>
                   </div>
 
                   <div className="space-y-1">
-                    <div className="flex items-center gap-1.5 text-xs font-semibold text-neutral-300">
-                      <Sparkles className="h-3.5 w-3.5 text-indigo-400" />
+                    <div className="flex items-center gap-1.5 text-xs font-semibold text-neutral-800 dark:text-neutral-300">
+                      <Sparkles className="h-3.5 w-3.5 text-indigo-500 dark:text-indigo-400" />
                       AI Recommended Countermeasure
                     </div>
-                    <p className="text-xs text-neutral-400 leading-relaxed">{cluster.ai_recommendation}</p>
+                    <p className="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed">{cluster.ai_recommendation}</p>
                   </div>
                 </div>
               </div>

@@ -63,6 +63,7 @@ class Settings(BaseSettings):
     MAX_CONCURRENT_SESSIONS: int = 5
     MAX_FAILED_LOGIN_ATTEMPTS: int = 5
     LOGIN_LOCKOUT_MINUTES: int = 30
+    MAX_LIST_LIMIT: int = 200  # Maximum page size for paginated list endpoints
 
     # Cookies
     COOKIE_SECURE: bool = False
@@ -85,6 +86,9 @@ class Settings(BaseSettings):
     SAML_IDP_CERTIFICATE: str = ""
     SAML_SP_ENTITY_ID: str = "https://procurement.portal/api/v1/auth/sso/saml"
     SAML_SP_ACS_URL: str = "http://localhost:8000/api/v1/auth/sso/callback"
+    # SECURITY: Enable SAML simulation bypass ONLY for local developer testing.
+    # MUST remain False in staging and production environments.
+    ENABLE_SSO_MOCK: bool = False
 
     OIDC_ENABLED: bool = False
     OIDC_DISCOVERY_URL: str = ""

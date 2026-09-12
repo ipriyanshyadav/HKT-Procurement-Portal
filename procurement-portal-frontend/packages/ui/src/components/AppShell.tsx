@@ -148,9 +148,9 @@ export function AppShell({
   let mainMarginClass = '';
   if (showSidebar) {
     if (sidebarMode === 'pinned') {
-      mainMarginClass = 'md:ml-[250px]';
+      mainMarginClass = 'md:ml-[268px]';
     } else if (sidebarMode === 'minimized') {
-      mainMarginClass = 'md:ml-[60px]';
+      mainMarginClass = 'md:ml-[64px]';
     } else {
       mainMarginClass = 'md:ml-0';
     }

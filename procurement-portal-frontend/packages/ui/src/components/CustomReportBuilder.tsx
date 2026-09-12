@@ -174,11 +174,11 @@ export function CustomReportBuilder({
   return (
     <div className={`space-y-6 ${className}`}>
       {/* Query Configuration Studio */}
-      <div className="rounded-2xl border border-white/10 bg-[#1C1C1F] p-6 shadow-sm">
-        <div className="flex flex-col gap-3 border-b border-white/10 pb-5 sm:flex-row sm:items-center sm:justify-between">
+      <div className="rounded-2xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#1C1C1F] p-6 shadow-sm">
+        <div className="flex flex-col gap-3 border-b border-neutral-200 dark:border-white/10 pb-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h3 className="text-base font-semibold tracking-tight text-white">Custom Report Query Builder</h3>
-            <p className="text-xs text-neutral-400">
+            <h3 className="text-base font-semibold tracking-tight text-neutral-900 dark:text-white">Custom Report Query Builder</h3>
+            <p className="text-xs text-neutral-500 dark:text-neutral-400">
               Select dynamic dimensions, multi-metric aggregations, filter predicates, and export formats
             </p>
           </div>
@@ -189,15 +189,15 @@ export function CustomReportBuilder({
               value={reportName}
               onChange={(e) => setReportName(e.target.value)}
               placeholder="Report Title"
-              className="w-full rounded-xl border border-white/10 bg-[#252529] px-3 py-1.5 text-xs text-white placeholder-neutral-500 focus:border-blue-500 focus:outline-none"
+              className="w-full rounded-xl border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-[#252529] px-3 py-1.5 text-xs text-neutral-900 dark:text-white placeholder-neutral-400 dark:placeholder-neutral-500 focus:border-blue-500 focus:outline-none"
             />
           </div>
         </div>
 
         {/* Section 1: Dimensions */}
         <div className="mt-5 space-y-2">
-          <label className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-neutral-400">
-            <Layers className="h-3.5 w-3.5 text-blue-400" />
+          <label className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
+            <Layers className="h-3.5 w-3.5 text-blue-500 dark:text-blue-400" />
             1. Group By Dimensions (Select 1 or more)
           </label>
           <div className="flex flex-wrap gap-2 pt-1">
@@ -209,8 +209,8 @@ export function CustomReportBuilder({
                   onClick={() => toggleDimension(dim.id)}
                   className={`rounded-xl px-3 py-1.5 text-xs font-medium transition-all ${
                     isSelected
-                      ? "border border-blue-500/40 bg-blue-500/20 text-blue-300 shadow-sm"
-                      : "border border-white/10 bg-[#252529] text-neutral-400 hover:text-white hover:bg-white/5"
+                      ? "border border-blue-500/40 bg-blue-500/20 text-blue-700 dark:text-blue-300 shadow-sm"
+                      : "border border-neutral-200 dark:border-white/10 bg-neutral-100 dark:bg-[#252529] text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-200 dark:hover:bg-white/5"
                   }`}
                 >
                   {dim.label}
@@ -222,8 +222,8 @@ export function CustomReportBuilder({
 
         {/* Section 2: Metrics */}
         <div className="mt-5 space-y-2">
-          <label className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-neutral-400">
-            <BarChart2 className="h-3.5 w-3.5 text-emerald-400" />
+          <label className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
+            <BarChart2 className="h-3.5 w-3.5 text-emerald-500 dark:text-emerald-400" />
             2. Aggregate Metrics (Select 1 or more)
           </label>
           <div className="flex flex-wrap gap-2 pt-1">
@@ -235,8 +235,8 @@ export function CustomReportBuilder({
                   onClick={() => toggleMetric(met.id)}
                   className={`rounded-xl px-3 py-1.5 text-xs font-medium transition-all ${
                     isSelected
-                      ? "border border-emerald-500/40 bg-emerald-500/20 text-emerald-300 shadow-sm"
-                      : "border border-white/10 bg-[#252529] text-neutral-400 hover:text-white hover:bg-white/5"
+                      ? "border border-emerald-500/40 bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 shadow-sm"
+                      : "border border-neutral-200 dark:border-white/10 bg-neutral-100 dark:bg-[#252529] text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-200 dark:hover:bg-white/5"
                   }`}
                 >
                   {met.label}
@@ -249,13 +249,13 @@ export function CustomReportBuilder({
         {/* Section 3: Filters */}
         <div className="mt-5 space-y-3">
           <div className="flex items-center justify-between">
-            <label className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-neutral-400">
-              <Filter className="h-3.5 w-3.5 text-amber-400" />
+            <label className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
+              <Filter className="h-3.5 w-3.5 text-amber-500 dark:text-amber-400" />
               3. Filter Predicates (Optional)
             </label>
             <button
               onClick={addFilter}
-              className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 font-medium"
+              className="flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium"
             >
               <Plus className="h-3.5 w-3.5" />
               Add Filter
@@ -271,7 +271,7 @@ export function CustomReportBuilder({
                   <select
                     value={flt.field}
                     onChange={(e) => updateFilter(idx, "field", e.target.value)}
-                    className="rounded-xl border border-white/10 bg-[#252529] px-3 py-1.5 text-xs text-white focus:border-blue-500 focus:outline-none"
+                    className="rounded-xl border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-[#252529] px-3 py-1.5 text-xs text-neutral-800 dark:text-white focus:border-blue-500 focus:outline-none"
                   >
                     {FILTERABLE_FIELDS.map((f) => (
                       <option key={f.id} value={f.id}>
@@ -283,7 +283,7 @@ export function CustomReportBuilder({
                   <select
                     value={flt.operator}
                     onChange={(e) => updateFilter(idx, "operator", e.target.value)}
-                    className="rounded-xl border border-white/10 bg-[#252529] px-3 py-1.5 text-xs text-white focus:border-blue-500 focus:outline-none"
+                    className="rounded-xl border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-[#252529] px-3 py-1.5 text-xs text-neutral-800 dark:text-white focus:border-blue-500 focus:outline-none"
                   >
                     {OPERATORS.map((op) => (
                       <option key={op.id} value={op.id}>
@@ -297,12 +297,12 @@ export function CustomReportBuilder({
                     value={flt.value}
                     onChange={(e) => updateFilter(idx, "value", e.target.value)}
                     placeholder="Value"
-                    className="w-44 rounded-xl border border-white/10 bg-[#252529] px-3 py-1.5 text-xs text-white focus:border-blue-500 focus:outline-none"
+                    className="w-44 rounded-xl border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-[#252529] px-3 py-1.5 text-xs text-neutral-800 dark:text-white focus:border-blue-500 focus:outline-none"
                   />
 
                   <button
                     onClick={() => removeFilter(idx)}
-                    className="flex h-7 w-7 items-center justify-center rounded-lg text-neutral-500 hover:bg-red-500/10 hover:text-red-400"
+                    className="flex h-7 w-7 items-center justify-center rounded-lg text-neutral-400 hover:bg-red-500/10 hover:text-red-500 transition-colors"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                   </button>
@@ -313,13 +313,13 @@ export function CustomReportBuilder({
         </div>
 
         {/* Action Bar */}
-        <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-5">
-          <div className="flex items-center gap-2 text-xs text-neutral-400">
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-neutral-200 dark:border-white/10 pt-5">
+          <div className="flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-400">
             <span>Sort by:</span>
             <select
               value={sortField}
               onChange={(e) => setSortField(e.target.value)}
-              className="rounded-xl border border-white/10 bg-[#252529] px-3 py-1 text-xs text-white focus:border-blue-500 focus:outline-none"
+              className="rounded-xl border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-[#252529] px-3 py-1 text-xs text-neutral-800 dark:text-white focus:border-blue-500 focus:outline-none"
             >
               {[...selectedMetrics, ...selectedDimensions].map((f) => (
                 <option key={f} value={f}>
@@ -330,7 +330,7 @@ export function CustomReportBuilder({
             <select
               value={sortDirection}
               onChange={(e) => setSortDirection(e.target.value as "asc" | "desc")}
-              className="rounded-xl border border-white/10 bg-[#252529] px-3 py-1 text-xs text-white focus:border-blue-500 focus:outline-none"
+              className="rounded-xl border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-[#252529] px-3 py-1 text-xs text-neutral-800 dark:text-white focus:border-blue-500 focus:outline-none"
             >
               <option value="desc">Descending</option>
               <option value="asc">Ascending</option>
@@ -350,11 +350,11 @@ export function CustomReportBuilder({
 
       {/* Results Table */}
       {reportResult && (
-        <div className="rounded-2xl border border-white/10 bg-[#1C1C1F] p-6 shadow-sm">
-          <div className="flex flex-col gap-3 border-b border-white/10 pb-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="rounded-2xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#1C1C1F] p-6 shadow-sm">
+          <div className="flex flex-col gap-3 border-b border-neutral-200 dark:border-white/10 pb-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h3 className="text-base font-semibold tracking-tight text-white">{reportResult.name}</h3>
-              <p className="text-xs text-neutral-400">
+              <h3 className="text-base font-semibold tracking-tight text-neutral-900 dark:text-white">{reportResult.name}</h3>
+              <p className="text-xs text-neutral-500 dark:text-neutral-400">
                 Returned {reportResult.total_records} aggregated records
               </p>
             </div>
@@ -363,25 +363,25 @@ export function CustomReportBuilder({
               <button
                 onClick={() => handleExport("csv")}
                 disabled={isExporting}
-                className="flex items-center gap-1.5 rounded-xl border border-white/10 bg-[#252529] px-3 py-1.5 text-xs font-medium text-neutral-300 hover:bg-white/5 hover:text-white"
+                className="flex items-center gap-1.5 rounded-xl border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-[#252529] px-3 py-1.5 text-xs font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-white/5 hover:text-neutral-900 dark:hover:text-white transition-colors"
               >
-                <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-400" />
+                <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
                 Download CSV
               </button>
               <button
                 onClick={() => handleExport("excel")}
                 disabled={isExporting}
-                className="flex items-center gap-1.5 rounded-xl border border-white/10 bg-[#252529] px-3 py-1.5 text-xs font-medium text-neutral-300 hover:bg-white/5 hover:text-white"
+                className="flex items-center gap-1.5 rounded-xl border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-[#252529] px-3 py-1.5 text-xs font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-white/5 hover:text-neutral-900 dark:hover:text-white transition-colors"
               >
-                <FileText className="h-3.5 w-3.5 text-blue-400" />
+                <FileText className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
                 Download Excel (XLSX)
               </button>
             </div>
           </div>
 
-          <div className="mt-4 overflow-x-auto rounded-xl border border-white/10">
+          <div className="mt-4 overflow-x-auto rounded-xl border border-neutral-200 dark:border-white/10">
             <table className="w-full text-left text-xs">
-              <thead className="bg-[#252529] uppercase tracking-wider text-neutral-400">
+              <thead className="bg-neutral-50 dark:bg-[#252529] uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
                 <tr>
                   {[...reportResult.dimensions, ...reportResult.metrics].map((col) => (
                     <th key={col} className="px-4 py-3">
@@ -390,11 +390,11 @@ export function CustomReportBuilder({
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5 font-mono">
+              <tbody className="divide-y divide-neutral-200 dark:divide-white/5 font-mono">
                 {reportResult.data.map((row, idx) => (
-                  <tr key={idx} className="hover:bg-white/5">
+                  <tr key={idx} className="hover:bg-neutral-50 dark:hover:bg-white/5">
                     {[...reportResult.dimensions, ...reportResult.metrics].map((col) => (
-                      <td key={col} className="px-4 py-3 text-neutral-200">
+                      <td key={col} className="px-4 py-3 text-neutral-800 dark:text-neutral-200">
                         {formatCellValue(col, row[col])}
                       </td>
                     ))}

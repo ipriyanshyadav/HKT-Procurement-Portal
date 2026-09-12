@@ -107,6 +107,39 @@ class NotificationDeliveryError(AppException):
 
 def register_exception_handlers(app: FastAPI) -> None:
     from app.core.telemetry import get_current_trace_id
+    from fastapi.exceptions import HTTPException
+
+    @app.exception_handler(HTTPException)
+    async def http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
+        """Normalize FastAPI/Starlette HTTPExceptions into the standard error envelope."""
+        trace_id = get_current_trace_id()
+        code = f"HTTP_{exc.status_code}"
+        # Map common status codes to readable error codes
+        _code_map = {
+            400: "BAD_REQUEST",
+            401: "UNAUTHORIZED",
+            403: "FORBIDDEN",
+            404: "NOT_FOUND",
+            405: "METHOD_NOT_ALLOWED",
+            422: "VALIDATION_ERROR",
+            429: "RATE_LIMIT_EXCEEDED",
+            500: "INTERNAL_SERVER_ERROR",
+            502: "BAD_GATEWAY",
+            503: "SERVICE_UNAVAILABLE",
+        }
+        code = _code_map.get(exc.status_code, code)
+        return JSONResponse(
+            status_code=exc.status_code,
+            content={
+                "error": {
+                    "code": code,
+                    "message": exc.detail if isinstance(exc.detail, str) else str(exc.detail),
+                    "details": {},
+                    "trace_id": trace_id,
+                    "timestamp": datetime.now(UTC).isoformat()
+                }
+            }
+        )
 
     @app.exception_handler(AppException)
     async def app_exception_handler(request: Request, exc: AppException) -> JSONResponse:
@@ -114,7 +147,6 @@ def register_exception_handlers(app: FastAPI) -> None:
         if isinstance(exc, NotFoundError):
             status_code = 404
         elif isinstance(exc, (ConflictError, OptimisticLockError)):
-
             status_code = 409
         elif isinstance(exc, ForbiddenError):
             status_code = 403
@@ -122,6 +154,8 @@ def register_exception_handlers(app: FastAPI) -> None:
             status_code = 401
         elif isinstance(exc, RateLimitError):
             status_code = 429
+        elif isinstance(exc, ValidationError):
+            status_code = 422
 
         trace_id = get_current_trace_id()
 

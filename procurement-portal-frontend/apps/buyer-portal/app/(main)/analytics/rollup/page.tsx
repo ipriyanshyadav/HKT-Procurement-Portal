@@ -14,11 +14,12 @@ import {
   ShieldCheck,
   RefreshCw,
   Percent,
+  AlertTriangle,
 } from "lucide-react";
 import { useCrossTenantRollup, useSwitchCompanyContext } from "@procurement/hooks";
 
 export default function CrossTenantRollupPage() {
-  const { data: rollup, isLoading, refetch, isFetching } = useCrossTenantRollup();
+  const { data: rollup, isLoading, isError, refetch, isFetching } = useCrossTenantRollup();
   const switchMutation = useSwitchCompanyContext();
 
   const handleEntitySwitch = (entityId: string) => {
@@ -39,6 +40,36 @@ export default function CrossTenantRollupPage() {
           {[...Array(4)].map((_, i) => (
             <div key={i} className="h-28 bg-white dark:bg-[#1C1C1F] border border-slate-200 dark:border-[#2e2e32] rounded-xl animate-pulse" />
           ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (isError && !rollup) {
+    return (
+      <div className="p-8 max-w-3xl mx-auto text-center py-16 space-y-4">
+        <div className="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center mx-auto">
+          <AlertTriangle className="w-7 h-7" />
+        </div>
+        <h2 className="text-xl font-bold text-slate-900 dark:text-white">Unable to Load Group Rollup</h2>
+        <p className="text-sm text-slate-600 dark:text-neutral-400 max-w-md mx-auto">
+          We encountered an issue fetching the cross-tenant intelligence report. Please retry or verify your enterprise permissions.
+        </p>
+        <div className="pt-2 flex items-center justify-center gap-3">
+          <button
+            type="button"
+            onClick={() => refetch()}
+            className="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg bg-blue-600 hover:bg-blue-500 text-white transition-colors"
+          >
+            <RefreshCw className="w-3.5 h-3.5" />
+            Retry Rollup Fetch
+          </button>
+          <Link
+            href="/analytics"
+            className="px-4 py-2 text-xs font-medium rounded-lg bg-slate-100 dark:bg-neutral-800 hover:bg-slate-200 dark:hover:bg-neutral-700 text-slate-700 dark:text-neutral-200 border border-slate-200 dark:border-neutral-700 transition-colors"
+          >
+            Back to Overview
+          </Link>
         </div>
       </div>
     );

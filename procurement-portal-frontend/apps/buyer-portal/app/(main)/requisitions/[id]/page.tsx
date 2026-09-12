@@ -161,6 +161,15 @@ export default function RequisitionDetailPage() {
     }
   };
 
+  const linesSubtotal = (pr.lines || []).reduce((acc, curr) => {
+    const lineTotal =
+      curr.estimated_total !== undefined && curr.estimated_total !== null && !isNaN(Number(curr.estimated_total))
+        ? Number(curr.estimated_total)
+        : (Number(curr.quantity) || 0) * (Number(curr.estimated_unit_price) || 0);
+    return acc + (isNaN(lineTotal) ? 0 : lineTotal);
+  }, 0);
+  const effectiveTotal = Number(pr.estimated_value) > 0 ? Number(pr.estimated_value) : linesSubtotal;
+
   return (
     <div className="w-full space-y-6">
       {/* Top Header */}
@@ -313,9 +322,14 @@ export default function RequisitionDetailPage() {
             </div>
             <div>
               <span className="text-xs text-slate-500 dark:text-slate-400 block font-medium">Estimated Value</span>
-              <span className="font-semibold text-slate-900 dark:text-slate-100 font-mono">
-                {pr.currency} {Number(pr.estimated_value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              <span className="font-semibold text-slate-900 dark:text-slate-100 font-mono block">
+                {pr.currency} {effectiveTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
+              {effectiveTotal > linesSubtotal + 0.01 && (
+                <span className="text-[11px] text-slate-500 dark:text-slate-400 block">
+                  (Lines: {pr.currency} {linesSubtotal.toLocaleString(undefined, { minimumFractionDigits: 0 })} + Tax)
+                </span>
+              )}
             </div>
             <div>
               <span className="text-xs text-slate-500 dark:text-slate-400 block font-medium">Required By Date</span>
@@ -337,7 +351,7 @@ export default function RequisitionDetailPage() {
         {/* Budget Check Card */}
         <div>
           <BudgetIndicator
-            estimatedTotal={Number(pr.estimated_value)}
+            estimatedTotal={effectiveTotal}
             availableBudget={500000}
             budgetStatus={pr.budget_check_status}
             currency={pr.currency}
@@ -359,7 +373,12 @@ export default function RequisitionDetailPage() {
 
         <div className="p-6">
           {activeTab === "lines" ? (
-            <PRLineItemTable lines={pr.lines || []} currency={pr.currency} editable={false} />
+            <PRLineItemTable
+              lines={pr.lines || []}
+              currency={pr.currency}
+              estimatedTotal={pr.estimated_value}
+              editable={false}
+            />
           ) : (
             <div className="space-y-4">
               {!auditLogs || auditLogs.length === 0 ? (

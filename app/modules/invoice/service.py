@@ -3,7 +3,7 @@ Invoice Service (SPEC_15).
 
 Implements:
 - 3-Way Match Engine (PO + GRN + Invoice)
-- Quantity tolerance (2% hardcoded module-level physical tolerance)
+- Quantity tolerance (configured in Settings via INVOICE_QUANTITY_TOLERANCE_PCT, default 2%)
 - Price tolerance (configured in Settings, default 0.5%)
 - Tax tolerance (1% per SPEC_15)
 - Duplicate invoice detection (org_id, vendor_id, vendor_invoice_number, financial_year)
@@ -113,8 +113,12 @@ class InvoiceService:
                 term = await self.terms_repo.get(db, po.payment_term_id, org_id)
                 if term and term.net_days:
                     net_days = term.net_days
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.warning(
+                    f"Failed to load payment terms for PO {po.id} "
+                    f"(term_id={po.payment_term_id}): {exc}. "
+                    f"Falling back to default {net_days} net days."
+                )
 
         raw_due = invoice_date + timedelta(days=net_days)
 

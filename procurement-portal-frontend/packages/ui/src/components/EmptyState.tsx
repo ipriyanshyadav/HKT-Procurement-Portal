@@ -18,7 +18,7 @@ export function EmptyState({
   className = '',
 }: EmptyStateProps) {
   return (
-    <div className={`flex flex-col items-center justify-center py-16 px-4 text-center ${className}`}>
+    <div role="status" className={`flex flex-col items-center justify-center py-16 px-4 text-center ${className}`}>
       {icon && (
         <div className="mb-4 flex items-center justify-center w-14 h-14 rounded-2xl bg-neutral-100 dark:bg-neutral-800 text-neutral-400 dark:text-neutral-500">
           {icon}
@@ -32,7 +32,7 @@ export function EmptyState({
           {description}
         </p>
       )}
-      {action && <div className="mt-2">{action}</div>}
+      {action && <div className="mt-4">{action}</div>}
     </div>
   );
 }

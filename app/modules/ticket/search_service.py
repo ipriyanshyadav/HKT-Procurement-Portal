@@ -292,3 +292,7 @@ class TicketSearchService:
             return await self._execute_sql_search(db, org_id, query, filters, actor_id, is_admin)
         async with async_session_factory() as session:
             return await self._execute_sql_search(session, org_id, query, filters, actor_id, is_admin)
+
+
+ticket_search_service = TicketSearchService()
+

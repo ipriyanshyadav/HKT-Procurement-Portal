@@ -11,13 +11,13 @@
   transition: width 260ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Mode: Pinned (Always expanded at 250px) */
+/* Mode: Pinned (Always expanded at 268px) */
 .apple-sidebar-dock.mode-pinned {
-  width: 250px;
+  width: 268px;
 }
 
 .apple-sidebar-dock.mode-pinned .apple-sidebar {
-  width: 250px;
+  width: 268px;
   transform: translateX(0);
   box-shadow: none;
 }
@@ -27,13 +27,13 @@
   display: none;
 }
 
-/* Mode: Minimized (Compact 60px icon rail) */
+/* Mode: Minimized (Compact 64px icon rail) */
 .apple-sidebar-dock.mode-minimized {
-  width: 60px;
+  width: 64px;
 }
 
 .apple-sidebar-dock.mode-minimized .apple-sidebar {
-  width: 60px;
+  width: 64px;
   transform: translateX(0);
   padding: 16px 8px 24px;
   box-shadow: none;
@@ -48,13 +48,13 @@
 .apple-sidebar-dock.mode-minimized.expanded,
 .apple-sidebar-dock.mode-minimized:hover,
 .apple-sidebar-dock.mode-minimized:focus-within {
-  width: 250px;
+  width: 268px;
 }
 
 .apple-sidebar-dock.mode-minimized.expanded .apple-sidebar,
 .apple-sidebar-dock.mode-minimized:hover .apple-sidebar,
 .apple-sidebar-dock.mode-minimized:focus-within .apple-sidebar {
-  width: 250px;
+  width: 268px;
   padding: 16px 12px 24px;
   box-shadow: 12px 0 36px rgba(0, 0, 0, 0.14);
 }
@@ -65,14 +65,14 @@
 }
 
 .apple-sidebar-dock.mode-auto-hide .apple-sidebar {
-  width: 250px;
+  width: 268px;
   transform: translateX(-100%);
 }
 
 .apple-sidebar-dock.mode-auto-hide.expanded,
 .apple-sidebar-dock.mode-auto-hide:hover,
 .apple-sidebar-dock.mode-auto-hide:focus-within {
-  width: 256px;
+  width: 268px;
 }
 
 .apple-sidebar-dock.mode-auto-hide.expanded .apple-sidebar,
@@ -209,14 +209,14 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 8px 12px;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 400;
+  padding: 8px 10px;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 450;
   color: var(--apple-label-primary);
   text-decoration: none;
   cursor: pointer;
-  transition: background 150ms var(--apple-ease), color 150ms var(--apple-ease), padding 200ms var(--apple-ease);
+  transition: background 150ms var(--apple-ease), color 150ms var(--apple-ease), padding 200ms var(--apple-ease), box-shadow 150ms var(--apple-ease);
   white-space: nowrap;
 }
 
@@ -225,13 +225,28 @@
 }
 
 .sidebar-item.active {
-  background: var(--apple-blue);
-  color: #FFFFFF;
-  font-weight: 500;
+  background: rgba(0, 113, 227, 0.10);
+  color: #0071E3;
+  font-weight: 600;
+  box-shadow: inset 3px 0 0 #0071E3;
+}
+
+.dark .sidebar-item.active,
+.theme-apple-dark .sidebar-item.active,
+[data-theme='apple-dark'] .sidebar-item.active {
+  background: rgba(41, 151, 255, 0.15);
+  color: #409CFF;
+  box-shadow: inset 3px 0 0 #409CFF;
 }
 
 .sidebar-item.active .sidebar-icon {
-  color: #FFFFFF;
+  color: #0071E3;
+}
+
+.dark .sidebar-item.active .sidebar-icon,
+.theme-apple-dark .sidebar-item.active .sidebar-icon,
+[data-theme='apple-dark'] .sidebar-item.active .sidebar-icon {
+  color: #409CFF;
 }
 
 .sidebar-icon {

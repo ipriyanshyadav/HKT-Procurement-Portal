@@ -152,16 +152,16 @@ export function DeveloperPlatformDashboard() {
   return (
     <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-8">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#2e2e32] pb-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-neutral-200 dark:border-[#2e2e32] pb-6">
         <div>
-          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-amber-500 mb-1">
+          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-500 mb-1">
             <Terminal className="w-4 h-4" />
             Developer Platform & Extensibility
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-white">
+          <h1 className="text-2xl font-bold tracking-tight text-neutral-900 dark:text-white">
             API Keys & Webhooks Hub
           </h1>
-          <p className="text-sm text-neutral-400 mt-1">
+          <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
             Manage programmatic credentials, webhook delivery pipelines, and integrate external ERPs & microservices.
           </p>
         </div>
@@ -190,14 +190,14 @@ export function DeveloperPlatformDashboard() {
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-2 border-b border-[#2e2e32]">
+      <div className="flex items-center gap-2 border-b border-neutral-200 dark:border-[#2e2e32]">
         <button
           type="button"
           onClick={() => setActiveTab("keys")}
           className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold border-b-2 transition-colors ${
             activeTab === "keys"
-              ? "border-amber-500 text-amber-400"
-              : "border-transparent text-neutral-400 hover:text-neutral-200"
+              ? "border-amber-500 text-amber-600 dark:text-amber-400"
+              : "border-transparent text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-200"
           }`}
         >
           <Key className="w-3.5 h-3.5" />
@@ -208,8 +208,8 @@ export function DeveloperPlatformDashboard() {
           onClick={() => setActiveTab("webhooks")}
           className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold border-b-2 transition-colors ${
             activeTab === "webhooks"
-              ? "border-blue-500 text-blue-400"
-              : "border-transparent text-neutral-400 hover:text-neutral-200"
+              ? "border-blue-500 text-blue-600 dark:text-blue-400"
+              : "border-transparent text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-200"
           }`}
         >
           <Webhook className="w-3.5 h-3.5" />
@@ -220,8 +220,8 @@ export function DeveloperPlatformDashboard() {
           onClick={() => setActiveTab("quickstart")}
           className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold border-b-2 transition-colors ${
             activeTab === "quickstart"
-              ? "border-purple-500 text-purple-400"
-              : "border-transparent text-neutral-400 hover:text-neutral-200"
+              ? "border-purple-500 text-purple-600 dark:text-purple-400"
+              : "border-transparent text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-200"
           }`}
         >
           <Code2 className="w-3.5 h-3.5" />
@@ -232,13 +232,13 @@ export function DeveloperPlatformDashboard() {
       {/* TAB 1: API KEYS */}
       {activeTab === "keys" && (
         <div className="space-y-6">
-          <div className="bg-[#1C1C1F] border border-[#2e2e32] rounded-xl overflow-hidden shadow-sm">
-            <div className="px-6 py-4 border-b border-[#2e2e32] flex items-center justify-between">
-              <span className="text-xs font-semibold text-white">Active & Revoked API Credentials</span>
+          <div className="bg-white dark:bg-[#1C1C1F] border border-neutral-200 dark:border-[#2e2e32] rounded-xl overflow-hidden shadow-sm">
+            <div className="px-6 py-4 border-b border-neutral-200 dark:border-[#2e2e32] flex items-center justify-between">
+              <span className="text-xs font-semibold text-neutral-900 dark:text-white">Active & Revoked API Credentials</span>
               <button
                 type="button"
                 onClick={() => refetchKeys()}
-                className="text-neutral-400 hover:text-white text-xs flex items-center gap-1.5"
+                className="text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white text-xs flex items-center gap-1.5"
               >
                 <RefreshCw className="w-3.5 h-3.5" />
                 Refresh
@@ -249,8 +249,8 @@ export function DeveloperPlatformDashboard() {
               <div className="p-8 text-center text-xs text-neutral-500">Loading API keys...</div>
             ) : apiKeys.length === 0 ? (
               <div className="p-12 text-center">
-                <Key className="w-8 h-8 text-neutral-600 mx-auto mb-3" />
-                <h3 className="text-sm font-semibold text-white">No API Keys Generated</h3>
+                <Key className="w-8 h-8 text-neutral-400 dark:text-neutral-600 mx-auto mb-3" />
+                <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">No API Keys Generated</h3>
                 <p className="text-xs text-neutral-500 mt-1 max-w-sm mx-auto">
                   Create a programmatic API key to authenticate external backend systems, ERP batch scripts, or customs pipelines.
                 </p>
@@ -263,21 +263,21 @@ export function DeveloperPlatformDashboard() {
                 </button>
               </div>
             ) : (
-              <div className="divide-y divide-[#2e2e32]">
+              <div className="divide-y divide-neutral-200 dark:divide-[#2e2e32]">
                 {apiKeys.map((key) => {
                   const isRevoked = key.status === "REVOKED";
                   return (
-                    <div key={key.id} className="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-[#252529]/40 transition-colors">
+                    <div key={key.id} className="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-neutral-50 dark:hover:bg-[#252529]/40 transition-colors">
                       <div className="space-y-1.5 min-w-0">
                         <div className="flex items-center gap-2.5">
-                          <span className="font-semibold text-white text-sm">{key.name}</span>
-                          <span className="px-2 py-0.5 rounded bg-neutral-800 border border-neutral-700 font-mono text-[11px] text-amber-400">
+                          <span className="font-semibold text-neutral-900 dark:text-white text-sm">{key.name}</span>
+                          <span className="px-2 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 font-mono text-[11px] text-amber-600 dark:text-amber-400">
                             {key.key_prefix}
                           </span>
                           <span className={`px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider ${
                             key.status === "ACTIVE"
-                              ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
-                              : "bg-red-500/15 text-red-400 border border-red-500/30"
+                              ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30"
+                              : "bg-red-500/15 text-red-600 dark:text-red-400 border border-red-500/30"
                           }`}>
                             {key.status}
                           </span>
@@ -285,7 +285,7 @@ export function DeveloperPlatformDashboard() {
 
                         <div className="flex flex-wrap items-center gap-1.5 pt-1">
                           {key.scopes.map((scope, idx) => (
-                            <span key={idx} className="px-2 py-0.5 rounded text-[10px] bg-[#252529] border border-[#2e2e32] text-neutral-300 font-mono">
+                            <span key={idx} className="px-2 py-0.5 rounded text-[10px] bg-neutral-100 dark:bg-[#252529] border border-neutral-200 dark:border-[#2e2e32] text-neutral-700 dark:text-neutral-300 font-mono">
                               {scope}
                             </span>
                           ))}
@@ -318,7 +318,7 @@ export function DeveloperPlatformDashboard() {
                               revokeKeyMutation.mutate({ id: key.id, payload: { reason: "User manual revocation" } });
                             }}
                             disabled={revokeKeyMutation.isPending}
-                            className="px-3 py-1.5 text-xs font-medium rounded-lg text-red-400 hover:text-red-300 hover:bg-red-500/10 border border-red-500/30 transition-colors"
+                            className="px-3 py-1.5 text-xs font-medium rounded-lg text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-500/10 border border-red-300 dark:border-red-500/30 transition-colors"
                           >
                             Revoke Key
                           </button>
@@ -336,13 +336,13 @@ export function DeveloperPlatformDashboard() {
       {/* TAB 2: WEBHOOKS */}
       {activeTab === "webhooks" && (
         <div className="space-y-6">
-          <div className="bg-[#1C1C1F] border border-[#2e2e32] rounded-xl overflow-hidden shadow-sm">
-            <div className="px-6 py-4 border-b border-[#2e2e32] flex items-center justify-between">
-              <span className="text-xs font-semibold text-white">Registered Webhook Endpoints</span>
+          <div className="bg-white dark:bg-[#1C1C1F] border border-neutral-200 dark:border-[#2e2e32] rounded-xl overflow-hidden shadow-sm">
+            <div className="px-6 py-4 border-b border-neutral-200 dark:border-[#2e2e32] flex items-center justify-between">
+              <span className="text-xs font-semibold text-neutral-900 dark:text-white">Registered Webhook Endpoints</span>
               <button
                 type="button"
                 onClick={() => refetchWebhooks()}
-                className="text-neutral-400 hover:text-white text-xs flex items-center gap-1.5"
+                className="text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white text-xs flex items-center gap-1.5"
               >
                 <RefreshCw className="w-3.5 h-3.5" />
                 Refresh
@@ -353,8 +353,8 @@ export function DeveloperPlatformDashboard() {
               <div className="p-8 text-center text-xs text-neutral-500">Loading webhooks...</div>
             ) : webhooks.length === 0 ? (
               <div className="p-12 text-center">
-                <Webhook className="w-8 h-8 text-neutral-600 mx-auto mb-3" />
-                <h3 className="text-sm font-semibold text-white">No Webhooks Registered</h3>
+                <Webhook className="w-8 h-8 text-neutral-400 dark:text-neutral-600 mx-auto mb-3" />
+                <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">No Webhooks Registered</h3>
                 <p className="text-xs text-neutral-500 mt-1 max-w-sm mx-auto">
                   Register HTTPS endpoints to receive real-time JSON payloads for PO releases, ASN receipts, or invoice approvals.
                 </p>
@@ -367,43 +367,43 @@ export function DeveloperPlatformDashboard() {
                 </button>
               </div>
             ) : (
-              <div className="divide-y divide-[#2e2e32]">
+              <div className="divide-y divide-neutral-200 dark:divide-[#2e2e32]">
                 {webhooks.map((hook) => (
-                  <div key={hook.id} className="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-[#252529]/40 transition-colors">
+                  <div key={hook.id} className="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-neutral-50 dark:hover:bg-[#252529]/40 transition-colors">
                     <div className="space-y-1.5 min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="font-mono text-xs font-semibold text-blue-400 truncate max-w-md">
+                        <span className="font-mono text-xs font-semibold text-blue-600 dark:text-blue-400 truncate max-w-md">
                           {hook.endpoint_url}
                         </span>
                         <span className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
                           hook.is_active
-                            ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
-                            : "bg-neutral-800 text-neutral-400 border border-neutral-700"
+                            ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30"
+                            : "bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 border border-neutral-200 dark:border-neutral-700"
                         }`}>
                           {hook.is_active ? "ACTIVE" : "DISABLED"}
                         </span>
                       </div>
 
                       {hook.description && (
-                        <p className="text-xs text-neutral-400">{hook.description}</p>
+                        <p className="text-xs text-neutral-600 dark:text-neutral-400">{hook.description}</p>
                       )}
 
                       <div className="flex flex-wrap items-center gap-1.5 pt-1">
                         <span className="text-[11px] text-neutral-500">Events:</span>
                         {hook.subscribed_events.map((ev, idx) => (
-                          <span key={idx} className="px-2 py-0.5 rounded text-[10px] bg-[#252529] border border-[#2e2e32] text-neutral-300 font-mono">
+                          <span key={idx} className="px-2 py-0.5 rounded text-[10px] bg-neutral-100 dark:bg-[#252529] border border-neutral-200 dark:border-[#2e2e32] text-neutral-700 dark:text-neutral-300 font-mono">
                             {ev}
                           </span>
                         ))}
                       </div>
 
                       <div className="text-[11px] text-neutral-500 flex items-center gap-3 pt-0.5">
-                        <span>Signing Token: <code className="font-mono text-[10px] text-neutral-400">whsec_••••••••</code></span>
+                        <span>Signing Token: <code className="font-mono text-[10px] text-neutral-500 dark:text-neutral-400">whsec_••••••••</code></span>
                         {hook.last_delivery_at && (
                           <span>Last Delivery: {new Date(hook.last_delivery_at).toLocaleTimeString()} ({hook.last_delivery_status})</span>
                         )}
                         {hook.failure_count > 0 && (
-                          <span className="text-red-400 font-semibold">{hook.failure_count} consecutive failures</span>
+                          <span className="text-red-500 dark:text-red-400 font-semibold">{hook.failure_count} consecutive failures</span>
                         )}
                       </div>
                     </div>
@@ -413,16 +413,16 @@ export function DeveloperPlatformDashboard() {
                         type="button"
                         onClick={() => handleTestPing(hook.id)}
                         disabled={testPingMutation.isPending}
-                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-[#252529] hover:bg-[#2e2e32] border border-[#2e2e32] text-neutral-200 transition-colors"
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-neutral-100 hover:bg-neutral-200 dark:bg-[#252529] dark:hover:bg-[#2e2e32] border border-neutral-300 dark:border-[#2e2e32] text-neutral-800 dark:text-neutral-200 transition-colors"
                       >
-                        <Send className="w-3 h-3 text-blue-400" />
+                        <Send className="w-3 h-3 text-blue-600 dark:text-blue-400" />
                         Test Ping
                       </button>
 
                       <button
                         type="button"
                         onClick={() => setActiveWebhookForLogs(hook)}
-                        className="px-3 py-1.5 text-xs font-medium rounded-lg bg-[#252529] hover:bg-[#2e2e32] border border-[#2e2e32] text-neutral-200 transition-colors"
+                        className="px-3 py-1.5 text-xs font-medium rounded-lg bg-neutral-100 hover:bg-neutral-200 dark:bg-[#252529] dark:hover:bg-[#2e2e32] border border-neutral-300 dark:border-[#2e2e32] text-neutral-800 dark:text-neutral-200 transition-colors"
                       >
                         Logs
                       </button>
@@ -439,7 +439,7 @@ export function DeveloperPlatformDashboard() {
                           if (!ok) return;
                           deleteWebhookMutation.mutate(hook.id);
                         }}
-                        className="p-1.5 text-neutral-400 hover:text-red-400 transition-colors"
+                        className="p-1.5 text-neutral-400 hover:text-red-500 transition-colors"
                         title="Delete Webhook"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -471,16 +471,16 @@ export function DeveloperPlatformDashboard() {
 
           {/* Webhook Delivery Logs Drawer/Modal */}
           {activeWebhookForLogs && (
-            <div className="bg-[#1C1C1F] border border-[#2e2e32] rounded-xl p-6 shadow-sm space-y-4">
-              <div className="flex items-center justify-between border-b border-[#2e2e32] pb-3">
+            <div className="bg-white dark:bg-[#1C1C1F] border border-neutral-200 dark:border-[#2e2e32] rounded-xl p-6 shadow-sm space-y-4">
+              <div className="flex items-center justify-between border-b border-neutral-200 dark:border-[#2e2e32] pb-3">
                 <div className="space-y-0.5">
-                  <h3 className="text-sm font-semibold text-white">Delivery History</h3>
-                  <div className="font-mono text-xs text-neutral-400">{activeWebhookForLogs.endpoint_url}</div>
+                  <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">Delivery History</h3>
+                  <div className="font-mono text-xs text-neutral-500 dark:text-neutral-400">{activeWebhookForLogs.endpoint_url}</div>
                 </div>
                 <button
                   type="button"
                   onClick={() => setActiveWebhookForLogs(null)}
-                  className="text-xs text-neutral-400 hover:text-white px-2 py-1 rounded bg-[#252529]"
+                  className="text-xs text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white px-2 py-1 rounded bg-neutral-100 dark:bg-[#252529]"
                 >
                   Close
                 </button>
@@ -491,16 +491,16 @@ export function DeveloperPlatformDashboard() {
               ) : deliveryLogs.length === 0 ? (
                 <div className="py-6 text-center text-xs text-neutral-500">No delivery logs recorded yet.</div>
               ) : (
-                <div className="divide-y divide-[#2e2e32] max-h-64 overflow-y-auto">
+                <div className="divide-y divide-neutral-200 dark:divide-[#2e2e32] max-h-64 overflow-y-auto">
                   {deliveryLogs.map((log) => (
                     <div key={log.id} className="py-2.5 flex items-center justify-between text-xs font-mono">
                       <div className="flex items-center gap-2">
                         <span className={`px-1.5 py-0.5 rounded text-[10px] ${
-                          log.is_success ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"
+                          log.is_success ? "bg-emerald-500/20 text-emerald-600 dark:text-emerald-400" : "bg-red-500/20 text-red-600 dark:text-red-400"
                         }`}>
                           {log.response_status_code || "ERR"}
                         </span>
-                        <span className="text-neutral-300">{log.event_type}</span>
+                        <span className="text-neutral-700 dark:text-neutral-300">{log.event_type}</span>
                       </div>
                       <div className="text-neutral-500 flex items-center gap-3 text-[11px]">
                         <span>{log.execution_time_ms}ms</span>
@@ -518,18 +518,18 @@ export function DeveloperPlatformDashboard() {
       {/* TAB 3: QUICKSTART & SAMPLES */}
       {activeTab === "quickstart" && (
         <div className="space-y-6">
-          <div className="bg-[#1C1C1F] border border-[#2e2e32] rounded-xl p-6 shadow-sm space-y-6">
+          <div className="bg-white dark:bg-[#1C1C1F] border border-neutral-200 dark:border-[#2e2e32] rounded-xl p-6 shadow-sm space-y-6">
             <div>
-              <h3 className="text-sm font-semibold text-white">Authentication via API Key</h3>
-              <p className="text-xs text-neutral-400 mt-1">
-                Pass your API key in the <code className="text-amber-400 font-mono">X-API-Key</code> request header.
+              <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">Authentication via API Key</h3>
+              <p className="text-xs text-neutral-600 dark:text-neutral-400 mt-1">
+                Pass your API key in the <code className="text-amber-600 dark:text-amber-400 font-mono">X-API-Key</code> request header.
               </p>
             </div>
 
             {/* cURL */}
             <div className="space-y-2">
-              <span className="text-xs font-semibold text-neutral-300">cURL Example</span>
-              <pre className="p-4 rounded-lg bg-[#252529] border border-[#2e2e32] text-xs font-mono text-neutral-200 overflow-x-auto">
+              <span className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">cURL Example</span>
+              <pre className="p-4 rounded-lg bg-neutral-100 dark:bg-[#252529] border border-neutral-200 dark:border-[#2e2e32] text-xs font-mono text-neutral-800 dark:text-neutral-200 overflow-x-auto">
 {`curl -X GET "http://localhost:8000/api/v1/purchase-orders" \\
   -H "X-API-Key: hkt_live_your_api_key_here" \\
   -H "Accept: application/json"`}
@@ -538,8 +538,8 @@ export function DeveloperPlatformDashboard() {
 
             {/* Python */}
             <div className="space-y-2">
-              <span className="text-xs font-semibold text-neutral-300">Python (requests)</span>
-              <pre className="p-4 rounded-lg bg-[#252529] border border-[#2e2e32] text-xs font-mono text-neutral-200 overflow-x-auto">
+              <span className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">Python (requests)</span>
+              <pre className="p-4 rounded-lg bg-neutral-100 dark:bg-[#252529] border border-neutral-200 dark:border-[#2e2e32] text-xs font-mono text-neutral-800 dark:text-neutral-200 overflow-x-auto">
 {`import requests
 
 url = "http://localhost:8000/api/v1/purchase-orders"
@@ -556,8 +556,8 @@ print("Retrieved POs:", len(data.get("data", [])))`}
 
             {/* Node.js */}
             <div className="space-y-2">
-              <span className="text-xs font-semibold text-neutral-300">Node.js (Fetch)</span>
-              <pre className="p-4 rounded-lg bg-[#252529] border border-[#2e2e32] text-xs font-mono text-neutral-200 overflow-x-auto">
+              <span className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">Node.js (Fetch)</span>
+              <pre className="p-4 rounded-lg bg-neutral-100 dark:bg-[#252529] border border-neutral-200 dark:border-[#2e2e32] text-xs font-mono text-neutral-800 dark:text-neutral-200 overflow-x-auto">
 {`const response = await fetch("http://localhost:8000/api/v1/purchase-orders", {
   headers: {
     "X-API-Key": "hkt_live_your_api_key_here",
@@ -574,29 +574,29 @@ console.log(result.data);`}
 
       {/* MODAL: CREATE API KEY */}
       {showCreateKeyModal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-100">
-          <div className="bg-[#1C1C1F] border border-[#2e2e32] rounded-xl max-w-lg w-full p-6 shadow-2xl space-y-5">
+        <div className="fixed inset-0 bg-black/60 dark:bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-100">
+          <div className="bg-white dark:bg-[#1C1C1F] border border-neutral-200 dark:border-[#2e2e32] rounded-xl max-w-lg w-full p-6 shadow-2xl space-y-5">
             <div>
-              <h3 className="text-base font-bold text-white">Generate Programmatic API Key</h3>
-              <p className="text-xs text-neutral-400 mt-1">
+              <h3 className="text-base font-bold text-neutral-900 dark:text-white">Generate Programmatic API Key</h3>
+              <p className="text-xs text-neutral-600 dark:text-neutral-400 mt-1">
                 Configure permission scopes and rate limits for this external credential.
               </p>
             </div>
 
             <div className="space-y-4 text-xs">
               <div>
-                <label className="block font-semibold text-neutral-300 mb-1">Key Description / Name</label>
+                <label className="block font-semibold text-neutral-700 dark:text-neutral-300 mb-1">Key Description / Name</label>
                 <input
                   type="text"
                   value={newKeyName}
                   onChange={(e) => setNewKeyName(e.target.value)}
                   placeholder="e.g. SAP ERP PO Connector"
-                  className="w-full px-3 py-2 bg-[#252529] border border-[#2e2e32] rounded-lg text-neutral-200 focus:outline-none focus:border-amber-500"
+                  className="w-full px-3 py-2 bg-neutral-50 dark:bg-[#252529] border border-neutral-300 dark:border-[#2e2e32] rounded-lg text-neutral-900 dark:text-neutral-200 focus:outline-none focus:border-amber-500"
                 />
               </div>
 
               <div>
-                <label className="block font-semibold text-neutral-300 mb-2">Permission Scopes</label>
+                <label className="block font-semibold text-neutral-700 dark:text-neutral-300 mb-2">Permission Scopes</label>
                 <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
                   {availableScopes.map((s) => {
                     const isChecked = newKeyScopes.includes(s.scope);
@@ -605,8 +605,8 @@ console.log(result.data);`}
                         key={s.scope}
                         className={`flex items-start gap-2.5 p-2 rounded-lg border cursor-pointer transition-colors ${
                           isChecked
-                            ? "bg-amber-500/10 border-amber-500/40 text-neutral-200"
-                            : "bg-[#252529] border-[#2e2e32] text-neutral-400"
+                            ? "bg-amber-500/10 border-amber-500/40 text-neutral-900 dark:text-neutral-200"
+                            : "bg-neutral-50 dark:bg-[#252529] border-neutral-200 dark:border-[#2e2e32] text-neutral-600 dark:text-neutral-400"
                         }`}
                       >
                         <input
@@ -619,11 +619,11 @@ console.log(result.data);`}
                               setNewKeyScopes(newKeyScopes.filter((sc) => sc !== s.scope));
                             }
                           }}
-                          className="mt-0.5 rounded border-neutral-700 bg-neutral-800 text-amber-500"
+                          className="mt-0.5 rounded border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-amber-500"
                         />
                         <div>
-                          <div className="font-mono text-xs font-semibold text-white">{s.scope}</div>
-                          <div className="text-[11px] text-neutral-400">{s.description}</div>
+                          <div className="font-mono text-xs font-semibold text-neutral-900 dark:text-white">{s.scope}</div>
+                          <div className="text-[11px] text-neutral-500 dark:text-neutral-400">{s.description}</div>
                         </div>
                       </label>
                     );
@@ -633,22 +633,22 @@ console.log(result.data);`}
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block font-semibold text-neutral-300 mb-1">Rate Limit (RPM)</label>
+                  <label className="block font-semibold text-neutral-700 dark:text-neutral-300 mb-1">Rate Limit (RPM)</label>
                   <input
                     type="number"
                     value={newKeyRpm}
                     onChange={(e) => setNewKeyRpm(Number(e.target.value))}
                     min={10}
                     max={1000}
-                    className="w-full px-3 py-1.5 bg-[#252529] border border-[#2e2e32] rounded-lg text-neutral-200"
+                    className="w-full px-3 py-1.5 bg-neutral-50 dark:bg-[#252529] border border-neutral-300 dark:border-[#2e2e32] rounded-lg text-neutral-900 dark:text-neutral-200"
                   />
                 </div>
                 <div>
-                  <label className="block font-semibold text-neutral-300 mb-1">Expiration</label>
+                  <label className="block font-semibold text-neutral-700 dark:text-neutral-300 mb-1">Expiration</label>
                   <select
                     value={newKeyExpiryDays}
                     onChange={(e) => setNewKeyExpiryDays(Number(e.target.value))}
-                    className="w-full px-3 py-1.5 bg-[#252529] border border-[#2e2e32] rounded-lg text-neutral-200"
+                    className="w-full px-3 py-1.5 bg-neutral-50 dark:bg-[#252529] border border-neutral-300 dark:border-[#2e2e32] rounded-lg text-neutral-900 dark:text-neutral-200"
                   >
                     <option value={30}>30 Days</option>
                     <option value={90}>90 Days</option>
@@ -659,11 +659,11 @@ console.log(result.data);`}
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-3 pt-2 border-t border-[#2e2e32]">
+            <div className="flex items-center justify-end gap-3 pt-2 border-t border-neutral-200 dark:border-[#2e2e32]">
               <button
                 type="button"
                 onClick={() => setShowCreateKeyModal(false)}
-                className="px-4 py-2 text-xs font-semibold text-neutral-400 hover:text-white"
+                className="px-4 py-2 text-xs font-semibold text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
               >
                 Cancel
               </button>
@@ -682,26 +682,26 @@ console.log(result.data);`}
 
       {/* MODAL: SECRET REVEAL (ONCE) */}
       {revealedKey && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-in fade-in duration-100">
-          <div className="bg-[#1C1C1F] border border-amber-500/50 rounded-xl max-w-lg w-full p-6 shadow-2xl space-y-5">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-in fade-in duration-100">
+          <div className="bg-white dark:bg-[#1C1C1F] border border-amber-500/50 rounded-xl max-w-lg w-full p-6 shadow-2xl space-y-5">
             <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-amber-500/20 text-amber-400">
+              <div className="p-2.5 rounded-xl bg-amber-500/20 text-amber-600 dark:text-amber-400">
                 <Key className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-white">API Key Created Successfully</h3>
-                <p className="text-xs text-amber-400/90 font-medium">
+                <h3 className="text-base font-bold text-neutral-900 dark:text-white">API Key Created Successfully</h3>
+                <p className="text-xs text-amber-600 dark:text-amber-400 font-medium">
                   Copy this key now. For security, you will never be able to view it again.
                 </p>
               </div>
             </div>
 
-            <div className="p-3.5 bg-[#252529] border border-[#2e2e32] rounded-xl space-y-2">
-              <span className="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider">
+            <div className="p-3.5 bg-neutral-100 dark:bg-[#252529] border border-neutral-200 dark:border-[#2e2e32] rounded-xl space-y-2">
+              <span className="text-[11px] font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
                 Raw API Secret Key
               </span>
               <div className="flex items-center justify-between gap-2">
-                <code className="font-mono text-xs text-white break-all select-all">
+                <code className="font-mono text-xs text-neutral-900 dark:text-white break-all select-all">
                   {revealedKey.key_secret}
                 </code>
                 <button
@@ -719,7 +719,7 @@ console.log(result.data);`}
               <button
                 type="button"
                 onClick={() => setRevealedKey(null)}
-                className="px-5 py-2 text-xs font-semibold rounded-lg bg-neutral-800 hover:bg-neutral-700 text-neutral-200"
+                className="px-5 py-2 text-xs font-semibold rounded-lg bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-800 dark:text-neutral-200 border border-neutral-300 dark:border-neutral-700"
               >
                 I have stored this secret safely
               </button>
@@ -730,40 +730,40 @@ console.log(result.data);`}
 
       {/* MODAL: REGISTER WEBHOOK */}
       {showCreateWebhookModal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-100">
-          <div className="bg-[#1C1C1F] border border-[#2e2e32] rounded-xl max-w-lg w-full p-6 shadow-2xl space-y-5">
+        <div className="fixed inset-0 bg-black/60 dark:bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-100">
+          <div className="bg-white dark:bg-[#1C1C1F] border border-neutral-200 dark:border-[#2e2e32] rounded-xl max-w-lg w-full p-6 shadow-2xl space-y-5">
             <div>
-              <h3 className="text-base font-bold text-white">Register Webhook Endpoint</h3>
-              <p className="text-xs text-neutral-400 mt-1">
+              <h3 className="text-base font-bold text-neutral-900 dark:text-white">Register Webhook Endpoint</h3>
+              <p className="text-xs text-neutral-600 dark:text-neutral-400 mt-1">
                 Receive signed JSON events over HTTPS with automated HMAC verification.
               </p>
             </div>
 
             <div className="space-y-4 text-xs">
               <div>
-                <label className="block font-semibold text-neutral-300 mb-1">Target Endpoint URL</label>
+                <label className="block font-semibold text-neutral-700 dark:text-neutral-300 mb-1">Target Endpoint URL</label>
                 <input
                   type="url"
                   value={webhookUrl}
                   onChange={(e) => setWebhookUrl(e.target.value)}
                   placeholder="https://api.yourcompany.com/webhooks/procurement"
-                  className="w-full px-3 py-2 bg-[#252529] border border-[#2e2e32] rounded-lg text-neutral-200 font-mono text-xs focus:outline-none focus:border-blue-500"
+                  className="w-full px-3 py-2 bg-neutral-50 dark:bg-[#252529] border border-neutral-300 dark:border-[#2e2e32] rounded-lg text-neutral-900 dark:text-neutral-200 font-mono text-xs focus:outline-none focus:border-blue-500"
                 />
               </div>
 
               <div>
-                <label className="block font-semibold text-neutral-300 mb-1">Description (Optional)</label>
+                <label className="block font-semibold text-neutral-700 dark:text-neutral-300 mb-1">Description (Optional)</label>
                 <input
                   type="text"
                   value={webhookDesc}
                   onChange={(e) => setWebhookDesc(e.target.value)}
                   placeholder="e.g. ERP Inbound PO listener"
-                  className="w-full px-3 py-2 bg-[#252529] border border-[#2e2e32] rounded-lg text-neutral-200 focus:outline-none focus:border-blue-500"
+                  className="w-full px-3 py-2 bg-neutral-50 dark:bg-[#252529] border border-neutral-300 dark:border-[#2e2e32] rounded-lg text-neutral-900 dark:text-neutral-200 focus:outline-none focus:border-blue-500"
                 />
               </div>
 
               <div>
-                <label className="block font-semibold text-neutral-300 mb-2">Subscribed Event Topics</label>
+                <label className="block font-semibold text-neutral-700 dark:text-neutral-300 mb-2">Subscribed Event Topics</label>
                 <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
                   {availableEvents.map((ev) => {
                     const isChecked = webhookEvents.includes(ev.event);
@@ -772,8 +772,8 @@ console.log(result.data);`}
                         key={ev.event}
                         className={`flex items-start gap-2.5 p-2 rounded-lg border cursor-pointer transition-colors ${
                           isChecked
-                            ? "bg-blue-500/10 border-blue-500/40 text-neutral-200"
-                            : "bg-[#252529] border-[#2e2e32] text-neutral-400"
+                            ? "bg-blue-500/10 border-blue-500/40 text-neutral-900 dark:text-neutral-200"
+                            : "bg-neutral-50 dark:bg-[#252529] border-neutral-200 dark:border-[#2e2e32] text-neutral-600 dark:text-neutral-400"
                         }`}
                       >
                         <input
@@ -786,11 +786,11 @@ console.log(result.data);`}
                               setWebhookEvents(webhookEvents.filter((item) => item !== ev.event));
                             }
                           }}
-                          className="mt-0.5 rounded border-neutral-700 bg-neutral-800 text-blue-500"
+                          className="mt-0.5 rounded border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-blue-500"
                         />
                         <div>
-                          <div className="font-mono text-xs font-semibold text-white">{ev.event}</div>
-                          <div className="text-[11px] text-neutral-400">{ev.description}</div>
+                          <div className="font-mono text-xs font-semibold text-neutral-900 dark:text-white">{ev.event}</div>
+                          <div className="text-[11px] text-neutral-500 dark:text-neutral-400">{ev.description}</div>
                         </div>
                       </label>
                     );
@@ -799,11 +799,11 @@ console.log(result.data);`}
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-3 pt-2 border-t border-[#2e2e32]">
+            <div className="flex items-center justify-end gap-3 pt-2 border-t border-neutral-200 dark:border-[#2e2e32]">
               <button
                 type="button"
                 onClick={() => setShowCreateWebhookModal(false)}
-                className="px-4 py-2 text-xs font-semibold text-neutral-400 hover:text-white"
+                className="px-4 py-2 text-xs font-semibold text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
               >
                 Cancel
               </button>

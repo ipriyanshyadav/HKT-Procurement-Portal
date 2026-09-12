@@ -174,18 +174,18 @@ export function EInvoiceComplianceViewer() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#2e2e32] pb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-[#2e2e32] pb-5">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-semibold tracking-tight text-white">
+            <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">
               E-Invoicing & E-Way Bill Compliance
             </h1>
-            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-medium text-emerald-400 border border-emerald-500/20">
+            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-medium text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
               <ShieldCheck className="h-3.5 w-3.5" />
               NIC & Peppol Compliant
             </span>
           </div>
-          <p className="mt-1 text-sm text-[#8E8E93]">
+          <p className="mt-1 text-sm text-slate-500 dark:text-[#8E8E93]">
             Rule 48(4) 64-character SHA-256 IRN generation, signed QR codes, E-Way transit passes & Peppol BIS 3.0 XML exporter.
           </p>
         </div>
@@ -196,21 +196,21 @@ export function EInvoiceComplianceViewer() {
               refetchInvoices();
               refetchEwb();
             }}
-            className="flex items-center gap-1.5 rounded-lg border border-[#2e2e32] bg-[#1C1C1F] px-3 py-2 text-xs font-medium text-[#E5E5EA] hover:bg-[#252529] transition-colors"
+            className="flex items-center gap-1.5 rounded-lg border border-slate-200 dark:border-[#2e2e32] bg-white dark:bg-[#1C1C1F] px-3 py-2 text-xs font-medium text-slate-700 dark:text-[#E5E5EA] hover:bg-slate-50 dark:hover:bg-[#252529] transition-colors shadow-xs"
           >
             <RefreshCw className="h-3.5 w-3.5" />
             Sync IRP
           </button>
           <button
             onClick={() => setCreateInvoiceModalOpen(true)}
-            className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-3.5 py-2 text-xs font-medium text-white hover:bg-blue-500 transition-colors shadow-sm"
+            className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-3.5 py-2 text-xs font-medium text-white hover:bg-blue-500 transition-colors shadow-xs"
           >
             <Plus className="h-3.5 w-3.5" />
             Generate E-Invoice
           </button>
           <button
             onClick={() => setCreateEwbModalOpen(true)}
-            className="flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3.5 py-2 text-xs font-medium text-white hover:bg-emerald-500 transition-colors shadow-sm"
+            className="flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3.5 py-2 text-xs font-medium text-white hover:bg-emerald-500 transition-colors shadow-xs"
           >
             <Truck className="h-3.5 w-3.5" />
             New E-Way Bill
@@ -219,13 +219,13 @@ export function EInvoiceComplianceViewer() {
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-2 border-b border-[#2e2e32]">
+      <div className="flex items-center gap-2 border-b border-slate-200 dark:border-[#2e2e32]">
         <button
           onClick={() => setActiveTab("invoices")}
           className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
             activeTab === "invoices"
-              ? "border-blue-500 text-white"
-              : "border-transparent text-[#8E8E93] hover:text-[#E5E5EA]"
+              ? "border-blue-600 dark:border-blue-500 text-blue-600 dark:text-white"
+              : "border-transparent text-slate-500 hover:text-slate-900 dark:text-[#8E8E93] dark:hover:text-[#E5E5EA]"
           }`}
         >
           <FileText className="h-4 w-4" />
@@ -235,8 +235,8 @@ export function EInvoiceComplianceViewer() {
           onClick={() => setActiveTab("eway-bills")}
           className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
             activeTab === "eway-bills"
-              ? "border-blue-500 text-white"
-              : "border-transparent text-[#8E8E93] hover:text-[#E5E5EA]"
+              ? "border-blue-600 dark:border-blue-500 text-blue-600 dark:text-white"
+              : "border-transparent text-slate-500 hover:text-slate-900 dark:text-[#8E8E93] dark:hover:text-[#E5E5EA]"
           }`}
         >
           <Truck className="h-4 w-4" />
@@ -246,8 +246,8 @@ export function EInvoiceComplianceViewer() {
           onClick={() => setActiveTab("peppol")}
           className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
             activeTab === "peppol"
-              ? "border-blue-500 text-white"
-              : "border-transparent text-[#8E8E93] hover:text-[#E5E5EA]"
+              ? "border-blue-600 dark:border-blue-500 text-blue-600 dark:text-white"
+              : "border-transparent text-slate-500 hover:text-slate-900 dark:text-[#8E8E93] dark:hover:text-[#E5E5EA]"
           }`}
         >
           <Globe className="h-4 w-4" />
@@ -257,8 +257,8 @@ export function EInvoiceComplianceViewer() {
           onClick={() => setActiveTab("dispatch-pack")}
           className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
             activeTab === "dispatch-pack"
-              ? "border-blue-500 text-white"
-              : "border-transparent text-[#8E8E93] hover:text-[#E5E5EA]"
+              ? "border-blue-600 dark:border-blue-500 text-blue-600 dark:text-white"
+              : "border-transparent text-slate-500 hover:text-slate-900 dark:text-[#8E8E93] dark:hover:text-[#E5E5EA]"
           }`}
         >
           <Package className="h-4 w-4" />
@@ -270,27 +270,27 @@ export function EInvoiceComplianceViewer() {
       {activeTab === "invoices" && (
         <div className="space-y-4">
           {loadingInvoices ? (
-            <div className="rounded-xl border border-[#2e2e32] bg-[#1C1C1F] p-12 text-center text-sm text-[#8E8E93]">
+            <div className="rounded-xl border border-slate-200 dark:border-[#2e2e32] bg-white dark:bg-[#1C1C1F] p-12 text-center text-sm text-slate-500 dark:text-[#8E8E93] shadow-xs">
               Loading E-Invoices from GST IRP...
             </div>
           ) : eInvoices.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-[#2e2e32] bg-[#1C1C1F] p-12 text-center">
-              <FileText className="mx-auto h-8 w-8 text-[#636366]" />
-              <h3 className="mt-3 text-sm font-medium text-white">No E-Invoices generated yet</h3>
-              <p className="mt-1 text-xs text-[#8E8E93]">Generate an official NIC E-Invoice or auto-dispatch an ASN compliance pack.</p>
+            <div className="rounded-xl border border-dashed border-slate-300 dark:border-[#2e2e32] bg-white dark:bg-[#1C1C1F] p-12 text-center shadow-xs">
+              <FileText className="mx-auto h-8 w-8 text-slate-400 dark:text-[#636366]" />
+              <h3 className="mt-3 text-sm font-medium text-slate-900 dark:text-white">No E-Invoices generated yet</h3>
+              <p className="mt-1 text-xs text-slate-500 dark:text-[#8E8E93]">Generate an official NIC E-Invoice or auto-dispatch an ASN compliance pack.</p>
               <button
                 onClick={() => setCreateInvoiceModalOpen(true)}
-                className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-500"
+                className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-500 shadow-xs"
               >
                 <Plus className="h-3.5 w-3.5" />
                 Generate First E-Invoice
               </button>
             </div>
           ) : (
-            <div className="rounded-xl border border-[#2e2e32] bg-[#1C1C1F] overflow-hidden">
+            <div className="rounded-xl border border-slate-200 dark:border-[#2e2e32] bg-white dark:bg-[#1C1C1F] overflow-hidden shadow-xs">
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="border-b border-[#2e2e32] bg-[#252529]/60 text-[#8E8E93] uppercase tracking-wider font-semibold">
+                  <thead className="border-b border-slate-200 dark:border-[#2e2e32] bg-slate-50 dark:bg-[#252529]/60 text-slate-500 dark:text-[#8E8E93] uppercase tracking-wider font-semibold">
                     <tr>
                       <th className="px-4 py-3">Doc # & Type</th>
                       <th className="px-4 py-3">GSTIN (Seller / Buyer)</th>
@@ -301,63 +301,63 @@ export function EInvoiceComplianceViewer() {
                       <th className="px-4 py-3 text-right">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#2e2e32] text-[#E5E5EA]">
+                  <tbody className="divide-y divide-slate-100 dark:divide-[#2e2e32] text-slate-700 dark:text-[#E5E5EA]">
                     {eInvoices.map((inv) => (
-                      <tr key={inv.id} className="hover:bg-[#252529]/40 transition-colors">
-                        <td className="px-4 py-3.5 font-medium text-white">
+                      <tr key={inv.id} className="hover:bg-slate-50/80 dark:hover:bg-[#252529]/40 transition-colors">
+                        <td className="px-4 py-3.5 font-medium text-slate-900 dark:text-white">
                           <div className="flex items-center gap-2">
-                            <span className="rounded bg-blue-500/10 px-1.5 py-0.5 text-[10px] font-mono text-blue-400 border border-blue-500/20">
+                            <span className="rounded bg-blue-500/10 px-1.5 py-0.5 text-[10px] font-mono text-blue-600 dark:text-blue-400 border border-blue-500/20">
                               {inv.doc_type}
                             </span>
                             <span>{inv.doc_number}</span>
                           </div>
-                          <span className="text-[11px] text-[#8E8E93] block mt-0.5">FY {inv.financial_year}</span>
+                          <span className="text-[11px] text-slate-500 dark:text-[#8E8E93] block mt-0.5">FY {inv.financial_year}</span>
                         </td>
                         <td className="px-4 py-3.5">
                           <div className="text-[11px] font-mono">
-                            <span className="text-emerald-400">S:</span> {inv.seller_gstin}
+                            <span className="text-emerald-600 dark:text-emerald-400">S:</span> {inv.seller_gstin}
                           </div>
-                          <div className="text-[11px] font-mono text-[#8E8E93]">
-                            <span className="text-blue-400">B:</span> {inv.buyer_gstin}
+                          <div className="text-[11px] font-mono text-slate-500 dark:text-[#8E8E93]">
+                            <span className="text-blue-600 dark:text-blue-400">B:</span> {inv.buyer_gstin}
                           </div>
                         </td>
                         <td className="px-4 py-3.5 max-w-xs">
                           <div className="flex items-center gap-1.5">
-                            <span className="font-mono text-[11px] text-white truncate max-w-[180px]" title={inv.irn}>
+                            <span className="font-mono text-[11px] text-slate-900 dark:text-white truncate max-w-[180px]" title={inv.irn}>
                               {inv.irn.slice(0, 16)}...{inv.irn.slice(-8)}
                             </span>
                             <button
                               onClick={() => copyToClipboard(inv.irn, `irn-${inv.id}`)}
-                              className="text-[#8E8E93] hover:text-white transition-colors"
+                              className="text-slate-400 hover:text-slate-900 dark:text-[#8E8E93] dark:hover:text-white transition-colors"
                               title="Copy full 64-char IRN"
                             >
                               {copiedKey === `irn-${inv.id}` ? (
-                                <Check className="h-3 w-3 text-emerald-400" />
+                                <Check className="h-3 w-3 text-emerald-600 dark:text-emerald-400" />
                               ) : (
                                 <Copy className="h-3 w-3" />
                               )}
                             </button>
                           </div>
-                          <span className="text-[10px] text-[#8E8E93] block font-mono">Ack: {inv.ack_number}</span>
+                          <span className="text-[10px] text-slate-500 dark:text-[#8E8E93] block font-mono">Ack: {inv.ack_number}</span>
                         </td>
                         <td className="px-4 py-3.5">
-                          <div className="font-semibold text-white">₹{inv.total_invoice_value.toLocaleString("en-IN")}</div>
-                          <div className="text-[10px] text-[#8E8E93]">Tax: ₹{inv.total_tax_value.toLocaleString("en-IN")}</div>
+                          <div className="font-semibold text-slate-900 dark:text-white">₹{inv.total_invoice_value.toLocaleString("en-IN")}</div>
+                          <div className="text-[10px] text-slate-500 dark:text-[#8E8E93]">Tax: ₹{inv.total_tax_value.toLocaleString("en-IN")}</div>
                         </td>
                         <td className="px-4 py-3.5">
                           {inv.status === "GENERATED" ? (
-                            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[11px] font-medium text-emerald-400 border border-emerald-500/20">
+                            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[11px] font-medium text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                               <CheckCircle2 className="h-3 w-3" />
                               ACTIVE
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1 rounded-full bg-rose-500/10 px-2 py-0.5 text-[11px] font-medium text-rose-400 border border-rose-500/20">
+                            <span className="inline-flex items-center gap-1 rounded-full bg-rose-500/10 px-2 py-0.5 text-[11px] font-medium text-rose-600 dark:text-rose-400 border border-rose-500/20">
                               <XCircle className="h-3 w-3" />
                               CANCELLED
                             </span>
                           )}
                         </td>
-                        <td className="px-4 py-3.5 text-[#8E8E93] whitespace-nowrap">
+                        <td className="px-4 py-3.5 text-slate-500 dark:text-[#8E8E93] whitespace-nowrap">
                           {new Date(inv.created_at).toLocaleDateString("en-IN", {
                             day: "2-digit",
                             month: "short",
@@ -368,15 +368,15 @@ export function EInvoiceComplianceViewer() {
                           <div className="flex items-center justify-end gap-1.5">
                             <button
                               onClick={() => setQrModalInvoice(inv)}
-                              className="p-1.5 rounded bg-[#252529] text-[#E5E5EA] hover:bg-[#2e2e32] hover:text-white transition-colors"
+                              className="p-1.5 rounded bg-slate-100 dark:bg-[#252529] text-slate-700 dark:text-[#E5E5EA] hover:bg-slate-200 dark:hover:bg-[#2e2e32] hover:text-slate-900 dark:hover:text-white transition-colors"
                               title="View Signed QR Code & IRP Details"
                             >
-                              <QrCode className="h-3.5 w-3.5 text-blue-400" />
+                              <QrCode className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
                             </button>
                             {inv.status === "GENERATED" && (
                               <button
                                 onClick={() => setCancelModalInvoice(inv)}
-                                className="p-1.5 rounded bg-[#252529] text-rose-400 hover:bg-rose-500/20 transition-colors"
+                                className="p-1.5 rounded bg-rose-50 dark:bg-[#252529] text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-colors"
                                 title="Cancel E-Invoice (within 24 hours)"
                               >
                                 <Ban className="h-3.5 w-3.5" />
@@ -398,17 +398,17 @@ export function EInvoiceComplianceViewer() {
       {activeTab === "eway-bills" && (
         <div className="space-y-4">
           {loadingEwb ? (
-            <div className="rounded-xl border border-[#2e2e32] bg-[#1C1C1F] p-12 text-center text-sm text-[#8E8E93]">
+            <div className="rounded-xl border border-slate-200 dark:border-[#2e2e32] bg-white dark:bg-[#1C1C1F] p-12 text-center text-sm text-slate-500 dark:text-[#8E8E93] shadow-xs">
               Loading E-Way Bills from Transit Portal...
             </div>
           ) : eWayBills.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-[#2e2e32] bg-[#1C1C1F] p-12 text-center">
-              <Truck className="mx-auto h-8 w-8 text-[#636366]" />
-              <h3 className="mt-3 text-sm font-medium text-white">No E-Way Bills registered</h3>
-              <p className="mt-1 text-xs text-[#8E8E93]">Generate Part A/B E-Way transit slips for consignments exceeding 50,000 INR.</p>
+            <div className="rounded-xl border border-dashed border-slate-300 dark:border-[#2e2e32] bg-white dark:bg-[#1C1C1F] p-12 text-center shadow-xs">
+              <Truck className="mx-auto h-8 w-8 text-slate-400 dark:text-[#636366]" />
+              <h3 className="mt-3 text-sm font-medium text-slate-900 dark:text-white">No E-Way Bills registered</h3>
+              <p className="mt-1 text-xs text-slate-500 dark:text-[#8E8E93]">Generate Part A/B E-Way transit slips for consignments exceeding 50,000 INR.</p>
               <button
                 onClick={() => setCreateEwbModalOpen(true)}
-                className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-500"
+                className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-500 shadow-xs"
               >
                 <Plus className="h-3.5 w-3.5" />
                 Generate New E-Way Bill
@@ -421,30 +421,30 @@ export function EInvoiceComplianceViewer() {
                 return (
                   <div
                     key={ewb.id}
-                    className="rounded-xl border border-[#2e2e32] bg-[#1C1C1F] p-5 shadow-sm hover:border-[#3e3e44] transition-colors"
+                    className="rounded-xl border border-slate-200 dark:border-[#2e2e32] bg-white dark:bg-[#1C1C1F] p-5 shadow-xs hover:border-slate-300 dark:hover:border-[#3e3e44] transition-colors"
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-2.5">
-                        <div className="rounded-lg bg-emerald-500/10 p-2.5 text-emerald-400 border border-emerald-500/20">
+                        <div className="rounded-lg bg-emerald-500/10 p-2.5 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                           <Truck className="h-5 w-5" />
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
-                            <span className="font-mono text-sm font-semibold text-white tracking-wide">
+                            <span className="font-mono text-sm font-semibold text-slate-900 dark:text-white tracking-wide">
                               {ewb.ewb_number}
                             </span>
                             {isValid ? (
-                              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-400 border border-emerald-500/20">
+                              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                                 <Clock className="h-3 w-3" />
                                 IN TRANSIT
                               </span>
                             ) : (
-                              <span className="inline-flex items-center gap-1 rounded-full bg-rose-500/10 px-2 py-0.5 text-[10px] font-medium text-rose-400 border border-rose-500/20">
+                              <span className="inline-flex items-center gap-1 rounded-full bg-rose-500/10 px-2 py-0.5 text-[10px] font-medium text-rose-600 dark:text-rose-400 border border-rose-500/20">
                                 {ewb.status}
                               </span>
                             )}
                           </div>
-                          <span className="text-xs text-[#8E8E93]">
+                          <span className="text-xs text-slate-500 dark:text-[#8E8E93]">
                             Generated on {new Date(ewb.ewb_date).toLocaleString("en-IN")}
                           </span>
                         </div>
@@ -452,28 +452,28 @@ export function EInvoiceComplianceViewer() {
 
                       <button
                         onClick={() => setSelectedEwb(ewb)}
-                        className="rounded-lg border border-[#2e2e32] bg-[#252529] px-2.5 py-1 text-xs font-medium text-[#E5E5EA] hover:text-white hover:bg-[#2e2e32] transition-colors"
+                        className="rounded-lg border border-slate-200 dark:border-[#2e2e32] bg-slate-100 dark:bg-[#252529] px-2.5 py-1 text-xs font-medium text-slate-700 dark:text-[#E5E5EA] hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-[#2e2e32] transition-colors"
                       >
                         Print Slip
                       </button>
                     </div>
 
-                    <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3 border-t border-b border-[#2e2e32] py-3 text-xs">
+                    <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3 border-t border-b border-slate-100 dark:border-[#2e2e32] py-3 text-xs">
                       <div>
-                        <span className="text-[10px] uppercase text-[#8E8E93] block">Vehicle No</span>
-                        <span className="font-mono font-medium text-white">{ewb.vehicle_number}</span>
+                        <span className="text-[10px] uppercase text-slate-500 dark:text-[#8E8E93] block">Vehicle No</span>
+                        <span className="font-mono font-medium text-slate-900 dark:text-white">{ewb.vehicle_number}</span>
                       </div>
                       <div>
-                        <span className="text-[10px] uppercase text-[#8E8E93] block">Distance</span>
-                        <span className="font-medium text-white">{ewb.distance_km} KM</span>
+                        <span className="text-[10px] uppercase text-slate-500 dark:text-[#8E8E93] block">Distance</span>
+                        <span className="font-medium text-slate-900 dark:text-white">{ewb.distance_km} KM</span>
                       </div>
                       <div>
-                        <span className="text-[10px] uppercase text-[#8E8E93] block">Route Pincodes</span>
-                        <span className="font-mono font-medium text-white">{ewb.from_pincode} → {ewb.to_pincode}</span>
+                        <span className="text-[10px] uppercase text-slate-500 dark:text-[#8E8E93] block">Route Pincodes</span>
+                        <span className="font-mono font-medium text-slate-900 dark:text-white">{ewb.from_pincode} → {ewb.to_pincode}</span>
                       </div>
                       <div>
-                        <span className="text-[10px] uppercase text-[#8E8E93] block">Validity Until</span>
-                        <span className="font-medium text-amber-400">
+                        <span className="text-[10px] uppercase text-slate-500 dark:text-[#8E8E93] block">Validity Until</span>
+                        <span className="font-medium text-amber-600 dark:text-amber-400">
                           {new Date(ewb.valid_until).toLocaleDateString("en-IN", {
                             day: "2-digit",
                             month: "short",
@@ -484,8 +484,8 @@ export function EInvoiceComplianceViewer() {
                       </div>
                     </div>
 
-                    <div className="mt-3 flex items-center justify-between text-xs text-[#8E8E93]">
-                      <span>Transporter: <strong className="text-[#E5E5EA] font-normal">{ewb.transporter_name || "Direct Dispatch"}</strong></span>
+                    <div className="mt-3 flex items-center justify-between text-xs text-slate-500 dark:text-[#8E8E93]">
+                      <span>Transporter: <strong className="text-slate-700 dark:text-[#E5E5EA] font-normal">{ewb.transporter_name || "Direct Dispatch"}</strong></span>
                       <span className="text-[11px] font-mono">Rule 138(10) (1d/200km)</span>
                     </div>
                   </div>
@@ -498,14 +498,14 @@ export function EInvoiceComplianceViewer() {
 
       {/* TAB 3: PEPPOL BIS 3.0 UBL EXPORTER */}
       {activeTab === "peppol" && (
-        <div className="rounded-xl border border-[#2e2e32] bg-[#1C1C1F] p-6 space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#2e2e32] pb-4">
+        <div className="rounded-xl border border-slate-200 dark:border-[#2e2e32] bg-white dark:bg-[#1C1C1F] p-6 space-y-6 shadow-xs">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-[#2e2e32] pb-4">
             <div>
-              <h3 className="text-base font-semibold text-white flex items-center gap-2">
-                <Globe className="h-4 w-4 text-blue-400" />
+              <h3 className="text-base font-semibold text-slate-900 dark:text-white flex items-center gap-2">
+                <Globe className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                 Global Peppol BIS Billing 3.0 (UBL 2.1)
               </h3>
-              <p className="text-xs text-[#8E8E93] mt-0.5">
+              <p className="text-xs text-slate-500 dark:text-[#8E8E93] mt-0.5">
                 Standard ISO/IEC 19845 UBL XML payload for cross-border interoperability and 4-corner Peppol network exchange.
               </p>
             </div>
@@ -517,9 +517,9 @@ export function EInvoiceComplianceViewer() {
                     const xml = selectedInvoice?.peppol_xml || eInvoices[0]?.peppol_xml || "";
                     copyToClipboard(xml, "peppol-xml");
                   }}
-                  className="flex items-center gap-1.5 rounded-lg border border-[#2e2e32] bg-[#252529] px-3 py-1.5 text-xs font-medium text-[#E5E5EA] hover:bg-[#2e2e32]"
+                  className="flex items-center gap-1.5 rounded-lg border border-slate-200 dark:border-[#2e2e32] bg-slate-100 dark:bg-[#252529] px-3 py-1.5 text-xs font-medium text-slate-700 dark:text-[#E5E5EA] hover:bg-slate-200 dark:hover:bg-[#2e2e32]"
                 >
-                  {copiedKey === "peppol-xml" ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
+                  {copiedKey === "peppol-xml" ? <Check className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
                   Copy XML
                 </button>
                 <button
@@ -528,7 +528,7 @@ export function EInvoiceComplianceViewer() {
                     const docNo = selectedInvoice?.doc_number || eInvoices[0]?.doc_number || "Invoice";
                     downloadXml(xml, `Peppol_BIS30_${docNo}.xml`);
                   }}
-                  className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-500"
+                  className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-500 shadow-xs"
                 >
                   <Download className="h-3.5 w-3.5" />
                   Download .XML
@@ -538,20 +538,20 @@ export function EInvoiceComplianceViewer() {
           </div>
 
           {eInvoices.length === 0 ? (
-            <div className="text-center py-8 text-xs text-[#8E8E93]">
+            <div className="text-center py-8 text-xs text-slate-500 dark:text-[#8E8E93]">
               Generate an E-Invoice first to inspect and export its Peppol BIS 3.0 UBL XML artifact.
             </div>
           ) : (
             <div className="space-y-4">
               <div className="flex items-center gap-3">
-                <label className="text-xs text-[#8E8E93]">Select Document:</label>
+                <label className="text-xs text-slate-500 dark:text-[#8E8E93]">Select Document:</label>
                 <select
                   value={selectedInvoice?.id || eInvoices[0]?.id}
                   onChange={(e) => {
                     const found = eInvoices.find((inv) => inv.id === e.target.value);
                     if (found) setSelectedInvoice(found);
                   }}
-                  className="rounded-lg border border-[#2e2e32] bg-[#252529] px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500"
+                  className="rounded-lg border border-slate-200 dark:border-[#2e2e32] bg-slate-50 dark:bg-[#252529] px-3 py-1.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-blue-500"
                 >
                   {eInvoices.map((inv) => (
                     <option key={inv.id} value={inv.id}>
@@ -561,8 +561,8 @@ export function EInvoiceComplianceViewer() {
                 </select>
               </div>
 
-              <div className="rounded-lg border border-[#2e2e32] bg-[#0E0E10] p-4 overflow-x-auto max-h-[500px]">
-                <pre className="text-xs font-mono text-emerald-300 leading-relaxed">
+              <div className="rounded-lg border border-slate-800 bg-slate-950 dark:border-[#2e2e32] dark:bg-[#0E0E10] p-4 overflow-x-auto max-h-[500px]">
+                <pre className="text-xs font-mono text-emerald-400 dark:text-emerald-300 leading-relaxed">
                   {selectedInvoice?.peppol_xml || eInvoices[0]?.peppol_xml || "<!-- No Peppol XML available -->"}
                 </pre>
               </div>
@@ -573,24 +573,24 @@ export function EInvoiceComplianceViewer() {
 
       {/* TAB 4: ASN DISPATCH PACK */}
       {activeTab === "dispatch-pack" && (
-        <div className="rounded-xl border border-[#2e2e32] bg-[#1C1C1F] p-6 space-y-6">
+        <div className="rounded-xl border border-slate-200 dark:border-[#2e2e32] bg-white dark:bg-[#1C1C1F] p-6 space-y-6 shadow-xs">
           <div>
-            <h3 className="text-base font-semibold text-white flex items-center gap-2">
-              <Package className="h-5 w-5 text-blue-400" />
+            <h3 className="text-base font-semibold text-slate-900 dark:text-white flex items-center gap-2">
+              <Package className="h-5 w-5 text-blue-600 dark:text-blue-400" />
               1-Click Advance Shipping Notice (ASN) Dispatch Compliance
             </h3>
-            <p className="text-xs text-[#8E8E93] mt-1">
+            <p className="text-xs text-slate-500 dark:text-[#8E8E93] mt-1">
               Triggered automatically when a warehouse or supplier dispatches an ASN: synchronously mints official 64-char NIC IRN, signed QR code, and E-Way Bill Part A & B transit pass.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border border-[#2e2e32] rounded-lg p-4 bg-[#252529]/40">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border border-slate-200 dark:border-[#2e2e32] rounded-lg p-4 bg-slate-50/70 dark:bg-[#252529]/40">
             <div>
-              <label className="text-xs font-medium text-[#8E8E93] block mb-1">Select ASN</label>
+              <label className="text-xs font-medium text-slate-600 dark:text-[#8E8E93] block mb-1">Select ASN</label>
               <select
                 value={packAsnId}
                 onChange={(e) => setPackAsnId(e.target.value)}
-                className="w-full rounded-lg border border-[#2e2e32] bg-[#1C1C1F] px-3 py-2 text-xs text-white focus:border-blue-500 focus:outline-none"
+                className="w-full rounded-lg border border-slate-200 dark:border-[#2e2e32] bg-white dark:bg-[#1C1C1F] px-3 py-2 text-xs text-slate-900 dark:text-white focus:border-blue-500 focus:outline-none"
               >
                 <option value="">-- Choose an Advance Shipping Notice --</option>
                 {asns.map((asn: any) => (
@@ -601,23 +601,23 @@ export function EInvoiceComplianceViewer() {
               </select>
             </div>
             <div>
-              <label className="text-xs font-medium text-[#8E8E93] block mb-1">Transit Vehicle Number</label>
+              <label className="text-xs font-medium text-slate-600 dark:text-[#8E8E93] block mb-1">Transit Vehicle Number</label>
               <input
                 type="text"
                 value={packVehicle}
                 onChange={(e) => setPackVehicle(e.target.value)}
                 placeholder="e.g. KA-01-MJ-4521"
-                className="w-full rounded-lg border border-[#2e2e32] bg-[#1C1C1F] px-3 py-2 text-xs text-white focus:border-blue-500 focus:outline-none font-mono"
+                className="w-full rounded-lg border border-slate-200 dark:border-[#2e2e32] bg-white dark:bg-[#1C1C1F] px-3 py-2 text-xs text-slate-900 dark:text-white focus:border-blue-500 focus:outline-none font-mono"
               />
             </div>
             <div>
-              <label className="text-xs font-medium text-[#8E8E93] block mb-1">Transit Distance (KM)</label>
+              <label className="text-xs font-medium text-slate-600 dark:text-[#8E8E93] block mb-1">Transit Distance (KM)</label>
               <input
                 type="number"
                 value={packDistance}
                 onChange={(e) => setPackDistance(Number(e.target.value))}
                 min={1}
-                className="w-full rounded-lg border border-[#2e2e32] bg-[#1C1C1F] px-3 py-2 text-xs text-white focus:border-blue-500 focus:outline-none"
+                className="w-full rounded-lg border border-slate-200 dark:border-[#2e2e32] bg-white dark:bg-[#1C1C1F] px-3 py-2 text-xs text-slate-900 dark:text-white focus:border-blue-500 focus:outline-none"
               />
             </div>
           </div>
@@ -625,54 +625,54 @@ export function EInvoiceComplianceViewer() {
           <button
             onClick={handleDispatchPack}
             disabled={dispatchPackMutation.isPending}
-            className="flex items-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-xs font-medium text-white hover:bg-blue-500 transition-colors disabled:opacity-50"
+            className="flex items-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-xs font-medium text-white hover:bg-blue-500 transition-colors disabled:opacity-50 shadow-xs"
           >
             <ShieldCheck className="h-4 w-4" />
             {dispatchPackMutation.isPending ? "Minting Compliance Pack..." : "Generate Dispatch Compliance Pack"}
           </button>
 
           {packResult && (
-            <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/10 p-5 space-y-4">
-              <div className="flex items-center gap-2 text-emerald-400 font-semibold text-sm">
+            <div className="rounded-xl border border-emerald-500/30 bg-emerald-50/50 dark:bg-emerald-950/10 p-5 space-y-4">
+              <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400 font-semibold text-sm">
                 <CheckCircle2 className="h-5 w-5" />
                 Dispatch Pack Generated Successfully for ASN #{packResult.asn_number}
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                <div className="rounded-lg border border-[#2e2e32] bg-[#1C1C1F] p-4 space-y-2">
+                <div className="rounded-lg border border-slate-200 dark:border-[#2e2e32] bg-white dark:bg-[#1C1C1F] p-4 space-y-2 shadow-xs">
                   <div className="flex items-center justify-between">
-                    <span className="font-semibold text-white flex items-center gap-1.5">
-                      <FileText className="h-3.5 w-3.5 text-blue-400" />
+                    <span className="font-semibold text-slate-900 dark:text-white flex items-center gap-1.5">
+                      <FileText className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
                       NIC IRN E-Invoice
                     </span>
-                    <span className="rounded bg-blue-500/10 px-2 py-0.5 text-[10px] text-blue-400 border border-blue-500/20">
+                    <span className="rounded bg-blue-500/10 px-2 py-0.5 text-[10px] text-blue-600 dark:text-blue-400 border border-blue-500/20">
                       {packResult.e_invoice.doc_number}
                     </span>
                   </div>
-                  <div className="text-[11px] font-mono text-[#8E8E93] break-all">
-                    IRN: <strong className="text-white font-normal">{packResult.e_invoice.irn}</strong>
+                  <div className="text-[11px] font-mono text-slate-500 dark:text-[#8E8E93] break-all">
+                    IRN: <strong className="text-slate-900 dark:text-white font-normal">{packResult.e_invoice.irn}</strong>
                   </div>
-                  <div className="flex justify-between text-[#8E8E93]">
+                  <div className="flex justify-between text-slate-500 dark:text-[#8E8E93]">
                     <span>Ack No: {packResult.e_invoice.ack_number}</span>
                     <span>Value: ₹{packResult.e_invoice.total_invoice_value.toLocaleString("en-IN")}</span>
                   </div>
                 </div>
 
-                <div className="rounded-lg border border-[#2e2e32] bg-[#1C1C1F] p-4 space-y-2">
+                <div className="rounded-lg border border-slate-200 dark:border-[#2e2e32] bg-white dark:bg-[#1C1C1F] p-4 space-y-2 shadow-xs">
                   <div className="flex items-center justify-between">
-                    <span className="font-semibold text-white flex items-center gap-1.5">
-                      <Truck className="h-3.5 w-3.5 text-emerald-400" />
+                    <span className="font-semibold text-slate-900 dark:text-white flex items-center gap-1.5">
+                      <Truck className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
                       Transit E-Way Bill
                     </span>
-                    <span className="rounded bg-emerald-500/10 px-2 py-0.5 text-[10px] text-emerald-400 border border-emerald-500/20">
+                    <span className="rounded bg-emerald-500/10 px-2 py-0.5 text-[10px] text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                       {packResult.e_way_bill.ewb_number}
                     </span>
                   </div>
-                  <div className="flex justify-between text-[#8E8E93]">
-                    <span>Vehicle: <strong className="text-white font-mono">{packResult.e_way_bill.vehicle_number}</strong></span>
+                  <div className="flex justify-between text-slate-500 dark:text-[#8E8E93]">
+                    <span>Vehicle: <strong className="text-slate-900 dark:text-white font-mono">{packResult.e_way_bill.vehicle_number}</strong></span>
                     <span>Distance: {packResult.e_way_bill.distance_km} KM</span>
                   </div>
-                  <div className="text-[11px] text-amber-400 font-medium">
+                  <div className="text-[11px] text-amber-600 dark:text-amber-400 font-medium">
                     Valid Until: {new Date(packResult.e_way_bill.valid_until).toLocaleString("en-IN")}
                   </div>
                 </div>
@@ -684,23 +684,23 @@ export function EInvoiceComplianceViewer() {
 
       {/* MODAL: QR CODE & INVOICE DETAILS */}
       {qrModalInvoice && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-          <div className="relative w-full max-w-lg rounded-xl border border-[#2e2e32] bg-[#1C1C1F] p-6 shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs p-4">
+          <div className="relative w-full max-w-lg rounded-xl border border-slate-200 dark:border-[#2e2e32] bg-white dark:bg-[#1C1C1F] p-6 shadow-2xl">
             <button
               onClick={() => setQrModalInvoice(null)}
-              className="absolute top-4 right-4 text-[#8E8E93] hover:text-white"
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-900 dark:text-[#8E8E93] dark:hover:text-white"
             >
               <X className="h-5 w-5" />
             </button>
 
             <div className="flex items-center gap-2 mb-4">
-              <QrCode className="h-5 w-5 text-blue-400" />
-              <h3 className="text-lg font-semibold text-white">IRP Signed QR & Invoice Cryptography</h3>
+              <QrCode className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-white">IRP Signed QR & Invoice Cryptography</h3>
             </div>
 
             <div className="space-y-4 text-xs">
               {/* Mock QR Visual Render */}
-              <div className="flex justify-center p-4 bg-white rounded-lg">
+              <div className="flex justify-center p-4 bg-slate-50 dark:bg-white rounded-lg border border-slate-200 dark:border-transparent">
                 <div className="flex flex-col items-center">
                   <div className="grid grid-cols-12 gap-1 p-2 bg-white border border-gray-300 rounded">
                     {Array.from({ length: 144 }).map((_, i) => (
@@ -717,32 +717,32 @@ export function EInvoiceComplianceViewer() {
               </div>
 
               <div>
-                <span className="text-[#8E8E93] block mb-1">Official 64-character SHA-256 IRN:</span>
-                <div className="flex items-center justify-between rounded bg-[#252529] p-2 font-mono text-[11px] text-white">
+                <span className="text-slate-500 dark:text-[#8E8E93] block mb-1">Official 64-character SHA-256 IRN:</span>
+                <div className="flex items-center justify-between rounded bg-slate-100 dark:bg-[#252529] p-2 font-mono text-[11px] text-slate-900 dark:text-white border border-slate-200 dark:border-transparent">
                   <span className="break-all">{qrModalInvoice.irn}</span>
                   <button
                     onClick={() => copyToClipboard(qrModalInvoice.irn, "modal-irn")}
-                    className="ml-2 text-[#8E8E93] hover:text-white"
+                    className="ml-2 text-slate-400 hover:text-slate-900 dark:text-[#8E8E93] dark:hover:text-white"
                   >
-                    {copiedKey === "modal-irn" ? <Check className="h-4 w-4 text-emerald-400" /> : <Copy className="h-4 w-4" />}
+                    {copiedKey === "modal-irn" ? <Check className="h-4 w-4 text-emerald-600 dark:text-emerald-400" /> : <Copy className="h-4 w-4" />}
                   </button>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3 text-[#8E8E93]">
+              <div className="grid grid-cols-2 gap-3 text-slate-500 dark:text-[#8E8E93]">
                 <div>
                   <span className="block text-[10px] uppercase">Ack Number</span>
-                  <span className="font-mono text-white text-xs">{qrModalInvoice.ack_number}</span>
+                  <span className="font-mono text-slate-900 dark:text-white text-xs">{qrModalInvoice.ack_number}</span>
                 </div>
                 <div>
                   <span className="block text-[10px] uppercase">Ack Timestamp</span>
-                  <span className="text-white text-xs">{new Date(qrModalInvoice.ack_date).toLocaleString("en-IN")}</span>
+                  <span className="text-slate-900 dark:text-white text-xs">{new Date(qrModalInvoice.ack_date).toLocaleString("en-IN")}</span>
                 </div>
               </div>
 
               <div>
-                <span className="text-[#8E8E93] block mb-1">Signed QR JWT Token:</span>
-                <div className="rounded bg-[#0E0E10] p-2.5 font-mono text-[10px] text-amber-300 break-all max-h-24 overflow-y-auto">
+                <span className="text-slate-500 dark:text-[#8E8E93] block mb-1">Signed QR JWT Token:</span>
+                <div className="rounded bg-slate-900 dark:bg-[#0E0E10] p-2.5 font-mono text-[10px] text-amber-400 dark:text-amber-300 break-all max-h-24 overflow-y-auto">
                   {qrModalInvoice.signed_qr_code}
                 </div>
               </div>
@@ -753,16 +753,16 @@ export function EInvoiceComplianceViewer() {
 
       {/* MODAL: PRINTABLE E-WAY BILL SLIP */}
       {selectedEwb && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-          <div className="relative w-full max-w-xl rounded-xl border border-[#2e2e32] bg-[#1C1C1F] p-6 shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs p-4">
+          <div className="relative w-full max-w-xl rounded-xl border border-slate-200 dark:border-[#2e2e32] bg-white dark:bg-[#1C1C1F] p-6 shadow-2xl">
             <button
               onClick={() => setSelectedEwb(null)}
-              className="absolute top-4 right-4 text-[#8E8E93] hover:text-white"
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-900 dark:text-[#8E8E93] dark:hover:text-white"
             >
               <X className="h-5 w-5" />
             </button>
 
-            <div className="border border-white/20 p-5 rounded-lg bg-white text-black space-y-4">
+            <div className="border border-slate-200 dark:border-white/20 p-5 rounded-lg bg-white text-black space-y-4">
               <div className="text-center border-b pb-3">
                 <h2 className="text-base font-bold uppercase tracking-wider">Government of India — GST E-Way Bill</h2>
                 <span className="text-xs text-gray-600 font-mono">Rule 138 of Central Goods and Services Tax Rules, 2017</span>
@@ -807,7 +807,7 @@ export function EInvoiceComplianceViewer() {
             <div className="mt-4 flex justify-end">
               <button
                 onClick={() => window.print()}
-                className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-xs font-medium text-white hover:bg-blue-500"
+                className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-xs font-medium text-white hover:bg-blue-500 shadow-xs"
               >
                 Print Official Slip
               </button>
@@ -818,31 +818,31 @@ export function EInvoiceComplianceViewer() {
 
       {/* MODAL: CANCEL E-INVOICE */}
       {cancelModalInvoice && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-          <div className="relative w-full max-w-md rounded-xl border border-[#2e2e32] bg-[#1C1C1F] p-6 shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs p-4">
+          <div className="relative w-full max-w-md rounded-xl border border-slate-200 dark:border-[#2e2e32] bg-white dark:bg-[#1C1C1F] p-6 shadow-2xl">
             <button
               onClick={() => setCancelModalInvoice(null)}
-              className="absolute top-4 right-4 text-[#8E8E93] hover:text-white"
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-900 dark:text-[#8E8E93] dark:hover:text-white"
             >
               <X className="h-5 w-5" />
             </button>
 
-            <div className="flex items-center gap-2 text-rose-400 mb-3">
+            <div className="flex items-center gap-2 text-rose-600 dark:text-rose-400 mb-3">
               <Ban className="h-5 w-5" />
-              <h3 className="text-base font-semibold text-white">Cancel E-Invoice (IRP 24-Hr Window)</h3>
+              <h3 className="text-base font-semibold text-slate-900 dark:text-white">Cancel E-Invoice (IRP 24-Hr Window)</h3>
             </div>
 
-            <p className="text-xs text-[#8E8E93] mb-4">
+            <p className="text-xs text-slate-500 dark:text-[#8E8E93] mb-4">
               Per GST Rule 48(4), E-Invoices can only be cancelled within 24 hours of generation on the IRP.
             </p>
 
             <div className="space-y-4 text-xs">
               <div>
-                <label className="text-[#8E8E93] block mb-1 font-medium">Cancellation Reason</label>
+                <label className="text-slate-600 dark:text-[#8E8E93] block mb-1 font-medium">Cancellation Reason</label>
                 <select
                   value={cancelReasonCode}
                   onChange={(e) => setCancelReasonCode(e.target.value)}
-                  className="w-full rounded-lg border border-[#2e2e32] bg-[#252529] px-3 py-2 text-xs text-white focus:border-rose-500 focus:outline-none"
+                  className="w-full rounded-lg border border-slate-200 dark:border-[#2e2e32] bg-slate-50 dark:bg-[#252529] px-3 py-2 text-xs text-slate-900 dark:text-white focus:border-rose-500 focus:outline-none"
                 >
                   <option value="1">1 - Duplicate Generation</option>
                   <option value="2">2 - Data Entry Mistake</option>
@@ -852,20 +852,20 @@ export function EInvoiceComplianceViewer() {
               </div>
 
               <div>
-                <label className="text-[#8E8E93] block mb-1 font-medium">Remarks</label>
+                <label className="text-slate-600 dark:text-[#8E8E93] block mb-1 font-medium">Remarks</label>
                 <input
                   type="text"
                   value={cancelRemarks}
                   onChange={(e) => setCancelRemarks(e.target.value)}
                   placeholder="Provide audit remarks..."
-                  className="w-full rounded-lg border border-[#2e2e32] bg-[#252529] px-3 py-2 text-xs text-white focus:border-rose-500 focus:outline-none"
+                  className="w-full rounded-lg border border-slate-200 dark:border-[#2e2e32] bg-slate-50 dark:bg-[#252529] px-3 py-2 text-xs text-slate-900 dark:text-white focus:border-rose-500 focus:outline-none"
                 />
               </div>
 
               <div className="flex justify-end gap-2 pt-2">
                 <button
                   onClick={() => setCancelModalInvoice(null)}
-                  className="rounded-lg border border-[#2e2e32] px-3 py-1.5 text-xs text-[#8E8E93] hover:text-white"
+                  className="rounded-lg border border-slate-200 dark:border-[#2e2e32] px-3 py-1.5 text-xs text-slate-600 dark:text-[#8E8E93] hover:text-slate-900 dark:hover:text-white"
                 >
                   Dismiss
                 </button>
@@ -884,71 +884,71 @@ export function EInvoiceComplianceViewer() {
 
       {/* MODAL: CREATE E-INVOICE */}
       {createInvoiceModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-          <div className="relative w-full max-w-lg rounded-xl border border-[#2e2e32] bg-[#1C1C1F] p-6 shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs p-4">
+          <div className="relative w-full max-w-lg rounded-xl border border-slate-200 dark:border-[#2e2e32] bg-white dark:bg-[#1C1C1F] p-6 shadow-2xl">
             <button
               onClick={() => setCreateInvoiceModalOpen(false)}
-              className="absolute top-4 right-4 text-[#8E8E93] hover:text-white"
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-900 dark:text-[#8E8E93] dark:hover:text-white"
             >
               <X className="h-5 w-5" />
             </button>
 
             <div className="flex items-center gap-2 mb-4">
-              <FileText className="h-5 w-5 text-blue-400" />
-              <h3 className="text-base font-semibold text-white">Generate Official NIC GST E-Invoice</h3>
+              <FileText className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              <h3 className="text-base font-semibold text-slate-900 dark:text-white">Generate Official NIC GST E-Invoice</h3>
             </div>
 
             <div className="space-y-4 text-xs">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-[#8E8E93] block mb-1">Seller GSTIN (15 chars)</label>
+                  <label className="text-slate-600 dark:text-[#8E8E93] block mb-1">Seller GSTIN (15 chars)</label>
                   <input
                     type="text"
                     value={newSellerGstin}
                     onChange={(e) => setNewSellerGstin(e.target.value.toUpperCase())}
                     maxLength={15}
-                    className="w-full rounded-lg border border-[#2e2e32] bg-[#252529] px-3 py-2 text-xs text-white font-mono focus:border-blue-500 focus:outline-none"
+                    className="w-full rounded-lg border border-slate-200 dark:border-[#2e2e32] bg-slate-50 dark:bg-[#252529] px-3 py-2 text-xs text-slate-900 dark:text-white font-mono focus:border-blue-500 focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label className="text-[#8E8E93] block mb-1">Buyer GSTIN (15 chars)</label>
+                  <label className="text-slate-600 dark:text-[#8E8E93] block mb-1">Buyer GSTIN (15 chars)</label>
                   <input
                     type="text"
                     value={newBuyerGstin}
                     onChange={(e) => setNewBuyerGstin(e.target.value.toUpperCase())}
                     maxLength={15}
-                    className="w-full rounded-lg border border-[#2e2e32] bg-[#252529] px-3 py-2 text-xs text-white font-mono focus:border-blue-500 focus:outline-none"
+                    className="w-full rounded-lg border border-slate-200 dark:border-[#2e2e32] bg-slate-50 dark:bg-[#252529] px-3 py-2 text-xs text-slate-900 dark:text-white font-mono focus:border-blue-500 focus:outline-none"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="text-[#8E8E93] block mb-1">Invoice Document Number</label>
+                <label className="text-slate-600 dark:text-[#8E8E93] block mb-1">Invoice Document Number</label>
                 <input
                   type="text"
                   value={newDocNumber}
                   onChange={(e) => setNewDocNumber(e.target.value)}
-                  className="w-full rounded-lg border border-[#2e2e32] bg-[#252529] px-3 py-2 text-xs text-white font-mono focus:border-blue-500 focus:outline-none"
+                  className="w-full rounded-lg border border-slate-200 dark:border-[#2e2e32] bg-slate-50 dark:bg-[#252529] px-3 py-2 text-xs text-slate-900 dark:text-white font-mono focus:border-blue-500 focus:outline-none"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-[#8E8E93] block mb-1">Total Invoice Value (₹)</label>
+                  <label className="text-slate-600 dark:text-[#8E8E93] block mb-1">Total Invoice Value (₹)</label>
                   <input
                     type="number"
                     value={newTotalValue}
                     onChange={(e) => setNewTotalValue(Number(e.target.value))}
-                    className="w-full rounded-lg border border-[#2e2e32] bg-[#252529] px-3 py-2 text-xs text-white focus:border-blue-500 focus:outline-none"
+                    className="w-full rounded-lg border border-slate-200 dark:border-[#2e2e32] bg-slate-50 dark:bg-[#252529] px-3 py-2 text-xs text-slate-900 dark:text-white focus:border-blue-500 focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label className="text-[#8E8E93] block mb-1">Total Tax Value (₹)</label>
+                  <label className="text-slate-600 dark:text-[#8E8E93] block mb-1">Total Tax Value (₹)</label>
                   <input
                     type="number"
                     value={newTaxValue}
                     onChange={(e) => setNewTaxValue(Number(e.target.value))}
-                    className="w-full rounded-lg border border-[#2e2e32] bg-[#252529] px-3 py-2 text-xs text-white focus:border-blue-500 focus:outline-none"
+                    className="w-full rounded-lg border border-slate-200 dark:border-[#2e2e32] bg-slate-50 dark:bg-[#252529] px-3 py-2 text-xs text-slate-900 dark:text-white focus:border-blue-500 focus:outline-none"
                   />
                 </div>
               </div>
@@ -956,14 +956,14 @@ export function EInvoiceComplianceViewer() {
               <div className="flex justify-end gap-2 pt-2">
                 <button
                   onClick={() => setCreateInvoiceModalOpen(false)}
-                  className="rounded-lg border border-[#2e2e32] px-3 py-1.5 text-xs text-[#8E8E93] hover:text-white"
+                  className="rounded-lg border border-slate-200 dark:border-[#2e2e32] px-3 py-1.5 text-xs text-slate-600 dark:text-[#8E8E93] hover:text-slate-900 dark:hover:text-white"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleGenerateInvoice}
                   disabled={generateInvoiceMutation.isPending}
-                  className="rounded-lg bg-blue-600 px-4 py-1.5 text-xs font-medium text-white hover:bg-blue-500 disabled:opacity-50"
+                  className="rounded-lg bg-blue-600 px-4 py-1.5 text-xs font-medium text-white hover:bg-blue-500 disabled:opacity-50 shadow-xs"
                 >
                   {generateInvoiceMutation.isPending ? "Generating..." : "Generate IRN & Signed QR"}
                 </button>
@@ -975,93 +975,93 @@ export function EInvoiceComplianceViewer() {
 
       {/* MODAL: CREATE E-WAY BILL */}
       {createEwbModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-          <div className="relative w-full max-w-lg rounded-xl border border-[#2e2e32] bg-[#1C1C1F] p-6 shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs p-4">
+          <div className="relative w-full max-w-lg rounded-xl border border-slate-200 dark:border-[#2e2e32] bg-white dark:bg-[#1C1C1F] p-6 shadow-2xl">
             <button
               onClick={() => setCreateEwbModalOpen(false)}
-              className="absolute top-4 right-4 text-[#8E8E93] hover:text-white"
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-900 dark:text-[#8E8E93] dark:hover:text-white"
             >
               <X className="h-5 w-5" />
             </button>
 
             <div className="flex items-center gap-2 mb-4">
-              <Truck className="h-5 w-5 text-emerald-400" />
-              <h3 className="text-base font-semibold text-white">Generate Part A/B E-Way Bill</h3>
+              <Truck className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+              <h3 className="text-base font-semibold text-slate-900 dark:text-white">Generate Part A/B E-Way Bill</h3>
             </div>
 
             <div className="space-y-4 text-xs">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-[#8E8E93] block mb-1">Vehicle Registration No</label>
+                  <label className="text-slate-600 dark:text-[#8E8E93] block mb-1">Vehicle Registration No</label>
                   <input
                     type="text"
                     value={newVehicleNumber}
                     onChange={(e) => setNewVehicleNumber(e.target.value.toUpperCase())}
                     placeholder="e.g. MH-12-AB-9876"
-                    className="w-full rounded-lg border border-[#2e2e32] bg-[#252529] px-3 py-2 text-xs text-white font-mono focus:border-emerald-500 focus:outline-none"
+                    className="w-full rounded-lg border border-slate-200 dark:border-[#2e2e32] bg-slate-50 dark:bg-[#252529] px-3 py-2 text-xs text-slate-900 dark:text-white font-mono focus:border-emerald-500 focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label className="text-[#8E8E93] block mb-1">Distance (KM)</label>
+                  <label className="text-slate-600 dark:text-[#8E8E93] block mb-1">Distance (KM)</label>
                   <input
                     type="number"
                     value={newDistanceKm}
                     onChange={(e) => setNewDistanceKm(Number(e.target.value))}
                     min={1}
-                    className="w-full rounded-lg border border-[#2e2e32] bg-[#252529] px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                    className="w-full rounded-lg border border-slate-200 dark:border-[#2e2e32] bg-slate-50 dark:bg-[#252529] px-3 py-2 text-xs text-slate-900 dark:text-white focus:border-emerald-500 focus:outline-none"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-[#8E8E93] block mb-1">From Pincode</label>
+                  <label className="text-slate-600 dark:text-[#8E8E93] block mb-1">From Pincode</label>
                   <input
                     type="text"
                     value={newFromPincode}
                     onChange={(e) => setNewFromPincode(e.target.value)}
                     maxLength={6}
-                    className="w-full rounded-lg border border-[#2e2e32] bg-[#252529] px-3 py-2 text-xs text-white font-mono focus:border-emerald-500 focus:outline-none"
+                    className="w-full rounded-lg border border-slate-200 dark:border-[#2e2e32] bg-slate-50 dark:bg-[#252529] px-3 py-2 text-xs text-slate-900 dark:text-white font-mono focus:border-emerald-500 focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label className="text-[#8E8E93] block mb-1">To Pincode</label>
+                  <label className="text-slate-600 dark:text-[#8E8E93] block mb-1">To Pincode</label>
                   <input
                     type="text"
                     value={newToPincode}
                     onChange={(e) => setNewToPincode(e.target.value)}
                     maxLength={6}
-                    className="w-full rounded-lg border border-[#2e2e32] bg-[#252529] px-3 py-2 text-xs text-white font-mono focus:border-emerald-500 focus:outline-none"
+                    className="w-full rounded-lg border border-slate-200 dark:border-[#2e2e32] bg-slate-50 dark:bg-[#252529] px-3 py-2 text-xs text-slate-900 dark:text-white font-mono focus:border-emerald-500 focus:outline-none"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="text-[#8E8E93] block mb-1">Transporter Name</label>
+                <label className="text-slate-600 dark:text-[#8E8E93] block mb-1">Transporter Name</label>
                 <input
                   type="text"
                   value={newTransporterName}
                   onChange={(e) => setNewTransporterName(e.target.value)}
-                  className="w-full rounded-lg border border-[#2e2e32] bg-[#252529] px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                  className="w-full rounded-lg border border-slate-200 dark:border-[#2e2e32] bg-slate-50 dark:bg-[#252529] px-3 py-2 text-xs text-slate-900 dark:text-white focus:border-emerald-500 focus:outline-none"
                 />
               </div>
 
-              <div className="rounded bg-[#252529] p-3 text-[11px] text-[#8E8E93]">
+              <div className="rounded bg-slate-100 dark:bg-[#252529] p-3 text-[11px] text-slate-600 dark:text-[#8E8E93] border border-slate-200 dark:border-transparent">
                 Rule 138(10): Validity is calculated as <strong>1 day per 200 KM</strong>. For {newDistanceKm} KM, validity will be{" "}
-                <strong className="text-white">{Math.max(1, Math.ceil(newDistanceKm / 200))} day(s)</strong> from generation.
+                <strong className="text-slate-900 dark:text-white">{Math.max(1, Math.ceil(newDistanceKm / 200))} day(s)</strong> from generation.
               </div>
 
               <div className="flex justify-end gap-2 pt-2">
                 <button
                   onClick={() => setCreateEwbModalOpen(false)}
-                  className="rounded-lg border border-[#2e2e32] px-3 py-1.5 text-xs text-[#8E8E93] hover:text-white"
+                  className="rounded-lg border border-slate-200 dark:border-[#2e2e32] px-3 py-1.5 text-xs text-slate-600 dark:text-[#8E8E93] hover:text-slate-900 dark:hover:text-white"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleGenerateEwb}
                   disabled={generateEwbMutation.isPending}
-                  className="rounded-lg bg-emerald-600 px-4 py-1.5 text-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
+                  className="rounded-lg bg-emerald-600 px-4 py-1.5 text-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-50 shadow-xs"
                 >
                   {generateEwbMutation.isPending ? "Generating..." : "Generate E-Way Bill"}
                 </button>

@@ -77,7 +77,9 @@ export function InvoiceReconciliationWorkbench() {
   };
 
   const handleSelectInvoice = (invoice: InvoiceResponse) => {
+    if (selectedInvoice?.id === invoice.id && reconcileResult) return;
     setSelectedInvoice(invoice);
+    setReconcileResult(null);
     executeReconcile(invoice, matchMode);
   };
 
@@ -319,7 +321,7 @@ export function InvoiceReconciliationWorkbench() {
                     <div
                       key={inv.id}
                       onClick={() => handleSelectInvoice(inv)}
-                      className={`p-3.5 rounded-lg border text-left cursor-pointer transition-all ${
+                      className={`p-3.5 rounded-lg border text-left cursor-pointer transition-colors duration-150 ${
                         isSelected
                           ? "border-indigo-600 bg-indigo-50/50 dark:bg-indigo-950/20 dark:border-indigo-500"
                           : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 bg-white dark:bg-gray-800"
@@ -486,23 +488,39 @@ export function InvoiceReconciliationWorkbench() {
               )}
 
               {/* Line items split-view comparison */}
-              <div className="p-5 space-y-4">
+              <div className="p-5 space-y-4 min-h-[300px]">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400">
                   Line Items Reconciliation Breakdown
                 </h3>
 
-                {reconcileResult?.line_details?.map((line) => {
-                  const hasDiscrepancy = line.status === "VARIANCE_DETECTED";
+                {isReconciling && !reconcileResult ? (
+                  <div className="space-y-3 py-2 animate-pulse">
+                    {[1, 2].map((i) => (
+                      <div key={i} className="p-4 rounded-xl border border-gray-200/80 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50 space-y-3">
+                        <div className="flex justify-between items-center pb-3 border-b border-gray-100 dark:border-gray-700/60">
+                          <div className="h-4 w-40 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                          <div className="h-4 w-20 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="h-24 bg-gray-200/60 dark:bg-gray-700/40 rounded-lg"></div>
+                          <div className="h-24 bg-gray-200/60 dark:bg-gray-700/40 rounded-lg"></div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  reconcileResult?.line_details?.map((line) => {
+                    const hasDiscrepancy = line.status === "VARIANCE_DETECTED";
 
-                  return (
-                    <div
-                      key={line.line_number}
-                      className={`p-4 rounded-xl border ${
-                        hasDiscrepancy
-                          ? "border-rose-300 dark:border-rose-800/80 bg-rose-50/30 dark:bg-rose-950/10"
-                          : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
-                      }`}
-                    >
+                    return (
+                      <div
+                        key={line.line_number}
+                        className={`p-4 rounded-xl border transition-opacity duration-200 ${
+                          hasDiscrepancy
+                            ? "border-rose-300 dark:border-rose-800/80 bg-rose-50/30 dark:bg-rose-950/10"
+                            : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
+                        }`}
+                      >
                       <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-700">
                         <div className="flex items-center gap-2">
                           <span className="text-xs font-bold text-gray-500 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">
@@ -626,7 +644,7 @@ export function InvoiceReconciliationWorkbench() {
                       )}
                     </div>
                   );
-                })}
+                }))}
               </div>
             </div>
           )}

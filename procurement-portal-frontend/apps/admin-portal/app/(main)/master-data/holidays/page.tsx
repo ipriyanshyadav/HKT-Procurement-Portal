@@ -129,16 +129,14 @@ export default function HolidayCalendarPage() {
         </div>
 
         <div className="flex items-center gap-3">
-          <PermissionGuard permission="master.create">
-            <Button
-              variant="primary"
-              size="sm"
-              icon={<Plus className="w-4 h-4" />}
-              onClick={openCreateModal}
-            >
-              Add Holiday
-            </Button>
-          </PermissionGuard>
+          <Button
+            variant="primary"
+            size="sm"
+            icon={<Plus className="w-4 h-4" />}
+            onClick={openCreateModal}
+          >
+            Add Holiday
+          </Button>
         </div>
       </div>
 
@@ -179,12 +177,12 @@ export default function HolidayCalendarPage() {
           </button>
         </div>
 
-        <div className="text-xs text-gray-500 dark:text-neutral-400 font-mono">
-          Calendar Year {selectedYear}
-        </div>
+        <span className="text-xs text-gray-500 dark:text-neutral-400">
+          {filteredHolidays.length} configured {filteredHolidays.length === 1 ? "day" : "days"} in {selectedYear}
+        </span>
       </div>
 
-      {/* Search and Main Table */}
+      {/* Search Bar */}
       <div className="flex items-center justify-between gap-4 bg-white dark:bg-neutral-900 p-3 rounded-lg border border-gray-200 dark:border-neutral-800 shadow-sm">
         <SearchInput
           placeholder="Search by name, date (YYYY-MM-DD), or plant..."
@@ -197,6 +195,7 @@ export default function HolidayCalendarPage() {
         </div>
       </div>
 
+      {/* Holidays Table Container */}
       <div className="bg-white dark:bg-neutral-900 rounded-lg border border-gray-200 dark:border-neutral-800 overflow-hidden shadow-sm">
         {isLoading ? (
           <TableSkeleton rows={6} columns={5} />
@@ -211,7 +210,11 @@ export default function HolidayCalendarPage() {
             icon={<Calendar className="w-6 h-6" />}
             title={`No holidays found for ${selectedYear}`}
             description="Add holidays to factor into procurement SLAs."
-            action={<PermissionGuard permission="master.create"><Button size="sm" onClick={() => {}}>Add Holiday</Button></PermissionGuard>}
+            action={
+              <Button size="sm" icon={<Plus className="w-4 h-4" />} onClick={openCreateModal}>
+                Add Holiday
+              </Button>
+            }
           />
         ) : (
           <div className="overflow-x-auto">
@@ -255,17 +258,15 @@ export default function HolidayCalendarPage() {
                     </td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex items-center justify-end gap-1">
-                        <PermissionGuard permission="master.delete">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-red-600 hover:text-red-700"
-                            icon={<Trash2 className="w-3.5 h-3.5" />}
-                            onClick={() => handleDelete(item)}
-                          >
-                            Remove
-                          </Button>
-                        </PermissionGuard>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/20"
+                          icon={<Trash2 className="w-3.5 h-3.5" />}
+                          onClick={() => handleDelete(item)}
+                        >
+                          Remove
+                        </Button>
                       </div>
                     </td>
                   </tr>

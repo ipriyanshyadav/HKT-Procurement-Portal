@@ -31,6 +31,7 @@ async def get_audit_logs(
     date_from: datetime | None = Query(None, description="Start date filter"),
     date_to: datetime | None = Query(None, description="End date filter"),
     search: str | None = Query(None, description="Full-text search query"),
+    exclude_token_refresh: bool = Query(True, description="Exclude token refresh logs"),
     page: int = Query(1, ge=1, description="Page number"),
     page_size: int = Query(20, ge=1, le=100, description="Items per page"),
     current_user: User = Depends(get_current_user),
@@ -46,6 +47,7 @@ async def get_audit_logs(
         date_from=date_from,
         date_to=date_to,
         search=search,
+        exclude_token_refresh=exclude_token_refresh,
         page=page,
         page_size=page_size,
     )

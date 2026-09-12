@@ -188,7 +188,13 @@ class AuditSearchService:
 
                 bool_query: dict[str, Any] = {"must": must}
                 if query.exclude_token_refresh and not query.action:
-                    bool_query["must_not"] = [{"term": {"action": "TOKEN_REFRESH"}}]
+                    bool_query["must_not"] = [
+                        {"term": {"action": "TOKEN_REFRESH"}},
+                        {"term": {"action.keyword": "TOKEN_REFRESH"}},
+                        {"term": {"action": "token_refresh"}},
+                        {"wildcard": {"action": "*refresh*"}},
+                        {"wildcard": {"action.keyword": "*refresh*"}},
+                    ]
 
                 body = {
                     "query": {"bool": bool_query},
@@ -247,7 +253,7 @@ class AuditSearchService:
         if query.action:
             stmt = stmt.where(AuditLog.action.ilike(f"%{query.action}%"))
         elif query.exclude_token_refresh:
-            stmt = stmt.where(AuditLog.action != "TOKEN_REFRESH")
+            stmt = stmt.where(~AuditLog.action.ilike("%refresh%"))
         if query.actor_id:
             stmt = stmt.where(AuditLog.actor_id == query.actor_id)
         if query.actor_email:

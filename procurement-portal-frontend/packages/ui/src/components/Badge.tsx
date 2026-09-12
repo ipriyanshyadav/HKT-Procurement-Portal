@@ -14,7 +14,9 @@ export type BadgeVariant =
   | 'cancelled'
   | 'submitted'
   | 'warning'
-  | 'info';
+  | 'info'
+  | 'danger'
+  | 'success';
 
 export interface BadgeProps {
   variant?: BadgeVariant | string;

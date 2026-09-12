@@ -9,6 +9,8 @@ from loguru import logger
 from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.config import settings
+
 from app.core.constants import AuditAction
 from app.core.exceptions import AppException, ForbiddenError, NotFoundError, ValidationError
 from app.core.metrics import pr_approval_duration_hours, pr_created_total
@@ -145,6 +147,8 @@ class RequisitionService:
         skip: int = 0,
         limit: int = 20,
     ) -> tuple[list[Requisition], int]:
+        # Enforce upper bound to prevent full-table dumps
+        limit = min(limit, settings.MAX_LIST_LIMIT)
         req_user_id = requestor_id
         bu_filter = business_unit_id
 

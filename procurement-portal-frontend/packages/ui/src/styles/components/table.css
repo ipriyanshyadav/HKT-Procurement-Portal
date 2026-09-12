@@ -32,7 +32,7 @@
 
 .apple-table th {
   padding: 12px 18px;
-  text-align: left;
+  text-align: center;
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.06em;
@@ -44,10 +44,25 @@
 
 .apple-table td {
   padding: 14px 18px;
+  text-align: center;
   color: var(--apple-label-primary);
   border-bottom: 1px solid var(--apple-separator);
   vertical-align: middle;
   line-height: 1.45;
+}
+
+/* Global table alignment: all rows, columns, and headers centrally aligned */
+table th,
+table td {
+  text-align: center !important;
+  vertical-align: middle;
+}
+
+table th > div:not(.justify-between),
+table td > div:not(.justify-between),
+.apple-table th > div:not(.justify-between),
+.apple-table td > div:not(.justify-between) {
+  justify-content: center;
 }
 
 .apple-table tbody tr {

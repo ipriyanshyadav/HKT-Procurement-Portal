@@ -240,7 +240,7 @@ export function Navbar({
         {/* Stylish HKT Procurement Branding */}
         <Link href={homeHref} className="apple-navbar__logo group flex items-center gap-2">
           <span className="flex items-center gap-2 font-bold tracking-tight">
-            <span className="px-2.5 py-1 text-xs font-black tracking-wider bg-gradient-to-r from-blue-600 via-indigo-600 to-sky-500 text-white rounded-lg shadow-sm ring-1 ring-blue-500/20 group-hover:scale-105 transition-transform duration-200">
+            <span className="px-2.5 py-1 text-xs font-black tracking-wider bg-gradient-to-r from-blue-600 via-indigo-600 to-sky-500 text-white rounded-lg shadow-xs ring-1 ring-blue-500/20 group-hover:scale-105 transition-transform duration-200">
               HKT
             </span>
             <span className="bg-gradient-to-r from-neutral-900 via-neutral-800 to-neutral-600 dark:from-white dark:via-neutral-100 dark:to-neutral-300 bg-clip-text text-transparent font-semibold tracking-tight text-[15px] sm:text-[17px]">
@@ -248,6 +248,16 @@ export function Navbar({
             </span>
           </span>
         </Link>
+
+        {/* Portal Identification Badge */}
+        {portalBadge && (
+          <span
+            className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold border shadow-2xs transition-colors ${badgeColorClass}`}
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-current opacity-80 animate-pulse" />
+            <span>{portalBadge}</span>
+          </span>
+        )}
 
         {showSidebarToggle && onSidebarModeChange && (
           <button
@@ -266,7 +276,7 @@ export function Navbar({
           >
             <PanelLeft className="w-3.5 h-3.5 text-neutral-500 dark:text-neutral-400" />
             <span className="text-[11px] text-neutral-600 dark:text-neutral-300 font-medium hidden lg:inline">
-              {sidebarMode === 'auto-hide' ? 'Auto-Hide' : sidebarMode === 'minimized' ? 'Mini' : 'Pinned'}
+              {sidebarMode === 'auto-hide' ? 'Auto-Hide' : sidebarMode === 'minimized' ? 'Rail' : 'Pinned'}
             </span>
           </button>
         )}
@@ -494,51 +504,42 @@ export function Navbar({
             {/* Organized Dropdown Menu */}
             {isDropdownOpen && (
               <div
-                className="apple-dropdown-menu absolute right-0 mt-2 w-[330px] sm:w-[350px] max-w-[calc(100vw-2rem)] rounded-2xl bg-white/95 dark:bg-neutral-900/95 backdrop-blur-2xl border border-neutral-200/80 dark:border-neutral-800 shadow-2xl shadow-black/10 dark:shadow-black/50 z-50 overflow-hidden max-h-[calc(100vh-80px)] overflow-y-auto overscroll-contain"
+                className="absolute right-0 mt-2 w-72 sm:w-80 rounded-2xl bg-white/95 dark:bg-[#1C1C1F]/98 backdrop-blur-2xl border border-neutral-200/90 dark:border-neutral-800 shadow-2xl shadow-black/10 dark:shadow-black/50 z-50 overflow-hidden"
                 role="menu"
                 aria-orientation="vertical"
               >
-                {/* 1. Header: User Identity & Account Details */}
-                <div className="p-4 bg-gradient-to-b from-neutral-50 to-neutral-100/40 dark:from-neutral-800/40 dark:to-neutral-900/40 border-b border-neutral-200/70 dark:border-neutral-800/70">
-                  <div className="flex items-start gap-3">
-                    {/* Avatar with initials & online status badge */}
+                {/* 1. Header: Executive User Card */}
+                <div className="p-4 border-b border-neutral-100 dark:border-neutral-800/80">
+                  <div className="flex items-center gap-3">
                     <div className="relative flex-shrink-0">
-                      <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-600 text-white flex items-center justify-center text-sm font-bold shadow-md ring-2 ring-white dark:ring-neutral-800">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-600 text-white flex items-center justify-center text-sm font-bold shadow-md ring-2 ring-white dark:ring-neutral-800">
                         {initials}
                       </div>
                       <span
-                        className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 rounded-full ring-2 ring-white dark:ring-neutral-900 flex items-center justify-center"
+                        className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full ring-2 ring-white dark:ring-neutral-900"
                         title="Active Session"
-                      >
-                        <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
-                      </span>
+                      />
                     </div>
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-1">
-                        <h4 className="text-sm font-bold text-neutral-900 dark:text-white truncate">
+                        <h4 className="text-xs font-bold text-neutral-900 dark:text-white truncate">
                           {fullName}
                         </h4>
-                        <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800/50 flex-shrink-0">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                          Active
-                        </span>
                       </div>
-
                       {effectiveEmail && (
-                        <p className="text-xs text-neutral-500 dark:text-neutral-400 truncate mt-0.5">
+                        <p className="text-[11px] text-neutral-500 dark:text-neutral-400 truncate">
                           {effectiveEmail}
                         </p>
                       )}
-
-                      <div className="flex items-center gap-1.5 mt-2">
+                      <div className="flex items-center gap-1.5 mt-1.5">
                         {isSuperAdmin ? (
-                          <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-amber-500/40 bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 shadow-xs">
-                            <Crown className="w-3 h-3 text-amber-500" />
-                            Super Admin (All 17 Roles Active)
+                          <span className="inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-md bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800/50 shadow-xs">
+                            <Crown className="w-2.5 h-2.5 text-amber-500" />
+                            SUPERADMIN
                           </span>
                         ) : (
-                          <span className={`inline-flex items-center text-[10px] font-semibold px-2.5 py-0.5 rounded-full border ${badgeColorClass}`}>
+                          <span className="inline-flex items-center text-[9px] font-semibold px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/50">
                             {roleDisplay}
                           </span>
                         )}
@@ -546,246 +547,67 @@ export function Navbar({
                     </div>
                   </div>
 
-                  {/* Organization Context with One-Click Copy */}
-                  <div className="mt-3 px-3 py-2 rounded-xl bg-white/90 dark:bg-neutral-800/70 border border-neutral-200/80 dark:border-neutral-700/60 flex items-center justify-between gap-2 shadow-xs">
-                    <div className="flex items-center gap-2 min-w-0">
-                      <Building2 className="w-3.5 h-3.5 text-neutral-400 dark:text-neutral-500 flex-shrink-0" />
-                      <div className="min-w-0">
-                        <p className="text-[10px] text-neutral-400 dark:text-neutral-500 font-medium leading-none">
-                          Organization
-                        </p>
-                        <p className="text-xs font-medium text-neutral-700 dark:text-neutral-200 truncate mt-0.5 font-mono">
-                          {effectiveOrgId}
-                        </p>
-                      </div>
-                    </div>
-
+                  {/* Organization Pill with Copy */}
+                  <div className="mt-3 px-2.5 py-1.5 rounded-lg bg-neutral-50 dark:bg-neutral-800/60 border border-neutral-200/80 dark:border-neutral-700/60 flex items-center justify-between gap-2 text-[11px]">
+                    <span className="text-neutral-500 dark:text-neutral-400 font-mono truncate">
+                      Org: {effectiveOrgId.slice(0, 8)}...{effectiveOrgId.slice(-4)}
+                    </span>
                     <button
                       type="button"
                       onClick={() => handleCopy(effectiveOrgId, 'org')}
-                      className="flex items-center gap-1 px-2 py-1 text-[11px] font-medium rounded-lg text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700 border border-neutral-200/70 dark:border-neutral-600/70 transition-colors flex-shrink-0"
-                      title="Copy Organization ID"
-                      aria-label="Copy Organization ID"
+                      className="text-neutral-400 hover:text-neutral-700 dark:hover:text-white transition-colors p-0.5"
+                      title="Copy full Organization ID"
                     >
                       {copiedField === 'org' ? (
-                        <>
-                          <Check className="w-3 h-3 text-emerald-500" />
-                          <span className="text-emerald-600 dark:text-emerald-400 font-semibold">Copied</span>
-                        </>
+                        <Check className="w-3 h-3 text-emerald-500" />
                       ) : (
-                        <>
-                          <Copy className="w-3 h-3 text-neutral-400" />
-                          <span>Copy</span>
-                        </>
+                        <Copy className="w-3 h-3" />
                       )}
                     </button>
                   </div>
                 </div>
 
-                {/* 2. Section: Account & Security */}
-                <div className="p-3 border-b border-neutral-200/60 dark:border-neutral-800/60">
-                  <div className="px-2 pb-1.5 text-[10px] font-bold tracking-wider text-neutral-400 dark:text-neutral-500 uppercase">
-                    Account & Security
-                  </div>
-                  <div className="space-y-1">
-                    {/* Super Admin Omnipotent Privilege Info */}
-                    {isSuperAdmin && (
-                      <div className="flex items-center justify-between px-2.5 py-2 rounded-xl bg-gradient-to-r from-amber-500/10 via-yellow-500/10 to-orange-500/10 border border-amber-500/30">
-                        <div className="flex items-center gap-2.5 min-w-0">
-                          <div className="w-7 h-7 rounded-lg bg-amber-500 text-white flex items-center justify-center flex-shrink-0 shadow-xs">
-                            <Crown className="w-4 h-4" />
-                          </div>
-                          <div className="min-w-0">
-                            <p className="text-xs font-bold text-neutral-900 dark:text-white">
-                              Universal Omnipotent Access
-                            </p>
-                            <p className="text-[11px] text-amber-700 dark:text-amber-400 truncate">
-                              All portals, APIs & workflows unlocked
-                            </p>
-                          </div>
-                        </div>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-200/80 dark:bg-amber-900/50 text-amber-900 dark:text-amber-200">
-                          Omnipotent
-                        </span>
-                      </div>
-                    )}
-
-                    {/* Role & Permissions Info */}
-                    <div className="flex items-center justify-between px-2.5 py-2 rounded-xl bg-neutral-50/50 dark:bg-neutral-800/30 border border-neutral-100 dark:border-neutral-800">
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <div className="w-7 h-7 rounded-lg bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 flex items-center justify-center flex-shrink-0">
-                          <ShieldCheck className="w-4 h-4" />
-                        </div>
-                        <div className="min-w-0">
-                          <p className="text-xs font-medium text-neutral-800 dark:text-neutral-200">
-                            Access Permissions
-                          </p>
-                          <p className="text-[11px] text-neutral-500 dark:text-neutral-400 truncate">
-                            {isSuperAdmin ? 'All 100+ System Permissions Active' : permissions.length > 0 ? `${permissions.length} Policies Active` : 'Standard Role Policy'}
-                          </p>
-                        </div>
-                      </div>
-                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200/60 dark:border-blue-800/50">
-                        Verified
-                      </span>
-                    </div>
-
-                    {/* MFA Security Status */}
-                    <div className="flex items-center justify-between px-2.5 py-2 rounded-xl bg-neutral-50/50 dark:bg-neutral-800/30 border border-neutral-100 dark:border-neutral-800">
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <div className="w-7 h-7 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center flex-shrink-0">
-                          <KeyRound className="w-4 h-4" />
-                        </div>
-                        <div className="min-w-0">
-                          <p className="text-xs font-medium text-neutral-800 dark:text-neutral-200">
-                            Two-Factor Auth
-                          </p>
-                          <p className="text-[11px] text-neutral-500 dark:text-neutral-400 truncate">
-                            TOTP Security Protection
-                          </p>
-                        </div>
-                      </div>
-                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800/50 flex items-center gap-1">
-                        <CheckCircle2 className="w-2.5 h-2.5 text-emerald-600 dark:text-emerald-400" />
-                        Enabled
-                      </span>
-                    </div>
+                {/* 2. Workspace / Portal Switcher */}
+                <div className="p-3 border-b border-neutral-100 dark:border-neutral-800/80">
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400 dark:text-neutral-500 block mb-2 px-1">
+                    Portals
+                  </span>
+                  <div className="grid grid-cols-3 gap-1.5 p-1 rounded-xl bg-neutral-100 dark:bg-neutral-800/60 border border-neutral-200/60 dark:border-neutral-700/50">
+                    <a
+                      href={getPortalUrl('buyer')}
+                      className={`text-center py-1.5 px-2 rounded-lg text-xs font-semibold transition-all ${
+                        isCurrentPortal('buyer')
+                          ? 'bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white shadow-xs'
+                          : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
+                      }`}
+                    >
+                      Buyer
+                    </a>
+                    <a
+                      href={getPortalUrl('supplier')}
+                      className={`text-center py-1.5 px-2 rounded-lg text-xs font-semibold transition-all ${
+                        isCurrentPortal('supplier')
+                          ? 'bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white shadow-xs'
+                          : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
+                      }`}
+                    >
+                      Supplier
+                    </a>
+                    <a
+                      href={getPortalUrl('admin')}
+                      className={`text-center py-1.5 px-2 rounded-lg text-xs font-semibold transition-all ${
+                        isCurrentPortal('admin')
+                          ? 'bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white shadow-xs'
+                          : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
+                      }`}
+                    >
+                      Admin
+                    </a>
                   </div>
                 </div>
 
-                {/* 3. Section: Switch Workspaces / Portals */}
-                <div className="p-3 border-b border-neutral-200/60 dark:border-neutral-800/60">
-                  <div className="flex items-center justify-between px-2 pb-1.5">
-                    <span className="text-[10px] font-bold tracking-wider text-neutral-400 dark:text-neutral-500 uppercase">
-                      Portals & Workspaces
-                    </span>
-                    <span className="text-[10px] text-neutral-400 dark:text-neutral-500 font-medium">
-                      HKT Suite
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-1 gap-1.5">
-                    {/* Buyer Portal */}
-                    {isCurrentPortal('buyer') ? (
-                      <div className="flex items-center justify-between px-2.5 py-2 rounded-xl bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200/70 dark:border-amber-900/50">
-                        <div className="flex items-center gap-2.5 min-w-0">
-                          <span className="w-2 h-2 rounded-full bg-amber-500 flex-shrink-0" />
-                          <div className="min-w-0">
-                            <p className="text-xs font-semibold text-neutral-900 dark:text-white">
-                              Buyer Portal
-                            </p>
-                            <p className="text-[10px] text-neutral-500 dark:text-neutral-400">
-                              Requisitions, RFQs & Bids
-                            </p>
-                          </div>
-                        </div>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-200/60 dark:bg-amber-800/60 text-amber-800 dark:text-amber-200">
-                          Current
-                        </span>
-                      </div>
-                    ) : (
-                      <a
-                        href={getPortalUrl('buyer')}
-                        className="flex items-center justify-between px-2.5 py-2 rounded-xl hover:bg-neutral-100 dark:hover:bg-neutral-800/60 transition-colors group text-neutral-700 dark:text-neutral-300"
-                        title="Open Buyer Portal"
-                      >
-                        <div className="flex items-center gap-2.5 min-w-0">
-                          <span className="w-2 h-2 rounded-full bg-neutral-300 dark:bg-neutral-600 group-hover:bg-amber-500 transition-colors flex-shrink-0" />
-                          <div className="min-w-0">
-                            <p className="text-xs font-medium text-neutral-800 dark:text-neutral-200 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
-                              Buyer Portal
-                            </p>
-                            <p className="text-[10px] text-neutral-400 dark:text-neutral-500">
-                              Requisitions, RFQs & Bids
-                            </p>
-                          </div>
-                        </div>
-                        <ExternalLink className="w-3.5 h-3.5 text-neutral-400 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors flex-shrink-0" />
-                      </a>
-                    )}
-
-                    {/* Supplier Portal */}
-                    {isCurrentPortal('supplier') ? (
-                      <div className="flex items-center justify-between px-2.5 py-2 rounded-xl bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200/70 dark:border-emerald-900/50">
-                        <div className="flex items-center gap-2.5 min-w-0">
-                          <span className="w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0" />
-                          <div className="min-w-0">
-                            <p className="text-xs font-semibold text-neutral-900 dark:text-white">
-                              Supplier Portal
-                            </p>
-                            <p className="text-[10px] text-neutral-500 dark:text-neutral-400">
-                              Tenders, Invoices & Profile
-                            </p>
-                          </div>
-                        </div>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-200/60 dark:bg-emerald-800/60 text-emerald-800 dark:text-emerald-200">
-                          Current
-                        </span>
-                      </div>
-                    ) : (
-                      <a
-                        href={getPortalUrl('supplier')}
-                        className="flex items-center justify-between px-2.5 py-2 rounded-xl hover:bg-neutral-100 dark:hover:bg-neutral-800/60 transition-colors group text-neutral-700 dark:text-neutral-300"
-                        title="Open Supplier Portal"
-                      >
-                        <div className="flex items-center gap-2.5 min-w-0">
-                          <span className="w-2 h-2 rounded-full bg-neutral-300 dark:bg-neutral-600 group-hover:bg-emerald-500 transition-colors flex-shrink-0" />
-                          <div className="min-w-0">
-                            <p className="text-xs font-medium text-neutral-800 dark:text-neutral-200 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
-                              Supplier Portal
-                            </p>
-                            <p className="text-[10px] text-neutral-400 dark:text-neutral-500">
-                              Tenders, Invoices & Profile
-                            </p>
-                          </div>
-                        </div>
-                        <ExternalLink className="w-3.5 h-3.5 text-neutral-400 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors flex-shrink-0" />
-                      </a>
-                    )}
-
-                    {/* Admin Portal */}
-                    {isCurrentPortal('admin') ? (
-                      <div className="flex items-center justify-between px-2.5 py-2 rounded-xl bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200/70 dark:border-blue-900/50">
-                        <div className="flex items-center gap-2.5 min-w-0">
-                          <span className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0" />
-                          <div className="min-w-0">
-                            <p className="text-xs font-semibold text-neutral-900 dark:text-white">
-                              Admin Portal
-                            </p>
-                            <p className="text-[10px] text-neutral-500 dark:text-neutral-400">
-                              Master Data, Approvals & System
-                            </p>
-                          </div>
-                        </div>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-200/60 dark:bg-blue-800/60 text-blue-800 dark:text-blue-200">
-                          Current
-                        </span>
-                      </div>
-                    ) : (
-                      <a
-                        href={getPortalUrl('admin')}
-                        className="flex items-center justify-between px-2.5 py-2 rounded-xl hover:bg-neutral-100 dark:hover:bg-neutral-800/60 transition-colors group text-neutral-700 dark:text-neutral-300"
-                        title="Open Admin Portal"
-                      >
-                        <div className="flex items-center gap-2.5 min-w-0">
-                          <span className="w-2 h-2 rounded-full bg-neutral-300 dark:bg-neutral-600 group-hover:bg-blue-500 transition-colors flex-shrink-0" />
-                          <div className="min-w-0">
-                            <p className="text-xs font-medium text-neutral-800 dark:text-neutral-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                              Admin Portal
-                            </p>
-                            <p className="text-[10px] text-neutral-400 dark:text-neutral-500">
-                              Master Data, Approvals & System
-                            </p>
-                          </div>
-                        </div>
-                        <ExternalLink className="w-3.5 h-3.5 text-neutral-400 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors flex-shrink-0" />
-                      </a>
-                    )}
-                  </div>
-                </div>
-
-                {/* 4. Section: System Status */}
-                <div className="px-4 py-2.5 bg-neutral-50/50 dark:bg-neutral-950/30 border-b border-neutral-200/60 dark:border-neutral-800/60 flex items-center justify-between text-[11px] text-neutral-500 dark:text-neutral-400">
+                {/* 3. System Status */}
+                <div className="px-4 py-2 border-b border-neutral-100 dark:border-neutral-800/80 flex items-center justify-between text-[11px] text-neutral-500 dark:text-neutral-400">
                   <div className="flex items-center gap-1.5">
                     <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                     <span className="font-medium text-neutral-700 dark:text-neutral-300">System Healthy</span>
@@ -795,8 +617,8 @@ export function Navbar({
                   </span>
                 </div>
 
-                {/* 5. Footer: Sign Out & Confirmation */}
-                <div className="p-3 bg-neutral-50/90 dark:bg-neutral-950/60">
+                {/* 4. Footer: Sign Out & Confirmation */}
+                <div className="p-2.5">
                   {!isConfirmingSignOut ? (
                     onLogout && (
                       <button
@@ -804,8 +626,8 @@ export function Navbar({
                         onClick={() => setIsConfirmingSignOut(true)}
                         className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-xl transition-colors text-left group"
                       >
-                        <div className="flex items-center gap-2.5">
-                          <LogOut className="w-4 h-4 text-red-500 group-hover:translate-x-0.5 transition-transform flex-shrink-0" />
+                        <div className="flex items-center gap-2">
+                          <LogOut className="w-3.5 h-3.5 text-red-500 group-hover:translate-x-0.5 transition-transform flex-shrink-0" />
                           <span>Sign Out</span>
                         </div>
                         <span className="text-[10px] font-normal text-red-500/70">
@@ -815,15 +637,15 @@ export function Navbar({
                     )
                   ) : (
                     /* Confirmation Dialog */
-                    <div className="p-3 bg-red-50/80 dark:bg-red-950/40 border border-red-200/80 dark:border-red-900/60 rounded-xl space-y-3 animate-in fade-in duration-150">
-                      <div className="flex items-start gap-2.5">
-                        <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+                    <div className="p-2.5 bg-red-50/80 dark:bg-red-950/40 border border-red-200/80 dark:border-red-900/60 rounded-xl space-y-2 animate-in fade-in duration-150">
+                      <div className="flex items-start gap-2">
+                        <AlertCircle className="w-3.5 h-3.5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
                         <div>
                           <p className="text-xs font-bold text-neutral-900 dark:text-neutral-100">
                             Confirm Sign Out?
                           </p>
-                          <p className="text-[11px] text-neutral-600 dark:text-neutral-400 leading-snug mt-0.5">
-                            Are you sure you want to end your session? You will need to log back in.
+                          <p className="text-[10px] text-neutral-600 dark:text-neutral-400 leading-snug mt-0.5">
+                            End your current session.
                           </p>
                         </div>
                       </div>
@@ -836,14 +658,14 @@ export function Navbar({
                             setIsConfirmingSignOut(false);
                             onLogout?.();
                           }}
-                          className="flex-1 py-1.5 px-3 bg-red-600 hover:bg-red-700 active:bg-red-800 text-white text-xs font-semibold rounded-lg shadow-sm transition-colors text-center"
+                          className="flex-1 py-1 px-2.5 bg-red-600 hover:bg-red-700 active:bg-red-800 text-white text-xs font-semibold rounded-lg shadow-xs transition-colors text-center"
                         >
                           Sign Out
                         </button>
                         <button
                           type="button"
                           onClick={() => setIsConfirmingSignOut(false)}
-                          className="py-1.5 px-3 bg-white dark:bg-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-300 text-xs font-medium rounded-lg border border-neutral-200 dark:border-neutral-700 transition-colors"
+                          className="py-1 px-2.5 bg-white dark:bg-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-300 text-xs font-medium rounded-lg border border-neutral-200 dark:border-neutral-700 transition-colors"
                         >
                           Cancel
                         </button>

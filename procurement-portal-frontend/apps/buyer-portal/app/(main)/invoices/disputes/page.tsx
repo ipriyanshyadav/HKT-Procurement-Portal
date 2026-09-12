@@ -271,7 +271,7 @@ export default function BuyerDisputeInboxPage() {
                 </div>
               )}
 
-              {/* Message Thread (Apple iMessage Style) */}
+              {/* Message Thread */}
               <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-[#F2F2F7]/50 dark:bg-[#1C1C1E]/50">
                 {(!activeDispute.messages || activeDispute.messages.length === 0) ? (
                   <div className="text-center py-12 text-slate-400 text-xs">
@@ -314,11 +314,11 @@ export default function BuyerDisputeInboxPage() {
                 )}
               </div>
 
-              {/* Message Input Footer (Apple Pill Bar) */}
+              {/* Message Input Footer */}
               <form onSubmit={handleSendMessage} className="p-3 border-t border-slate-200/80 dark:border-white/10 bg-white dark:bg-slate-900 flex items-center gap-2">
                 <input
                   type="text"
-                  placeholder="iMessage · Message supplier..."
+                  placeholder="Type a message to supplier..."
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
                   className="flex-1 border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 text-xs sm:text-sm rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition-all"

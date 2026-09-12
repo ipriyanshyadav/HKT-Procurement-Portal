@@ -309,7 +309,15 @@ async def sso_callback(
         else:
             raise AppException("Failed to initialize SAML auth", "SSO_NOT_CONFIGURED", 500)
     else:
-        # Fallback simulation for developer test environments
+        # SAML library not installed — only allow simulation if explicitly enabled in settings.
+        # This MUST be disabled (ENABLE_SSO_MOCK=false) in staging and production environments.
+        if not settings.ENABLE_SSO_MOCK:
+            raise AppException(
+                "SAML authentication is not available in this environment. "
+                "Contact your system administrator.",
+                "SSO_NOT_AVAILABLE",
+                503,
+            )
         sso_res = SSOResult(
             email=form.get("email", "sso_user@example.com"),
             first_name=form.get("first_name", "Enterprise"),

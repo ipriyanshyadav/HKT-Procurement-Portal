@@ -82,7 +82,7 @@ export default function VendorsListPage() {
     }
   };
 
-  const { data, isLoading, isError } = useVendors({
+  const { data, isLoading, isError, refetch } = useVendors({
     page,
     page_size: PAGE_SIZE,
     status: statusFilter || undefined,
@@ -181,6 +181,7 @@ export default function VendorsListPage() {
             icon={<AlertCircle className="w-8 h-8 text-red-500" />}
             title="Failed to load vendors"
             description="Please try again later."
+            action={<Button variant="secondary" onClick={() => refetch()}>Retry</Button>}
           />
         ) : vendors.length === 0 ? (
           <EmptyState
@@ -190,20 +191,20 @@ export default function VendorsListPage() {
           />
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-800 text-left text-sm">
-              <thead className="bg-gray-50 text-gray-600 font-semibold text-xs uppercase tracking-wider">
+            <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-800 text-left text-sm" aria-label="Vendor list">
+              <thead className="bg-gray-50 dark:bg-slate-800/60 text-gray-600 dark:text-slate-400 font-semibold text-xs uppercase tracking-wider">
                 <tr>
-                  <th className="px-6 py-3.5">Vendor Name</th>
-                  <th className="px-6 py-3.5">Vendor Code</th>
-                  <th className="px-6 py-3.5">Status</th>
-                  <th className="px-6 py-3.5">PAN / GSTIN</th>
-                  <th className="px-6 py-3.5">Contact</th>
-                  <th className="px-6 py-3.5">Location</th>
-                  <th className="px-6 py-3.5">Score</th>
-                  <th className="px-6 py-3.5 text-right">Actions</th>
+                  <th scope="col" className="px-6 py-3.5">Vendor Name</th>
+                  <th scope="col" className="px-6 py-3.5">Vendor Code</th>
+                  <th scope="col" className="px-6 py-3.5">Status</th>
+                  <th scope="col" className="px-6 py-3.5">PAN / GSTIN</th>
+                  <th scope="col" className="px-6 py-3.5">Contact</th>
+                  <th scope="col" className="px-6 py-3.5">Location</th>
+                  <th scope="col" className="px-6 py-3.5">Score</th>
+                  <th scope="col" className="px-6 py-3.5 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200 dark:divide-slate-800 bg-white">
+              <tbody className="divide-y divide-gray-200 dark:divide-slate-800 bg-white dark:bg-slate-900">
                 {vendors.map((vendor: Vendor) => (
                   <tr key={vendor.id} className="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
                     <td className="px-6 py-4 font-medium text-gray-900">
@@ -296,45 +297,51 @@ export default function VendorsListPage() {
 
       {/* Bulk Category Mapping Modal */}
       {isBulkModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="bg-white rounded-2xl border border-gray-200 max-w-xl w-full shadow-2xl p-6 space-y-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-150" onClick={(e) => { if (e.target === e.currentTarget) setIsBulkModalOpen(false); }}>
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="bulk-modal-title"
+            className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-700 max-w-xl w-full shadow-2xl p-6 space-y-4 max-h-[90vh] overflow-y-auto"
+          >
+            <div className="flex items-center justify-between border-b border-gray-100 dark:border-slate-800 pb-3">
               <div className="flex items-center gap-2">
-                <FileSpreadsheet className="w-5 h-5 text-emerald-600" />
-                <h3 className="text-base font-bold text-gray-900">
+                <FileSpreadsheet className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                <h3 id="bulk-modal-title" className="text-base font-bold text-gray-900 dark:text-white">
                   Bulk Vendor Category Mapping
                 </h3>
               </div>
               <button
                 onClick={() => setIsBulkModalOpen(false)}
-                className="p-1 rounded-lg text-gray-400 hover:text-gray-600"
+                aria-label="Close bulk mapping modal"
+                className="p-1 rounded-lg text-gray-400 hover:text-gray-600 dark:text-slate-500 dark:hover:text-slate-300 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <p className="text-xs text-gray-500 leading-relaxed">
+            <p className="text-xs text-gray-500 dark:text-slate-400 leading-relaxed">
               Upload a CSV or paste lines mapping vendor codes (or IDs) to procurement category codes (or IDs).
-              Format: <code className="bg-gray-100 px-1.5 py-0.5 rounded text-gray-800 font-mono">vendor_code,category_code</code>
+              Format: <code className="bg-gray-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-gray-800 dark:text-slate-300 font-mono">vendor_code,category_code</code>
             </p>
 
             {/* File Upload Input */}
             <div>
-              <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                 Upload CSV File
               </label>
               <input
                 type="file"
                 accept=".csv,.txt"
                 onChange={handleFileUpload}
-                className="block w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"
+                className="block w-full text-xs text-gray-500 dark:text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 dark:file:bg-blue-900/40 file:text-blue-700 dark:file:text-blue-300 hover:file:bg-blue-100 dark:hover:file:bg-blue-900/60 cursor-pointer"
               />
             </div>
 
             {/* Direct CSV Textarea */}
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 uppercase tracking-wider">
                   Or Paste CSV Data
                 </label>
                 <button
@@ -344,7 +351,7 @@ export default function VendorsListPage() {
                       "vendor_code,category_code\nVEND-001,IT-HARDWARE\nVEND-002,OFFICE-SUPPLIES\nVEND-003,CONSULTING-SERVICES"
                     )
                   }
-                  className="text-[11px] text-blue-600 hover:underline font-medium"
+                  className="text-[11px] text-blue-600 dark:text-blue-400 hover:underline font-medium"
                 >
                   Insert Sample Data
                 </button>
@@ -353,42 +360,42 @@ export default function VendorsListPage() {
                 rows={5}
                 value={csvText}
                 onChange={(e) => setCsvText(e.target.value)}
-                placeholder="vendor_code,category_code&#10;VEND-001,IT-HARDWARE&#10;VEND-002,OFFICE-SUPPLIES"
-                className="w-full p-3 rounded-xl border border-gray-300 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-blue-500 leading-relaxed"
+                placeholder={"vendor_code,category_code\nVEND-001,IT-HARDWARE\nVEND-002,OFFICE-SUPPLIES"}
+                className="w-full p-3 rounded-xl border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-200 placeholder-gray-400 dark:placeholder-slate-500 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-blue-500 leading-relaxed"
               />
             </div>
 
             {/* Error Message */}
             {bulkError && (
-              <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-xs flex items-start gap-2">
-                <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+              <div className="p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 text-red-700 dark:text-red-300 rounded-xl text-xs flex items-start gap-2">
+                <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
                 <span>{bulkError}</span>
               </div>
             )}
 
             {/* Success / Execution Results */}
             {bulkResult && (
-              <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-xs space-y-2">
-                <div className="flex items-center gap-2 font-bold text-emerald-900">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+              <div className="p-4 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/50 rounded-xl text-xs space-y-2">
+                <div className="flex items-center gap-2 font-bold text-emerald-900 dark:text-emerald-300">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                   <span>Bulk Mapping Processed Successfully</span>
                 </div>
                 <div className="grid grid-cols-2 gap-2 text-center pt-1 font-mono">
-                  <div className="bg-white p-2 rounded-lg border border-emerald-100">
-                    <span className="text-gray-400 block text-[10px]">Total Processed</span>
-                    <span className="font-bold text-gray-900 text-sm">{bulkResult.total_processed}</span>
+                  <div className="bg-white dark:bg-slate-800 p-2 rounded-lg border border-emerald-100 dark:border-emerald-800/50">
+                    <span className="text-gray-400 dark:text-slate-500 block text-[10px]">Total Processed</span>
+                    <span className="font-bold text-gray-900 dark:text-white text-sm">{bulkResult.total_processed}</span>
                   </div>
-                  <div className="bg-white p-2 rounded-lg border border-emerald-100">
-                    <span className="text-emerald-600 block text-[10px]">Vendors Updated</span>
-                    <span className="font-bold text-emerald-700 text-sm">{bulkResult.updated_vendors}</span>
+                  <div className="bg-white dark:bg-slate-800 p-2 rounded-lg border border-emerald-100 dark:border-emerald-800/50">
+                    <span className="text-emerald-600 dark:text-emerald-400 block text-[10px]">Vendors Updated</span>
+                    <span className="font-bold text-emerald-700 dark:text-emerald-300 text-sm">{bulkResult.updated_vendors}</span>
                   </div>
                 </div>
 
                 {bulkResult.errors && bulkResult.errors.length > 0 && (
-                  <div className="pt-2 border-t border-emerald-100 max-h-32 overflow-y-auto space-y-1">
-                    <span className="font-semibold text-gray-700 text-[11px] block">Error Summary:</span>
+                  <div className="pt-2 border-t border-emerald-100 dark:border-emerald-800/50 max-h-32 overflow-y-auto space-y-1">
+                    <span className="font-semibold text-gray-700 dark:text-slate-300 text-[11px] block">Error Summary:</span>
                     {bulkResult.errors.map((err, i) => (
-                      <div key={i} className="text-[11px] text-red-600 font-mono">
+                      <div key={i} className="text-[11px] text-red-600 dark:text-red-400 font-mono">
                         {err}
                       </div>
                     ))}
@@ -398,7 +405,7 @@ export default function VendorsListPage() {
             )}
 
             {/* Actions */}
-            <div className="flex items-center justify-end gap-2 pt-3 border-t border-gray-100">
+            <div className="flex items-center justify-end gap-2 pt-3 border-t border-gray-100 dark:border-slate-800">
               <Button
                 variant="secondary"
                 onClick={() => setIsBulkModalOpen(false)}

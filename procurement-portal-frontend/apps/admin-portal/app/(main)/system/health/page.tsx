@@ -74,9 +74,9 @@ export default function SystemHealthDashboard() {
     },
     {
       name: "Loki / Promtail",
-      port: "Port 3100",
-      description: "Structured JSON log aggregation engine (Ready probe).",
-      href: `${getTelemetryUrl(process.env.NEXT_PUBLIC_LOKI_URL, 3100)}/ready`,
+      port: "Port 3003",
+      description: "Structured JSON log aggregation engine (Grafana Explore UI).",
+      href: `${getTelemetryUrl(process.env.NEXT_PUBLIC_GRAFANA_URL, 3003)}/explore`,
     },
   ];
 

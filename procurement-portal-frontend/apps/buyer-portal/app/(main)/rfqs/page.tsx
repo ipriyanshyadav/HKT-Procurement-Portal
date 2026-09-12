@@ -90,13 +90,13 @@ export default function RfqListPage() {
             <table className="w-full text-left text-sm text-slate-600 dark:text-slate-300">
               <thead className="bg-slate-50 dark:bg-[#252529] text-xs uppercase font-semibold text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-white/10 tracking-wider">
                 <tr>
-                  <th className="px-4 py-3.5 whitespace-nowrap">RFQ Number</th>
+                  <th className="px-4 py-3.5 w-36 whitespace-nowrap">RFQ Number</th>
                   <th className="px-4 py-3.5">Title</th>
-                  <th className="px-4 py-3.5 whitespace-nowrap">Type & Mode</th>
-                  <th className="px-4 py-3.5 whitespace-nowrap">Status</th>
-                  <th className="px-4 py-3.5 text-right whitespace-nowrap">Est. Value</th>
-                  <th className="px-4 py-3.5 whitespace-nowrap">Deadline</th>
-                  <th className="px-4 py-3.5 text-right whitespace-nowrap">Actions</th>
+                  <th className="px-4 py-3.5 w-36 whitespace-nowrap">Type & Mode</th>
+                  <th className="px-4 py-3.5 w-32 whitespace-nowrap">Status</th>
+                  <th className="px-4 py-3.5 w-36 text-right whitespace-nowrap">Est. Value</th>
+                  <th className="px-4 py-3.5 w-32 whitespace-nowrap">Deadline</th>
+                  <th className="px-4 py-3.5 w-48 text-right whitespace-nowrap">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-white/10">
@@ -107,8 +107,10 @@ export default function RfqListPage() {
                         {rfq.rfq_number}
                       </Link>
                     </td>
-                    <td className="px-4 py-3 font-medium text-slate-900 dark:text-slate-100 min-w-[200px] max-w-[320px] truncate">
-                      {rfq.title}
+                    <td className="px-4 py-3 font-medium text-slate-900 dark:text-slate-100">
+                      <span className="line-clamp-2" title={rfq.title}>
+                        {rfq.title}
+                      </span>
                     </td>
                     <td className="px-4 py-3 text-xs whitespace-nowrap">
                       <div className="flex flex-col gap-1 items-start">

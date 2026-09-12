@@ -25,6 +25,8 @@ import {
   BellRing,
   Terminal,
   HardDrive,
+  Building2,
+  FileText,
 } from "lucide-react";
 
 export default function AdminMainLayout({ children }: { children: ReactNode }) {
@@ -108,6 +110,12 @@ export default function AdminMainLayout({ children }: { children: ReactNode }) {
       section: "Governance",
     },
     {
+      label: "Contracts & Agreements",
+      href: "/contracts",
+      icon: <FileText className="w-4 h-4" />,
+      section: "Governance",
+    },
+    {
       label: "Workflow Templates",
       href: "/workflows",
       icon: <GitFork className="w-4 h-4" />,
@@ -123,6 +131,18 @@ export default function AdminMainLayout({ children }: { children: ReactNode }) {
       label: "Master Data Hub",
       href: "/master-data",
       icon: <Database className="w-4 h-4" />,
+      section: "Master Data",
+    },
+    {
+      label: "Supplier Registry",
+      href: "/vendors",
+      icon: <Building2 className="w-4 h-4" />,
+      section: "Master Data",
+    },
+    {
+      label: "Buyer Registry",
+      href: "/buyers",
+      icon: <Users className="w-4 h-4" />,
       section: "Master Data",
     },
     {

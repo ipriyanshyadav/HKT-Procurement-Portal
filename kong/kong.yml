@@ -24,6 +24,7 @@ routes:
     paths:
       - /api/v1/organization
       - /api/v1/organizations
+      - /api/v1/tenant
       - /api/v1/users
       - /api/v1/business-units
       - /api/v1/cost-centers

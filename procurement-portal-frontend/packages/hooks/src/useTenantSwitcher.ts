@@ -12,7 +12,7 @@ export function useAccessibleCompanies() {
   return useQuery({
     queryKey: ["accessible-companies"],
     queryFn: async () => {
-      const res = await apiClient.get("/tenant/accessible-companies");
+      const res = await apiClient.get("/organizations/accessible-companies");
       return (res.data.data ?? []) as CompanyContextResponse[];
     },
     staleTime: 5 * 60 * 1000,
@@ -25,7 +25,7 @@ export function useSwitchCompanyContext() {
 
   return useMutation({
     mutationFn: async (payload: SwitchCompanyContextRequest) => {
-      const res = await apiClient.post("/tenant/switch-context", payload);
+      const res = await apiClient.post("/organizations/switch-context", payload);
       return res.data.data as SwitchCompanyContextResponse;
     },
     onSuccess: (data) => {
@@ -50,9 +50,10 @@ export function useCrossTenantRollup() {
   return useQuery({
     queryKey: ["cross-tenant-rollup"],
     queryFn: async () => {
-      const res = await apiClient.get("/tenant/cross-tenant-rollup");
+      const res = await apiClient.get("/organizations/cross-tenant-rollup");
       return res.data.data as CrossTenantRollupResponse;
     },
     staleTime: 2 * 60 * 1000,
+    retry: 1,
   });
 }
