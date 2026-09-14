@@ -40,7 +40,7 @@ def upgrade() -> None:
     )
 
     op.execute(
-        "CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_onboarding_sessions_org "
+        "CREATE INDEX IF NOT EXISTS idx_onboarding_sessions_org "
         "ON onboarding_sessions (org_id, status) WHERE deleted_at IS NULL"
     )
 
@@ -65,26 +65,26 @@ def upgrade() -> None:
     )
 
     op.execute(
-        "CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_req_test_record "
+        "CREATE INDEX IF NOT EXISTS idx_req_test_record "
         "ON requisitions (org_id, is_test_record) WHERE is_test_record = TRUE"
     )
     op.execute(
-        "CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_po_test_record "
+        "CREATE INDEX IF NOT EXISTS idx_po_test_record "
         "ON purchase_orders (org_id, is_test_record) WHERE is_test_record = TRUE"
     )
     op.execute(
-        "CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_inv_test_record "
+        "CREATE INDEX IF NOT EXISTS idx_inv_test_record "
         "ON invoices (org_id, is_test_record) WHERE is_test_record = TRUE"
     )
 
 
 def downgrade() -> None:
-    op.execute("DROP INDEX CONCURRENTLY IF EXISTS idx_inv_test_record")
-    op.execute("DROP INDEX CONCURRENTLY IF EXISTS idx_po_test_record")
-    op.execute("DROP INDEX CONCURRENTLY IF EXISTS idx_req_test_record")
+    op.execute("DROP INDEX IF EXISTS idx_inv_test_record")
+    op.execute("DROP INDEX IF EXISTS idx_po_test_record")
+    op.execute("DROP INDEX IF EXISTS idx_req_test_record")
     op.drop_column('invoices', 'is_test_record')
     op.drop_column('purchase_orders', 'is_test_record')
     op.drop_column('requisitions', 'is_test_record')
     op.drop_column('users', 'is_platform_admin')
-    op.execute("DROP INDEX CONCURRENTLY IF EXISTS idx_onboarding_sessions_org")
+    op.execute("DROP INDEX IF EXISTS idx_onboarding_sessions_org")
     op.drop_table('onboarding_sessions')

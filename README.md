@@ -71,32 +71,17 @@ The platform supports strict enterprise role separation (where each user only se
 
 
 ## Current Session State
-- **Planned**: Batch 2 (SPEC_27-A Multi-Tenant Company Switcher + 27-D Webhooks Engine + 27-E API Keys Management + 27-F Tenant White-Label Branding).
+- **Planned**: Run multi-portal development stack across all 5 portals, inspect live screens, and run automated E2E Playwright suite.
 - **Implemented**:
-  - **Migration `0059_batch2_portal_enhancements.py`**:
-    - Created tables `user_org_memberships`, `org_switch_audit`, `tenant_brandings`, and column `users.primary_org_id`.
-  - **27-A: Multi-Tenant Company Switcher (100% COMPLETE)**:
-    - Backend: `CompanySwitcherService` (`list_my_orgs`, `switch_org`, `invite_user_to_org`, `remove_user_from_org`, `list_org_members`). Routers at `/api/v1/auth/org` and `/api/v1/admin/orgs/{org_id}/members`.
-    - Frontend: `useCompanySwitcher` hook (`useMyOrganizations`, `useSwitchOrganization`, `useOrgMembers`, `useInviteUserToOrg`, `useRemoveOrgMember`).
-    - UI: Enhanced `CompanySwitcher` component mounted in top navbar of both Buyer and Admin Portals, providing real-time multi-tenant organization switching with token re-issuance and role badges.
-  - **27-D: Webhook Delivery Engine & Management UI (100% COMPLETE)**:
-    - Backend: `WebhookManagementService` with HMAC-SHA256 signatures, secret rotation, synthetic test delivery, and delivery history logs. Mounted at `/api/v1/webhooks`.
-    - Frontend: `useWebhooks` hook (`useTenantWebhooks`, `useTenantWebhookEvents`, `useCreateTenantWebhook`, `useUpdateTenantWebhook`, `useDeleteTenantWebhook`, `useRotateTenantWebhookSecret`, `useTestTenantWebhook`, `useTenantWebhookDeliveries`).
-    - UI: `/integrations/webhooks` page with endpoint management, one-time secret modal, test ping modal, and delivery audit drawer.
-  - **27-E: Tenant API Key Management (100% COMPLETE)**:
-    - Backend: `ApiKeyService` with SHA-256 key hashing, rate limit tiers (30/120/600 RPM), zero-downtime rotation with 24h grace period, usage telemetry, and request audit logs. Mounted at `/api/v1/api-keys`.
-    - Frontend: `useApiKeys` hook (`useTenantApiKeys`, `useCreateTenantApiKey`, `useUpdateTenantApiKey`, `useRevokeTenantApiKey`, `useRotateTenantApiKey`, `useApiKeyUsageMetrics`, `useApiKeyRecentLogs`).
-    - UI: `/integrations/api-keys` page with granular scopes selector, one-time raw Bearer token modal, usage telemetry dialog, and invocation audit drawer.
-  - **27-F: Tenant White-Label Branding (100% COMPLETE)**:
-    - Backend: `TenantBrandingService` with logo, color palette, custom domain DNS TXT record verification, and public unauthenticated branding endpoint. Mounted at `/api/v1/admin/branding` and `/api/v1/public/branding`.
-    - Frontend: `useTenantBranding` hook (`useTenantBranding`, `useUpdateTenantBranding`, `useVerifyCustomDomain`, `usePublicBranding`).
-    - UI: `/settings/branding` page with live interactive preview pane, WCAG AA contrast ratio checking, email notification branding, and DNS verification status.
+  - Docker backing stack running healthy: PostgreSQL (:5432), Redis (:6379), RabbitMQ (:5672/:15672), MinIO (:9000/:9001), Jaeger (:4317/:16686), Elasticsearch (:9200).
+  - Applied migrations up to head (`0060_batch3_portal_enhancements`).
+  - Seeded full enterprise data: master data, 10 user personas, Jira automations, SLA configs, relational tickets, and 7 indents with consignee tracking.
+  - Resolved CORS preflight with support for `X-Portal-Id` & multi-portal origin headers; hardened GRN & ASN sequence number generation against non-numeric suffixes.
+  - Active dev servers: FastAPI backend on `:8000`, Buyer Portal on `:3000`, Supplier Portal on `:3001`, Admin Portal on `:3002`, Support Portal on `:3004`, Developer Portal on `:3005`.
 - **Tested**:
-  - 21/21 unit tests passing across Batch 2 (`test_company_switcher_service.py`, `test_webhook_service.py`, `test_api_key_service.py`, `test_branding_service.py`).
-  - Total 60+ unit tests passing cleanly in test suite.
-  - TypeScript typecheck passed with 0 errors across all 11 packages and apps in the Turborepo workspace.
-  - Next.js production builds verified (`admin-portal` and `buyer-portal` compiled with 0 errors).
-- **Next**: Batch 3 (SPEC_27-G Enterprise Audit Logs & Export + 27-H Disaster Recovery Dashboard & Drill Simulation).
+  - Unit Suite: 528/528 passed (100%) in `pytest tests/unit/`.
+  - Playwright E2E Suite: 17/17 passed (100%) across all 7 test files (`buyer_flows`, `supplier_flows`, `approver_and_admin_flows`, `multi_user_refresh_isolation`, `comprehensive_self_check`, `full_procurement_cycle`, `exhaustive_workflow_and_portal_audit`).
+- **Next**: Ready for browser inspection, manual exploratory testing, or further module enhancements.
 
 ---
 

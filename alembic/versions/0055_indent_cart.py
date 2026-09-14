@@ -81,34 +81,34 @@ def upgrade() -> None:
         sa.CheckConstraint('quantity > 0', name='ck_indent_cart_items_quantity_positive'),
     )
 
-    # ── indexes (all CONCURRENTLY) ────────────────────────────────────────────
+    # ── indexes ───────────────────────────────────────────────────────────────
     op.execute(
-        "CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_indent_carts_org_indentor "
+        "CREATE INDEX IF NOT EXISTS idx_indent_carts_org_indentor "
         "ON indent_carts (org_id, indentor_id) WHERE deleted_at IS NULL"
     )
     op.execute(
-        "CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_indent_carts_org_status "
+        "CREATE INDEX IF NOT EXISTS idx_indent_carts_org_status "
         "ON indent_carts (org_id, status) WHERE deleted_at IS NULL"
     )
     op.execute(
-        "CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_indent_carts_org_buyer "
+        "CREATE INDEX IF NOT EXISTS idx_indent_carts_org_buyer "
         "ON indent_carts (org_id, assigned_buyer_id) WHERE deleted_at IS NULL AND assigned_buyer_id IS NOT NULL"
     )
     op.execute(
-        "CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_indent_cart_items_cart "
+        "CREATE INDEX IF NOT EXISTS idx_indent_cart_items_cart "
         "ON indent_cart_items (cart_id) WHERE deleted_at IS NULL"
     )
     op.execute(
-        "CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_indent_cart_items_org "
+        "CREATE INDEX IF NOT EXISTS idx_indent_cart_items_org "
         "ON indent_cart_items (org_id) WHERE deleted_at IS NULL"
     )
 
 
 def downgrade() -> None:
-    op.execute("DROP INDEX CONCURRENTLY IF EXISTS idx_indent_cart_items_org")
-    op.execute("DROP INDEX CONCURRENTLY IF EXISTS idx_indent_cart_items_cart")
-    op.execute("DROP INDEX CONCURRENTLY IF EXISTS idx_indent_carts_org_buyer")
-    op.execute("DROP INDEX CONCURRENTLY IF EXISTS idx_indent_carts_org_status")
-    op.execute("DROP INDEX CONCURRENTLY IF EXISTS idx_indent_carts_org_indentor")
+    op.execute("DROP INDEX IF EXISTS idx_indent_cart_items_org")
+    op.execute("DROP INDEX IF EXISTS idx_indent_cart_items_cart")
+    op.execute("DROP INDEX IF EXISTS idx_indent_carts_org_buyer")
+    op.execute("DROP INDEX IF EXISTS idx_indent_carts_org_status")
+    op.execute("DROP INDEX IF EXISTS idx_indent_carts_org_indentor")
     op.drop_table('indent_cart_items')
     op.drop_table('indent_carts')

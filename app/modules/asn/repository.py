@@ -220,11 +220,12 @@ class AsnRepository(BaseRepository[AdvanceShippingNotice]):
             max_res = await db.execute(
                 text("""
                 SELECT COALESCE(
-                    MAX(CAST(NULLIF(regexp_replace(asn_number, '^ASN-[0-9]+-', ''), '') AS INTEGER)),
+                    MAX(CAST(regexp_replace(asn_number, '^ASN-[0-9]+-', '') AS INTEGER)),
                     0
-                ) FROM advance_shipping_notices WHERE org_id = :org_id AND asn_number LIKE :prefix
+                ) FROM advance_shipping_notices 
+                WHERE org_id = :org_id AND asn_number ~ '^ASN-[0-9]+-[0-9]+$'
                 """),
-                {"org_id": org_id, "prefix": f"ASN-{year}-%"},
+                {"org_id": org_id},
             )
             max_val = max_res.scalar() or 0
             if n <= max_val:

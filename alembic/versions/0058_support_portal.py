@@ -50,11 +50,11 @@ def upgrade() -> None:
     )
 
     op.execute(
-        "CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_support_tickets_org_status "
+        "CREATE INDEX IF NOT EXISTS idx_support_tickets_org_status "
         "ON support_tickets (org_id, status) WHERE deleted_at IS NULL"
     )
     op.execute(
-        "CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_support_tickets_customer "
+        "CREATE INDEX IF NOT EXISTS idx_support_tickets_customer "
         "ON support_tickets (customer_id, created_at) WHERE deleted_at IS NULL"
     )
 
@@ -72,7 +72,7 @@ def upgrade() -> None:
     )
 
     op.execute(
-        "CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_support_messages_ticket "
+        "CREATE INDEX IF NOT EXISTS idx_support_messages_ticket "
         "ON support_ticket_messages (ticket_id, created_at)"
     )
 
@@ -105,17 +105,17 @@ def upgrade() -> None:
     )
 
     op.execute(
-        "CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_kb_category_published "
+        "CREATE INDEX IF NOT EXISTS idx_kb_category_published "
         "ON knowledge_base_articles (category, is_published)"
     )
 
 
 def downgrade() -> None:
-    op.execute("DROP INDEX CONCURRENTLY IF EXISTS idx_kb_category_published")
+    op.execute("DROP INDEX IF EXISTS idx_kb_category_published")
     op.drop_table('knowledge_base_articles')
     op.drop_table('support_agents')
-    op.execute("DROP INDEX CONCURRENTLY IF EXISTS idx_support_messages_ticket")
+    op.execute("DROP INDEX IF EXISTS idx_support_messages_ticket")
     op.drop_table('support_ticket_messages')
-    op.execute("DROP INDEX CONCURRENTLY IF EXISTS idx_support_tickets_customer")
-    op.execute("DROP INDEX CONCURRENTLY IF EXISTS idx_support_tickets_org_status")
+    op.execute("DROP INDEX IF EXISTS idx_support_tickets_customer")
+    op.execute("DROP INDEX IF EXISTS idx_support_tickets_org_status")
     op.drop_table('support_tickets')

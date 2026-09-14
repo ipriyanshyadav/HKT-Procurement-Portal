@@ -179,11 +179,12 @@ class GrnRepository:
             max_res = await db.execute(
                 text("""
                 SELECT COALESCE(
-                    MAX(CAST(NULLIF(regexp_replace(grn_number, '^GRN-[0-9]+-', ''), '') AS INTEGER)),
+                    MAX(CAST(regexp_replace(grn_number, '^GRN-[0-9]+-', '') AS INTEGER)),
                     0
-                ) FROM goods_receipt_notes WHERE org_id = :org_id AND grn_number LIKE :prefix
+                ) FROM goods_receipt_notes 
+                WHERE org_id = :org_id AND grn_number ~ '^GRN-[0-9]+-[0-9]+$'
                 """),
-                {"org_id": org_id, "prefix": f"GRN-{year}-%"},
+                {"org_id": org_id},
             )
             max_val = max_res.scalar() or 0
             if n <= max_val:

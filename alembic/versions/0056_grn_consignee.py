@@ -69,18 +69,18 @@ def upgrade() -> None:
     )
 
     op.execute(
-        "CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_grn_consignee_id "
+        "CREATE INDEX IF NOT EXISTS idx_grn_consignee_id "
         "ON goods_receipt_notes (consignee_id) WHERE consignee_id IS NOT NULL AND deleted_at IS NULL"
     )
     op.execute(
-        "CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_grn_consignee_status "
+        "CREATE INDEX IF NOT EXISTS idx_grn_consignee_status "
         "ON goods_receipt_notes (org_id, consignee_status) WHERE deleted_at IS NULL"
     )
 
 
 def downgrade() -> None:
-    op.execute("DROP INDEX CONCURRENTLY IF EXISTS idx_grn_consignee_status")
-    op.execute("DROP INDEX CONCURRENTLY IF EXISTS idx_grn_consignee_id")
+    op.execute("DROP INDEX IF EXISTS idx_grn_consignee_status")
+    op.execute("DROP INDEX IF EXISTS idx_grn_consignee_id")
     op.drop_constraint('fk_grn_source_indent_cart_id', 'goods_receipt_notes', type_='foreignkey')
     op.drop_constraint('fk_grn_consignee_id', 'goods_receipt_notes', type_='foreignkey')
     op.drop_column('goods_receipt_notes', 'source_indent_cart_id')
