@@ -284,6 +284,10 @@ test.describe("Full Procurement Cycle (PR → PO → GRN → Invoice → Payment
     const approveInvoiceBtn = buyerPage.getByRole("button", { name: /Approve Invoice/i });
     if (await approveInvoiceBtn.isVisible()) {
       await approveInvoiceBtn.click();
+      const modalApproveBtn = buyerPage.getByRole("button", { name: /^Approve$/i });
+      if (await modalApproveBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+        await modalApproveBtn.click();
+      }
     }
 
     // Verify status updates to APPROVED

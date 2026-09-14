@@ -4,7 +4,7 @@ import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import { useInvoices } from "@procurement/hooks";
 import type { InvoiceResponse } from "@procurement/types";
-import { TableSkeleton, EmptyState, PageHeader, SearchInput, Button } from "@procurement/ui";
+import { TableSkeleton, EmptyState, PageHeader, SearchInput, Button, ExportButton } from "@procurement/ui";
 import {
   FileText,
   ArrowRight,
@@ -135,6 +135,16 @@ export default function InvoicesListPage() {
       <PageHeader
         title="Invoices & Reconciliations"
         subtitle="Automated 3-way matching across POs, GRN acceptance, and invoice approval workflows."
+        actions={
+          <ExportButton
+            exportType="INVOICES"
+            filters={{
+              search: search || undefined,
+              status: statusFilter || undefined,
+              match_status: matchFilter || undefined,
+            }}
+          />
+        }
       />
 
       {/* KPI Cards */}

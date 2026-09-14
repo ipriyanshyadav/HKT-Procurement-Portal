@@ -1,15 +1,16 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   useRequisitions,
   useMergeRequisitions,
+  useCategories,
   Requisition,
   getErrorMessage,
 } from "@procurement/hooks";
-import { PermissionGuard, Badge, Button, SearchInput, PageHeader, TableSkeleton, EmptyState } from "@procurement/ui";
+import { PermissionGuard, Badge, Button, SearchInput, PageHeader, TableSkeleton, EmptyState, ExportButton } from "@procurement/ui";
 import { ArrowRight, FileText, Plus, GitMerge, ChevronLeft, ChevronRight } from "lucide-react";
 
 const STATUS_OPTIONS = [
@@ -47,6 +48,16 @@ export default function RequisitionsListPage() {
     search: search || undefined,
     scope,
   });
+
+  const { data: categories = [] } = useCategories({ flat: true, active_only: false });
+
+  const categoryMap = useMemo(() => {
+    const map = new Map<string, string>();
+    categories.forEach((cat) => {
+      map.set(cat.id, cat.name);
+    });
+    return map;
+  }, [categories]);
 
   const mergeMutation = useMergeRequisitions();
 
@@ -117,6 +128,10 @@ export default function RequisitionsListPage() {
                 </Button>
               </PermissionGuard>
             )}
+            <ExportButton
+              exportType="REQUISITIONS"
+              filters={{ status: statusFilter || undefined, scope, search: search || undefined }}
+            />
             <PermissionGuard permission="pr.create">
               <Link href="/requisitions/new">
                 <Button size="sm" leftIcon={<Plus className="w-3.5 h-3.5" />}>
@@ -169,7 +184,7 @@ export default function RequisitionsListPage() {
 
       {/* Table */}
       {isLoading ? (
-        <TableSkeleton rows={8} columns={8} />
+        <TableSkeleton rows={8} columns={9} />
       ) : isError ? (
         <EmptyState
           icon={<FileText className="w-6 h-6" />}
@@ -184,30 +199,32 @@ export default function RequisitionsListPage() {
       ) : (
         <div className="apple-table-container">
           <div className="overflow-x-auto">
-            <table className="apple-table">
+            <table className="apple-table" aria-label="Purchase Requisitions">
               <thead>
                 <tr>
-                  <th className="w-10 text-center">
+                  <th scope="col" className="w-10 text-center">
                     <input
                       type="checkbox"
                       checked={requisitions.length > 0 && selectedPRs.length === requisitions.length}
                       onChange={handleSelectAll}
+                      aria-label="Select all requisitions"
                       className="rounded border-neutral-300 text-blue-600 focus:ring-blue-500"
                     />
                   </th>
-                  <th>PR Number</th>
-                  <th>Title</th>
-                  <th>Type</th>
-                  <th className="text-right">Est. Value</th>
-                  <th>Status</th>
-                  <th>Required By</th>
-                  <th className="text-right">Actions</th>
+                  <th scope="col">PR Number</th>
+                  <th scope="col">Title</th>
+                  <th scope="col">Category</th>
+                  <th scope="col">Type</th>
+                  <th scope="col" className="text-right">Est. Value</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Required By</th>
+                  <th scope="col" className="text-right">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {requisitions.length === 0 ? (
                   <tr>
-                    <td colSpan={8}>
+                    <td colSpan={9}>
                       <EmptyState
                         icon={<FileText className="w-6 h-6" />}
                         title="No requisitions found"
@@ -232,6 +249,7 @@ export default function RequisitionsListPage() {
                           type="checkbox"
                           checked={selectedPRs.includes(pr.id)}
                           onChange={() => handleSelectPR(pr.id)}
+                          aria-label={`Select requisition ${pr.pr_number}`}
                           className="rounded border-neutral-300 text-blue-600 focus:ring-blue-500"
                         />
                       </td>
@@ -246,6 +264,14 @@ export default function RequisitionsListPage() {
                       <td>
                         <span className="font-medium text-neutral-900 dark:text-neutral-100 line-clamp-1 max-w-xs">
                           {pr.title}
+                        </span>
+                      </td>
+                      <td>
+                        <span
+                          className="text-xs text-neutral-600 dark:text-neutral-400 line-clamp-1 max-w-[150px]"
+                          title={categoryMap.get(pr.category_id) || pr.category_name || undefined}
+                        >
+                          {categoryMap.get(pr.category_id) || pr.category_name || "—"}
                         </span>
                       </td>
                       <td>

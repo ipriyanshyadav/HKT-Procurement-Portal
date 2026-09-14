@@ -29,10 +29,15 @@ export interface Requisition {
   requestor_id: string;
   business_unit_id: string;
   category_id: string;
+  category_name?: string | null;
   currency: string;
   estimated_value: number;
   budget_check_status: string;
   required_by_date?: string | null;
+  is_indent?: boolean;
+  indentor_id?: string | null;
+  assigned_buyer_id?: string | null;
+  indent_notes?: string | null;
   created_at: string;
   updated_at: string;
 }

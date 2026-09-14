@@ -58,6 +58,11 @@ class Requisition(BaseModel):
     aging_alert_level: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     created_by: Mapped[UUID | None] = mapped_column(ForeignKey("users.id"), nullable=True)
     updated_by: Mapped[UUID | None] = mapped_column(ForeignKey("users.id"), nullable=True)
+    is_indent: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false", nullable=False)
+    indentor_id: Mapped[UUID | None] = mapped_column(ForeignKey("users.id"), nullable=True)
+    assigned_buyer_id: Mapped[UUID | None] = mapped_column(ForeignKey("users.id"), nullable=True)
+    indent_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    is_test_record: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false", nullable=False)
 
     lines: Mapped[list[RequisitionLine]] = relationship(
         "RequisitionLine",

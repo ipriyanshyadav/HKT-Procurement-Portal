@@ -228,6 +228,12 @@ class Settings(BaseSettings):
     PARETO_TOP_PERCENTAGE: float = 80.0
     APPROVAL_BOTTLENECK_THRESHOLD_HOURS: float = 24.0
 
+
+    # Indentor Rules
+    INDENT_GRN_CONFIRMATION_SLA_HOURS: int = 48
+    INDENT_AUTO_ASSIGN_BUYER: bool = True
+    INDENT_MAX_CART_ITEMS: int = 50
+
     # Roles & Permissions
     DEFAULT_SSO_ROLE_CODE: str = "REQUESTOR"
     UNSCOPED_ANALYTICS_ROLES: list[str] = [

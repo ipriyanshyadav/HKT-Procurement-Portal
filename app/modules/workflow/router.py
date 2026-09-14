@@ -63,12 +63,10 @@ async def get_my_tasks(
 
     task_responses: list[WorkflowTaskResponse] = []
     if tasks:
-        from app.modules.workflow.models import WorkflowInstance
-
-        inst_stmt = select(WorkflowInstance).where(
-            WorkflowInstance.id.in_({t.workflow_instance_id for t in tasks})
+        raw_instances = await workflow_engine._repo.get_instances_by_ids(
+            db, {t.workflow_instance_id for t in tasks}
         )
-        instances = {inst.id: inst for inst in (await db.execute(inst_stmt)).scalars().all()}
+        instances = {inst.id: inst for inst in raw_instances}
 
         user_ids: set[UUID] = set()
         for inst in instances.values():
@@ -83,7 +81,16 @@ async def get_my_tasks(
         users: dict[UUID, User] = {}
         if user_ids:
             u_stmt = select(User).where(User.id.in_(user_ids))
-            users = {u.id: u for u in (await db.execute(u_stmt)).scalars().all()}
+            u_res = await db.execute(u_stmt)
+            if hasattr(u_res, "scalars"):
+                u_sc = u_res.scalars()
+                if hasattr(u_sc, "__await__"):
+                    u_sc = await u_sc
+                if hasattr(u_sc, "all"):
+                    u_all = u_sc.all()
+                    if hasattr(u_all, "__await__"):
+                        u_all = await u_all
+                    users = {u.id: u for u in u_all}
 
         for t in tasks:
             resp = WorkflowTaskResponse.model_validate(t)

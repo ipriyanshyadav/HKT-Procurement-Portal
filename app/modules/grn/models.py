@@ -6,6 +6,8 @@ from uuid import UUID
 
 from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Numeric, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID
+
 
 from app.db.base import BaseModel
 
@@ -30,6 +32,12 @@ class GoodsReceiptNote(BaseModel):
     confirmed_by: Mapped[UUID | None] = mapped_column(ForeignKey("users.id"), nullable=True)
     created_by: Mapped[UUID | None] = mapped_column(ForeignKey("users.id"), nullable=True)
     updated_by: Mapped[UUID | None] = mapped_column(ForeignKey("users.id"), nullable=True)
+    consignee_id: Mapped[UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    consignee_confirmed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    consignee_rejection_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
+    consignee_status: Mapped[str] = mapped_column(String(20), nullable=False, default="PENDING", server_default="PENDING")
+    source_indent_cart_id: Mapped[UUID | None] = mapped_column(PG_UUID(as_uuid=True), nullable=True)
+
 
     lines: Mapped[list[GrnLine]] = relationship("GrnLine", back_populates="grn", cascade="all, delete-orphan")
 
@@ -68,6 +76,12 @@ class ServiceEntrySheet(BaseModel):
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_by: Mapped[UUID | None] = mapped_column(ForeignKey("users.id"), nullable=True)
     updated_by: Mapped[UUID | None] = mapped_column(ForeignKey("users.id"), nullable=True)
+    consignee_id: Mapped[UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    consignee_confirmed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    consignee_rejection_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
+    consignee_status: Mapped[str] = mapped_column(String(20), nullable=False, default="PENDING", server_default="PENDING")
+    source_indent_cart_id: Mapped[UUID | None] = mapped_column(PG_UUID(as_uuid=True), nullable=True)
+
 
     lines: Mapped[list[SesLine]] = relationship("SesLine", back_populates="ses", cascade="all, delete-orphan")
 

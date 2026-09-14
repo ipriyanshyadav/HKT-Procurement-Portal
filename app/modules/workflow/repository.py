@@ -176,5 +176,23 @@ class WorkflowRepository(BaseRepository[WorkflowInstance]):
         result = await db.execute(stmt)
         return result.scalar_one()
 
+    async def get_instances_by_ids(
+        self, db: AsyncSession, instance_ids: list[UUID] | set[UUID]
+    ) -> list[WorkflowInstance]:
+        if not instance_ids:
+            return []
+        stmt = select(WorkflowInstance).where(WorkflowInstance.id.in_(instance_ids))
+        result = await db.execute(stmt)
+        if hasattr(result, "scalars"):
+            sc = result.scalars()
+            if hasattr(sc, "__await__"):
+                sc = await sc
+            if hasattr(sc, "all"):
+                items = sc.all()
+                if hasattr(items, "__await__"):
+                    items = await items
+                return list(items)
+        return []
+
 
 workflow_repository = WorkflowRepository()

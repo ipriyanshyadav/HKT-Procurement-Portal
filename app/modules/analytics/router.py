@@ -469,3 +469,82 @@ async def update_supplier_esg_scorecard(
     res = await carbon_esg_service.update_supplier_scorecard(db, current_user.org_id, vendor_id, payload)
     return success_response(res.model_dump())
 
+
+# ---------------------------------------------------------------------------
+# 14. Buyer Activity & Procurement Velocity Endpoints (SPEC 27-H)
+# ---------------------------------------------------------------------------
+from app.modules.analytics.buyer_activity_service import buyer_activity_service
+
+
+@router.get("/buyer-activity")
+async def get_buyer_activity_summary(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    """GET /api/v1/analytics/buyer-activity — summary activity for current buyer/user."""
+    name = f"{current_user.first_name} {current_user.last_name}"
+    res = await buyer_activity_service.get_summary(db, current_user.org_id, current_user.id, name)
+    return success_response(res.model_dump())
+
+
+@router.get("/buyer-activity/heatmap")
+async def get_buyer_activity_heatmap(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    """GET /api/v1/analytics/buyer-activity/heatmap — 7x24 activity intensity matrix."""
+    res = await buyer_activity_service.get_heatmap(db, current_user.org_id)
+    return success_response(res.model_dump())
+
+
+@router.get("/buyer-activity/users")
+async def get_buyer_league_table(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    """GET /api/v1/analytics/buyer-activity/users — buyer performance league table."""
+    res = await buyer_activity_service.get_buyer_league_table(db, current_user.org_id)
+    return success_response([r.model_dump() for r in res])
+
+
+@router.get("/buyer-activity/sessions")
+async def get_session_security_analytics(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    """GET /api/v1/analytics/buyer-activity/sessions — user login and dormant session analytics."""
+    res = await buyer_activity_service.get_session_security_analytics(db, current_user.org_id)
+    return success_response(res.model_dump())
+
+
+@router.get("/buyer-activity/{user_id}")
+async def get_user_activity_detail(
+    user_id: UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    """GET /api/v1/analytics/buyer-activity/{user_id} — detail metrics for a designated user."""
+    res = await buyer_activity_service.get_summary(db, current_user.org_id, user_id, "User")
+    return success_response(res.model_dump())
+
+
+@router.get("/procurement-velocity")
+async def get_procurement_velocity(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    """GET /api/v1/analytics/procurement-velocity — PR to PO cycle-time distribution."""
+    res = await buyer_activity_service.get_procurement_velocity(db, current_user.org_id)
+    return success_response(res.model_dump())
+
+
+@router.get("/bottlenecks")
+async def get_procurement_bottlenecks(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    """GET /api/v1/analytics/bottlenecks — approval step duration and latency bottlenecks."""
+    res = await buyer_activity_service.get_bottlenecks(db, current_user.org_id)
+    return success_response([b.model_dump() for b in res])
+
+

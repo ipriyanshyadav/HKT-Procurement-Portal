@@ -3,7 +3,7 @@
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import { usePurchaseOrders, POResponse } from "@procurement/hooks";
-import { PermissionGuard, TableSkeleton, EmptyState, PageHeader, SearchInput, Button } from "@procurement/ui";
+import { PermissionGuard, TableSkeleton, EmptyState, PageHeader, SearchInput, Button, ExportButton } from "@procurement/ui";
 import {
   FileText,
   ArrowRight,
@@ -87,6 +87,10 @@ export default function PurchaseOrdersListPage() {
         subtitle="Manage purchase orders, release orders to suppliers, and track line deliveries & GRNs."
         actions={
           <div className="flex items-center gap-3">
+            <ExportButton
+              exportType="PURCHASE_ORDERS"
+              filters={{ search: search || undefined, status: statusFilter || undefined }}
+            />
             <PermissionGuard permission="grn.create">
               <Link href="/grn/new">
                 <Button variant="secondary" size="sm" leftIcon={<Truck className="w-4 h-4" />}>

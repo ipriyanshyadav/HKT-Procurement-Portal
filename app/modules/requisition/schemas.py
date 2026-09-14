@@ -173,11 +173,22 @@ class PRDetailResponse(BaseModel):
     aging_alert_level: int
     po_id: UUID | None = None
     po_number: str | None = None
+    is_indent: bool = False
+    indentor_id: UUID | None = None
+    assigned_buyer_id: UUID | None = None
+    indent_notes: str | None = None
     created_at: datetime
     updated_at: datetime
     created_by: UUID | None = None
     updated_by: UUID | None = None
     lines: list[PRLineItemResponse] = Field(default_factory=list)
+
+    @field_validator("is_indent", mode="before")
+    @classmethod
+    def coerce_is_indent(cls, v: Any) -> bool:
+        if v is None:
+            return False
+        return bool(v)
 
 
 class PRConvertToPORequest(BaseModel):
@@ -201,8 +212,19 @@ class PRListResponse(BaseModel):
     estimated_value: Decimal
     budget_check_status: str
     required_by_date: date | None = None
+    is_indent: bool = False
+    indentor_id: UUID | None = None
+    assigned_buyer_id: UUID | None = None
+    indent_notes: str | None = None
     created_at: datetime
     updated_at: datetime
+
+    @field_validator("is_indent", mode="before")
+    @classmethod
+    def coerce_is_indent(cls, v: Any) -> bool:
+        if v is None:
+            return False
+        return bool(v)
 
 
 class BudgetCheckResult(BaseModel):
@@ -217,3 +239,44 @@ class SourcingPathResult(BaseModel):
     contract_id: UUID | None = None
     contract_number: str | None = None
     vendor_id: UUID | None = None
+
+
+class IndentTransferRequest(PRCreateRequest):
+    assigned_buyer_id: UUID | None = None
+    indent_notes: str | None = None
+
+
+class IndentCartTransferRequest(BaseModel):
+    assigned_buyer_id: UUID | None = None
+    indent_notes: str | None = None
+    business_unit_id: UUID
+    cost_center_id: UUID
+    delivery_location_id: UUID | None = None
+    required_by_date: date | None = None
+
+
+class BuyerSelectionItem(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: UUID
+    name: str
+    email: str
+    department: str | None = None
+    workload: int = 0
+
+
+class IndentTransferResponse(PRDetailResponse):
+    pass
+
+
+class IndentorTrackingResponse(PRListResponse):
+    assigned_buyer_name: str | None = None
+    po_id: UUID | None = None
+    po_number: str | None = None
+    po_status: str | None = None
+    grn_status: str | None = None
+
+    @computed_field
+    @property
+    def pr_id(self) -> UUID:
+        return self.id
+

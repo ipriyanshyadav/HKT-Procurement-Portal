@@ -4,14 +4,26 @@ from datetime import date, datetime
 from decimal import Decimal
 from uuid import UUID, uuid4
 
-from sqlalchemy import CHAR, Date, DateTime, ForeignKey, Numeric, String, Text
-from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy import Boolean, CHAR, Date, DateTime, ForeignKey, Numeric, String, Text
+from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
 from app.db.base import Base, BaseModel
 from app.db.enums import PAYMENT_STATUS_PG, PaymentStatusEnum
+
+
+class PaymentGatewayConfig(BaseModel):
+    __tablename__ = "payment_gateway_config"
+
+    razorpay_key_id: Mapped[str | None] = mapped_column(Text, nullable=True)
+    razorpay_secret: Mapped[str | None] = mapped_column(Text, nullable=True)
+    stripe_pub_key: Mapped[str | None] = mapped_column(Text, nullable=True)
+    stripe_secret: Mapped[str | None] = mapped_column(Text, nullable=True)
+    default_provider: Mapped[str] = mapped_column(String(20), default="RAZORPAY", nullable=False)
+    auto_pay_enabled: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    webhook_secret: Mapped[str | None] = mapped_column(Text, nullable=True)
 
 
 class PaymentRecord(BaseModel):
@@ -31,6 +43,21 @@ class PaymentRecord(BaseModel):
     payment_method: Mapped[str | None] = mapped_column(String(30), nullable=True)
     erp_payment_reference: Mapped[str | None] = mapped_column(String(50), nullable=True)
     status: Mapped[PaymentStatusEnum] = mapped_column(PAYMENT_STATUS_PG, default=PaymentStatusEnum.COMPLETED, nullable=False)
+
+    # Online Payment Gateway Integration (SPEC 27-J)
+    gateway_provider: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    gateway_order_id: Mapped[str | None] = mapped_column(String(200), nullable=True, index=True)
+    gateway_payment_id: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    gateway_signature: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    gateway_fee: Mapped[Decimal | None] = mapped_column(Numeric(15, 2), nullable=True)
+    gateway_fee_currency: Mapped[str | None] = mapped_column(String(3), default="INR", nullable=True)
+    gateway_response: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    refund_id: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    refunded_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    refund_amount: Mapped[Decimal | None] = mapped_column(Numeric(15, 2), nullable=True)
+    refund_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
+    payment_link_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    payment_link_expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
 class Dispute(BaseModel):
     __tablename__ = "disputes"

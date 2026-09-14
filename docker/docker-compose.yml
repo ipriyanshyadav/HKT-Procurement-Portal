@@ -446,7 +446,7 @@ services:
       celery -A app.tasks.celery_app beat
         --loglevel=info
         --scheduler celery.beat:PersistentScheduler
-        --schedule /app/celery-beat/celerybeat-schedule
+        --schedule /tmp/celerybeat-schedule
     env_file:
       - ../.env
     environment:
@@ -455,7 +455,6 @@ services:
       IS_CELERY_WORKER: "true"
     volumes:
       - ../keys:/app/keys:ro
-      - celery_beat_data:/app/celery-beat
     networks:
       - procurement_net
     depends_on:

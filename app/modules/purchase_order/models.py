@@ -47,6 +47,7 @@ class PurchaseOrder(BaseModel):
     deviation_justification: Mapped[str | None] = mapped_column(Text, nullable=True)
     cancellation_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
     amendment_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    is_test_record: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false", nullable=False)
     created_by: Mapped[UUID | None] = mapped_column(ForeignKey("users.id"), nullable=True)
     updated_by: Mapped[UUID | None] = mapped_column(ForeignKey("users.id"), nullable=True)
 

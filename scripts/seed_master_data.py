@@ -44,6 +44,8 @@ ROLES = [
     {"code": "SUPPLIER_USER", "name": "Supplier User", "is_system_role": True, "is_supplier_role": True},
     {"code": "SUPERADMIN", "name": "Super Admin", "is_system_role": True, "is_supplier_role": False},
     {"code": "ORG_ADMIN", "name": "Organization Admin", "is_system_role": True, "is_supplier_role": False},
+    # SPEC_27 — Indentor role (catalog-first demand raiser)
+    {"code": "INDENTOR", "name": "Indentor", "is_system_role": True, "is_supplier_role": False},
 ]
 
 # All 100+ permissions from PermissionCode
@@ -472,6 +474,23 @@ ROLE_PERMISSIONS: dict[str, list[str]] = {
         PermissionCode.TICKET_ESCALATE, PermissionCode.TICKET_ADD_INTERNAL, PermissionCode.TICKET_CONFIG_SLA,
         PermissionCode.TICKET_EXPORT, PermissionCode.TICKET_LINK, PermissionCode.TICKET_CONFIG_CUSTOM_FIELDS,
         PermissionCode.TICKET_CONFIG_AUTOMATION,
+    ],
+    "INDENTOR": [
+        PermissionCode.MASTER_VIEW,
+        PermissionCode.PR_CREATE,
+        PermissionCode.PR_VIEW_OWN,
+        PermissionCode.PR_SUBMIT,
+        PermissionCode.INDENT_CREATE,
+        PermissionCode.INDENT_VIEW_OWN,
+        PermissionCode.INDENT_TRANSFER,
+        PermissionCode.INDENT_WITHDRAW,
+        PermissionCode.INDENT_RECEIVE_GRN,
+        PermissionCode.INDENT_VIEW_TRACKING,
+        PermissionCode.NOTIFICATION_VIEW_OWN,
+        PermissionCode.DOCUMENT_UPLOAD,
+        PermissionCode.DOCUMENT_VIEW_OWN,
+        PermissionCode.TICKET_CREATE,
+        PermissionCode.TICKET_VIEW_OWN,
     ],
 }
 

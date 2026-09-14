@@ -13,8 +13,11 @@ All three portals run simultaneously with seeded test roles. Access them directl
 | **👑 Universal Super Admin** | **Any Portal** (`:3000`, `:3001`, `:3002`) | Universal Omnipotent Access & 1-Click Persona Switching | Alexander Vance | `superadmin@procurement.com` | `SuperAdmin123456!@#` | `SUPERADMIN` (All System & Org Roles, Omnipotent Bypass) |
 | **Buyer Portal** | [http://localhost:3000](http://localhost:3000) | Procurement Team (PRs, RFQs, Bids, Tickets) | Sarah Jenkins | `buyer@procurement.com` | `Buyer123456!@#` | `REQUESTOR`, `BUYER`, `PROCUREMENT_OFFICER` |
 | **Buyer Portal (Approver)** | [http://localhost:3000](http://localhost:3000) | Approvers & Leadership (Sign-offs) | Robert Taylor | `approver@procurement.com` | `Approver123!@#` | `APPROVER`, `PROCUREMENT_HEAD`, `FINANCE_CONTROLLER` |
+| **Buyer Portal (Indentor)** | [http://localhost:3000](http://localhost:3000) | Department Requisitioners (Catalog, Demand Cart, Buyer Hand-off, Consignee) | Priya Mehta | `indentor@procurement.com` | `Indentor123!@#` | `INDENTOR` |
 | **Supplier Portal** | [http://localhost:3001](http://localhost:3001) | External Vendors (Bids, Invoices, Queries) | Rajesh Kumar | `supplier@acme.com` | `Supplier123456!@#` | `SUPPLIER`, `SUPPLIER_ADMIN` (Acme Tech Solutions) |
 | **Admin Portal** | [http://localhost:3002](http://localhost:3002) | System Administrators (Master Data, SLAs, Tickets) | David Miller | `admin@procurement.com` | `Admin123456!@#` | `ORG_ADMIN`, `PROCUREMENT_MANAGER`, `PROCUREMENT_ADMIN` |
+| **Support Portal** | [http://localhost:3004](http://localhost:3004) | Helpdesk Agents & Customer Requisitioners (Tickets, SLA, CSAT, KB) | Customer Support | `support@procurement.com` | `Admin123456!@#` | `ORG_ADMIN`, `BUYER`, `SUPPLIER` |
+| **Developer Portal** | [http://localhost:3005](http://localhost:3005) | API Integrators & Technical Developers (Keys, Webhooks, Docs, Sandbox Console) | Platform Developer | `developer@procurement.com` | `Admin123456!@#` | `ORG_ADMIN`, `SUPERADMIN` |
 
 > 🔑 **Organization ID for all logins:** `00000000-0000-0000-0000-000000000001` (Default Organization)
 >
@@ -26,11 +29,12 @@ All three portals run simultaneously with seeded test roles. Access them directl
 > 🚪 **API Gateway (Kong):** [http://localhost:8000](http://localhost:8000) &nbsp;•&nbsp; **Direct Backend API:** [http://localhost:8080](http://localhost:8080)
 > 📘 **Git & CI/CD Guide:** [Complete Beginner Guide to Git, GitHub & Branching](docs/GIT_AND_CICD_GUIDE.md)  
 > 📊 **Cross-Portal Workflow & Audit Report:** [Enterprise Synchronicity & Workflow Verification](docs/CROSS_PORTAL_WORKFLOW_REPORT.md)  
-> 📖 **Enterprise Handover Manual:** [Complete Technical, Managerial & Operations Manual](docs/ENTERPRISE_HANDOVER_MANUAL.md)
+> 📖 **Enterprise Handover Manual:** [Complete Technical, Managerial & Operations Manual](docs/ENTERPRISE_HANDOVER_MANUAL.md)  
+> 🌐 **Zero-Cost Deployment Guide:** [Deploying Entire S2P Portal 100% Free Forever](docs/FREE_DEPLOYMENT_GUIDE.md)
 
 ---
 
-### 🎭 Full Enterprise Role Demonstration (8 Personas)
+### 🎭 Full Enterprise Role Demonstration (10 Personas)
 
 The platform supports strict enterprise role separation (where each user only sees their own siloed screen) as well as an omnipotent **Super Admin** who can embody any persona on demand. Every persona is seeded as a real user in the database:
 
@@ -45,6 +49,7 @@ The platform supports strict enterprise role separation (where each user only se
 | **7** | **💳 Accounts Payable** | Claire Redfield | Buyer Portal (Invoice processing, 2-way / 3-way match, payment holds) | `ap@procurement.com` | `Accounts123!@#` | `http://localhost:3000/invoices` |
 | **8** | **🏭 Supplier Partner** | Rajesh Kumar | Supplier Portal (RFQ bids, PO acknowledgment, ASN, invoices) | `supplier@acme.com` | `Supplier123456!@#` | `http://localhost:3001/rfqs` |
 | **9** | **🌐 Global Cloud Vendor** | Priya Sharma | Supplier Portal (Bids, rate cards, SLAs, disputes) | `supplier@globalcloud.com` | `Supplier123456!@#` | `http://localhost:3001/rfqs` |
+| **10** | **🛒 Indentor / Consignee** | Priya Mehta | Buyer Portal (Catalog search, Demand cart, Buyer transfer, Consignee GRN) | `indentor@procurement.com` | `Indentor123!@#` | `http://localhost:3000/indents` |
 
 #### 🛡️ Sidebar Navigation & In-Page Authorization Policy
 - **Universal Sidebar Visibility**: All sidebar navigation tabs and sub-tabs remain **100% visible and clickable** for every user across all three portals (Buyer `:3000`, Supplier `:3001`, Admin `:3002`).
@@ -66,10 +71,34 @@ The platform supports strict enterprise role separation (where each user only se
 
 
 ## Current Session State
-- **Planned**: Full enterprise-grade audit — backend security hardening, frontend bug fixes, accessibility improvements, dark mode corrections.
-- **Implemented**: (1) **Backend Security** — `auth/dependencies.py`: narrowed `get_optional_current_user` bare `except Exception` → `(AuthenticationError, AppException)` only; added `is_revoked` + inactivity timeout + `update_activity` to WebSocket auth path; added `ValueError` guard around UUID parsing in both HTTP and WS auth; (2) **Middleware** — moved `jose` import to module level; sanitized unverified JWT `portal` claim against allowlist to prevent audit log injection (`_VALID_PORTALS`); (3) **Exceptions** — added `HTTPException` handler to normalize FastAPI built-in 404/405 errors into standard `{"error": {...}}` envelope; fixed `ValidationError` → 422 (was 400); removed blank line artifact; (4) **Auth Router** — gated SAML simulation fallback behind `settings.ENABLE_SSO_MOCK` (default `False`) to prevent auth bypass in any environment without `python3-saml` installed; (5) **Config** — added `ENABLE_SSO_MOCK: bool = False` with security comment; added `MAX_LIST_LIMIT: int = 200`; (6) **Requisition Service** — added `settings` import; added `min(limit, settings.MAX_LIST_LIMIT)` guard in `list_prs`; (7) **Invoice Service** — fixed misleading "2% hardcoded" docstring; replaced `except Exception: pass` with `logger.warning(...)` in payment terms lookup; (8) **Frontend Bugs** — `tasks/page.tsx`: fixed `handleSelectAll` targeting `tasks` instead of `filteredTasks`; added `useEffect` to clear selection on filter/search change; replaced wrong `RefreshCw` icon with `Search` in search input; added `aria-pressed` to filter tabs; moved `filteredTasks` before `handleSelectAll` to fix scoping; added `validFrom < validUntil` validation in delegation; `vendors/page.tsx`: fixed `tbody` missing `dark:bg-slate-900`; fixed entire bulk modal missing dark mode; added `role="dialog"`, `aria-modal`, `aria-labelledby`, `aria-label` on close button; added `refetch` to `useVendors`; added Retry button to error state; added `scope="col"` to all `<th>`; added `aria-label` to table; (9) **Shared UI** — `Badge.tsx`: added `danger` and `success` to `BadgeVariant` type; `PageHeader.tsx`: added `aria-current="page"` to last breadcrumb, changed index-based key to label-based; `EmptyState.tsx`: added `role="status"`, standardized action spacing to `mt-4`.
-- **Tested**: 453 backend unit tests pass (0 failures); TypeScript typecheck 7/7 packages clean (0 errors); Next.js production build 7/7 successful; Graphify AST updated.
-- **Next**: No remaining critical issues. All SPEC modules remain at 100% completion. Session ready for deployment review.
+- **Planned**: Batch 2 (SPEC_27-A Multi-Tenant Company Switcher + 27-D Webhooks Engine + 27-E API Keys Management + 27-F Tenant White-Label Branding).
+- **Implemented**:
+  - **Migration `0059_batch2_portal_enhancements.py`**:
+    - Created tables `user_org_memberships`, `org_switch_audit`, `tenant_brandings`, and column `users.primary_org_id`.
+  - **27-A: Multi-Tenant Company Switcher (100% COMPLETE)**:
+    - Backend: `CompanySwitcherService` (`list_my_orgs`, `switch_org`, `invite_user_to_org`, `remove_user_from_org`, `list_org_members`). Routers at `/api/v1/auth/org` and `/api/v1/admin/orgs/{org_id}/members`.
+    - Frontend: `useCompanySwitcher` hook (`useMyOrganizations`, `useSwitchOrganization`, `useOrgMembers`, `useInviteUserToOrg`, `useRemoveOrgMember`).
+    - UI: Enhanced `CompanySwitcher` component mounted in top navbar of both Buyer and Admin Portals, providing real-time multi-tenant organization switching with token re-issuance and role badges.
+  - **27-D: Webhook Delivery Engine & Management UI (100% COMPLETE)**:
+    - Backend: `WebhookManagementService` with HMAC-SHA256 signatures, secret rotation, synthetic test delivery, and delivery history logs. Mounted at `/api/v1/webhooks`.
+    - Frontend: `useWebhooks` hook (`useTenantWebhooks`, `useTenantWebhookEvents`, `useCreateTenantWebhook`, `useUpdateTenantWebhook`, `useDeleteTenantWebhook`, `useRotateTenantWebhookSecret`, `useTestTenantWebhook`, `useTenantWebhookDeliveries`).
+    - UI: `/integrations/webhooks` page with endpoint management, one-time secret modal, test ping modal, and delivery audit drawer.
+  - **27-E: Tenant API Key Management (100% COMPLETE)**:
+    - Backend: `ApiKeyService` with SHA-256 key hashing, rate limit tiers (30/120/600 RPM), zero-downtime rotation with 24h grace period, usage telemetry, and request audit logs. Mounted at `/api/v1/api-keys`.
+    - Frontend: `useApiKeys` hook (`useTenantApiKeys`, `useCreateTenantApiKey`, `useUpdateTenantApiKey`, `useRevokeTenantApiKey`, `useRotateTenantApiKey`, `useApiKeyUsageMetrics`, `useApiKeyRecentLogs`).
+    - UI: `/integrations/api-keys` page with granular scopes selector, one-time raw Bearer token modal, usage telemetry dialog, and invocation audit drawer.
+  - **27-F: Tenant White-Label Branding (100% COMPLETE)**:
+    - Backend: `TenantBrandingService` with logo, color palette, custom domain DNS TXT record verification, and public unauthenticated branding endpoint. Mounted at `/api/v1/admin/branding` and `/api/v1/public/branding`.
+    - Frontend: `useTenantBranding` hook (`useTenantBranding`, `useUpdateTenantBranding`, `useVerifyCustomDomain`, `usePublicBranding`).
+    - UI: `/settings/branding` page with live interactive preview pane, WCAG AA contrast ratio checking, email notification branding, and DNS verification status.
+- **Tested**:
+  - 21/21 unit tests passing across Batch 2 (`test_company_switcher_service.py`, `test_webhook_service.py`, `test_api_key_service.py`, `test_branding_service.py`).
+  - Total 60+ unit tests passing cleanly in test suite.
+  - TypeScript typecheck passed with 0 errors across all 11 packages and apps in the Turborepo workspace.
+  - Next.js production builds verified (`admin-portal` and `buyer-portal` compiled with 0 errors).
+- **Next**: Batch 3 (SPEC_27-G Enterprise Audit Logs & Export + 27-H Disaster Recovery Dashboard & Drill Simulation).
+
+---
 
 
 
@@ -689,16 +718,59 @@ docker compose logs -f -t
 | A-OPT-6 | Dual sourcing 70/30 scenario requires at least 2 qualified bids; if fewer than 2 exist, it falls back gracefully to winner-take-all with an explanatory note | LOW |
 | A-PO-1 | PO amendments cannot reduce ordered quantity below already received quantity (received_quantity). Attempting to do so raises ValidationError | LOW |
 | A-PO-2 | PO amendment captures complete line-level diffs in PoAmendment.field_changes and recalculates line total prices and PO total value atomically | LOW |
+| A-HARDEN-1 | Requisition schemas PRDetailResponse and PRListResponse coerce is_indent=None to False for unpersisted models and legacy fixtures | LOW |
+| A-HARDEN-2 | Celery Beat schedule file is stored at /tmp/celerybeat-schedule so non-root container user 10001 has reliable write permissions without volume permission errors | LOW |
+| A-HARDEN-3 | Workflow get_my_tasks and entity queries encapsulate DB operations cleanly and support mocked DB result sets in unit/integration tests | LOW |
+| A-INDENT-SEED-1 | Seed script scripts/seed_indents.py creates 7 realistic enterprise indents spanning SUBMITTED, PENDING_APPROVAL, APPROVED, IN_SOURCING, CONVERTED (PO/GRN in-transit), CONVERTED (delivered & confirmed), and WITHDRAWN for Priya Mehta (INDENTOR) and Sarah Jenkins (BUYER) | LOW |
 
 ---
 
 ### Current Session State
-- **Completed**: Cross-Portal Synchronous Flow verification across Admin, Buyer, and Supplier Portals.
-- **Fixed Gateway**: Added missing routing definitions to `kong/kong.yml` for `/api/v1/asns`, `/api/v1/developer`, `/api/v1/audit`, `/api/v1/compliance`, and `/api/v1/einvoicing`.
-- **Fixed Core**: Loop-safe Redis connection pool caching in `app/core/redis_client.py` and mock-safe row unpacking in `app/modules/workflow/service.py`.
-- **Verified Cross-Portal Test**: `test_cross_portal_synchronous_flow.py` (Admin master data/rules -> Buyer PR -> Workflow Approval -> RFQ -> Supplier Bid -> Unseal/Award -> Contract e-Sign -> PO -> ASN -> Fast GRN -> Invoice -> 3-Way Match -> Settlement -> Remittance -> Ticket -> ERP Sync).
-- **Tested**: All 964 backend tests passed (100% pass rate in 65s); frontend Turbo typecheck 7/7 packages clean with 0 errors; graphify updated (10,499 nodes, 28,359 edges, 582 communities).
-- **Artifacts & Docs**: Saved comprehensive markdown specification to `docs/CROSS_PORTAL_ARCHITECTURE_AND_WORKFLOW_GUIDE.md` and compiled publication-grade interactive PDF with vector Mermaid diagrams and document bookmarks to `docs/CROSS_PORTAL_ARCHITECTURE_AND_WORKFLOW_GUIDE.pdf` via `scripts/generate_interactive_pdf.js`.
+- **Completed**: SPEC_27 Batch 3 (Export Center 27-G, Buyer Activity & Velocity Dashboard 27-H, Online Payment Gateway 27-J).
+- **Backend Architecture & Services**:
+  - `ExportCenterService` (`app/modules/export/service.py`) supporting asynchronous queued exports across 17 entity types, 7-day retention, presigned and streaming download URLs.
+  - `BuyerActivityService` (`app/modules/analytics/buyer_activity_service.py`) providing 7×24 hourly activity matrix, buyer performance league table, PR-to-PO velocity distribution histogram, approval bottlenecks, and session security telemetry.
+  - `PaymentGatewayService` (`app/modules/payment/gateway_service.py`) providing Razorpay/Stripe checkout order creation, HMAC-SHA256 signature verification, and invoice status updates.
+- **Database & Migrations**:
+  - Alembic migration `0060_batch3_portal_enhancements.py` creating `export_jobs` and `payment_gateway_config` tables and adding gateway tracking columns to `payment_records`.
+- **Frontend Architecture & Components**:
+  - Hooks: `useExportCenter.ts`, `useBuyerActivity.ts`, `usePaymentGateway.ts` exported in `@procurement/hooks`.
+  - Reusable `<ExportButton />` with format dropdown (CSV/Excel) wired into Requisitions, Purchase Orders, and Invoices listings.
+  - Dedicated pages: `/export-center` across Buyer, Admin, and Supplier portals; `/analytics/buyer-activity` in Buyer portal; `/settings/payment-gateway` in Admin portal; Interactive "Pay Online" checkout dialog on Invoice detail page.
+- **Verification**:
+  - Monorepo TypeScript check (`pnpm run typecheck`): 11/11 packages successful (0 errors).
+  - Unit tests: 25/25 passing in `test_export_center_service.py`, `test_payment_gateway_service.py`, `test_buyer_activity_service.py`, `test_indent_cart_service.py`.
+  - Knowledge graph updated via `graphify update .`.
+
+### 📊 SPEC Audit: Portal Enhancements Batch 3 — SPEC_27-G, 27-H, 27-J (2026-09-14)
+```
+MODULE | SPEC REQUIREMENT | STATUS | ARTIFACT / CODE
+27-G.1 | Database Migration & Models for Export Center (export_jobs) | [DONE] | 0060_batch3_portal_enhancements.py, export/models.py
+27-G.2 | Async Export Queue & 17 Entity Tabular Extraction Service | [DONE] | export/service.py, schemas.py, router.py
+27-G.3 | Reusable ExportButton & Format Dropdown Component (CSV/Excel) | [DONE] | ExportButton.tsx, packages/ui/src/index.ts
+27-G.4 | Export Center Portal Page & 7-Day Download Retention Manager | [DONE] | ExportCenterDashboard.tsx, /export-center
+27-H.1 | Buyer Activity & 7x24 Action Intensity Heatmap Analytics | [DONE] | buyer_activity_service.py, router.py, schemas.py
+27-H.2 | PR-to-PO Velocity Histogram & Approval Bottleneck Diagnostics | [DONE] | buyer_activity_service.py, BuyerActivityDashboard.tsx
+27-H.3 | Buyer Performance League Table & Session Security Telemetry | [DONE] | buyer_activity_service.py, /analytics/buyer-activity
+27-J.1 | Database Migration & Encrypted Gateway Configuration Model | [DONE] | 0060_batch3_portal_enhancements.py, payment/models.py
+27-J.2 | Razorpay & Stripe Order Creation & HMAC Verification Engine | [DONE] | gateway_service.py, gateway_router.py, schemas.py
+27-J.3 | Invoice Detail "Pay Online" Checkout Flow & Settlement Badge | [DONE] | buyer-portal/invoices/[id]/page.tsx, usePaymentGateway.ts
+27-J.4 | Admin Portal Payment Gateway Credentials Configuration Console| [DONE] | admin-portal/settings/payment-gateway/page.tsx
+OVERALL: 11/11 (100%) | BACKEND 100% | FRONTEND 100% | TESTS 100%
+```
+
+### 📊 SPEC Audit: Enterprise Production Hardening & Full Resilience (2026-09-13)
+```
+MODULE | SPEC REQUIREMENT | STATUS | ARTIFACT / CODE
+HRD.1 | Celery Beat Non-Root Schedule Write Permissions | [DONE] | docker/docker-compose.yml
+HRD.2 | Requisition & Unmapped PR Schema Defensiveness   | [DONE] | app/modules/requisition/schemas.py
+HRD.3 | Workflow Layer Discipline & Instance Repository  | [DONE] | workflow/repository.py, router.py
+HRD.4 | Universal Layout ErrorBoundary Fallback Shield   | [DONE] | buyer, supplier & admin layout.tsx
+HRD.5 | Source-to-Pay E2E Dialog Confirmation Hardening | [DONE] | full_procurement_cycle.spec.ts
+HRD.6 | Complete 17-Test Cross-Portal E2E Suite Pass     | [DONE] | tests/e2e/playwright/*.spec.ts (17/17)
+HRD.7 | Complete 987-Test Backend Test Suite Pass       | [DONE] | pytest tests/ (987/987 passed, 100%)
+OVERALL: 7/7 (100%) | BACKEND 100% | FRONTEND 100% | TESTS 100% | INFRA 100%
+```
 
 ### 📊 SPEC Audit: Enterprise S2P Hardening, Anti-Sniping Concurrency & 1-Click PO Flip (2026-09-11)
 ```

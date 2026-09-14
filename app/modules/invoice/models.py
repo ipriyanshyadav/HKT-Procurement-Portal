@@ -46,6 +46,7 @@ class Invoice(BaseModel):
     early_discount_payout_date: Mapped[date | None] = mapped_column(Date, nullable=True)
     early_discount_apr: Mapped[Decimal | None] = mapped_column(Numeric(5, 4), nullable=True)
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    is_test_record: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false", nullable=False)
     created_by: Mapped[UUID | None] = mapped_column(ForeignKey("users.id"), nullable=True)
     updated_by: Mapped[UUID | None] = mapped_column(ForeignKey("users.id"), nullable=True)
 

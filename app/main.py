@@ -12,6 +12,7 @@ from prometheus_fastapi_instrumentator import Instrumentator
 from sqlalchemy import text
 
 import app.modules.approval_rules.models  # noqa: F401
+import app.modules.admin.models  # noqa: F401
 import app.modules.audit.models  # noqa: F401
 import app.modules.bid.models  # noqa: F401
 import app.modules.contract.models  # noqa: F401
@@ -29,6 +30,7 @@ import app.modules.payment.models  # noqa: F401
 import app.modules.purchase_order.models  # noqa: F401
 import app.modules.requisition.models  # noqa: F401
 import app.modules.sourcing.models  # noqa: F401
+import app.modules.support.models  # noqa: F401
 import app.modules.ticket.models  # noqa: F401
 import app.modules.user.models  # noqa: F401
 import app.modules.vendor.models  # noqa: F401
@@ -45,6 +47,12 @@ from app.core.middleware import (
 )
 from app.core.telemetry import setup_telemetry
 from app.modules.admin.router import router as admin_router
+from app.modules.admin.onboarding_router import router as onboarding_router
+from app.modules.admin.superadmin_router import router as superadmin_router
+from app.modules.admin.company_switcher_router import admin_org_router, auth_org_router
+from app.modules.admin.branding_router import admin_branding_router, public_branding_router
+from app.modules.integration.webhook_management_router import router as webhook_mgmt_router
+from app.modules.integration.api_key_router import router as api_key_router
 from app.modules.ai_sourcing.router import router as ai_sourcing_router
 from app.modules.analytics.router import router as analytics_router
 from app.modules.approval_rules.router import router as approval_rules_router
@@ -74,13 +82,18 @@ from app.modules.organization.router import router as organization_router
 from app.modules.payment.router import router as payment_router
 from app.modules.purchase_order.router import router as purchase_order_router
 from app.modules.requisition.router import router as requisition_router
+from app.modules.requisition.cart_router import router as cart_router
+
 from app.modules.sourcing.auction import auction_router
 from app.modules.sourcing.router import router as sourcing_router
+from app.modules.support.router import router as support_router
 from app.modules.ticket.router import router as ticket_router
 from app.modules.unmapped_pr.router import router as unmapped_pr_router
 from app.modules.user.router import router as user_router
 from app.modules.vendor.router import router as vendor_router
 from app.modules.workflow.router import router as workflow_router
+from app.modules.export.router import router as export_router
+from app.modules.payment.gateway_router import router as payment_gateway_router
 
 _minio_health_client = None
 
@@ -305,6 +318,19 @@ def create_app() -> FastAPI:
     api_router.include_router(ai_sourcing_router, prefix="/ai-sourcing")
     api_router.include_router(einvoicing_router, prefix="/einvoicing")
     api_router.include_router(disaster_recovery_router, prefix="/disaster-recovery")
+    api_router.include_router(cart_router)
+    api_router.include_router(onboarding_router)
+    api_router.include_router(superadmin_router)
+    api_router.include_router(support_router)
+    api_router.include_router(auth_org_router)
+    api_router.include_router(admin_org_router)
+    api_router.include_router(webhook_mgmt_router)
+    api_router.include_router(api_key_router)
+    api_router.include_router(admin_branding_router)
+    api_router.include_router(public_branding_router)
+    api_router.include_router(export_router)
+    api_router.include_router(payment_gateway_router)
+
 
     app.include_router(api_router)
     app.include_router(live_auction_router, prefix="/api/v1")

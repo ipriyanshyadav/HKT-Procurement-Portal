@@ -6,7 +6,7 @@ from decimal import Decimal
 from uuid import UUID
 
 from loguru import logger
-from sqlalchemy import select, text
+from sqlalchemy import or_, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
@@ -1043,6 +1043,214 @@ class RequisitionService:
             await r.aclose()
         except Exception as e:
             logger.warning(f"Failed to invalidate PR cache for org {org_id}: {e}")
+
+    async def create_indent(
+        self,
+        db: AsyncSession,
+        data: "IndentTransferRequest",
+        actor: User,
+        org_id: UUID,
+    ) -> Requisition:
+        # Re-use create
+        pr = await self.create(db, data, actor.id, org_id)
+        pr.is_indent = True
+        pr.indentor_id = actor.id
+        pr.assigned_buyer_id = data.assigned_buyer_id
+        pr.indent_notes = data.indent_notes
+        pr.source = PRSource.INDENT_CART
+        pr.status = PRStatus.SUBMITTED
+        if not pr.assigned_buyer_id and settings.INDENT_AUTO_ASSIGN_BUYER:
+            buyers = await self.get_available_buyers(db, org_id, data.category_id, data.business_unit_id)
+            if buyers:
+                pr.assigned_buyer_id = buyers[0].id
+        await self.repo.update(db, pr)
+        await audit_service.log(
+            db,
+            "REQUISITION",
+            pr.id,
+            AuditAction.INDENT_TRANSFERRED,
+            actor.id,
+            org_id,
+            new_values={
+                "pr_number": pr.pr_number,
+                "status": pr.status.value,
+                "assigned_buyer_id": str(pr.assigned_buyer_id) if pr.assigned_buyer_id else None,
+            },
+        )
+        return pr
+
+    async def create_indent_from_cart(
+        self,
+        db: AsyncSession,
+        data: "IndentCartTransferRequest",
+        actor: User,
+        org_id: UUID,
+    ) -> Requisition:
+        from app.modules.catalog.repository import cart_item_repository, user_cart_repository
+        from app.modules.master_data.models import Category, ItemMaster, UomMaster
+        from app.modules.requisition.schemas import IndentTransferRequest, PRLineItemRequest
+
+        cart = await user_cart_repository.get_active_cart(db, org_id, actor.id)
+        if not cart:
+            raise ValidationError("No active cart found to transfer.")
+        items = await cart_item_repository.list_by_cart(db, cart.id)
+        if not items:
+            raise ValidationError("Cart is empty. Add catalog items before transferring.")
+
+        category_id = None
+        for ci in items:
+            if ci.item_id:
+                m_item = await db.get(ItemMaster, ci.item_id)
+                if m_item and m_item.category_id:
+                    category_id = m_item.category_id
+                    break
+        if not category_id:
+            cat_stmt = select(Category.id).where(Category.org_id == org_id).limit(1)
+            category_id = (await db.execute(cat_stmt)).scalar()
+            if not category_id:
+                raise ValidationError("No Category found for organization.")
+
+        pr_lines: list[PRLineItemRequest] = []
+        for idx, ci in enumerate(items):
+            line_cat_id = None
+            uom_id = None
+            if ci.item_id:
+                m_item = await db.get(ItemMaster, ci.item_id)
+                if m_item:
+                    line_cat_id = m_item.category_id
+                    uom_id = m_item.uom_id
+            if not line_cat_id:
+                line_cat_id = category_id
+            if not uom_id:
+                first_uom = (await db.execute(select(UomMaster.id).where(UomMaster.org_id == org_id).limit(1))).scalar()
+                uom_id = first_uom or uuid4()
+
+            pr_lines.append(
+                PRLineItemRequest(
+                    item_description=ci.item_name,
+                    item_code=ci.item_code,
+                    category_id=line_cat_id,
+                    uom_id=uom_id,
+                    quantity=ci.quantity,
+                    estimated_unit_price=ci.unit_price,
+                    specifications=ci.punchout_payload.get("specs") if ci.punchout_payload else None,
+                )
+            )
+
+        now = datetime.now(UTC)
+        transfer_req = IndentTransferRequest(
+            title=f"Indent from Cart ({now.strftime('%b %d, %Y')})",
+            procurement_type="OPEX",
+            business_unit_id=data.business_unit_id,
+            cost_center_id=data.cost_center_id,
+            category_id=category_id,
+            delivery_location_id=data.delivery_location_id,
+            required_by_date=data.required_by_date,
+            assigned_buyer_id=data.assigned_buyer_id,
+            indent_notes=data.indent_notes,
+            lines=pr_lines,
+        )
+
+        pr = await self.create_indent(db, transfer_req, actor, org_id)
+        cart.status = "CHECKED_OUT"
+        await db.flush()
+        return pr
+
+    async def get_available_buyers(
+        self,
+        db: AsyncSession,
+        org_id: UUID,
+        category_id: UUID | None = None,
+        business_unit_id: UUID | None = None,
+    ) -> list["BuyerSelectionItem"]:
+        from app.core.constants import RoleCode
+        from app.db.enums import UserStatusEnum
+        from app.modules.requisition.schemas import BuyerSelectionItem
+        from app.modules.user.models import Role, User, UserRoleAssignment
+
+        stmt = (
+            select(User)
+            .join(UserRoleAssignment, UserRoleAssignment.user_id == User.id)
+            .join(Role, Role.id == UserRoleAssignment.role_id)
+            .where(
+                User.org_id == org_id,
+                Role.code == RoleCode.BUYER,
+                User.status == UserStatusEnum.ACTIVE,
+                UserRoleAssignment.is_active.is_(True),
+            )
+        )
+        if business_unit_id:
+            stmt = stmt.where(User.business_unit_id == business_unit_id)
+        res = await db.execute(stmt)
+        users = res.scalars().unique().all()
+        return [
+            BuyerSelectionItem(
+                id=u.id,
+                name=f"{u.first_name} {u.last_name}".strip() or u.email,
+                email=u.email,
+                department=str(u.department_id) if u.department_id else None,
+                workload=0,
+            )
+            for u in users
+        ]
+
+    async def get_indentor_tracking(
+        self,
+        db: AsyncSession,
+        actor: User,
+        org_id: UUID,
+        page: int,
+        page_size: int,
+        status_filter: str | None = None,
+    ) -> tuple[list[Requisition], int]:
+        from sqlalchemy import func
+
+        stmt = select(Requisition).where(
+            Requisition.org_id == org_id,
+            Requisition.is_indent.is_(True),
+        )
+
+        from app.modules.user.role_repository import role_repository
+
+        role_codes = await role_repository.get_user_role_codes(db, actor.id, org_id)
+        roles = set(role_codes)
+        if hasattr(actor, "roles") and actor.roles:
+            roles.update({r.code if hasattr(r, "code") else str(r) for r in actor.roles})
+
+        is_super = getattr(actor, "is_superadmin", False) or "SUPERADMIN" in roles
+        is_org_admin = bool({"ORG_ADMIN", "PROCUREMENT_ADMIN", "PROCUREMENT_MANAGER"}.intersection(roles))
+
+        if not (is_super or is_org_admin):
+            if bool({"BUYER", "PROCUREMENT_OFFICER", "SOURCING_MANAGER"}.intersection(roles)):
+                stmt = stmt.where(
+                    or_(
+                        Requisition.indentor_id == actor.id,
+                        Requisition.assigned_buyer_id == actor.id,
+                        Requisition.requestor_id == actor.id,
+                    )
+                )
+            else:
+                stmt = stmt.where(
+                    or_(
+                        Requisition.indentor_id == actor.id,
+                        Requisition.requestor_id == actor.id,
+                    )
+                )
+
+        if status_filter:
+            stmt = stmt.where(Requisition.status == status_filter)
+
+        count_stmt = select(func.count()).select_from(stmt.subquery())
+        total = (await db.execute(count_stmt)).scalar() or 0
+
+        stmt = (
+            stmt.order_by(Requisition.created_at.desc())
+            .offset((page - 1) * page_size)
+            .limit(page_size)
+        )
+        res = await db.execute(stmt)
+        items = res.scalars().all()
+        return list(items), total
 
 
 requisition_service = RequisitionService()

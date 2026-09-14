@@ -3,7 +3,7 @@
 import React, { ReactNode, useEffect } from "react";
 import { useAuthInit, useCurrentUser, useLogout } from "@procurement/hooks";
 import { useAuthStore } from "@procurement/stores";
-import { AppShell, NotificationBell } from "@procurement/ui";
+import { AppShell, ErrorBoundary, NotificationBell, UATOverlay } from "@procurement/ui";
 import { Building2, FileCheck, UserPlus, Gavel, Package, Receipt, CreditCard, AlertCircle, LifeBuoy, FileText, Truck } from "lucide-react";
 
 export default function SupplierMainLayout({ children }: { children: ReactNode }) {
@@ -123,7 +123,10 @@ export default function SupplierMainLayout({ children }: { children: ReactNode }
       onLogout={() => logoutMutation.mutate()}
       actions={<NotificationBell />}
     >
-      {children}
+      <ErrorBoundary>
+        <UATOverlay />
+        {children}
+      </ErrorBoundary>
     </AppShell>
   );
 }

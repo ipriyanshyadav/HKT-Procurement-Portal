@@ -18,6 +18,13 @@ from app.modules.developer.schemas import (
     WebhookSubscriptionResponse,
     WebhookSubscriptionUpdateRequest,
     WebhookTestPingRequest,
+    SandboxStatusResponse,
+    SandboxResetRequest,
+    SandboxResetResponse,
+    SandboxTimeTravelRequest,
+    SandboxTimeTravelResponse,
+    ChangelogEntryResponse,
+    DocArticleResponse,
 )
 from app.modules.developer.service import developer_service
 from app.modules.user.models import User
@@ -183,3 +190,60 @@ async def list_webhook_deliveries(
     """List recent delivery attempt logs and responses for a webhook."""
     deliveries = await developer_service.list_deliveries(db, current_user, subscription_id)
     return success_response(deliveries)
+
+
+# ============================================================================
+# Sandbox Environment Operations (SPEC_28)
+# ============================================================================
+
+@router.get("/sandbox/status", response_model=APIResponse[SandboxStatusResponse])
+async def get_sandbox_status(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Retrieve current sandbox state and seeded mock transaction volume."""
+    status_data = await developer_service.get_sandbox_status(db, current_user.org_id)
+    return success_response(status_data)
+
+
+@router.post("/sandbox/reset", response_model=APIResponse[SandboxResetResponse])
+async def reset_sandbox(
+    payload: SandboxResetRequest = SandboxResetRequest(),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Reset sandbox organization state and seed isolated test transactions."""
+    reset_data = await developer_service.reset_sandbox(
+        db, current_user.org_id, current_user.id, seed_demo_data=payload.seed_demo_data
+    )
+    await db.commit()
+    return success_response(reset_data)
+
+
+@router.post("/sandbox/time-travel", response_model=APIResponse[SandboxTimeTravelResponse])
+async def time_travel_sandbox(
+    payload: SandboxTimeTravelRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Simulate temporal progression for testing payment term expiry and SLA escalations."""
+    travel_data = await developer_service.time_travel_sandbox(
+        db, current_user.org_id, current_user.id, advance_days=payload.advance_days
+    )
+    await db.commit()
+    return success_response(travel_data)
+
+
+@router.get("/changelog", response_model=APIResponse[list[ChangelogEntryResponse]])
+async def get_api_changelog():
+    """Retrieve public API release changelogs and deprecation notices."""
+    entries = developer_service.get_changelog()
+    return success_response(entries)
+
+
+@router.get("/docs", response_model=APIResponse[list[DocArticleResponse]])
+async def get_api_documentation():
+    """Retrieve developer platform guides and reference documentation."""
+    docs = developer_service.get_documentation()
+    return success_response(docs)
+

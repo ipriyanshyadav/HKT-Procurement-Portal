@@ -73,6 +73,8 @@ class User(BaseModel):
     is_supplier_user: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     vendor_id: Mapped[UUID | None] = mapped_column(ForeignKey("vendors.id"), nullable=True)
     active_legal_entity_id: Mapped[UUID | None] = mapped_column(ForeignKey("legal_entities.id"), nullable=True)
+    is_platform_admin: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    primary_org_id: Mapped[UUID | None] = mapped_column(ForeignKey("organizations.id"), nullable=True)
     created_by: Mapped[UUID | None] = mapped_column(nullable=True)
     updated_by: Mapped[UUID | None] = mapped_column(nullable=True)
 

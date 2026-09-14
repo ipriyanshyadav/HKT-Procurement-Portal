@@ -280,3 +280,14 @@ export { CarbonESGDashboard } from "./analytics/CarbonESGDashboard";
 
 // Advanced Multi-Tier Approval Delegation Matrix & SoD Workbench (SPEC_06)
 export { ApprovalDelegationWorkbench } from "./workflow/ApprovalDelegationWorkbench";
+
+// UAT QA Overlay HUD (SPEC_27-I)
+export { UATOverlay } from "./UATOverlay";
+
+// Async Export Center (SPEC_27-G)
+export { ExportButton } from "./components/ExportButton";
+export type { ExportButtonProps } from "./components/ExportButton";
+export { ExportCenterDashboard } from "./components/ExportCenterDashboard";
+
+// Buyer Activity & Velocity Dashboard (SPEC_27-H)
+export { BuyerActivityDashboard } from "./analytics/BuyerActivityDashboard";

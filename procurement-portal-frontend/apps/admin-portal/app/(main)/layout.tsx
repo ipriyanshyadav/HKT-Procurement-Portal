@@ -3,7 +3,7 @@
 import React, { ReactNode, useEffect } from "react";
 import { useAuthInit, useCurrentUser, useLogout } from "@procurement/hooks";
 import { useAuthStore } from "@procurement/stores";
-import { AppShell, NotificationBell } from "@procurement/ui";
+import { AppShell, CompanySwitcher, ErrorBoundary, NotificationBell, UATOverlay } from "@procurement/ui";
 import {
   LayoutDashboard,
   FolderTree,
@@ -27,6 +27,13 @@ import {
   HardDrive,
   Building2,
   FileText,
+  Sparkles,
+  Globe,
+  Palette,
+  Webhook,
+  Key,
+  CreditCard,
+  Download,
 } from "lucide-react";
 
 export default function AdminMainLayout({ children }: { children: ReactNode }) {
@@ -194,6 +201,48 @@ export default function AdminMainLayout({ children }: { children: ReactNode }) {
       section: "System Operations",
     },
     {
+      label: "Webhooks Engine",
+      href: "/integrations/webhooks",
+      icon: <Webhook className="w-4 h-4 text-emerald-500" />,
+      section: "System Operations",
+    },
+    {
+      label: "Tenant API Keys",
+      href: "/integrations/api-keys",
+      icon: <Key className="w-4 h-4 text-amber-500" />,
+      section: "System Operations",
+    },
+    {
+      label: "Tenant White-Labeling",
+      href: "/settings/branding",
+      icon: <Palette className="w-4 h-4 text-purple-500" />,
+      section: "Setup & Config",
+    },
+    {
+      label: "Payment Gateway",
+      href: "/settings/payment-gateway",
+      icon: <CreditCard className="w-4 h-4 text-indigo-500" />,
+      section: "Setup & Config",
+    },
+    {
+      label: "Buyer Onboarding",
+      href: "/onboarding",
+      icon: <Sparkles className="w-4 h-4 text-amber-500" />,
+      section: "Setup & Config",
+    },
+    {
+      label: "Export Center",
+      href: "/export-center",
+      icon: <Download className="w-4 h-4 text-emerald-500" />,
+      section: "Tools",
+    },
+    {
+      label: "Cross-Company Reports",
+      href: "/reports/cross-company",
+      icon: <Globe className="w-4 h-4 text-blue-500" />,
+      section: "Analytics & Audit",
+    },
+    {
       label: "Helpdesk & SLAs",
       href: "/tickets",
       icon: <LifeBuoy className="w-4 h-4" />,
@@ -209,10 +258,18 @@ export default function AdminMainLayout({ children }: { children: ReactNode }) {
       homeHref="/dashboard"
       navItems={navItems}
       user={user}
-      actions={<NotificationBell />}
+      actions={
+        <div className="flex items-center gap-2">
+          <CompanySwitcher />
+          <NotificationBell />
+        </div>
+      }
       onLogout={() => logoutMutation.mutate()}
     >
-      {children}
+      <ErrorBoundary>
+        <UATOverlay />
+        {children}
+      </ErrorBoundary>
     </AppShell>
   );
 }
