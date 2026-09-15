@@ -948,8 +948,8 @@
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/types/src/api.ts": {
-    "mtime": 1789408261.6728072,
-    "seen": 1789449842.108981,
+    "mtime": 1789400661.888826,
+    "seen": 1789400716.849597,
     "ast_hash": "78361e250bde117fcfd1a864cd6243cb",
     "semantic_hash": ""
   },
@@ -1164,9 +1164,9 @@
     "semantic_hash": ""
   },
   "docker/docker-compose.yml": {
-    "mtime": 1789449036.1602283,
-    "seen": 1789449842.116002,
-    "ast_hash": "1891a4cb21656fbe394a0c7975a3aea5",
+    "mtime": 1789313853.0859647,
+    "seen": 1789314318.432605,
+    "ast_hash": "07609b5cf1144f0e154c2b84e94614da",
     "semantic_hash": ""
   },
   "kong/kong.yml": {
@@ -1482,9 +1482,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1789449802.5481467,
-    "seen": 1789449842.115982,
-    "ast_hash": "7968732d0e509d5b92bf74edbfa06d93",
+    "mtime": 1789400748.3403208,
+    "seen": 1789407769.277218,
+    "ast_hash": "d2b0397a794aae8cc79ad760bcaa89af",
     "semantic_hash": ""
   },
   "graphify_diff_20260904_014322.txt": {
@@ -7605,18 +7605,6 @@
     "mtime": 1789404886.825634,
     "seen": 1789407769.268411,
     "ast_hash": "3cf36e94213e85dc306ec5f3f3760ecc",
-    "semantic_hash": ""
-  },
-  "procurement-portal-frontend/apps/developer-portal/app/api/health/route.ts": {
-    "mtime": 1789449009.6844282,
-    "seen": 1789449842.1043358,
-    "ast_hash": "04772f43748b05c422880f8656d9dfbd",
-    "semantic_hash": ""
-  },
-  "procurement-portal-frontend/apps/support-portal/app/api/health/route.ts": {
-    "mtime": 1789449007.3629472,
-    "seen": 1789449842.1060832,
-    "ast_hash": "04772f43748b05c422880f8656d9dfbd",
     "semantic_hash": ""
   }
 }

@@ -71,17 +71,16 @@ The platform supports strict enterprise role separation (where each user only se
 
 
 ## Current Session State
-- **Planned**: Run multi-portal development stack across all 5 portals, inspect live screens, and run automated E2E Playwright suite.
+- **Planned**: Containerize Support Portal (:3004) and Developer Portal (:3005) into Docker stack.
 - **Implemented**:
-  - Docker backing stack running healthy: PostgreSQL (:5432), Redis (:6379), RabbitMQ (:5672/:15672), MinIO (:9000/:9001), Jaeger (:4317/:16686), Elasticsearch (:9200).
-  - Applied migrations up to head (`0060_batch3_portal_enhancements`).
-  - Seeded full enterprise data: master data, 10 user personas, Jira automations, SLA configs, relational tickets, and 7 indents with consignee tracking.
-  - Resolved CORS preflight with support for `X-Portal-Id` & multi-portal origin headers; hardened GRN & ASN sequence number generation against non-numeric suffixes.
-  - Active dev servers: FastAPI backend on `:8000`, Buyer Portal on `:3000`, Supplier Portal on `:3001`, Admin Portal on `:3002`, Support Portal on `:3004`, Developer Portal on `:3005`.
+  - Created Dockerfiles for `apps/support-portal` (port 3004) and `apps/developer-portal` (port 3005).
+  - Added `/api/health` healthcheck endpoints and public asset directories for both portals.
+  - Added `support-portal` and `developer-portal` services to `docker/docker-compose.yml`.
+  - Built and verified all 5 frontend portal containers running healthy in Docker.
 - **Tested**:
-  - Unit Suite: 528/528 passed (100%) in `pytest tests/unit/`.
-  - Playwright E2E Suite: 17/17 passed (100%) across all 7 test files (`buyer_flows`, `supplier_flows`, `approver_and_admin_flows`, `multi_user_refresh_isolation`, `comprehensive_self_check`, `full_procurement_cycle`, `exhaustive_workflow_and_portal_audit`).
-- **Next**: Ready for browser inspection, manual exploratory testing, or further module enhancements.
+  - Verified Docker container builds and healthchecks for all 5 portals (`buyer-portal`, `supplier-portal`, `admin-portal`, `support-portal`, `developer-portal`).
+  - Container health checks return `status: ok` and all containers report `healthy`.
+- **Next**: Ready for full multi-portal testing or further platform enhancements.
 
 ---
 
@@ -94,7 +93,7 @@ The platform supports strict enterprise role separation (where each user only se
 
 ### Mode 1: Complete Docker Stack (Fastest)
 
-Start all services (PostgreSQL, Redis, RabbitMQ, MinIO, Kong, FastAPI, Celery, and all 3 Next.js Portals) in Docker:
+Start all services (PostgreSQL, Redis, RabbitMQ, MinIO, Kong, FastAPI, Celery, and all 5 Next.js Portals) in Docker:
 
 ```bash
 docker compose -f docker/docker-compose.yml up -d
