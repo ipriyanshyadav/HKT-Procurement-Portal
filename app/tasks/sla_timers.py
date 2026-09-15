@@ -11,13 +11,11 @@ Business workflow SLAs read from UNMAPPED_PR_SLA_HOURS (index 0-3 = [4, 8, 24, 4
 """
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from uuid import UUID
+from datetime import UTC, datetime
 
 from loguru import logger
 
 from app.core.metrics import workflow_sla_breaches_total
-from app.db.enums import ApprovalTaskStatusEnum
 from app.modules.workflow.events import workflow_event_publisher
 from app.modules.workflow.models import WorkflowTask
 from app.modules.workflow.repository import workflow_repository
@@ -49,7 +47,7 @@ async def _async_check_sla() -> None:
     from app.db.session import async_session_factory
 
     async with async_session_factory() as db:
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         pending_tasks = await workflow_repository.get_all_pending_tasks_with_sla(db)
 
         for task in pending_tasks:
@@ -76,10 +74,10 @@ async def _evaluate_task_sla(
 
     created_at = task.created_at
     if created_at.tzinfo is None:
-        created_at = created_at.replace(tzinfo=timezone.utc)
+        created_at = created_at.replace(tzinfo=UTC)
     sla_deadline = task.sla_deadline
     if sla_deadline.tzinfo is None:
-        sla_deadline = sla_deadline.replace(tzinfo=timezone.utc)
+        sla_deadline = sla_deadline.replace(tzinfo=UTC)
 
     sla_total_seconds = (sla_deadline - created_at).total_seconds()
     if sla_total_seconds <= 0:
@@ -160,7 +158,6 @@ async def _evaluate_task_sla(
 async def _reassign_task(db, task: WorkflowTask) -> None:
     """Reassign a timed-out task to the procurement admin escalation chain."""
     from app.modules.user.repository import user_repository
-    from app.config import settings
 
     escalation_role = "PROCUREMENT_ADMIN"
     admins = await user_repository.get_active_users_with_role(

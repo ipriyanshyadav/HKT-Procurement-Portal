@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from typing import List, Optional
 from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -86,7 +85,7 @@ class OrganizationService:
     # Legal Entities
     # ========================================================================
 
-    async def list_legal_entities(self, db: AsyncSession, org_id: UUID) -> List[LegalEntity]:
+    async def list_legal_entities(self, db: AsyncSession, org_id: UUID) -> list[LegalEntity]:
         return await self.le_repo.list_by_org(db, org_id)
 
     async def get_legal_entity(self, db: AsyncSession, id: UUID, org_id: UUID) -> LegalEntity:
@@ -151,8 +150,8 @@ class OrganizationService:
         db: AsyncSession,
         org_id: UUID,
         active_only: bool = True,
-        legal_entity_id: Optional[UUID] = None,
-    ) -> List[BusinessUnit]:
+        legal_entity_id: UUID | None = None,
+    ) -> list[BusinessUnit]:
         if legal_entity_id is not None:
             return await self.bu_repo.list_by_org(
                 db, org_id, active_only=active_only, legal_entity_id=legal_entity_id
@@ -222,9 +221,9 @@ class OrganizationService:
         self,
         db: AsyncSession,
         org_id: UUID,
-        business_unit_id: Optional[UUID] = None,
+        business_unit_id: UUID | None = None,
         active_only: bool = True,
-    ) -> List[Plant]:
+    ) -> list[Plant]:
         return await self.plant_repo.list_by_org(
             db, org_id, business_unit_id=business_unit_id, active_only=active_only
         )
@@ -281,9 +280,9 @@ class OrganizationService:
         self,
         db: AsyncSession,
         org_id: UUID,
-        business_unit_id: Optional[UUID] = None,
+        business_unit_id: UUID | None = None,
         active_only: bool = True,
-    ) -> List[Department]:
+    ) -> list[Department]:
         return await self.dept_repo.list_by_org(
             db, org_id, business_unit_id=business_unit_id, active_only=active_only
         )
@@ -340,9 +339,9 @@ class OrganizationService:
         self,
         db: AsyncSession,
         org_id: UUID,
-        business_unit_id: Optional[UUID] = None,
+        business_unit_id: UUID | None = None,
         active_only: bool = True,
-    ) -> List[CostCenter]:
+    ) -> list[CostCenter]:
         return await self.cc_repo.list_by_org(
             db, org_id, business_unit_id=business_unit_id, active_only=active_only
         )

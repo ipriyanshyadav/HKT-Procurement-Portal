@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from typing import Any, Dict, Optional
+from typing import Any
 from uuid import UUID
 
 from sqlalchemy import select
@@ -15,11 +15,11 @@ class ERPVendorAdapter:
     """Handles mapping, payload formatting, and synchronization for Vendor entity."""
 
     @staticmethod
-    def generate_idempotency_key(data: Dict[str, Any]) -> str:
+    def generate_idempotency_key(data: dict[str, Any]) -> str:
         serialized = json.dumps(data, sort_keys=True, default=str)
         return hashlib.sha256(serialized.encode("utf-8")).hexdigest()
 
-    async def build_outbound_payload(self, db: AsyncSession, vendor_id: UUID, org_id: UUID) -> Dict[str, Any]:
+    async def build_outbound_payload(self, db: AsyncSession, vendor_id: UUID, org_id: UUID) -> dict[str, Any]:
         stmt = select(Vendor).where(
             Vendor.id == vendor_id,
             Vendor.org_id == org_id,

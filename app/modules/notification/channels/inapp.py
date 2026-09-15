@@ -1,16 +1,20 @@
 from __future__ import annotations
+
 import json
-from datetime import datetime, timezone
-from typing import Any, Union
+from datetime import UTC, datetime
+from typing import Any
 from uuid import UUID
+
 from loguru import logger
-from app.core.redis_client import get_redis, RedisKeys
+
+from app.core.redis_client import RedisKeys, get_redis
 from app.modules.notification.models import Notification
+
 
 class InAppChannel:
     """Redis pub/sub in-app delivery channel for real-time WebSocket distribution."""
 
-    async def send(self, user_id: Union[str, UUID], notification: Union[Notification, dict[str, Any]]) -> bool:
+    async def send(self, user_id: str | UUID, notification: Notification | dict[str, Any]) -> bool:
         redis = get_redis()
         if isinstance(notification, dict):
             payload = {
@@ -23,7 +27,7 @@ class InAppChannel:
                 "notification_type": notification.get("notification_type", "GENERAL"),
                 "entity_type": notification.get("entity_type"),
                 "entity_id": str(notification["entity_id"]) if notification.get("entity_id") else None,
-                "created_at": notification.get("created_at") or datetime.now(timezone.utc).isoformat(),
+                "created_at": notification.get("created_at") or datetime.now(UTC).isoformat(),
                 "is_read": bool(notification.get("is_read", False)),
             }
         else:

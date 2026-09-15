@@ -1,4 +1,5 @@
 "use client";
+import { getErrorMessage } from "@procurement/utils";
 
 import React, { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -142,8 +143,8 @@ export default function NewGRNPage() {
       });
 
       router.push(`/purchase-orders/${selectedPoId}`);
-    } catch (err: any) {
-      setErrorMsg(err?.response?.data?.message || err?.message || "Failed to create GRN");
+    } catch (err: unknown) {
+      setErrorMsg(getErrorMessage(err, "Failed to create GRN"));
     }
   };
 

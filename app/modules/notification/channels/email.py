@@ -1,15 +1,19 @@
 from __future__ import annotations
-from typing import Optional, Any
+
+from typing import Any
 from uuid import UUID
+
 import httpx
 from loguru import logger
+
 from app.config import settings
 from app.core.exceptions import ExternalServiceError
+
 
 class EmailChannel:
     """SendGrid email dispatch channel."""
 
-    def __init__(self, api_url: Optional[str] = None, from_email: Optional[str] = None, from_name: Optional[str] = None):
+    def __init__(self, api_url: str | None = None, from_email: str | None = None, from_name: str | None = None):
         self.api_url = api_url or settings.SENDGRID_API_URL
         self.from_email = from_email or settings.SENDGRID_FROM_EMAIL or "noreply@procurement.portal"
         self.from_name = from_name or settings.SENDGRID_FROM_NAME
@@ -19,10 +23,10 @@ class EmailChannel:
         to_email: str,
         subject: str = "",
         body_html: str = "",
-        template_code: Optional[str] = None,
-        context: Optional[dict[str, Any]] = None,
-        org_id: Optional[UUID] = None,
-        external_template_id: Optional[str] = None,
+        template_code: str | None = None,
+        context: dict[str, Any] | None = None,
+        org_id: UUID | None = None,
+        external_template_id: str | None = None,
     ) -> bool:
         context = context or {}
         subject_text = subject or f"Notification: {template_code or 'Procurement Portal'}"
@@ -30,7 +34,7 @@ class EmailChannel:
 
         # Allow tests or local runs with empty/dummy keys to succeed without live external network call
         api_key = settings.SENDGRID_API_KEY
-        if not api_key or api_key.startswith("test") or api_key.startswith("mock") or api_key == "disabled":
+        if not api_key or api_key.startswith(("test", "mock")) or api_key == "disabled":
             logger.info(f"[EmailChannel MOCK] Sending email to={to_email} subject='{subject_text}'")
             return True
 

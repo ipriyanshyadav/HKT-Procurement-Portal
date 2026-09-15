@@ -71,11 +71,14 @@ export default function AuditTrailPage() {
     actor_email: actorEmail || undefined,
     date_from: dateFrom ? new Date(dateFrom).toISOString() : undefined,
     date_to: dateTo ? new Date(dateTo).toISOString() : undefined,
+    exclude_token_refresh: true,
     page,
     page_size: pageSize,
   });
 
-  const logs = data?.items || [];
+  const logs = (data?.items || []).filter(
+    (log) => !log.action?.toUpperCase().includes("TOKEN_REFRESH") && !log.action?.toUpperCase().includes("REFRESH")
+  );
   const totalLogs = data?.total || 0;
   const totalPages = Math.ceil(totalLogs / pageSize) || 1;
 

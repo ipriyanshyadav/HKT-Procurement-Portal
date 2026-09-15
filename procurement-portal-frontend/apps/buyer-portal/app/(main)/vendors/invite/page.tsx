@@ -1,4 +1,5 @@
 "use client";
+import { getErrorMessage } from "@procurement/utils";
 
 import React, { useState } from "react";
 import Link from "next/link";
@@ -37,12 +38,8 @@ export default function InviteVendorPage() {
         invited_note: note.trim() || undefined,
       });
       setSuccessData(res);
-    } catch (err: any) {
-      setErrorMsg(
-        err?.response?.data?.error?.message ||
-          err?.message ||
-          "Failed to send invitation."
-      );
+    } catch (err: unknown) {
+      setErrorMsg(getErrorMessage(err, "Failed to send invitation."));
     }
   };
 

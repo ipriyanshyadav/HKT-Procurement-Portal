@@ -8,16 +8,15 @@ Endpoints for:
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any, Dict, List, Optional
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query, Response, status
+from fastapi import APIRouter, Depends, Query, Response
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.auth.dependencies import get_current_user, require_any_permission
+from app.auth.dependencies import require_any_permission
 from app.core.constants import PermissionCode
-from app.core.responses import APIResponse, PaginationMeta, success_response
+from app.core.responses import PaginationMeta, success_response
 from app.db.session import get_db
 from app.modules.audit.search_service import AuditSearchQuery
 from app.modules.audit.service import audit_service
@@ -27,8 +26,8 @@ router = APIRouter(tags=["Audit"])
 
 
 class AuditExportRequest(BaseModel):
-    date_from: Optional[datetime] = None
-    date_to: Optional[datetime] = None
+    date_from: datetime | None = None
+    date_to: datetime | None = None
     format: str = Field(default="json", pattern="^(json|csv|JSON|CSV)$")
 
 
@@ -39,14 +38,15 @@ async def health():
 
 @router.get("/logs")
 async def list_audit_logs(
-    entity_type: Optional[str] = Query(None, description="Entity type (e.g. PURCHASE_ORDER, VENDOR, INVOICE)"),
-    action: Optional[str] = Query(None, description="Action (e.g. CREATED, APPROVED, SUBMITTED)"),
-    actor_id: Optional[UUID] = Query(None, description="Actor User UUID"),
-    actor_email: Optional[str] = Query(None, description="Actor Email substring"),
-    entity_id: Optional[UUID] = Query(None, description="Entity UUID"),
-    search: Optional[str] = Query(None, description="Keyword search across field changes and metadata"),
-    date_from: Optional[datetime] = Query(None, description="Start timestamp"),
-    date_to: Optional[datetime] = Query(None, description="End timestamp"),
+    entity_type: str | None = Query(None, description="Entity type (e.g. PURCHASE_ORDER, VENDOR, INVOICE)"),
+    action: str | None = Query(None, description="Action (e.g. CREATED, APPROVED, SUBMITTED)"),
+    actor_id: UUID | None = Query(None, description="Actor User UUID"),
+    actor_email: str | None = Query(None, description="Actor Email substring"),
+    entity_id: UUID | None = Query(None, description="Entity UUID"),
+    search: str | None = Query(None, description="Keyword search across field changes and metadata"),
+    date_from: datetime | None = Query(None, description="Start timestamp"),
+    date_to: datetime | None = Query(None, description="End timestamp"),
+    exclude_token_refresh: bool = Query(True, description="Exclude noisy TOKEN_REFRESH events"),
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
@@ -73,6 +73,7 @@ async def list_audit_logs(
         search=search,
         date_from=date_from,
         date_to=date_to,
+        exclude_token_refresh=exclude_token_refresh,
         page=page,
         page_size=page_size,
     )
@@ -88,7 +89,7 @@ async def list_audit_logs(
 
 @router.get("/verify-chain")
 async def verify_audit_chain(
-    entity_type: Optional[str] = Query(None, description="Filter verification to a specific entity type"),
+    entity_type: str | None = Query(None, description="Filter verification to a specific entity type"),
     limit: int = Query(500, ge=1, le=2000, description="Max consecutive records to verify"),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(

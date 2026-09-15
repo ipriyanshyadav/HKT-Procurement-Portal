@@ -1,6 +1,7 @@
 "use client";
+import { getErrorMessage } from "@procurement/utils";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import Link from "next/link";
 import {
   useCatalogItems,
@@ -12,7 +13,9 @@ import {
   useCurrencies,
   type ItemMaster,
 } from "@procurement/hooks";
-import { Badge, Button, PermissionGuard, VirtualTable, type VirtualTableColumn } from "@procurement/ui";
+import { useAppToast } from "@procurement/hooks";
+import { Badge, Button, PermissionGuard, VirtualTable, type VirtualTableColumn, useConfirm, SearchInput, TableSkeleton, EmptyState } from "@procurement/ui";
+
 import {
   Package,
   Plus,
@@ -29,7 +32,10 @@ import {
 } from "lucide-react";
 
 export default function ItemMasterManagementPage() {
+  const { toast } = useAppToast();
+  const confirm = useConfirm();
   const [searchTerm, setSearchTerm] = useState("");
+
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [activeOnly, setActiveOnly] = useState(false);
 
@@ -164,32 +170,27 @@ export default function ItemMasterManagementPage() {
         });
       }
       setShowModal(false);
-    } catch (err: any) {
-      setFormError(
-        err?.response?.data?.error?.message ||
-          err?.response?.data?.message ||
-          err?.message ||
-          "Failed to save catalog item"
-      );
+    } catch (err: unknown) {
+      setFormError(getErrorMessage(err, "Failed to save catalog item"));
     }
   };
 
-  const handleDelete = async (item: ItemMaster) => {
-    if (!window.confirm(`Are you sure you want to deactivate / delete catalog item "${item.code}"?`)) {
-      return;
-    }
+  const handleDelete = useCallback(async (item: ItemMaster) => {
+    const ok = await confirm({
+      title: "Deactivate Catalog Item",
+      description: `Are you sure you want to deactivate or delete catalog item "${item.code}"?`,
+      confirmLabel: "Deactivate",
+      variant: "danger",
+    });
+    if (!ok) return;
 
     try {
       await deleteMutation.mutateAsync(item.id);
-    } catch (err: any) {
-      alert(
-        err?.response?.data?.error?.message ||
-          err?.response?.data?.message ||
-          err?.message ||
-          "Failed to delete item"
-      );
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to delete item"));
     }
-  };
+  }, [deleteMutation, toast, confirm]);
+
 
   const activeCount = useMemo(() => items.filter((i) => i.is_active).length, [items]);
   const punchoutCount = useMemo(() => items.filter((i) => i.is_punchout).length, [items]);
@@ -317,7 +318,7 @@ export default function ItemMasterManagementPage() {
         ),
       },
     ],
-    [categoryMap, uomMap]
+    [categoryMap, uomMap, handleDelete]
   );
 
   return (
@@ -380,16 +381,12 @@ export default function ItemMasterManagementPage() {
 
       {/* Filter and Search Bar */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white dark:bg-neutral-900 p-3 rounded-xl border border-gray-200 dark:border-neutral-800 shadow-xs">
-        <div className="relative flex-1 w-full">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <input
-            type="text"
+        <SearchInput
             placeholder="Search by code, item name, HSN code..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-4 py-1.5 text-sm bg-gray-50 dark:bg-neutral-800/80 border border-gray-200 dark:border-neutral-700 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="flex-1 w-full"
           />
-        </div>
 
         <div className="flex items-center gap-2 w-full sm:w-auto">
           <select
@@ -422,21 +419,20 @@ export default function ItemMasterManagementPage() {
       {/* Main Table */}
       <div className="bg-white dark:bg-neutral-900 rounded-xl border border-gray-200 dark:border-neutral-800 overflow-hidden shadow-xs">
         {isLoading ? (
-          <div className="p-8 text-center text-sm text-gray-500 dark:text-neutral-400 animate-pulse">
-            Loading catalog items from database...
-          </div>
+          <TableSkeleton rows={8} columns={6} />
         ) : error ? (
-          <div className="p-8 text-center text-sm text-rose-500">
-            Failed to load catalog items. Please check gateway connectivity.
-          </div>
+          <EmptyState
+            icon={<Package className="w-6 h-6" />}
+            title="Failed to load catalog items"
+            description="Please check gateway connectivity and try again."
+          />
         ) : items.length === 0 ? (
-          <div className="p-12 text-center">
-            <Package className="w-10 h-10 text-gray-300 dark:text-neutral-600 mx-auto mb-3" />
-            <h3 className="text-base font-semibold text-gray-900 dark:text-white">No Catalog Items Found</h3>
-            <p className="text-xs text-gray-500 dark:text-neutral-400 mt-1">
-              {searchTerm ? "Try modifying your search or category filters." : "Create your first catalog item or seed catalog data."}
-            </p>
-          </div>
+          <EmptyState
+            icon={<Package className="w-6 h-6" />}
+            title="No Catalog Items Found"
+            description={searchTerm ? "Try modifying your search or category filters." : "Create your first catalog item or seed catalog data."}
+            action={<PermissionGuard permission="master.create"><Button size="sm" onClick={openCreateModal}>Add Item</Button></PermissionGuard>}
+          />
         ) : (
           <VirtualTable<ItemMaster>
             data={items}

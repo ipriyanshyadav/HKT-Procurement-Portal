@@ -100,6 +100,10 @@ export type { ToggleProps } from "./components/Toggle";
 export { Modal } from "./components/Modal";
 export type { ModalProps } from "./components/Modal";
 
+export { ConfirmDialog, ConfirmDialogProvider, useConfirm } from "./components/ConfirmDialog";
+export type { ConfirmDialogOptions, ConfirmDialogVariant } from "./components/ConfirmDialog";
+
+
 export { Toast } from "./components/Toast";
 export type { ToastProps, ToastType } from "./components/Toast";
 
@@ -117,6 +121,12 @@ export type { TabsProps, TabOption, TabsVariant, TabsSize } from "./components/T
 
 export { Skeleton } from "./components/Skeleton";
 export type { SkeletonProps } from "./components/Skeleton";
+
+export { EmptyState } from "./components/EmptyState";
+export type { EmptyStateProps } from "./components/EmptyState";
+
+export { TableSkeleton } from "./components/TableSkeleton";
+export type { TableSkeletonProps } from "./components/TableSkeleton";
 
 // Layout Components
 export { PageHeader } from "./components/PageHeader";
@@ -270,3 +280,14 @@ export { CarbonESGDashboard } from "./analytics/CarbonESGDashboard";
 
 // Advanced Multi-Tier Approval Delegation Matrix & SoD Workbench (SPEC_06)
 export { ApprovalDelegationWorkbench } from "./workflow/ApprovalDelegationWorkbench";
+
+// UAT QA Overlay HUD (SPEC_27-I)
+export { UATOverlay } from "./UATOverlay";
+
+// Async Export Center (SPEC_27-G)
+export { ExportButton } from "./components/ExportButton";
+export type { ExportButtonProps } from "./components/ExportButton";
+export { ExportCenterDashboard } from "./components/ExportCenterDashboard";
+
+// Buyer Activity & Velocity Dashboard (SPEC_27-H)
+export { BuyerActivityDashboard } from "./analytics/BuyerActivityDashboard";

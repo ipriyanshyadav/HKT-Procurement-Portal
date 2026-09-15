@@ -1,18 +1,21 @@
 from __future__ import annotations
-from typing import Any, Optional
-from datetime import datetime, timezone
-from loguru import logger
+
+from datetime import UTC, datetime
+from typing import Any
+
 from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
+from loguru import logger
+
 
 class AppException(Exception):
     def __init__(
         self,
         message: str,
-        code: Optional[str] = None,
-        details: Optional[Any] = None,
-        status_code: Optional[int] = None,
+        code: str | None = None,
+        details: Any | None = None,
+        status_code: int | None = None,
     ):
         if isinstance(details, int) and status_code is None:
             status_code = details
@@ -28,7 +31,7 @@ class AppException(Exception):
         self.status_code = status_code
         super().__init__(self.message)
 
-def _resolve_exc_args(default_msg: str, default_code: str, message_or_code: str, details_or_message: Optional[Any], code: Optional[str]):
+def _resolve_exc_args(default_msg: str, default_code: str, message_or_code: str, details_or_message: Any | None, code: str | None):
     if code is not None:
         c = code
         m = message_or_code
@@ -44,47 +47,47 @@ def _resolve_exc_args(default_msg: str, default_code: str, message_or_code: str,
     return m, c, d
 
 class NotFoundError(AppException):
-    def __init__(self, message: str = "Resource not found", details: Optional[Any] = None, code: Optional[str] = None):
+    def __init__(self, message: str = "Resource not found", details: Any | None = None, code: str | None = None):
         m, c, d = _resolve_exc_args("Resource not found", "NOT_FOUND", message, details, code)
         super().__init__(m, c, d)
 
 class ConflictError(AppException):
-    def __init__(self, message: str = "Resource conflict", details: Optional[Any] = None, code: Optional[str] = None):
+    def __init__(self, message: str = "Resource conflict", details: Any | None = None, code: str | None = None):
         m, c, d = _resolve_exc_args("Resource conflict", "CONFLICT", message, details, code)
         super().__init__(m, c, d)
 
 class ForbiddenError(AppException):
-    def __init__(self, message: str = "Access forbidden", details: Optional[Any] = None, code: Optional[str] = None):
+    def __init__(self, message: str = "Access forbidden", details: Any | None = None, code: str | None = None):
         m, c, d = _resolve_exc_args("Access forbidden", "FORBIDDEN", message, details, code)
         super().__init__(m, c, d)
 
 class OptimisticLockError(AppException):
-    def __init__(self, message: str = "Resource was updated by another request", details: Optional[Any] = None, code: Optional[str] = None):
+    def __init__(self, message: str = "Resource was updated by another request", details: Any | None = None, code: str | None = None):
         m, c, d = _resolve_exc_args("Resource was updated by another request", "OPTIMISTIC_LOCK_ERROR", message, details, code)
         super().__init__(m, c, d)
 
 class ValidationError(AppException):
-    def __init__(self, message: str = "Validation failed", details: Optional[Any] = None, code: Optional[str] = None):
+    def __init__(self, message: str = "Validation failed", details: Any | None = None, code: str | None = None):
         m, c, d = _resolve_exc_args("Validation failed", "VALIDATION_ERROR", message, details, code)
         super().__init__(m, c, d)
 
 class RateLimitError(AppException):
-    def __init__(self, message: str = "Rate limit exceeded", details: Optional[Any] = None, code: Optional[str] = None):
+    def __init__(self, message: str = "Rate limit exceeded", details: Any | None = None, code: str | None = None):
         m, c, d = _resolve_exc_args("Rate limit exceeded", "RATE_LIMIT_EXCEEDED", message, details, code)
         super().__init__(m, c, d)
 
 class AuthenticationError(AppException):
-    def __init__(self, message: str = "Authentication failed", details: Optional[Any] = None, code: Optional[str] = None):
+    def __init__(self, message: str = "Authentication failed", details: Any | None = None, code: str | None = None):
         m, c, d = _resolve_exc_args("Authentication failed", "AUTHENTICATION_ERROR", message, details, code)
         super().__init__(m, c, d)
 
 class BusinessRuleError(AppException):
-    def __init__(self, message: str = "Business rule violation", details: Optional[Any] = None, code: Optional[str] = None):
+    def __init__(self, message: str = "Business rule violation", details: Any | None = None, code: str | None = None):
         m, c, d = _resolve_exc_args("Business rule violation", "BUSINESS_RULE_ERROR", message, details, code)
         super().__init__(m, c, d)
 
 class ExternalServiceError(AppException):
-    def __init__(self, code_or_message: str = "External service error", message_or_code: Optional[str] = None, details: Optional[Any] = None):
+    def __init__(self, code_or_message: str = "External service error", message_or_code: str | None = None, details: Any | None = None):
         if message_or_code:
             # Called as ExternalServiceError("SENDGRID_FAILED", "SendGrid API error: 500")
             c = code_or_message
@@ -97,20 +100,54 @@ class ExternalServiceError(AppException):
         super().__init__(message=m, code=c, details=d, status_code=502)
 
 class NotificationDeliveryError(AppException):
-    def __init__(self, message: str = "Notification delivery failed", details: Optional[Any] = None, code: Optional[str] = None):
+    def __init__(self, message: str = "Notification delivery failed", details: Any | None = None, code: str | None = None):
         m, c, d = _resolve_exc_args("Notification delivery failed", "NOTIFICATION_DELIVERY_ERROR", message, details, code)
         super().__init__(m, c, d, status_code=502)
 
 
 def register_exception_handlers(app: FastAPI) -> None:
+    from fastapi.exceptions import HTTPException
+
     from app.core.telemetry import get_current_trace_id
+
+    @app.exception_handler(HTTPException)
+    async def http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
+        """Normalize FastAPI/Starlette HTTPExceptions into the standard error envelope."""
+        trace_id = get_current_trace_id()
+        code = f"HTTP_{exc.status_code}"
+        # Map common status codes to readable error codes
+        _code_map = {
+            400: "BAD_REQUEST",
+            401: "UNAUTHORIZED",
+            403: "FORBIDDEN",
+            404: "NOT_FOUND",
+            405: "METHOD_NOT_ALLOWED",
+            422: "VALIDATION_ERROR",
+            429: "RATE_LIMIT_EXCEEDED",
+            500: "INTERNAL_SERVER_ERROR",
+            502: "BAD_GATEWAY",
+            503: "SERVICE_UNAVAILABLE",
+        }
+        code = _code_map.get(exc.status_code, code)
+        return JSONResponse(
+            status_code=exc.status_code,
+            content={
+                "error": {
+                    "code": code,
+                    "message": exc.detail if isinstance(exc.detail, str) else str(exc.detail),
+                    "details": {},
+                    "trace_id": trace_id,
+                    "timestamp": datetime.now(UTC).isoformat()
+                }
+            }
+        )
 
     @app.exception_handler(AppException)
     async def app_exception_handler(request: Request, exc: AppException) -> JSONResponse:
         status_code = exc.status_code or 400
         if isinstance(exc, NotFoundError):
             status_code = 404
-        elif isinstance(exc, ConflictError) or isinstance(exc, OptimisticLockError):
+        elif isinstance(exc, (ConflictError, OptimisticLockError)):
             status_code = 409
         elif isinstance(exc, ForbiddenError):
             status_code = 403
@@ -118,9 +155,11 @@ def register_exception_handlers(app: FastAPI) -> None:
             status_code = 401
         elif isinstance(exc, RateLimitError):
             status_code = 429
-            
+        elif isinstance(exc, ValidationError):
+            status_code = 422
+
         trace_id = get_current_trace_id()
-        
+
         return JSONResponse(
             status_code=status_code,
             content={
@@ -129,7 +168,7 @@ def register_exception_handlers(app: FastAPI) -> None:
                     "message": exc.message,
                     "details": exc.details,
                     "trace_id": trace_id,
-                    "timestamp": datetime.now(timezone.utc).isoformat()
+                    "timestamp": datetime.now(UTC).isoformat()
                 }
             }
         )
@@ -145,7 +184,7 @@ def register_exception_handlers(app: FastAPI) -> None:
                     "message": "Request validation failed",
                     "details": {"errors": exc.errors()},
                     "trace_id": trace_id,
-                    "timestamp": datetime.now(timezone.utc).isoformat()
+                    "timestamp": datetime.now(UTC).isoformat()
                 }
             }
         )
@@ -162,7 +201,7 @@ def register_exception_handlers(app: FastAPI) -> None:
                     "message": "An unexpected error occurred",
                     "details": {},
                     "trace_id": trace_id,
-                    "timestamp": datetime.now(timezone.utc).isoformat()
+                    "timestamp": datetime.now(UTC).isoformat()
                 }
             }
         )

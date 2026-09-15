@@ -1,18 +1,20 @@
 from __future__ import annotations
-from datetime import datetime, timezone
-from typing import Optional
+
+from datetime import UTC, datetime
 from uuid import UUID
+
+from sqlalchemy import String, and_, cast, func, or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, and_, or_, func, update, cast, String
+
 from app.db.repository_base import BaseRepository
-from app.modules.user.models import UserSession, User
+from app.modules.user.models import User, UserSession
 
 
 class SessionRepository(BaseRepository[UserSession]):
     def __init__(self) -> None:
         super().__init__(UserSession)
 
-    async def get_by_jti(self, db: AsyncSession, jti: str) -> Optional[UserSession]:
+    async def get_by_jti(self, db: AsyncSession, jti: str) -> UserSession | None:
         stmt = select(UserSession).where(UserSession.token_jti == jti)
         result = await db.execute(stmt)
         return result.scalar_one_or_none()
@@ -23,7 +25,7 @@ class SessionRepository(BaseRepository[UserSession]):
                 UserSession.user_id == user_id,
                 UserSession.org_id == org_id,
                 UserSession.is_revoked.is_(False),
-                UserSession.expires_at > datetime.now(timezone.utc),
+                UserSession.expires_at > datetime.now(UTC),
             )
         )
         result = await db.execute(stmt)
@@ -31,7 +33,7 @@ class SessionRepository(BaseRepository[UserSession]):
 
     async def get_oldest_active(
         self, db: AsyncSession, user_id: UUID, org_id: UUID
-    ) -> Optional[UserSession]:
+    ) -> UserSession | None:
         stmt = (
             select(UserSession)
             .where(
@@ -39,7 +41,7 @@ class SessionRepository(BaseRepository[UserSession]):
                     UserSession.user_id == user_id,
                     UserSession.org_id == org_id,
                     UserSession.is_revoked.is_(False),
-                    UserSession.expires_at > datetime.now(timezone.utc),
+                    UserSession.expires_at > datetime.now(UTC),
                 )
             )
             .order_by(UserSession.created_at.asc())
@@ -80,7 +82,7 @@ class SessionRepository(BaseRepository[UserSession]):
         )
         await db.execute(stmt)
 
-    async def get_by_id(self, db: AsyncSession, session_id: UUID) -> Optional[UserSession]:
+    async def get_by_id(self, db: AsyncSession, session_id: UUID) -> UserSession | None:
         stmt = select(UserSession).where(UserSession.id == session_id)
         result = await db.execute(stmt)
         return result.scalar_one_or_none()
@@ -90,7 +92,7 @@ class SessionRepository(BaseRepository[UserSession]):
         db: AsyncSession,
         org_id: UUID,
         active_only: bool = False,
-        search: Optional[str] = None,
+        search: str | None = None,
         page: int = 1,
         page_size: int = 50,
     ) -> tuple[list[tuple[UserSession, User]], int]:
@@ -100,7 +102,7 @@ class SessionRepository(BaseRepository[UserSession]):
             .where(UserSession.org_id == org_id)
         )
         if active_only:
-            now = datetime.now(timezone.utc)
+            now = datetime.now(UTC)
             stmt = stmt.where(
                 UserSession.is_revoked.is_(False),
                 UserSession.expires_at > now,

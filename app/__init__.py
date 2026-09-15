@@ -9,7 +9,7 @@ try:
         class _About:
             __version__ = getattr(bcrypt, "__version__", "4.0.0")
         bcrypt.__about__ = _About()
-    
+
     if hasattr(bcrypt, "hashpw"):
         _orig_hashpw = bcrypt.hashpw
         def _safe_hashpw(password, salt):

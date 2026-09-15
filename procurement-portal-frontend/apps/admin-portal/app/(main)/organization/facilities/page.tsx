@@ -1,4 +1,5 @@
 "use client";
+import { getErrorMessage } from "@procurement/utils";
 
 import React, { useState, useMemo, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -15,7 +16,8 @@ import {
   type PlantResponse,
   type DeliveryLocation,
 } from "@procurement/hooks";
-import { Badge, Button, Tabs, type TabOption } from "@procurement/ui";
+import { useAppToast } from "@procurement/hooks";
+import { Badge, Button, Tabs, type TabOption, useConfirm } from "@procurement/ui";
 import {
   Factory,
   MapPin,
@@ -41,8 +43,10 @@ const PLANT_TYPES = [
 ];
 
 function FacilitiesLogisticsContent() {
+  const { confirm } = useConfirm();
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { toast } = useAppToast();
   const initialTab = searchParams?.get("tab") || "plants";
   const [activeTab, setActiveTab] = useState<string>(
     ["plants", "locations"].includes(initialTab) ? initialTab : "plants"
@@ -52,6 +56,7 @@ function FacilitiesLogisticsContent() {
     setActiveTab(newTab);
     router.replace(`/organization/facilities?tab=${newTab}`);
   };
+
 
   // ---------------------------------------------------------------------------
   // Data Queries
@@ -226,19 +231,28 @@ function FacilitiesLogisticsContent() {
         });
       }
       setShowPlantModal(false);
-    } catch (err: any) {
-      setPlantFormError(err?.response?.data?.message || err?.message || "Failed to save plant record");
+    } catch (err: unknown) {
+
+      
+
+
     }
   };
 
   const handleDeletePlant = async (id: string, name: string) => {
-    if (!confirm(`Are you sure you want to delete facility "${name}"? This action cannot be undone.`)) {
+    const ok = await confirm({
+      title: "Delete Facility",
+      description: `Are you sure you want to delete facility "${name}"? This action cannot be undone.`,
+      confirmLabel: "Delete",
+      variant: "danger",
+    });
+    if (!ok) {
       return;
     }
     try {
       await deletePlantMutation.mutateAsync(id);
-    } catch (err: any) {
-      alert(err?.response?.data?.message || err?.message || "Failed to delete plant");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to delete plant"));
     }
   };
 
@@ -357,19 +371,28 @@ function FacilitiesLogisticsContent() {
         });
       }
       setShowLocModal(false);
-    } catch (err: any) {
-      setLocFormError(err?.response?.data?.message || err?.message || "Failed to save delivery location");
+    } catch (err: unknown) {
+
+      
+
+
     }
   };
 
   const handleDeleteLoc = async (id: string, name: string) => {
-    if (!confirm(`Are you sure you want to delete delivery dock "${name}"?`)) {
+    const ok = await confirm({
+      title: "Delete Delivery Dock",
+      description: `Are you sure you want to delete delivery dock "${name}"?`,
+      confirmLabel: "Delete",
+      variant: "danger",
+    });
+    if (!ok) {
       return;
     }
     try {
       await deleteLocMutation.mutateAsync(id);
-    } catch (err: any) {
-      alert(err?.response?.data?.message || err?.message || "Failed to delete delivery location");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to delete delivery location"));
     }
   };
 
@@ -1136,6 +1159,7 @@ function FacilitiesLogisticsContent() {
 }
 
 export default function FacilitiesLogisticsPage() {
+  const { toast } = useAppToast();
   return (
     <Suspense fallback={<div className="p-12 text-center text-sm text-gray-500">Loading facilities hub...</div>}>
       <FacilitiesLogisticsContent />

@@ -1,9 +1,10 @@
 from __future__ import annotations
-from typing import Optional, List
+
 from uuid import UUID
-from datetime import datetime, timezone
+
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, update
+
 from app.db.repository_base import BaseRepository
 from app.modules.document.models import Document, DocumentVersion
 
@@ -18,7 +19,7 @@ class DocumentRepository(BaseRepository[Document]):
         entity_id: UUID,
         entity_type: str,
         org_id: UUID,
-    ) -> Optional[Document]:
+    ) -> Document | None:
         stmt = (
             select(Document)
             .where(
@@ -38,7 +39,7 @@ class DocumentRepository(BaseRepository[Document]):
         db: AsyncSession,
         document_id: UUID,
         org_id: UUID,
-    ) -> List[DocumentVersion]:
+    ) -> list[DocumentVersion]:
         stmt = (
             select(DocumentVersion)
             .where(
@@ -56,7 +57,7 @@ class DocumentRepository(BaseRepository[Document]):
         entity_type: str,
         entity_id: UUID,
         org_id: UUID,
-    ) -> List[Document]:
+    ) -> list[Document]:
         stmt = (
             select(Document)
             .where(

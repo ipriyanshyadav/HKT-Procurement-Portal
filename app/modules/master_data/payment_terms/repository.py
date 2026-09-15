@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from typing import Optional
 from uuid import UUID
 
 from sqlalchemy import and_, select
@@ -43,8 +42,8 @@ class PaymentTermsRepository(BaseRepository[PaymentTerm]):
         db: AsyncSession,
         code: str,
         org_id: UUID,
-        exclude_id: Optional[UUID] = None,
-    ) -> Optional[PaymentTerm]:
+        exclude_id: UUID | None = None,
+    ) -> PaymentTerm | None:
         """Fetch a payment term by its code within an org; optionally exclude one ID (for updates)."""
         filters = [
             PaymentTerm.code == code,

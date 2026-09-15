@@ -4,7 +4,8 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Send, AlertCircle, Loader2 } from "lucide-react";
-import { useCreateTicket } from "@procurement/hooks";
+import { useCreateTicket, getErrorMessage } from "@procurement/hooks";
+
 import type { TicketType, TicketPriority, TicketCreateRequest } from "@procurement/types";
 
 const SUPPLIER_TICKET_TYPES: { value: TicketType; label: string }[] = [
@@ -53,8 +54,8 @@ export default function SupplierNewTicketPage() {
 
       const result = await createMutation.mutateAsync(payload);
       router.push(`/tickets/${result.id}`);
-    } catch (err: any) {
-      setError(err?.response?.data?.message || err?.message || "Failed to submit query");
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, "Failed to submit query"));
     }
   };
 

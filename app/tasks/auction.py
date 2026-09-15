@@ -1,16 +1,15 @@
 from __future__ import annotations
-from datetime import datetime, timezone
-from decimal import Decimal
-from typing import Optional
+
 from uuid import UUID
+
 from loguru import logger
 from sqlalchemy import select
 
-from app.tasks.celery_app import celery_app
 from app.db.session import get_db_ctx
 from app.modules.bid.live_bid_service import LiveBidService
 from app.modules.bid.models import LiveBid
 from app.tasks.async_runner import run_async
+from app.tasks.celery_app import celery_app
 
 
 @celery_app.task(name="app.tasks.auction.open_scheduled_auctions", bind=True, max_retries=3)
@@ -102,7 +101,7 @@ def notify_auction_start_reminders():
 @celery_app.task(name="tasks.execute_proxy_bids")
 def execute_proxy_bids_task(
     auction_id_str: str,
-    lot_id_str: Optional[str],
+    lot_id_str: str | None,
     triggering_bid_id_str: str,
     org_id_str: str,
     cascade_count: int = 0,

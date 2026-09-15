@@ -1,4 +1,5 @@
 "use client";
+import { getErrorMessage } from "@procurement/utils";
 
 import React, { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
@@ -9,8 +10,9 @@ import {
   useDeleteNotificationTemplate,
   usePreviewNotificationTemplate,
 } from "@procurement/hooks";
+import { useAppToast } from "@procurement/hooks";
 import type { NotificationTemplateItem } from "@procurement/types";
-import { PageHeader, HeroKPIStrip, Card, Badge, Button, SubTabs } from "@procurement/ui";
+import { PageHeader, HeroKPIStrip, Card, Badge, Button, SubTabs, useConfirm } from "@procurement/ui";
 import {
   Bell,
   Mail,
@@ -75,6 +77,8 @@ const CHANNEL_CONFIG: Record<
 };
 
 export default function NotificationTemplatesPage() {
+  const { toast } = useAppToast();
+  const { confirm } = useConfirm();
   const [selectedChannel, setSelectedChannel] = useState<ChannelFilter>("ALL");
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<"ALL" | "ACTIVE" | "INACTIVE">("ALL");
@@ -88,7 +92,7 @@ export default function NotificationTemplatesPage() {
     page_size: 100,
   });
 
-  const templates: NotificationTemplateItem[] = response?.data || [];
+  const templates: NotificationTemplateItem[] = useMemo(() => response?.data || [], [response?.data]);
 
   // Mutations
   const createMutation = useCreateNotificationTemplate();
@@ -204,8 +208,11 @@ export default function NotificationTemplatesPage() {
       });
       setRenderedSubject(res.rendered_subject || "");
       setRenderedBody(res.rendered_body || "");
-    } catch (err: any) {
-      setPreviewError(err?.response?.data?.detail || "Failed to render template preview");
+    } catch (err: unknown) {
+
+      
+
+
     }
   };
 
@@ -232,8 +239,8 @@ export default function NotificationTemplatesPage() {
         payload: { is_active: !tmpl.is_active },
       });
       refetch();
-    } catch (err: any) {
-      alert(err?.response?.data?.detail || "Failed to toggle status");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to toggle status"));
     }
   };
 
@@ -241,7 +248,7 @@ export default function NotificationTemplatesPage() {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!templateCode.trim() || !bodyTemplate.trim()) {
-      alert("Template Code and Body Template are required.");
+      toast.error("Template Code and Body Template are required.");
       return;
     }
 
@@ -270,21 +277,26 @@ export default function NotificationTemplatesPage() {
       }
       setIsModalOpen(false);
       refetch();
-    } catch (err: any) {
-      alert(err?.response?.data?.detail || "Failed to save template");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to save template"));
     }
   };
 
   // Delete template
   const handleDelete = async (tmpl: NotificationTemplateItem) => {
-    if (!confirm(`Are you sure you want to delete template "${tmpl.template_code}" (${tmpl.channel})?`)) {
-      return;
-    }
+    const ok = await confirm({
+      title: "Delete Notification Template",
+      description: `Are you sure you want to delete template "${tmpl.template_code}" (${tmpl.channel})?`,
+      confirmLabel: "Delete",
+      variant: "danger",
+    });
+    if (!ok) return;
     try {
       await deleteMutation.mutateAsync(tmpl.id);
+      toast.success("Template deleted successfully");
       refetch();
-    } catch (err: any) {
-      alert(err?.response?.data?.detail || "Failed to delete template");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to delete template"));
     }
   };
 

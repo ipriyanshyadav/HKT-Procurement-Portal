@@ -1,8 +1,9 @@
 from __future__ import annotations
+
 import math
-from typing import Optional, List
 from uuid import UUID
-from fastapi import APIRouter, Depends, Query, status
+
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.dependencies import get_current_user
@@ -21,9 +22,9 @@ from app.modules.user.models import User
 router = APIRouter(tags=["Unmapped PR"])
 
 
-@router.get("", response_model=APIResponse[List[UnmappedPRExceptionResponse]])
+@router.get("", response_model=APIResponse[list[UnmappedPRExceptionResponse]])
 async def list_unmapped_prs(
-    status: Optional[str] = Query(None),
+    status: str | None = Query(None),
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     current_user: User = Depends(get_current_user),

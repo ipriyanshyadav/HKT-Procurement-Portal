@@ -10,6 +10,7 @@
   align-items: flex-end; /* sheet from bottom on mobile */
   justify-content: center;
   animation: overlayIn 300ms cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+  overscroll-behavior: contain;
 }
 
 @keyframes overlayIn {
@@ -27,6 +28,9 @@
   position: relative;
   max-height: 90vh;
   overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-gutter: stable;
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.20);
   animation: sheetUp 400ms cubic-bezier(0.32, 0.72, 0, 1) forwards;
 }

@@ -1,7 +1,8 @@
 from __future__ import annotations
+
 from cryptography.fernet import Fernet
+
 from app.config import settings
-from loguru import logger
 
 _fernet: Fernet | None = None
 

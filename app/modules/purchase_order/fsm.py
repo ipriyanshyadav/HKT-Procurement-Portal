@@ -9,12 +9,10 @@ DRAFT -> PENDING_APPROVAL -> APPROVED -> RELEASED/SENT_TO_VENDOR -> ACKNOWLEDGED
 """
 from __future__ import annotations
 
-from typing import Dict, List, Union
 from app.core.exceptions import AppException
 from app.db.enums import POStatus
 
-
-PO_FSM: Dict[str, List[str]] = {
+PO_FSM: dict[str, list[str]] = {
     "DRAFT": ["PENDING_APPROVAL", "APPROVED", "RELEASED", "SENT_TO_VENDOR", "CANCELLED"],
     "PENDING_APPROVAL": ["APPROVED", "REJECTED", "CANCELLED"],
     "APPROVED": ["RELEASED", "SENT_TO_VENDOR", "CANCELLED"],
@@ -80,15 +78,15 @@ STATUS_EQUIVALENCES = {
 }
 
 
-def normalize_status(status: Union[str, POStatus]) -> str:
+def normalize_status(status: str | POStatus) -> str:
     if hasattr(status, "value"):
         return str(status.value)
     return str(status)
 
 
 def can_transition(
-    current_status: Union[str, POStatus],
-    target_status: Union[str, POStatus],
+    current_status: str | POStatus,
+    target_status: str | POStatus,
 ) -> bool:
     curr = normalize_status(current_status)
     target = normalize_status(target_status)
@@ -105,14 +103,14 @@ def can_transition(
     return target in allowed_equiv or target_equiv in allowed_equiv
 
 
-def get_allowed_transitions(current_status: Union[str, POStatus]) -> List[str]:
+def get_allowed_transitions(current_status: str | POStatus) -> list[str]:
     curr = normalize_status(current_status)
     return list(PO_FSM.get(curr, []))
 
 
 def validate_po_transition(
-    current_status: Union[str, POStatus],
-    target_status: Union[str, POStatus],
+    current_status: str | POStatus,
+    target_status: str | POStatus,
 ) -> None:
     curr = normalize_status(current_status)
     target = normalize_status(target_status)

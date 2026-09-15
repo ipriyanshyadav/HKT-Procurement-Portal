@@ -1,18 +1,21 @@
 from __future__ import annotations
+
 import base64
 import json
+from typing import Any
 from uuid import UUID
+
 from pydantic import BaseModel, Field
-from typing import Tuple, Any, Optional, Union, List
-from app.core.responses import PaginationMeta, Links
+
+from app.core.responses import Links, PaginationMeta
 
 
 class PaginationParams(BaseModel):
     page: int = Field(default=1, ge=1)
     page_size: int = Field(default=20, ge=1, le=100)
-    sort_by: Optional[str] = "created_at"
+    sort_by: str | None = "created_at"
     sort_dir: str = "desc"
-    cursor: Optional[str] = None
+    cursor: str | None = None
 
     @property
     def offset(self) -> int:
@@ -30,7 +33,7 @@ def encode_cursor(last_id: Any) -> str:
     return base64.urlsafe_b64encode(str(last_id).encode()).decode()
 
 
-def decode_cursor(cursor: Optional[str]) -> Any:
+def decode_cursor(cursor: str | None) -> Any:
     """Decode a URL-safe base64 cursor string back to UUID, dict, or string."""
     if not cursor:
         return {}
@@ -52,7 +55,7 @@ def paginate_query(
     query: Any,
     params: PaginationParams,
     model_or_total: Any,
-    allowed_sort_fields: Optional[List[str]] = None,
+    allowed_sort_fields: list[str] | None = None,
 ) -> Any:
     """
     Paginate query. Supports both:
@@ -84,10 +87,10 @@ def paginate_query(
         return query, meta, links
 
     model = model_or_total
-    if params.sort_by and allowed_sort_fields and params.sort_by in allowed_sort_fields:
-        if hasattr(model, params.sort_by):
-            col = getattr(model, params.sort_by)
-            query = query.order_by(col.desc() if params.sort_dir == "desc" else col.asc())
+    if params.sort_by and allowed_sort_fields and params.sort_by in allowed_sort_fields and hasattr(model, params.sort_by):
+        col = getattr(model, params.sort_by)
+        query = query.order_by(col.desc() if params.sort_dir == "desc" else col.asc())
+
     if params.cursor:
         last_id = decode_cursor(params.cursor)
         if last_id and hasattr(model, "id"):

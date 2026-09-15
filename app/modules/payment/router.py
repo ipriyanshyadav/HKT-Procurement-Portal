@@ -12,13 +12,13 @@ from __future__ import annotations
 
 import math
 from decimal import Decimal
-from typing import Any, List, Optional
+from typing import Any
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Header, Query, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.auth.dependencies import get_current_user, require_any_permission, require_permission
+from app.auth.dependencies import require_any_permission, require_permission
 from app.core.constants import PermissionCode
 from app.core.exceptions import ValidationError
 from app.core.responses import APIResponse, PaginationMeta, created_response, success_response
@@ -46,8 +46,8 @@ router = APIRouter(tags=["Payment"])
 
 def _to_payment_response(
     p: Any,
-    invoice_number: Optional[str] = None,
-    vendor_name: Optional[str] = None,
+    invoice_number: str | None = None,
+    vendor_name: str | None = None,
 ) -> PaymentRecordResponse:
     status_str = p.status.value if hasattr(p.status, "value") else str(p.status)
     return PaymentRecordResponse(
@@ -111,11 +111,11 @@ async def health():
     return {"status": "ok", "module": "payment"}
 
 
-@router.get("", response_model=APIResponse[List[PaymentRecordResponse]])
+@router.get("", response_model=APIResponse[list[PaymentRecordResponse]])
 async def list_payments(
-    invoice_id: Optional[UUID] = Query(None),
-    vendor_id: Optional[UUID] = Query(None),
-    status: Optional[str] = Query(None),
+    invoice_id: UUID | None = Query(None),
+    vendor_id: UUID | None = Query(None),
+    status: str | None = Query(None),
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
@@ -289,7 +289,7 @@ async def execute_live_payment(
 @router.post("/webhooks/razorpay")
 async def razorpay_payment_webhook(
     request: Request,
-    x_razorpay_signature: Optional[str] = Header(None, alias="x-razorpay-signature"),
+    x_razorpay_signature: str | None = Header(None, alias="x-razorpay-signature"),
     db: AsyncSession = Depends(get_db),
 ):
     """
@@ -308,10 +308,10 @@ async def razorpay_payment_webhook(
 # Disputes
 # ─────────────────────────────────────────────────────────────────────────────
 
-@router.get("/disputes/all", response_model=APIResponse[List[DisputeResponse]])
+@router.get("/disputes/all", response_model=APIResponse[list[DisputeResponse]])
 async def list_disputes(
-    invoice_id: Optional[UUID] = Query(None),
-    status: Optional[str] = Query(None),
+    invoice_id: UUID | None = Query(None),
+    status: str | None = Query(None),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_any_permission([PermissionCode.INVOICE_VIEW_OWN, PermissionCode.INVOICE_VIEW_ALL])),
 ):

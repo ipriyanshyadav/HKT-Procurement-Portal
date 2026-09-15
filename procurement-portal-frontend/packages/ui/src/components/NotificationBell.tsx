@@ -63,7 +63,7 @@ export function NotificationBell() {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Fetch initial notifications via query (which also populates the Zustand store)
-  useNotificationsList({ page: 1, page_size: 15 });
+  useNotificationsList({ page: 1, page_size: 30 });
 
   const notifications = useNotificationStore((state) => state.notifications);
   const unreadCount = useNotificationStore((state) => state.unreadCount);
@@ -87,7 +87,7 @@ export function NotificationBell() {
     };
   }, [isOpen]);
 
-  const recentNotifications = notifications.slice(0, 8);
+  const recentNotifications = notifications.slice(0, 30);
 
   const router = useRouter();
 
@@ -134,9 +134,9 @@ export function NotificationBell() {
 
       {/* Notifications Dropdown */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl bg-white/95 dark:bg-neutral-900/95 backdrop-blur-2xl border border-neutral-200/80 dark:border-neutral-800 shadow-2xl shadow-black/10 dark:shadow-black/50 z-50 overflow-hidden flex flex-col max-h-[85vh]">
+        <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl bg-white/95 dark:bg-neutral-900/95 backdrop-blur-2xl border border-neutral-200/80 dark:border-neutral-800 shadow-2xl shadow-black/10 dark:shadow-black/50 z-50 overflow-hidden flex flex-col max-h-[520px] overscroll-contain">
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-100 dark:border-neutral-800">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-100 dark:border-neutral-800 flex-shrink-0">
             <div className="flex items-center gap-2">
               <span className="font-semibold text-sm text-neutral-900 dark:text-neutral-100">
                 Notifications
@@ -162,7 +162,7 @@ export function NotificationBell() {
           </div>
 
           {/* List */}
-          <div className="flex-1 overflow-y-auto divide-y divide-neutral-100 dark:divide-neutral-800/60">
+          <div className="flex-1 min-h-0 max-h-[380px] overflow-y-auto divide-y divide-neutral-100 dark:divide-neutral-800/60 overscroll-contain">
             {recentNotifications.length === 0 ? (
               <div className="p-8 text-center text-neutral-400 dark:text-neutral-500">
                 <Bell className="w-8 h-8 mx-auto mb-2 opacity-30" />
@@ -175,10 +175,10 @@ export function NotificationBell() {
                   <div
                     key={n.id}
                     onClick={() => handleItemClick(n)}
-                    className={`px-4 py-3 flex items-start gap-3 hover:bg-black/[0.02] dark:hover:bg-white/[0.03] transition-colors cursor-pointer ${
+                    className={`px-4 py-3 flex items-start gap-3 hover:bg-neutral-100/70 dark:hover:bg-neutral-800/50 transition-colors cursor-pointer ${
                       isUnread
-                        ? "bg-blue-50/40 dark:bg-blue-950/20"
-                        : "opacity-85"
+                        ? "bg-blue-50/70 dark:bg-blue-950/30 border-l-4 border-l-blue-500"
+                        : "border-l-4 border-l-transparent opacity-85"
                     }`}
                   >
                     <div className="mt-0.5 flex-shrink-0 p-1.5 rounded-lg bg-neutral-100 dark:bg-neutral-800">
@@ -204,7 +204,7 @@ export function NotificationBell() {
                       </p>
                     </div>
                     {isUnread && (
-                      <span className="w-2 h-2 mt-1.5 rounded-full bg-blue-600 flex-shrink-0" />
+                      <span className="w-2 h-2 mt-1.5 rounded-full bg-blue-600 dark:bg-blue-400 flex-shrink-0 animate-pulse" />
                     )}
                   </div>
                 );

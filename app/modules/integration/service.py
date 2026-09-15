@@ -1,7 +1,7 @@
 import hashlib
 import json
-from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional, Tuple
+from datetime import UTC, datetime
+from typing import Any
 from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -25,12 +25,12 @@ class IntegrationService:
         self,
         db: AsyncSession,
         org_id: UUID,
-        status: Optional[str] = None,
-        job_type: Optional[str] = None,
-        adapter_type: Optional[str] = None,
+        status: str | None = None,
+        job_type: str | None = None,
+        adapter_type: str | None = None,
         page: int = 1,
         page_size: int = 20,
-    ) -> Tuple[List[IntegrationJob], int]:
+    ) -> tuple[list[IntegrationJob], int]:
         return await self.repo.list_jobs(
             db,
             org_id=org_id,
@@ -65,7 +65,7 @@ class IntegrationService:
 
         job.status = IntegrationJobStatusEnum.PENDING
         job.error_message = None
-        job.next_retry_at = datetime.now(timezone.utc)
+        job.next_retry_at = datetime.now(UTC)
         await db.flush()
 
         await self.audit.log(
@@ -83,14 +83,14 @@ class IntegrationService:
         )
         return job
 
-    async def get_stats(self, db: AsyncSession, org_id: UUID) -> Dict[str, Any]:
+    async def get_stats(self, db: AsyncSession, org_id: UUID) -> dict[str, Any]:
         return await self.repo.get_stats(db, org_id=org_id)
 
     async def list_scheduled_runs(
         self,
         db: AsyncSession,
         limit: int = 20,
-    ) -> List[ScheduledJobRun]:
+    ) -> list[ScheduledJobRun]:
         return await self.repo.list_scheduled_runs(db, limit=limit)
 
     async def trigger_sync(
@@ -99,13 +99,13 @@ class IntegrationService:
         org_id: UUID,
         actor_id: UUID,
         adapter_type: str = "SAP",
-        entity_type: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        entity_type: str | None = None,
+    ) -> dict[str, Any]:
         from sqlalchemy import and_, select
 
         adapter_type = (adapter_type or "SAP").upper()
-        now = datetime.now(timezone.utc)
-        created_jobs: List[IntegrationJob] = []
+        now = datetime.now(UTC)
+        created_jobs: list[IntegrationJob] = []
 
         # 1. Sync Vendors
         if not entity_type or entity_type.upper() == "VENDOR":
@@ -287,7 +287,7 @@ class IntegrationService:
             org_id=org_id,
             job_name=f"{adapter_type.lower()}_manual_sync_batch",
             started_at=now,
-            completed_at=datetime.now(timezone.utc),
+            completed_at=datetime.now(UTC),
             status="COMPLETED",
             records_processed=len(created_jobs),
         )
@@ -318,8 +318,9 @@ class IntegrationService:
             "job_run_id": run.id,
         }
 
-    async def get_erp_config(self, db: AsyncSession, org_id: UUID) -> Dict[str, Any]:
+    async def get_erp_config(self, db: AsyncSession, org_id: UUID) -> dict[str, Any]:
         from sqlalchemy import select
+
         from app.modules.integration.models import TenantSetting
 
         stmt = select(TenantSetting).where(
@@ -360,13 +361,14 @@ class IntegrationService:
         org_id: UUID,
         actor_id: UUID,
         erp_provider: str,
-        endpoint_url: Optional[str],
+        endpoint_url: str | None,
         auth_type: str,
-        api_key: Optional[str],
-        allowed_domains: List[str],
+        api_key: str | None,
+        allowed_domains: list[str],
         is_enabled: bool = True,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         from sqlalchemy import select
+
         from app.modules.integration.models import TenantSetting
 
         stmt = select(TenantSetting).where(
@@ -435,7 +437,7 @@ class IntegrationService:
     # Multi-ERP Bi-Directional Sync Gateway (SPEC_20)
     # ---------------------------------------------------------------------------
 
-    def _compute_checksum(self, payload: Dict[str, Any]) -> str:
+    def _compute_checksum(self, payload: dict[str, Any]) -> str:
         canonical_str = json.dumps(payload, sort_keys=True, default=str)
         return hashlib.sha256(canonical_str.encode("utf-8")).hexdigest()
 
@@ -447,7 +449,7 @@ class IntegrationService:
         entity_type: str,
         internal_id: UUID,
         force_retry: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         norm_system = erp_system.strip().upper()
         norm_entity = entity_type.strip().upper()
 
@@ -552,7 +554,8 @@ class IntegrationService:
                 retry_count=retry_count,
                 last_error=err_msg,
             )
-            raise ValidationError(f"ERP synchronization to {norm_system} failed: {err_msg}")
+            raise ValidationError(f"ERP synchronization to {norm_system} failed: {err_msg}") from e
+
 
     async def process_inbound_erp_payload(
         self,
@@ -561,8 +564,8 @@ class IntegrationService:
         erp_system: str,
         entity_type: str,
         external_id: str,
-        payload: Dict[str, Any],
-    ) -> Dict[str, Any]:
+        payload: dict[str, Any],
+    ) -> dict[str, Any]:
         from uuid import uuid4
 
         norm_system = erp_system.strip().upper()
@@ -605,12 +608,12 @@ class IntegrationService:
         self,
         db: AsyncSession,
         org_id: UUID,
-        erp_system: Optional[str] = None,
-        entity_type: Optional[str] = None,
-        sync_status: Optional[str] = None,
+        erp_system: str | None = None,
+        entity_type: str | None = None,
+        sync_status: str | None = None,
         page: int = 1,
         page_size: int = 20,
-    ) -> Tuple[List[ERPEntityMapping], int]:
+    ) -> tuple[list[ERPEntityMapping], int]:
         return await self.repo.list_entity_mappings(
             db,
             org_id=org_id,
@@ -625,8 +628,8 @@ class IntegrationService:
         self,
         db: AsyncSession,
         org_id: UUID,
-        erp_system: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        erp_system: str | None = None,
+    ) -> dict[str, Any]:
         mappings, total = await self.repo.list_entity_mappings(
             db, org_id=org_id, erp_system=erp_system, page=1, page_size=100
         )
@@ -657,7 +660,7 @@ class IntegrationService:
         db: AsyncSession,
         org_id: UUID,
         mapping_id: UUID,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         mapping = await self.repo.get_mapping_by_id(db, mapping_id=mapping_id, org_id=org_id)
         if not mapping:
             raise NotFoundError(f"ERP entity mapping '{mapping_id}' not found")

@@ -1,11 +1,11 @@
 "use client";
 
-import React, { ReactNode } from "react";
+import React, { ReactNode, useEffect } from "react";
 import { useAuthInit, useCurrentUser, useLogout, useMyWorkflowTasks } from "@procurement/hooks";
 import { useAuthStore } from "@procurement/stores";
-import { AppShell, CompanySwitcher, NotificationBell } from "@procurement/ui";
+import { AppShell, CompanySwitcher, NotificationBell, UATOverlay } from "@procurement/ui";
 import type { SidebarItemData } from "@procurement/ui";
-import { ShoppingCart, CheckSquare, FileQuestion, Users, FileText, FileCheck, Receipt, CreditCard, Truck, AlertCircle, BarChart2, PieChart, Award, LifeBuoy, UserCheck, ShieldAlert, Barcode, Globe, ShieldCheck, Sparkles, Gavel, Scale, Store, ShoppingBag } from "lucide-react";
+import { ShoppingCart, CheckSquare, FileQuestion, Users, FileText, FileCheck, Receipt, CreditCard, Truck, AlertCircle, BarChart2, PieChart, Award, LifeBuoy, UserCheck, ShieldAlert, Barcode, Globe, ShieldCheck, Sparkles, Gavel, Scale, Store, ShoppingBag, Activity, Download } from "lucide-react";
 
 export default function BuyerMainLayout({ children }: { children: ReactNode }) {
   const { isInitializing } = useAuthInit();
@@ -16,7 +16,14 @@ export default function BuyerMainLayout({ children }: { children: ReactNode }) {
   const { data: myTasksData } = useMyWorkflowTasks();
   const pendingTasksCount = myTasksData?.tasks?.filter((t) => t.status === "PENDING")?.length ?? 0;
 
-  if (isInitializing) {
+  useEffect(() => {
+    if (!isInitializing && !user) {
+      const pathname = window.location.pathname + window.location.search;
+      window.location.href = `/login?redirect=${encodeURIComponent(pathname)}`;
+    }
+  }, [isInitializing, user]);
+
+  if (isInitializing || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-neutral-900">
         <div className="flex flex-col items-center gap-3">
@@ -35,6 +42,24 @@ export default function BuyerMainLayout({ children }: { children: ReactNode }) {
       section: "Purchasing",
     },
     {
+      label: "Catalog Search",
+      href: "/indents/catalog",
+      icon: <ShoppingBag className="w-4 h-4 text-emerald-500" />,
+      section: "Purchasing",
+    },
+    {
+      label: "My Cart",
+      href: "/indents/cart",
+      icon: <ShoppingCart className="w-4 h-4 text-amber-500" />,
+      section: "Purchasing",
+    },
+    {
+      label: "My Indents",
+      href: "/indents",
+      icon: <ShoppingCart className="w-4 h-4 text-amber-500" />,
+      section: "Purchasing",
+    },
+    {
       label: "Marketplace & Catalogs",
       href: "/marketplace",
       icon: <Store className="w-4 h-4 text-emerald-500" />,
@@ -50,6 +75,18 @@ export default function BuyerMainLayout({ children }: { children: ReactNode }) {
       label: "Goods Receipts (GRN)",
       href: "/grn",
       icon: <Truck className="w-4 h-4" />,
+      section: "Purchasing",
+    },
+    {
+      label: "Track Deliveries",
+      href: "/indents/tracking",
+      icon: <Truck className="w-4 h-4 text-blue-500" />,
+      section: "Purchasing",
+    },
+    {
+      label: "Deliveries",
+      href: "/indents/deliveries",
+      icon: <Truck className="w-4 h-4 text-purple-500" />,
       section: "Purchasing",
     },
     {
@@ -175,6 +212,18 @@ export default function BuyerMainLayout({ children }: { children: ReactNode }) {
       section: "Analytics",
     },
     {
+      label: "Buyer Activity & Velocity",
+      href: "/analytics/buyer-activity",
+      icon: <Activity className="w-4 h-4 text-blue-400" />,
+      section: "Analytics",
+    },
+    {
+      label: "Export Center",
+      href: "/export-center",
+      icon: <Download className="w-4 h-4 text-emerald-500" />,
+      section: "Tools",
+    },
+    {
       label: "Tickets & Inquiries",
       href: "/tickets",
       icon: <LifeBuoy className="w-4 h-4" />,
@@ -198,6 +247,7 @@ export default function BuyerMainLayout({ children }: { children: ReactNode }) {
         </div>
       }
     >
+      <UATOverlay />
       {children}
     </AppShell>
   );

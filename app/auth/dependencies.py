@@ -1,29 +1,30 @@
 from __future__ import annotations
-from datetime import datetime, timedelta, timezone
-from typing import Optional
+
+from datetime import UTC, datetime, timedelta
 from uuid import UUID
-from fastapi import Depends, Request, WebSocket, Query, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from sqlalchemy.ext.asyncio import AsyncSession
+
+from fastapi import Depends, Query, Request, WebSocket, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from loguru import logger
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.jwt import decode_jwt
 from app.config import settings
 from app.core.exceptions import AppException, AuthenticationError, ForbiddenError
 from app.core.permissions import PERMANENTLY_DENIED_PERMISSIONS
+from app.db.enums import UserStatusEnum
 from app.db.session import get_db
 from app.modules.user.models import User
 from app.modules.user.repository import user_repository
-from app.modules.user.session_repository import session_repository
 from app.modules.user.role_repository import role_repository
-from app.db.enums import UserStatusEnum
+from app.modules.user.session_repository import session_repository
 
 security = HTTPBearer(auto_error=False)
 
 
 async def get_current_user(
     request: Request,
-    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
+    credentials: HTTPAuthorizationCredentials | None = Depends(security),
     db: AsyncSession = Depends(get_db),
 ) -> User:
     """7-step auth pipeline: validate token → check user → check session → inactivity."""
@@ -45,8 +46,11 @@ async def get_current_user(
     if not user_id_str or not org_id_str or not jti:
         raise AuthenticationError("Token missing required claims")
 
-    user_id = UUID(user_id_str)
-    org_id = UUID(org_id_str)
+    try:
+        user_id = UUID(user_id_str)
+        org_id = UUID(org_id_str)
+    except ValueError as exc:
+        raise AuthenticationError("Token contains malformed identity claims") from exc
 
     # Step 5: Load and verify user
     user = await user_repository.get_by_id(db, user_id, org_id)
@@ -66,11 +70,11 @@ async def get_current_user(
         raise AuthenticationError("Session has been revoked")
 
     # Step 7: Inactivity timeout check
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     inactivity_limit = timedelta(minutes=settings.MFA_INACTIVITY_TIMEOUT_MINUTES)
     last_activity = session.last_activity_at
     if last_activity.tzinfo is None:
-        last_activity = last_activity.replace(tzinfo=timezone.utc)
+        last_activity = last_activity.replace(tzinfo=UTC)
     if (now - last_activity) > inactivity_limit:
         await session_repository.revoke(db, session.id, "INACTIVITY_TIMEOUT")
         raise AuthenticationError("Session expired due to inactivity")
@@ -91,15 +95,18 @@ async def get_current_user(
 
 async def get_optional_current_user(
     request: Request,
-    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
+    credentials: HTTPAuthorizationCredentials | None = Depends(security),
     db: AsyncSession = Depends(get_db),
-) -> Optional[User]:
-    """Returns the authenticated user if valid, or None if unauthenticated."""
+) -> User | None:
+    """Returns the authenticated user if valid, or None if unauthenticated.
+
+    Only swallows auth-related errors. Infrastructure errors (DB down etc.) propagate.
+    """
     if not credentials or not credentials.credentials:
         return None
     try:
         return await get_current_user(request, credentials, db)
-    except Exception:
+    except (AuthenticationError, AppException):
         return None
 
 
@@ -168,7 +175,7 @@ def require_mfa_enabled():
 
 async def get_current_user_ws(
     websocket: WebSocket,
-    token: Optional[str] = Query(None),
+    token: str | None = Query(None),
     db: AsyncSession = Depends(get_db),
 ) -> User:
     if not token:
@@ -179,9 +186,9 @@ async def get_current_user_ws(
 
     try:
         payload = decode_jwt(token)
-    except Exception:
+    except Exception as exc:
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
-        raise AppException("UNAUTHORIZED", "Invalid token", 401)
+        raise AppException("UNAUTHORIZED", "Invalid token", 401) from exc
 
     if payload.get("mfa_required"):
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
@@ -194,17 +201,37 @@ async def get_current_user_ws(
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
         raise AppException("UNAUTHORIZED", "Token missing required claims", 401)
 
-    user_id = UUID(user_id_str)
-    org_id = UUID(org_id_str)
+    try:
+        user_id = UUID(user_id_str)
+        org_id = UUID(org_id_str)
+    except ValueError as exc:
+        await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
+        raise AppException("UNAUTHORIZED", "Token contains malformed identity claims", 401) from exc
 
     user = await user_repository.get_by_id(db, user_id, org_id)
     if not user or user.status != UserStatusEnum.ACTIVE:
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
         raise AppException("UNAUTHORIZED", "User inactive or not found", 401)
 
+    # Full session validation: existence, revocation, and inactivity (mirrors HTTP auth)
     session = await session_repository.get_by_jti(db, jti)
     if not session:
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
         raise AppException("UNAUTHORIZED", "Session has been revoked", 401)
+    if session.is_revoked:
+        await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
+        raise AppException("UNAUTHORIZED", "Session has been revoked", 401)
 
+    now = datetime.now(UTC)
+    inactivity_limit = timedelta(minutes=settings.MFA_INACTIVITY_TIMEOUT_MINUTES)
+    last_activity = session.last_activity_at
+    if last_activity.tzinfo is None:
+        last_activity = last_activity.replace(tzinfo=UTC)
+    if (now - last_activity) > inactivity_limit:
+        await session_repository.revoke(db, session.id, "INACTIVITY_TIMEOUT")
+        await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
+        raise AppException("UNAUTHORIZED", "Session expired due to inactivity", 401)
+
+    await session_repository.update_activity(db, session.id, now)
     return user
+

@@ -19,7 +19,41 @@ export function getEffectiveApiUrl(): string {
 
 export const API_URL = getEffectiveApiUrl();
 
-let accessToken: string | null = null;
+const SESSION_STORAGE_KEY = "hkt_auth_session";
+
+function getInitialToken(): string | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = sessionStorage.getItem(SESSION_STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === "object" && parsed.accessToken) {
+        return parsed.accessToken;
+      }
+    }
+  } catch {
+    // Ignore storage errors
+  }
+  return null;
+}
+
+export function getRefreshToken(): string | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = sessionStorage.getItem(SESSION_STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === "object" && parsed.refreshToken) {
+        return parsed.refreshToken;
+      }
+    }
+  } catch {
+    // Ignore storage errors
+  }
+  return null;
+}
+
+let accessToken: string | null = getInitialToken();
 let isRefreshing = false;
 let failedQueue: Array<{
   resolve: (token: string) => void;
@@ -60,8 +94,25 @@ function processQueue(error: Error | null, token: string | null): void {
   failedQueue = [];
 }
 
-export function setAccessToken(token: string | null): void {
+export function setAccessToken(token: string | null, refreshToken?: string | null): void {
   accessToken = token;
+  if (typeof window !== "undefined") {
+    try {
+      if (token) {
+        const raw = sessionStorage.getItem(SESSION_STORAGE_KEY);
+        const parsed = raw ? JSON.parse(raw) : {};
+        parsed.accessToken = token;
+        if (refreshToken !== undefined) {
+          parsed.refreshToken = refreshToken;
+        }
+        sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(parsed));
+      } else {
+        sessionStorage.removeItem(SESSION_STORAGE_KEY);
+      }
+    } catch {
+      // Ignore
+    }
+  }
   tokenListeners.forEach((fn) => {
     try {
       fn(token);
@@ -72,6 +123,9 @@ export function setAccessToken(token: string | null): void {
 }
 
 export function getAccessToken(): string | null {
+  if (!accessToken && typeof window !== "undefined") {
+    accessToken = getInitialToken();
+  }
   return accessToken;
 }
 
@@ -94,8 +148,9 @@ apiClient.interceptors.request.use(
         config.baseURL = config.baseURL.replace(/^https?:\/\/[^/]+(:[0-9]+)?/, currentOrigin);
       }
     }
-    if (accessToken) {
-      config.headers.Authorization = `Bearer ${accessToken}`;
+    const token = accessToken || getAccessToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
     const portal = getPortalId();
     if (portal && config.headers) {
@@ -151,16 +206,21 @@ apiClient.interceptors.response.use(
       if (portal) {
         headers["X-Portal-Id"] = portal;
       }
+      const tabRefreshToken = getRefreshToken();
+      if (tabRefreshToken) {
+        headers["X-Refresh-Token"] = tabRefreshToken;
+      }
       const refreshBaseUrl = !isServer
         ? `${window.location.protocol}//${window.location.hostname.includes(":") && !window.location.hostname.startsWith("[") ? `[${window.location.hostname}]` : window.location.hostname}:8000`
         : API_URL;
-      const { data } = await axios.post<{ data: { access_token: string } }>(
+      const { data } = await axios.post<{ data: { access_token: string; refresh_token?: string } }>(
         `${refreshBaseUrl}/api/v1/auth/refresh`,
-        {},
+        tabRefreshToken ? { refresh_token: tabRefreshToken } : {},
         { withCredentials: true, headers },
       );
       const newToken = data.data.access_token;
-      setAccessToken(newToken);
+      const newRefreshToken = data.data.refresh_token || tabRefreshToken;
+      setAccessToken(newToken, newRefreshToken);
       processQueue(null, newToken);
       setAuthHeader(originalRequest, newToken);
       return apiClient(originalRequest);
@@ -168,7 +228,8 @@ apiClient.interceptors.response.use(
       processQueue(refreshError instanceof Error ? refreshError : new Error(String(refreshError)), null);
       setAccessToken(null);
       if (typeof window !== "undefined" && !window.location.pathname.startsWith("/login")) {
-        window.location.href = "/login";
+        const currentPath = window.location.pathname + window.location.search;
+        window.location.href = `/login?redirect=${encodeURIComponent(currentPath)}`;
       }
       return Promise.reject(refreshError);
     } finally {

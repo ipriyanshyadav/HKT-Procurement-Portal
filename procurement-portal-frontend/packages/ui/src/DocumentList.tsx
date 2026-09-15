@@ -18,10 +18,12 @@ import {
   useDeleteDocument,
   useDocumentPresignedUrl,
   DocumentItem,
+  useAppToast,
 } from "@procurement/hooks";
 import { Button } from "./components/Button";
 import { Badge } from "./components/Badge";
 import { Modal } from "./components/Modal";
+import { useConfirm } from "./components/ConfirmDialog";
 import { DocumentUpload } from "./DocumentUpload";
 
 export interface StandardDocType {
@@ -65,6 +67,8 @@ export function DocumentList({
 }: DocumentListProps) {
   const { data: documents, isLoading, refetch } = useEntityDocuments(entityType, entityId);
   const deleteMutation = useDeleteDocument();
+  const { toast } = useAppToast();
+  const { confirm } = useConfirm();
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [selectedDocType, setSelectedDocType] = useState(defaultDocumentType);
   const [uploadExpiryDate, setUploadExpiryDate] = useState("");
@@ -89,7 +93,7 @@ export function DocumentList({
 
   const handleDownload = async (doc: DocumentItem) => {
     if (doc.scan_status === "INFECTED") {
-      alert("This document has been quarantined due to a detected malware threat and cannot be downloaded.");
+      toast.error("This document has been quarantined due to a detected malware threat and cannot be downloaded.");
       return;
     }
     try {
@@ -101,23 +105,30 @@ export function DocumentList({
         window.open(url, "_blank", "noopener,noreferrer");
       }
     } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to download document");
+      toast.error(err?.response?.data?.error?.message || "Failed to download document");
     } finally {
       setDownloadingId(null);
     }
   };
 
   const handleDelete = async (docId: string) => {
-    if (!confirm("Are you sure you want to delete this document?")) return;
+    const ok = await confirm({
+      title: "Delete Document",
+      description: "Are you sure you want to delete this document?",
+      confirmLabel: "Delete",
+      variant: "danger",
+    });
+    if (!ok) return;
     try {
       await deleteMutation.mutateAsync({
         documentId: docId,
         entityType,
         entityId,
       });
+      toast.success("Document deleted successfully");
       refetch();
     } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to delete document");
+      toast.error(err?.response?.data?.error?.message || "Failed to delete document");
     }
   };
 

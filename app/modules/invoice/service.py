@@ -3,7 +3,7 @@ Invoice Service (SPEC_15).
 
 Implements:
 - 3-Way Match Engine (PO + GRN + Invoice)
-- Quantity tolerance (2% hardcoded module-level physical tolerance)
+- Quantity tolerance (configured in Settings via INVOICE_QUANTITY_TOLERANCE_PCT, default 2%)
 - Price tolerance (configured in Settings, default 0.5%)
 - Tax tolerance (1% per SPEC_15)
 - Duplicate invoice detection (org_id, vendor_id, vendor_invoice_number, financial_year)
@@ -12,11 +12,13 @@ Implements:
 - Invoice Approval & Workflow integration
 - Dispute management on mismatches
 """
+
 from __future__ import annotations
 
-from datetime import UTC, date, datetime, timedelta, timezone
+import builtins
+from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 from uuid import UUID
 
 from loguru import logger
@@ -24,8 +26,7 @@ from sqlalchemy import and_, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
-from app.core.constants import AuditAction
-from app.core.exceptions import ConflictError, NotFoundError, ValidationError
+from app.core.exceptions import ConflictError, ForbiddenError, NotFoundError, ValidationError
 from app.db.enums import InvoiceStatusEnum, POStatus
 from app.events.publisher import OutboxPublisher
 from app.modules.approval_rules.service import rules_engine
@@ -36,12 +37,18 @@ from app.modules.invoice.repository import InvoiceRepository, invoice_repository
 from app.modules.invoice.schemas import (
     AdvancedReconciliationRequest,
     AdvancedReconciliationResponse,
+    EarlyDiscountActionResponse,
+    EarlyDiscountOption,
+    EarlyDiscountOptionsResponse,
+    EarlyDiscountRequest,
     EligibleLineResponse,
     InvoiceFilterParams,
     InvoiceSubmitRequest,
+    PoFlipDraftResponse,
+    PoFlipLineDraft,
     ReconciliationDiscrepancyItem,
 )
-from app.modules.master_data.models import HolidayMaster, PaymentTerm
+from app.modules.master_data.models import HolidayMaster
 from app.modules.master_data.payment_terms.repository import (
     PaymentTermsRepository,
     payment_terms_repository,
@@ -60,9 +67,9 @@ QUANTITY_TOLERANCE: float = settings.INVOICE_QUANTITY_TOLERANCE_PCT
 class InvoiceService:
     def __init__(
         self,
-        repo: Optional[InvoiceRepository] = None,
-        po_repo: Optional[PurchaseOrderRepository] = None,
-        terms_repo: Optional[PaymentTermsRepository] = None,
+        repo: InvoiceRepository | None = None,
+        po_repo: PurchaseOrderRepository | None = None,
+        terms_repo: PaymentTermsRepository | None = None,
     ) -> None:
         self.repo = repo or invoice_repository
         self.po_repo = po_repo or purchase_order_repository
@@ -87,10 +94,10 @@ class InvoiceService:
     async def calculate_payment_due_date(
         self,
         db: AsyncSession,
-        po: Optional[PurchaseOrder],
+        po: PurchaseOrder | None,
         invoice_date: date,
         org_id: UUID,
-        payment_terms_code: Optional[str] = None,
+        payment_terms_code: str | None = None,
     ) -> date:
         """
         Calculates payment due date based on payment terms and advances across
@@ -106,15 +113,19 @@ class InvoiceService:
                 term = await self.terms_repo.get(db, po.payment_term_id, org_id)
                 if term and term.net_days:
                     net_days = term.net_days
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.warning(
+                    f"Failed to load payment terms for PO {po.id} "
+                    f"(term_id={po.payment_term_id}): {exc}. "
+                    f"Falling back to default {net_days} net days."
+                )
 
         raw_due = invoice_date + timedelta(days=net_days)
 
         # Query active holidays from holiday_master
         holiday_stmt = select(HolidayMaster.holiday_date).where(
             HolidayMaster.org_id == org_id,
-            HolidayMaster.is_active == True,
+            HolidayMaster.is_active.is_(True),
             HolidayMaster.deleted_at.is_(None),
         )
         holiday_res = await db.execute(holiday_stmt)
@@ -136,9 +147,7 @@ class InvoiceService:
     ) -> Invoice:
         # 1. Uniqueness check per vendor per financial year
         fy = self._compute_financial_year(data.invoice_date)
-        existing = await self.repo.find_by_vendor_invoice_number(
-            db, org_id, vendor_id, data.vendor_invoice_number, fy
-        )
+        existing = await self.repo.find_by_vendor_invoice_number(db, org_id, vendor_id, data.vendor_invoice_number, fy)
         if existing:
             raise ConflictError(
                 "DUPLICATE_INVOICE",
@@ -157,7 +166,11 @@ class InvoiceService:
             POStatus.RELEASED.value if hasattr(POStatus.RELEASED, "value") else "RELEASED",
             POStatus.ACKNOWLEDGED.value if hasattr(POStatus.ACKNOWLEDGED, "value") else "ACKNOWLEDGED",
             "VENDOR_ACKNOWLEDGED",
-            POStatus.PARTIALLY_RECEIVED.value if hasattr(POStatus.PARTIALLY_RECEIVED, "value") else "PARTIALLY_RECEIVED",
+            (
+                POStatus.PARTIALLY_RECEIVED.value
+                if hasattr(POStatus.PARTIALLY_RECEIVED, "value")
+                else "PARTIALLY_RECEIVED"
+            ),
             POStatus.FULLY_RECEIVED.value if hasattr(POStatus.FULLY_RECEIVED, "value") else "FULLY_RECEIVED",
         ]
         po_status_str = po.status.value if hasattr(po.status, "value") else str(po.status)
@@ -169,9 +182,7 @@ class InvoiceService:
         # 3. Compute due date if not provided
         due_date = data.due_date
         if not due_date:
-            due_date = await self.calculate_payment_due_date(
-                db, po, data.invoice_date, org_id, data.payment_terms_code
-            )
+            due_date = await self.calculate_payment_due_date(db, po, data.invoice_date, org_id, data.payment_terms_code)
 
         # 4. Generate system invoice number
         invoice_number = await self.repo.generate_invoice_number(db, org_id)
@@ -230,13 +241,14 @@ class InvoiceService:
         match_result = await self.perform_three_way_match(db, invoice, po, org_id)
 
         # 8. Set status and trigger workflow based on match result
-        if match_result["all_match"]:
+        is_all_match = match_result.get("all_match") if "all_match" in match_result else match_result.get("overall_match", False)
+        if is_all_match:
             invoice.match_status = "MATCHED"
             invoice.status = InvoiceStatusEnum.PENDING_APPROVAL
             await self._trigger_approval_workflow(db, invoice, org_id, actor_id)
         else:
             discrepancy_types = set()
-            for disc in match_result["discrepancies"]:
+            for disc in match_result.get("discrepancies", []):
                 discrepancy_types.update(disc.get("reasons", []))
 
             if "PRICE_MISMATCH" in discrepancy_types:
@@ -303,7 +315,7 @@ class InvoiceService:
         invoice: Invoice,
         po: PurchaseOrder,
         org_id: UUID,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Executes 3-way match across PO lines, GRN receipts, and Invoice lines.
         Tolerances:
@@ -343,15 +355,20 @@ class InvoiceService:
                     invoice=invoice,
                 )
                 db.add(match_row)
-                if hasattr(invoice, "match_results") and invoice.match_results is not None:
-                    if match_row not in invoice.match_results:
-                        invoice.match_results.append(match_row)
+                if (
+                    hasattr(invoice, "match_results")
+                    and invoice.match_results is not None
+                    and match_row not in invoice.match_results
+                ):
+                    invoice.match_results.append(match_row)
                 line_results.append(match_row)
-                discrepancies.append({
-                    "line_id": str(inv_line.id),
-                    "po_line_id": str(inv_line.po_line_id),
-                    "reasons": reasons,
-                })
+                discrepancies.append(
+                    {
+                        "line_id": str(inv_line.id),
+                        "po_line_id": str(inv_line.po_line_id),
+                        "reasons": reasons,
+                    }
+                )
                 all_match = False
                 continue
 
@@ -396,7 +413,9 @@ class InvoiceService:
             # Check quantity tolerance
             allowed_qty = max_invoiceable * (Decimal("1.0") + qty_tol)
             quantity_match = inv_line.quantity <= allowed_qty
-            qty_deviation = max(Decimal("0.0"), inv_line.quantity - max_invoiceable) if not quantity_match else Decimal("0.0")
+            qty_deviation = (
+                max(Decimal("0.0"), inv_line.quantity - max_invoiceable) if not quantity_match else Decimal("0.0")
+            )
             if not quantity_match:
                 reasons.append("QUANTITY_MISMATCH")
 
@@ -405,7 +424,11 @@ class InvoiceService:
                 POStatus.RELEASED.value if hasattr(POStatus.RELEASED, "value") else "RELEASED",
                 POStatus.ACKNOWLEDGED.value if hasattr(POStatus.ACKNOWLEDGED, "value") else "ACKNOWLEDGED",
                 "VENDOR_ACKNOWLEDGED",
-                POStatus.PARTIALLY_RECEIVED.value if hasattr(POStatus.PARTIALLY_RECEIVED, "value") else "PARTIALLY_RECEIVED",
+                (
+                    POStatus.PARTIALLY_RECEIVED.value
+                    if hasattr(POStatus.PARTIALLY_RECEIVED, "value")
+                    else "PARTIALLY_RECEIVED"
+                ),
                 POStatus.FULLY_RECEIVED.value if hasattr(POStatus.FULLY_RECEIVED, "value") else "FULLY_RECEIVED",
             ]
             po_status_str = po.status.value if hasattr(po.status, "value") else str(po.status)
@@ -414,9 +437,9 @@ class InvoiceService:
                 reasons.append("WRONG_PO")
 
             # 4. Tax match check
-            expected_tax = (
-                (inv_line.quantity * inv_line.unit_price) * (po_line.tax_rate / Decimal("100"))
-            ).quantize(Decimal("0.01"))
+            expected_tax = ((inv_line.quantity * inv_line.unit_price) * (po_line.tax_rate / Decimal("100"))).quantize(
+                Decimal("0.01")
+            )
             tax_deviation = abs(inv_line.tax_amount - expected_tax)
             tax_tolerance = max(expected_tax * tax_tol_pct, Decimal("0.05"))
             tax_match = tax_deviation <= tax_tolerance
@@ -426,15 +449,17 @@ class InvoiceService:
             overall_match = price_match and quantity_match and po_ref_valid and tax_match
             if not overall_match:
                 all_match = False
-                discrepancies.append({
-                    "line_id": str(inv_line.id),
-                    "po_line_id": str(po_line.id),
-                    "reasons": reasons,
-                    "price_deviation_pct": float(price_dev * 100),
-                    "invoiced_qty": float(inv_line.quantity),
-                    "received_qty": float(grn_accepted),
-                    "max_invoiceable": float(max_invoiceable),
-                })
+                discrepancies.append(
+                    {
+                        "line_id": str(inv_line.id),
+                        "po_line_id": str(po_line.id),
+                        "reasons": reasons,
+                        "price_deviation_pct": float(price_dev * 100),
+                        "invoiced_qty": float(inv_line.quantity),
+                        "received_qty": float(grn_accepted),
+                        "max_invoiceable": float(max_invoiceable),
+                    }
+                )
 
             if expected_tax > Decimal("0.0"):
                 tax_dev_val = min(
@@ -463,16 +488,29 @@ class InvoiceService:
                 invoice=invoice,
             )
             db.add(match_row)
-            if hasattr(invoice, "match_results") and invoice.match_results is not None:
-                if match_row not in invoice.match_results:
-                    invoice.match_results.append(match_row)
+            if (
+                hasattr(invoice, "match_results")
+                and invoice.match_results is not None
+                and match_row not in invoice.match_results
+            ):
+                invoice.match_results.append(match_row)
             line_results.append(match_row)
 
+        overall_match = all_match
+        mismatch_count = len(discrepancies)
         await db.flush()
         return {
-            "all_match": all_match,
-            "discrepancies": discrepancies,
+            "invoice_id": invoice.id,
+            "overall_match": overall_match,
+            "all_match": overall_match,
+            "mismatch_count": mismatch_count,
             "line_results": line_results,
+            "discrepancies": discrepancies,
+            "status": invoice.status,
+            "vendor_id": invoice.vendor_id,
+            "po_id": invoice.po_id,
+            "total_amount": invoice.total_amount,
+            "currency": invoice.currency,
         }
 
     async def _trigger_approval_workflow(
@@ -522,7 +560,7 @@ class InvoiceService:
         db: AsyncSession,
         org_id: UUID,
         filters: InvoiceFilterParams,
-    ) -> Tuple[List[Invoice], int]:
+    ) -> tuple[builtins.list[Invoice], int]:
         return await self.repo.list_invoices(db, org_id, filters)
 
     async def get_eligible_lines(
@@ -530,9 +568,135 @@ class InvoiceService:
         db: AsyncSession,
         vendor_id: UUID,
         org_id: UUID,
-    ) -> List[EligibleLineResponse]:
+    ) -> builtins.list[EligibleLineResponse]:
         raw_lines = await self.repo.get_eligible_lines(db, vendor_id, org_id)
-        return [EligibleLineResponse(**l) for l in raw_lines]
+        return [EligibleLineResponse(**line_item) for line_item in raw_lines]
+
+    async def generate_po_flip_draft(
+        self,
+        db: AsyncSession,
+        po_id: UUID,
+        org_id: UUID,
+        vendor_id: UUID | None = None,
+    ) -> PoFlipDraftResponse:
+        """
+        Generates an automated PO Flip draft invoice (SAP Ariba / Coupa enterprise standard).
+        Pre-populates lines from confirmed GRN receipts & open quantities.
+        """
+        from app.db.enums import POStatus
+        from app.modules.grn.models import GoodsReceiptNote, GrnLine
+        from app.modules.invoice.schemas import PoFlipDraftResponse, PoFlipLineDraft
+
+        po = await self.po_repo.get(db, po_id, org_id)
+        if not po:
+            raise NotFoundError(f"Purchase Order {po_id} not found")
+
+        if vendor_id and po.vendor_id != vendor_id:
+            raise ForbiddenError("You are not authorized to flip this Purchase Order")
+
+        vendor = None
+        if hasattr(self.repo, "get_vendor_by_id"):
+            vendor = await self.repo.get_vendor_by_id(db, po.vendor_id, org_id)
+        vendor_name = getattr(vendor, "company_name", None)
+
+        valid_statuses = [
+            POStatus.RELEASED.value if hasattr(POStatus.RELEASED, "value") else "RELEASED",
+            POStatus.ACKNOWLEDGED.value if hasattr(POStatus.ACKNOWLEDGED, "value") else "ACKNOWLEDGED",
+            "VENDOR_ACKNOWLEDGED",
+            (
+                POStatus.PARTIALLY_RECEIVED.value
+                if hasattr(POStatus.PARTIALLY_RECEIVED, "value")
+                else "PARTIALLY_RECEIVED"
+            ),
+            POStatus.FULLY_RECEIVED.value if hasattr(POStatus.FULLY_RECEIVED, "value") else "FULLY_RECEIVED",
+        ]
+        po_status_str = po.status.value if hasattr(po.status, "value") else str(po.status)
+        can_invoice = po_status_str in valid_statuses
+        blocking_reason = None
+        if not can_invoice:
+            blocking_reason = f"PO status is '{po_status_str}'. Invoicing requires an acknowledged or received PO."
+
+        draft_lines: list[PoFlipLineDraft] = []
+        subtotal = Decimal("0.0")
+        tax_total = Decimal("0.0")
+
+        today = date.today()
+        due_date = await self.calculate_payment_due_date(
+            db, po, today, org_id, getattr(getattr(po, "payment_term", None), "code", None)
+        )
+
+        for line in getattr(po, "lines", []) or []:
+            # 1. Accepted GRN quantity
+            grn_stmt = (
+                select(func.coalesce(func.sum(GrnLine.accepted_quantity), 0))
+                .join(GoodsReceiptNote, GrnLine.grn_id == GoodsReceiptNote.id)
+                .where(
+                    and_(
+                        GrnLine.po_line_id == line.id,
+                        GoodsReceiptNote.org_id == org_id,
+                        GoodsReceiptNote.deleted_at.is_(None),
+                    )
+                )
+            )
+            grn_res = await db.execute(grn_stmt)
+            accepted_qty = Decimal(str(grn_res.scalar() or 0))
+            if accepted_qty <= 0 and (line.received_quantity or 0) > 0:
+                accepted_qty = Decimal(str(line.received_quantity))
+
+            # 2. Invoiced quantity
+            invoiced_qty = await self.repo.get_total_invoiced_quantity(db, line.id, org_id)
+
+            ordered_qty = Decimal(str(getattr(line, "ordered_quantity", getattr(line, "quantity", 0))))
+
+            # 3. Open invoiceable quantity
+            invoiceable = max(Decimal("0.0"), accepted_qty - invoiced_qty)
+            if invoiceable <= 0 and accepted_qty == 0 and can_invoice:
+                invoiceable = max(Decimal("0.0"), ordered_qty - invoiced_qty)
+
+            unit_price = Decimal(str(line.unit_price))
+            tax_rate = Decimal(str(line.tax_rate or Decimal("0.0")))
+            line_subtotal = (invoiceable * unit_price).quantize(Decimal("0.01"))
+            line_tax = (line_subtotal * (tax_rate / Decimal("100.0"))).quantize(Decimal("0.01"))
+            line_total = line_subtotal + line_tax
+
+            subtotal += line_subtotal
+            tax_total += line_tax
+
+            draft_lines.append(
+                PoFlipLineDraft(
+                    po_line_id=line.id,
+                    line_number=line.line_number,
+                    item_description=line.item_description,
+                    po_quantity=ordered_qty,
+                    received_quantity=accepted_qty,
+                    invoiced_quantity=invoiced_qty,
+                    invoiceable_quantity=invoiceable,
+                    unit_price=unit_price,
+                    tax_rate=tax_rate,
+                    tax_amount=line_tax,
+                    line_total=line_total,
+                )
+            )
+
+        total_amount = subtotal + tax_total
+
+        return PoFlipDraftResponse(
+            po_id=po.id,
+            po_number=po.po_number,
+            vendor_id=po.vendor_id,
+            vendor_name=vendor_name,
+            currency=po.currency or "INR",
+            payment_terms_code=getattr(getattr(po, "payment_term", None), "code", None),
+            suggested_invoice_date=today,
+            suggested_due_date=due_date,
+            suggested_vendor_invoice_number=f"INV-{po.po_number}-{today.strftime('%m%d')}",
+            lines=draft_lines,
+            subtotal=subtotal,
+            tax_amount=tax_total,
+            total_amount=total_amount,
+            can_invoice=can_invoice and len(draft_lines) > 0 and subtotal > 0,
+            blocking_reason=blocking_reason or ("All quantities already fully invoiced" if subtotal == 0 else None),
+        )
 
     async def approve(
         self,
@@ -547,8 +711,16 @@ class InvoiceService:
         allowed_approval_statuses = [
             InvoiceStatusEnum.SUBMITTED.value if hasattr(InvoiceStatusEnum.SUBMITTED, "value") else "SUBMITTED",
             InvoiceStatusEnum.MATCHED.value if hasattr(InvoiceStatusEnum.MATCHED, "value") else "MATCHED",
-            InvoiceStatusEnum.PARTIALLY_MATCHED.value if hasattr(InvoiceStatusEnum.PARTIALLY_MATCHED, "value") else "PARTIALLY_MATCHED",
-            InvoiceStatusEnum.PENDING_APPROVAL.value if hasattr(InvoiceStatusEnum.PENDING_APPROVAL, "value") else "PENDING_APPROVAL",
+            (
+                InvoiceStatusEnum.PARTIALLY_MATCHED.value
+                if hasattr(InvoiceStatusEnum.PARTIALLY_MATCHED, "value")
+                else "PARTIALLY_MATCHED"
+            ),
+            (
+                InvoiceStatusEnum.PENDING_APPROVAL.value
+                if hasattr(InvoiceStatusEnum.PENDING_APPROVAL, "value")
+                else "PENDING_APPROVAL"
+            ),
         ]
         if curr_status not in allowed_approval_statuses:
             raise ValidationError(f"Cannot approve invoice in status '{curr_status}'")
@@ -683,6 +855,7 @@ class InvoiceService:
     ) -> AdvancedReconciliationResponse:
         invoice = await self.get(db, invoice_id, org_id)
         from app.modules.purchase_order.repository import purchase_order_repository
+
         po = await purchase_order_repository.get(db, invoice.po_id, org_id)
         if not po:
             raise NotFoundError("PurchaseOrder", str(invoice.po_id))
@@ -722,17 +895,23 @@ class InvoiceService:
             if po_price > 0:
                 price_variance_pct = round(((inv_price - po_price) / po_price) * 100.0, 2)
                 if abs(price_variance_pct) > payload.price_tolerance_pct:
-                    reasons.append(f"Price exceeds PO rate by {price_variance_pct}% (tolerance: ±{payload.price_tolerance_pct}%)")
+                    reasons.append(
+                        f"Price exceeds PO rate by {price_variance_pct}% (tolerance: ±{payload.price_tolerance_pct}%)"
+                    )
                     if inv_price > po_price:
                         suggested_credit += Decimal(str(round((inv_price - po_price) * inv_qty, 2)))
 
             # Quantity check
             qty_variance_pct = 0.0
-            benchmark_qty = grn_accepted if payload.match_mode == "FOUR_WAY" else (grn_received if grn_received > 0 else po_qty)
+            benchmark_qty = (
+                grn_accepted if payload.match_mode == "FOUR_WAY" else (grn_received if grn_received > 0 else po_qty)
+            )
             if benchmark_qty > 0:
                 qty_variance_pct = round(((inv_qty - benchmark_qty) / benchmark_qty) * 100.0, 2)
                 if abs(qty_variance_pct) > payload.quantity_tolerance_pct:
-                    reasons.append(f"Invoiced quantity exceeds received count by {qty_variance_pct}% (tolerance: ±{payload.quantity_tolerance_pct}%)")
+                    reasons.append(
+                        f"Invoiced quantity exceeds received count by {qty_variance_pct}% (tolerance: ±{payload.quantity_tolerance_pct}%)"
+                    )
                     if inv_qty > benchmark_qty:
                         suggested_credit += Decimal(str(round((inv_qty - benchmark_qty) * inv_price, 2)))
 
@@ -772,8 +951,31 @@ class InvoiceService:
         auto_approved = False
         if overall_status == "FULLY_MATCHED" and payload.auto_approve_if_matched:
             invoice.match_status = "MATCHED"
-            await self.approve(db, invoice.id, actor_id, org_id)
-            auto_approved = True
+            curr_status = invoice.status.value if hasattr(invoice.status, "value") else str(invoice.status)
+            allowed_approval_statuses = [
+                InvoiceStatusEnum.SUBMITTED.value if hasattr(InvoiceStatusEnum.SUBMITTED, "value") else "SUBMITTED",
+                InvoiceStatusEnum.MATCHED.value if hasattr(InvoiceStatusEnum.MATCHED, "value") else "MATCHED",
+                (
+                    InvoiceStatusEnum.PARTIALLY_MATCHED.value
+                    if hasattr(InvoiceStatusEnum.PARTIALLY_MATCHED, "value")
+                    else "PARTIALLY_MATCHED"
+                ),
+                (
+                    InvoiceStatusEnum.PENDING_APPROVAL.value
+                    if hasattr(InvoiceStatusEnum.PENDING_APPROVAL, "value")
+                    else "PENDING_APPROVAL"
+                ),
+            ]
+            if curr_status in allowed_approval_statuses:
+                await self.approve(db, invoice.id, actor_id, org_id)
+                auto_approved = True
+            elif curr_status == (
+                InvoiceStatusEnum.APPROVED.value if hasattr(InvoiceStatusEnum.APPROVED, "value") else "APPROVED"
+            ):
+                auto_approved = True
+                await db.commit()
+            else:
+                await db.commit()
         elif overall_status == "VARIANCE_DETECTED":
             invoice.match_status = "DISCREPANCY"
             await db.commit()
@@ -798,9 +1000,7 @@ class InvoiceService:
             reconciliation_timestamp=datetime.now(UTC),
         )
 
-    async def get_reconciliation_dashboard(
-        self, db: AsyncSession, org_id: UUID
-    ) -> dict[str, Any]:
+    async def get_reconciliation_dashboard(self, db: AsyncSession, org_id: UUID) -> dict[str, Any]:
         stmt = select(Invoice).where(Invoice.org_id == org_id)
         invoices = list((await db.execute(stmt)).scalars().all())
 
@@ -817,6 +1017,291 @@ class InvoiceService:
             "total_matched_value": float(sum(i.total_amount for i in matched)),
             "total_at_risk_value": float(sum(i.total_amount for i in discrepant)),
         }
+
+    async def calculate_early_discount_options(
+        self,
+        db: AsyncSession,
+        invoice_id: UUID,
+        org_id: UUID,
+        custom_apr: float | None = None,
+    ) -> EarlyDiscountOptionsResponse:
+        invoice = await self.get(db, invoice_id, org_id)
+        today = date.today()
+        remaining_days = (invoice.due_date - today).days
+
+        min_days_early = settings.EARLY_DISCOUNT_MIN_DAYS_EARLY
+        max_discount_cap = Decimal(str(settings.EARLY_DISCOUNT_MAX_DISCOUNT_PCT))
+
+        invalid_statuses = (InvoiceStatusEnum.CANCELLED, InvoiceStatusEnum.PAID, InvoiceStatusEnum.DISPUTED)
+        if invoice.status in invalid_statuses:
+            status_val = invoice.status.value if hasattr(invoice.status, "value") else str(invoice.status)
+            return EarlyDiscountOptionsResponse(
+                invoice_id=invoice.id,
+                invoice_number=invoice.invoice_number,
+                original_due_date=invoice.due_date,
+                currency=invoice.currency,
+                total_amount=invoice.total_amount,
+                eligible=False,
+                blocking_reason=f"Invoices in status '{status_val}' cannot receive early discount payment acceleration.",
+                options=[],
+            )
+
+        if remaining_days < min_days_early:
+            return EarlyDiscountOptionsResponse(
+                invoice_id=invoice.id,
+                invoice_number=invoice.invoice_number,
+                original_due_date=invoice.due_date,
+                currency=invoice.currency,
+                total_amount=invoice.total_amount,
+                eligible=False,
+                blocking_reason=f"Invoice is due in {remaining_days} days (minimum required for acceleration: {min_days_early} days).",
+                options=[],
+            )
+
+        aprs = [custom_apr] if custom_apr else [0.12, settings.EARLY_DISCOUNT_DEFAULT_APR, 0.24]
+        candidate_days = [5, 10, 15, 20, 25]
+        valid_days = [d for d in candidate_days if d < remaining_days]
+        if not valid_days:
+            valid_days = [max(min_days_early, remaining_days - 2)]
+
+        options: list[EarlyDiscountOption] = []
+        for days in valid_days:
+            for apr in aprs:
+                raw_pct = (Decimal(str(days)) / Decimal("365.0")) * Decimal(str(apr))
+                discount_pct = min(max_discount_cap, raw_pct)
+                discount_amt = (invoice.total_amount * discount_pct).quantize(Decimal("0.01"))
+                tds = invoice.tds_amount or Decimal("0.0")
+                net_amt = (invoice.total_amount - discount_amt - tds).quantize(Decimal("0.01"))
+                payout_date = invoice.due_date - timedelta(days=days)
+
+                options.append(
+                    EarlyDiscountOption(
+                        days_early=days,
+                        accelerated_payout_date=payout_date,
+                        annual_percentage_rate=float(apr),
+                        discount_percentage=round(float(discount_pct * 100), 2),
+                        discount_amount=discount_amt,
+                        gross_amount=invoice.total_amount,
+                        net_payout_amount=net_amt,
+                        cash_yield_annualized_pct=round(float(apr * 100), 1),
+                    )
+                )
+
+        return EarlyDiscountOptionsResponse(
+            invoice_id=invoice.id,
+            invoice_number=invoice.invoice_number,
+            original_due_date=invoice.due_date,
+            currency=invoice.currency,
+            total_amount=invoice.total_amount,
+            eligible=True,
+            blocking_reason=None,
+            options=options,
+        )
+
+    async def request_early_payment(
+        self,
+        db: AsyncSession,
+        invoice_id: UUID,
+        payload: EarlyDiscountRequest,
+        actor_id: UUID,
+        org_id: UUID,
+        vendor_id: UUID | None = None,
+    ) -> EarlyDiscountActionResponse:
+        invoice = await self.get(db, invoice_id, org_id)
+        if vendor_id and invoice.vendor_id != vendor_id:
+            raise ForbiddenError("You are not authorized to request early discount on another vendor's invoice")
+
+        if payload.accelerated_payout_date >= invoice.due_date:
+            raise ValidationError(
+                f"Accelerated payout date ({payload.accelerated_payout_date}) must precede due date ({invoice.due_date})"
+            )
+
+        days_early = (invoice.due_date - payload.accelerated_payout_date).days
+        if days_early < settings.EARLY_DISCOUNT_MIN_DAYS_EARLY:
+            raise ValidationError(
+                f"Accelerated payment requires at least {settings.EARLY_DISCOUNT_MIN_DAYS_EARLY} days acceleration"
+            )
+
+        if payload.discount_amount <= Decimal("0.0") or payload.discount_amount >= invoice.total_amount:
+            raise ValidationError("Invalid discount amount")
+
+        invoice.early_discount_status = "REQUESTED"
+        invoice.early_discount_amount = payload.discount_amount
+        invoice.early_discount_payout_date = payload.accelerated_payout_date
+        invoice.early_discount_apr = Decimal(str(payload.annual_percentage_rate))
+        invoice.updated_by = actor_id
+
+        await self.audit.log(
+            db,
+            "INVOICE",
+            invoice.id,
+            "EARLY_DISCOUNT_REQUESTED",
+            actor_id,
+            org_id,
+            new_values={
+                "discount_amount": str(payload.discount_amount),
+                "accelerated_date": str(payload.accelerated_payout_date),
+                "apr": str(payload.annual_percentage_rate),
+            },
+        )
+        await self.publisher.publish(
+            db,
+            "procurement.invoice",
+            routing_key="invoice.early_discount.requested",
+            payload={
+                "invoice_id": str(invoice.id),
+                "invoice_number": invoice.invoice_number,
+                "discount_amount": float(payload.discount_amount),
+                "payout_date": str(payload.accelerated_payout_date),
+            },
+            org_id=org_id,
+        )
+
+        await db.commit()
+        net_payable = invoice.total_amount - payload.discount_amount - (invoice.tds_amount or Decimal("0.0"))
+        return EarlyDiscountActionResponse(
+            invoice_id=invoice.id,
+            invoice_number=invoice.invoice_number,
+            early_discount_status=invoice.early_discount_status,
+            original_due_date=invoice.due_date,
+            accelerated_payout_date=invoice.early_discount_payout_date,
+            discount_amount=payload.discount_amount,
+            net_payable_amount=net_payable,
+            currency=invoice.currency,
+            message=f"Early payment request of {invoice.currency} {payload.discount_amount} submitted successfully.",
+        )
+
+    async def accept_early_payment(
+        self,
+        db: AsyncSession,
+        invoice_id: UUID,
+        actor_id: UUID,
+        org_id: UUID,
+    ) -> EarlyDiscountActionResponse:
+        invoice = await self.get(db, invoice_id, org_id)
+        if invoice.early_discount_status != "REQUESTED":
+            raise ValidationError(
+                f"Cannot accept early payment for invoice with early_discount_status '{invoice.early_discount_status}'. Must be 'REQUESTED'."
+            )
+
+        invoice.early_discount_status = "ACCEPTED"
+        invoice.updated_by = actor_id
+
+        from app.modules.payment.models import PaymentRecord
+        stmt = select(PaymentRecord).where(
+            PaymentRecord.invoice_id == invoice.id,
+            PaymentRecord.org_id == org_id,
+            PaymentRecord.status == "PENDING",
+        )
+        res = await db.execute(stmt)
+        record = None
+        if hasattr(res, "scalars"):
+            sc = res.scalars()
+            if hasattr(sc, "first"):
+                record = sc.first()
+        tds = invoice.tds_amount or Decimal("0.0")
+        net_amount = invoice.total_amount - (invoice.early_discount_amount or Decimal("0.0")) - tds
+
+        if record:
+            record.amount = net_amount
+            record.net_amount = net_amount
+            record.discount_amount = invoice.early_discount_amount or Decimal("0.0")
+            if invoice.early_discount_payout_date:
+                record.payment_due_date = invoice.early_discount_payout_date
+                record.payment_date = invoice.early_discount_payout_date
+
+        await self.audit.log(
+            db,
+            "INVOICE",
+            invoice.id,
+            "EARLY_DISCOUNT_ACCEPTED",
+            actor_id,
+            org_id,
+            new_values={
+                "discount_amount": str(invoice.early_discount_amount),
+                "net_amount": str(net_amount),
+                "payout_date": str(invoice.early_discount_payout_date),
+            },
+        )
+        await self.publisher.publish(
+            db,
+            "procurement.invoice",
+            routing_key="invoice.early_discount.accepted",
+            payload={
+                "invoice_id": str(invoice.id),
+                "invoice_number": invoice.invoice_number,
+                "discount_amount": float(invoice.early_discount_amount or 0),
+                "net_amount": float(net_amount),
+                "payout_date": str(invoice.early_discount_payout_date),
+            },
+            org_id=org_id,
+        )
+
+        await db.commit()
+        return EarlyDiscountActionResponse(
+            invoice_id=invoice.id,
+            invoice_number=invoice.invoice_number,
+            early_discount_status=invoice.early_discount_status,
+            original_due_date=invoice.due_date,
+            accelerated_payout_date=invoice.early_discount_payout_date,
+            discount_amount=invoice.early_discount_amount or Decimal("0.0"),
+            net_payable_amount=net_amount,
+            currency=invoice.currency,
+            message=f"Early payment discount accepted. Accelerated payout scheduled for {invoice.early_discount_payout_date}.",
+        )
+
+    async def reject_early_payment(
+        self,
+        db: AsyncSession,
+        invoice_id: UUID,
+        rejection_reason: str,
+        actor_id: UUID,
+        org_id: UUID,
+    ) -> EarlyDiscountActionResponse:
+        invoice = await self.get(db, invoice_id, org_id)
+        if invoice.early_discount_status != "REQUESTED":
+            raise ValidationError(
+                f"Cannot reject early payment for invoice with early_discount_status '{invoice.early_discount_status}'"
+            )
+
+        invoice.early_discount_status = "REJECTED"
+        invoice.updated_by = actor_id
+
+        await self.audit.log(
+            db,
+            "INVOICE",
+            invoice.id,
+            "EARLY_DISCOUNT_REJECTED",
+            actor_id,
+            org_id,
+            new_values={"reason": rejection_reason},
+        )
+        await self.publisher.publish(
+            db,
+            "procurement.invoice",
+            routing_key="invoice.early_discount.rejected",
+            payload={
+                "invoice_id": str(invoice.id),
+                "invoice_number": invoice.invoice_number,
+                "reason": rejection_reason,
+            },
+            org_id=org_id,
+        )
+
+        await db.commit()
+        tds = invoice.tds_amount or Decimal("0.0")
+        net_amount = invoice.total_amount - tds
+        return EarlyDiscountActionResponse(
+            invoice_id=invoice.id,
+            invoice_number=invoice.invoice_number,
+            early_discount_status=invoice.early_discount_status,
+            original_due_date=invoice.due_date,
+            accelerated_payout_date=None,
+            discount_amount=Decimal("0.0"),
+            net_payable_amount=net_amount,
+            currency=invoice.currency,
+            message=f"Early payment discount request rejected: {rejection_reason}",
+        )
 
 
 invoice_service = InvoiceService()

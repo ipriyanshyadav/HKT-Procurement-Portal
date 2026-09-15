@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import date, datetime
+
 from loguru import logger
 
 from app.core.constants import RoleCode

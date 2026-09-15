@@ -32,14 +32,17 @@ export function PageHeader({
             {breadcrumbs.map((bc, index) => {
               const isLast = index === breadcrumbs.length - 1;
               return (
-                <React.Fragment key={index}>
+                <React.Fragment key={bc.href ?? bc.label}>
                   {index > 0 && <ChevronRight className="w-3 h-3 text-neutral-400 flex-shrink-0" />}
                   {bc.href && !isLast ? (
                     <Link href={bc.href} className="hover:text-neutral-900 dark:hover:text-white transition-colors">
                       {bc.label}
                     </Link>
                   ) : (
-                    <span className={isLast ? 'text-neutral-900 dark:text-neutral-100 font-medium' : ''}>
+                    <span
+                      aria-current={isLast ? 'page' : undefined}
+                      className={isLast ? 'text-neutral-900 dark:text-neutral-100 font-medium' : ''}
+                    >
                       {bc.label}
                     </span>
                   )}

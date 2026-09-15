@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional, Tuple
+from datetime import UTC, datetime
+from typing import Any
 from uuid import UUID
 
 from sqlalchemy import and_, desc, func, select
@@ -18,12 +18,12 @@ class IntegrationRepository:
         self,
         db: AsyncSession,
         org_id: UUID,
-        status: Optional[str] = None,
-        job_type: Optional[str] = None,
-        adapter_type: Optional[str] = None,
+        status: str | None = None,
+        job_type: str | None = None,
+        adapter_type: str | None = None,
         page: int = 1,
         page_size: int = 20,
-    ) -> Tuple[List[IntegrationJob], int]:
+    ) -> tuple[list[IntegrationJob], int]:
         filters = [IntegrationJob.org_id == org_id, IntegrationJob.deleted_at.is_(None)]
 
         if status:
@@ -52,7 +52,7 @@ class IntegrationRepository:
         db: AsyncSession,
         job_id: UUID,
         org_id: UUID,
-    ) -> Optional[IntegrationJob]:
+    ) -> IntegrationJob | None:
         stmt = select(IntegrationJob).where(
             and_(
                 IntegrationJob.id == job_id,
@@ -63,7 +63,7 @@ class IntegrationRepository:
         result = await db.execute(stmt)
         return result.scalar_one_or_none()
 
-    async def get_stats(self, db: AsyncSession, org_id: UUID) -> Dict[str, Any]:
+    async def get_stats(self, db: AsyncSession, org_id: UUID) -> dict[str, Any]:
         stmt = (
             select(IntegrationJob.status, func.count(IntegrationJob.id))
             .where(
@@ -99,7 +99,7 @@ class IntegrationRepository:
         self,
         db: AsyncSession,
         limit: int = 20,
-    ) -> List[ScheduledJobRun]:
+    ) -> list[ScheduledJobRun]:
         stmt = select(ScheduledJobRun).order_by(desc(ScheduledJobRun.started_at)).limit(limit)
         result = await db.execute(stmt)
         return list(result.scalars().all())
@@ -107,11 +107,11 @@ class IntegrationRepository:
     async def get_due_jobs(
         self,
         db: AsyncSession,
-        now: Optional[datetime] = None,
+        now: datetime | None = None,
         limit: int = 50,
-    ) -> List[IntegrationJob]:
+    ) -> list[IntegrationJob]:
         from sqlalchemy import or_
-        current_time = now or datetime.now(timezone.utc)
+        current_time = now or datetime.now(UTC)
         stmt = (
             select(IntegrationJob)
             .where(
@@ -142,8 +142,8 @@ class IntegrationRepository:
         db: AsyncSession,
         org_id: UUID,
         internal_id: UUID,
-        erp_system: Optional[str] = None,
-    ) -> Optional[ERPEntityMapping]:
+        erp_system: str | None = None,
+    ) -> ERPEntityMapping | None:
         filters = [
             ERPEntityMapping.org_id == org_id,
             ERPEntityMapping.internal_id == internal_id,
@@ -160,8 +160,8 @@ class IntegrationRepository:
         db: AsyncSession,
         org_id: UUID,
         external_id: str,
-        erp_system: Optional[str] = None,
-    ) -> Optional[ERPEntityMapping]:
+        erp_system: str | None = None,
+    ) -> ERPEntityMapping | None:
         filters = [
             ERPEntityMapping.org_id == org_id,
             ERPEntityMapping.external_id == external_id,
@@ -178,7 +178,7 @@ class IntegrationRepository:
         db: AsyncSession,
         mapping_id: UUID,
         org_id: UUID,
-    ) -> Optional[ERPEntityMapping]:
+    ) -> ERPEntityMapping | None:
         stmt = select(ERPEntityMapping).where(
             and_(
                 ERPEntityMapping.id == mapping_id,
@@ -200,11 +200,11 @@ class IntegrationRepository:
         sync_direction: str = "OUTBOUND",
         sync_status: str = "SUCCESS",
         retry_count: int = 0,
-        last_error: Optional[str] = None,
-        idoc_number: Optional[str] = None,
-        payload_checksum: Optional[str] = None,
-        reconciliation_hash: Optional[str] = None,
-        metadata_json: Optional[Dict[str, Any]] = None,
+        last_error: str | None = None,
+        idoc_number: str | None = None,
+        payload_checksum: str | None = None,
+        reconciliation_hash: str | None = None,
+        metadata_json: dict[str, Any] | None = None,
     ) -> ERPEntityMapping:
         existing = await self.get_mapping_by_internal_id(db, org_id, internal_id, erp_system)
         if not existing:
@@ -224,7 +224,7 @@ class IntegrationRepository:
                 existing.reconciliation_hash = reconciliation_hash
             if metadata_json is not None:
                 existing.metadata_json = metadata_json
-            existing.last_synced_at = datetime.now(timezone.utc)
+            existing.last_synced_at = datetime.now(UTC)
             await db.flush()
             return existing
 
@@ -242,7 +242,7 @@ class IntegrationRepository:
             payload_checksum=payload_checksum,
             reconciliation_hash=reconciliation_hash,
             metadata_json=metadata_json or {},
-            last_synced_at=datetime.now(timezone.utc),
+            last_synced_at=datetime.now(UTC),
         )
         db.add(mapping)
         await db.flush()
@@ -252,12 +252,12 @@ class IntegrationRepository:
         self,
         db: AsyncSession,
         org_id: UUID,
-        erp_system: Optional[str] = None,
-        entity_type: Optional[str] = None,
-        sync_status: Optional[str] = None,
+        erp_system: str | None = None,
+        entity_type: str | None = None,
+        sync_status: str | None = None,
         page: int = 1,
         page_size: int = 20,
-    ) -> Tuple[List[ERPEntityMapping], int]:
+    ) -> tuple[list[ERPEntityMapping], int]:
         filters = [ERPEntityMapping.org_id == org_id, ERPEntityMapping.deleted_at.is_(None)]
         if erp_system:
             filters.append(ERPEntityMapping.erp_system == erp_system)
@@ -283,8 +283,8 @@ class IntegrationRepository:
         self,
         db: AsyncSession,
         org_id: UUID,
-        erp_system: Optional[str] = None,
-    ) -> List[ERPEntityMapping]:
+        erp_system: str | None = None,
+    ) -> list[ERPEntityMapping]:
         filters = [
             ERPEntityMapping.org_id == org_id,
             ERPEntityMapping.sync_status == "DEAD_LETTER",

@@ -338,8 +338,8 @@ interface APIResponse<T> {
   timestamp?: string;
 }
 
-// Master data changes rarely — 30 minutes cache time
-const MASTER_DATA_STALE_TIME = 30 * 60 * 1000;
+// Master data cache time tuned to 15s for immediate cross-portal synchronicity
+const MASTER_DATA_STALE_TIME = 15 * 1000;
 
 // -----------------------------------------------------------------------------
 // Category Hooks

@@ -1,14 +1,19 @@
 from __future__ import annotations
+
 import re
 import time
 from uuid import uuid4
 
-_UUID_REGEX = re.compile(r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}")
-from starlette.datastructures import MutableHeaders, Headers
+from jose import jwt as jose_jwt
 from loguru import logger
+from starlette.datastructures import Headers, MutableHeaders
+
 from app.config import settings
+from app.core.metrics import http_request_duration_seconds, http_requests_total
 from app.core.telemetry import get_current_trace_id
-from app.core.metrics import http_requests_total, http_request_duration_seconds
+
+_UUID_REGEX = re.compile(r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}")
+_VALID_PORTALS = frozenset({"buyer", "supplier", "admin"})
 
 
 class RequestIDMiddleware:
@@ -52,16 +57,18 @@ class LoggingContextMiddleware:
         user_id = getattr(state, "user_id", "") if not isinstance(state, dict) else state.get("user_id", "")
         org_id = getattr(state, "org_id", "") if not isinstance(state, dict) else state.get("org_id", "")
 
-        # Extract portal from decoded JWT payload
+        # Extract portal from JWT for log context only (claims are NOT verified here —
+        # validation happens in route handlers via get_current_user).
+        # Sanitize to a known set to prevent audit log injection.
         portal = "buyer"
         headers = Headers(scope=scope)
         auth_header = headers.get("authorization") or ""
         if auth_header.startswith("Bearer "):
             token = auth_header[7:].strip()
             try:
-                from jose import jwt as jose_jwt
                 unverified = jose_jwt.get_unverified_claims(token)
-                portal = unverified.get("portal", "buyer")
+                raw_portal = unverified.get("portal", "buyer")
+                portal = raw_portal if raw_portal in _VALID_PORTALS else "buyer"
             except Exception:
                 portal = "buyer"
         state["portal"] = portal

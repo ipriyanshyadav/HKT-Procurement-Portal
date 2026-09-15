@@ -24,6 +24,8 @@ class TicketCreateRequest(BaseModel):
     entity_number: str | None = None
     tags: list[str] | None = Field(default_factory=list)
     is_private: bool | None = False
+    assigned_to: UUID | None = None
+    assigned_team: str | None = None
     custom_fields: list[CustomFieldValueItem] | None = Field(default_factory=list)
 
 
@@ -35,6 +37,8 @@ class TicketUpdateRequest(BaseModel):
     due_date: date | None = None
     tags: list[str] | None = None
     is_private: bool | None = None
+    assigned_to: UUID | None = None
+    assigned_team: str | None = None
     custom_fields: list[CustomFieldValueItem] | None = None
 
 

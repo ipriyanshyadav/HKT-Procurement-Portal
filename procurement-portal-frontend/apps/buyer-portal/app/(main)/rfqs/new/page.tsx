@@ -1,4 +1,5 @@
 "use client";
+import { getErrorMessage } from "@procurement/utils";
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -9,6 +10,7 @@ import {
   useCategories,
   useUoms,
 } from "@procurement/hooks";
+import { useAppToast } from "@procurement/hooks";
 import { Button, Badge } from "@procurement/ui";
 import {
   ArrowLeft,
@@ -21,6 +23,7 @@ import {
 } from "lucide-react";
 
 export default function NewRfqPage() {
+  const { toast } = useAppToast();
   const router = useRouter();
   const createMutation = useCreateRfq();
 
@@ -120,7 +123,7 @@ export default function NewRfqPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!businessUnitId || !categoryId || !bidCloseAt) {
-      alert("Please fill in Business Unit, Category, and Submission Deadline");
+      toast.error("Please fill in Business Unit, Category, and Submission Deadline");
       return;
     }
 
@@ -166,8 +169,8 @@ export default function NewRfqPage() {
 
       const result = await createMutation.mutateAsync(payload);
       router.push(`/rfqs/${result.id}`);
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to create RFQ");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to create RFQ"));
     }
   };
 

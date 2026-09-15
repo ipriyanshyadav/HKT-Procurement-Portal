@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from typing import List, Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query, status
@@ -9,13 +8,16 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.auth.dependencies import get_current_user
 from app.core.responses import APIResponse, PaginationMeta, created_response, success_response
 from app.db.session import get_db
+from app.modules.organization.company_switcher_service import company_switcher_service
 from app.modules.organization.schemas import (
     BusinessUnitCreateRequest,
     BusinessUnitResponse,
     BusinessUnitUpdateRequest,
+    CompanyContextResponse,
     CostCenterCreateRequest,
     CostCenterResponse,
     CostCenterUpdateRequest,
+    CrossTenantRollupResponse,
     DepartmentCreateRequest,
     DepartmentResponse,
     DepartmentUpdateRequest,
@@ -27,13 +29,10 @@ from app.modules.organization.schemas import (
     PlantCreateRequest,
     PlantResponse,
     PlantUpdateRequest,
-    CompanyContextResponse,
     SwitchCompanyContextRequest,
     SwitchCompanyContextResponse,
-    CrossTenantRollupResponse,
 )
 from app.modules.organization.service import organization_service
-from app.modules.organization.company_switcher_service import company_switcher_service
 from app.modules.user.models import User
 
 router = APIRouter(tags=["Organization"])
@@ -78,8 +77,8 @@ async def update_current_organization(
 # Legal Entities
 # ============================================================================
 
-@router.get("/legal-entities", response_model=APIResponse[List[LegalEntityResponse]])
-@router.get("/organizations/legal-entities", response_model=APIResponse[List[LegalEntityResponse]])
+@router.get("/legal-entities", response_model=APIResponse[list[LegalEntityResponse]])
+@router.get("/organizations/legal-entities", response_model=APIResponse[list[LegalEntityResponse]])
 async def list_legal_entities(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
@@ -149,11 +148,11 @@ async def delete_legal_entity(
 # Business Units
 # ============================================================================
 
-@router.get("/business-units", response_model=APIResponse[List[BusinessUnitResponse]])
-@router.get("/organizations/business-units", response_model=APIResponse[List[BusinessUnitResponse]])
+@router.get("/business-units", response_model=APIResponse[list[BusinessUnitResponse]])
+@router.get("/organizations/business-units", response_model=APIResponse[list[BusinessUnitResponse]])
 async def list_business_units(
     active_only: bool = Query(default=True),
-    legal_entity_id: Optional[UUID] = Query(default=None),
+    legal_entity_id: UUID | None = Query(default=None),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -229,10 +228,10 @@ async def delete_business_unit(
 # Plants
 # ============================================================================
 
-@router.get("/plants", response_model=APIResponse[List[PlantResponse]])
-@router.get("/organizations/plants", response_model=APIResponse[List[PlantResponse]])
+@router.get("/plants", response_model=APIResponse[list[PlantResponse]])
+@router.get("/organizations/plants", response_model=APIResponse[list[PlantResponse]])
 async def list_plants(
-    business_unit_id: Optional[UUID] = Query(default=None),
+    business_unit_id: UUID | None = Query(default=None),
     active_only: bool = Query(default=True),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
@@ -304,10 +303,10 @@ async def delete_plant(
 # Departments
 # ============================================================================
 
-@router.get("/departments", response_model=APIResponse[List[DepartmentResponse]])
-@router.get("/organizations/departments", response_model=APIResponse[List[DepartmentResponse]])
+@router.get("/departments", response_model=APIResponse[list[DepartmentResponse]])
+@router.get("/organizations/departments", response_model=APIResponse[list[DepartmentResponse]])
 async def list_departments(
-    business_unit_id: Optional[UUID] = Query(default=None),
+    business_unit_id: UUID | None = Query(default=None),
     active_only: bool = Query(default=True),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
@@ -379,10 +378,10 @@ async def delete_department(
 # Cost Centers
 # ============================================================================
 
-@router.get("/cost-centers", response_model=APIResponse[List[CostCenterResponse]])
-@router.get("/organizations/cost-centers", response_model=APIResponse[List[CostCenterResponse]])
+@router.get("/cost-centers", response_model=APIResponse[list[CostCenterResponse]])
+@router.get("/organizations/cost-centers", response_model=APIResponse[list[CostCenterResponse]])
 async def list_cost_centers(
-    business_unit_id: Optional[UUID] = Query(default=None),
+    business_unit_id: UUID | None = Query(default=None),
     active_only: bool = Query(default=True),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),

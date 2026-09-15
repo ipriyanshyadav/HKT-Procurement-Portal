@@ -11,14 +11,15 @@ Handles:
 """
 from __future__ import annotations
 
-from datetime import date, datetime, timezone
+import builtins
+from datetime import UTC, date, datetime
 from decimal import Decimal
-from typing import List, Optional, Tuple
 from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.exceptions import AppException, NotFoundError, ValidationError
+from app.core.constants import AuditAction
+from app.core.exceptions import AppException, ForbiddenError, NotFoundError, ValidationError
 from app.events.publisher import OutboxPublisher
 from app.modules.audit.service import audit_service
 from app.modules.grn.models import GoodsReceiptNote, GrnLine, QualityInspection
@@ -29,6 +30,7 @@ from app.modules.grn.schemas import (
     QualityInspectionCreate,
 )
 from app.modules.purchase_order.service import purchase_order_service
+from app.modules.user.models import User
 from app.modules.vendor.schemas import VendorScorecardUpdateRequest
 from app.modules.vendor.service import vendor_service
 
@@ -59,7 +61,7 @@ class GrnService:
         db: AsyncSession,
         org_id: UUID,
         filters: GrnFilterParams,
-    ) -> Tuple[List[GoodsReceiptNote], int]:
+    ) -> tuple[builtins.list[GoodsReceiptNote], int]:
         return await self.repo.list(db, org_id, filters)
 
     async def create_grn(
@@ -90,7 +92,7 @@ class GrnService:
         grn_number = await self.repo.generate_grn_number(db, org_id)
 
         has_qc_required = False
-        lines_to_add: List[GrnLine] = []
+        lines_to_add: list[GrnLine] = []
 
         for line_data in data.lines:
             po_line = await self.po_service.repo.get_line(db, line_data.po_line_id, org_id)
@@ -207,7 +209,7 @@ class GrnService:
         grn_line.accepted_quantity = data.accepted_quantity
         grn_line.rejected_quantity = data.rejected_quantity
         grn_line.qc_status = data.result
-        grn_line.inspected_at = datetime.now(timezone.utc)
+        grn_line.inspected_at = datetime.now(UTC)
         grn_line.inspected_by = inspector_id
 
         await db.flush()
@@ -270,7 +272,7 @@ class GrnService:
                     f"Cannot confirm GRN: Quality inspection is pending on line {line.id}",
                 )
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         grn.status = "CONFIRMED"
         grn.confirmed_at = now
         grn.confirmed_by = actor_id
@@ -314,8 +316,8 @@ class GrnService:
         )
 
         # 3. Update Vendor Scorecard Performance Metrics
-        total_received = sum(l.received_quantity for l in grn.lines)
-        total_accepted = sum(l.accepted_quantity for l in grn.lines)
+        total_received = sum(line.received_quantity for line in grn.lines)
+        total_accepted = sum(line.accepted_quantity for line in grn.lines)
 
         quality_rate = (
             (total_accepted / total_received) * Decimal("100.0")
@@ -395,5 +397,147 @@ class GrnService:
 
         return grn
 
+    async def consignee_confirm_grn(
+        self,
+        db: AsyncSession,
+        grn_id: UUID,
+        actor: User,
+        org_id: UUID,
+        confirmation_note: str | None = None,
+    ) -> GoodsReceiptNote:
+        grn = await self.get(db, grn_id, org_id)
+        if grn.consignee_id != actor.id:
+            raise ForbiddenError("You are not the designated consignee for this GRN")
+
+        if grn.consignee_status != "PENDING":
+            raise AppException(
+                code="ALREADY_PROCESSED",
+                message=f"GRN consignee status is already {grn.consignee_status}",
+            )
+
+        grn.consignee_status = "CONFIRMED"
+        grn.consignee_confirmed_at = datetime.now(UTC)
+        if grn.status == "DRAFT":
+            grn.status = "ACCEPTED"
+
+        await self.audit.log(
+            db=db,
+            action=AuditAction.GRN_CONSIGNEE_CONFIRMED,
+            actor_id=actor.id,
+            org_id=org_id,
+            target_type="GoodsReceiptNote",
+            target_id=grn.id,
+            details={"note": confirmation_note},
+        )
+
+        await self.publisher.publish(
+            db,
+            org_id,
+            "indent.confirmed",
+            {"grn_id": str(grn_id), "consignee_id": str(actor.id)},
+        )
+
+        return grn
+
+    async def consignee_reject_grn(
+        self,
+        db: AsyncSession,
+        grn_id: UUID,
+        actor: User,
+        org_id: UUID,
+        rejection_reason: str,
+    ) -> GoodsReceiptNote:
+        grn = await self.get(db, grn_id, org_id)
+        if grn.consignee_id != actor.id:
+            raise ForbiddenError("You are not the designated consignee for this GRN")
+
+        if grn.consignee_status != "PENDING":
+            raise AppException(
+                code="ALREADY_PROCESSED",
+                message=f"GRN consignee status is already {grn.consignee_status}",
+            )
+
+        grn.consignee_status = "REJECTED"
+        grn.consignee_rejection_reason = rejection_reason
+
+        await self.audit.log(
+            db=db,
+            action=AuditAction.GRN_CONSIGNEE_REJECTED,
+            actor_id=actor.id,
+            org_id=org_id,
+            target_type="GoodsReceiptNote",
+            target_id=grn.id,
+            details={"reason": rejection_reason},
+        )
+
+        await self.publisher.publish(
+            db,
+            org_id,
+            "indent.rejected",
+            {"grn_id": str(grn_id), "consignee_id": str(actor.id), "reason": rejection_reason},
+        )
+
+        return grn
+
+    async def get_grns_assigned_to_consignee(
+        self,
+        db: AsyncSession,
+        user_id: UUID,
+        org_id: UUID,
+        status_filter: str | None = None,
+        page: int = 1,
+        page_size: int = 20,
+    ) -> tuple[builtins.list[dict], int]:
+        from sqlalchemy import func, select
+
+        from app.modules.vendor.models import Vendor
+
+        base_query = (
+            select(GoodsReceiptNote, Vendor.company_name)
+            .outerjoin(Vendor, Vendor.id == GoodsReceiptNote.vendor_id)
+            .where(
+                GoodsReceiptNote.consignee_id == user_id,
+                GoodsReceiptNote.org_id == org_id,
+                GoodsReceiptNote.deleted_at.is_(None),
+            )
+        )
+        if status_filter:
+            base_query = base_query.where(GoodsReceiptNote.consignee_status == status_filter)
+
+        count_stmt = select(func.count()).select_from(
+            select(GoodsReceiptNote.id)
+            .where(
+                GoodsReceiptNote.consignee_id == user_id,
+                GoodsReceiptNote.org_id == org_id,
+                GoodsReceiptNote.deleted_at.is_(None),
+            )
+            .where(GoodsReceiptNote.consignee_status == status_filter if status_filter else True)
+            .subquery()
+        )
+        total = (await db.execute(count_stmt)).scalar() or 0
+
+        paged_query = (
+            base_query.order_by(GoodsReceiptNote.created_at.desc())
+            .offset((page - 1) * page_size)
+            .limit(page_size)
+        )
+        result = await db.execute(paged_query)
+        rows = result.all()
+
+        records = [
+            {
+                "id": str(grn.id),
+                "grn_number": grn.grn_number,
+                "consignee_status": grn.consignee_status,
+                "vendor_name": company_name or "Unknown Vendor",
+                "receipt_date": grn.receipt_date.isoformat() if grn.receipt_date else None,
+                "status": grn.status,
+            }
+            for grn, company_name in rows
+        ]
+        return records, total
+
+
 
 grn_service = GrnService()
+

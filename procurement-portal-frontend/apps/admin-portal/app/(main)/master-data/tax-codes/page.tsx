@@ -1,4 +1,5 @@
 "use client";
+import { getErrorMessage } from "@procurement/utils";
 
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
@@ -9,12 +10,15 @@ import {
   useDeleteTaxCode,
   type TaxCode,
 } from "@procurement/hooks";
-import { Badge, Button, PermissionGuard } from "@procurement/ui";
-import { Percent, Plus, Search, Edit2, Trash2, ArrowLeft } from "lucide-react";
+import { useAppToast } from "@procurement/hooks";
+import { Badge, Button, PermissionGuard, useConfirm, SearchInput, TableSkeleton, EmptyState } from "@procurement/ui";
+import { Percent, Plus, Edit2, Trash2, ArrowLeft } from "lucide-react";
 
 const TAX_TYPES = ["ALL", "GST", "TDS", "CESS", "CUSTOMS", "OTHER"] as const;
 
 export default function TaxCodesManagementPage() {
+  const { toast } = useAppToast();
+  const { confirm } = useConfirm();
   const [selectedType, setSelectedType] = useState<string>("ALL");
   const { data: taxCodes = [], isLoading, error } = useTaxCodes({
     tax_type: selectedType === "ALL" ? undefined : selectedType,
@@ -107,24 +111,25 @@ export default function TaxCodesManagementPage() {
         });
       }
       setShowModal(false);
-    } catch (err: any) {
-      setFormError(
-        err?.response?.data?.error?.message ||
-          err?.response?.data?.message ||
-          err?.message ||
-          "Failed to save Tax Code"
-      );
+    } catch (err: unknown) {
+      setFormError(getErrorMessage(err, "Failed to save Tax Code"));
     }
   };
 
   const handleDelete = async (item: TaxCode) => {
-    if (!window.confirm(`Are you sure you want to deactivate tax code "${item.code}"?`)) {
+    const ok = await confirm({
+      title: "Deactivate Tax Code",
+      description: `Are you sure you want to deactivate tax code "${item.code}"?`,
+      confirmLabel: "Deactivate",
+      variant: "danger",
+    });
+    if (!ok) {
       return;
     }
     try {
       await deleteMutation.mutateAsync(item.id);
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || err?.message || "Failed to delete Tax Code");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to delete Tax Code"));
     }
   };
 
@@ -198,16 +203,12 @@ export default function TaxCodesManagementPage() {
 
       {/* Search and Counts */}
       <div className="flex items-center justify-between gap-4 bg-white dark:bg-neutral-900 p-3 rounded-lg border border-gray-200 dark:border-neutral-800 shadow-sm">
-        <div className="relative flex-1 max-w-md">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search by code, name, or HSN chapter..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-4 py-1.5 text-xs rounded-md border border-gray-200 dark:border-neutral-700 bg-gray-50 dark:bg-neutral-800 text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-          />
-        </div>
+        <SearchInput
+          placeholder="Search by code, name, or HSN chapter..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="flex-1 max-w-md"
+        />
         <div className="text-xs text-gray-500 font-mono">
           Showing {filteredTaxCodes.length} of {taxCodes.length} codes
         </div>
@@ -216,19 +217,20 @@ export default function TaxCodesManagementPage() {
       {/* Table */}
       <div className="bg-white dark:bg-neutral-900 rounded-lg border border-gray-200 dark:border-neutral-800 overflow-hidden shadow-sm">
         {isLoading ? (
-          <div className="p-12 text-center text-sm text-gray-500">
-            <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-rose-600 mb-2"></div>
-            <p>Loading tax codes...</p>
-          </div>
+          <TableSkeleton rows={6} columns={7} />
         ) : error ? (
-          <div className="p-8 text-center text-sm text-red-600">
-            Failed to load tax codes. Please verify backend connection.
-          </div>
+          <EmptyState
+            icon={<Percent className="w-6 h-6" />}
+            title="Failed to load tax codes"
+            description="Verify the backend connection and try again."
+          />
         ) : filteredTaxCodes.length === 0 ? (
-          <div className="p-12 text-center text-gray-500">
-            <p className="text-sm font-medium">No tax codes found</p>
-            <p className="text-xs text-gray-400 mt-1">Add GST or TDS rates for order calculation.</p>
-          </div>
+          <EmptyState
+            icon={<Percent className="w-6 h-6" />}
+            title="No tax codes found"
+            description="Add GST or TDS rates for order calculation."
+            action={<PermissionGuard permission="master.create"><Button size="sm" onClick={openCreateModal}>Add Tax Code</Button></PermissionGuard>}
+          />
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">

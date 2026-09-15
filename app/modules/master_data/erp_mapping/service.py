@@ -1,17 +1,16 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime
 from decimal import Decimal
-from typing import Optional
 from uuid import UUID, uuid4
 
 from loguru import logger
 from pydantic import BaseModel, Field
-from sqlalchemy import select, and_
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.constants import AuditAction
-from app.core.exceptions import ConflictError, NotFoundError, ValidationError
+from app.core.exceptions import ConflictError, NotFoundError
 from app.db.repository_base import BaseRepository
 from app.modules.audit.service import audit_service
 from app.modules.master_data.models import Category, ErpMaterialGroupMapping
@@ -26,9 +25,9 @@ class ErpMappingCreateRequest(BaseModel):
 
 
 class ErpMappingUpdateRequest(BaseModel):
-    category_id: Optional[UUID] = None
-    confidence: Optional[Decimal] = Field(default=None, ge=Decimal("0.0"), le=Decimal("1.0"))
-    is_verified: Optional[bool] = None
+    category_id: UUID | None = None
+    confidence: Decimal | None = Field(default=None, ge=Decimal("0.0"), le=Decimal("1.0"))
+    is_verified: bool | None = None
 
 
 class ErpMappingResponse(BaseModel):
@@ -54,7 +53,7 @@ class ErpMappingRepository(BaseRepository[ErpMaterialGroupMapping]):
         db: AsyncSession,
         erp_material_group: str,
         org_id: UUID,
-    ) -> Optional[ErpMaterialGroupMapping]:
+    ) -> ErpMaterialGroupMapping | None:
         stmt = select(ErpMaterialGroupMapping).where(
             ErpMaterialGroupMapping.erp_material_group == erp_material_group,
             ErpMaterialGroupMapping.org_id == org_id,
@@ -92,7 +91,7 @@ class ErpMappingService:
         db: AsyncSession,
         org_id: UUID,
         erp_material_group: str,
-    ) -> Optional[ErpMaterialGroupMapping]:
+    ) -> ErpMaterialGroupMapping | None:
         return await self._repo.get_by_group(db, erp_material_group, org_id)
 
     async def create(

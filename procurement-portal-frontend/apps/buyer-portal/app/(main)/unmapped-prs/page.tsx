@@ -1,4 +1,5 @@
 "use client";
+import { getErrorMessage } from "@procurement/utils";
 
 import React, { useState } from "react";
 import Link from "next/link";
@@ -10,10 +11,12 @@ import {
   useSuggestMapping,
   UnmappedPRException,
 } from "@procurement/hooks";
-import { CategoryTreeSelect, Badge, Button } from "@procurement/ui";
-import { Sparkles, Sliders } from "lucide-react";
+import { useAppToast } from "@procurement/hooks";
+import { CategoryTreeSelect, Badge, Button, TableSkeleton, EmptyState } from "@procurement/ui";
+import { Sparkles, Sliders, GitMerge } from "lucide-react";
 
 export default function UnmappedPRsDashboardPage() {
+  const { toast } = useAppToast();
   const [page, setPage] = useState(1);
   const [selectedException, setSelectedException] = useState<UnmappedPRException | null>(null);
   const [manualCategoryId, setManualCategoryId] = useState("");
@@ -76,8 +79,8 @@ export default function UnmappedPRsDashboardPage() {
       setManualCategoryId("");
       setManualNotes("");
       refetch();
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to map PR");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to map PR"));
     }
   };
 
@@ -85,8 +88,8 @@ export default function UnmappedPRsDashboardPage() {
     try {
       await autoMapMutation.mutateAsync(exceptionId);
       refetch();
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Auto-mapping rejected: confidence below 0.85 threshold");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Auto-mapping rejected: confidence below 0.85 threshold"));
     }
   };
 
@@ -134,6 +137,15 @@ export default function UnmappedPRsDashboardPage() {
 
       {/* Exception List Table */}
       <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden">
+        {isLoading ? (
+          <TableSkeleton rows={6} columns={6} />
+        ) : exceptions.length === 0 ? (
+          <EmptyState
+            icon={<GitMerge className="w-6 h-6" />}
+            title="No unmapped PR exceptions"
+            description="All purchase requisitions are correctly mapped to categories and budgets."
+          />
+        ) : (
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-800 text-sm text-left">
             <thead className="bg-gray-50 dark:bg-slate-800/60 text-gray-600 dark:text-slate-400 uppercase text-xs tracking-wider">
@@ -147,19 +159,7 @@ export default function UnmappedPRsDashboardPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 dark:divide-slate-800 text-gray-800">
-              {isLoading ? (
-                <tr>
-                  <td colSpan={6} className="text-center py-12 text-gray-500">
-                    Loading exceptions...
-                  </td>
-                </tr>
-              ) : exceptions.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="text-center py-12 text-gray-400">
-                    No unmapped PR exceptions pending resolution.
-                  </td>
-                </tr>
-              ) : (
+              {(
                 exceptions.map((exc) => {
                   const hoursElapsed = Math.round(
                     (new Date().getTime() - new Date(exc.created_at).getTime()) / (1000 * 3600)
@@ -169,7 +169,8 @@ export default function UnmappedPRsDashboardPage() {
                     : Object.keys(exc.failed_fields || {});
 
                   return (
-                    <tr key={exc.id} className="hover:bg-gray-50 dark:hover:bg-slate-800/50/75 dark:hover:bg-slate-800/50 transition-colors">
+                    <tr key={exc.id} className="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
+
                       <td className="px-4 py-3.5">{getSlaBadge(exc.sla_breach_level)}</td>
                       <td className="px-4 py-3.5 font-mono text-xs font-semibold text-blue-600">
                         {exc.requisition?.pr_number || "PR-ERP-TEMP"}
@@ -224,6 +225,7 @@ export default function UnmappedPRsDashboardPage() {
             </tbody>
           </table>
         </div>
+        )}
       </div>
 
       {/* Manual Mapping Modal */}

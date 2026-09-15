@@ -7,6 +7,7 @@ import {
   useEligibleInvoiceLines,
   useSubmitInvoice,
   usePurchaseOrders,
+  getErrorMessage,
 } from "@procurement/hooks";
 import type { POResponse, EligibleLineResponse } from "@procurement/types";
 import {
@@ -186,14 +187,11 @@ export default function NewInvoicePage() {
         },
       });
       router.push("/invoices");
-    } catch (err: any) {
-      setErrorMsg(
-        err?.response?.data?.error?.message ||
-          err?.message ||
-          "Failed to submit invoice. Check duplicate invoice number or lines."
-      );
+    } catch (err: unknown) {
+      setErrorMsg(getErrorMessage(err, "Failed to submit invoice. Check duplicate invoice number or lines."));
     }
   };
+
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">

@@ -1,7 +1,8 @@
 from __future__ import annotations
+
 from datetime import datetime
-from typing import Optional
 from uuid import UUID
+
 from pydantic import BaseModel, ConfigDict
 
 
@@ -13,11 +14,11 @@ class DocumentResponse(BaseModel):
     entity_id: UUID
     category: str
     original_filename: str
-    stored_filename: Optional[str] = None
+    stored_filename: str | None = None
     content_type: str
     file_size_bytes: int
     scan_status: str
-    scan_result: Optional[str] = None
+    scan_result: str | None = None
     current_version: int = 1
     created_at: datetime
 

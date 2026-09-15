@@ -1,4 +1,5 @@
 "use client";
+import { getErrorMessage } from "@procurement/utils";
 
 import React, { useState, useEffect, useMemo } from "react";
 import {
@@ -14,6 +15,7 @@ import {
   UserItem,
   UserSessionItem,
 } from "@procurement/hooks";
+import { useAppToast } from "@procurement/hooks";
 import { PageHeader, HeroKPIStrip, Card, Badge, Button, Modal, Tabs } from "@procurement/ui";
 import {
   Users,
@@ -42,6 +44,7 @@ import {
 } from "lucide-react";
 
 export default function UsersManagementPage() {
+  const { toast } = useAppToast();
   const [activeTab, setActiveTab] = useState<"users" | "sessions">("users");
 
   // Read ?tab=sessions from URL on mount
@@ -131,8 +134,11 @@ export default function UsersManagementPage() {
       setNewUserFirstName("");
       setNewUserLastName("");
       setNewUserRoles(["REQUESTOR"]);
-    } catch (err: any) {
-      setCreateError(err?.response?.data?.error?.message || "Failed to create user");
+    } catch (err: unknown) {
+
+      
+
+
     }
   };
 
@@ -140,8 +146,8 @@ export default function UsersManagementPage() {
     const action = user.status === "ACTIVE" ? "deactivate" : "activate";
     try {
       await toggleStatusMutation.mutateAsync({ userId: user.id, action });
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || `Failed to ${action} user`);
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "An unexpected error occurred"));
     }
   };
 
@@ -153,6 +159,18 @@ export default function UsersManagementPage() {
   const [sessionToRevoke, setSessionToRevoke] = useState<UserSessionItem | null>(null);
   const [userToRevokeAll, setUserToRevokeAll] = useState<{ id: string; email: string; name: string } | null>(null);
   const [revokeReason, setRevokeReason] = useState("Security administrative action");
+ 
+  useEffect(() => {
+    const isAnyModalOpen = Boolean(showCreateModal || roleModalUser || sessionToRevoke || userToRevokeAll);
+    if (isAnyModalOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [showCreateModal, roleModalUser, sessionToRevoke, userToRevokeAll]);
 
   const {
     data: sessionsResponse,
@@ -198,8 +216,8 @@ export default function UsersManagementPage() {
         reason: revokeReason,
       });
       setSessionToRevoke(null);
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to revoke session");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to revoke session"));
     }
   };
 
@@ -211,8 +229,8 @@ export default function UsersManagementPage() {
         reason: revokeReason,
       });
       setUserToRevokeAll(null);
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to revoke user sessions");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to revoke user sessions"));
     }
   };
 
@@ -662,9 +680,9 @@ export default function UsersManagementPage() {
 
       {/* === MODAL: MANAGE USER ROLES === */}
       {roleModalUser && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <Card className="max-w-2xl w-full p-6 space-y-5 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-xl max-h-[90vh] flex flex-col">
-            <div className="flex items-center justify-between pb-3 border-b border-neutral-200 dark:border-neutral-800">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overscroll-contain">
+          <div className="max-w-2xl w-full bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl shadow-2xl max-h-[85vh] flex flex-col overflow-hidden">
+            <div className="p-5 pb-4 flex items-center justify-between border-b border-neutral-200 dark:border-neutral-800 flex-shrink-0">
               <div>
                 <h3 className="text-lg font-bold text-neutral-900 dark:text-neutral-100 flex items-center gap-2">
                   <Shield className="w-5 h-5 text-blue-600" />
@@ -676,26 +694,28 @@ export default function UsersManagementPage() {
               </div>
               <button
                 onClick={() => setRoleModalUser(null)}
-                className="p-1 rounded-lg text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200"
+                className="p-1.5 rounded-lg text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* Role Search Filter */}
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
-              <input
-                type="text"
-                placeholder="Search roles by name or code..."
-                value={roleModalSearch}
-                onChange={(e) => setRoleModalSearch(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 text-xs border border-neutral-200 dark:border-neutral-800 rounded-xl bg-neutral-50 dark:bg-neutral-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+            <div className="px-5 py-3 border-b border-neutral-100 dark:border-neutral-800/60 flex-shrink-0">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                <input
+                  type="text"
+                  placeholder="Search roles by name or code..."
+                  value={roleModalSearch}
+                  onChange={(e) => setRoleModalSearch(e.target.value)}
+                  className="w-full pl-9 pr-4 py-2 text-xs border border-neutral-200 dark:border-neutral-800 rounded-xl bg-neutral-50 dark:bg-neutral-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
             </div>
 
             {/* Roles List */}
-            <div className="flex-1 overflow-y-auto space-y-3 pr-1">
+            <div className="flex-1 min-h-0 overflow-y-auto p-5 space-y-3 overscroll-contain">
               {roleList
                 .filter((r) => {
                   const q = roleModalSearch.toLowerCase();
@@ -841,21 +861,21 @@ export default function UsersManagementPage() {
                 })}
             </div>
 
-            <div className="pt-3 border-t border-neutral-200 dark:border-neutral-800 flex justify-end">
+            <div className="p-4 px-5 border-t border-neutral-200 dark:border-neutral-800 flex justify-end flex-shrink-0 bg-neutral-50/50 dark:bg-neutral-900/50">
               <Button variant="secondary" onClick={() => setRoleModalUser(null)}>
                 Done
               </Button>
             </div>
-          </Card>
+          </div>
         </div>
       )}
 
       {/* === MODAL: CREATE NEW USER === */}
       {showCreateModal && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 overscroll-contain">
           <form
             onSubmit={handleCreateUser}
-            className="max-w-xl w-full p-6 space-y-4 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl shadow-xl max-h-[90vh] flex flex-col"
+            className="max-w-xl w-full p-6 space-y-4 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl shadow-xl max-h-[90vh] flex flex-col overscroll-contain"
           >
             <div className="flex items-center justify-between pb-3 border-b border-neutral-200 dark:border-neutral-800">
               <h3 className="text-lg font-bold text-neutral-900 dark:text-neutral-100 flex items-center gap-2">
@@ -877,7 +897,7 @@ export default function UsersManagementPage() {
               </div>
             )}
 
-            <div className="space-y-3 overflow-y-auto flex-1 pr-1">
+            <div className="space-y-3 overflow-y-auto flex-1 pr-1 overscroll-contain">
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300 block mb-1">

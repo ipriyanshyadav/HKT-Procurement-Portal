@@ -1,19 +1,21 @@
 from __future__ import annotations
-from typing import Optional, Dict, Any, Tuple
+
 from uuid import UUID
+
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.auth.dependencies import get_current_user
 from app.auth.schemas import (
     LoginRequest,
-    MFAVerifyRequest,
     MFAConfirmRequest,
+    MFAVerifyRequest,
+    RefreshRequest,
     TurnstileVerifyRequest,
 )
 from app.auth.service import auth_service
-from app.auth.dependencies import get_current_user
-from app.auth.sso import handle_oidc_callback, SAML_AVAILABLE
+from app.auth.sso import SAML_AVAILABLE, handle_oidc_callback
 from app.config import settings
 from app.core.exceptions import AppException
 from app.db.session import get_db
@@ -22,7 +24,7 @@ from app.modules.user.models import User
 router = APIRouter(tags=["Auth"])
 
 
-def _get_portal(request: Request, body_portal: Optional[str] = None) -> Optional[str]:
+def _get_portal(request: Request, body_portal: str | None = None) -> str | None:
     if body_portal and body_portal.strip().lower() in ("buyer", "supplier", "admin"):
         return body_portal.strip().lower()
     portal = request.headers.get("x-portal-id", "").strip().lower()
@@ -43,14 +45,20 @@ def _get_portal(request: Request, body_portal: Optional[str] = None) -> Optional
     return portal if portal in ("buyer", "supplier", "admin") else None
 
 
-def _get_cookie_key(portal: Optional[str]) -> str:
+def _get_cookie_key(portal: str | None) -> str:
     return f"refresh_token_{portal}" if portal in ("buyer", "supplier", "admin") else "refresh_token"
 
 
-def _get_refresh_token_and_key(request: Request) -> tuple[str, str, Optional[str]]:
+def _get_refresh_token_and_key(
+    request: Request, body_token: str | None = None
+) -> tuple[str, str, str | None]:
     portal = _get_portal(request)
     cookie_key = _get_cookie_key(portal)
-    token = request.cookies.get(cookie_key)
+    token = (body_token or "").strip()
+    if not token:
+        token = request.headers.get("x-refresh-token", "").strip()
+    if not token:
+        token = request.cookies.get(cookie_key, "")
     if not token:
         for fallback_key in ("refresh_token", "refresh_token_buyer", "refresh_token_admin", "refresh_token_supplier"):
             val = request.cookies.get(fallback_key)
@@ -115,15 +123,26 @@ async def login(
 @router.post("/refresh")
 async def refresh(
     request: Request,
+    body: RefreshRequest | None = None,
     db: AsyncSession = Depends(get_db),
 ) -> JSONResponse:
-    """POST /api/v1/auth/refresh — reads refresh_token from portal-scoped httpOnly cookie."""
-    refresh_token, cookie_key, portal = _get_refresh_token_and_key(request)
+    """POST /api/v1/auth/refresh — reads refresh_token from body, header, or portal-scoped httpOnly cookie."""
+    body_token = body.refresh_token if body else None
+    refresh_token, cookie_key, portal = _get_refresh_token_and_key(request, body_token=body_token)
     if not refresh_token:
-        raise AppException("Refresh token not found in cookie", "MISSING_REFRESH_TOKEN")
+        raise AppException("Refresh token not found in request or cookie", "MISSING_REFRESH_TOKEN")
     result = await auth_service.refresh_token(db, refresh_token, portal_type=portal)
     await db.commit()
-    response = JSONResponse(content={"data": {"access_token": result.access_token}})
+    response = JSONResponse(
+        content={
+            "data": {
+                "access_token": result.access_token,
+                "refresh_token": result.refresh_token,
+                "token_type": "bearer",
+                "expires_in": result.access_expires_in,
+            }
+        }
+    )
     response.set_cookie(
         key=cookie_key,
         value=result.refresh_token,
@@ -224,7 +243,7 @@ async def confirm_mfa(
 async def sso_initiate(
     provider: str,
     org_id: str,
-    portal: Optional[str] = "buyer",
+    portal: str | None = "buyer",
 ) -> dict:
     """GET /api/v1/auth/sso/initiate — SAML or OIDC redirect initiation."""
     from uuid import uuid4
@@ -241,7 +260,7 @@ async def sso_initiate(
         idp_sso = saml_settings.get("idp", {}).get("singleSignOnService", {}).get("url")
         return {"data": {"provider": "saml", "redirect_url": idp_sso or "/api/v1/auth/sso/callback", "state": state}}
 
-    elif provider == "oidc":
+    if provider == "oidc":
         from app.auth.sso import build_oidc_auth_url
         auth_url = await build_oidc_auth_url(state=state)
         return {"data": {"provider": "oidc", "redirect_url": auth_url, "state": state}}
@@ -252,11 +271,11 @@ async def sso_initiate(
 @router.post("/sso/callback")
 async def sso_callback(
     request: Request,
-    state: Optional[str] = None,
+    state: str | None = None,
     db: AsyncSession = Depends(get_db),
 ) -> JSONResponse:
     """POST /api/v1/auth/sso/callback — SAML 2.0 ACS URL handler."""
-    from app.auth.sso import get_saml_auth, provision_or_login_sso_user, SSOResult
+    from app.auth.sso import SSOResult, get_saml_auth, provision_or_login_sso_user
     form = await request.form()
     relay_state = form.get("RelayState") or state or ""
     parts = relay_state.split(":") if relay_state else []
@@ -290,7 +309,15 @@ async def sso_callback(
         else:
             raise AppException("Failed to initialize SAML auth", "SSO_NOT_CONFIGURED", 500)
     else:
-        # Fallback simulation for developer test environments
+        # SAML library not installed — only allow simulation if explicitly enabled in settings.
+        # This MUST be disabled (ENABLE_SSO_MOCK=false) in staging and production environments.
+        if not settings.ENABLE_SSO_MOCK:
+            raise AppException(
+                "SAML authentication is not available in this environment. "
+                "Contact your system administrator.",
+                "SSO_NOT_AVAILABLE",
+                503,
+            )
         sso_res = SSOResult(
             email=form.get("email", "sso_user@example.com"),
             first_name=form.get("first_name", "Enterprise"),
@@ -325,7 +352,7 @@ async def oidc_callback(
     db: AsyncSession = Depends(get_db),
 ) -> JSONResponse:
     """GET /api/v1/auth/sso/oidc/callback — OIDC authorization code exchange."""
-    from app.auth.sso import handle_oidc_callback, provision_or_login_sso_user
+    from app.auth.sso import provision_or_login_sso_user
 
     parts = state.split(":") if state else []
     org_id_str = parts[0] if len(parts) > 0 else None

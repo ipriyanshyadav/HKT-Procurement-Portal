@@ -4,7 +4,7 @@ Workflow Schemas — request/response Pydantic models.
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID
 
 from pydantic import BaseModel, Field
@@ -30,18 +30,18 @@ class SimulateRequest(BaseModel):
 class WorkflowStepApprover(BaseModel):
     id: str
     name: str
-    role: Optional[str]
+    role: str | None
 
 
 class WorkflowSimulateStepResponse(BaseModel):
     step_number: int
-    step_name: Optional[str]
-    step_type: Optional[str] = None
-    approvers: Optional[list[WorkflowStepApprover]] = None
-    sla_hours: Optional[int] = None
-    convergence: Optional[str] = None
+    step_name: str | None
+    step_type: str | None = None
+    approvers: list[WorkflowStepApprover] | None = None
+    sla_hours: int | None = None
+    convergence: str | None = None
     condition_met: bool
-    condition_expression: Optional[str] = None
+    condition_expression: str | None = None
 
 
 class WorkflowSimulateResponse(BaseModel):
@@ -53,14 +53,27 @@ class WorkflowTaskResponse(BaseModel):
     workflow_instance_id: UUID
     step_number: int
     assigned_to: UUID
-    assigned_role: Optional[str]
+    assigned_role: str | None
     status: str
-    action: Optional[str]
-    comment: Optional[str]
-    acted_at: Optional[datetime]
-    sla_deadline: Optional[datetime]
+    action: str | None
+    comment: str | None
+    acted_at: datetime | None
+    sla_deadline: datetime | None
     sla_status: str
     created_at: datetime
+
+    # Rich metadata for Approval Inbox
+    entity_type: str | None = None
+    entity_id: UUID | None = None
+    entity_number: str | None = None
+    title: str | None = None
+    raised_by_id: UUID | None = None
+    raised_by_name: str | None = None
+    raised_by_email: str | None = None
+    department: str | None = None
+    total_amount: float | None = None
+    currency: str | None = "INR"
+    priority: str | None = "MEDIUM"
 
     model_config = {"from_attributes": True}
 
@@ -73,8 +86,8 @@ class WorkflowInstanceResponse(BaseModel):
     status: str
     current_step_number: int
     started_at: datetime
-    completed_at: Optional[datetime]
-    cancelled_at: Optional[datetime]
-    cancel_reason: Optional[str]
+    completed_at: datetime | None
+    cancelled_at: datetime | None
+    cancel_reason: str | None
 
     model_config = {"from_attributes": True}

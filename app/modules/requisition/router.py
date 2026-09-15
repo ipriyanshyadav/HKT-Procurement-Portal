@@ -1,22 +1,27 @@
 from __future__ import annotations
+
 import math
-from typing import Optional, List
+from decimal import Decimal
 from uuid import UUID
-from fastapi import APIRouter, Depends, Query, status, Body
-from sqlalchemy import select, and_, desc
+
+from fastapi import APIRouter, Body, Depends, Query, status
+from pydantic import BaseModel
+from sqlalchemy import and_, desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.auth.dependencies import get_current_user, require_permission
-from app.core.constants import PermissionCode
-from app.core.exceptions import NotFoundError, ForbiddenError
+from app.auth.dependencies import get_current_user
 from app.core.responses import APIResponse, PaginationMeta, created_response, success_response
+from app.core.streaming import generate_table_pdf, stream_csv, stream_pdf
 from app.db.enums import AuditEntityTypeEnum
 from app.db.session import get_db
-from decimal import Decimal
 from app.modules.audit.models import AuditLog
-from app.modules.requisition.models import Requisition
 from app.modules.requisition.schemas import (
     BudgetCheckResult,
+    BuyerSelectionItem,
+    IndentCartTransferRequest,
+    IndentorTrackingResponse,
+    IndentTransferRequest,
+    IndentTransferResponse,
     PRApprovalAction,
     PRConvertToPORequest,
     PRCreateRequest,
@@ -27,7 +32,6 @@ from app.modules.requisition.schemas import (
     PRUpdateRequest,
 )
 from app.modules.requisition.service import requisition_service
-from app.core.streaming import stream_csv, stream_pdf, generate_table_pdf
 from app.modules.user.models import User
 
 router = APIRouter(tags=["Requisition"])
@@ -50,13 +54,11 @@ async def create_requisition(
     return created_response(PRDetailResponse.model_validate(pr))
 
 
-from pydantic import BaseModel
-
 class PRBulkCreateRequest(BaseModel):
-    items: List[PRCreateRequest]
+    items: list[PRCreateRequest]
 
 
-@router.post("/bulk", response_model=APIResponse[List[PRDetailResponse]], status_code=status.HTTP_201_CREATED)
+@router.post("/bulk", response_model=APIResponse[list[PRDetailResponse]], status_code=status.HTTP_201_CREATED)
 async def bulk_create_requisitions(
     data: PRBulkCreateRequest,
     current_user: User = Depends(get_current_user),
@@ -80,8 +82,8 @@ async def bulk_create_requisitions(
 async def check_budget_availability(
     cost_center_id: UUID = Query(..., description="Cost center UUID"),
     amount: Decimal = Query(..., ge=0, description="Estimated total amount to check"),
-    business_unit_id: Optional[UUID] = Query(None, description="Optional Business Unit UUID"),
-    category_id: Optional[UUID] = Query(None, description="Optional Category UUID"),
+    business_unit_id: UUID | None = Query(None, description="Optional Business Unit UUID"),
+    category_id: UUID | None = Query(None, description="Optional Category UUID"),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -97,13 +99,13 @@ async def check_budget_availability(
     return success_response(result)
 
 
-@router.get("", response_model=APIResponse[List[PRListResponse]])
+@router.get("", response_model=APIResponse[list[PRListResponse]])
 async def list_requisitions(
-    status: Optional[str] = Query(None),
-    business_unit_id: Optional[UUID] = Query(None),
-    category_id: Optional[UUID] = Query(None),
-    requestor_id: Optional[UUID] = Query(None),
-    search: Optional[str] = Query(None),
+    status: str | None = Query(None),
+    business_unit_id: UUID | None = Query(None),
+    category_id: UUID | None = Query(None),
+    requestor_id: UUID | None = Query(None),
+    search: str | None = Query(None),
     scope: str = Query("all", pattern="^(all|mine|bu)$"),
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
@@ -145,11 +147,11 @@ async def list_requisitions(
 
 @router.get("/export/csv")
 async def export_requisitions_csv(
-    status: Optional[str] = Query(None),
-    business_unit_id: Optional[UUID] = Query(None),
-    category_id: Optional[UUID] = Query(None),
-    requestor_id: Optional[UUID] = Query(None),
-    search: Optional[str] = Query(None),
+    status: str | None = Query(None),
+    business_unit_id: UUID | None = Query(None),
+    category_id: UUID | None = Query(None),
+    requestor_id: UUID | None = Query(None),
+    search: str | None = Query(None),
     scope: str = Query("all", pattern="^(all|mine|bu)$"),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
@@ -185,11 +187,11 @@ async def export_requisitions_csv(
 
 @router.get("/export/pdf")
 async def export_requisitions_pdf(
-    status: Optional[str] = Query(None),
-    business_unit_id: Optional[UUID] = Query(None),
-    category_id: Optional[UUID] = Query(None),
-    requestor_id: Optional[UUID] = Query(None),
-    search: Optional[str] = Query(None),
+    status: str | None = Query(None),
+    business_unit_id: UUID | None = Query(None),
+    category_id: UUID | None = Query(None),
+    requestor_id: UUID | None = Query(None),
+    search: str | None = Query(None),
     scope: str = Query("all", pattern="^(all|mine|bu)$"),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
@@ -318,7 +320,7 @@ async def merge_requisitions(
     return success_response(PRDetailResponse.model_validate(merged))
 
 
-@router.post("/{id}/split", response_model=APIResponse[List[PRDetailResponse]])
+@router.post("/{id}/split", response_model=APIResponse[list[PRDetailResponse]])
 async def split_requisition(
     id: UUID,
     data: PRSplitRequest,
@@ -355,7 +357,7 @@ async def convert_to_rfq(
 @router.post("/{id}/convert-to-po", response_model=APIResponse[PRDetailResponse])
 async def convert_to_po(
     id: UUID,
-    payload: Optional[PRConvertToPORequest] = Body(None),
+    payload: PRConvertToPORequest | None = Body(None),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -370,7 +372,7 @@ async def convert_to_po(
     return success_response(PRDetailResponse.model_validate(pr))
 
 
-@router.get("/{id}/audit-trail", response_model=APIResponse[List[dict]])
+@router.get("/{id}/audit-trail", response_model=APIResponse[list[dict]])
 async def get_pr_audit_trail(
     id: UUID,
     current_user: User = Depends(get_current_user),
@@ -394,16 +396,16 @@ async def get_pr_audit_trail(
     logs = res.scalars().all()
     data = [
         {
-            "id": str(l.id),
-            "action": l.action,
-            "actor_id": str(l.actor_id) if l.actor_id else None,
-            "actor_email": l.actor_email,
-            "old_values": l.old_values,
-            "new_values": l.new_values,
-            "metadata": l.metadata_,
-            "created_at": l.created_at.isoformat() if l.created_at else None,
+            "id": str(log_entry.id),
+            "action": log_entry.action,
+            "actor_id": str(log_entry.actor_id) if log_entry.actor_id else None,
+            "actor_email": log_entry.actor_email,
+            "old_values": log_entry.old_values,
+            "new_values": log_entry.new_values,
+            "metadata": log_entry.metadata_,
+            "created_at": log_entry.created_at.isoformat() if log_entry.created_at else None,
         }
-        for l in logs
+        for log_entry in logs
     ]
     return success_response(data)
 
@@ -411,8 +413,8 @@ async def get_pr_audit_trail(
 @router.post("/{id}/approve", response_model=APIResponse[PRDetailResponse])
 async def approve_requisition(
     id: UUID,
-    action_data: Optional[PRApprovalAction] = None,
-    task_id: Optional[UUID] = Query(None),
+    action_data: PRApprovalAction | None = None,
+    task_id: UUID | None = Query(None),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -433,7 +435,7 @@ async def approve_requisition(
 async def reject_requisition(
     id: UUID,
     action_data: PRApprovalAction,
-    task_id: Optional[UUID] = Query(None),
+    task_id: UUID | None = Query(None),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -447,3 +449,70 @@ async def reject_requisition(
     )
     await db.commit()
     return success_response(PRDetailResponse.model_validate(pr))
+
+@router.get("/indent/buyers", response_model=APIResponse[list[BuyerSelectionItem]])
+async def list_available_buyers(
+    category_id: UUID | None = Query(None),
+    business_unit_id: UUID | None = Query(None),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    buyers = await requisition_service.get_available_buyers(
+        db, current_user.org_id, category_id, business_unit_id
+    )
+    return success_response(buyers)
+
+
+@router.post("/indent", response_model=APIResponse[IndentTransferResponse], status_code=status.HTTP_201_CREATED)
+async def transfer_indent(
+    data: IndentTransferRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    pr = await requisition_service.create_indent(db, data, current_user, current_user.org_id)
+    await db.commit()
+    return created_response(IndentTransferResponse.model_validate(pr))
+
+
+@router.post("/indent/from-cart", response_model=APIResponse[IndentTransferResponse], status_code=status.HTTP_201_CREATED)
+async def transfer_cart_as_indent(
+    data: IndentCartTransferRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    pr = await requisition_service.create_indent_from_cart(db, data, current_user, current_user.org_id)
+    await db.commit()
+    return created_response(IndentTransferResponse.model_validate(pr))
+
+
+@router.get("/indent/tracking", response_model=APIResponse[list[IndentorTrackingResponse]])
+async def get_indent_tracking(
+    status: str | None = Query(None),
+    status_filter: str | None = Query(None),
+    page: int = Query(1, ge=1),
+    page_size: int = Query(20, ge=1, le=100),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    effective_status = status_filter or status
+    requisitions, total = await requisition_service.get_indentor_tracking(
+        db, current_user, current_user.org_id, page, page_size, effective_status
+    )
+    items = await requisition_service.enrich_indentor_tracking(
+        db, requisitions, current_user.org_id
+    )
+    total_pages = math.ceil(total / page_size) if total > 0 else 1
+    meta = PaginationMeta(
+        page=page,
+        page_size=page_size,
+        total_count=total,
+        total_pages=total_pages,
+        has_next=page < total_pages,
+        has_prev=page > 1,
+        total_records=total,
+        page_number=page,
+        has_next_page=page < total_pages,
+        has_prev_page=page > 1,
+    )
+    return success_response(items, meta=meta)
+

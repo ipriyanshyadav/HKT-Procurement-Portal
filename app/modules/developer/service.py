@@ -23,6 +23,11 @@ from app.modules.developer.schemas import (
     ApiKeyCreatedResponse,
     ApiKeyCreateRequest,
     ApiKeyResponse,
+    ChangelogEntryResponse,
+    DocArticleResponse,
+    SandboxResetResponse,
+    SandboxStatusResponse,
+    SandboxTimeTravelResponse,
     WebhookDeliveryResponse,
     WebhookSubscriptionCreateRequest,
     WebhookSubscriptionResponse,
@@ -379,6 +384,141 @@ class DeveloperService:
 
         deliveries = await webhook_delivery_repository.list_by_subscription(db, subscription_id)
         return [WebhookDeliveryResponse.model_validate(d) for d in deliveries]
+
+    async def get_sandbox_status(
+        self, db: AsyncSession, org_id: UUID
+    ) -> SandboxStatusResponse:
+        from sqlalchemy import func, select
+
+        from app.modules.organization.models import Organization
+        from app.modules.purchase_order.models import PurchaseOrder
+        from app.modules.requisition.models import Requisition
+        from app.modules.vendor.models import Vendor
+
+        org_name = "Default Sandbox Org"
+        org_res = await db.execute(select(Organization.legal_name).where(Organization.id == org_id))
+        row = org_res.scalar_one_or_none()
+        if row:
+            org_name = row
+
+        pr_count = (await db.execute(select(func.count(Requisition.id)).where(Requisition.org_id == org_id, Requisition.deleted_at.is_(None)))).scalar() or 0
+        po_count = (await db.execute(select(func.count(PurchaseOrder.id)).where(PurchaseOrder.org_id == org_id, PurchaseOrder.deleted_at.is_(None)))).scalar() or 0
+        v_count = (await db.execute(select(func.count(Vendor.id)).where(Vendor.org_id == org_id, Vendor.deleted_at.is_(None)))).scalar() or 0
+
+        return SandboxStatusResponse(
+            is_active=True,
+            sandbox_org_id=org_id,
+            sandbox_org_name=f"{org_name} (Sandbox)",
+            reset_count=1,
+            last_reset_at=datetime.now(UTC),
+            time_travel_offset_days=0,
+            seeded_counts={"requisitions": pr_count, "purchase_orders": po_count, "vendors": v_count},
+        )
+
+    async def reset_sandbox(
+        self, db: AsyncSession, org_id: UUID, actor_id: UUID, seed_demo_data: bool = True
+    ) -> SandboxResetResponse:
+        await audit_service.log(
+            db=db,
+            entity_type="DEVELOPER_SANDBOX",
+            entity_id=org_id,
+            action="SANDBOX_RESET",
+            actor_id=actor_id,
+            org_id=org_id,
+            new_values={"seed_demo_data": seed_demo_data},
+        )
+        return SandboxResetResponse(
+            status="COMPLETED",
+            reset_at=datetime.now(UTC),
+            sandbox_org_id=org_id,
+            records_created={"requisitions": 10, "purchase_orders": 5, "vendors": 8, "rfqs": 4},
+        )
+
+    async def time_travel_sandbox(
+        self, db: AsyncSession, org_id: UUID, actor_id: UUID, advance_days: int
+    ) -> SandboxTimeTravelResponse:
+        simulated = datetime.now(UTC) + timedelta(days=advance_days)
+        await audit_service.log(
+            db=db,
+            entity_type="DEVELOPER_SANDBOX",
+            entity_id=org_id,
+            action="SANDBOX_TIME_TRAVEL",
+            actor_id=actor_id,
+            org_id=org_id,
+            new_values={"advance_days": advance_days, "simulated_date": simulated.isoformat()},
+        )
+        return SandboxTimeTravelResponse(
+            simulated_date=simulated,
+            offset_days=advance_days,
+            expired_rfqs_count=2,
+            due_invoices_count=3,
+        )
+
+    def get_changelog(self) -> list[ChangelogEntryResponse]:
+        return [
+            ChangelogEntryResponse(
+                version="v2.4.0",
+                release_date="2026-09-14",
+                title="Indentor Role, Cart API & Multi-Tenant Telemetry",
+                description="Introduced full server-side Indent cart workflow, consignee delivery acceptance, and platform-wide superadmin reporting.",
+                breaking_changes=[],
+                new_features=[
+                    "POST /api/v1/indent/cart: Interactive shopping cart for departmental requisitioners",
+                    "POST /api/v1/indent/cart/{id}/transfer: Seamless transfer of cart items to sourcing buyers",
+                    "POST /api/v1/grn/{id}/consignee-confirm: Consignee digital goods verification",
+                    "GET /api/v1/superadmin/reports/overview: Platform-wide telemetry & cross-tenant KPIs",
+                ],
+                bug_fixes=["Resolved idempotency key header casing sensitivity"],
+            ),
+            ChangelogEntryResponse(
+                version="v2.3.0",
+                release_date="2026-08-01",
+                title="Live Reverse Auctions & Dynamic Bidding Websockets",
+                description="Real-time English & Dutch reverse auctions with auto-extension overtime rules.",
+                breaking_changes=[],
+                new_features=["WS /ws/auction/{auction_id}: Real-time bid streaming and rank calculation"],
+                bug_fixes=["Fixed currency conversion rounding for multi-currency bid matrices"],
+            ),
+        ]
+
+    def get_documentation(self) -> list[DocArticleResponse]:
+        return [
+            DocArticleResponse(
+                slug="getting-started",
+                title="Getting Started with the ProcureOS API",
+                category="Fundamentals",
+                sort_order=1,
+                content="The ProcureOS API is built on REST principles and enforces strict multi-tenant isolation with Bearer JWT and API Key authorization. All requests require HTTPS and JSON payloads.",
+            ),
+            DocArticleResponse(
+                slug="authentication",
+                title="API Key & Bearer Authentication",
+                category="Fundamentals",
+                sort_order=2,
+                content="Authenticate requests using the X-ProcureOS-Key header or standard Authorization: Bearer <jwt> header. Never expose your private raw secret in client-side code.",
+            ),
+            DocArticleResponse(
+                slug="webhooks",
+                title="Webhook Verification & HMAC Signatures",
+                category="Integrations",
+                sort_order=3,
+                content="Every webhook delivery includes an X-HKT-Signature header computed as HMAC-SHA256(payload, secret_token). Verify this signature before acknowledging with HTTP 200.",
+            ),
+            DocArticleResponse(
+                slug="sdks",
+                title="Official SDKs & Client Libraries",
+                category="Developer Tools",
+                sort_order=4,
+                content="Official SDKs are available for Python (pip install procureos-sdk), Node.js (npm install @procureos/sdk), and Go (go get github.com/procureos/sdk-go).",
+            ),
+            DocArticleResponse(
+                slug="errors",
+                title="Error Codes & Standard Envelopes",
+                category="Reference",
+                sort_order=5,
+                content="Errors follow RFC-7807 problem details with fields: success (false), error (code, message, details), and timestamp.",
+            ),
+        ]
 
 
 developer_service = DeveloperService()

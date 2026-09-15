@@ -57,9 +57,9 @@ export default function SpendAnalyticsPage() {
     fiscal_year: fiscalYear,
   });
 
-  const categories = spendData?.by_category || [];
-  const vendors = spendData?.by_vendor || [];
-  const bus = spendData?.by_bu || [];
+  const categories = useMemo(() => spendData?.by_category || [], [spendData?.by_category]);
+  const vendors = useMemo(() => spendData?.by_vendor || [], [spendData?.by_vendor]);
+  const bus = useMemo(() => spendData?.by_bu || [], [spendData?.by_bu]);
   const totalSpend = spendData?.total_spend || 0;
 
   // Prepare chart data based on active breakdown

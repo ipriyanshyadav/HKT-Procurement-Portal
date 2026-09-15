@@ -139,7 +139,8 @@ async def create_asn(
         vendor_id=vendor_id,
     )
     await db.commit()
-    return created_response(data=_to_asn_response(asn))
+    full_asn = await asn_service.get(db, asn.id, current_user.org_id)
+    return created_response(data=_to_asn_response(full_asn))
 
 
 @router.post("/scan-lookup", response_model=APIResponse[AsnResponse])
@@ -169,9 +170,11 @@ async def dispatch_asn(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    asn = await asn_service.dispatch_asn(db, asn_id, payload, current_user.id, current_user.org_id)
+    await asn_service.dispatch_asn(db, asn_id, payload, current_user.id, current_user.org_id)
     await db.commit()
-    return success_response(data=_to_asn_response(asn))
+    full_asn = await asn_service.get(db, asn_id, current_user.org_id)
+    return success_response(data=_to_asn_response(full_asn))
+
 
 
 @router.post("/{id}/fast-grn", response_model=APIResponse[dict])
@@ -189,10 +192,12 @@ async def fast_grn_intake(
         org_id=current_user.org_id,
     )
     await db.commit()
+    full_asn = await asn_service.get(db, asn_id, current_user.org_id)
+    full_grn = await asn_service.grn_service.get(db, grn.id, current_user.org_id)
 
     return success_response(
         data={
-            "asn": _to_asn_response(asn).model_dump(mode="json"),
-            "grn": _to_grn_response(grn).model_dump(mode="json"),
+            "asn": _to_asn_response(full_asn).model_dump(mode="json"),
+            "grn": _to_grn_response(full_grn).model_dump(mode="json"),
         }
     )

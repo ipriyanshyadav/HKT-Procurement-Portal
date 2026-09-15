@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from decimal import Decimal
 from typing import Any
 from uuid import UUID, uuid4
@@ -260,7 +260,7 @@ class AnalyticsRepository:
     ) -> SupplierESGMetric:
         metric = await self.get_supplier_esg_metric(db, vendor_id, org_id)
         composite = round((environmental_score * 0.4) + (social_score * 0.3) + (governance_score * 0.3), 2)
-        
+
         if not esg_rating:
             if composite >= 90:
                 calc_rating = "AAA"
@@ -290,7 +290,7 @@ class AnalyticsRepository:
             metric.net_zero_target_year = net_zero_target_year
             metric.iso_14001_certified = iso_14001_certified
             metric.renewable_energy_pct = Decimal(str(renewable_energy_pct))
-            metric.last_audit_date = datetime.now(timezone.utc)
+            metric.last_audit_date = datetime.now(UTC)
             if audit_notes:
                 metric.audit_notes = audit_notes
             await db.flush()
@@ -310,7 +310,7 @@ class AnalyticsRepository:
             net_zero_target_year=net_zero_target_year,
             iso_14001_certified=iso_14001_certified,
             renewable_energy_pct=Decimal(str(renewable_energy_pct)),
-            last_audit_date=datetime.now(timezone.utc),
+            last_audit_date=datetime.now(UTC),
             audit_notes=audit_notes,
         )
         db.add(metric)
@@ -323,7 +323,7 @@ class AnalyticsRepository:
         org_id: UUID,
     ) -> list[dict[str, Any]]:
         stmt = text("""
-            SELECT 
+            SELECT
                 c.name as category_name,
                 COALESCE(SUM(po.total_value), 0) as total_spend,
                 COUNT(po.id) as po_count
@@ -345,7 +345,7 @@ class AnalyticsRepository:
         org_id: UUID,
     ) -> list[dict[str, Any]]:
         stmt = text("""
-            SELECT 
+            SELECT
                 v.id as vendor_id,
                 v.company_name as vendor_name,
                 COALESCE(SUM(po.total_value), 0) as total_spend,

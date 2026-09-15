@@ -6,8 +6,7 @@ All endpoints and credentials are read from application settings.
 """
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional
-from uuid import UUID
+from typing import Any
 
 import httpx
 from loguru import logger
@@ -23,7 +22,7 @@ class DocuSignAdapter:
         self.account_id = settings.DOCUSIGN_ACCOUNT_ID
         self.integration_key = settings.DOCUSIGN_INTEGRATION_KEY
 
-    def _get_auth_header(self) -> Dict[str, str]:
+    def _get_auth_header(self) -> dict[str, str]:
         if not self.integration_key:
             return {}
         # In production, bearer token obtained via JWT grant
@@ -33,8 +32,8 @@ class DocuSignAdapter:
         self,
         contract: Any,
         doc_path: str,
-        signatories: Optional[List[Dict[str, Any]]] = None,
-    ) -> Dict[str, Any]:
+        signatories: list[dict[str, Any]] | None = None,
+    ) -> dict[str, Any]:
         """
         Create an envelope in DocuSign.
         Falls back to sandbox mock response when credentials are not configured.
@@ -89,8 +88,7 @@ class DocuSignAdapter:
                         "signing_url": signing_url,
                         "status": data.get("status", "sent"),
                     }
-                else:
-                    logger.warning("DocuSign API error {}: {}", resp.status_code, resp.text)
+                logger.warning("DocuSign API error {}: {}", resp.status_code, resp.text)
         except Exception as exc:
             logger.warning("DocuSign connection error: {}, returning sandbox mock", exc)
 
@@ -101,7 +99,7 @@ class DocuSignAdapter:
             "status": "PENDING",
         }
 
-    async def get_status(self, request_id: str) -> Dict[str, Any]:
+    async def get_status(self, request_id: str) -> dict[str, Any]:
         """Check status of envelope in DocuSign."""
         if not self.integration_key or not self.account_id:
             return {

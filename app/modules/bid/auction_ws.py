@@ -1,12 +1,12 @@
 from __future__ import annotations
+
 import asyncio
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from decimal import Decimal
-from typing import Optional
 from uuid import UUID
 
-from fastapi import WebSocket, WebSocketDisconnect, Depends, status
+from fastapi import Depends, WebSocket, WebSocketDisconnect, status
 from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -45,7 +45,7 @@ class AuctionConnectionManager:
                 await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
                 return
             participant.is_connected = True
-            participant.joined_at = datetime.now(timezone.utc)
+            participant.joined_at = datetime.now(UTC)
             await db.commit()
         else:
             # Buyer role: must have monitor or bid view permission
@@ -120,7 +120,7 @@ class AuctionConnectionManager:
                         p = await self.live_bid_repo.get_participant(disc_db, auction_id, vendor_id, org_id)
                         if p:
                             p.is_connected = False
-                            p.left_at = datetime.now(timezone.utc)
+                            p.left_at = datetime.now(UTC)
                             await disc_db.commit()
                 except Exception as ex:
                     logger.debug(f"Error updating participant disconnect status: {ex}")
@@ -153,7 +153,7 @@ class AuctionConnectionManager:
                         json.dumps({
                             "type": "BID_REJECTED",
                             "auction_id": str(auction_id),
-                            "ts": datetime.now(timezone.utc).isoformat(),
+                            "ts": datetime.now(UTC).isoformat(),
                             "payload": {"reason": str(err_msg)},
                         })
                     )
@@ -178,7 +178,7 @@ class AuctionConnectionManager:
                         json.dumps({
                             "type": "ERROR",
                             "auction_id": str(auction_id),
-                            "ts": datetime.now(timezone.utc).isoformat(),
+                            "ts": datetime.now(UTC).isoformat(),
                             "payload": {"message": str(e)},
                         })
                     )
@@ -186,7 +186,7 @@ class AuctionConnectionManager:
             await ws.send_text(
                 json.dumps({
                     "type": "HEARTBEAT",
-                    "ts": datetime.now(timezone.utc).isoformat(),
+                    "ts": datetime.now(UTC).isoformat(),
                 })
             )
 

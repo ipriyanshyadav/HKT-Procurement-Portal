@@ -94,6 +94,35 @@ export function NotificationCenter() {
     return true;
   });
 
+  const groupedNotifications = React.useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    const groups: { title: string; items: typeof filteredItems }[] = [
+      { title: "Today", items: [] },
+      { title: "Yesterday", items: [] },
+      { title: "Older", items: [] },
+    ];
+
+    filteredItems.forEach((item) => {
+      const itemDate = new Date(item.created_at);
+      if (isNaN(itemDate.getTime())) {
+        groups[2].items.push(item);
+      } else if (itemDate >= today) {
+        groups[0].items.push(item);
+      } else if (itemDate >= yesterday) {
+        groups[1].items.push(item);
+      } else {
+        groups[2].items.push(item);
+      }
+    });
+
+    return groups.filter((g) => g.items.length > 0);
+  }, [filteredItems]);
+
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
       {/* Page Header */}
@@ -165,7 +194,7 @@ export function NotificationCenter() {
       </div>
 
       {/* Notifications List Container */}
-      <div className="rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-white/60 dark:bg-neutral-900/60 backdrop-blur-xl shadow-sm overflow-hidden divide-y divide-neutral-100 dark:divide-neutral-800/80">
+      <div className="rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-white/60 dark:bg-neutral-900/60 backdrop-blur-xl shadow-sm overflow-hidden">
         {isLoading ? (
           <div className="p-12 text-center text-neutral-400">
             <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
@@ -182,99 +211,128 @@ export function NotificationCenter() {
             </p>
           </div>
         ) : (
-          filteredItems.map((item) => {
-            const isUnread = !item.is_read && !item.read_at;
-            return (
-              <div
-                key={item.id}
-                className={`p-4 sm:p-5 flex items-start gap-4 transition-colors ${
-                  isUnread
-                    ? "bg-blue-50/30 dark:bg-blue-950/15"
-                    : "hover:bg-neutral-50/50 dark:hover:bg-neutral-800/30"
-                }`}
-              >
-                {/* Channel / Type Icon */}
-                <div className="p-2.5 rounded-xl bg-neutral-100 dark:bg-neutral-800 flex-shrink-0 mt-0.5">
-                  {getNotificationIcon(item.notification_type)}
+          <div className="divide-y divide-neutral-200/80 dark:divide-neutral-800">
+            {groupedNotifications.map((group) => (
+              <div key={group.title} className="space-y-0">
+                {/* Date Group Header */}
+                <div className="px-5 py-2.5 bg-neutral-100/70 dark:bg-neutral-800/60 flex items-center justify-between border-b border-neutral-200/50 dark:border-neutral-800/50">
+                  <span className="text-[11px] font-bold text-neutral-600 dark:text-neutral-300 uppercase tracking-wider">
+                    {group.title}
+                  </span>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-neutral-200/60 dark:bg-neutral-700/60 text-neutral-600 dark:text-neutral-300">
+                    {group.items.length} {group.items.length === 1 ? "update" : "updates"}
+                  </span>
                 </div>
 
-                {/* Content */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex flex-wrap items-center justify-between gap-2 mb-1">
-                    <h4
-                      className={`text-sm ${
-                        isUnread
-                          ? "font-semibold text-neutral-900 dark:text-neutral-100"
-                          : "font-medium text-neutral-700 dark:text-neutral-300"
-                      }`}
-                    >
-                      {item.title}
-                    </h4>
-                    <span className="text-xs text-neutral-400">
-                      {new Date(item.created_at).toLocaleString()}
-                    </span>
-                  </div>
-
-                  <p className="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed mb-2">
-                    {item.body}
-                  </p>
-
-                  <div className="flex flex-wrap items-center gap-3 text-[11px] text-neutral-400">
-                    <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300">
-                      {item.notification_type}
-                    </span>
-                    <span>Channel: {item.channel}</span>
-                    {item.entity_type && (
-                      <span className="capitalize">
-                        Entity: {item.entity_type.replace("_", " ")}
-                      </span>
-                    )}
-                    {item.entity_type && item.entity_id && (
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (!item.is_read && !item.read_at) {
-                            markReadMutation.mutate(item.id);
-                          }
-                          const type = item.entity_type!.toLowerCase();
-                          if (type.includes("req") || type === "pr") {
-                            router.push(`/requisitions/${item.entity_id}`);
-                          } else if (type === "rfq" || type === "sourcing" || type === "bid") {
-                            router.push(`/rfqs/${item.entity_id}`);
-                          } else if (type.includes("order") || type === "po") {
-                            router.push(`/purchase-orders/${item.entity_id}`);
-                          } else if (type.includes("invoice") || type.includes("payment")) {
-                            router.push(`/invoices/${item.entity_id}`);
-                          } else if (type.includes("task") || type.includes("approval")) {
-                            router.push(`/tasks/${item.entity_id}`);
-                          } else if (type.includes("vendor")) {
-                            router.push(`/vendors/${item.entity_id}`);
-                          }
-                        }}
-                        className="inline-flex items-center gap-1 font-medium text-blue-600 dark:text-blue-400 hover:underline ml-auto"
+                <div className="divide-y divide-neutral-100 dark:divide-neutral-800/80">
+                  {group.items.map((item) => {
+                    const isUnread = !item.is_read && !item.read_at;
+                    return (
+                      <div
+                        key={item.id}
+                        className={`p-4 sm:p-5 flex items-start gap-4 transition-colors ${
+                          isUnread
+                            ? "bg-blue-50/40 dark:bg-blue-950/25 border-l-4 border-l-blue-500"
+                            : "hover:bg-neutral-50/50 dark:hover:bg-neutral-800/30 border-l-4 border-l-transparent"
+                        }`}
                       >
-                        <span>View Document</span>
-                        <ExternalLink className="w-3 h-3" />
-                      </button>
-                    )}
-                  </div>
-                </div>
+                        {/* Channel / Type Icon */}
+                        <div className={`p-2.5 rounded-xl flex-shrink-0 mt-0.5 ${
+                          isUnread
+                            ? "bg-blue-100/60 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 ring-1 ring-blue-500/20"
+                            : "bg-neutral-100 dark:bg-neutral-800"
+                        }`}>
+                          {getNotificationIcon(item.notification_type)}
+                        </div>
 
-                {/* Mark as read button */}
-                {isUnread && (
-                  <button
-                    type="button"
-                    onClick={() => markReadMutation.mutate(item.id)}
-                    className="p-1.5 rounded-lg text-neutral-400 hover:text-blue-600 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
-                    title="Mark as read"
-                  >
-                    <Check className="w-4 h-4" />
-                  </button>
-                )}
+                        {/* Content */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex flex-wrap items-center justify-between gap-2 mb-1">
+                            <div className="flex items-center gap-2">
+                              {isUnread && (
+                                <span className="w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-400 flex-shrink-0 animate-pulse" />
+                              )}
+                              <h4
+                                className={`text-sm ${
+                                  isUnread
+                                    ? "font-bold text-neutral-950 dark:text-neutral-50"
+                                    : "font-medium text-neutral-700 dark:text-neutral-300"
+                                }`}
+                              >
+                                {item.title}
+                              </h4>
+                            </div>
+                            <span className="text-xs text-neutral-400 font-mono">
+                              {new Date(item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                          </div>
+
+                          <p className={`text-xs leading-relaxed mb-2 ${
+                            isUnread ? "text-neutral-800 dark:text-neutral-200 font-normal" : "text-neutral-600 dark:text-neutral-400"
+                          }`}>
+                            {item.body}
+                          </p>
+
+                          <div className="flex flex-wrap items-center gap-3 text-[11px] text-neutral-400">
+                            <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300">
+                              {item.notification_type}
+                            </span>
+                            <span>Channel: {item.channel}</span>
+                            {item.entity_type && (
+                              <span className="capitalize">
+                                Entity: {item.entity_type.replace("_", " ")}
+                              </span>
+                            )}
+                            {item.entity_type && item.entity_id && (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (!item.is_read && !item.read_at) {
+                                    markReadMutation.mutate(item.id);
+                                  }
+                                  const type = item.entity_type!.toLowerCase();
+                                  if (type.includes("req") || type === "pr") {
+                                    router.push(`/requisitions/${item.entity_id}`);
+                                  } else if (type === "rfq" || type === "sourcing" || type === "bid") {
+                                    router.push(`/rfqs/${item.entity_id}`);
+                                  } else if (type.includes("order") || type === "po") {
+                                    router.push(`/purchase-orders/${item.entity_id}`);
+                                  } else if (type.includes("invoice") || type.includes("payment")) {
+                                    router.push(`/invoices/${item.entity_id}`);
+                                  } else if (type.includes("task") || type.includes("approval")) {
+                                    router.push(`/tasks/${item.entity_id}`);
+                                  } else if (type.includes("vendor")) {
+                                    router.push(`/vendors/${item.entity_id}`);
+                                  }
+                                }}
+                                className="inline-flex items-center gap-1 font-semibold text-blue-600 dark:text-blue-400 hover:underline ml-auto"
+                              >
+                                <span>View Document</span>
+                                <ExternalLink className="w-3 h-3" />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Mark as read button */}
+                        {isUnread && (
+                          <button
+                            type="button"
+                            onClick={() => markReadMutation.mutate(item.id)}
+                            className="p-1.5 rounded-lg text-neutral-400 hover:text-blue-600 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+                            title="Mark as read"
+                          >
+                            <Check className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-            );
-          })
+            ))}
+          </div>
         )}
       </div>
 

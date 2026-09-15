@@ -1,12 +1,13 @@
 "use client";
+import { getErrorMessage } from "@procurement/utils";
 
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import { usePayments, useProcessPayment, useDownloadRemittancePDF } from "@procurement/hooks";
+import { useAppToast } from "@procurement/hooks";
 import type { PaymentRecordResponse } from "@procurement/types";
 import {
   CreditCard,
-  Search,
   CheckCircle2,
   Clock,
   AlertCircle,
@@ -22,8 +23,10 @@ import {
   Download,
   X,
 } from "lucide-react";
+import { SearchInput, TableSkeleton, EmptyState, Button } from "@procurement/ui";
 
 export default function BuyerPaymentsPage() {
+  const { toast } = useAppToast();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [methodFilter, setMethodFilter] = useState("");
@@ -47,8 +50,8 @@ export default function BuyerPaymentsPage() {
   const handleDownloadRemittance = async (paymentId: string) => {
     try {
       await downloadRemittanceMutation.mutateAsync(paymentId);
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to download remittance advice PDF");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to download remittance advice PDF"));
     }
   };
 
@@ -63,7 +66,7 @@ export default function BuyerPaymentsPage() {
       const paymentsToExport = pendingPayments.length > 0 ? pendingPayments : filteredPayments;
 
       if (paymentsToExport.length === 0) {
-        alert("No payments available for bank batch export.");
+        toast.error("No payments available for bank batch export.");
         return;
       }
 
@@ -110,8 +113,8 @@ export default function BuyerPaymentsPage() {
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
-    } catch (err: any) {
-      alert("Failed to export bank payment batch file.");
+    } catch (err: unknown) {
+      toast.error("Failed to export bank payment batch file.");
     } finally {
       setDownloadingBatch(false);
     }
@@ -207,9 +210,8 @@ export default function BuyerPaymentsPage() {
       });
       closeProcessModal();
       refetch();
-    } catch (err: any) {
-      const message = err.response?.data?.error?.message || err.message || "Failed to process payment disbursement";
-      setProcessError(message);
+    } catch (err: unknown) {
+      setProcessError(getErrorMessage(err, "Failed to process payment."));
     }
   };
 
@@ -338,16 +340,12 @@ export default function BuyerPaymentsPage() {
 
       {/* Filter and Search Bar */}
       <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md rounded-2xl border border-slate-200/80 dark:border-slate-800 p-4 shadow-xs flex flex-col md:flex-row gap-3 items-center justify-between">
-        <div className="relative w-full md:w-96">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400 dark:text-slate-500" />
-          <input
-            type="text"
-            placeholder="Search by UTR, invoice #, vendor, ERP ref..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-slate-800/90 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500"
-          />
-        </div>
+        <SearchInput
+          placeholder="Search by UTR, invoice #, vendor, ERP ref..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full md:w-96"
+        />
 
         <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
           <select
@@ -381,45 +379,36 @@ export default function BuyerPaymentsPage() {
       {/* Payments Table */}
       <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md rounded-2xl border border-slate-200/80 dark:border-slate-800 overflow-hidden shadow-xs">
         {isLoading ? (
-          <div className="py-16 text-center text-slate-400 dark:text-slate-500 flex flex-col items-center gap-2">
-            <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
-            <span className="text-sm">Loading payment records...</span>
-          </div>
+          <TableSkeleton rows={8} columns={7} />
         ) : isError ? (
-          <div className="py-16 text-center text-rose-500 flex flex-col items-center gap-2">
-            <AlertCircle className="h-8 w-8 text-rose-400" />
-            <span className="text-sm font-medium">Failed to load payment ledger.</span>
-            <button
-              onClick={() => refetch()}
-              className="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 underline mt-1"
-            >
-              Try again
-            </button>
-          </div>
+          <EmptyState
+            icon={<CreditCard className="w-6 h-6" />}
+            title="Failed to load payment ledger"
+            description="Check your backend connection and try again."
+            action={<Button variant="secondary" size="sm" onClick={() => refetch()}>Retry</Button>}
+          />
         ) : filteredPayments.length === 0 ? (
-          <div className="py-16 text-center text-slate-400 dark:text-slate-500">
-            <CreditCard className="h-10 w-10 mx-auto text-slate-300 dark:text-slate-600 mb-2" />
-            <p className="text-sm font-medium text-slate-600 dark:text-slate-300">No payment records found</p>
-            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
-              Payments are automatically scheduled upon approving 3-way matched invoices.
-            </p>
-          </div>
+          <EmptyState
+            icon={<CreditCard className="w-6 h-6" />}
+            title="No payment records found"
+            description="Payments are automatically scheduled upon approving 3-way matched invoices."
+          />
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-800 text-xs">
               <thead className="bg-slate-50/80 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 font-semibold uppercase tracking-wider">
                 <tr>
-                  <th className="py-3.5 pl-4 pr-3 text-left">UTR / Reference</th>
-                  <th className="px-3 py-3.5 text-left">Invoice #</th>
-                  <th className="px-3 py-3.5 text-left">Vendor</th>
-                  <th className="px-3 py-3.5 text-right">Gross Amount</th>
-                  <th className="px-3 py-3.5 text-right">TDS (2%)</th>
-                  <th className="px-3 py-3.5 text-right">Net Payable</th>
-                  <th className="px-3 py-3.5 text-left">Due Date</th>
-                  <th className="px-3 py-3.5 text-left">Settled Date</th>
-                  <th className="px-3 py-3.5 text-center">Mode</th>
-                  <th className="px-3 py-3.5 text-center">Status</th>
-                  <th className="py-3.5 pl-3 pr-4 text-right">Action</th>
+                  <th className="py-3 pl-4 pr-3 text-left whitespace-nowrap">UTR / Reference</th>
+                  <th className="px-3 py-3 text-left whitespace-nowrap">Invoice #</th>
+                  <th className="px-3 py-3 text-left whitespace-nowrap">Vendor</th>
+                  <th className="px-3 py-3 text-right whitespace-nowrap">Gross Amount</th>
+                  <th className="px-3 py-3 text-right whitespace-nowrap">TDS (2%)</th>
+                  <th className="px-3 py-3 text-right whitespace-nowrap">Net Payable</th>
+                  <th className="px-3 py-3 text-left whitespace-nowrap">Due Date</th>
+                  <th className="px-3 py-3 text-left whitespace-nowrap">Settled Date</th>
+                  <th className="px-3 py-3 text-center whitespace-nowrap">Mode</th>
+                  <th className="px-3 py-3 text-center whitespace-nowrap">Status</th>
+                  <th className="py-3 pl-3 pr-4 text-right whitespace-nowrap">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800 bg-white dark:bg-slate-900/40">
@@ -432,7 +421,7 @@ export default function BuyerPaymentsPage() {
                   return (
                     <tr key={p.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
                       {/* UTR / Reference */}
-                      <td className="py-3.5 pl-4 pr-3">
+                      <td className="py-3 pl-4 pr-3 whitespace-nowrap">
                         {p.utr_number ? (
                           <div className="flex items-center gap-1.5">
                             <span className="font-mono font-bold text-slate-900 dark:text-slate-100 text-xs bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
@@ -463,7 +452,7 @@ export default function BuyerPaymentsPage() {
                       </td>
 
                       {/* Invoice */}
-                      <td className="px-3 py-3.5">
+                      <td className="px-3 py-3 whitespace-nowrap">
                         <Link
                           href={`/invoices/${p.invoice_id}`}
                           className="font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 flex items-center gap-1 group"
@@ -474,30 +463,30 @@ export default function BuyerPaymentsPage() {
                       </td>
 
                       {/* Vendor */}
-                      <td className="px-3 py-3.5">
-                        <div className="flex items-center gap-1.5 text-slate-800 dark:text-slate-200 font-medium max-w-[160px] truncate">
+                      <td className="px-3 py-3 whitespace-nowrap">
+                        <div className="flex items-center gap-1.5 text-slate-800 dark:text-slate-200 font-medium max-w-[180px] truncate">
                           <Building className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 shrink-0" />
                           <span className="truncate">{p.vendor_name || "—"}</span>
                         </div>
                       </td>
 
                       {/* Gross Amount */}
-                      <td className="px-3 py-3.5 text-right font-medium text-slate-600 dark:text-slate-400">
+                      <td className="px-3 py-3 text-right font-mono font-medium text-slate-600 dark:text-slate-400 whitespace-nowrap">
                         {formatCurrency(gross, p.currency)}
                       </td>
 
                       {/* TDS (2%) */}
-                      <td className="px-3 py-3.5 text-right font-medium text-amber-700 dark:text-amber-400">
+                      <td className="px-3 py-3 text-right font-mono font-medium text-amber-700 dark:text-amber-400 whitespace-nowrap">
                         {tds > 0 ? `- ${formatCurrency(tds, p.currency)}` : "—"}
                       </td>
 
                       {/* Net Payable */}
-                      <td className="px-3 py-3.5 text-right font-bold text-slate-900 dark:text-white">
+                      <td className="px-3 py-3 text-right font-mono font-bold text-slate-900 dark:text-white whitespace-nowrap">
                         {formatCurrency(net, p.currency)}
                       </td>
 
                       {/* Due Date */}
-                      <td className="px-3 py-3.5 text-slate-600 dark:text-slate-400 whitespace-nowrap">
+                      <td className="px-3 py-3 text-slate-600 dark:text-slate-400 whitespace-nowrap">
                         {p.payment_due_date ? (
                           <span>
                             {new Date(p.payment_due_date).toLocaleDateString("en-IN", {
@@ -512,7 +501,7 @@ export default function BuyerPaymentsPage() {
                       </td>
 
                       {/* Settled Date */}
-                      <td className="px-3 py-3.5 text-slate-600 dark:text-slate-400 whitespace-nowrap">
+                      <td className="px-3 py-3 text-slate-600 dark:text-slate-400 whitespace-nowrap">
                         {p.payment_date && p.status === "COMPLETED" ? (
                           <span className="font-medium text-slate-800 dark:text-slate-200">
                             {new Date(p.payment_date).toLocaleDateString("en-IN", {
@@ -527,19 +516,19 @@ export default function BuyerPaymentsPage() {
                       </td>
 
                       {/* Payment Method */}
-                      <td className="px-3 py-3.5 text-center">
+                      <td className="px-3 py-3 text-center whitespace-nowrap">
                         <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
                           {p.payment_method || "NEFT"}
                         </span>
                       </td>
 
                       {/* Status */}
-                      <td className="px-3 py-3.5 text-center whitespace-nowrap">
+                      <td className="px-3 py-3 text-center whitespace-nowrap">
                         {getStatusBadge(p.status)}
                       </td>
 
                       {/* Actions */}
-                      <td className="py-3.5 pl-3 pr-4 text-right whitespace-nowrap">
+                      <td className="py-3 pl-3 pr-4 text-right whitespace-nowrap">
                         <div className="flex items-center justify-end gap-2">
                           {isScheduled ? (
                             <button

@@ -1,10 +1,13 @@
 "use client";
-import { useRouter } from "next/navigation";
+import { getErrorMessage } from "@procurement/utils";
+
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useLogin } from "@procurement/hooks";
-import { useState } from "react";
+import { useAppToast } from "@procurement/hooks";
+import { useState, Suspense } from "react";
 import { CaptchaChallenge } from "@procurement/ui";
 
 const loginSchema = z.object({
@@ -15,11 +18,19 @@ const loginSchema = z.object({
 
 type LoginForm = z.infer<typeof loginSchema>;
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectParam = searchParams.get("redirect");
+  const targetUrl =
+    redirectParam && redirectParam.startsWith("/") && !redirectParam.startsWith("//")
+      ? redirectParam
+      : "/requisitions";
   const { mutate: login, isPending, error } = useLogin();
+  const { toast } = useAppToast();
   const [mfaToken, setMfaToken] = useState<string | null>(null);
   const [failedAttempts, setFailedAttempts] = useState(0);
+
   const [captchaVerified, setCaptchaVerified] = useState(false);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
 
@@ -52,7 +63,7 @@ export default function LoginPage() {
           setMfaToken(response.data.mfa_token);
           router.push(`/mfa?token=${encodeURIComponent(response.data.mfa_token)}`);
         } else if (response.data.access_token) {
-          router.push("/requisitions");
+          router.push(targetUrl);
         }
       },
       onError: () => {
@@ -175,9 +186,9 @@ export default function LoginPage() {
                 if (res.data?.data?.redirect_url) {
                   window.location.href = res.data.data.redirect_url;
                 }
-              } catch (err: any) {
-                alert(err?.response?.data?.error?.message || "Failed to initiate OIDC login");
-              }
+              } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to initiate OIDC login"));
+    }
             }}
             className="w-full flex items-center justify-center gap-2 py-2.5 px-3 border border-gray-300 dark:border-slate-700 rounded-xl text-xs font-semibold text-gray-700 dark:text-slate-200 bg-white dark:bg-slate-800/80 hover:bg-gray-50 dark:hover:bg-slate-700/80 shadow-sm transition-colors"
           >
@@ -196,9 +207,9 @@ export default function LoginPage() {
                 if (res.data?.data?.redirect_url) {
                   window.location.href = res.data.data.redirect_url;
                 }
-              } catch (err: any) {
-                alert(err?.response?.data?.error?.message || "Failed to initiate SAML login");
-              }
+              } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to initiate SAML login"));
+    }
             }}
             className="w-full flex items-center justify-center gap-2 py-2.5 px-3 border border-gray-300 dark:border-slate-700 rounded-xl text-xs font-semibold text-gray-700 dark:text-slate-200 bg-white dark:bg-slate-800/80 hover:bg-gray-50 dark:hover:bg-slate-700/80 shadow-sm transition-colors"
           >
@@ -210,3 +221,19 @@ export default function LoginPage() {
     </div>
   );
 }
+
+export default function LoginPage() {
+  return (
+
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-black">
+          <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+        </div>
+      }
+    >
+      <LoginForm />
+    </Suspense>
+  );
+}
+

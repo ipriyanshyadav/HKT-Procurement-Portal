@@ -1,6 +1,7 @@
 "use client";
+import { getErrorMessage } from "@procurement/utils";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -26,6 +27,8 @@ export default function NewRequisitionPage() {
   const router = useRouter();
   const createMutation = useCreateRequisition();
   const submitMutation = useSubmitRequisition();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const isSubmittingRef = useRef(false);
 
   const { data: businessUnits = [] } = useBusinessUnits();
   const [businessUnitId, setBusinessUnitId] = useState("");
@@ -207,6 +210,10 @@ export default function NewRequisitionPage() {
       return;
     }
 
+    if (isSubmittingRef.current || createMutation.isPending || submitMutation.isPending) return;
+    isSubmittingRef.current = true;
+    setIsSubmitting(true);
+
     try {
       // Create draft PR
       const payload = {
@@ -234,12 +241,11 @@ export default function NewRequisitionPage() {
       }
 
       router.push(`/requisitions/${createdPr.id}`);
-    } catch (err: any) {
-      setError(
-        err?.response?.data?.error?.message ||
-          err?.response?.data?.message ||
-          "Failed to create requisition"
-      );
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, "Failed to create requisition"));
+    } finally {
+      isSubmittingRef.current = false;
+      setIsSubmitting(false);
     }
   };
 
@@ -492,8 +498,8 @@ export default function NewRequisitionPage() {
                 <button
                   type="button"
                   onClick={() => handleSubmit(false)}
-                  disabled={createMutation.isPending}
-                  className="w-full py-2.5 px-4 bg-gray-100 hover:bg-gray-200 text-gray-800 text-sm font-semibold rounded-lg transition-colors disabled:opacity-50"
+                  disabled={isSubmitting || createMutation.isPending || submitMutation.isPending}
+                  className="w-full py-2.5 px-4 bg-gray-100 hover:bg-gray-200 text-gray-800 text-sm font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:pointer-events-none"
                 >
                   {createMutation.isPending ? "Saving Draft..." : "Save as Draft"}
                 </button>
@@ -501,10 +507,10 @@ export default function NewRequisitionPage() {
                 <button
                   type="button"
                   onClick={() => handleSubmit(true)}
-                  disabled={createMutation.isPending || submitMutation.isPending}
-                  className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors disabled:opacity-50"
+                  disabled={isSubmitting || createMutation.isPending || submitMutation.isPending}
+                  className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors disabled:opacity-50 disabled:pointer-events-none"
                 >
-                  {submitMutation.isPending ? "Submitting..." : "Submit for Approval"}
+                  {submitMutation.isPending || isSubmitting ? "Submitting..." : "Submit for Approval"}
                 </button>
               </div>
             </PermissionGuard>

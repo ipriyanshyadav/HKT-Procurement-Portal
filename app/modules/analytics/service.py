@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 import json
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal
-from typing import Any, AsyncGenerator, Dict, List, Optional
+from typing import Any
 from uuid import UUID
 
 from loguru import logger
@@ -34,7 +35,7 @@ class AnalyticsService:
             return None
 
     @asynccontextmanager
-    async def _get_db(self, db: Any = None) -> AsyncGenerator[Any, None]:
+    async def _get_db(self, db: Any = None) -> AsyncGenerator[Any]:
         if db is not None:
             yield db
         else:
@@ -49,10 +50,10 @@ class AnalyticsService:
         self,
         db: Any,
         org_id: UUID,
-        fiscal_year: Optional[str] = None,
-        user_bu_scope: Optional[List[UUID]] = None,
+        fiscal_year: str | None = None,
+        user_bu_scope: list[UUID] | None = None,
         group_by: str = "category",
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         fy = fiscal_year or _current_fy()
         year = int(str(fy)[:4])
         bu_scope_list = [str(b) for b in (user_bu_scope or [])]
@@ -67,7 +68,7 @@ class AnalyticsService:
             except Exception as e:
                 logger.warning(f"Redis get spend cache failed: {e}")
 
-        data: List[Dict[str, Any]] = []
+        data: list[dict[str, Any]] = []
 
         async with self._get_db(db) as analytics_db:
             if group_by == "vendor":
@@ -155,9 +156,9 @@ class AnalyticsService:
         self,
         db: Any,
         org_id: UUID,
-        fiscal_year: Optional[str] = None,
-        user_bu_scope: Optional[List[UUID]] = None,
-    ) -> Dict[str, Any]:
+        fiscal_year: str | None = None,
+        user_bu_scope: list[UUID] | None = None,
+    ) -> dict[str, Any]:
         by_cat = await self.get_spend_summary(db, org_id, fiscal_year, user_bu_scope, group_by="category")
         by_vend = await self.get_spend_summary(db, org_id, fiscal_year, user_bu_scope, group_by="vendor")
         by_bu = await self.get_spend_summary(db, org_id, fiscal_year, user_bu_scope, group_by="bu")
@@ -173,9 +174,9 @@ class AnalyticsService:
         self,
         db: Any,
         org_id: UUID,
-        fiscal_year: Optional[str] = None,
-        user_bu_scope: Optional[List[UUID]] = None,
-    ) -> Dict[str, Any]:
+        fiscal_year: str | None = None,
+        user_bu_scope: list[UUID] | None = None,
+    ) -> dict[str, Any]:
         fy = fiscal_year or _current_fy()
         bu_scope_list = [str(b) for b in (user_bu_scope or [])]
         cache_key = RedisKeys.analytics_cache("kpis", org_id, fy, ",".join(sorted(bu_scope_list)))
@@ -189,7 +190,7 @@ class AnalyticsService:
             except Exception as e:
                 logger.warning(f"Redis get kpi cache failed: {e}")
 
-        metrics: Dict[str, Any] = {}
+        metrics: dict[str, Any] = {}
 
         async with self._get_db(db) as analytics_db:
             params = {
@@ -378,8 +379,8 @@ class AnalyticsService:
         self,
         db: Any,
         org_id: UUID,
-        vendor_id: Optional[UUID] = None,
-        user_bu_scope: Optional[List[UUID]] = None,
+        vendor_id: UUID | None = None,
+        user_bu_scope: list[UUID] | None = None,
     ) -> Any:
         bu_scope_list = [str(b) for b in (user_bu_scope or [])]
 
@@ -465,7 +466,7 @@ class AnalyticsService:
                 data.append(d)
             return data
 
-    async def get_unmapped_pr_analytics(self, db: Any, org_id: UUID) -> Dict[str, Any]:
+    async def get_unmapped_pr_analytics(self, db: Any, org_id: UUID) -> dict[str, Any]:
         async with self._get_db(db) as analytics_db:
             r = await analytics_db.execute(
                 text("""
@@ -490,9 +491,9 @@ class AnalyticsService:
         self,
         db: Any,
         org_id: UUID,
-        fiscal_year: Optional[str] = None,
-        user_bu_scope: Optional[List[UUID]] = None,
-    ) -> Dict[str, Any]:
+        fiscal_year: str | None = None,
+        user_bu_scope: list[UUID] | None = None,
+    ) -> dict[str, Any]:
         fy = fiscal_year or _current_fy()
         year = int(str(fy)[:4])
         bu_scope_list = [str(b) for b in (user_bu_scope or [])]
@@ -596,11 +597,12 @@ class AnalyticsService:
         self,
         db: Any,
         org_id: UUID,
-        fiscal_year: Optional[str] = None,
-        user_bu_scope: Optional[List[UUID]] = None,
-    ) -> Dict[str, Any]:
-        fy = fiscal_year or _current_fy()
+        fiscal_year: str | None = None,
+        user_bu_scope: list[UUID] | None = None,
+    ) -> dict[str, Any]:
+        _fy = fiscal_year or _current_fy()
         bu_scope_list = [str(b) for b in (user_bu_scope or [])]
+
 
         async with self._get_db(db) as analytics_db:
             params = {
@@ -720,8 +722,8 @@ class AnalyticsService:
         self,
         db: Any,
         org_id: UUID,
-        user_bu_scope: Optional[List[UUID]] = None,
-    ) -> Dict[str, Any]:
+        user_bu_scope: list[UUID] | None = None,
+    ) -> dict[str, Any]:
         async with self._get_db(db) as analytics_db:
             r = await analytics_db.execute(
                 text("""
@@ -750,7 +752,7 @@ class AnalyticsService:
         self,
         db: Any,
         org_id: UUID,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         async with self._get_db(db) as analytics_db:
             v_res = await analytics_db.execute(
                 text("""
@@ -802,8 +804,8 @@ class AnalyticsService:
         self,
         db: Any,
         org_id: UUID,
-        user_bu_scope: Optional[List[UUID]] = None,
-    ) -> Dict[str, Any]:
+        user_bu_scope: list[UUID] | None = None,
+    ) -> dict[str, Any]:
         async with self._get_db(db) as analytics_db:
             r = await analytics_db.execute(
                 text("""
@@ -812,7 +814,7 @@ class AnalyticsService:
                         COALESCE(SUM(paid_amount), 0) as total_paid,
                         COUNT(*) as total_invoices,
                         COUNT(*) FILTER (WHERE payment_status = 'PENDING') as pending_count,
-                        COUNT(*) FILTER (WHERE payment_status = 'PAID') as paid_count,
+                        COUNT(*) FILTER (WHERE payment_status = 'COMPLETED') as paid_count,
                         COUNT(*) FILTER (WHERE payment_status = 'PENDING' AND due_date < CURRENT_DATE) as overdue_count
                     FROM invoices
                     WHERE org_id = :org_id AND deleted_at IS NULL
@@ -835,16 +837,21 @@ class AnalyticsService:
                 {"org_id": org_id},
             )
             val = p_res.scalar()
-            d["avg_payment_days"] = round(float(val), 1) if val is not None else 0.0
+            if isinstance(val, timedelta):
+                d["avg_payment_days"] = round(val.total_seconds() / 86400.0, 1)
+            elif val is not None:
+                d["avg_payment_days"] = round(float(val), 1)
+            else:
+                d["avg_payment_days"] = 0.0
             return d
 
     async def get_dashboard(
         self,
         db: Any,
         org_id: UUID,
-        fiscal_year: Optional[str] = None,
-        user_bu_scope: Optional[List[UUID]] = None,
-    ) -> Dict[str, Any]:
+        fiscal_year: str | None = None,
+        user_bu_scope: list[UUID] | None = None,
+    ) -> dict[str, Any]:
         kpis = await self.get_procurement_kpis(db, org_id, fiscal_year, user_bu_scope)
         spend = await self.get_all_spend(db, org_id, fiscal_year, user_bu_scope)
         savings = await self.get_savings_analysis(db, org_id, fiscal_year, user_bu_scope)
@@ -863,9 +870,9 @@ class AnalyticsService:
         self,
         db: Any,
         org_id: UUID,
-        fiscal_year: Optional[str] = None,
-        user_bu_scope: Optional[List[UUID]] = None,
-    ) -> Dict[str, Any]:
+        fiscal_year: str | None = None,
+        user_bu_scope: list[UUID] | None = None,
+    ) -> dict[str, Any]:
         fy = fiscal_year or _current_fy()
         year = int(str(fy)[:4])
         bu_scope_list = [str(b) for b in (user_bu_scope or [])]
@@ -1054,10 +1061,10 @@ class AnalyticsService:
         self,
         db: Any,
         org_id: UUID,
-        fiscal_year: Optional[str] = None,
-        user_bu_scope: Optional[List[UUID]] = None,
+        fiscal_year: str | None = None,
+        user_bu_scope: list[UUID] | None = None,
         limit: int = 50,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         fy = fiscal_year or _current_fy()
         year = int(str(fy)[:4])
         bu_scope_list = [str(b) for b in (user_bu_scope or [])]
@@ -1222,9 +1229,9 @@ class AnalyticsService:
         db: Any,
         org_id: UUID,
         req: Any,
-        user_bu_scope: Optional[List[UUID]] = None,
-    ) -> Dict[str, Any]:
-        DIM_MAP = {
+        user_bu_scope: list[UUID] | None = None,
+    ) -> dict[str, Any]:
+        dim_map = {
             "category_name": "c.name AS category_name",
             "bu_name": "bu.name AS bu_name",
             "vendor_name": "v.company_name AS vendor_name",
@@ -1234,14 +1241,14 @@ class AnalyticsService:
             "year": "TO_CHAR(po.created_at, 'YYYY') AS year",
             "status": "po.status::text AS status",
         }
-        METRIC_MAP = {
+        metric_map = {
             "total_po_value": "COALESCE(SUM(po.total_value), 0) AS total_po_value",
             "po_count": "COUNT(DISTINCT po.id) AS po_count",
             "avg_po_value": "ROUND(COALESCE(AVG(po.total_value), 0)::numeric, 2) AS avg_po_value",
             "line_count": "COUNT(pol.id) AS line_count",
             "vendor_count": "COUNT(DISTINCT po.vendor_id) AS vendor_count",
         }
-        FILTER_FIELD_MAP = {
+        filter_field_map = {
             "business_unit_id": "po.business_unit_id",
             "category_id": "po.category_id",
             "vendor_id": "po.vendor_id",
@@ -1253,11 +1260,11 @@ class AnalyticsService:
 
         req_dims = getattr(req, "dimensions", []) or []
         req_metrics = getattr(req, "metrics", []) or []
-        selected_dims = [d for d in req_dims if d in DIM_MAP] or ["category_name"]
-        selected_metrics = [m for m in req_metrics if m in METRIC_MAP] or ["total_po_value", "po_count"]
+        selected_dims = [d for d in req_dims if d in dim_map] or ["category_name"]
+        selected_metrics = [m for m in req_metrics if m in metric_map] or ["total_po_value", "po_count"]
 
-        dim_selects = [DIM_MAP[d] for d in selected_dims]
-        metric_selects = [METRIC_MAP[m] for m in selected_metrics]
+        dim_selects = [dim_map[d] for d in selected_dims]
+        metric_selects = [metric_map[m] for m in selected_metrics]
         all_selects = ", ".join(dim_selects + metric_selects)
 
         group_by_cols = ", ".join([d.split(" AS ")[0] for d in dim_selects])
@@ -1267,7 +1274,7 @@ class AnalyticsService:
             "po.status NOT IN ('DRAFT', 'REJECTED', 'CANCELLED', 'VENDOR_REJECTED', 'REJECTED_BY_SUPPLIER')",
             "po.deleted_at IS NULL",
         ]
-        sql_params: Dict[str, Any] = {
+        sql_params: dict[str, Any] = {
             "org_id": org_id,
         }
 
@@ -1283,9 +1290,9 @@ class AnalyticsService:
             val = (
                 getattr(f, "value", None) if hasattr(f, "value") else (f.get("value") if isinstance(f, dict) else None)
             )
-            if field_name not in FILTER_FIELD_MAP:
+            if field_name not in filter_field_map:
                 continue
-            col_expr = FILTER_FIELD_MAP[field_name]
+            col_expr = filter_field_map[field_name]
             param_name = f"filter_{idx}"
             if op == "eq":
                 where_clauses.append(f"{col_expr} = :{param_name}")
@@ -1304,6 +1311,9 @@ class AnalyticsService:
                 sql_params[param_name] = val
             elif op == "lte":
                 where_clauses.append(f"{col_expr} <= :{param_name}")
+                sql_params[param_name] = val
+            elif op == "in" and isinstance(val, list):
+                where_clauses.append(f"{col_expr} = ANY(:{param_name})")
                 sql_params[param_name] = val
             elif op == "like":
                 where_clauses.append(f"{col_expr} ILIKE :{param_name}")
@@ -1352,7 +1362,7 @@ class AnalyticsService:
                 WHERE {where_sql}
                 GROUP BY {group_by_cols}
             ) sub
-        """
+            """  # noqa: S608
 
         data_query = f"""
             SELECT {all_selects}
@@ -1361,7 +1371,7 @@ class AnalyticsService:
             GROUP BY {group_by_cols}
             ORDER BY {order_by_sql}
             LIMIT {page_size} OFFSET {offset}
-        """
+            """  # noqa: S608
 
         async with self._get_db(db) as analytics_db:
             cnt_res = await analytics_db.execute(text(count_query), sql_params)
@@ -1394,11 +1404,11 @@ class AnalyticsService:
         self,
         db: Any,
         org_id: UUID,
-        report_type: Optional[str] = None,
-        fiscal_year: Optional[str] = None,
+        report_type: str | None = None,
+        fiscal_year: str | None = None,
         page: int = 1,
         page_size: int = 50,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         async with self._get_db(db) as analytics_db:
             p_size = min(page_size, 100)
             offset = max(0, (page - 1) * p_size)
@@ -1523,8 +1533,8 @@ class AnalyticsService:
                 "summary": summary,
             }
 
-    async def detect_maverick_clusters(self, db: Any, org_id: UUID) -> Dict[str, Any]:
-        clusters_to_insert: List[Dict[str, Any]] = []
+    async def detect_maverick_clusters(self, db: Any, org_id: UUID) -> dict[str, Any]:
+        clusters_to_insert: list[dict[str, Any]] = []
 
         async with self._get_db(db) as analytics_db:
             # 1. RETROACTIVE_PO: POs created after invoice arrival or within 24h of invoice date
@@ -1782,9 +1792,9 @@ class AnalyticsService:
         self,
         db: Any,
         org_id: UUID,
-        status: Optional[str] = None,
-        cluster_type: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        status: str | None = None,
+        cluster_type: str | None = None,
+    ) -> dict[str, Any]:
         clusters = await analytics_repository.list_maverick_clusters(
             db, org_id, status=status, cluster_type=cluster_type
         )
@@ -1826,7 +1836,7 @@ class AnalyticsService:
         cluster_id: UUID,
         org_id: UUID,
         status: str,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         cluster = await analytics_repository.update_cluster_status(
             db, cluster_id=cluster_id, org_id=org_id, status=status
         )
@@ -1838,7 +1848,7 @@ class AnalyticsService:
         return {
             "id": c_id,
             "status": c_status,
-            "updated_at": datetime.now(timezone.utc).isoformat(),
+            "updated_at": datetime.now(UTC).isoformat(),
         }
 
 

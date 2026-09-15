@@ -1,9 +1,11 @@
 from __future__ import annotations
+
 from datetime import date
-from typing import Optional
 from uuid import UUID
-from sqlalchemy import select, and_
+
+from sqlalchemy import and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.db.repository_base import BaseRepository
 from app.modules.master_data.models import HolidayMaster
 
@@ -52,8 +54,8 @@ class HolidayRepository(BaseRepository[HolidayMaster]):
         db: AsyncSession,
         org_id: UUID,
         holiday_date: date,
-        plant_id: Optional[UUID] = None,
-    ) -> Optional[HolidayMaster]:
+        plant_id: UUID | None = None,
+    ) -> HolidayMaster | None:
         conditions = [
             HolidayMaster.org_id == org_id,
             HolidayMaster.deleted_at.is_(None),

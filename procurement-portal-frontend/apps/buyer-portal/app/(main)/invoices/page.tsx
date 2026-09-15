@@ -4,6 +4,7 @@ import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import { useInvoices } from "@procurement/hooks";
 import type { InvoiceResponse } from "@procurement/types";
+import { TableSkeleton, EmptyState, PageHeader, SearchInput, Button, ExportButton } from "@procurement/ui";
 import {
   FileText,
   ArrowRight,
@@ -15,6 +16,8 @@ import {
   Receipt,
   DollarSign,
   AlertCircle,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 export default function InvoicesListPage() {
@@ -24,7 +27,7 @@ export default function InvoicesListPage() {
   const [page, setPage] = useState(1);
   const PAGE_SIZE = 20;
 
-  const { data: invoices = [], isLoading, isError, refetch } = useInvoices({
+  const { data: invoicesData, isLoading, isError, refetch } = useInvoices({
     search: search || undefined,
     status: statusFilter || undefined,
     match_status: matchFilter || undefined,
@@ -32,19 +35,23 @@ export default function InvoicesListPage() {
     page_size: PAGE_SIZE,
   });
 
+  const invoices = useMemo(() => Array.isArray(invoicesData) ? invoicesData : (invoicesData as any)?.invoices ?? [], [invoicesData]);
+  const meta = (invoicesData as any)?.meta;
+  const totalPages = meta?.total_pages ?? 1;
+
   const kpis = useMemo(() => {
     const total = invoices.length;
     const fullMatch = invoices.filter(
-      (inv) => inv.match_status === "MATCHED" || inv.match_status === "FULL_MATCH"
+      (inv: any) => inv.match_status === "MATCHED" || inv.match_status === "FULL_MATCH"
     ).length;
     const pendingApproval = invoices.filter(
-      (inv) => inv.status === "PENDING_APPROVAL" || inv.status === "SUBMITTED"
+      (inv: any) => inv.status === "PENDING_APPROVAL" || inv.status === "SUBMITTED"
     ).length;
     const discrepancies = invoices.filter(
-      (inv) => inv.match_status === "DISCREPANCY" || inv.status === "DISPUTED"
+      (inv: any) => inv.match_status === "DISCREPANCY" || inv.status === "DISPUTED"
     ).length;
     const paid = invoices.filter(
-      (inv) => inv.payment_status === "COMPLETED" || inv.payment_status === "PAID"
+      (inv: any) => inv.payment_status === "COMPLETED" || inv.payment_status === "PAID"
     ).length;
     return { total, fullMatch, pendingApproval, discrepancies, paid };
   }, [invoices]);
@@ -125,17 +132,20 @@ export default function InvoicesListPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2.5">
-            <Receipt className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
-            Invoices & Reconciliations
-          </h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Automated 3-way matching across POs, GRN acceptance, and invoice approval workflows.
-          </p>
-        </div>
-      </div>
+      <PageHeader
+        title="Invoices & Reconciliations"
+        subtitle="Automated 3-way matching across POs, GRN acceptance, and invoice approval workflows."
+        actions={
+          <ExportButton
+            exportType="INVOICES"
+            filters={{
+              search: search || undefined,
+              status: statusFilter || undefined,
+              match_status: matchFilter || undefined,
+            }}
+          />
+        }
+      />
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
@@ -182,14 +192,12 @@ export default function InvoicesListPage() {
 
       {/* Filter and Search Bar */}
       <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md rounded-2xl border border-slate-200/80 dark:border-slate-800 p-4 shadow-xs flex flex-col md:flex-row gap-3 items-center justify-between">
-        <div className="relative w-full md:w-80">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-          <input
-            type="text"
+        <div className="w-full md:w-80">
+          <SearchInput
             placeholder="Search invoice or vendor inv #..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400"
+            className="w-full"
           />
         </div>
 
@@ -225,14 +233,23 @@ export default function InvoicesListPage() {
       {/* Table */}
       <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md rounded-2xl border border-slate-200/80 dark:border-slate-800 overflow-hidden shadow-xs">
         {isLoading ? (
-          <div className="py-16 text-center text-slate-400">Loading invoices...</div>
+          <TableSkeleton rows={8} columns={8} />
         ) : isError ? (
-          <div className="py-16 text-center text-rose-500">Failed to load invoices.</div>
+          <EmptyState
+            icon={<AlertTriangle className="h-8 w-8 text-rose-500" />}
+            title="Failed to load invoices"
+            action={
+              <Button variant="secondary" size="sm" onClick={() => refetch()}>
+                Try again
+              </Button>
+            }
+          />
         ) : invoices.length === 0 ? (
-          <div className="py-16 text-center text-slate-400">
-            <Receipt className="h-10 w-10 mx-auto text-slate-300 dark:text-slate-600 mb-2" />
-            No invoices found matching your criteria.
-          </div>
+          <EmptyState
+            icon={<Receipt className="h-10 w-10 text-slate-300 dark:text-slate-600" />}
+            title="No invoices found"
+            description="No invoices found matching your criteria."
+          />
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-800 text-xs">
@@ -309,18 +326,44 @@ export default function InvoicesListPage() {
                     </td>
 
                     <td className="py-3.5 pl-3 pr-4 text-right">
-                      <Link
-                        href={`/invoices/${inv.id}`}
-                        className="inline-flex items-center gap-1 text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-medium"
-                      >
-                        Details
-                        <ArrowRight className="h-3.5 w-3.5" />
+                      <Link href={`/invoices/${inv.id}`}>
+                        <Button variant="secondary" size="sm" rightIcon={<ArrowRight className="h-3.5 w-3.5" />}>
+                          Details
+                        </Button>
                       </Link>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
+          </div>
+        )}
+
+        {totalPages > 1 && (
+          <div className="px-4 py-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+            <span className="text-xs text-slate-500">
+              Page {page} of {totalPages}
+            </span>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="secondary"
+                size="sm"
+                disabled={page <= 1}
+                onClick={() => setPage((p) => p - 1)}
+                leftIcon={<ChevronLeft className="w-3.5 h-3.5" />}
+              >
+                Previous
+              </Button>
+              <Button
+                variant="secondary"
+                size="sm"
+                disabled={page >= totalPages}
+                onClick={() => setPage((p) => p + 1)}
+                rightIcon={<ChevronRight className="w-3.5 h-3.5" />}
+              >
+                Next
+              </Button>
+            </div>
           </div>
         )}
       </div>

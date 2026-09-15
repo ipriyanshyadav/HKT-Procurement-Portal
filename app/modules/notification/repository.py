@@ -1,8 +1,9 @@
 from __future__ import annotations
-from datetime import datetime, timezone
-from typing import Optional, List, Tuple
+
+from datetime import UTC, datetime
 from uuid import UUID
-from sqlalchemy import select, update, func, and_, or_
+
+from sqlalchemy import and_, func, or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.enums import NotificationChannelEnum, NotificationStatusEnum
@@ -11,6 +12,7 @@ from app.modules.notification.models import (
     NotificationPreference,
     NotificationTemplate,
 )
+
 
 class NotificationRepository:
     """Data access layer for notifications."""
@@ -24,9 +26,9 @@ class NotificationRepository:
         self,
         db: AsyncSession,
         notification_id: UUID,
-        user_id: Optional[UUID] = None,
-        org_id: Optional[UUID] = None,
-    ) -> Optional[Notification]:
+        user_id: UUID | None = None,
+        org_id: UUID | None = None,
+    ) -> Notification | None:
         stmt = select(Notification).where(Notification.id == notification_id)
         if user_id:
             stmt = stmt.where(Notification.user_id == user_id)
@@ -43,9 +45,9 @@ class NotificationRepository:
         page: int = 1,
         page_size: int = 20,
         unread_only: bool = False,
-    ) -> Tuple[List[Notification], int, int]:
+    ) -> tuple[list[Notification], int, int]:
         base_filter = and_(Notification.user_id == user_id, Notification.org_id == org_id)
-        
+
         # Total matching
         count_stmt = select(func.count()).select_from(Notification).where(base_filter)
         if unread_only:
@@ -82,8 +84,8 @@ class NotificationRepository:
         notification_id: UUID,
         user_id: UUID,
         org_id: UUID,
-    ) -> Optional[Notification]:
-        now = datetime.now(timezone.utc)
+    ) -> Notification | None:
+        now = datetime.now(UTC)
         stmt = (
             update(Notification)
             .where(
@@ -103,7 +105,7 @@ class NotificationRepository:
         user_id: UUID,
         org_id: UUID,
     ) -> int:
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         stmt = (
             update(Notification)
             .where(
@@ -121,7 +123,7 @@ class NotificationRepository:
         db: AsyncSession,
         user_id: UUID,
         org_id: UUID,
-    ) -> List[Notification]:
+    ) -> list[Notification]:
         stmt = select(Notification).where(
             Notification.user_id == user_id,
             Notification.org_id == org_id,
@@ -134,7 +136,7 @@ class NotificationRepository:
     async def get_users_with_pending_digest(
         self,
         db: AsyncSession,
-    ) -> List[Tuple[UUID, UUID]]:
+    ) -> list[tuple[UUID, UUID]]:
         stmt = select(Notification.user_id, Notification.org_id).where(
             Notification.channel == NotificationChannelEnum.DIGEST,
             Notification.status == NotificationStatusEnum.PENDING,
@@ -147,11 +149,11 @@ class NotificationRepository:
         db: AsyncSession,
         notification_id: UUID,
         status: NotificationStatusEnum,
-        error_message: Optional[str] = None,
-        provider_message_id: Optional[str] = None,
-        sent_at: Optional[datetime] = None,
-        delivered_at: Optional[datetime] = None,
-    ) -> Optional[Notification]:
+        error_message: str | None = None,
+        provider_message_id: str | None = None,
+        sent_at: datetime | None = None,
+        delivered_at: datetime | None = None,
+    ) -> Notification | None:
         values = {"status": status}
         if error_message is not None:
             values["error_message"] = error_message
@@ -179,7 +181,7 @@ class NotificationPreferenceRepository:
         db: AsyncSession,
         user_id: UUID,
         org_id: UUID,
-    ) -> List[NotificationPreference]:
+    ) -> list[NotificationPreference]:
         stmt = select(NotificationPreference).where(
             NotificationPreference.user_id == user_id,
             NotificationPreference.org_id == org_id,
@@ -193,7 +195,7 @@ class NotificationPreferenceRepository:
         user_id: UUID,
         org_id: UUID,
         notification_type: str,
-    ) -> Optional[NotificationPreference]:
+    ) -> NotificationPreference | None:
         stmt = select(NotificationPreference).where(
             NotificationPreference.user_id == user_id,
             NotificationPreference.org_id == org_id,
@@ -248,13 +250,13 @@ class NotificationTemplateRepository:
         template_code: str,
         channel: NotificationChannelEnum,
         language: str = "en",
-        org_id: Optional[UUID] = None,
-    ) -> Optional[NotificationTemplate]:
+        org_id: UUID | None = None,
+    ) -> NotificationTemplate | None:
         stmt = select(NotificationTemplate).where(
             NotificationTemplate.template_code == template_code,
             NotificationTemplate.channel == channel,
             NotificationTemplate.language == language,
-            NotificationTemplate.is_active == True,
+            NotificationTemplate.is_active,
         )
         if org_id:
             # First check for org-specific template, fallback to any
@@ -263,16 +265,16 @@ class NotificationTemplateRepository:
             t = res.scalar_one_or_none()
             if t:
                 return t
-        
+
         res = await db.execute(stmt)
         return res.scalars().first()
 
     async def list_templates(
         self,
         db: AsyncSession,
-        org_id: Optional[UUID] = None,
-    ) -> List[NotificationTemplate]:
-        stmt = select(NotificationTemplate).where(NotificationTemplate.is_active == True)
+        org_id: UUID | None = None,
+    ) -> list[NotificationTemplate]:
+        stmt = select(NotificationTemplate).where(NotificationTemplate.is_active)
         if org_id:
             stmt = stmt.where(NotificationTemplate.org_id == org_id)
         result = await db.execute(stmt)
@@ -282,8 +284,8 @@ class NotificationTemplateRepository:
         self,
         db: AsyncSession,
         template_id: UUID,
-        org_id: Optional[UUID] = None,
-    ) -> Optional[NotificationTemplate]:
+        org_id: UUID | None = None,
+    ) -> NotificationTemplate | None:
         stmt = select(NotificationTemplate).where(
             NotificationTemplate.id == template_id,
             NotificationTemplate.deleted_at.is_(None),
@@ -296,14 +298,14 @@ class NotificationTemplateRepository:
     async def list_templates_paginated(
         self,
         db: AsyncSession,
-        org_id: Optional[UUID] = None,
-        channel: Optional[NotificationChannelEnum] = None,
-        language: Optional[str] = None,
-        search: Optional[str] = None,
-        is_active: Optional[bool] = None,
+        org_id: UUID | None = None,
+        channel: NotificationChannelEnum | None = None,
+        language: str | None = None,
+        search: str | None = None,
+        is_active: bool | None = None,
         page: int = 1,
         page_size: int = 50,
-    ) -> tuple[List[NotificationTemplate], int]:
+    ) -> tuple[list[NotificationTemplate], int]:
         stmt = select(NotificationTemplate).where(NotificationTemplate.deleted_at.is_(None))
         if org_id:
             stmt = stmt.where(NotificationTemplate.org_id == org_id)
@@ -342,9 +344,9 @@ class NotificationTemplateRepository:
         template_code: str,
         channel: NotificationChannelEnum,
         language: str,
-        subject_template: Optional[str],
+        subject_template: str | None,
         body_template: str,
-        variables: List[str],
+        variables: list[str],
         is_active: bool = True,
     ) -> NotificationTemplate:
         tmpl = NotificationTemplate(
@@ -365,11 +367,11 @@ class NotificationTemplateRepository:
         self,
         db: AsyncSession,
         template: NotificationTemplate,
-        language: Optional[str] = None,
-        subject_template: Optional[str] = None,
-        body_template: Optional[str] = None,
-        variables: Optional[List[str]] = None,
-        is_active: Optional[bool] = None,
+        language: str | None = None,
+        subject_template: str | None = None,
+        body_template: str | None = None,
+        variables: list[str] | None = None,
+        is_active: bool | None = None,
     ) -> NotificationTemplate:
         if language is not None:
             template.language = language
@@ -381,7 +383,7 @@ class NotificationTemplateRepository:
             template.variables = variables
         if is_active is not None:
             template.is_active = is_active
-        template.updated_at = datetime.now(timezone.utc)
+        template.updated_at = datetime.now(UTC)
         await db.flush()
         return template
 
@@ -390,7 +392,7 @@ class NotificationTemplateRepository:
         db: AsyncSession,
         template: NotificationTemplate,
     ) -> None:
-        template.deleted_at = datetime.now(timezone.utc)
+        template.deleted_at = datetime.now(UTC)
         template.is_active = False
         await db.flush()
 
@@ -401,9 +403,9 @@ class NotificationTemplateRepository:
         template_code: str,
         channel: NotificationChannelEnum,
         language: str,
-        subject_template: Optional[str],
+        subject_template: str | None,
         body_template: str,
-        variables: List[str],
+        variables: list[str],
         is_active: bool = True,
     ) -> NotificationTemplate:
         stmt = select(NotificationTemplate).where(

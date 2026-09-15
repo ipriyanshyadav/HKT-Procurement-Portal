@@ -17,6 +17,7 @@ import {
   ArrowRight,
   CreditCard,
 } from "lucide-react";
+import { TableSkeleton, EmptyState, PageHeader, SearchInput, Button } from "@procurement/ui";
 
 export default function SupplierInvoicesPage() {
   const [search, setSearch] = useState("");
@@ -163,16 +164,12 @@ export default function SupplierInvoicesPage() {
 
       {/* Search & Filters */}
       <div className="bg-white dark:bg-[#1C1C1F] rounded-2xl border border-slate-200 dark:border-white/15 p-4 shadow-sm flex flex-col sm:flex-row gap-3 items-center justify-between">
-        <div className="relative w-full sm:w-80">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400 dark:text-slate-500" />
-          <input
-            type="text"
-            placeholder="Search invoice number..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 border border-slate-200 dark:border-white/15 rounded-xl text-sm bg-white dark:bg-[#252529] text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-        </div>
+        <SearchInput
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search invoice number..."
+          className="w-full sm:w-80"
+        />
 
         <select
           value={statusFilter}
@@ -191,21 +188,24 @@ export default function SupplierInvoicesPage() {
       {/* Table */}
       <div className="bg-white dark:bg-[#1C1C1F] rounded-2xl border border-slate-200 dark:border-white/15 overflow-hidden shadow-sm">
         {isLoading ? (
-          <div className="py-16 text-center text-slate-400 dark:text-slate-500">Loading your invoices...</div>
+          <TableSkeleton rows={8} columns={7} />
         ) : isError ? (
           <div className="py-16 text-center text-rose-500">Failed to load invoices.</div>
         ) : invoices.length === 0 ? (
-          <div className="py-16 text-center text-slate-400 dark:text-slate-500 space-y-3">
-            <Receipt className="h-10 w-10 mx-auto text-slate-300 dark:text-slate-600" />
-            <p className="text-slate-500 dark:text-slate-400">No invoices submitted yet.</p>
-            <Link
-              href="/invoices/new"
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium rounded-lg"
-            >
-              <Plus className="h-3.5 w-3.5" />
-              Create First Invoice
-            </Link>
-          </div>
+          <EmptyState
+            icon={<Receipt className="w-6 h-6" />}
+            title="No invoices submitted yet."
+            description="Submit invoices against delivered purchase orders and track settlement status."
+            action={
+              <Link
+                href="/invoices/new"
+                className="inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium rounded-lg"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                Create First Invoice
+              </Link>
+            }
+          />
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-slate-100 dark:divide-white/10 text-xs">

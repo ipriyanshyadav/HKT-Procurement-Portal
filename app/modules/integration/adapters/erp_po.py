@@ -2,24 +2,24 @@ from __future__ import annotations
 
 import hashlib
 import json
-from typing import Any, Dict
+from typing import Any
 from uuid import UUID
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.modules.purchase_order.models import PurchaseOrder, PoLine
+from app.modules.purchase_order.models import PoLine, PurchaseOrder
 
 
 class ERPPOAdapter:
     """Handles mapping, payload formatting, and synchronization for Purchase Order entity."""
 
     @staticmethod
-    def generate_idempotency_key(data: Dict[str, Any]) -> str:
+    def generate_idempotency_key(data: dict[str, Any]) -> str:
         serialized = json.dumps(data, sort_keys=True, default=str)
         return hashlib.sha256(serialized.encode("utf-8")).hexdigest()
 
-    async def build_outbound_payload(self, db: AsyncSession, po_id: UUID, org_id: UUID) -> Dict[str, Any]:
+    async def build_outbound_payload(self, db: AsyncSession, po_id: UUID, org_id: UUID) -> dict[str, Any]:
         stmt = select(PurchaseOrder).where(
             PurchaseOrder.id == po_id,
             PurchaseOrder.org_id == org_id,
@@ -51,15 +51,15 @@ class ERPPOAdapter:
             "delivery_date": str(po.expected_delivery_date) if getattr(po, "expected_delivery_date", None) else None,
             "lines": [
                 {
-                    "line_number": l.line_number,
-                    "description": getattr(l, "item_description", getattr(l, "description", "")),
-                    "quantity": str(l.quantity),
-                    "unit_price": str(l.unit_price),
-                    "uom": getattr(l, "uom_id", None),
-                    "tax_rate": str(getattr(l, "tax_rate", 0)),
-                    "total_amount": str(getattr(l, "total_amount", l.quantity * l.unit_price)),
+                    "line_number": line.line_number,
+                    "description": getattr(line, "item_description", getattr(line, "description", "")),
+                    "quantity": str(line.quantity),
+                    "unit_price": str(line.unit_price),
+                    "uom": getattr(line, "uom_id", None),
+                    "tax_rate": str(getattr(line, "tax_rate", 0)),
+                    "total_amount": str(getattr(line, "total_amount", line.quantity * line.unit_price)),
                 }
-                for l in lines
+                for line in lines
             ],
         }
         payload["idempotency_key"] = self.generate_idempotency_key(payload)

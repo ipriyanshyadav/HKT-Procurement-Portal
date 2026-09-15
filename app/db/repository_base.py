@@ -1,18 +1,21 @@
 from __future__ import annotations
-from typing import TypeVar, Generic, Type, Optional, List
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, update
+
+from datetime import UTC, datetime
+from typing import Generic, TypeVar
 from uuid import UUID
-from datetime import datetime, timezone
-from app.db.base import BaseModel
+
+from sqlalchemy import select, update
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.core.exceptions import NotFoundError
+from app.db.base import BaseModel
 
 ModelType = TypeVar("ModelType", bound=BaseModel)
 
 class BaseRepository(Generic[ModelType]):
     """Generic repository providing base CRUD and soft delete abstractions."""
 
-    def __init__(self, model: Type[ModelType]) -> None:
+    def __init__(self, model: type[ModelType]) -> None:
         self.model = model
 
     async def get(
@@ -38,7 +41,7 @@ class BaseRepository(Generic[ModelType]):
         skip: int = 0,
         limit: int = 25,
         include_deleted: bool = False
-    ) -> List[ModelType]:
+    ) -> list[ModelType]:
         stmt = select(self.model).where(self.model.org_id == org_id)
         if not include_deleted and hasattr(self.model, "deleted_at"):
             stmt = stmt.where(self.model.deleted_at.is_(None))
@@ -52,7 +55,7 @@ class BaseRepository(Generic[ModelType]):
         ids: list[UUID],
         org_id: UUID,
         include_deleted: bool = False,
-    ) -> List[ModelType]:
+    ) -> list[ModelType]:
         if not ids:
             return []
         stmt = select(self.model).where(self.model.id.in_(ids), self.model.org_id == org_id)
@@ -62,7 +65,7 @@ class BaseRepository(Generic[ModelType]):
         return list(result.scalars().all())
 
     async def soft_delete(self, db: AsyncSession, id: UUID, org_id: UUID) -> None:
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         stmt = (
             update(self.model)
             .where(self.model.id == id, self.model.org_id == org_id)

@@ -1,12 +1,11 @@
 from __future__ import annotations
-from typing import Union
+
 from app.core.exceptions import ConflictError
 from app.db.enums import RFQStatus
 
-
 # 14-status RFQ FSM per SPEC_10 Section 3
 RFQ_FSM: dict[str, list[str]] = {
-    RFQStatus.DRAFT.value:             [RFQStatus.PENDING_APPROVAL.value, RFQStatus.CANCELLED.value],
+    RFQStatus.DRAFT.value:             [RFQStatus.PENDING_APPROVAL.value, RFQStatus.PUBLISHED.value, RFQStatus.CANCELLED.value],
     RFQStatus.PENDING_APPROVAL.value:  [RFQStatus.APPROVED.value, RFQStatus.CANCELLED.value, RFQStatus.AMENDMENT_PENDING.value],
     RFQStatus.AMENDMENT_PENDING.value: [RFQStatus.PENDING_APPROVAL.value, RFQStatus.CANCELLED.value],
     RFQStatus.APPROVED.value:          [RFQStatus.PUBLISHED.value, RFQStatus.CANCELLED.value],
@@ -33,8 +32,8 @@ class InvalidRfqTransitionError(ConflictError):
 
 
 def validate_rfq_transition(
-    current: Union[str, RFQStatus],
-    target: Union[str, RFQStatus],
+    current: str | RFQStatus,
+    target: str | RFQStatus,
 ) -> None:
     current_val = current.value if isinstance(current, RFQStatus) else str(current)
     target_val = target.value if isinstance(target, RFQStatus) else str(target)

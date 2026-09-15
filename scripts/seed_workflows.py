@@ -669,7 +669,11 @@ async def main() -> None:
     org_id_str = os.environ.get("DEFAULT_ORG_ID") or "00000000-0000-0000-0000-000000000000"
     org_id = UUID(org_id_str)
 
-    engine = create_async_engine(settings.DATABASE_URL, echo=False)
+    engine = create_async_engine(
+        settings.DATABASE_URL,
+        echo=False,
+        connect_args={"statement_cache_size": 0, "prepared_statement_cache_size": 0},
+    )
     session_factory = async_sessionmaker(engine, expire_on_commit=False)
 
     async with session_factory() as db:

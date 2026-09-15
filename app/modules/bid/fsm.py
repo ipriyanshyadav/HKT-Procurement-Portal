@@ -1,8 +1,7 @@
 from __future__ import annotations
-from typing import Union
+
 from app.core.exceptions import ConflictError
 from app.db.enums import BidStatus
-
 
 # 11-status Bid FSM per SPEC_11 Section 3
 BID_FSM: dict[str, list[str]] = {
@@ -30,8 +29,8 @@ class InvalidBidTransitionError(ConflictError):
 
 
 def validate_bid_transition(
-    current: Union[str, BidStatus],
-    target: Union[str, BidStatus],
+    current: str | BidStatus,
+    target: str | BidStatus,
 ) -> None:
     current_val = current.value if isinstance(current, BidStatus) else str(current)
     target_val = target.value if isinstance(target, BidStatus) else str(target)

@@ -121,11 +121,11 @@ export function ComplianceReportsView({
 
   if (isLoading) {
     return (
-      <div className={`rounded-2xl border border-white/10 bg-[#1C1C1F] p-8 shadow-sm ${className}`}>
+      <div className={`rounded-2xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#1C1C1F] p-8 shadow-sm ${className}`}>
         <div className="flex h-64 items-center justify-center">
           <div className="flex flex-col items-center gap-3">
             <div className="h-8 w-8 animate-spin rounded-full border-2 border-red-500 border-t-transparent" />
-            <p className="text-sm font-medium text-neutral-400">Loading Compliance Audit Records...</p>
+            <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Loading Compliance Audit Records...</p>
           </div>
         </div>
       </div>
@@ -136,86 +136,86 @@ export function ComplianceReportsView({
     <div className={`space-y-6 ${className}`}>
       {/* KPI Counters Banner */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-2xl border border-white/10 bg-[#1C1C1F] p-5 shadow-sm">
+        <div className="rounded-2xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#1C1C1F] p-5 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-neutral-400">Emergency RFQs</span>
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-500/10 text-red-400">
+            <span className="text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">Emergency RFQs</span>
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-500/10 text-red-600 dark:text-red-400">
               <AlertTriangle className="h-4 w-4" />
             </div>
           </div>
           <div className="mt-3">
-            <span className="text-2xl font-bold tracking-tight text-white">
+            <span className="text-2xl font-bold tracking-tight text-neutral-900 dark:text-white">
               {summary?.emergency_rfq_count || emergencyRfqs.length}
             </span>
           </div>
-          <p className="mt-1 text-xs text-neutral-500">Fast-tracked 24-hour sourcing windows</p>
+          <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">Fast-tracked 24-hour sourcing windows</p>
         </div>
 
-        <div className="rounded-2xl border border-white/10 bg-[#1C1C1F] p-5 shadow-sm">
+        <div className="rounded-2xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#1C1C1F] p-5 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-neutral-400">Single-Vendor RFQs</span>
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/10 text-amber-400">
+            <span className="text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">Single-Vendor RFQs</span>
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400">
               <Building2 className="h-4 w-4" />
             </div>
           </div>
           <div className="mt-3">
-            <span className="text-2xl font-bold tracking-tight text-white">
+            <span className="text-2xl font-bold tracking-tight text-neutral-900 dark:text-white">
               {summary?.single_vendor_count || singleVendorRfqs.length}
             </span>
           </div>
-          <p className="mt-1 text-xs text-neutral-500">Sole-source / proprietary justifications</p>
+          <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">Sole-source / proprietary justifications</p>
         </div>
 
-        <div className="rounded-2xl border border-white/10 bg-[#1C1C1F] p-5 shadow-sm">
+        <div className="rounded-2xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#1C1C1F] p-5 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-neutral-400">Admin Force-Approvals</span>
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500/10 text-purple-400">
+            <span className="text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">Admin Force-Approvals</span>
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500/10 text-purple-600 dark:text-purple-400">
               <ShieldAlert className="h-4 w-4" />
             </div>
           </div>
           <div className="mt-3">
-            <span className="text-2xl font-bold tracking-tight text-white">
+            <span className="text-2xl font-bold tracking-tight text-neutral-900 dark:text-white">
               {summary?.force_approve_count || forceApproves.length}
             </span>
           </div>
-          <p className="mt-1 text-xs text-neutral-500">Manual workflow bypass interventions</p>
+          <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">Manual workflow bypass interventions</p>
         </div>
 
-        <div className="rounded-2xl border border-white/10 bg-[#1C1C1F] p-5 shadow-sm">
+        <div className="rounded-2xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#1C1C1F] p-5 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-neutral-400">SoD Violations Blocked</span>
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10 text-blue-400">
+            <span className="text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">SoD Violations Blocked</span>
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400">
               <Lock className="h-4 w-4" />
             </div>
           </div>
           <div className="mt-3">
-            <span className="text-2xl font-bold tracking-tight text-white">
+            <span className="text-2xl font-bold tracking-tight text-neutral-900 dark:text-white">
               {summary?.sod_violation_count || sodViolations.length}
             </span>
           </div>
-          <p className="mt-1 text-xs text-neutral-500">Maker-checker separation breaches</p>
+          <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">Maker-checker separation breaches</p>
         </div>
       </div>
 
       {/* Tabbed Compliance Log View */}
-      <div className="rounded-2xl border border-white/10 bg-[#1C1C1F] p-6 shadow-sm">
-        <div className="flex flex-col gap-4 border-b border-white/10 pb-5 sm:flex-row sm:items-center sm:justify-between">
+      <div className="rounded-2xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#1C1C1F] p-6 shadow-sm">
+        <div className="flex flex-col gap-4 border-b border-neutral-200 dark:border-white/10 pb-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h3 className="text-base font-semibold tracking-tight text-white">Compliance Audit Trail</h3>
-            <p className="text-xs text-neutral-400">
+            <h3 className="text-base font-semibold tracking-tight text-neutral-900 dark:text-white">Compliance Audit Trail</h3>
+            <p className="text-xs text-neutral-500 dark:text-neutral-400">
               Auditable governance records mandated by SPEC 25 Section 7
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
             {/* Subtabs */}
-            <div className="flex items-center gap-1 rounded-xl border border-white/10 bg-[#252529] p-1">
+            <div className="flex items-center gap-1 rounded-xl border border-neutral-200 dark:border-white/10 bg-neutral-100 dark:bg-[#252529] p-1">
               <button
                 onClick={() => setActiveTab("emergency_rfq")}
                 className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${
                   activeTab === "emergency_rfq"
                     ? "bg-red-600 text-white shadow-sm"
-                    : "text-neutral-400 hover:text-white"
+                    : "text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
                 }`}
               >
                 Emergency RFQs ({emergencyRfqs.length})
@@ -225,7 +225,7 @@ export function ComplianceReportsView({
                 className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${
                   activeTab === "single_vendor"
                     ? "bg-amber-600 text-white shadow-sm"
-                    : "text-neutral-400 hover:text-white"
+                    : "text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
                 }`}
               >
                 Single Vendor ({singleVendorRfqs.length})
@@ -235,7 +235,7 @@ export function ComplianceReportsView({
                 className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${
                   activeTab === "force_approve"
                     ? "bg-purple-600 text-white shadow-sm"
-                    : "text-neutral-400 hover:text-white"
+                    : "text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
                 }`}
               >
                 Force Approvals ({forceApproves.length})
@@ -245,7 +245,7 @@ export function ComplianceReportsView({
                 className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${
                   activeTab === "sod_violation"
                     ? "bg-blue-600 text-white shadow-sm"
-                    : "text-neutral-400 hover:text-white"
+                    : "text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
                 }`}
               >
                 SoD Attempts ({sodViolations.length})
@@ -256,7 +256,7 @@ export function ComplianceReportsView({
             <button
               onClick={handleExportCSV}
               disabled={isExporting}
-              className="flex items-center gap-1.5 rounded-xl border border-white/10 bg-[#252529] px-3 py-1.5 text-xs font-medium text-neutral-300 hover:bg-white/5 hover:text-white disabled:opacity-50"
+              className="flex items-center gap-1.5 rounded-xl border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-[#252529] px-3 py-1.5 text-xs font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-white/5 hover:text-neutral-900 dark:hover:text-white disabled:opacity-50 transition-colors"
             >
               <Download className="h-3.5 w-3.5" />
               Export CSV
@@ -266,9 +266,9 @@ export function ComplianceReportsView({
 
         {/* Tab 1: Emergency RFQs */}
         {activeTab === "emergency_rfq" && (
-          <div className="mt-4 overflow-x-auto rounded-xl border border-white/10">
+          <div className="mt-4 overflow-x-auto rounded-xl border border-neutral-200 dark:border-white/10">
             <table className="w-full text-left text-xs">
-              <thead className="bg-[#252529] uppercase tracking-wider text-neutral-400">
+              <thead className="bg-neutral-50 dark:bg-[#252529] uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
                 <tr>
                   <th className="px-4 py-3">RFQ Number</th>
                   <th className="px-4 py-3">Title</th>
@@ -279,7 +279,7 @@ export function ComplianceReportsView({
                   <th className="px-4 py-3">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5 font-mono">
+              <tbody className="divide-y divide-neutral-200 dark:divide-white/5 font-mono">
                 {emergencyRfqs.length === 0 ? (
                   <tr>
                     <td colSpan={7} className="px-4 py-8 text-center text-neutral-500 font-sans">
@@ -288,17 +288,17 @@ export function ComplianceReportsView({
                   </tr>
                 ) : (
                   emergencyRfqs.map((r) => (
-                    <tr key={r.id} className="hover:bg-white/5">
-                      <td className="px-4 py-3 font-semibold text-red-400">{r.rfq_number}</td>
-                      <td className="px-4 py-3 font-sans font-medium text-white">{r.title}</td>
-                      <td className="px-4 py-3 font-sans text-neutral-300">{r.category_name}</td>
-                      <td className="px-4 py-3 font-sans text-neutral-400">{r.bu_name}</td>
-                      <td className="px-4 py-3 font-bold text-white">{formatCurrency(r.estimated_value)}</td>
-                      <td className="px-4 py-3 font-sans text-neutral-300 max-w-xs truncate">
+                    <tr key={r.id} className="hover:bg-neutral-50 dark:hover:bg-white/5">
+                      <td className="px-4 py-3 font-semibold text-red-600 dark:text-red-400">{r.rfq_number}</td>
+                      <td className="px-4 py-3 font-sans font-medium text-neutral-900 dark:text-white">{r.title}</td>
+                      <td className="px-4 py-3 font-sans text-neutral-600 dark:text-neutral-300">{r.category_name}</td>
+                      <td className="px-4 py-3 font-sans text-neutral-500 dark:text-neutral-400">{r.bu_name}</td>
+                      <td className="px-4 py-3 font-bold text-neutral-900 dark:text-white">{formatCurrency(r.estimated_value)}</td>
+                      <td className="px-4 py-3 font-sans text-neutral-600 dark:text-neutral-300 max-w-xs truncate">
                         {r.justification || "Emergency procurement window"}
                       </td>
                       <td className="px-4 py-3">
-                        <span className="inline-flex rounded-full bg-red-500/20 px-2 py-0.5 text-[10px] font-bold text-red-300 border border-red-500/30">
+                        <span className="inline-flex rounded-full bg-red-500/10 px-2 py-0.5 text-[10px] font-bold text-red-700 dark:text-red-300 border border-red-500/30">
                           {r.status}
                         </span>
                       </td>
@@ -312,9 +312,9 @@ export function ComplianceReportsView({
 
         {/* Tab 2: Single-Vendor RFQs */}
         {activeTab === "single_vendor" && (
-          <div className="mt-4 overflow-x-auto rounded-xl border border-white/10">
+          <div className="mt-4 overflow-x-auto rounded-xl border border-neutral-200 dark:border-white/10">
             <table className="w-full text-left text-xs">
-              <thead className="bg-[#252529] uppercase tracking-wider text-neutral-400">
+              <thead className="bg-neutral-50 dark:bg-[#252529] uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
                 <tr>
                   <th className="px-4 py-3">RFQ Number</th>
                   <th className="px-4 py-3">Title</th>
@@ -325,7 +325,7 @@ export function ComplianceReportsView({
                   <th className="px-4 py-3">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5 font-mono">
+              <tbody className="divide-y divide-neutral-200 dark:divide-white/5 font-mono">
                 {singleVendorRfqs.length === 0 ? (
                   <tr>
                     <td colSpan={7} className="px-4 py-8 text-center text-neutral-500 font-sans">
@@ -334,17 +334,17 @@ export function ComplianceReportsView({
                   </tr>
                 ) : (
                   singleVendorRfqs.map((r) => (
-                    <tr key={r.id} className="hover:bg-white/5">
-                      <td className="px-4 py-3 font-semibold text-amber-400">{r.rfq_number}</td>
-                      <td className="px-4 py-3 font-sans font-medium text-white">{r.title}</td>
-                      <td className="px-4 py-3 font-sans text-neutral-300">{r.category_name}</td>
-                      <td className="px-4 py-3 font-sans text-neutral-400">{r.bu_name}</td>
-                      <td className="px-4 py-3 font-bold text-white">{formatCurrency(r.estimated_value)}</td>
-                      <td className="px-4 py-3 font-sans text-neutral-300 max-w-xs truncate">
+                    <tr key={r.id} className="hover:bg-neutral-50 dark:hover:bg-white/5">
+                      <td className="px-4 py-3 font-semibold text-amber-600 dark:text-amber-400">{r.rfq_number}</td>
+                      <td className="px-4 py-3 font-sans font-medium text-neutral-900 dark:text-white">{r.title}</td>
+                      <td className="px-4 py-3 font-sans text-neutral-600 dark:text-neutral-300">{r.category_name}</td>
+                      <td className="px-4 py-3 font-sans text-neutral-500 dark:text-neutral-400">{r.bu_name}</td>
+                      <td className="px-4 py-3 font-bold text-neutral-900 dark:text-white">{formatCurrency(r.estimated_value)}</td>
+                      <td className="px-4 py-3 font-sans text-neutral-600 dark:text-neutral-300 max-w-xs truncate">
                         {r.single_vendor_justification || "Proprietary distributor"}
                       </td>
                       <td className="px-4 py-3">
-                        <span className="inline-flex rounded-full bg-amber-500/20 px-2 py-0.5 text-[10px] font-bold text-amber-300 border border-amber-500/30">
+                        <span className="inline-flex rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-bold text-amber-800 dark:text-amber-300 border border-amber-500/30">
                           {r.status}
                         </span>
                       </td>
@@ -358,9 +358,9 @@ export function ComplianceReportsView({
 
         {/* Tab 3: Admin Force-Approvals */}
         {activeTab === "force_approve" && (
-          <div className="mt-4 overflow-x-auto rounded-xl border border-white/10">
+          <div className="mt-4 overflow-x-auto rounded-xl border border-neutral-200 dark:border-white/10">
             <table className="w-full text-left text-xs">
-              <thead className="bg-[#252529] uppercase tracking-wider text-neutral-400">
+              <thead className="bg-neutral-50 dark:bg-[#252529] uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
                 <tr>
                   <th className="px-4 py-3">Timestamp</th>
                   <th className="px-4 py-3">Entity Type</th>
@@ -370,7 +370,7 @@ export function ComplianceReportsView({
                   <th className="px-4 py-3">Reason</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5 font-mono">
+              <tbody className="divide-y divide-neutral-200 dark:divide-white/5 font-mono">
                 {forceApproves.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="px-4 py-8 text-center text-neutral-500 font-sans">
@@ -379,21 +379,21 @@ export function ComplianceReportsView({
                   </tr>
                 ) : (
                   forceApproves.map((a) => (
-                    <tr key={a.id} className="hover:bg-white/5">
-                      <td className="px-4 py-3 text-neutral-400">
+                    <tr key={a.id} className="hover:bg-neutral-50 dark:hover:bg-white/5">
+                      <td className="px-4 py-3 text-neutral-500 dark:text-neutral-400">
                         {new Date(a.created_at).toLocaleString()}
                       </td>
-                      <td className="px-4 py-3 font-semibold text-purple-400">{a.entity_type}</td>
-                      <td className="px-4 py-3 text-neutral-400 font-mono text-[10px]">
+                      <td className="px-4 py-3 font-semibold text-purple-600 dark:text-purple-400">{a.entity_type}</td>
+                      <td className="px-4 py-3 text-neutral-500 dark:text-neutral-400 font-mono text-[10px]">
                         {a.entity_id}
                       </td>
-                      <td className="px-4 py-3 font-sans text-white">{a.actor_email || "admin@system"}</td>
+                      <td className="px-4 py-3 font-sans text-neutral-900 dark:text-white">{a.actor_email || "admin@system"}</td>
                       <td className="px-4 py-3">
-                        <span className="inline-flex rounded-full bg-purple-500/20 px-2 py-0.5 text-[10px] font-bold text-purple-300 border border-purple-500/30">
+                        <span className="inline-flex rounded-full bg-purple-500/10 px-2 py-0.5 text-[10px] font-bold text-purple-700 dark:text-purple-300 border border-purple-500/30">
                           {a.action}
                         </span>
                       </td>
-                      <td className="px-4 py-3 font-sans text-neutral-300 max-w-xs truncate">
+                      <td className="px-4 py-3 font-sans text-neutral-600 dark:text-neutral-300 max-w-xs truncate">
                         {a.reason || "Manual workflow intervention"}
                       </td>
                     </tr>
@@ -406,9 +406,9 @@ export function ComplianceReportsView({
 
         {/* Tab 4: SoD Violations */}
         {activeTab === "sod_violation" && (
-          <div className="mt-4 overflow-x-auto rounded-xl border border-white/10">
+          <div className="mt-4 overflow-x-auto rounded-xl border border-neutral-200 dark:border-white/10">
             <table className="w-full text-left text-xs">
-              <thead className="bg-[#252529] uppercase tracking-wider text-neutral-400">
+              <thead className="bg-neutral-50 dark:bg-[#252529] uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
                 <tr>
                   <th className="px-4 py-3">Timestamp</th>
                   <th className="px-4 py-3">Entity Type</th>
@@ -417,7 +417,7 @@ export function ComplianceReportsView({
                   <th className="px-4 py-3">Violation Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5 font-mono">
+              <tbody className="divide-y divide-neutral-200 dark:divide-white/5 font-mono">
                 {sodViolations.length === 0 ? (
                   <tr>
                     <td colSpan={5} className="px-4 py-8 text-center text-neutral-500 font-sans">
@@ -426,17 +426,17 @@ export function ComplianceReportsView({
                   </tr>
                 ) : (
                   sodViolations.map((v) => (
-                    <tr key={v.id} className="hover:bg-white/5">
-                      <td className="px-4 py-3 text-neutral-400">
+                    <tr key={v.id} className="hover:bg-neutral-50 dark:hover:bg-white/5">
+                      <td className="px-4 py-3 text-neutral-500 dark:text-neutral-400">
                         {new Date(v.created_at).toLocaleString()}
                       </td>
-                      <td className="px-4 py-3 font-semibold text-blue-400">{v.entity_type}</td>
-                      <td className="px-4 py-3 text-neutral-400 font-mono text-[10px]">
+                      <td className="px-4 py-3 font-semibold text-blue-600 dark:text-blue-400">{v.entity_type}</td>
+                      <td className="px-4 py-3 text-neutral-500 dark:text-neutral-400 font-mono text-[10px]">
                         {v.entity_id}
                       </td>
-                      <td className="px-4 py-3 font-sans text-white">{v.actor_email || "user@system"}</td>
+                      <td className="px-4 py-3 font-sans text-neutral-900 dark:text-white">{v.actor_email || "user@system"}</td>
                       <td className="px-4 py-3">
-                        <span className="inline-flex rounded-full bg-red-500/20 px-2 py-0.5 text-[10px] font-bold text-red-300 border border-red-500/30">
+                        <span className="inline-flex rounded-full bg-red-500/10 px-2 py-0.5 text-[10px] font-bold text-red-700 dark:text-red-300 border border-red-500/30">
                           {v.action}
                         </span>
                       </td>

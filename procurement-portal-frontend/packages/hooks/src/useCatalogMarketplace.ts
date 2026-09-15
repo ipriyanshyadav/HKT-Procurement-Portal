@@ -25,7 +25,13 @@ export function useCatalogSearch(params?: CatalogSearchParams) {
   return useQuery({
     queryKey: ["catalog-search", params],
     queryFn: async () => {
-      const res = await apiClient.get("/catalog/search", { params });
+      const qParams = params
+        ? {
+            ...params,
+            q: params.query || (params as any).q,
+          }
+        : undefined;
+      const res = await apiClient.get("/catalog/search", { params: qParams });
       return (res.data.data ?? res.data) as CatalogSearchResponse;
     },
   });

@@ -14,7 +14,9 @@ import {
   useCreatePurchaseOrder,
   useContract,
   POCreateRequest,
+  getErrorMessage,
 } from "@procurement/hooks";
+
 import {
   ArrowLeft,
   Package,
@@ -224,15 +226,11 @@ export default function NewPurchaseOrderPage() {
     try {
       const createdPo = await createPoMutation.mutateAsync(payload);
       router.push(`/purchase-orders/${createdPo.id}`);
-    } catch (err: any) {
-      const detail =
-        err?.response?.data?.error?.message ||
-        err?.response?.data?.detail ||
-        err?.message ||
-        "Failed to create purchase order";
-      setErrorMsg(detail);
+    } catch (err: unknown) {
+      setErrorMsg(getErrorMessage(err, "Failed to create purchase order"));
     }
   };
+
 
   return (
     <div className="max-w-6xl mx-auto space-y-6 pb-12">

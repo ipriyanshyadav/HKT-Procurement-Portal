@@ -6,10 +6,14 @@ import {
   useOrgDelegationMatrix,
   useCreateDelegation,
   useRevokeDelegation,
+  useAppToast,
 } from "@procurement/hooks";
 import type { DelegationRuleResponse } from "@procurement/types";
+import { useConfirm } from "../components/ConfirmDialog";
 
 export function ApprovalDelegationWorkbench() {
+  const { toast } = useAppToast();
+  const { confirm } = useConfirm();
   const { data: myDelegations, isLoading: loadingMy, error: myError } = useMyDelegations();
   const { data: orgMatrix, isLoading: loadingOrg } = useOrgDelegationMatrix();
   const createMutation = useCreateDelegation();
@@ -76,12 +80,18 @@ export function ApprovalDelegationWorkbench() {
   };
 
   const handleRevoke = async (ruleId: string) => {
-    if (confirm("Are you sure you want to revoke this delegation immediately?")) {
-      try {
-        await revokeMutation.mutateAsync(ruleId);
-      } catch (err: any) {
-        alert(err.response?.data?.error?.message || "Failed to revoke delegation");
-      }
+    const ok = await confirm({
+      title: "Revoke Delegation",
+      description: "Are you sure you want to revoke this delegation immediately?",
+      confirmLabel: "Revoke",
+      variant: "danger",
+    });
+    if (!ok) return;
+    try {
+      await revokeMutation.mutateAsync(ruleId);
+      toast.success("Delegation revoked successfully");
+    } catch (err: any) {
+      toast.error(err.response?.data?.error?.message || "Failed to revoke delegation");
     }
   };
 

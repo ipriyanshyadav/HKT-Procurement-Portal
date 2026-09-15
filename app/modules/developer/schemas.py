@@ -99,3 +99,54 @@ class WebhookDeliveryResponse(BaseModel):
     attempt_number: int
     error_message: str | None = None
     created_at: datetime
+
+
+class SandboxStatusResponse(BaseModel):
+    is_active: bool = True
+    sandbox_org_id: UUID
+    sandbox_org_name: str
+    reset_count: int = 0
+    last_reset_at: datetime | None = None
+    time_travel_offset_days: int = 0
+    seeded_counts: dict[str, int] = Field(default_factory=dict)
+
+
+class SandboxResetRequest(BaseModel):
+    seed_demo_data: bool = True
+
+
+class SandboxResetResponse(BaseModel):
+    status: str = "COMPLETED"
+    reset_at: datetime
+    sandbox_org_id: UUID
+    records_created: dict[str, int]
+
+
+class SandboxTimeTravelRequest(BaseModel):
+    advance_days: int = Field(ge=1, le=365)
+
+
+class SandboxTimeTravelResponse(BaseModel):
+    simulated_date: datetime
+    offset_days: int
+    expired_rfqs_count: int = 0
+    due_invoices_count: int = 0
+
+
+class ChangelogEntryResponse(BaseModel):
+    version: str
+    release_date: str
+    title: str
+    description: str
+    breaking_changes: list[str] = Field(default_factory=list)
+    new_features: list[str] = Field(default_factory=list)
+    bug_fixes: list[str] = Field(default_factory=list)
+
+
+class DocArticleResponse(BaseModel):
+    slug: str
+    title: str
+    category: str
+    content: str
+    sort_order: int
+

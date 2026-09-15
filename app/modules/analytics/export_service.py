@@ -1,17 +1,19 @@
 from __future__ import annotations
+
 import csv
 import io
-from typing import Any, List, Dict, Optional
+from typing import Any
+
+import openpyxl
 from fastapi import Response
 from fastapi.responses import StreamingResponse
-import openpyxl
 
 
 class AnalyticsExportService:
     async def export_csv(
         self,
-        data: List[Dict[str, Any]],
-        columns: Optional[List[str]] = None,
+        data: list[dict[str, Any]],
+        columns: list[str] | None = None,
         filename: str = "analytics_export.csv",
     ) -> StreamingResponse:
         if not columns and data:
@@ -41,7 +43,7 @@ class AnalyticsExportService:
 
     async def export_excel(
         self,
-        data: List[Dict[str, Any]],
+        data: list[dict[str, Any]],
         sheet_name: str = "Analytics",
         filename: str = "analytics_export.xlsx",
         max_rows: int = 100_000,

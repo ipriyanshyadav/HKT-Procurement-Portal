@@ -6,8 +6,7 @@ Activate/deactivate require PROCUREMENT_ADMIN (rules.create permission).
 """
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from typing import Optional
+from datetime import UTC, datetime
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query, status
@@ -16,18 +15,18 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.auth.dependencies import get_current_user, require_permission
 from app.core.constants import PermissionCode
 from app.core.exceptions import ValidationError
-from app.core.responses import APIResponse, PaginationMeta, created_response, success_response
+from app.core.responses import PaginationMeta, created_response, success_response
 from app.db.session import get_db
 from app.modules.approval_rules.models import ApprovalRule
 from app.modules.approval_rules.repository import approval_rules_repository
 from app.modules.approval_rules.schemas import (
+    VALID_ENTITY_TYPES,
     ApprovalRuleCreateRequest,
     ApprovalRuleResponse,
     ApprovalRuleSimulateRequest,
     ApprovalRuleSimulateResponse,
     ApprovalRuleUpdateRequest,
     ApprovalRuleVersionResponse,
-    VALID_ENTITY_TYPES,
 )
 from app.modules.approval_rules.service import rules_engine
 from app.modules.user.models import User
@@ -47,7 +46,7 @@ async def create_rule(
             f"entity_type must be one of: {', '.join(sorted(VALID_ENTITY_TYPES))}"
         )
 
-    effective_from = data.effective_from or datetime.now(timezone.utc)
+    effective_from = data.effective_from or datetime.now(UTC)
 
     rule = ApprovalRule(
         org_id=current_user.org_id,
@@ -127,7 +126,7 @@ async def deactivate_rule(
 
 @router.get("")
 async def list_rules(
-    entity_type: Optional[str] = Query(None),
+    entity_type: str | None = Query(None),
     current_user: User = Depends(require_permission(PermissionCode.RULES_VIEW)),
     db: AsyncSession = Depends(get_db),
     page: int = 1,
@@ -193,7 +192,7 @@ async def simulate_rule_matching(
             f"entity_type must be one of: {', '.join(sorted(VALID_ENTITY_TYPES))}"
         )
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     active_rules = await approval_rules_repository.get_active_rules(
         db, data.entity_type, current_user.org_id, now
     )

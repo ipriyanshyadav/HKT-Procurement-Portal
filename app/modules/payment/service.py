@@ -10,16 +10,14 @@ Implements:
 """
 from __future__ import annotations
 
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 from decimal import Decimal
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 from uuid import UUID, uuid4
 
-from loguru import logger
 from sqlalchemy import String, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.constants import AuditAction
 from app.core.exceptions import ConflictError, NotFoundError, ValidationError
 from app.db.enums import InvoiceStatusEnum, PaymentStatusEnum
 from app.events.publisher import OutboxPublisher
@@ -42,9 +40,9 @@ from app.modules.vendor.repository import VendorRepository, vendor_repository
 class PaymentService:
     def __init__(
         self,
-        repo: Optional[PaymentRepository] = None,
-        invoice_repo: Optional[InvoiceRepository] = None,
-        vendor_repo: Optional[VendorRepository] = None,
+        repo: PaymentRepository | None = None,
+        invoice_repo: InvoiceRepository | None = None,
+        vendor_repo: VendorRepository | None = None,
     ) -> None:
         self.repo = repo or payment_repository
         self.invoice_repo = invoice_repo or invoice_repository
@@ -144,7 +142,8 @@ class PaymentService:
         )
 
         await db.commit()
-        return payment
+        refreshed = await self.repo.get_payment(db, payment.id, org_id)
+        return refreshed or payment
 
     async def process_payment(
         self,
@@ -211,13 +210,14 @@ class PaymentService:
         )
 
         await db.commit()
-        return payment
+        refreshed = await self.repo.get_payment(db, payment_id, org_id)
+        return refreshed or payment
 
     async def process_erp_webhook(
         self,
         db: AsyncSession,
         req: ErpPaymentWebhookRequest,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Handles inbound payment settlement webhook from ERP.
         """
@@ -300,8 +300,8 @@ class PaymentService:
         method: str,
         actor_id: UUID,
         org_id: UUID,
-        bank_account_id: Optional[UUID] = None,
-        notes: Optional[str] = None,
+        bank_account_id: UUID | None = None,
+        notes: str | None = None,
     ) -> PaymentRecord:
         """
         Executes live electronic payment via Razorpay Payouts (NEFT/RTGS/IMPS) or Direct Bank Rails.
@@ -352,7 +352,7 @@ class PaymentService:
         else:
             # Direct Bank NEFT / RTGS
             rail_name = "RTGS" if "RTGS" in mode_upper else "NEFT"
-            utr = f"UTR-{rail_name}-{datetime.now(timezone.utc).strftime('%Y%m%d')}-{uuid4().hex[:8].upper()}"
+            utr = f"UTR-{rail_name}-{datetime.now(UTC).strftime('%Y%m%d')}-{uuid4().hex[:8].upper()}"
             payment.payment_method = f"BANK_{rail_name}"
             payment.utr_number = utr
             payment.erp_payment_reference = f"BANK-TXN-{uuid4().hex[:10].upper()}"
@@ -362,16 +362,16 @@ class PaymentService:
         payment.updated_by = actor_id
 
         # If completed, update invoice
-        if payment.status == PaymentStatusEnum.COMPLETED:
-            if invoice:
-                invoice.paid_amount = (invoice.paid_amount or Decimal("0.00")) + payment.amount
-                net_expected = invoice.total_amount - (invoice.tds_amount or Decimal("0.00"))
-                if invoice.paid_amount >= net_expected or payment.amount >= net_expected:
-                    invoice.payment_status = PaymentStatusEnum.COMPLETED
-                    invoice.status = InvoiceStatusEnum.PAID
-                else:
-                    invoice.payment_status = PaymentStatusEnum.PROCESSING
-                    invoice.status = InvoiceStatusEnum.PARTIALLY_PAID
+        if payment.status == PaymentStatusEnum.COMPLETED and invoice:
+            invoice.paid_amount = (invoice.paid_amount or Decimal("0.00")) + payment.amount
+            net_expected = invoice.total_amount - (invoice.tds_amount or Decimal("0.00"))
+            if invoice.paid_amount >= net_expected or payment.amount >= net_expected:
+                invoice.payment_status = PaymentStatusEnum.COMPLETED
+                invoice.status = InvoiceStatusEnum.PAID
+            else:
+                invoice.payment_status = PaymentStatusEnum.PROCESSING
+                invoice.status = InvoiceStatusEnum.PARTIALLY_PAID
+
 
         await db.flush()
 
@@ -404,19 +404,21 @@ class PaymentService:
         )
 
         await db.commit()
-        return payment
+        refreshed = await self.repo.get_payment(db, payment_id, org_id)
+        return refreshed or payment
 
     async def process_razorpay_webhook(
         self,
         db: AsyncSession,
         raw_body: bytes,
         signature_header: str,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Verify HMAC-SHA256 signature and process live Razorpay webhook.
         """
-        from app.modules.payment.razorpay_adapter import razorpay_adapter
         import json
+
+        from app.modules.payment.razorpay_adapter import razorpay_adapter
 
         is_valid = razorpay_adapter.verify_webhook_signature(raw_body, signature_header)
         if not is_valid:
@@ -491,7 +493,7 @@ class PaymentService:
         db: AsyncSession,
         org_id: UUID,
         filters: PaymentFilterParams,
-    ) -> Tuple[List[PaymentRecord], int]:
+    ) -> tuple[list[PaymentRecord], int]:
         return await self.repo.list_payments(db, org_id, filters)
 
     # ─────────────────────────────────────────────────────────────────────────
@@ -591,7 +593,7 @@ class PaymentService:
         dispute.resolution_action = req.resolution_action
         dispute.resolution_notes = req.resolution_notes
         dispute.resolved_by = actor_id
-        dispute.resolved_at = datetime.now(timezone.utc)
+        dispute.resolved_at = datetime.now(UTC)
         dispute.credit_note_amount = req.credit_note_amount
 
         invoice = await self.invoice_repo.get_with_relations(db, dispute.invoice_id, org_id)
@@ -634,29 +636,31 @@ class PaymentService:
         )
 
         await db.commit()
-        return dispute
+        refreshed = await self.repo.get_dispute(db, dispute_id, org_id)
+        return refreshed or dispute
 
     async def list_disputes(
         self,
         db: AsyncSession,
         org_id: UUID,
-        invoice_id: Optional[UUID] = None,
-        vendor_id: Optional[UUID] = None,
-        status: Optional[str] = None,
-    ) -> List[Dispute]:
+        invoice_id: UUID | None = None,
+        vendor_id: UUID | None = None,
+        status: str | None = None,
+    ) -> list[Dispute]:
         return await self.repo.list_disputes(db, org_id, invoice_id, vendor_id, status)
 
     def generate_remittance_pdf(
         self,
         payment: PaymentRecord,
-        invoice: Optional[Invoice],
-        vendor: Optional[Vendor],
+        invoice: Invoice | None,
+        vendor: Vendor | None,
     ) -> bytes:
         from io import BytesIO
+
         from reportlab.lib import colors
         from reportlab.lib.pagesizes import letter
-        from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, HRFlowable
-        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+        from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
+        from reportlab.platypus import HRFlowable, Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 
         buf = BytesIO()
         doc = SimpleDocTemplate(
@@ -710,7 +714,7 @@ class PaymentService:
 
         # Header Banner
         elements.append(Paragraph("PAYMENT REMITTANCE ADVICE", title_style))
-        elements.append(Paragraph(f"Generated on {datetime.now(timezone.utc).strftime('%B %d, %Y at %H:%M UTC')}", subtitle_style))
+        elements.append(Paragraph(f"Generated on {datetime.now(UTC).strftime('%B %d, %Y at %H:%M UTC')}", subtitle_style))
         elements.append(Spacer(1, 14))
 
         # Payment Summary Table

@@ -27,6 +27,7 @@ export interface AuditSearchFilters {
   date_from?: string;
   date_to?: string;
   search?: string;
+  exclude_token_refresh?: boolean;
   page?: number;
   page_size?: number;
 }
@@ -51,6 +52,7 @@ export function useAuditLogs(filters: AuditSearchFilters = {}) {
       if (filters.date_from) params.append("date_from", filters.date_from);
       if (filters.date_to) params.append("date_to", filters.date_to);
       if (filters.search) params.append("search", filters.search);
+      params.append("exclude_token_refresh", String(filters.exclude_token_refresh ?? true));
       if (filters.page) params.append("page", String(filters.page));
       if (filters.page_size) params.append("page_size", String(filters.page_size));
 

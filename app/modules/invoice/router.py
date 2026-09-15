@@ -9,11 +9,12 @@ Provides endpoints for:
 - Manual 3-way match execution
 - Invoice approval, rejection, and dispute actions
 """
+
 from __future__ import annotations
 
 import math
 from decimal import Decimal
-from typing import Any, List, Optional
+from typing import Any
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query, status
@@ -23,10 +24,14 @@ from app.auth.dependencies import require_any_permission, require_permission
 from app.core.constants import PermissionCode
 from app.core.exceptions import ValidationError
 from app.core.responses import APIResponse, PaginationMeta, created_response, success_response
+from app.core.streaming import generate_table_pdf, stream_csv, stream_pdf
 from app.db.session import get_db
 from app.modules.invoice.schemas import (
     AdvancedReconciliationRequest,
     AdvancedReconciliationResponse,
+    EarlyDiscountActionResponse,
+    EarlyDiscountOptionsResponse,
+    EarlyDiscountRequest,
     EligibleLineResponse,
     InvoiceDisputeRequest,
     InvoiceFilterParams,
@@ -35,8 +40,8 @@ from app.modules.invoice.schemas import (
     InvoiceRejectRequest,
     InvoiceResponse,
     InvoiceSubmitRequest,
+    PoFlipDraftResponse,
 )
-from app.core.streaming import stream_csv, stream_pdf, generate_table_pdf
 from app.modules.invoice.service import invoice_service
 from app.modules.purchase_order.repository import purchase_order_repository
 from app.modules.user.models import User
@@ -45,7 +50,7 @@ from app.modules.vendor.repository import vendor_repository
 router = APIRouter(tags=["Invoice"])
 
 
-def _to_invoice_response(inv: Any, vendor_name: Optional[str] = None, po_number: Optional[str] = None) -> InvoiceResponse:
+def _to_invoice_response(inv: Any, vendor_name: str | None = None, po_number: str | None = None) -> InvoiceResponse:
     lines_list = inv.__dict__.get("lines", []) or []
     lines_resp = [
         InvoiceLineResponse(
@@ -112,6 +117,10 @@ def _to_invoice_response(inv: Any, vendor_name: Optional[str] = None, po_number:
         erp_sync_status=inv.erp_sync_status,
         payment_status=payment_status_str,
         paid_amount=inv.paid_amount,
+        early_discount_amount=getattr(inv, "early_discount_amount", Decimal("0.0")),
+        early_discount_status=getattr(inv, "early_discount_status", "NONE"),
+        early_discount_payout_date=getattr(inv, "early_discount_payout_date", None),
+        early_discount_apr=getattr(inv, "early_discount_apr", None),
         notes=getattr(inv, "notes", None),
         created_at=inv.created_at,
         updated_at=inv.updated_at,
@@ -125,19 +134,21 @@ async def health():
     return {"status": "ok", "module": "invoice"}
 
 
-@router.get("", response_model=APIResponse[List[InvoiceResponse]])
+@router.get("", response_model=APIResponse[list[InvoiceResponse]])
 async def list_invoices(
-    po_id: Optional[UUID] = Query(None),
-    vendor_id: Optional[UUID] = Query(None),
-    status: Optional[str] = Query(None),
-    match_status: Optional[str] = Query(None),
-    payment_status: Optional[str] = Query(None),
-    financial_year: Optional[str] = Query(None),
-    search: Optional[str] = Query(None),
+    po_id: UUID | None = Query(None),
+    vendor_id: UUID | None = Query(None),
+    status: str | None = Query(None),
+    match_status: str | None = Query(None),
+    payment_status: str | None = Query(None),
+    financial_year: str | None = Query(None),
+    search: str | None = Query(None),
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(require_any_permission([PermissionCode.INVOICE_VIEW_OWN, PermissionCode.INVOICE_VIEW_ALL])),
+    current_user: User = Depends(
+        require_any_permission([PermissionCode.INVOICE_VIEW_OWN, PermissionCode.INVOICE_VIEW_ALL])
+    ),
 ):
     effective_vendor_id = vendor_id
     if current_user.vendor_id:
@@ -180,15 +191,17 @@ async def list_invoices(
 
 @router.get("/export/csv")
 async def export_invoices_csv(
-    po_id: Optional[UUID] = Query(None),
-    vendor_id: Optional[UUID] = Query(None),
-    status: Optional[str] = Query(None),
-    match_status: Optional[str] = Query(None),
-    payment_status: Optional[str] = Query(None),
-    financial_year: Optional[str] = Query(None),
-    search: Optional[str] = Query(None),
+    po_id: UUID | None = Query(None),
+    vendor_id: UUID | None = Query(None),
+    status: str | None = Query(None),
+    match_status: str | None = Query(None),
+    payment_status: str | None = Query(None),
+    financial_year: str | None = Query(None),
+    search: str | None = Query(None),
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(require_any_permission([PermissionCode.INVOICE_VIEW_OWN, PermissionCode.INVOICE_VIEW_ALL])),
+    current_user: User = Depends(
+        require_any_permission([PermissionCode.INVOICE_VIEW_OWN, PermissionCode.INVOICE_VIEW_ALL])
+    ),
 ):
     """Stream CSV export of invoices."""
     effective_vendor_id = vendor_id
@@ -207,7 +220,15 @@ async def export_invoices_csv(
         page_size=1000,
     )
     invoices, _ = await invoice_service.list(db, current_user.org_id, filters)
-    headers = ["invoice_number", "vendor_invoice_number", "total_amount", "currency", "status", "payment_status", "invoice_date"]
+    headers = [
+        "invoice_number",
+        "vendor_invoice_number",
+        "total_amount",
+        "currency",
+        "status",
+        "payment_status",
+        "invoice_date",
+    ]
     rows = [
         {
             "invoice_number": getattr(inv, "invoice_number", ""),
@@ -225,15 +246,17 @@ async def export_invoices_csv(
 
 @router.get("/export/pdf")
 async def export_invoices_pdf(
-    po_id: Optional[UUID] = Query(None),
-    vendor_id: Optional[UUID] = Query(None),
-    status: Optional[str] = Query(None),
-    match_status: Optional[str] = Query(None),
-    payment_status: Optional[str] = Query(None),
-    financial_year: Optional[str] = Query(None),
-    search: Optional[str] = Query(None),
+    po_id: UUID | None = Query(None),
+    vendor_id: UUID | None = Query(None),
+    status: str | None = Query(None),
+    match_status: str | None = Query(None),
+    payment_status: str | None = Query(None),
+    financial_year: str | None = Query(None),
+    search: str | None = Query(None),
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(require_any_permission([PermissionCode.INVOICE_VIEW_OWN, PermissionCode.INVOICE_VIEW_ALL])),
+    current_user: User = Depends(
+        require_any_permission([PermissionCode.INVOICE_VIEW_OWN, PermissionCode.INVOICE_VIEW_ALL])
+    ),
 ):
     """Stream PDF export of invoices."""
     effective_vendor_id = vendor_id
@@ -267,11 +290,15 @@ async def export_invoices_pdf(
     return stream_pdf(pdf_bytes, f"invoices_{current_user.org_id.hex[:6]}")
 
 
-@router.get("/eligible-lines", response_model=APIResponse[List[EligibleLineResponse]])
+@router.get("/eligible-lines", response_model=APIResponse[list[EligibleLineResponse]])
 async def get_eligible_lines(
-    vendor_id: Optional[UUID] = Query(None),
+    vendor_id: UUID | None = Query(None),
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(require_any_permission([PermissionCode.INVOICE_SUBMIT, PermissionCode.INVOICE_VIEW_OWN, PermissionCode.INVOICE_VIEW_ALL])),
+    current_user: User = Depends(
+        require_any_permission(
+            [PermissionCode.INVOICE_SUBMIT, PermissionCode.INVOICE_VIEW_OWN, PermissionCode.INVOICE_VIEW_ALL]
+        )
+    ),
 ):
     effective_vendor_id = current_user.vendor_id or vendor_id
     if not effective_vendor_id:
@@ -282,10 +309,34 @@ async def get_eligible_lines(
     return success_response(data=lines, meta=meta)
 
 
+@router.post("/po-flip/{po_id}", response_model=APIResponse[PoFlipDraftResponse])
+@router.get("/po-flip/{po_id}", response_model=APIResponse[PoFlipDraftResponse])
+async def po_flip_invoice(
+    po_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(
+        require_any_permission(
+            [PermissionCode.INVOICE_SUBMIT, PermissionCode.INVOICE_VIEW_OWN, PermissionCode.INVOICE_VIEW_ALL]
+        )
+    ),
+):
+    """
+    1-Click PO Flip to Invoice (SAP Ariba / Coupa enterprise standard).
+    Constructs an automated, pre-validated invoice draft matching confirmed receipts.
+    """
+    vendor_id = current_user.vendor_id if current_user.is_supplier_user else None
+    draft = await invoice_service.generate_po_flip_draft(
+        db, po_id=po_id, org_id=current_user.org_id, vendor_id=vendor_id
+    )
+    return success_response(data=draft)
+
+
 @router.get("/reconciliation/dashboard", response_model=APIResponse[dict[str, Any]])
 async def get_reconciliation_dashboard(
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(require_any_permission([PermissionCode.INVOICE_VIEW_OWN, PermissionCode.INVOICE_VIEW_ALL])),
+    current_user: User = Depends(
+        require_any_permission([PermissionCode.INVOICE_VIEW_OWN, PermissionCode.INVOICE_VIEW_ALL])
+    ),
 ):
     data = await invoice_service.get_reconciliation_dashboard(db, current_user.org_id)
     return success_response(data=data)
@@ -294,7 +345,7 @@ async def get_reconciliation_dashboard(
 @router.post("", response_model=APIResponse[InvoiceResponse], status_code=status.HTTP_201_CREATED)
 async def submit_invoice(
     request: InvoiceSubmitRequest,
-    vendor_id: Optional[UUID] = Query(None),
+    vendor_id: UUID | None = Query(None),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_permission(PermissionCode.INVOICE_SUBMIT)),
 ):
@@ -304,9 +355,7 @@ async def submit_invoice(
     if not effective_vendor_id:
         raise ValidationError("vendor_id is required to submit an invoice")
 
-    invoice = await invoice_service.submit_invoice(
-        db, request, user_id, effective_vendor_id, org_id
-    )
+    invoice = await invoice_service.submit_invoice(db, request, user_id, effective_vendor_id, org_id)
     v = await vendor_repository.find_by_id(db, invoice.vendor_id, org_id)
     po = await purchase_order_repository.get(db, invoice.po_id, org_id)
     return created_response(
@@ -322,7 +371,9 @@ async def submit_invoice(
 async def get_invoice(
     invoice_id: UUID,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(require_any_permission([PermissionCode.INVOICE_VIEW_OWN, PermissionCode.INVOICE_VIEW_ALL])),
+    current_user: User = Depends(
+        require_any_permission([PermissionCode.INVOICE_VIEW_OWN, PermissionCode.INVOICE_VIEW_ALL])
+    ),
 ):
     org_id = current_user.org_id
     curr_vendor_id = current_user.vendor_id
@@ -367,7 +418,7 @@ async def match_invoice(
 @router.post("/{invoice_id}/reconcile", response_model=APIResponse[AdvancedReconciliationResponse])
 async def reconcile_invoice(
     invoice_id: UUID,
-    payload: Optional[AdvancedReconciliationRequest] = None,
+    payload: AdvancedReconciliationRequest | None = None,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_permission(PermissionCode.INVOICE_MATCH)),
 ):
@@ -407,9 +458,7 @@ async def reject_invoice(
 ):
     org_id = current_user.org_id
     user_id = current_user.id
-    invoice = await invoice_service.reject(
-        db, invoice_id, request.rejection_reason, user_id, org_id
-    )
+    invoice = await invoice_service.reject(db, invoice_id, request.rejection_reason, user_id, org_id)
     return success_response(data=_to_invoice_response(invoice))
 
 
@@ -418,11 +467,83 @@ async def dispute_invoice(
     invoice_id: UUID,
     request: InvoiceDisputeRequest,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(require_any_permission([PermissionCode.INVOICE_VIEW_OWN, PermissionCode.INVOICE_VIEW_ALL])),
+    current_user: User = Depends(
+        require_any_permission([PermissionCode.INVOICE_VIEW_OWN, PermissionCode.INVOICE_VIEW_ALL])
+    ),
 ):
     org_id = current_user.org_id
     user_id = current_user.id
-    invoice = await invoice_service.dispute(
-        db, invoice_id, request.reason_code, request.description, user_id, org_id
-    )
+    invoice = await invoice_service.dispute(db, invoice_id, request.reason_code, request.description, user_id, org_id)
     return success_response(data=_to_invoice_response(invoice))
+
+
+@router.get("/{invoice_id}/early-discount/options", response_model=APIResponse[EarlyDiscountOptionsResponse])
+async def get_early_discount_options(
+    invoice_id: UUID,
+    apr: float | None = Query(None, ge=0.01, le=0.50),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(
+        require_any_permission([PermissionCode.INVOICE_VIEW_OWN, PermissionCode.INVOICE_VIEW_ALL])
+    ),
+):
+    """Calculate sliding-scale early payment discount options and cash yield rates (SAP Ariba / Coupa Pay standard)."""
+    options = await invoice_service.calculate_early_discount_options(
+        db, invoice_id, current_user.org_id, custom_apr=apr
+    )
+    return success_response(data=options)
+
+
+@router.post("/{invoice_id}/early-discount/request", response_model=APIResponse[EarlyDiscountActionResponse])
+async def request_early_payment(
+    invoice_id: UUID,
+    request: EarlyDiscountRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(
+        require_any_permission([PermissionCode.INVOICE_SUBMIT, PermissionCode.INVOICE_VIEW_OWN])
+    ),
+):
+    """Supplier requests accelerated payment by offering an early payment discount."""
+    vendor_id = current_user.vendor_id if current_user.is_supplier_user else None
+    action = await invoice_service.request_early_payment(
+        db,
+        invoice_id=invoice_id,
+        payload=request,
+        actor_id=current_user.id,
+        org_id=current_user.org_id,
+        vendor_id=vendor_id,
+    )
+    return success_response(data=action)
+
+
+@router.post("/{invoice_id}/early-discount/accept", response_model=APIResponse[EarlyDiscountActionResponse])
+async def accept_early_payment(
+    invoice_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_permission(PermissionCode.INVOICE_APPROVE)),
+):
+    """Buyer approves early payment discount request, captures working capital return, and advances payout schedule."""
+    action = await invoice_service.accept_early_payment(
+        db,
+        invoice_id=invoice_id,
+        actor_id=current_user.id,
+        org_id=current_user.org_id,
+    )
+    return success_response(data=action)
+
+
+@router.post("/{invoice_id}/early-discount/reject", response_model=APIResponse[EarlyDiscountActionResponse])
+async def reject_early_payment(
+    invoice_id: UUID,
+    rejection_reason: str = Query("Declined by finance", min_length=3),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_permission(PermissionCode.INVOICE_APPROVE)),
+):
+    """Buyer declines early payment discount request."""
+    action = await invoice_service.reject_early_payment(
+        db,
+        invoice_id=invoice_id,
+        rejection_reason=rejection_reason,
+        actor_id=current_user.id,
+        org_id=current_user.org_id,
+    )
+    return success_response(data=action)

@@ -301,7 +301,7 @@ class TicketRepository(BaseRepository[Ticket]):
             .group_by(Ticket.assigned_to)
         )
         result = await db.execute(stmt)
-        counts = {uid: 0 for uid in user_ids}
+        counts = dict.fromkeys(user_ids, 0)
         for row in result.all():
             if row[0]:
                 counts[row[0]] = row[1]

@@ -1,4 +1,5 @@
 "use client";
+import { getErrorMessage } from "@procurement/utils";
 
 import React, { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
@@ -10,8 +11,13 @@ import {
   useDisputeInvoice,
   useMatchInvoice,
   usePayments,
+  useAcceptEarlyPayment,
+  useRejectEarlyPayment,
+  useAppToast,
+  useCreatePaymentOrder,
+  useVerifyPayment,
 } from "@procurement/hooks";
-import { ThreeWayMatchResult, PaymentSchedule, DocumentList, PermissionGuard, SplitScreenViewer, Button } from "@procurement/ui";
+import { ThreeWayMatchResult, PaymentSchedule, DocumentList, PermissionGuard, SplitScreenViewer, Button, useConfirm } from "@procurement/ui";
 import {
   ArrowLeft,
   Receipt,
@@ -27,9 +33,14 @@ import {
   AlertCircle,
   RefreshCw,
   Columns,
+  Zap,
+  TrendingDown,
+  CreditCard,
 } from "lucide-react";
 
 export default function InvoiceDetailPage() {
+  const { toast } = useAppToast();
+  const { confirm } = useConfirm();
   const params = useParams();
   const router = useRouter();
   const invoiceId = params?.id as string;
@@ -42,6 +53,9 @@ export default function InvoiceDetailPage() {
   const rejectMutation = useRejectInvoice();
   const disputeMutation = useDisputeInvoice();
   const matchMutation = useMatchInvoice();
+  const acceptDiscountMutation = useAcceptEarlyPayment();
+  const rejectDiscountMutation = useRejectEarlyPayment();
+  const [discountActionMessage, setDiscountActionMessage] = useState<string | null>(null);
 
   // Modals state
   const [rejectModalOpen, setRejectModalOpen] = useState(false);
@@ -51,6 +65,62 @@ export default function InvoiceDetailPage() {
   const [disputeReasonCode, setDisputeReasonCode] = useState("PRICE_MISMATCH");
   const [disputeDescription, setDisputeDescription] = useState("");
   const [splitScreenActive, setSplitScreenActive] = useState(false);
+
+  // Payment Gateway states
+  const createPaymentOrder = useCreatePaymentOrder();
+  const verifyPayment = useVerifyPayment();
+  const [payModalOpen, setPayModalOpen] = useState(false);
+  const [payProvider, setPayProvider] = useState<"RAZORPAY" | "STRIPE">("RAZORPAY");
+  const [activePaymentOrder, setActivePaymentOrder] = useState<{
+    order_id: string;
+    amount: number;
+    currency: string;
+    gateway_provider: string;
+    key_id: string;
+    invoice_id: string;
+    vendor_name?: string | null;
+  } | null>(null);
+  const [orderLoading, setOrderLoading] = useState(false);
+  const [payingPending, setPayingPending] = useState(false);
+
+  const handleOpenPayModal = async () => {
+    setPayModalOpen(true);
+    setOrderLoading(true);
+    try {
+      const order = await createPaymentOrder.mutateAsync({
+        invoice_id: invoiceId,
+        amount: Number(invoice?.total_amount || 0),
+        currency: invoice?.currency || "INR",
+        gateway_provider: payProvider,
+      });
+      setActivePaymentOrder(order);
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to initialize payment gateway order"));
+    } finally {
+      setOrderLoading(false);
+    }
+  };
+
+  const handleConfirmOnlinePayment = async () => {
+    if (!activePaymentOrder) return;
+    setPayingPending(true);
+    try {
+      const mockPaymentId = `pay_${payProvider.toLowerCase().slice(0, 3)}_${Date.now()}`;
+      await verifyPayment.mutateAsync({
+        invoice_id: invoiceId,
+        gateway_order_id: activePaymentOrder.order_id,
+        gateway_payment_id: mockPaymentId,
+        gateway_signature: `mock_sig_${Date.now()}`,
+      });
+      toast.success("Payment Successful!", `Settlement completed via ${payProvider}. Invoice marked as PAID.`);
+      setPayModalOpen(false);
+      refetch();
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Payment signature verification failed"));
+    } finally {
+      setPayingPending(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -79,7 +149,13 @@ export default function InvoiceDetailPage() {
   }
 
   const handleApprove = async () => {
-    if (!confirm("Are you sure you want to approve this invoice for payment settlement?")) return;
+    const ok = await confirm({
+      title: "Approve Invoice",
+      description: "Are you sure you want to approve this invoice for payment settlement?",
+      confirmLabel: "Approve",
+      variant: "primary",
+    });
+    if (!ok) return;
     await approveMutation.mutateAsync(invoiceId);
     refetch();
   };
@@ -112,6 +188,34 @@ export default function InvoiceDetailPage() {
   const handleRematch = async () => {
     await matchMutation.mutateAsync(invoiceId);
     refetch();
+  };
+
+  const handleAcceptDiscount = async () => {
+    const ok = await confirm({
+      title: "Accept Early Payment Discount",
+      description: "Confirm acceptance of early payment discount? Payout will be scheduled accordingly.",
+      confirmLabel: "Accept Discount",
+      variant: "primary",
+    });
+    if (!ok) return;
+    try {
+      const res = await acceptDiscountMutation.mutateAsync(invoiceId);
+      setDiscountActionMessage(res?.message || "Early payment discount accepted successfully!");
+      refetch();
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to accept early discount"));
+    }
+  };
+
+  const handleRejectDiscount = async () => {
+    const reason = prompt("Enter reason for declining early payment discount (optional):");
+    try {
+      const res = await rejectDiscountMutation.mutateAsync({ invoiceId, reason: reason || undefined });
+      setDiscountActionMessage(res?.message || "Early payment discount request rejected.");
+      refetch();
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to reject early discount"));
+    }
   };
 
   const isPendingApproval =
@@ -234,9 +338,135 @@ export default function InvoiceDetailPage() {
                 </PermissionGuard>
               </>
             )}
+
+            {invoice.status === "APPROVED" && (
+              <PermissionGuard permission="payment.initiate">
+                <Button
+                  type="button"
+                  onClick={handleOpenPayModal}
+                  variant="primary"
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white border-transparent shadow-sm"
+                  leftIcon={<CreditCard className="h-4 w-4" />}
+                >
+                  Pay Online
+                </Button>
+              </PermissionGuard>
+            )}
           </div>
         </div>
       </div>
+
+      {/* Online Gateway Settlement Pill (SPEC 27-J) */}
+      {(paymentRecord as any)?.gateway_provider && (
+        <div className="bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 rounded-2xl p-4 flex items-center justify-between gap-3 text-xs text-blue-900 dark:text-blue-100">
+          <div className="flex items-center gap-2.5">
+            <CreditCard className="h-4 w-4 text-blue-600 dark:text-blue-400 shrink-0" />
+            <span>
+              Settled via Online Gateway (<strong>{(paymentRecord as any).gateway_provider}</strong>)
+            </span>
+            {(paymentRecord as any).gateway_order_id && (
+              <span className="font-mono text-slate-500 text-[11px]">
+                Order: {(paymentRecord as any).gateway_order_id}
+              </span>
+            )}
+          </div>
+          <span className="font-mono text-[11px] bg-blue-100 dark:bg-blue-900/60 px-2 py-0.5 rounded font-semibold text-blue-800 dark:text-blue-200">
+            Payment Ref: {(paymentRecord as any).gateway_payment_id || paymentRecord?.utr_number || "Captured"}
+          </span>
+        </div>
+      )}
+
+      {/* Discount Action Message Banner */}
+      {discountActionMessage && (
+        <div className="bg-emerald-50 dark:bg-emerald-950/40 rounded-2xl border border-emerald-200 dark:border-emerald-800 p-4 flex items-center justify-between gap-3 text-xs text-emerald-800 dark:text-emerald-200">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+            <span>{discountActionMessage}</span>
+          </div>
+          <button onClick={() => setDiscountActionMessage(null)} className="font-semibold hover:underline">
+            Dismiss
+          </button>
+        </div>
+      )}
+
+      {/* ⚡ Early Payment Discount Review & Actions */}
+      {invoice.early_discount_status === "REQUESTED" ? (
+        <div className="bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent dark:from-amber-950/30 rounded-2xl border border-amber-500/30 p-5 shadow-xs">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex items-start gap-3.5">
+              <div className="p-2.5 rounded-xl bg-amber-500 text-white shadow-xs shrink-0">
+                <Zap className="h-5 w-5" />
+              </div>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <h3 className="font-bold text-sm text-slate-900 dark:text-white">
+                    Vendor Requested Early Payment Acceleration (Dynamic Discount)
+                  </h3>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300">
+                    AP Action Required
+                  </span>
+                </div>
+                <p className="text-xs text-slate-600 dark:text-slate-300">
+                  The supplier offers an immediate dynamic discount concession of{" "}
+                  <span className="font-bold text-slate-900 dark:text-white font-mono">
+                    {invoice.currency} {Number(invoice.early_discount_amount || 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                  </span>{" "}
+                  if payment is disbursed early on{" "}
+                  <span className="font-bold text-slate-900 dark:text-white">
+                    {invoice.early_discount_payout_date ? new Date(invoice.early_discount_payout_date).toLocaleDateString() : "Accelerated Date"}
+                  </span>.
+                </p>
+                <div className="flex flex-wrap items-center gap-4 text-xs pt-1 font-mono">
+                  <span className="text-slate-500 dark:text-slate-400">
+                    Gross: {invoice.currency} {Number(invoice.total_amount).toLocaleString("en-IN")}
+                  </span>
+                  <span>•</span>
+                  <span className="text-emerald-600 dark:text-emerald-400 font-bold">
+                    Net Payout: {invoice.currency} {(Number(invoice.total_amount) - Number(invoice.early_discount_amount || 0)).toLocaleString("en-IN")}
+                  </span>
+                  <span>•</span>
+                  <span className="text-indigo-600 dark:text-indigo-400 font-bold">
+                    Effective Return: {(Number(invoice.early_discount_apr || 0.18) * 100).toFixed(1)}% Annualized
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <PermissionGuard permission="payment.process">
+              <div className="flex items-center gap-2 shrink-0">
+                <Button
+                  onClick={handleRejectDiscount}
+                  disabled={rejectDiscountMutation.isPending}
+                  variant="secondary"
+                  className="text-xs px-3 py-2 text-slate-700 dark:text-slate-300"
+                >
+                  Decline
+                </Button>
+                <Button
+                  onClick={handleAcceptDiscount}
+                  disabled={acceptDiscountMutation.isPending}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs px-4 py-2"
+                  leftIcon={<Zap className="h-3.5 w-3.5" />}
+                >
+                  {acceptDiscountMutation.isPending ? "Accepting..." : "Accept & Capture Savings"}
+                </Button>
+              </div>
+            </PermissionGuard>
+          </div>
+        </div>
+      ) : invoice.early_discount_status === "ACCEPTED" ? (
+        <div className="bg-emerald-500/10 dark:bg-emerald-950/30 rounded-2xl border border-emerald-500/30 p-4 flex items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-2 text-emerald-800 dark:text-emerald-200">
+            <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+            <span>
+              Early payment discount accepted! Net payout of{" "}
+              <strong className="font-mono">{invoice.currency} {(Number(invoice.total_amount) - Number(invoice.early_discount_amount || 0)).toLocaleString("en-IN")}</strong>{" "}
+              scheduled for {invoice.early_discount_payout_date ? new Date(invoice.early_discount_payout_date).toLocaleDateString() : "payout date"} (Company captured{" "}
+              <strong className="font-mono">{invoice.currency} {Number(invoice.early_discount_amount || 0).toLocaleString("en-IN")}</strong> cash savings).
+            </span>
+          </div>
+        </div>
+      ) : null}
 
       {/* Discrepancy Alert Callout if Discrepancy */}
       {invoice.match_status === "DISCREPANCY" && (
@@ -437,6 +667,107 @@ export default function InvoiceDetailPage() {
                 </Button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Online Payment Checkout Modal (SPEC 27-J) */}
+      {payModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 dark:bg-black/70 backdrop-blur-sm p-4">
+          <div className="bg-white dark:bg-[#1C1C1F] rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-200 dark:border-white/15 space-y-5">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-white/10">
+              <div className="flex items-center gap-2">
+                <CreditCard className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white">Online Payment Gateway</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setPayModalOpen(false)}
+                className="text-slate-400 hover:text-slate-600 text-lg leading-none"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="bg-slate-50 dark:bg-[#252529] p-4 rounded-xl border border-slate-200 dark:border-white/10 space-y-2">
+              <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400">
+                <span>Payee / Beneficiary</span>
+                <span className="font-semibold text-slate-800 dark:text-slate-200">{invoice.vendor_name || "Supplier"}</span>
+              </div>
+              <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400">
+                <span>Invoice Total</span>
+                <span className="font-semibold text-slate-800 dark:text-slate-200">
+                  {invoice.currency} {Number(invoice.total_amount).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                </span>
+              </div>
+              {activePaymentOrder && (
+                <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400 pt-1 border-t border-slate-200 dark:border-white/10">
+                  <span>Order Reference</span>
+                  <span className="font-mono text-[11px] text-indigo-600 dark:text-indigo-400 font-medium">
+                    {activePaymentOrder.order_id}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            <div>
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 block mb-1.5">
+                Gateway Provider
+              </label>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setPayProvider("RAZORPAY")}
+                  className={`p-3 rounded-xl border text-left transition-all text-xs ${
+                    payProvider === "RAZORPAY"
+                      ? "border-indigo-600 bg-indigo-50/50 dark:bg-indigo-950/40 text-indigo-900 dark:text-indigo-200 font-semibold"
+                      : "border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/[0.04]"
+                  }`}
+                >
+                  <div className="font-bold text-sm">Razorpay</div>
+                  <div className="text-[11px] text-slate-500">UPI, NetBanking, Cards (India)</div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setPayProvider("STRIPE")}
+                  className={`p-3 rounded-xl border text-left transition-all text-xs ${
+                    payProvider === "STRIPE"
+                      ? "border-indigo-600 bg-indigo-50/50 dark:bg-indigo-950/40 text-indigo-900 dark:text-indigo-200 font-semibold"
+                      : "border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/[0.04]"
+                  }`}
+                >
+                  <div className="font-bold text-sm">Stripe</div>
+                  <div className="text-[11px] text-slate-500">Global Cards, ACH, Cross-Border</div>
+                </button>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 pt-2">
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => setPayModalOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                disabled={orderLoading || payingPending}
+                onClick={handleConfirmOnlinePayment}
+                variant="primary"
+                className="bg-indigo-600 hover:bg-indigo-700 text-white border-transparent flex items-center gap-1.5"
+              >
+                {(orderLoading || payingPending) && <RefreshCw className="w-3.5 h-3.5 animate-spin" />}
+                <span>
+                  {orderLoading
+                    ? "Generating Order..."
+                    : payingPending
+                    ? "Verifying Signature..."
+                    : `Pay ${invoice.currency} ${Number(invoice.total_amount).toLocaleString("en-IN")}`}
+                </span>
+              </Button>
+            </div>
           </div>
         </div>
       )}

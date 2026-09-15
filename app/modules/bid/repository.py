@@ -1,18 +1,18 @@
 from __future__ import annotations
-from datetime import datetime, timezone
-from typing import Optional, List, Tuple
+
 from uuid import UUID
-from sqlalchemy import select, func, and_, desc
+
+from sqlalchemy import and_, desc, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.db.enums import BidStatus
-from app.modules.bid.models import BidResponse, BidLineResponse, BidVersion
+from app.modules.bid.models import BidResponse
 
 
 class BidRepository:
 
-    async def get(self, db: AsyncSession, bid_id: UUID, org_id: UUID) -> Optional[BidResponse]:
+    async def get(self, db: AsyncSession, bid_id: UUID, org_id: UUID) -> BidResponse | None:
         stmt = (
             select(BidResponse)
             .where(
@@ -29,7 +29,7 @@ class BidRepository:
 
     async def get_by_vendor_and_rfq(
         self, db: AsyncSession, rfq_id: UUID, vendor_id: UUID, org_id: UUID
-    ) -> Optional[BidResponse]:
+    ) -> BidResponse | None:
         stmt = (
             select(BidResponse)
             .where(
@@ -47,7 +47,7 @@ class BidRepository:
 
     async def get_all_for_rfq(
         self, db: AsyncSession, rfq_id: UUID, org_id: UUID
-    ) -> List[BidResponse]:
+    ) -> list[BidResponse]:
         stmt = (
             select(BidResponse)
             .where(
@@ -82,7 +82,7 @@ class BidRepository:
         org_id: UUID,
         skip: int = 0,
         limit: int = 20,
-    ) -> Tuple[List[BidResponse], int]:
+    ) -> tuple[list[BidResponse], int]:
         filters = [
             BidResponse.rfq_id == rfq_id,
             BidResponse.org_id == org_id,

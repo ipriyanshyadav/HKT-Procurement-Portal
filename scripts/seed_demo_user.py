@@ -440,6 +440,14 @@ async def seed_demo():
                 "employee_id": "EMP-006",
                 "roles": ["FINANCE_CONTROLLER", "PROCUREMENT_OFFICER"],
             },
+            {
+                "email": "indentor@procurement.com",
+                "password": "Indentor123!@#",
+                "first_name": "Priya",
+                "last_name": "Mehta",
+                "employee_id": "EMP-IND-001",
+                "roles": ["INDENTOR"],
+            },
         ]
 
         created_users = {}
@@ -1149,6 +1157,15 @@ async def seed_demo():
         await db.flush()
 
         # 15. RFQs / Tenders across 6 States
+        bid_acme = None
+        bid_gc = None
+        cs3 = None
+        arn4 = None
+        grn1 = None
+        grn2 = None
+        inv1 = None
+        inv2 = None
+
         # RFQ-1: Published with 2 Lots, 3 Lines, 3 Invited Participants & 2 Clarifications
         res = await db.execute(
             select(Rfq).where(and_(Rfq.org_id == DEFAULT_ORG_ID, Rfq.rfq_number == "RFQ-2026-000001"))
@@ -1397,6 +1414,11 @@ async def seed_demo():
                     ),
                 ]
             )
+        else:
+            res_bids = await db.execute(select(BidResponse).where(BidResponse.rfq_id == rfq2.id))
+            bids = res_bids.scalars().all()
+            bid_acme = next((b for b in bids if b.vendor_id == acme_vendor.id), None)
+            bid_gc = next((b for b in bids if b.vendor_id == gc_vendor.id), None)
 
         # RFQ-3: UNDER_EVALUATION with Comparative Statement & Rankings
         res = await db.execute(
@@ -1553,6 +1575,9 @@ async def seed_demo():
                     ),
                 ]
             )
+        else:
+            res_cs = await db.execute(select(ComparativeStatement).where(ComparativeStatement.rfq_id == rfq3.id))
+            cs3 = res_cs.scalars().first()
 
         # RFQ-4: AWARDED with Approved Award Recommendation Note (ARN)
         res = await db.execute(
@@ -1667,6 +1692,9 @@ async def seed_demo():
                     award_type="FULL",
                 )
             )
+        else:
+            res_arn = await db.execute(select(AwardRecommendation).where(AwardRecommendation.rfq_id == rfq4.id))
+            arn4 = res_arn.scalars().first()
 
         # RFQ-5: DRAFT RFQ (Wizard testing)
         res = await db.execute(
@@ -2118,6 +2146,11 @@ async def seed_demo():
                     status=PaymentStatusEnum.SCHEDULED,
                 )
             )
+        else:
+            res_grn = await db.execute(select(GoodsReceiptNote).where(GoodsReceiptNote.po_id == po1.id))
+            grn1 = res_grn.scalars().first()
+            res_inv = await db.execute(select(Invoice).where(Invoice.po_id == po1.id))
+            inv1 = res_inv.scalars().first()
 
         # PO-2: SENT_TO_VENDOR (Awaiting Supplier Acknowledgment / Disputed Invoice)
         res = await db.execute(
@@ -2261,6 +2294,9 @@ async def seed_demo():
                     ),
                 ]
             )
+        else:
+            res_inv2 = await db.execute(select(Invoice).where(Invoice.po_id == po2.id))
+            inv2 = res_inv2.scalars().first()
 
         # PO-3: PARTIALLY_RECEIVED (20 ordered, 12 received, 8 open)
         res = await db.execute(
@@ -2343,6 +2379,9 @@ async def seed_demo():
                     qc_status="PENDING_INSPECTION",
                 )
             )
+        else:
+            res_grn2 = await db.execute(select(GoodsReceiptNote).where(GoodsReceiptNote.po_id == po3.id))
+            grn2 = res_grn2.scalars().first()
 
         # PO-4: APPROVED (Ready for "Send to Vendor")
         res = await db.execute(
@@ -2538,9 +2577,8 @@ async def seed_demo():
                 )
             )
 
-        # Payment PAY-3 (PROCESSING status for test)
         res_pay3 = await db.execute(select(PaymentRecord).where(PaymentRecord.status == PaymentStatusEnum.PROCESSING))
-        if not res_pay3.scalar_one_or_none():
+        if not res_pay3.scalars().first():
             db.add(
                 PaymentRecord(
                     id=uuid4(),
@@ -3233,45 +3271,46 @@ async def seed_demo():
             (AuditEntityTypeEnum.RFQ, rfq1.id, "INVITE_VENDORS", buyer_user.id, buyer_user.email, "127.0.0.1", {"invited_count": 3}, now_utc - timedelta(days=1)),
             (AuditEntityTypeEnum.RFQ, rfq1.id, "POST_CLARIFICATION", buyer_user.id, buyer_user.email, "127.0.0.1", {"clarification_id": "CLAR-01"}, now_utc - timedelta(hours=12)),
             (AuditEntityTypeEnum.RFQ, rfq2.id, "PUBLISH_RFQ", buyer_user.id, buyer_user.email, "127.0.0.1", {"status": "PUBLISHED"}, now_utc - timedelta(days=3)),
-            (AuditEntityTypeEnum.BID, bid_acme.id, "SUBMIT_SEALED_BID", None, "supplier@acme.com", "127.0.0.1", {"status": "SUBMITTED"}, now_utc - timedelta(hours=3)),
-            (AuditEntityTypeEnum.BID, bid_gc.id, "SUBMIT_SEALED_BID", None, "supplier@globalcloud.com", "127.0.0.1", {"status": "SUBMITTED"}, now_utc - timedelta(hours=2)),
-            (AuditEntityTypeEnum.RFQ, rfq3.id, "DUAL_KEY_BID_OPENING", buyer_user.id, buyer_user.email, "127.0.0.1", {"co_authorizer": admin_user.email}, now_utc - timedelta(days=1)),
-            (AuditEntityTypeEnum.COMPARATIVE_STATEMENT, cs3.id, "GENERATE_CS", buyer_user.id, buyer_user.email, "127.0.0.1", {"cs_number": "CS-2026-000001"}, now_utc - timedelta(days=1)),
-            (AuditEntityTypeEnum.RFQ, rfq3.id, "START_NEGOTIATION", buyer_user.id, buyer_user.email, "127.0.0.1", {"round": 1}, now_utc - timedelta(hours=20)),
-            (AuditEntityTypeEnum.AWARD, arn4.id, "RECOMMEND_AWARD", buyer_user.id, buyer_user.email, "127.0.0.1", {"vendor": acme_vendor.company_name}, now_utc - timedelta(days=4)),
-            (AuditEntityTypeEnum.AWARD, arn4.id, "APPROVE_ARN", approver_user.id, approver_user.email, "127.0.0.1", {"status": "APPROVED"}, now_utc - timedelta(days=4)),
+            (AuditEntityTypeEnum.BID, bid_acme.id if bid_acme else None, "SUBMIT_SEALED_BID", None, "supplier@acme.com", "127.0.0.1", {"status": "SUBMITTED"}, now_utc - timedelta(hours=3)),
+            (AuditEntityTypeEnum.BID, bid_gc.id if bid_gc else None, "SUBMIT_SEALED_BID", None, "supplier@globalcloud.com", "127.0.0.1", {"status": "SUBMITTED"}, now_utc - timedelta(hours=2)),
+            (AuditEntityTypeEnum.RFQ, rfq3.id if rfq3 else None, "DUAL_KEY_BID_OPENING", buyer_user.id, buyer_user.email, "127.0.0.1", {"co_authorizer": admin_user.email}, now_utc - timedelta(days=1)),
+            (AuditEntityTypeEnum.COMPARATIVE_STATEMENT, cs3.id if cs3 else None, "GENERATE_CS", buyer_user.id, buyer_user.email, "127.0.0.1", {"cs_number": "CS-2026-000001"}, now_utc - timedelta(days=1)),
+            (AuditEntityTypeEnum.RFQ, rfq3.id if rfq3 else None, "START_NEGOTIATION", buyer_user.id, buyer_user.email, "127.0.0.1", {"round": 1}, now_utc - timedelta(hours=20)),
+            (AuditEntityTypeEnum.AWARD, arn4.id if arn4 else None, "RECOMMEND_AWARD", buyer_user.id, buyer_user.email, "127.0.0.1", {"vendor": acme_vendor.company_name}, now_utc - timedelta(days=4)),
+            (AuditEntityTypeEnum.AWARD, arn4.id if arn4 else None, "APPROVE_ARN", approver_user.id, approver_user.email, "127.0.0.1", {"status": "APPROVED"}, now_utc - timedelta(days=4)),
 
-            (AuditEntityTypeEnum.RFQ, rfq6.id, "START_LIVE_AUCTION", buyer_user.id, buyer_user.email, "127.0.0.1", {"status": "OPEN"}, now_utc - timedelta(minutes=25)),
-            (AuditEntityTypeEnum.BID, rfq6.id, "SUBMIT_LIVE_BID", None, "supplier@acme.com", "127.0.0.1", {"amount": 1780000.0, "seq": 1}, now_utc - timedelta(minutes=22)),
-            (AuditEntityTypeEnum.BID, rfq6.id, "SUBMIT_LIVE_BID", None, "supplier@globalcloud.com", "127.0.0.1", {"amount": 1750000.0, "seq": 2}, now_utc - timedelta(minutes=18)),
-            (AuditEntityTypeEnum.BID, rfq6.id, "SUBMIT_LIVE_BID", None, "supplier@acme.com", "127.0.0.1", {"amount": 1720000.0, "seq": 3}, now_utc - timedelta(minutes=14)),
-            (AuditEntityTypeEnum.BID, rfq6.id, "SUBMIT_LIVE_BID", None, "supplier@globalcloud.com", "127.0.0.1", {"amount": 1690000.0, "seq": 4}, now_utc - timedelta(minutes=10)),
-            (AuditEntityTypeEnum.BID, rfq6.id, "SUBMIT_LIVE_BID", None, "supplier@acme.com", "127.0.0.1", {"amount": 1660000.0, "seq": 5}, now_utc - timedelta(minutes=6)),
-            (AuditEntityTypeEnum.BID, rfq6.id, "SUBMIT_LIVE_BID", None, "supplier@globalcloud.com", "127.0.0.1", {"amount": 1630000.0, "seq": 6}, now_utc - timedelta(minutes=2)),
+            (AuditEntityTypeEnum.RFQ, rfq6.id if rfq6 else None, "START_LIVE_AUCTION", buyer_user.id, buyer_user.email, "127.0.0.1", {"status": "OPEN"}, now_utc - timedelta(minutes=25)),
+            (AuditEntityTypeEnum.BID, rfq6.id if rfq6 else None, "SUBMIT_LIVE_BID", None, "supplier@acme.com", "127.0.0.1", {"amount": 1780000.0, "seq": 1}, now_utc - timedelta(minutes=22)),
+            (AuditEntityTypeEnum.BID, rfq6.id if rfq6 else None, "SUBMIT_LIVE_BID", None, "supplier@globalcloud.com", "127.0.0.1", {"amount": 1750000.0, "seq": 2}, now_utc - timedelta(minutes=18)),
+            (AuditEntityTypeEnum.BID, rfq6.id if rfq6 else None, "SUBMIT_LIVE_BID", None, "supplier@acme.com", "127.0.0.1", {"amount": 1720000.0, "seq": 3}, now_utc - timedelta(minutes=14)),
+            (AuditEntityTypeEnum.BID, rfq6.id if rfq6 else None, "SUBMIT_LIVE_BID", None, "supplier@globalcloud.com", "127.0.0.1", {"amount": 1690000.0, "seq": 4}, now_utc - timedelta(minutes=10)),
+            (AuditEntityTypeEnum.BID, rfq6.id if rfq6 else None, "SUBMIT_LIVE_BID", None, "supplier@acme.com", "127.0.0.1", {"amount": 1660000.0, "seq": 5}, now_utc - timedelta(minutes=6)),
+            (AuditEntityTypeEnum.BID, rfq6.id if rfq6 else None, "SUBMIT_LIVE_BID", None, "supplier@globalcloud.com", "127.0.0.1", {"amount": 1630000.0, "seq": 6}, now_utc - timedelta(minutes=2)),
 
-            (AuditEntityTypeEnum.PURCHASE_ORDER, po1.id, "CREATE_PO", buyer_user.id, buyer_user.email, "127.0.0.1", {"po_number": "PO-2026-000001"}, now_utc - timedelta(days=6)),
-            (AuditEntityTypeEnum.PURCHASE_ORDER, po1.id, "APPROVE_PO", approver_user.id, approver_user.email, "127.0.0.1", {"status": "APPROVED"}, now_utc - timedelta(days=5)),
-            (AuditEntityTypeEnum.PURCHASE_ORDER, po1.id, "DISPATCH_PO_TO_VENDOR", buyer_user.id, buyer_user.email, "127.0.0.1", {"status": "SENT_TO_VENDOR"}, now_utc - timedelta(days=5)),
-            (AuditEntityTypeEnum.PURCHASE_ORDER, po1.id, "VENDOR_ACKNOWLEDGE_PO", None, "supplier@acme.com", "127.0.0.1", {"status": "ACKNOWLEDGED"}, now_utc - timedelta(days=4)),
-            (AuditEntityTypeEnum.PURCHASE_ORDER, po1.id, "AMEND_PO", buyer_user.id, buyer_user.email, "127.0.0.1", {"amendment_number": 1}, now_utc - timedelta(days=3)),
-            (AuditEntityTypeEnum.PURCHASE_ORDER, po2.id, "DISPATCH_PO_TO_VENDOR", buyer_user.id, buyer_user.email, "127.0.0.1", {"status": "SENT_TO_VENDOR"}, now_utc - timedelta(hours=6)),
-            (AuditEntityTypeEnum.PURCHASE_ORDER, po3.id, "PARTIALLY_RECEIVED_PO", buyer_user.id, buyer_user.email, "127.0.0.1", {"received_quantity": 12.0}, now_utc - timedelta(hours=1)),
+            (AuditEntityTypeEnum.PURCHASE_ORDER, po1.id if po1 else None, "CREATE_PO", buyer_user.id, buyer_user.email, "127.0.0.1", {"po_number": "PO-2026-000001"}, now_utc - timedelta(days=6)),
+            (AuditEntityTypeEnum.PURCHASE_ORDER, po1.id if po1 else None, "APPROVE_PO", approver_user.id, approver_user.email, "127.0.0.1", {"status": "APPROVED"}, now_utc - timedelta(days=5)),
+            (AuditEntityTypeEnum.PURCHASE_ORDER, po1.id if po1 else None, "DISPATCH_PO_TO_VENDOR", buyer_user.id, buyer_user.email, "127.0.0.1", {"status": "SENT_TO_VENDOR"}, now_utc - timedelta(days=5)),
+            (AuditEntityTypeEnum.PURCHASE_ORDER, po1.id if po1 else None, "VENDOR_ACKNOWLEDGE_PO", None, "supplier@acme.com", "127.0.0.1", {"status": "ACKNOWLEDGED"}, now_utc - timedelta(days=4)),
+            (AuditEntityTypeEnum.PURCHASE_ORDER, po1.id if po1 else None, "AMEND_PO", buyer_user.id, buyer_user.email, "127.0.0.1", {"amendment_number": 1}, now_utc - timedelta(days=3)),
+            (AuditEntityTypeEnum.PURCHASE_ORDER, po2.id if po2 else None, "DISPATCH_PO_TO_VENDOR", buyer_user.id, buyer_user.email, "127.0.0.1", {"status": "SENT_TO_VENDOR"}, now_utc - timedelta(hours=6)),
+            (AuditEntityTypeEnum.PURCHASE_ORDER, po3.id if po3 else None, "PARTIALLY_RECEIVED_PO", buyer_user.id, buyer_user.email, "127.0.0.1", {"received_quantity": 12.0}, now_utc - timedelta(hours=1)),
 
-            (AuditEntityTypeEnum.GRN, grn1.id, "CREATE_GRN", buyer_user.id, buyer_user.email, "127.0.0.1", {"grn_number": "GRN-2026-000001"}, now_utc - timedelta(days=2)),
-            (AuditEntityTypeEnum.GRN, grn1.id, "CONFIRM_GRN", buyer_user.id, buyer_user.email, "127.0.0.1", {"status": "APPROVED"}, now_utc - timedelta(days=2)),
-            (AuditEntityTypeEnum.GRN, grn2.id, "CREATE_GRN_INSPECTION_PENDING", buyer_user.id, buyer_user.email, "127.0.0.1", {"rejected": 2.0}, now_utc - timedelta(hours=1)),
+            (AuditEntityTypeEnum.GRN, grn1.id if grn1 else None, "CREATE_GRN", buyer_user.id, buyer_user.email, "127.0.0.1", {"grn_number": "GRN-2026-000001"}, now_utc - timedelta(days=2)),
+            (AuditEntityTypeEnum.GRN, grn1.id if grn1 else None, "CONFIRM_GRN", buyer_user.id, buyer_user.email, "127.0.0.1", {"status": "APPROVED"}, now_utc - timedelta(days=2)),
+            (AuditEntityTypeEnum.GRN, grn2.id if grn2 else None, "CREATE_GRN_INSPECTION_PENDING", buyer_user.id, buyer_user.email, "127.0.0.1", {"rejected": 2.0}, now_utc - timedelta(hours=1)),
 
-            (AuditEntityTypeEnum.INVOICE, inv1.id, "SUBMIT_INVOICE", None, "supplier@acme.com", "127.0.0.1", {"total_amount": 2159400.0}, now_utc - timedelta(days=1)),
-            (AuditEntityTypeEnum.INVOICE, inv1.id, "THREE_WAY_MATCH_PASSED", None, "system@procurement.com", "127.0.0.1", {"deviation": 0.0}, now_utc - timedelta(days=1)),
-            (AuditEntityTypeEnum.INVOICE, inv2.id, "THREE_WAY_MATCH_FAILED", None, "system@procurement.com", "127.0.0.1", {"deviation": 4.0}, now_utc - timedelta(days=1)),
-            (AuditEntityTypeEnum.INVOICE, inv2.id, "RAISE_DISPUTE", buyer_user.id, buyer_user.email, "127.0.0.1", {"reason": "PRICE_MISMATCH"}, now_utc - timedelta(hours=5)),
-            (AuditEntityTypeEnum.INVOICE, inv3.id, "SETTLE_PAYMENT", None, "finance@procurement.com", "127.0.0.1", {"utr": "UTR-HDFC-2026-889104"}, now_utc - timedelta(days=5)),
+            (AuditEntityTypeEnum.INVOICE, inv1.id if inv1 else None, "SUBMIT_INVOICE", None, "supplier@acme.com", "127.0.0.1", {"total_amount": 2159400.0}, now_utc - timedelta(days=1)),
+            (AuditEntityTypeEnum.INVOICE, inv1.id if inv1 else None, "THREE_WAY_MATCH_PASSED", None, "system@procurement.com", "127.0.0.1", {"deviation": 0.0}, now_utc - timedelta(days=1)),
+            (AuditEntityTypeEnum.INVOICE, inv2.id if inv2 else None, "THREE_WAY_MATCH_FAILED", None, "system@procurement.com", "127.0.0.1", {"deviation": 4.0}, now_utc - timedelta(days=1)),
+            (AuditEntityTypeEnum.INVOICE, inv2.id if inv2 else None, "RAISE_DISPUTE", buyer_user.id, buyer_user.email, "127.0.0.1", {"reason": "PRICE_MISMATCH"}, now_utc - timedelta(hours=5)),
+            (AuditEntityTypeEnum.INVOICE, inv3.id if inv3 else None, "SETTLE_PAYMENT", None, "finance@procurement.com", "127.0.0.1", {"utr": "UTR-HDFC-2026-889104"}, now_utc - timedelta(days=5)),
 
-            (AuditEntityTypeEnum.CONTRACT, con1.id, "EXECUTE_CONTRACT", buyer_user.id, buyer_user.email, "127.0.0.1", {"esign_provider": "AADHAAR_ESIGN"}, now_utc - timedelta(days=60)),
-            (AuditEntityTypeEnum.CONTRACT, con1.id, "AMEND_CONTRACT", buyer_user.id, buyer_user.email, "127.0.0.1", {"amendment_number": 1}, now_utc - timedelta(days=20)),
-            (AuditEntityTypeEnum.CONTRACT, con1.id, "COMPLETE_MILESTONE", buyer_user.id, buyer_user.email, "127.0.0.1", {"milestone_index": 1}, now_utc - timedelta(days=28)),
-            (AuditEntityTypeEnum.CONTRACT, con2.id, "SUBMIT_FOR_REVIEW", buyer_user.id, buyer_user.email, "127.0.0.1", {"status": "PENDING_REVIEW"}, now_utc - timedelta(hours=8)),
+            (AuditEntityTypeEnum.CONTRACT, con1.id if con1 else None, "EXECUTE_CONTRACT", buyer_user.id, buyer_user.email, "127.0.0.1", {"esign_provider": "AADHAAR_ESIGN"}, now_utc - timedelta(days=60)),
+            (AuditEntityTypeEnum.CONTRACT, con1.id if con1 else None, "AMEND_CONTRACT", buyer_user.id, buyer_user.email, "127.0.0.1", {"amendment_number": 1}, now_utc - timedelta(days=20)),
+            (AuditEntityTypeEnum.CONTRACT, con1.id if con1 else None, "COMPLETE_MILESTONE", buyer_user.id, buyer_user.email, "127.0.0.1", {"milestone_index": 1}, now_utc - timedelta(days=28)),
+            (AuditEntityTypeEnum.CONTRACT, con2.id if con2 else None, "SUBMIT_FOR_REVIEW", buyer_user.id, buyer_user.email, "127.0.0.1", {"status": "PENDING_REVIEW"}, now_utc - timedelta(hours=8)),
         ]
+        audit_records = [r for r in audit_records if r[1] is not None]
         for a_type, a_id, act, act_id, act_email, a_ip, changes, a_time in audit_records:
             db.add(
                 AuditLog(
@@ -3319,6 +3358,15 @@ async def seed_demo():
         logger.info("Demo enterprise extensions seeded successfully!")
     except Exception as e:
         logger.warning("Demo enterprise extensions seeding skipped or failed: %s", e)
+
+    # 25. Seed Indents and Consignee Tracking for Indentor & Buyer Portals
+    try:
+        from scripts.seed_indents import seed_indents
+
+        await seed_indents()
+        logger.info("Demo indents and consignee tracking seeded successfully!")
+    except Exception as e:
+        logger.warning("Demo indents seeding skipped or failed: %s", e)
 
     await engine.dispose()
 

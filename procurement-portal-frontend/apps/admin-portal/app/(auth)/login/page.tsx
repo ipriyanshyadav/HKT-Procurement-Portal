@@ -1,14 +1,17 @@
 "use client";
+import { getErrorMessage } from "@procurement/utils";
 
 import React, { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useLogin } from "@procurement/hooks";
+import { useAppToast } from "@procurement/hooks";
 import { CaptchaChallenge } from "@procurement/ui";
 
 function AdminLoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { mutate: login, isPending, error } = useLogin();
+  const { toast } = useAppToast();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -18,6 +21,7 @@ function AdminLoginForm() {
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
 
   const requireCaptcha = failedAttempts >= 2;
+
 
   const redirectParam = searchParams.get("redirect");
   const targetUrl =
@@ -178,9 +182,9 @@ function AdminLoginForm() {
                 if (res.data?.data?.redirect_url) {
                   window.location.href = res.data.data.redirect_url;
                 }
-              } catch (err: any) {
-                alert(err?.response?.data?.error?.message || "Failed to initiate OIDC login");
-              }
+              } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to initiate OIDC login"));
+    }
             }}
             className="w-full flex items-center justify-center gap-2 py-2.5 px-3 border border-gray-300 dark:border-slate-700 rounded-xl text-xs font-semibold text-gray-700 dark:text-slate-200 bg-white dark:bg-slate-800/80 hover:bg-gray-50 dark:hover:bg-slate-700/80 shadow-sm transition-colors"
           >
@@ -199,9 +203,10 @@ function AdminLoginForm() {
                 if (res.data?.data?.redirect_url) {
                   window.location.href = res.data.data.redirect_url;
                 }
-              } catch (err: any) {
-                alert(err?.response?.data?.error?.message || "Failed to initiate SAML login");
-              }
+              } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to initiate SAML login"));
+    }
+
             }}
             className="w-full flex items-center justify-center gap-2 py-2.5 px-3 border border-gray-300 dark:border-slate-700 rounded-xl text-xs font-semibold text-gray-700 dark:text-slate-200 bg-white dark:bg-slate-800/80 hover:bg-gray-50 dark:hover:bg-slate-700/80 shadow-sm transition-colors"
           >

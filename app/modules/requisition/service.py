@@ -1,38 +1,42 @@
 from __future__ import annotations
-from datetime import datetime, timezone
-from decimal import Decimal
-from typing import Optional, List, Tuple
-from uuid import UUID
+
 import re
+from datetime import UTC, datetime
+from decimal import Decimal
+from uuid import UUID, uuid4
+
 from loguru import logger
-from sqlalchemy import select, text
+from sqlalchemy import or_, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
 from app.core.constants import AuditAction
-from app.core.metrics import pr_created_total, pr_approval_duration_hours
-from app.core.exceptions import AppException, ConflictError, ForbiddenError, NotFoundError, ValidationError
+from app.core.exceptions import AppException, ForbiddenError, NotFoundError, ValidationError
+from app.core.metrics import pr_approval_duration_hours, pr_created_total
 from app.core.redis_client import RedisKeys, get_redis_client
-from app.db.enums import PRStatus, PRSource, ProcurementType, POStatus, VendorStatus
+from app.db.enums import POStatus, PRSource, PRStatus, VendorStatus
 from app.events.publisher import OutboxPublisher
 from app.modules.approval_rules.service import rules_engine
 from app.modules.audit.service import audit_service
 from app.modules.organization.models import BusinessUnit, CostCenter, Organization
-from app.modules.purchase_order.models import PurchaseOrder, PoLine
+from app.modules.purchase_order.models import PoLine, PurchaseOrder
 from app.modules.purchase_order.repository import purchase_order_repository
 from app.modules.requisition.fsm import validate_pr_transition
 from app.modules.requisition.models import Requisition, RequisitionLine
 from app.modules.requisition.repository import RequisitionRepository, requisition_repository
-from app.modules.vendor.models import Vendor
 from app.modules.requisition.schemas import (
     BudgetCheckResult,
+    BuyerSelectionItem,
+    IndentCartTransferRequest,
+    IndentorTrackingResponse,
+    IndentTransferRequest,
     PRCreateRequest,
-    PRMergeRequest,
+    PRLineItemRequest,
     PRSplitRequest,
     PRUpdateRequest,
-    SourcingPathResult,
 )
 from app.modules.user.models import User
+from app.modules.vendor.models import Vendor
 from app.modules.workflow.models import WorkflowTask
 from app.modules.workflow.service import workflow_engine
 
@@ -137,16 +141,18 @@ class RequisitionService:
         self,
         db: AsyncSession,
         org_id: UUID,
-        status: Optional[str] = None,
-        business_unit_id: Optional[UUID] = None,
-        category_id: Optional[UUID] = None,
-        requestor_id: Optional[UUID] = None,
-        search: Optional[str] = None,
+        status: str | None = None,
+        business_unit_id: UUID | None = None,
+        category_id: UUID | None = None,
+        requestor_id: UUID | None = None,
+        search: str | None = None,
         scope: str = "all",
-        current_user: Optional[User] = None,
+        current_user: User | None = None,
         skip: int = 0,
         limit: int = 20,
-    ) -> Tuple[List[Requisition], int]:
+    ) -> tuple[list[Requisition], int]:
+        # Enforce upper bound to prevent full-table dumps
+        limit = min(limit, settings.MAX_LIST_LIMIT)
         req_user_id = requestor_id
         bu_filter = business_unit_id
 
@@ -374,8 +380,8 @@ class RequisitionService:
         self,
         db: AsyncSession,
         pr_id: UUID,
-        task_id: Optional[UUID],
-        comment: Optional[str],
+        task_id: UUID | None,
+        comment: str | None,
         actor_id: UUID,
         org_id: UUID,
     ) -> Requisition:
@@ -406,12 +412,12 @@ class RequisitionService:
                 )
 
         pr.status = PRStatus.APPROVED
-        pr.approved_at = datetime.now(timezone.utc)
+        pr.approved_at = datetime.now(UTC)
         pr.updated_by = actor_id
         await self.repo.update(db, pr)
 
         if pr.created_at:
-            c_at = pr.created_at if pr.created_at.tzinfo is not None else pr.created_at.replace(tzinfo=timezone.utc)
+            c_at = pr.created_at if pr.created_at.tzinfo is not None else pr.created_at.replace(tzinfo=UTC)
             duration_hours = max(0.0, (pr.approved_at - c_at).total_seconds() / 3600.0)
             pr_approval_duration_hours.labels(org_id=str(org_id)).observe(duration_hours)
 
@@ -438,7 +444,7 @@ class RequisitionService:
         self,
         db: AsyncSession,
         pr_id: UUID,
-        task_id: Optional[UUID],
+        task_id: UUID | None,
         comment: str,
         actor_id: UUID,
         org_id: UUID,
@@ -571,7 +577,7 @@ class RequisitionService:
         pr_ids: list[UUID],
         actor_id: UUID,
         org_id: UUID,
-        merged_title: Optional[str] = None,
+        merged_title: str | None = None,
     ) -> Requisition:
         if len(pr_ids) < 2:
             raise ValidationError("MERGE_REQUIRES_TWO", "At least 2 PRs required for merge")
@@ -587,7 +593,7 @@ class RequisitionService:
             raise AppException("All PRs must belong to same category", "MERGE_DIFFERENT_CATEGORY")
 
         first_pr = prs[0]
-        title = merged_title or f"Merged PR - {datetime.now(timezone.utc).strftime('%Y%m%d%H%M')}"
+        title = merged_title or f"Merged PR - {datetime.now(UTC).strftime('%Y%m%d%H%M')}"
         pr_number = await self._generate_pr_number(db, first_pr.business_unit_id, org_id)
 
         merged_pr = Requisition(
@@ -608,7 +614,7 @@ class RequisitionService:
             estimated_value=Decimal("0.0"),
             is_capex=any(p.is_capex for p in prs),
             merged_from=[p.id for p in prs],
-            approved_at=datetime.now(timezone.utc),
+            approved_at=datetime.now(UTC),
             created_by=actor_id,
             updated_by=actor_id,
         )
@@ -622,23 +628,23 @@ class RequisitionService:
 
         for pr in prs:
             lines = await self.repo.get_lines(db, pr.id, org_id)
-            for l in lines:
-                key = (l.item_code or l.item_description, l.uom_id)
+            for line in lines:
+                key = (line.item_code or line.item_description, line.uom_id)
                 if key in merged_lines_map:
-                    merged_lines_map[key].quantity += l.quantity
+                    merged_lines_map[key].quantity += line.quantity
                 else:
                     new_line = RequisitionLine(
                         org_id=org_id,
                         requisition_id=merged_pr.id,
                         line_number=line_num,
-                        item_description=l.item_description,
-                        item_code=l.item_code,
-                        category_id=l.category_id,
-                        uom_id=l.uom_id,
-                        quantity=l.quantity,
-                        estimated_unit_price=l.estimated_unit_price,
-                        hsn_code=l.hsn_code,
-                        specifications=l.specifications,
+                        item_description=line.item_description,
+                        item_code=line.item_code,
+                        category_id=line.category_id,
+                        uom_id=line.uom_id,
+                        quantity=line.quantity,
+                        estimated_unit_price=line.estimated_unit_price,
+                        hsn_code=line.hsn_code,
+                        specifications=line.specifications,
                     )
                     merged_lines_map[key] = new_line
                     line_num += 1
@@ -691,7 +697,7 @@ class RequisitionService:
             raise AppException("PR must be in APPROVED state to split", "PR_NOT_APPROVED")
 
         source_lines = await self.repo.get_lines(db, pr_id, org_id)
-        lines_by_number = {l.line_number: l for l in source_lines}
+        lines_by_number = {line.line_number: line for line in source_lines}
 
         child_prs: list[Requisition] = []
         for split in data.splits:
@@ -717,7 +723,7 @@ class RequisitionService:
                 is_capex=source_pr.is_capex,
                 budget_check_status="PASSED",
                 split_from=source_pr.id,
-                approved_at=datetime.now(timezone.utc),
+                approved_at=datetime.now(UTC),
                 created_by=actor_id,
                 updated_by=actor_id,
             )
@@ -814,7 +820,7 @@ class RequisitionService:
         pr_id: UUID,
         actor_id: UUID,
         org_id: UUID,
-        vendor_id: Optional[UUID] = None,
+        vendor_id: UUID | None = None,
     ) -> Requisition:
         pr = await self.get_by_id(db, pr_id, org_id)
         if pr.status not in (PRStatus.APPROVED, PRStatus.IN_SOURCING):
@@ -927,7 +933,7 @@ class RequisitionService:
         bu_res = await db.execute(bu_stmt)
         bu = bu_res.scalar_one_or_none()
         bu_code = bu.code.upper() if bu else "CORP"
-        year = datetime.now(timezone.utc).year
+        year = datetime.now(UTC).year
         clean_code = re.sub(r"[^a-zA-Z0-9_]", "_", bu_code.lower())
         seq_name = f"seq_pr_{clean_code}_{year}"
 
@@ -947,9 +953,9 @@ class RequisitionService:
         cost_center_id: UUID,
         amount: Decimal,
         org_id: UUID,
-        bu_id: Optional[UUID] = None,
-        category_id: Optional[UUID] = None,
-        mode: Optional[str] = None,
+        bu_id: UUID | None = None,
+        category_id: UUID | None = None,
+        mode: str | None = None,
     ) -> BudgetCheckResult:
         # Determine budget mode: org settings -> overrides -> default
         org_stmt = select(Organization).where(Organization.id == org_id)
@@ -1006,8 +1012,8 @@ class RequisitionService:
         cost_center_id: UUID,
         amount: Decimal,
         org_id: UUID,
-        bu_id: Optional[UUID] = None,
-        category_id: Optional[UUID] = None,
+        bu_id: UUID | None = None,
+        category_id: UUID | None = None,
     ) -> BudgetCheckResult:
         """Pre-flight check of budget availability before PR submission."""
         try:
@@ -1041,6 +1047,278 @@ class RequisitionService:
             await r.aclose()
         except Exception as e:
             logger.warning(f"Failed to invalidate PR cache for org {org_id}: {e}")
+
+    async def create_indent(
+        self,
+        db: AsyncSession,
+        data: IndentTransferRequest,
+        actor: User,
+        org_id: UUID,
+    ) -> Requisition:
+        # Re-use create
+        pr = await self.create(db, data, actor.id, org_id)
+        pr.is_indent = True
+        pr.indentor_id = actor.id
+        pr.assigned_buyer_id = data.assigned_buyer_id
+        pr.indent_notes = data.indent_notes
+        pr.source = PRSource.INDENT_CART
+        pr.status = PRStatus.SUBMITTED
+        if not pr.assigned_buyer_id and settings.INDENT_AUTO_ASSIGN_BUYER:
+            buyers = await self.get_available_buyers(db, org_id, data.category_id, data.business_unit_id)
+            if buyers:
+                pr.assigned_buyer_id = buyers[0].id
+        await self.repo.update(db, pr)
+        await audit_service.log(
+            db,
+            "REQUISITION",
+            pr.id,
+            AuditAction.INDENT_TRANSFERRED,
+            actor.id,
+            org_id,
+            new_values={
+                "pr_number": pr.pr_number,
+                "status": pr.status.value,
+                "assigned_buyer_id": str(pr.assigned_buyer_id) if pr.assigned_buyer_id else None,
+            },
+        )
+        return pr
+
+    async def create_indent_from_cart(
+        self,
+        db: AsyncSession,
+        data: IndentCartTransferRequest,
+        actor: User,
+        org_id: UUID,
+    ) -> Requisition:
+        from app.modules.catalog.repository import cart_item_repository, user_cart_repository
+        from app.modules.master_data.models import Category, ItemMaster, UomMaster
+        from app.modules.requisition.schemas import IndentTransferRequest, PRLineItemRequest
+
+        cart = await user_cart_repository.get_active_cart(db, org_id, actor.id)
+        if not cart:
+            raise ValidationError("No active cart found to transfer.")
+        items = await cart_item_repository.list_by_cart(db, cart.id)
+        if not items:
+            raise ValidationError("Cart is empty. Add catalog items before transferring.")
+
+        category_id = None
+        for ci in items:
+            if ci.item_id:
+                m_item = await db.get(ItemMaster, ci.item_id)
+                if m_item and m_item.category_id:
+                    category_id = m_item.category_id
+                    break
+        if not category_id:
+            cat_stmt = select(Category.id).where(Category.org_id == org_id).limit(1)
+            category_id = (await db.execute(cat_stmt)).scalar()
+            if not category_id:
+                raise ValidationError("No Category found for organization.")
+
+        pr_lines: list[PRLineItemRequest] = []
+        for ci in items:
+            line_cat_id = None
+            uom_id = None
+            if ci.item_id:
+                m_item = await db.get(ItemMaster, ci.item_id)
+                if m_item:
+                    line_cat_id = m_item.category_id
+                    uom_id = m_item.uom_id
+            if not line_cat_id:
+                line_cat_id = category_id
+            if not uom_id:
+                first_uom = (await db.execute(select(UomMaster.id).where(UomMaster.org_id == org_id).limit(1))).scalar()
+                uom_id = first_uom or uuid4()
+
+            pr_lines.append(
+                PRLineItemRequest(
+                    item_description=ci.item_name,
+                    item_code=ci.item_code,
+                    category_id=line_cat_id,
+                    uom_id=uom_id,
+                    quantity=ci.quantity,
+                    estimated_unit_price=ci.unit_price,
+                    specifications=ci.punchout_payload.get("specs") if ci.punchout_payload else None,
+                )
+            )
+
+        now = datetime.now(UTC)
+        transfer_req = IndentTransferRequest(
+            title=f"Indent from Cart ({now.strftime('%b %d, %Y')})",
+            procurement_type="OPEX",
+            business_unit_id=data.business_unit_id,
+            cost_center_id=data.cost_center_id,
+            category_id=category_id,
+            delivery_location_id=data.delivery_location_id,
+            required_by_date=data.required_by_date,
+            assigned_buyer_id=data.assigned_buyer_id,
+            indent_notes=data.indent_notes,
+            lines=pr_lines,
+        )
+
+        pr = await self.create_indent(db, transfer_req, actor, org_id)
+        cart.status = "CHECKED_OUT"
+        await db.flush()
+        return pr
+
+    async def get_available_buyers(
+        self,
+        db: AsyncSession,
+        org_id: UUID,
+        category_id: UUID | None = None,
+        business_unit_id: UUID | None = None,
+    ) -> list[BuyerSelectionItem]:
+        from app.core.constants import RoleCode
+        from app.db.enums import UserStatusEnum
+        from app.modules.user.models import Role, User, UserRoleAssignment
+
+        stmt = (
+            select(User)
+            .join(UserRoleAssignment, UserRoleAssignment.user_id == User.id)
+            .join(Role, Role.id == UserRoleAssignment.role_id)
+            .where(
+                User.org_id == org_id,
+                Role.code.in_([RoleCode.BUYER, RoleCode.PROCUREMENT_OFFICER]),
+                User.status == UserStatusEnum.ACTIVE,
+                UserRoleAssignment.is_active.is_(True),
+            )
+        )
+        if business_unit_id:
+            stmt = stmt.where(User.business_unit_id == business_unit_id)
+        res = await db.execute(stmt)
+        users = res.scalars().unique().all()
+
+        return [
+            BuyerSelectionItem(
+                id=u.id,
+                name=f"{u.first_name} {u.last_name}".strip() or u.email,
+                email=u.email,
+                department=str(u.department_id) if getattr(u, "department_id", None) else None,
+                workload=0,
+            )
+            for u in users
+        ]
+
+    async def get_indentor_tracking(
+        self,
+        db: AsyncSession,
+        actor: User,
+        org_id: UUID,
+        page: int,
+        page_size: int,
+        status_filter: str | None = None,
+    ) -> tuple[list[Requisition], int]:
+        from sqlalchemy import func
+
+        from app.modules.user.role_repository import role_repository
+
+        stmt = select(Requisition).where(
+            Requisition.org_id == org_id,
+            Requisition.is_indent.is_(True),
+        )
+
+        role_codes = await role_repository.get_user_role_codes(db, actor.id, org_id)
+        roles = set(role_codes)
+        if hasattr(actor, "roles") and actor.roles:
+            roles.update({r.code if hasattr(r, "code") else str(r) for r in actor.roles})
+
+        is_super = getattr(actor, "is_superadmin", False) or "SUPERADMIN" in roles
+        is_org_admin = bool({"ORG_ADMIN", "PROCUREMENT_ADMIN", "PROCUREMENT_MANAGER"}.intersection(roles))
+
+        if not (is_super or is_org_admin):
+            if bool({"BUYER", "PROCUREMENT_OFFICER", "SOURCING_MANAGER"}.intersection(roles)):
+                stmt = stmt.where(
+                    or_(
+                        Requisition.indentor_id == actor.id,
+                        Requisition.assigned_buyer_id == actor.id,
+                        Requisition.requestor_id == actor.id,
+                    )
+                )
+            else:
+                stmt = stmt.where(
+                    or_(
+                        Requisition.indentor_id == actor.id,
+                        Requisition.requestor_id == actor.id,
+                    )
+                )
+
+        if status_filter:
+            stmt = stmt.where(Requisition.status == status_filter)
+
+        count_stmt = select(func.count()).select_from(stmt.subquery())
+        total = (await db.execute(count_stmt)).scalar() or 0
+
+        stmt = (
+            stmt.order_by(Requisition.created_at.desc())
+            .offset((page - 1) * page_size)
+            .limit(page_size)
+        )
+        res = await db.execute(stmt)
+        items = list(res.scalars().all())
+        return items, total
+
+    async def enrich_indentor_tracking(
+        self,
+        db: AsyncSession,
+        items: list[Requisition],
+        org_id: UUID,
+    ) -> list[IndentorTrackingResponse]:
+        from app.modules.grn.models import GoodsReceiptNote
+        from app.modules.purchase_order.models import PurchaseOrder
+
+        buyer_ids = {
+            item.assigned_buyer_id
+            for item in items
+            if getattr(item, "assigned_buyer_id", None) and isinstance(item.assigned_buyer_id, UUID)
+        }
+        buyer_map: dict[UUID, str] = {}
+        if buyer_ids:
+            b_res = await db.execute(select(User).where(User.id.in_(buyer_ids)))
+            for u in b_res.scalars().all():
+                buyer_map[u.id] = f"{u.first_name} {u.last_name}".strip()
+
+        pr_ids = [item.id for item in items if getattr(item, "id", None) and isinstance(item.id, UUID)]
+        po_by_pr_id: dict[UUID, PurchaseOrder] = {}
+        grn_status_by_po_id: dict[UUID, str] = {}
+        if pr_ids:
+            po_res = await db.execute(
+                select(PurchaseOrder).where(
+                    PurchaseOrder.org_id == org_id,
+                    PurchaseOrder.source_pr_id.in_(pr_ids),
+                )
+            )
+            po_list = po_res.scalars().all()
+            for po in po_list:
+                if po.source_pr_id:
+                    po_by_pr_id[po.source_pr_id] = po
+
+            po_ids = [po.id for po in po_list]
+            if po_ids:
+                grn_res = await db.execute(
+                    select(GoodsReceiptNote).where(
+                        GoodsReceiptNote.org_id == org_id,
+                        GoodsReceiptNote.po_id.in_(po_ids),
+                    )
+                )
+                for grn in grn_res.scalars().all():
+                    grn_status_by_po_id[grn.po_id] = str(grn.status)
+
+        res_items = []
+        for item in items:
+            mapped = IndentorTrackingResponse.model_validate(item)
+            assigned_buyer_id = getattr(item, "assigned_buyer_id", None)
+            if assigned_buyer_id and assigned_buyer_id in buyer_map:
+                mapped.assigned_buyer_name = buyer_map[assigned_buyer_id]
+            po = po_by_pr_id.get(getattr(item, "id", None))
+            if po:
+                mapped.po_id = po.id
+                mapped.po_number = po.po_number
+                mapped.po_status = str(po.status.value if hasattr(po.status, "value") else po.status)
+                if po.id in grn_status_by_po_id:
+                    mapped.grn_status = grn_status_by_po_id[po.id]
+            res_items.append(mapped)
+
+        return res_items
+
 
 
 requisition_service = RequisitionService()

@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiClient } from "@procurement/utils";
+import { apiClient, playNotificationChime } from "@procurement/utils";
 import { useAuthStore, useNotificationStore } from "@procurement/stores";
 import type {
   NotificationItem,
@@ -21,6 +21,8 @@ export interface NotificationsListResponse {
     unread_count?: number;
   };
 }
+
+const toastedNotificationIds = new Set<string>();
 
 export function useNotifications() {
   const token = useAuthStore((state) => state.accessToken);
@@ -105,7 +107,42 @@ export function useNotifications() {
                 retry_count: 0,
               };
               addNotification(notification);
+              playNotificationChime();
               queryClient.invalidateQueries({ queryKey: ["notifications"] });
+
+              // Reactively invalidate related entity queries to synchronize all open views
+              if (notification.entity_type) {
+                const ent = notification.entity_type.toLowerCase();
+                if (ent.includes("req") || ent === "pr") {
+                  queryClient.invalidateQueries({ queryKey: ["requisitions"] });
+                  queryClient.invalidateQueries({ queryKey: ["requisition"] });
+                } else if (ent.includes("task") || ent.includes("approval")) {
+                  queryClient.invalidateQueries({ queryKey: ["workflow-tasks"] });
+                  queryClient.invalidateQueries({ queryKey: ["tasks"] });
+                } else if (ent.includes("rfq") || ent.includes("sourcing") || ent.includes("bid")) {
+                  queryClient.invalidateQueries({ queryKey: ["rfqs"] });
+                  queryClient.invalidateQueries({ queryKey: ["rfq"] });
+                  queryClient.invalidateQueries({ queryKey: ["bids"] });
+                } else if (ent.includes("order") || ent.includes("po")) {
+                  queryClient.invalidateQueries({ queryKey: ["purchase-orders"] });
+                  queryClient.invalidateQueries({ queryKey: ["purchase-order"] });
+                } else if (ent.includes("asn")) {
+                  queryClient.invalidateQueries({ queryKey: ["asns"] });
+                } else if (ent.includes("grn")) {
+                  queryClient.invalidateQueries({ queryKey: ["grn"] });
+                } else if (ent.includes("invoice")) {
+                  queryClient.invalidateQueries({ queryKey: ["invoices"] });
+                  queryClient.invalidateQueries({ queryKey: ["invoice"] });
+                } else if (ent.includes("payment")) {
+                  queryClient.invalidateQueries({ queryKey: ["payments"] });
+                } else if (ent.includes("contract")) {
+                  queryClient.invalidateQueries({ queryKey: ["contracts"] });
+                } else if (ent.includes("ticket")) {
+                  queryClient.invalidateQueries({ queryKey: ["tickets"] });
+                } else if (ent.includes("master") || ent.includes("category")) {
+                  queryClient.invalidateQueries({ queryKey: ["master-data"] });
+                }
+              }
 
               // Determine semantic alert type
               let toastType: "info" | "success" | "warning" | "error" = "info";
@@ -202,6 +239,7 @@ export function useNotificationsList(params?: {
 }) {
   const setNotifications = useNotificationStore((state) => state.setNotifications);
   const isConnected = useNotificationStore((state) => state.isConnected);
+  const addToast = useNotificationStore((state) => state.addToast);
 
   return useQuery({
     queryKey: ["notifications", params],
@@ -215,6 +253,48 @@ export function useNotificationsList(params?: {
       });
       if (res.data?.data) {
         setNotifications(res.data.data, res.data.meta?.unread_count);
+
+        // Check if there are unread notifications that arrived while the user was away
+        const unreadItems = res.data.data.filter((n) => !n.is_read && !n.read_at && !toastedNotificationIds.has(n.id));
+        if (unreadItems.length > 0) {
+          const toToast = unreadItems.slice(0, 2);
+          toToast.forEach((item, index) => {
+            toastedNotificationIds.add(item.id);
+            setTimeout(() => {
+              let link: string | undefined;
+              if (item.entity_type) {
+                const type = item.entity_type.toLowerCase();
+                if (type.includes("req") || type === "pr") {
+                  link = item.entity_id ? `/requisitions/${item.entity_id}` : "/requisitions";
+                } else if (type === "rfq" || type === "sourcing" || type === "bid") {
+                  link = item.entity_id ? `/rfqs/${item.entity_id}` : "/rfqs";
+                } else if (type.includes("order") || type === "po") {
+                  link = item.entity_id ? `/purchase-orders/${item.entity_id}` : "/purchase-orders";
+                } else if (type.includes("invoice") || type.includes("payment")) {
+                  link = item.entity_id ? `/invoices/${item.entity_id}` : "/invoices";
+                } else if (type.includes("task") || type.includes("approval")) {
+                  link = item.entity_id ? `/tasks/${item.entity_id}` : "/tasks";
+                } else if (type.includes("vendor")) {
+                  link = item.entity_id ? `/vendors/${item.entity_id}` : "/vendors";
+                }
+              }
+              addToast({
+                id: `away-${item.id}`,
+                title: item.title,
+                body: item.body,
+                notification_type: item.notification_type,
+                entity_type: item.entity_type,
+                entity_id: item.entity_id,
+                created_at: item.created_at,
+                link,
+                durationMs: 7000,
+              });
+            }, (index + 1) * 600);
+          });
+          setTimeout(() => {
+            playNotificationChime();
+          }, 600);
+        }
       }
       return res.data;
     },

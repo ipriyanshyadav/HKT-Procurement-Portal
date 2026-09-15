@@ -38,13 +38,6 @@ export function Sidebar({
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isHoveredRef = useRef(false);
 
-  const toggleSection = (sectionTitle: string) => {
-    setCollapsedSections((prev) => ({
-      ...prev,
-      [sectionTitle]: !prev[sectionTitle],
-    }));
-  };
-
   // Filter items by search query if user is typing
   const q = searchQuery.trim().toLowerCase();
   const visibleItems = useMemo(() => {
@@ -77,6 +70,18 @@ export function Sidebar({
     );
     return matching.sort((a, b) => b.href.length - a.href.length)[0]?.href;
   }, [items, pathname]);
+
+  const toggleSection = (sectionTitle: string) => {
+    setCollapsedSections((prev) => ({
+      ...prev,
+      [sectionTitle]: !prev[sectionTitle],
+    }));
+  };
+
+  const isSectionCollapsed = (sectionTitle?: string): boolean => {
+    if (!sectionTitle || q) return false;
+    return Boolean(collapsedSections[sectionTitle]);
+  };
 
   const handleMouseEnter = () => {
     isHoveredRef.current = true;
@@ -214,7 +219,7 @@ export function Sidebar({
             )}
 
             {sections.map((section, sIdx) => {
-              const isSectionCollapsed = Boolean(section.title && collapsedSections[section.title] && !q);
+              const collapsed = isSectionCollapsed(section.title);
 
               return (
                 <div key={sIdx} className="mb-2">
@@ -223,12 +228,12 @@ export function Sidebar({
                       type="button"
                       onClick={() => toggleSection(section.title!)}
                       className="sidebar-section-header group"
-                      aria-expanded={!isSectionCollapsed}
+                      aria-expanded={!collapsed}
                     >
                       <span className="sidebar-section-label">{section.title}</span>
                       <ChevronDown
-                        className={`w-3.5 h-3.5 text-neutral-400 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-transform duration-200 ${
-                          isSectionCollapsed ? '-rotate-90' : ''
+                        className={`w-3.5 h-3.5 ml-auto text-neutral-400 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-transform duration-200 ${
+                          collapsed ? '-rotate-90' : ''
                         }`}
                       />
                     </button>
@@ -237,7 +242,7 @@ export function Sidebar({
                     <div className="sidebar-section-divider" />
                   )}
 
-                  {!isSectionCollapsed && (
+                  {!collapsed && (
                     <div className="flex flex-col gap-1">
                       {section.items.map((item) => {
                         const isActive = item.href === bestMatchHref;
@@ -260,7 +265,7 @@ export function Sidebar({
                               <span
                                 className={`sidebar-badge text-[10px] font-semibold px-2 py-0.5 rounded-full transition-colors ${
                                   isActive
-                                    ? 'bg-white/25 text-white'
+                                    ? 'bg-blue-500/20 text-blue-700 dark:text-blue-300 font-bold border border-blue-500/30'
                                     : item.badgeColor === 'orange'
                                     ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-300/60 dark:border-amber-700/60'
                                     : item.badgeColor === 'red'

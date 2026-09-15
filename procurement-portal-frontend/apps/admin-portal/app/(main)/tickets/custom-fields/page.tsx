@@ -16,7 +16,9 @@ import {
   useCustomFieldDefs,
   useCreateCustomFieldDef,
   useDeleteCustomFieldDef,
+  useAppToast,
 } from "@procurement/hooks";
+import { useConfirm } from "@procurement/ui";
 import type {
   CustomFieldDefItem,
   CustomFieldDefCreatePayload,
@@ -33,6 +35,8 @@ const TYPE_BADGES: Record<CustomFieldType, { bg: string; text: string }> = {
 };
 
 export default function AdminTicketCustomFieldsPage() {
+  const { toast } = useAppToast();
+  const { confirm } = useConfirm();
   const { data: fields = [], isLoading, refetch } = useCustomFieldDefs();
   const createField = useCreateCustomFieldDef();
   const deleteField = useDeleteCustomFieldDef();
@@ -47,9 +51,20 @@ export default function AdminTicketCustomFieldsPage() {
   const [formDefaultValue, setFormDefaultValue] = useState("");
 
   const handleDelete = async (fieldId: string) => {
-    if (!confirm("Are you sure you want to delete this custom field definition?")) return;
-    await deleteField.mutateAsync(fieldId);
-    refetch();
+    const ok = await confirm({
+      title: "Delete Custom Field",
+      description: "Are you sure you want to delete this custom field definition?",
+      confirmLabel: "Delete",
+      variant: "danger",
+    });
+    if (!ok) return;
+    try {
+      await deleteField.mutateAsync(fieldId);
+      toast.success("Custom field definition deleted successfully");
+      refetch();
+    } catch (err: any) {
+      toast.error(err?.response?.data?.error?.message || "Failed to delete custom field");
+    }
   };
 
   const handleCreateSubmit = async (e: React.FormEvent) => {
@@ -92,7 +107,7 @@ export default function AdminTicketCustomFieldsPage() {
   };
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6">
+    <div className="space-y-6">
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>

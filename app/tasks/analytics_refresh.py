@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+
 from loguru import logger
 
 from app.config import settings

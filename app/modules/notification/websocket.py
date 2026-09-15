@@ -1,12 +1,15 @@
 from __future__ import annotations
+
 import asyncio
 import json
-from typing import Optional
 from uuid import UUID
-from fastapi import WebSocket, WebSocketDisconnect, Query
+
+from fastapi import Query, WebSocket, WebSocketDisconnect
 from loguru import logger
+
 from app.auth.jwt import decode_jwt
-from app.core.redis_client import get_redis, RedisKeys
+from app.core.redis_client import RedisKeys, get_redis
+
 
 class NotificationWebSocketManager:
     """Manages per-user real-time notification WebSocket connections and Redis pub/sub."""
@@ -14,7 +17,7 @@ class NotificationWebSocketManager:
     def __init__(self):
         self.active_connections: dict[UUID, list[WebSocket]] = {}
 
-    async def connect(self, websocket: WebSocket, token: str) -> tuple[UUID, Optional[UUID]]:
+    async def connect(self, websocket: WebSocket, token: str) -> tuple[UUID, UUID | None]:
         if not token:
             await websocket.close(code=4001)
             raise ValueError("Token is required")
@@ -44,7 +47,7 @@ class NotificationWebSocketManager:
     async def handle_connection(
         self,
         websocket: WebSocket,
-        token: Optional[str] = Query(None),
+        token: str | None = Query(None),
     ) -> None:
         if not token:
             token = websocket.query_params.get("token")
@@ -111,7 +114,7 @@ ws_manager = NotificationWebSocketManager()
 
 async def notification_ws_endpoint(
     websocket: WebSocket,
-    token: Optional[str] = Query(None),
+    token: str | None = Query(None),
 ) -> None:
     """FastAPI WebSocket endpoint for notification stream."""
     await ws_manager.handle_connection(websocket, token=token)

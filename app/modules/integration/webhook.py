@@ -3,7 +3,7 @@ from __future__ import annotations
 import hashlib
 import hmac
 import json
-from typing import Any, Dict, Optional
+from typing import Any
 
 import httpx
 
@@ -16,11 +16,9 @@ class WebhookDeliveryService:
     @staticmethod
     def generate_signature(secret: str, body: bytes | str) -> str:
         """Compute HMAC-SHA256 hex digest for body with secret."""
-        if isinstance(body, str):
-            body_bytes = body.encode("utf-8")
-        else:
-            body_bytes = body
+        body_bytes = body.encode("utf-8") if isinstance(body, str) else body
         return hmac.new(secret.encode("utf-8"), body_bytes, hashlib.sha256).hexdigest()
+
 
     @staticmethod
     def verify_signature(secret: str, body: bytes | str, signature_header: str) -> bool:
@@ -35,9 +33,9 @@ class WebhookDeliveryService:
         self,
         endpoint_url: str,
         secret: str,
-        payload: Dict[str, Any],
+        payload: dict[str, Any],
         event_type: str,
-        allowed_domains: Optional[list[str]] = None,
+        allowed_domains: list[str] | None = None,
         timeout: float = 10.0,
     ) -> bool:
         """Deliver payload to endpoint with X-Procurement-Signature header."""

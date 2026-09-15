@@ -6,9 +6,9 @@ Generates professional Purchase Order documents using ReportLab and uploads to M
 from __future__ import annotations
 
 import io
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from decimal import Decimal
-from typing import Any, List, Optional
+from typing import Any
 from uuid import UUID
 
 from loguru import logger
@@ -25,7 +25,7 @@ class POPDFGenerator:
     """Generates PO PDF files and stores them in MinIO."""
 
     def __init__(self) -> None:
-        self._minio_client: Optional[Minio] = None
+        self._minio_client: Minio | None = None
 
     def _get_minio(self) -> Minio:
         if self._minio_client is None:
@@ -41,7 +41,7 @@ class POPDFGenerator:
         self,
         po: Any,
         vendor: Any = None,
-        lines: Optional[List[Any]] = None,
+        lines: list[Any] | None = None,
         org_name: str = "Enterprise S2P Procurement Portal",
     ) -> bytes:
         """Build the Purchase Order PDF in memory using ReportLab."""
@@ -98,7 +98,7 @@ class POPDFGenerator:
                 Paragraph(f"<b>{org_name}</b><br/>Purchase Order Official Document", title_style),
                 Paragraph(
                     f"<b>PO Number:</b> {po.po_number}<br/>"
-                    f"<b>Date:</b> {po.created_at.strftime('%Y-%m-%d') if hasattr(po, 'created_at') and po.created_at else datetime.now(timezone.utc).strftime('%Y-%m-%d')}<br/>"
+                    f"<b>Date:</b> {po.created_at.strftime('%Y-%m-%d') if hasattr(po, 'created_at') and po.created_at else datetime.now(UTC).strftime('%Y-%m-%d')}<br/>"
                     f"<b>Status:</b> {po.status}",
                     header_meta,
                 ),
@@ -257,13 +257,13 @@ class POPDFGenerator:
         po: Any,
         org_id: UUID,
         vendor: Any = None,
-        lines: Optional[List[Any]] = None,
+        lines: list[Any] | None = None,
     ) -> str:
         """
         Generate PO PDF bytes, upload to MinIO 'purchase-order-documents' bucket,
         and return the MinIO storage path.
         """
-        timestamp = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
+        timestamp = datetime.now(UTC).strftime("%Y%m%d%H%M%S")
         filename = f"po_{po.id}_{timestamp}.pdf"
         minio_path = f"{org_id}/po/{po.id}/{filename}"
         bucket_name = getattr(settings, "MINIO_BUCKET_PURCHASE_ORDER", "purchase-order-documents")

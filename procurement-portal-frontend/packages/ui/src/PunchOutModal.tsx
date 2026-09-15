@@ -156,11 +156,19 @@ export function PunchOutModal({
     }
   };
 
+  const productMap = React.useMemo(() => {
+    const map = new Map<string, SimulatedVendorProduct>();
+    SIMULATED_VENDORS.forEach((v) => v.products.forEach((p) => map.set(p.id, p)));
+    return map;
+  }, []);
+
   const cartItemsCount = Object.values(cartQuantities).reduce((a, b) => a + b, 0);
-  const cartSubtotal = Object.entries(cartQuantities).reduce((acc, [pId, qty]) => {
-    const prod = activeVendor.products.find((p) => p.id === pId);
-    return acc + (prod ? prod.unit_price * qty : 0);
-  }, 0);
+  const cartSubtotal = React.useMemo(() => {
+    return Object.entries(cartQuantities).reduce((acc, [pId, qty]) => {
+      const prod = productMap.get(pId);
+      return acc + (prod ? prod.unit_price * qty : 0);
+    }, 0);
+  }, [cartQuantities, productMap]);
 
   const handleCheckoutAndTransfer = async () => {
     if (cartItemsCount === 0) return;
@@ -169,7 +177,7 @@ export function PunchOutModal({
     try {
       const itemsPayload: PunchOutCartItem[] = Object.entries(cartQuantities)
         .map(([pId, qty]) => {
-          const prod = activeVendor.products.find((p) => p.id === pId);
+          const prod = productMap.get(pId);
           if (!prod) return null;
           return {
             item_code: prod.vendor_part_number,
@@ -202,7 +210,7 @@ export function PunchOutModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
+    <div className="fixed inset-0 z-50 overflow-y-auto overscroll-contain apple-scroll-container bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
       <div className="relative w-full max-w-5xl bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col max-h-[92vh] overflow-hidden animate-in fade-in zoom-in-95 duration-150">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
@@ -286,7 +294,7 @@ export function PunchOutModal({
         )}
 
         {/* Embedded Vendor Web Store View */}
-        <div className="flex-1 overflow-y-auto p-6 bg-slate-100/60 dark:bg-slate-900/60">
+        <div className="flex-1 overflow-y-auto overscroll-contain apple-scroll-container p-6 bg-slate-100/60 dark:bg-slate-900/60">
           <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-xs">
             {/* Vendor Portal Top Navigation Banner */}
             <div className="bg-slate-900 text-white px-5 py-3 flex items-center justify-between">

@@ -1,4 +1,5 @@
 "use client";
+import { getErrorMessage } from "@procurement/utils";
 
 import React, { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
@@ -12,12 +13,14 @@ import {
   useBidCount,
   useVendors,
 } from "@procurement/hooks";
+import { useAppToast } from "@procurement/hooks";
 import {
   BidSealedIndicator,
   ClarificationThread,
   PermissionGuard,
   Button,
   Badge,
+  useConfirm,
 } from "@procurement/ui";
 import {
   Send,
@@ -33,6 +36,8 @@ import {
 } from "lucide-react";
 
 export default function RfqDetailPage() {
+  const { toast } = useAppToast();
+  const { confirm } = useConfirm();
   const params = useParams();
   const router = useRouter();
   const id = params?.id as string;
@@ -63,11 +68,17 @@ export default function RfqDetailPage() {
   const isLiveAuction = rfq.bidding_mode === "LIVE_AUCTION" || rfq.bidding_mode === "HYBRID";
 
   const handlePublish = async () => {
-    if (!confirm("Are you sure you want to publish this RFQ to invited suppliers?")) return;
+    const ok = await confirm({
+      title: "Publish RFQ",
+      description: "Are you sure you want to publish this RFQ to invited suppliers?",
+      confirmLabel: "Publish",
+      variant: "primary",
+    });
+    if (!ok) return;
     try {
       await publishMutation.mutateAsync(id);
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to publish RFQ");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to publish RFQ"));
     }
   };
 
@@ -77,8 +88,8 @@ export default function RfqDetailPage() {
       await addParticipantsMutation.mutateAsync({ id, vendor_ids: selectedVendors });
       setIsInviteModalOpen(false);
       setSelectedVendors([]);
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to add participants");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to add participants"));
     }
   };
 

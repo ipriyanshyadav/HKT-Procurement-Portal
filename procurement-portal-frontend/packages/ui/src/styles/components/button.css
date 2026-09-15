@@ -222,3 +222,18 @@
   padding: 12px 24px !important;
   font-size: 15px !important;
 }
+
+/* Universal spam, loading & double-click suppression */
+button:disabled,
+.btn-primary:disabled,
+.btn-secondary:disabled,
+.btn-ghost:disabled,
+.btn-destructive:disabled,
+.btn-icon:disabled,
+[aria-busy="true"],
+[aria-disabled="true"] {
+  opacity: 0.55 !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+  user-select: none !important;
+}

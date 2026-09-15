@@ -19,6 +19,7 @@ class RoleCode:
     PROCUREMENT_ADMIN = "PROCUREMENT_ADMIN"
     SOURCING_MANAGER = "SOURCING_MANAGER"
     CFO = "CFO"
+    INDENTOR = "INDENTOR"
     # Supplier Roles (3)
     SUPPLIER = "SUPPLIER"
     SUPPLIER_ADMIN = "SUPPLIER_ADMIN"
@@ -26,17 +27,19 @@ class RoleCode:
     # Admin Roles (2)
     SUPERADMIN = "SUPERADMIN"
     ORG_ADMIN = "ORG_ADMIN"
+    QA_TESTER = "QA_TESTER"
 
 
 class AuditAction:
     # Auth (14)
     LOGIN_SUCCESS = "LOGIN_SUCCESS"
     LOGIN_FAILURE = "LOGIN_FAILURE"
-    TOKEN_REFRESH = "TOKEN_REFRESH"
+    TOKEN_REFRESH = "TOKEN_REFRESH"  # noqa: S105
     LOGOUT = "LOGOUT"
     MFA_ENABLED = "MFA_ENABLED"
     MFA_DISABLED = "MFA_DISABLED"
-    PASSWORD_CHANGE = "PASSWORD_CHANGE"
+    PASSWORD_CHANGE = "PASSWORD_CHANGE"  # noqa: S105
+
     ACCOUNT_LOCKED = "ACCOUNT_LOCKED"
     ACCOUNT_UNLOCKED = "ACCOUNT_UNLOCKED"
     ROLE_ASSIGNED = "ROLE_ASSIGNED"
@@ -118,6 +121,23 @@ class AuditAction:
     GRN_APPROVED = "GRN_APPROVED"
     GRN_REJECTED = "GRN_REJECTED"
 
+    # Indent (4)
+    INDENT_RAISED = "INDENT_RAISED"
+    INDENT_TRANSFERRED = "INDENT_TRANSFERRED"
+    INDENT_WITHDRAWN = "INDENT_WITHDRAWN"
+    INDENT_RECEIVED = "INDENT_RECEIVED"
+
+    # Indent Cart (5)
+    INDENT_CART_CREATED = "INDENT_CART_CREATED"
+    INDENT_CART_ITEM_ADDED = "INDENT_CART_ITEM_ADDED"
+    INDENT_CART_TRANSFERRED = "INDENT_CART_TRANSFERRED"
+    INDENT_CART_ABANDONED = "INDENT_CART_ABANDONED"
+    INDENT_CART_ITEM_REMOVED = "INDENT_CART_ITEM_REMOVED"
+
+    # GRN Consignee (2)
+    GRN_CONSIGNEE_CONFIRMED = "GRN_CONSIGNEE_CONFIRMED"
+    GRN_CONSIGNEE_REJECTED = "GRN_CONSIGNEE_REJECTED"
+
     # ASN (3)
     ASN_CREATED = "ASN_CREATED"
     ASN_DISPATCHED = "ASN_DISPATCHED"
@@ -130,9 +150,11 @@ class AuditAction:
     INVOICE_REJECTED = "INVOICE_REJECTED"
     PAID = "PAID"
 
-    # Payment (4)
+    # Payment (6)
     INITIATED = "INITIATED"
+    PAYMENT_INITIATED = "PAYMENT_INITIATED"
     PAYMENT_APPROVED = "PAYMENT_APPROVED"
+    PAYMENT_COMPLETED = "PAYMENT_COMPLETED"
     PROCESSED = "PROCESSED"
     FAILED = "FAILED"
 
@@ -176,6 +198,12 @@ class AuditAction:
     MD_UPDATED = "MD_UPDATED"
     DEACTIVATED = "DEACTIVATED"
     IMPORTED = "IMPORTED"
+
+    # Onboarding & Portal Enhancements (4)
+    ONBOARDING_SESSION_STARTED = "ONBOARDING_SESSION_STARTED"
+    ONBOARDING_STEP_SAVED = "ONBOARDING_STEP_SAVED"
+    ONBOARDING_COMPLETED = "ONBOARDING_COMPLETED"
+    CROSS_COMPANY_REPORT_VIEWED = "CROSS_COMPANY_REPORT_VIEWED"
 
 
 class PermissionCode:
@@ -304,6 +332,14 @@ class PermissionCode:
     GRN_APPROVE = "grn.approve"
     GRN_REJECT = "grn.reject"
 
+    # Indent (6)
+    INDENT_CREATE = "indent.create"
+    INDENT_VIEW_OWN = "indent.view_own"
+    INDENT_TRANSFER = "indent.transfer"
+    INDENT_WITHDRAW = "indent.withdraw"
+    INDENT_RECEIVE_GRN = "indent.receive_grn"
+    INDENT_VIEW_TRACKING = "indent.view_tracking"
+
     # Invoice (6)
     INVOICE_SUBMIT = "invoice.submit"
     INVOICE_VIEW_OWN = "invoice.view_own"
@@ -392,5 +428,21 @@ class PermissionCode:
     TICKET_CONFIG_AUTOMATION = "ticket.config_automation"
 
 
+    # Indent Cart permissions
+    CART_CREATE = "cart.create"
+    CART_VIEW_OWN = "cart.view_own"
+    CART_EDIT_OWN = "cart.edit_own"
+    CART_TRANSFER = "cart.transfer"
+    CART_ABANDON = "cart.abandon"
+    GRN_CONSIGNEE_CONFIRM = "grn.consignee_confirm"
+
+    # Onboarding & QA (4)
+    ONBOARDING_MANAGE = "onboarding.manage"
+    ONBOARDING_VIEW = "onboarding.view"
+    SUPERADMIN_REPORTS_VIEW = "superadmin.reports_view"
+    QA_TEST_EXECUTE = "qa.test_execute"
+
 AUDIT_INSERT_ONLY = True
 MAKER_CHECKER_ENFORCED = True
+
+

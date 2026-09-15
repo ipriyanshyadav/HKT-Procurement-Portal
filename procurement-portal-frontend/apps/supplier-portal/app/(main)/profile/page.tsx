@@ -7,8 +7,9 @@ import {
   useUpdateMyVendor,
   useSubmitVendor,
   VendorDetail,
+  getErrorMessage,
 } from "@procurement/hooks";
-import { VendorStatusBadge, Button, Badge } from "@procurement/ui";
+import { VendorStatusBadge, Button, Badge, useConfirm } from "@procurement/ui";
 import {
   ShieldCheck,
   CheckCircle2,
@@ -21,7 +22,9 @@ import {
 } from "lucide-react";
 
 export default function SupplierProfilePage() {
+  const confirm = useConfirm();
   const { data: vendor, isLoading, isError, refetch } = useMyVendor();
+
   const updateMutation = useUpdateMyVendor();
   const submitMutation = useSubmitVendor(vendor?.id || "");
 
@@ -107,15 +110,20 @@ export default function SupplierProfilePage() {
       setSuccessMessage("Profile updated successfully.");
       setIsEditing(false);
       refetch();
-    } catch (err: any) {
-      setErrorMessage(
-        err?.response?.data?.detail || err?.message || "Failed to update profile."
-      );
+    } catch (err: unknown) {
+      setErrorMessage(getErrorMessage(err, "Failed to update profile."));
     }
   };
 
   const handleResubmit = async () => {
-    if (!confirm("Are you sure you want to resubmit your vendor application for review?")) return;
+    const ok = await confirm({
+      title: "Resubmit Application",
+      description: "Are you sure you want to resubmit your vendor application for review?",
+      confirmLabel: "Resubmit",
+      variant: "info",
+    });
+    if (!ok) return;
+
     setErrorMessage(null);
     setSuccessMessage(null);
 
@@ -123,12 +131,11 @@ export default function SupplierProfilePage() {
       await submitMutation.mutateAsync("Resubmitted after updating requested information");
       setSuccessMessage("Application resubmitted successfully for review.");
       refetch();
-    } catch (err: any) {
-      setErrorMessage(
-        err?.response?.data?.detail || err?.message || "Failed to resubmit application."
-      );
+    } catch (err: unknown) {
+      setErrorMessage(getErrorMessage(err, "Failed to resubmit application."));
     }
   };
+
 
   return (
     <div className="w-full space-y-6">

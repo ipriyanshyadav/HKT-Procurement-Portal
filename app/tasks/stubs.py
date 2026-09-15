@@ -1,5 +1,7 @@
 from __future__ import annotations
+
 from loguru import logger
+
 from app.tasks.celery_app import celery_app
 
 

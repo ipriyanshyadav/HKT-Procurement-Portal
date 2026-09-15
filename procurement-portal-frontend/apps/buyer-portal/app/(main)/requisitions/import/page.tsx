@@ -1,4 +1,5 @@
 "use client";
+import { getErrorMessage } from "@procurement/utils";
 
 import React, { useState, useRef } from "react";
 import Link from "next/link";
@@ -296,9 +297,9 @@ export default function BulkRequisitionsImportPage() {
         });
 
         setParsedItems(validatedItems);
-      } catch (err: any) {
-        setParseError("Failed to parse CSV file: " + err.message);
-      }
+      } catch (err: unknown) {
+      setParseError(getErrorMessage(err, "An unexpected error occurred"));
+    }
     };
     reader.readAsText(file);
   };
@@ -337,12 +338,11 @@ export default function BulkRequisitionsImportPage() {
       });
       setCreatedResults(res);
       setParsedItems([]);
-    } catch (err: any) {
-      setParseError(
-        err?.response?.data?.error?.message || err.message || "Bulk requisition creation failed"
-      );
+    } catch (err: unknown) {
+      setParseError(getErrorMessage(err, "Bulk requisition creation failed"));
     }
   };
+
 
   return (
     <div className="w-full space-y-6 max-w-6xl mx-auto">

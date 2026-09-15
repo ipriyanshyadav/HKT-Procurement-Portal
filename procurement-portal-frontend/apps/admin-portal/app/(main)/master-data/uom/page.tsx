@@ -1,4 +1,5 @@
 "use client";
+import { getErrorMessage } from "@procurement/utils";
 
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
@@ -9,10 +10,13 @@ import {
   useDeleteUom,
   type UomMaster,
 } from "@procurement/hooks";
-import { Badge, Button, PermissionGuard } from "@procurement/ui";
+import { useAppToast } from "@procurement/hooks";
+import { Badge, Button, PermissionGuard, useConfirm } from "@procurement/ui";
 import { Scale, Plus, Search, Edit2, Trash2, ArrowLeft } from "lucide-react";
 
 export default function UomManagementPage() {
+  const { toast } = useAppToast();
+  const { confirm } = useConfirm();
   const { data: uoms = [], isLoading, error } = useUoms({ active_only: false });
   const createMutation = useCreateUom();
   const updateMutation = useUpdateUom();
@@ -84,24 +88,25 @@ export default function UomManagementPage() {
         });
       }
       setShowModal(false);
-    } catch (err: any) {
-      setFormError(
-        err?.response?.data?.error?.message ||
-          err?.response?.data?.message ||
-          err?.message ||
-          "Failed to save Unit of Measure"
-      );
+    } catch (err: unknown) {
+      setFormError(getErrorMessage(err, "Failed to save Unit of Measure"));
     }
   };
 
   const handleDelete = async (item: UomMaster) => {
-    if (!window.confirm(`Are you sure you want to deactivate / delete UOM "${item.code}"?`)) {
+    const ok = await confirm({
+      title: "Deactivate Unit of Measure",
+      description: `Are you sure you want to deactivate / delete UOM "${item.code}"?`,
+      confirmLabel: "Deactivate",
+      variant: "danger",
+    });
+    if (!ok) {
       return;
     }
     try {
       await deleteMutation.mutateAsync(item.id);
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || err?.message || "Failed to delete UOM");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to delete UOM"));
     }
   };
 

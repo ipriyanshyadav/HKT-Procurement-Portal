@@ -6,9 +6,9 @@ Layer discipline: router -> service -> repository -> model.
 """
 from __future__ import annotations
 
-from datetime import datetime, timezone
+import builtins
 import re
-from typing import List, Optional, Tuple
+from datetime import UTC, datetime
 from uuid import UUID
 
 from sqlalchemy import and_, func, or_, select, text
@@ -28,7 +28,7 @@ class PurchaseOrderRepository:
         db: AsyncSession,
         po_id: UUID,
         org_id: UUID,
-    ) -> Optional[PurchaseOrder]:
+    ) -> PurchaseOrder | None:
         stmt = (
             select(PurchaseOrder)
             .where(
@@ -51,7 +51,7 @@ class PurchaseOrderRepository:
         db: AsyncSession,
         po_number: str,
         org_id: UUID,
-    ) -> Optional[PurchaseOrder]:
+    ) -> PurchaseOrder | None:
         stmt = (
             select(PurchaseOrder)
             .where(
@@ -74,7 +74,7 @@ class PurchaseOrderRepository:
         db: AsyncSession,
         org_id: UUID,
         filters: POFilterParams,
-    ) -> Tuple[List[PurchaseOrder], int]:
+    ) -> tuple[builtins.list[PurchaseOrder], int]:
         conditions = [
             PurchaseOrder.org_id == org_id,
             PurchaseOrder.deleted_at.is_(None),
@@ -141,7 +141,7 @@ class PurchaseOrderRepository:
         db: AsyncSession,
         po_line_id: UUID,
         org_id: UUID,
-    ) -> Optional[PoLine]:
+    ) -> PoLine | None:
         stmt = select(PoLine).where(
             and_(
                 PoLine.id == po_line_id,
@@ -166,7 +166,7 @@ class PurchaseOrderRepository:
         db: AsyncSession,
         po_id: UUID,
         org_id: UUID,
-    ) -> List[PoAmendment]:
+    ) -> builtins.list[PoAmendment]:
         stmt = (
             select(PoAmendment)
             .where(
@@ -209,7 +209,7 @@ class PurchaseOrderRepository:
         bu_res = await db.execute(bu_stmt)
         bu = bu_res.scalar_one_or_none()
         bu_code = bu.code.upper() if bu and bu.code else "CORP"
-        year = datetime.now(timezone.utc).year
+        year = datetime.now(UTC).year
         clean_code = re.sub(r"[^a-zA-Z0-9_]", "_", bu_code.lower())
         seq_name = f"seq_po_{clean_code}_{year}"
 

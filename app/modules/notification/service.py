@@ -1,27 +1,33 @@
 from __future__ import annotations
-from datetime import datetime, timezone
-from typing import Optional, List, Any, Tuple
+
+import re
+from datetime import UTC, datetime
+from typing import Any
 from uuid import UUID
+
 from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
-import re
-from app.core.exceptions import NotFoundError, ConflictError
+from app.core.exceptions import ConflictError, NotFoundError
 from app.db.enums import NotificationChannelEnum, NotificationStatusEnum
-from app.modules.notification.channels.email import email_channel, EmailChannel
-from app.modules.notification.channels.sms import sms_channel, SMSChannel
-from app.modules.notification.channels.inapp import inapp_channel, InAppChannel
-from app.modules.notification.channels.whatsapp import whatsapp_channel, WhatsAppChannel
-from app.modules.notification.models import Notification, NotificationPreference, NotificationTemplate
+from app.modules.notification.channels.email import EmailChannel, email_channel
+from app.modules.notification.channels.inapp import InAppChannel, inapp_channel
+from app.modules.notification.channels.sms import SMSChannel, sms_channel
+from app.modules.notification.channels.whatsapp import WhatsAppChannel, whatsapp_channel
+from app.modules.notification.models import Notification, NotificationTemplate
 from app.modules.notification.repository import (
-    notification_repo, NotificationRepository,
-    preference_repo, NotificationPreferenceRepository,
-    template_repo, NotificationTemplateRepository,
+    NotificationPreferenceRepository,
+    NotificationRepository,
+    NotificationTemplateRepository,
+    notification_repo,
+    preference_repo,
+    template_repo,
 )
 from app.modules.notification.schemas import (
-    NotificationResponse,
     NotificationPreferenceItem,
+    NotificationResponse,
 )
+
 
 class NotificationService:
     """Service layer managing notification dispatch, channels, preferences, and templates."""
@@ -39,13 +45,13 @@ class NotificationService:
 
     def __init__(
         self,
-        notif_repo: Optional[NotificationRepository] = None,
-        pref_repo: Optional[NotificationPreferenceRepository] = None,
-        tmpl_repo: Optional[NotificationTemplateRepository] = None,
-        email_ch: Optional[EmailChannel] = None,
-        sms_ch: Optional[SMSChannel] = None,
-        inapp_ch: Optional[InAppChannel] = None,
-        whatsapp_ch: Optional[WhatsAppChannel] = None,
+        notif_repo: NotificationRepository | None = None,
+        pref_repo: NotificationPreferenceRepository | None = None,
+        tmpl_repo: NotificationTemplateRepository | None = None,
+        email_ch: EmailChannel | None = None,
+        sms_ch: SMSChannel | None = None,
+        inapp_ch: InAppChannel | None = None,
+        whatsapp_ch: WhatsAppChannel | None = None,
     ):
         self.notif_repo = notif_repo or notification_repo
         self.pref_repo = pref_repo or preference_repo
@@ -80,7 +86,7 @@ class NotificationService:
         page: int = 1,
         page_size: int = 20,
         unread_only: bool = False,
-    ) -> Tuple[List[NotificationResponse], int, int]:
+    ) -> tuple[list[NotificationResponse], int, int]:
         items, total_count, unread_count = await self.notif_repo.list_for_user(
             db, user_id=user_id, org_id=org_id, page=page, page_size=page_size, unread_only=unread_only
         )
@@ -154,7 +160,7 @@ class NotificationService:
         db: AsyncSession,
         user_id: UUID,
         org_id: UUID,
-    ) -> List[NotificationPreferenceItem]:
+    ) -> list[NotificationPreferenceItem]:
         prefs = await self.pref_repo.get_preferences_for_user(db, user_id, org_id)
         return [
             NotificationPreferenceItem(
@@ -174,8 +180,8 @@ class NotificationService:
         db: AsyncSession,
         user_id: UUID,
         org_id: UUID,
-        preferences: List[NotificationPreferenceItem],
-    ) -> List[NotificationPreferenceItem]:
+        preferences: list[NotificationPreferenceItem],
+    ) -> list[NotificationPreferenceItem]:
         results = []
         for p in preferences:
             pref = await self.pref_repo.upsert_preference(
@@ -212,12 +218,12 @@ class NotificationService:
         notification_type: str,
         title: str,
         body: str,
-        entity_type: Optional[str] = None,
-        entity_id: Optional[UUID] = None,
-        to_email: Optional[str] = None,
-        to_phone: Optional[str] = None,
-        context: Optional[dict[str, Any]] = None,
-    ) -> List[Notification]:
+        entity_type: str | None = None,
+        entity_id: UUID | None = None,
+        to_email: str | None = None,
+        to_phone: str | None = None,
+        context: dict[str, Any] | None = None,
+    ) -> list[Notification]:
         """Dispatch notification across configured channels adhering to user preferences & critical rules."""
         context = context or {}
         is_crit = self.is_critical(notification_type)
@@ -232,7 +238,7 @@ class NotificationService:
         digest_mode = False if is_crit else (pref.digest_mode if pref else False)
 
         created_notifs = []
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         # 1. In-App Channel (WebSocket + Redis pub/sub)
         if inapp_enabled:
@@ -333,14 +339,14 @@ class NotificationService:
     async def list_templates(
         self,
         db: AsyncSession,
-        org_id: Optional[UUID] = None,
-        channel: Optional[NotificationChannelEnum] = None,
-        language: Optional[str] = None,
-        search: Optional[str] = None,
-        is_active: Optional[bool] = None,
+        org_id: UUID | None = None,
+        channel: NotificationChannelEnum | None = None,
+        language: str | None = None,
+        search: str | None = None,
+        is_active: bool | None = None,
         page: int = 1,
         page_size: int = 50,
-    ) -> tuple[List[NotificationTemplate], int]:
+    ) -> tuple[list[NotificationTemplate], int]:
         return await self.tmpl_repo.list_templates_paginated(
             db=db,
             org_id=org_id,
@@ -356,7 +362,7 @@ class NotificationService:
         self,
         db: AsyncSession,
         template_id: UUID,
-        org_id: Optional[UUID] = None,
+        org_id: UUID | None = None,
     ) -> NotificationTemplate:
         template = await self.tmpl_repo.get_by_id(db, template_id, org_id)
         if not template:
@@ -370,9 +376,9 @@ class NotificationService:
         template_code: str,
         channel: NotificationChannelEnum,
         language: str,
-        subject_template: Optional[str],
+        subject_template: str | None,
         body_template: str,
-        variables: List[str],
+        variables: list[str],
         is_active: bool = True,
     ) -> NotificationTemplate:
         existing = await self.tmpl_repo.get_template(
@@ -386,7 +392,7 @@ class NotificationService:
             vars_found = set(re.findall(r"\{\{\s*([a-zA-Z0-9_]+)\s*\}\}", body_template))
             if subject_template:
                 vars_found.update(re.findall(r"\{\{\s*([a-zA-Z0-9_]+)\s*\}\}", subject_template))
-            variables = sorted(list(vars_found))
+            variables = sorted(vars_found)
 
         tmpl = await self.tmpl_repo.create_template(
             db=db,
@@ -407,11 +413,11 @@ class NotificationService:
         db: AsyncSession,
         template_id: UUID,
         org_id: UUID,
-        language: Optional[str] = None,
-        subject_template: Optional[str] = None,
-        body_template: Optional[str] = None,
-        variables: Optional[List[str]] = None,
-        is_active: Optional[bool] = None,
+        language: str | None = None,
+        subject_template: str | None = None,
+        body_template: str | None = None,
+        variables: list[str] | None = None,
+        is_active: bool | None = None,
     ) -> NotificationTemplate:
         template = await self.get_template_by_id(db, template_id, org_id)
 
@@ -422,7 +428,7 @@ class NotificationService:
             vars_found = set(re.findall(r"\{\{\s*([a-zA-Z0-9_]+)\s*\}\}", body_to_scan or ""))
             if subject_to_scan:
                 vars_found.update(re.findall(r"\{\{\s*([a-zA-Z0-9_]+)\s*\}\}", subject_to_scan))
-            variables = sorted(list(vars_found))
+            variables = sorted(vars_found)
 
         updated = await self.tmpl_repo.update_template(
             db=db,
@@ -448,7 +454,7 @@ class NotificationService:
 
     def preview_template(
         self,
-        subject_template: Optional[str],
+        subject_template: str | None,
         body_template: str,
         context: dict[str, Any],
     ) -> dict[str, Any]:
@@ -466,7 +472,7 @@ class NotificationService:
         return {
             "rendered_subject": rendered_subject,
             "rendered_body": rendered_body,
-            "detected_variables": sorted(list(vars_found)),
+            "detected_variables": sorted(vars_found),
         }
 
 notification_service = NotificationService()

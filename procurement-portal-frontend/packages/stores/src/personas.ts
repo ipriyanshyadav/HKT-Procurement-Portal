@@ -142,6 +142,18 @@ export const ENTERPRISE_PERSONAS: EnterprisePersona[] = [
     description: "Bid submission, contracts, advance shipping & billing for Global Cloud",
     vendorId: "4d7fcf31-0a60-4780-8b4e-ce358dc75f00",
   },
+  {
+    id: "priya-mehta",
+    name: "Priya Mehta",
+    email: "indentor@procurement.com",
+    title: "Indentor / Consignee",
+    roles: ["INDENTOR", "REQUESTOR"],
+    portalKey: "buyer",
+    portalName: "Buyer Portal",
+    path: "/indents",
+    icon: "🛒",
+    description: "Catalog demand search, department indent cart, buyer hand-off & consignee delivery sign-off",
+  },
 ];
 
 export function getPersonaById(id: string): EnterprisePersona | undefined {
@@ -203,14 +215,38 @@ export function checkRouteAccess(
   // --- Buyer Portal Route Policy ---
   const path = pathname.toLowerCase();
 
-  // 1. Invoices & 3-Way Match & Reconciliation
-  if (path.startsWith("/invoices") || path.startsWith("/payments")) {
-    const req = ["FINANCE_CONTROLLER", "CFO", "SUPERADMIN"];
+  // 1. Payments & Treasury
+  if (path.startsWith("/payments")) {
+    const req = [
+      "FINANCE_CONTROLLER",
+      "CFO",
+      "ACCOUNTS_PAYABLE",
+      "SUPERADMIN",
+    ];
     const allowed = req.some((r) => upperRoles.includes(r));
     return {
       allowed,
-      moduleName: path.startsWith("/payments") ? "Payments & Treasury" : "Invoices & 3-Way Match",
-      requiredRoles: ["FINANCE_CONTROLLER", "CFO"],
+      moduleName: "Payments & Treasury",
+      requiredRoles: ["FINANCE_CONTROLLER", "CFO", "ACCOUNTS_PAYABLE"],
+      reason: allowed
+        ? undefined
+        : "Access is restricted to Finance Controllers, Accounts Payable Leads, and CFOs.",
+    };
+  }
+
+  // 1b. Invoices & 3-Way Match
+  if (path.startsWith("/invoices")) {
+    const req = [
+      "FINANCE_CONTROLLER",
+      "CFO",
+      "ACCOUNTS_PAYABLE",
+      "SUPERADMIN",
+    ];
+    const allowed = req.some((r) => upperRoles.includes(r));
+    return {
+      allowed,
+      moduleName: "Invoices & 3-Way Match",
+      requiredRoles: ["FINANCE_CONTROLLER", "CFO", "ACCOUNTS_PAYABLE"],
       reason: allowed
         ? undefined
         : "Access is restricted to Finance Controllers, Accounts Payable Leads, and CFOs.",
@@ -233,15 +269,15 @@ export function checkRouteAccess(
 
   // 3. Goods Receipts (GRN) & Dock Scan
   if (path.startsWith("/grn") || path.startsWith("/goods-receipts")) {
-    const req = ["BUYER", "PROCUREMENT_OFFICER", "SUPERADMIN"];
+    const req = ["BUYER", "PROCUREMENT_OFFICER", "INDENTOR", "SUPERADMIN"];
     const allowed = req.some((r) => upperRoles.includes(r));
     return {
       allowed,
       moduleName: "Goods Receipts & Warehouse Intake (GRN)",
-      requiredRoles: ["BUYER", "PROCUREMENT_OFFICER"],
+      requiredRoles: ["BUYER", "PROCUREMENT_OFFICER", "INDENTOR"],
       reason: allowed
         ? undefined
-        : "Access is restricted to Logistics, Warehouse Receiving, and Procurement Officers.",
+        : "Access is restricted to Logistics, Warehouse Receiving, and Consignees.",
     };
   }
 
@@ -326,6 +362,7 @@ export function checkRouteAccess(
   if (path.startsWith("/requisitions") || path.startsWith("/marketplace")) {
     const req = [
       "REQUESTOR",
+      "INDENTOR",
       "BUYER",
       "PROCUREMENT_OFFICER",
       "PROCUREMENT_MANAGER",
@@ -336,10 +373,32 @@ export function checkRouteAccess(
     return {
       allowed,
       moduleName: "Purchase Requisitions & Catalogs",
-      requiredRoles: ["REQUESTOR", "BUYER", "PROCUREMENT_OFFICER"],
+      requiredRoles: ["REQUESTOR", "INDENTOR", "BUYER", "PROCUREMENT_OFFICER"],
       reason: allowed
         ? undefined
-        : "Access is restricted to Requisitioners and Procurement Staff.",
+        : "Access is restricted to Requisitioners, Indent Initiators, and Procurement Staff.",
+    };
+  }
+
+  // 8b. Indents & Demand Cart
+  if (path.startsWith("/indents")) {
+    const req = [
+      "INDENTOR",
+      "REQUESTOR",
+      "BUYER",
+      "PROCUREMENT_OFFICER",
+      "PROCUREMENT_MANAGER",
+      "PROCUREMENT_HEAD",
+      "SUPERADMIN",
+    ];
+    const allowed = req.some((r) => upperRoles.includes(r));
+    return {
+      allowed,
+      moduleName: "Department Indents & Demand Cart",
+      requiredRoles: ["INDENTOR", "REQUESTOR", "BUYER"],
+      reason: allowed
+        ? undefined
+        : "Access is restricted to Indent Initiators, Department Requisitioners, and Buyers.",
     };
   }
 

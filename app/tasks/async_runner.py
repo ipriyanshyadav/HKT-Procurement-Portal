@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Any, Coroutine, TypeVar
-
-T = TypeVar("T")
+from collections.abc import Coroutine
+from typing import Any
 
 _worker_loop: asyncio.AbstractEventLoop | None = None
 
@@ -28,7 +27,7 @@ def reset_worker_loop() -> None:
     _worker_loop = None
 
 
-def run_async(coro: Coroutine[Any, Any, T]) -> T:
+def run_async[T](coro: Coroutine[Any, Any, T]) -> T:
     """Run an async coroutine synchronously, reusing a persistent process event loop.
 
     Avoids event loop creation and destruction overhead on high-frequency Celery tasks.

@@ -1,16 +1,16 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from typing import Any, Optional
+from datetime import UTC, datetime
+from typing import Any
 from uuid import UUID, uuid4
 
 from loguru import logger
 from pydantic import BaseModel, Field
-from sqlalchemy import select, text, func
+from sqlalchemy import func, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.constants import AuditAction
-from app.core.exceptions import ConflictError, NotFoundError, ValidationError
+from app.core.exceptions import ConflictError, ValidationError
 from app.db.repository_base import BaseRepository
 from app.modules.audit.service import audit_service
 from app.modules.master_data.models import Category
@@ -21,14 +21,14 @@ _ENTITY_TYPE = "MASTER_DATA"
 class CategoryCreateRequest(BaseModel):
     code: str = Field(..., min_length=1, max_length=50)
     name: str = Field(..., min_length=1, max_length=200)
-    parent_id: Optional[UUID] = None
-    unspsc_code: Optional[str] = Field(default=None, max_length=20)
+    parent_id: UUID | None = None
+    unspsc_code: str | None = Field(default=None, max_length=20)
 
 
 class CategoryUpdateRequest(BaseModel):
-    name: Optional[str] = Field(default=None, min_length=1, max_length=200)
-    unspsc_code: Optional[str] = Field(default=None, max_length=20)
-    is_active: Optional[bool] = None
+    name: str | None = Field(default=None, min_length=1, max_length=200)
+    unspsc_code: str | None = Field(default=None, max_length=20)
+    is_active: bool | None = None
 
 
 class CategoryResponse(BaseModel):
@@ -36,10 +36,10 @@ class CategoryResponse(BaseModel):
     org_id: UUID
     code: str
     name: str
-    parent_id: Optional[UUID]
+    parent_id: UUID | None
     level: int
     path: str
-    unspsc_code: Optional[str]
+    unspsc_code: str | None
     is_active: bool
     version: int
     created_at: datetime
@@ -57,7 +57,7 @@ class CategoryRepository(BaseRepository[Category]):
         db: AsyncSession,
         code: str,
         org_id: UUID,
-    ) -> Optional[Category]:
+    ) -> Category | None:
         stmt = select(Category).where(
             Category.code == code,
             Category.org_id == org_id,
@@ -170,7 +170,7 @@ class CategoryService:
     async def get_by_id(self, db: AsyncSession, id: UUID, org_id: UUID) -> Category:
         return await self._repo.get(db, id, org_id)
 
-    async def get_by_code(self, db: AsyncSession, code: str, org_id: UUID) -> Optional[Category]:
+    async def get_by_code(self, db: AsyncSession, code: str, org_id: UUID) -> Category | None:
         return await self._repo.get_by_code(db, code, org_id)
 
     async def list_all(
@@ -193,7 +193,7 @@ class CategoryService:
         self,
         db: AsyncSession,
         org_id: UUID,
-        root_id: Optional[UUID] = None,
+        root_id: UUID | None = None,
     ) -> list[dict[str, Any]]:
         """Returns full category tree or subtree using recursive CTE."""
         if root_id:
@@ -254,7 +254,8 @@ class CategoryService:
             }
             node_map[node_id] = node_data
 
-        for node_id, node in node_map.items():
+        for _node_id, node in node_map.items():
+
             parent_id = node["parent_id"]
             if parent_id and parent_id in node_map:
                 node_map[parent_id]["children"].append(node)
@@ -356,7 +357,7 @@ class CategoryService:
                 {"category_id": str(id), "children_count": children_count},
             )
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         category.deleted_at = now
         category.is_active = False
         category.version += 1

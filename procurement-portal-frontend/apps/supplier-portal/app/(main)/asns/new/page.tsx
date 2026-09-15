@@ -7,6 +7,7 @@ import {
   usePurchaseOrders,
   useCreateAsn,
   POResponse,
+  getErrorMessage,
 } from "@procurement/hooks";
 import {
   Truck,
@@ -158,8 +159,8 @@ export default function CreateAsnPage() {
       });
 
       router.push(`/asns/${created.id}`);
-    } catch (err: any) {
-      setErrorMessage(err?.response?.data?.message || err?.message || "Failed to create ASN");
+    } catch (err: unknown) {
+      setErrorMessage(getErrorMessage(err, "Failed to create ASN"));
     }
   };
 

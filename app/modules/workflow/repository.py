@@ -3,8 +3,6 @@ Workflow Repository — DB queries for templates, instances, tasks.
 """
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from typing import Optional
 from uuid import UUID
 
 from sqlalchemy import and_, select
@@ -74,7 +72,7 @@ class WorkflowRepository(BaseRepository[WorkflowInstance]):
 
     async def get_active_instance_for_entity(
         self, db: AsyncSession, entity_id: UUID, org_id: UUID
-    ) -> Optional[WorkflowInstance]:
+    ) -> WorkflowInstance | None:
         stmt = select(WorkflowInstance).where(
             and_(
                 WorkflowInstance.entity_id == entity_id,
@@ -177,6 +175,24 @@ class WorkflowRepository(BaseRepository[WorkflowInstance]):
         )
         result = await db.execute(stmt)
         return result.scalar_one()
+
+    async def get_instances_by_ids(
+        self, db: AsyncSession, instance_ids: list[UUID] | set[UUID]
+    ) -> list[WorkflowInstance]:
+        if not instance_ids:
+            return []
+        stmt = select(WorkflowInstance).where(WorkflowInstance.id.in_(instance_ids))
+        result = await db.execute(stmt)
+        if hasattr(result, "scalars"):
+            sc = result.scalars()
+            if hasattr(sc, "__await__"):
+                sc = await sc
+            if hasattr(sc, "all"):
+                items = sc.all()
+                if hasattr(items, "__await__"):
+                    items = await items
+                return list(items)
+        return []
 
 
 workflow_repository = WorkflowRepository()

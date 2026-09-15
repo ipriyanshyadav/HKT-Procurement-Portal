@@ -84,6 +84,7 @@ export function ContractRedlineStudio({
 
   // Active signing session
   const [activeSession, setActiveSession] = useState<ContractEsignSession | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   // Set default selected clause once loaded
   React.useEffect(() => {
@@ -101,10 +102,12 @@ export function ContractRedlineStudio({
     setProposedText(selectedClause.current_text);
     setChangeRationale("");
     setIsProposing(true);
+    setActionError(null);
   };
 
   const handleSubmitProposal = async () => {
     if (!selectedClause || !proposedText.trim()) return;
+    setActionError(null);
     try {
       await submitRedlineMutation.mutateAsync({
         contractId,
@@ -119,13 +122,15 @@ export function ContractRedlineStudio({
       setIsProposing(false);
       refetchRedlines();
       refetchClauses();
-    } catch (err) {
-      console.error(err);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to submit redline proposal.";
+      setActionError(msg);
     }
   };
 
   const handleReviewAction = async () => {
     if (!reviewModalRedline) return;
+    setActionError(null);
     try {
       await reviewRedlineMutation.mutateAsync({
         redlineId: reviewModalRedline.id,
@@ -139,12 +144,14 @@ export function ContractRedlineStudio({
       setReviewComment("");
       refetchRedlines();
       refetchClauses();
-    } catch (err) {
-      console.error(err);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to review redline.";
+      setActionError(msg);
     }
   };
 
   const handleInitiateCeremony = async () => {
+    setActionError(null);
     try {
       const session = await initiateCeremonyMutation.mutateAsync({
         contractId,
@@ -155,12 +162,14 @@ export function ContractRedlineStudio({
       });
       setActiveSession(session);
       setCeremonyModalOpen(true);
-    } catch (err) {
-      console.error(err);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to initiate signing ceremony.";
+      setActionError(msg);
     }
   };
 
   const handleSignDocument = async () => {
+    setActionError(null);
     try {
       const updated = await signMutation.mutateAsync({
         contractId,
@@ -168,8 +177,9 @@ export function ContractRedlineStudio({
         signatureToken: `SIG_TOKEN_${Date.now()}`,
       });
       setActiveSession(updated);
-    } catch (err) {
-      console.error(err);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to commit digital signature.";
+      setActionError(msg);
     }
   };
 
@@ -217,6 +227,12 @@ export function ContractRedlineStudio({
         </div>
       </div>
 
+      {actionError && (
+        <div className="p-4 bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-200 border border-rose-200 dark:border-rose-900 rounded-xl text-xs font-semibold">
+          ⚠️ {actionError}
+        </div>
+      )}
+
       {/* Main Studio Grid: Left Clause List / Right Redline Workbench */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Clause Navigator Sidebar (4 cols) */}
@@ -229,7 +245,7 @@ export function ContractRedlineStudio({
               <span className="text-[11px] text-gray-400 font-medium">Select clause to redline</span>
             </div>
 
-            <div className="space-y-2 max-h-[650px] overflow-y-auto pr-1">
+            <div className="space-y-2 max-h-[650px] overflow-y-auto overscroll-contain apple-scroll-container pr-1">
               {loadingClauses ? (
                 <div className="p-8 text-center text-xs text-gray-400">Loading clauses...</div>
               ) : (
@@ -611,7 +627,7 @@ export function ContractRedlineStudio({
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto space-y-3 pr-1">
+            <div className="flex-1 overflow-y-auto overscroll-contain apple-scroll-container space-y-3 pr-1">
               {libraryClauses.map((c) => (
                 <div
                   key={c.id}

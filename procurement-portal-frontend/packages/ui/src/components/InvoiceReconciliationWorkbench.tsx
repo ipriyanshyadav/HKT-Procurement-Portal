@@ -38,31 +38,63 @@ export function InvoiceReconciliationWorkbench() {
   const [reconcileResult, setReconcileResult] = useState<AdvancedReconciliationResponse | null>(null);
   const [disputeNote, setDisputeNote] = useState<string>("");
   const [isDisputing, setIsDisputing] = useState<boolean>(false);
+  const [reconcileError, setReconcileError] = useState<string | null>(null);
+  const [isReconciling, setIsReconciling] = useState<boolean>(false);
 
   // Queries & Mutations
-  const { data: dashboardStats, isLoading: loadingStats, refetch: refetchStats } = useReconciliationDashboard();
+  const { data: dashboardStats, refetch: refetchStats } = useReconciliationDashboard();
   const { data: invoices = [], isLoading: loadingInvoices, refetch: refetchInvoices } = useInvoices();
   const reconcileMutation = usePerformReconciliation();
   const approveMutation = useApproveInvoice();
   const disputeMutation = useDisputeInvoice();
 
-  const handleRunReconcile = async (invoice: InvoiceResponse) => {
-    setSelectedInvoice(invoice);
+  const executeReconcile = async (
+    invoice: InvoiceResponse,
+    currentMatchMode: "THREE_WAY" | "FOUR_WAY",
+    priceTol: number = priceTolerance,
+    qtyTol: number = qtyTolerance,
+    autoApp: boolean = autoApprove
+  ) => {
+    setIsReconciling(true);
+    setReconcileError(null);
     try {
       const result = await reconcileMutation.mutateAsync({
         invoiceId: invoice.id,
         payload: {
-          match_mode: matchMode,
-          price_tolerance_pct: priceTolerance,
-          quantity_tolerance_pct: qtyTolerance,
-          auto_approve_if_matched: autoApprove,
+          match_mode: currentMatchMode,
+          price_tolerance_pct: priceTol,
+          quantity_tolerance_pct: qtyTol,
+          auto_approve_if_matched: invoice.status !== "APPROVED" && autoApp,
         },
       });
       setReconcileResult(result);
-      refetchStats();
-      refetchInvoices();
-    } catch (err) {
-      console.error(err);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to execute invoice reconciliation.";
+      setReconcileError(msg);
+    } finally {
+      setIsReconciling(false);
+    }
+  };
+
+  const handleSelectInvoice = (invoice: InvoiceResponse) => {
+    if (selectedInvoice?.id === invoice.id && reconcileResult) return;
+    setSelectedInvoice(invoice);
+    setReconcileResult(null);
+    executeReconcile(invoice, matchMode);
+  };
+
+  const handleMatchModeChange = (newMode: "THREE_WAY" | "FOUR_WAY") => {
+    setMatchMode(newMode);
+    if (selectedInvoice) {
+      executeReconcile(selectedInvoice, newMode);
+    }
+  };
+
+  const handleToleranceChange = (newPrice: number, newQty: number) => {
+    setPriceTolerance(newPrice);
+    setQtyTolerance(newQty);
+    if (selectedInvoice) {
+      executeReconcile(selectedInvoice, matchMode, newPrice, newQty);
     }
   };
 
@@ -196,10 +228,10 @@ export function InvoiceReconciliationWorkbench() {
             <div className="flex bg-white dark:bg-gray-800 rounded-lg p-1 border border-gray-200 dark:border-gray-700">
               <button
                 type="button"
-                onClick={() => setMatchMode("THREE_WAY")}
+                onClick={() => handleMatchModeChange("THREE_WAY")}
                 className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors ${
                   matchMode === "THREE_WAY"
-                    ? "bg-indigo-600 text-white"
+                    ? "bg-indigo-600 text-white shadow-xs"
                     : "text-gray-600 dark:text-gray-300 hover:text-gray-900"
                 }`}
               >
@@ -207,10 +239,10 @@ export function InvoiceReconciliationWorkbench() {
               </button>
               <button
                 type="button"
-                onClick={() => setMatchMode("FOUR_WAY")}
+                onClick={() => handleMatchModeChange("FOUR_WAY")}
                 className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors ${
                   matchMode === "FOUR_WAY"
-                    ? "bg-indigo-600 text-white"
+                    ? "bg-indigo-600 text-white shadow-xs"
                     : "text-gray-600 dark:text-gray-300 hover:text-gray-900"
                 }`}
               >
@@ -225,9 +257,9 @@ export function InvoiceReconciliationWorkbench() {
               type="number"
               step="0.5"
               min="0"
-              max="20"
+              max="50"
               value={priceTolerance}
-              onChange={(e) => setPriceTolerance(parseFloat(e.target.value) || 0)}
+              onChange={(e) => handleToleranceChange(parseFloat(e.target.value) || 0, qtyTolerance)}
               className="w-16 px-2 py-1 text-xs font-semibold bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md text-center"
             />
             <span className="text-xs text-gray-500">%</span>
@@ -241,7 +273,7 @@ export function InvoiceReconciliationWorkbench() {
               min="0"
               max="50"
               value={qtyTolerance}
-              onChange={(e) => setQtyTolerance(parseFloat(e.target.value) || 0)}
+              onChange={(e) => handleToleranceChange(priceTolerance, parseFloat(e.target.value) || 0)}
               className="w-16 px-2 py-1 text-xs font-semibold bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md text-center"
             />
             <span className="text-xs text-gray-500">%</span>
@@ -259,6 +291,12 @@ export function InvoiceReconciliationWorkbench() {
         </div>
       </div>
 
+      {reconcileError && (
+        <div className="p-4 bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-200 border border-rose-200 dark:border-rose-900 rounded-xl text-xs font-semibold">
+          ⚠️ {reconcileError}
+        </div>
+      )}
+
       {/* Main Split Layout: Invoices Table & Split Reconciliation Workbench */}
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
         {/* Invoices List Panel (5 cols) */}
@@ -268,7 +306,7 @@ export function InvoiceReconciliationWorkbench() {
               Invoices Queue ({invoices.length})
             </h2>
 
-            <div className="space-y-2 max-h-[600px] overflow-y-auto pr-1">
+            <div className="space-y-2 max-h-[600px] overflow-y-auto overscroll-contain apple-scroll-container pr-1">
               {loadingInvoices ? (
                 <div className="p-8 text-center text-sm text-gray-400">Loading invoices...</div>
               ) : invoices.length === 0 ? (
@@ -282,8 +320,8 @@ export function InvoiceReconciliationWorkbench() {
                   return (
                     <div
                       key={inv.id}
-                      onClick={() => handleRunReconcile(inv)}
-                      className={`p-3.5 rounded-lg border text-left cursor-pointer transition-all ${
+                      onClick={() => handleSelectInvoice(inv)}
+                      className={`p-3.5 rounded-lg border text-left cursor-pointer transition-colors duration-150 ${
                         isSelected
                           ? "border-indigo-600 bg-indigo-50/50 dark:bg-indigo-950/20 dark:border-indigo-500"
                           : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 bg-white dark:bg-gray-800"
@@ -330,7 +368,7 @@ export function InvoiceReconciliationWorkbench() {
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleRunReconcile(inv);
+                            handleSelectInvoice(inv);
                           }}
                           className="flex items-center gap-1 text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline"
                         >
@@ -363,10 +401,19 @@ export function InvoiceReconciliationWorkbench() {
               {/* Active Inspection Header */}
               <div className="p-5 border-b border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50 dark:bg-slate-900/40">
                 <div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 flex-wrap">
                     <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">
                       Reconciliation: {selectedInvoice.invoice_number}
                     </h2>
+                    <span
+                      className={`text-xs px-2.5 py-1 rounded-full font-bold ${
+                        matchMode === "FOUR_WAY"
+                          ? "bg-indigo-100 text-indigo-800 dark:bg-indigo-950/50 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800"
+                          : "bg-blue-100 text-blue-800 dark:bg-blue-950/50 dark:text-blue-300 border border-blue-200 dark:border-blue-800"
+                      }`}
+                    >
+                      {matchMode === "FOUR_WAY" ? "4-Way (+ QC Dock Active)" : "3-Way Match Active"}
+                    </span>
                     {reconcileResult && (
                       <span
                         className={`text-xs px-2.5 py-1 rounded-full font-bold ${
@@ -376,6 +423,12 @@ export function InvoiceReconciliationWorkbench() {
                         }`}
                       >
                         {reconcileResult.overall_status}
+                      </span>
+                    )}
+                    {isReconciling && (
+                      <span className="flex items-center gap-1.5 text-xs font-semibold text-indigo-600 dark:text-indigo-400">
+                        <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                        Re-analyzing...
                       </span>
                     )}
                   </div>
@@ -435,23 +488,39 @@ export function InvoiceReconciliationWorkbench() {
               )}
 
               {/* Line items split-view comparison */}
-              <div className="p-5 space-y-4">
+              <div className="p-5 space-y-4 min-h-[300px]">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400">
                   Line Items Reconciliation Breakdown
                 </h3>
 
-                {reconcileResult?.line_details?.map((line) => {
-                  const hasDiscrepancy = line.status === "VARIANCE_DETECTED";
+                {isReconciling && !reconcileResult ? (
+                  <div className="space-y-3 py-2 animate-pulse">
+                    {[1, 2].map((i) => (
+                      <div key={i} className="p-4 rounded-xl border border-gray-200/80 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50 space-y-3">
+                        <div className="flex justify-between items-center pb-3 border-b border-gray-100 dark:border-gray-700/60">
+                          <div className="h-4 w-40 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                          <div className="h-4 w-20 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="h-24 bg-gray-200/60 dark:bg-gray-700/40 rounded-lg"></div>
+                          <div className="h-24 bg-gray-200/60 dark:bg-gray-700/40 rounded-lg"></div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  reconcileResult?.line_details?.map((line) => {
+                    const hasDiscrepancy = line.status === "VARIANCE_DETECTED";
 
-                  return (
-                    <div
-                      key={line.line_number}
-                      className={`p-4 rounded-xl border ${
-                        hasDiscrepancy
-                          ? "border-rose-300 dark:border-rose-800/80 bg-rose-50/30 dark:bg-rose-950/10"
-                          : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
-                      }`}
-                    >
+                    return (
+                      <div
+                        key={line.line_number}
+                        className={`p-4 rounded-xl border transition-opacity duration-200 ${
+                          hasDiscrepancy
+                            ? "border-rose-300 dark:border-rose-800/80 bg-rose-50/30 dark:bg-rose-950/10"
+                            : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
+                        }`}
+                      >
                       <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-700">
                         <div className="flex items-center gap-2">
                           <span className="text-xs font-bold text-gray-500 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">
@@ -497,10 +566,17 @@ export function InvoiceReconciliationWorkbench() {
                               {line.grn_received_quantity}
                             </span>
                           </div>
-                          <div className="flex justify-between font-semibold text-emerald-600 dark:text-emerald-400">
-                            <span>QC Accepted Qty:</span>
-                            <span>{line.quality_inspected_quantity}</span>
-                          </div>
+                          {matchMode === "FOUR_WAY" ? (
+                            <div className="flex justify-between font-semibold text-emerald-600 dark:text-emerald-400">
+                              <span>QC Dock Accepted Qty:</span>
+                              <span>{line.quality_inspected_quantity}</span>
+                            </div>
+                          ) : (
+                            <div className="flex justify-between text-gray-400 dark:text-gray-500 italic">
+                              <span>QC Dock Inspection:</span>
+                              <span>Bypassed in 3-Way</span>
+                            </div>
+                          )}
                         </div>
 
                         {/* Right: Vendor Invoiced Values */}
@@ -568,7 +644,7 @@ export function InvoiceReconciliationWorkbench() {
                       )}
                     </div>
                   );
-                })}
+                }))}
               </div>
             </div>
           )}

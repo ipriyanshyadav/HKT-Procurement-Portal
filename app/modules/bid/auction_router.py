@@ -1,16 +1,16 @@
 from __future__ import annotations
+
 from decimal import Decimal
-from typing import Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query, status
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.auth.dependencies import get_current_user, require_permission, require_any_permission
+from app.auth.dependencies import get_current_user, require_any_permission, require_permission
 from app.core.constants import PermissionCode
-from app.core.exceptions import NotFoundError, ForbiddenError
-from app.core.responses import success_response, created_response, PaginationMeta, APIResponse
+from app.core.exceptions import ForbiddenError, NotFoundError
+from app.core.responses import APIResponse, PaginationMeta, created_response, success_response
 from app.db.session import get_db
 from app.modules.bid.live_bid_service import live_bid_service
 from app.modules.bid.schemas import AuctionCreateRequest, LiveAuctionDetailResponse
@@ -48,7 +48,7 @@ class CancelAuctionRequest(BaseModel):
 
 
 class SetProxyFloorRequest(BaseModel):
-    lot_id: Optional[UUID] = None
+    lot_id: UUID | None = None
     floor_amount_inr: Decimal = Field(gt=0)
 
 
@@ -65,8 +65,8 @@ async def create_auction(
 
 @router.get("", response_model=APIResponse[list[LiveAuctionDetailResponse]])
 async def list_auctions(
-    rfq_id: Optional[UUID] = Query(None),
-    status: Optional[str] = Query(None),
+    rfq_id: UUID | None = Query(None),
+    status: str | None = Query(None),
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     current_user=Depends(get_current_user),

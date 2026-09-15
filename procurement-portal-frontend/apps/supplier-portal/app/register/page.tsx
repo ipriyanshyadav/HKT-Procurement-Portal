@@ -3,7 +3,8 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useSelfRegisterVendor } from "@procurement/hooks";
+import { useSelfRegisterVendor, getErrorMessage } from "@procurement/hooks";
+
 import { CheckCircle2, ShieldCheck, ArrowRight, Building2, CreditCard, UserCheck } from "lucide-react";
 
 export default function SupplierRegisterLandingPage() {
@@ -70,8 +71,8 @@ export default function SupplierRegisterLandingPage() {
         ifsc_code: formData.ifsc_code.trim().toUpperCase() || undefined,
       });
       setSubmittedApp(res);
-    } catch (err: any) {
-      setFormError(err.response?.data?.detail || err.message || "Self-registration failed. Please check inputs.");
+    } catch (err: unknown) {
+      setFormError(getErrorMessage(err, "Self-registration failed. Please check inputs."));
     }
   };
 
@@ -80,7 +81,8 @@ export default function SupplierRegisterLandingPage() {
     { number: "02", title: "Tax & Identifiers", desc: "Automated GSTIN and PAN checksum verification against tax portals." },
     { number: "03", title: "Registered Address", desc: "Headquarters and operational plant delivery addresses." },
     { number: "04", title: "Key Contacts", desc: "Primary technical and commercial account representatives." },
-    { number: "05", title: "Bank Details", desc: "Settlement account number and instant ₹1.00 penny-drop verification." },
+    { number: "05", title: "Bank Details", desc: "Settlement account number and instant INR 1.00 penny-drop verification." },
+
     { number: "06", title: "Compliance Sign-off", desc: "Conflict of Interest declarations and buyer compliance approval." },
   ];
 

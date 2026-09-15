@@ -1,9 +1,11 @@
 "use client";
+import { getErrorMessage } from "@procurement/utils";
 
 import React, { useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useIntegrationJob, useRetryIntegrationJob } from "@procurement/hooks";
+import { useAppToast } from "@procurement/hooks";
 import {
   ArrowLeft,
   RotateCw,
@@ -20,6 +22,7 @@ import {
 } from "lucide-react";
 
 export default function IntegrationJobDetailPage() {
+  const { toast } = useAppToast();
   const params = useParams();
   const jobId = params?.id as string;
 
@@ -41,8 +44,8 @@ export default function IntegrationJobDetailPage() {
       setRetryMessage("Retry initiated successfully.");
       refetch();
       setTimeout(() => setRetryMessage(null), 5000);
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to trigger retry for this job.");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to trigger retry for this job."));
     }
   };
 

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import ipaddress
-from typing import Any, List, Optional, Set
+from typing import Any
 from urllib.parse import urlparse
 from uuid import UUID
 
@@ -10,7 +10,6 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import ForbiddenError
-
 
 # Reserved, loopback, private, and metadata IP networks
 BLOCKED_IP_NETWORKS = [
@@ -33,10 +32,10 @@ class SafeHTTPClient:
 
     def __init__(
         self,
-        allowed_domains: Optional[List[str] | Set[str]] = None,
+        allowed_domains: list[str] | set[str] | None = None,
         timeout: float = 30.0,
     ) -> None:
-        self.allowed_domains: Set[str] = {
+        self.allowed_domains: set[str] = {
             d.strip().lower() for d in (allowed_domains or []) if d and d.strip()
         }
         self.timeout: float = timeout
@@ -130,7 +129,7 @@ class SafeHTTPClient:
         """Factory method to instantiate a SafeHTTPClient populated with tenant allowed domains."""
         from app.modules.integration.models import TenantSetting
 
-        allowed: Set[str] = set()
+        allowed: set[str] = set()
         stmt = select(TenantSetting).where(
             TenantSetting.org_id == org_id,
             TenantSetting.setting_key.in_(["allowed_domains", "erp_config"]),

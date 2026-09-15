@@ -1,4 +1,5 @@
 "use client";
+import { getErrorMessage } from "@procurement/utils";
 
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
@@ -9,7 +10,8 @@ import {
   useDeleteIncoterm,
   type Incoterm,
 } from "@procurement/hooks";
-import { Badge, Button, PermissionGuard } from "@procurement/ui";
+import { useAppToast } from "@procurement/hooks";
+import { Badge, Button, PermissionGuard, useConfirm } from "@procurement/ui";
 import {
   Truck,
   Plus,
@@ -24,6 +26,8 @@ import {
 } from "lucide-react";
 
 export default function IncotermsManagementPage() {
+  const { toast } = useAppToast();
+  const { confirm } = useConfirm();
   const [activeOnly, setActiveOnly] = useState(false);
   const { data: incoterms = [], isLoading, error } = useIncoterms({ active_only: activeOnly });
 
@@ -107,30 +111,25 @@ export default function IncotermsManagementPage() {
         });
       }
       setShowModal(false);
-    } catch (err: any) {
-      setFormError(
-        err?.response?.data?.error?.message ||
-          err?.response?.data?.message ||
-          err?.message ||
-          "Failed to save Incoterm"
-      );
+    } catch (err: unknown) {
+      setFormError(getErrorMessage(err, "Failed to save Incoterm"));
     }
   };
 
   const handleDelete = async (item: Incoterm) => {
-    if (!window.confirm(`Are you sure you want to deactivate / delete Incoterm "${item.code}"?`)) {
-      return;
-    }
+    const ok = await confirm({
+      title: "Deactivate Incoterm",
+      description: `Are you sure you want to deactivate / delete Incoterm "${item.code}"?`,
+      confirmLabel: "Deactivate",
+      variant: "danger",
+    });
+    if (!ok) return;
 
     try {
       await deleteMutation.mutateAsync(item.id);
-    } catch (err: any) {
-      alert(
-        err?.response?.data?.error?.message ||
-          err?.response?.data?.message ||
-          err?.message ||
-          "Failed to delete Incoterm"
-      );
+      toast.success("Incoterm deactivated successfully");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to delete Incoterm"));
     }
   };
 

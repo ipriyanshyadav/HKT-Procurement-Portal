@@ -97,3 +97,19 @@ import { checkRouteAccess, ENTERPRISE_PERSONAS, SUPERADMIN_PERSONA } from './per
   const publicDashboard = checkRouteAccess('/', 'buyer', ['REQUESTOR']);
   assert.strictEqual(publicDashboard.allowed, true, 'Root dashboard is accessible');
 }
+
+// 9. Indentor / Consignee (Priya Mehta)
+{
+  const priya = ENTERPRISE_PERSONAS.find((p) => p.email === 'indentor@procurement.com');
+  assert.ok(priya, 'Priya Mehta persona must exist');
+
+  const indentResult = checkRouteAccess('/indents', 'buyer', priya.roles);
+  assert.strictEqual(indentResult.allowed, true, 'Priya should have access to /indents');
+
+  const grnResult = checkRouteAccess('/goods-receipts', 'buyer', priya.roles);
+  assert.strictEqual(grnResult.allowed, true, 'Priya should have access to /goods-receipts as consignee');
+
+  const invoiceResult = checkRouteAccess('/invoices', 'buyer', priya.roles);
+  assert.strictEqual(invoiceResult.allowed, false, 'Priya should NOT have access to finance /invoices');
+}
+

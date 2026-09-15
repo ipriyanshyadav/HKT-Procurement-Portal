@@ -1,9 +1,9 @@
 "use client";
 
-import React, { ReactNode } from "react";
+import React, { ReactNode, useEffect } from "react";
 import { useAuthInit, useCurrentUser, useLogout } from "@procurement/hooks";
 import { useAuthStore } from "@procurement/stores";
-import { AppShell, NotificationBell } from "@procurement/ui";
+import { AppShell, CompanySwitcher, ErrorBoundary, NotificationBell, UATOverlay } from "@procurement/ui";
 import {
   LayoutDashboard,
   FolderTree,
@@ -25,6 +25,15 @@ import {
   BellRing,
   Terminal,
   HardDrive,
+  Building2,
+  FileText,
+  Sparkles,
+  Globe,
+  Palette,
+  Webhook,
+  Key,
+  CreditCard,
+  Download,
 } from "lucide-react";
 
 export default function AdminMainLayout({ children }: { children: ReactNode }) {
@@ -34,7 +43,14 @@ export default function AdminMainLayout({ children }: { children: ReactNode }) {
   const user = currentUser || storeUser;
   const logoutMutation = useLogout();
 
-  if (isInitializing) {
+  useEffect(() => {
+    if (!isInitializing && !user) {
+      const pathname = window.location.pathname + window.location.search;
+      window.location.href = `/login?redirect=${encodeURIComponent(pathname)}`;
+    }
+  }, [isInitializing, user]);
+
+  if (isInitializing || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-neutral-900">
         <div className="flex flex-col items-center gap-3">
@@ -101,6 +117,12 @@ export default function AdminMainLayout({ children }: { children: ReactNode }) {
       section: "Governance",
     },
     {
+      label: "Contracts & Agreements",
+      href: "/contracts",
+      icon: <FileText className="w-4 h-4" />,
+      section: "Governance",
+    },
+    {
       label: "Workflow Templates",
       href: "/workflows",
       icon: <GitFork className="w-4 h-4" />,
@@ -116,6 +138,18 @@ export default function AdminMainLayout({ children }: { children: ReactNode }) {
       label: "Master Data Hub",
       href: "/master-data",
       icon: <Database className="w-4 h-4" />,
+      section: "Master Data",
+    },
+    {
+      label: "Supplier Registry",
+      href: "/vendors",
+      icon: <Building2 className="w-4 h-4" />,
+      section: "Master Data",
+    },
+    {
+      label: "Buyer Registry",
+      href: "/buyers",
+      icon: <Users className="w-4 h-4" />,
       section: "Master Data",
     },
     {
@@ -167,6 +201,48 @@ export default function AdminMainLayout({ children }: { children: ReactNode }) {
       section: "System Operations",
     },
     {
+      label: "Webhooks Engine",
+      href: "/integrations/webhooks",
+      icon: <Webhook className="w-4 h-4 text-emerald-500" />,
+      section: "System Operations",
+    },
+    {
+      label: "Tenant API Keys",
+      href: "/integrations/api-keys",
+      icon: <Key className="w-4 h-4 text-amber-500" />,
+      section: "System Operations",
+    },
+    {
+      label: "Tenant White-Labeling",
+      href: "/settings/branding",
+      icon: <Palette className="w-4 h-4 text-purple-500" />,
+      section: "Setup & Config",
+    },
+    {
+      label: "Payment Gateway",
+      href: "/settings/payment-gateway",
+      icon: <CreditCard className="w-4 h-4 text-indigo-500" />,
+      section: "Setup & Config",
+    },
+    {
+      label: "Buyer Onboarding",
+      href: "/onboarding",
+      icon: <Sparkles className="w-4 h-4 text-amber-500" />,
+      section: "Setup & Config",
+    },
+    {
+      label: "Export Center",
+      href: "/export-center",
+      icon: <Download className="w-4 h-4 text-emerald-500" />,
+      section: "Tools",
+    },
+    {
+      label: "Cross-Company Reports",
+      href: "/reports/cross-company",
+      icon: <Globe className="w-4 h-4 text-blue-500" />,
+      section: "Analytics & Audit",
+    },
+    {
       label: "Helpdesk & SLAs",
       href: "/tickets",
       icon: <LifeBuoy className="w-4 h-4" />,
@@ -182,10 +258,18 @@ export default function AdminMainLayout({ children }: { children: ReactNode }) {
       homeHref="/dashboard"
       navItems={navItems}
       user={user}
-      actions={<NotificationBell />}
+      actions={
+        <div className="flex items-center gap-2">
+          <CompanySwitcher />
+          <NotificationBell />
+        </div>
+      }
       onLogout={() => logoutMutation.mutate()}
     >
-      {children}
+      <ErrorBoundary>
+        <UATOverlay />
+        {children}
+      </ErrorBoundary>
     </AppShell>
   );
 }

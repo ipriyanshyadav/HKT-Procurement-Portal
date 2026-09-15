@@ -24,6 +24,7 @@ class ContractTemplate(BaseModel):
     created_by: Mapped[UUID | None] = mapped_column(nullable=True)
     updated_by: Mapped[UUID | None] = mapped_column(nullable=True)
 
+
 class Contract(BaseModel):
     __tablename__ = "contracts"
 
@@ -32,7 +33,9 @@ class Contract(BaseModel):
     vendor_id: Mapped[UUID] = mapped_column(ForeignKey("vendors.id"), nullable=False)
     rfq_id: Mapped[UUID | None] = mapped_column(ForeignKey("rfqs.id"), nullable=True)
     arn_id: Mapped[UUID | None] = mapped_column(ForeignKey("award_recommendations.id"), nullable=True)
-    status: Mapped[ContractStatusEnum] = mapped_column(CONTRACT_STATUS_PG, default=ContractStatusEnum.DRAFT, nullable=False)
+    status: Mapped[ContractStatusEnum] = mapped_column(
+        CONTRACT_STATUS_PG, default=ContractStatusEnum.DRAFT, nullable=False
+    )
     contract_type: Mapped[str] = mapped_column(String(50), default="RATE_CONTRACT", nullable=False)
     currency: Mapped[str] = mapped_column(CHAR(3), default="INR", nullable=False)
     total_value: Mapped[Decimal] = mapped_column(Numeric(18, 2), default=Decimal("0.0"), nullable=False)
@@ -62,18 +65,33 @@ class Contract(BaseModel):
     created_by: Mapped[UUID | None] = mapped_column(ForeignKey("users.id"), nullable=True)
     updated_by: Mapped[UUID | None] = mapped_column(ForeignKey("users.id"), nullable=True)
 
-    lines: Mapped[list[ContractLine]] = relationship("ContractLine", back_populates="contract", cascade="all, delete-orphan", lazy="selectin")
-    milestones: Mapped[list[ContractMilestone]] = relationship("ContractMilestone", back_populates="contract", cascade="all, delete-orphan", lazy="selectin")
-    amendments: Mapped[list[ContractAmendment]] = relationship("ContractAmendment", back_populates="contract", cascade="all, delete-orphan", lazy="selectin")
-    documents: Mapped[list[ContractDocument]] = relationship("ContractDocument", back_populates="contract", cascade="all, delete-orphan", lazy="selectin")
-    clause_instances: Mapped[list[ContractClauseInstance]] = relationship("ContractClauseInstance", back_populates="contract", cascade="all, delete-orphan", lazy="selectin")
-    redlines: Mapped[list[ContractRedline]] = relationship("ContractRedline", back_populates="contract", cascade="all, delete-orphan", lazy="selectin")
-    esign_sessions: Mapped[list[ContractEsignSession]] = relationship("ContractEsignSession", back_populates="contract", cascade="all, delete-orphan", lazy="selectin")
+    lines: Mapped[list[ContractLine]] = relationship(
+        "ContractLine", back_populates="contract", cascade="all, delete-orphan", lazy="selectin"
+    )
+    milestones: Mapped[list[ContractMilestone]] = relationship(
+        "ContractMilestone", back_populates="contract", cascade="all, delete-orphan", lazy="selectin"
+    )
+    amendments: Mapped[list[ContractAmendment]] = relationship(
+        "ContractAmendment", back_populates="contract", cascade="all, delete-orphan", lazy="selectin"
+    )
+    documents: Mapped[list[ContractDocument]] = relationship(
+        "ContractDocument", back_populates="contract", cascade="all, delete-orphan", lazy="selectin"
+    )
+    clause_instances: Mapped[list[ContractClauseInstance]] = relationship(
+        "ContractClauseInstance", back_populates="contract", cascade="all, delete-orphan", lazy="selectin"
+    )
+    redlines: Mapped[list[ContractRedline]] = relationship(
+        "ContractRedline", back_populates="contract", cascade="all, delete-orphan", lazy="selectin"
+    )
+    esign_sessions: Mapped[list[ContractEsignSession]] = relationship(
+        "ContractEsignSession", back_populates="contract", cascade="all, delete-orphan", lazy="selectin"
+    )
+
 
 class ContractLine(BaseModel):
     __tablename__ = "contract_lines"
 
-    contract_id: Mapped[UUID] = mapped_column(ForeignKey("contracts.id"), nullable=False)
+    contract_id: Mapped[UUID] = mapped_column(ForeignKey("contracts.id"), index=True, nullable=False)
     line_number: Mapped[int] = mapped_column(Integer, nullable=False)
     item_description: Mapped[str] = mapped_column(String(500), nullable=False)
     uom_id: Mapped[UUID] = mapped_column(ForeignKey("uom_master.id"), nullable=False)
@@ -83,6 +101,7 @@ class ContractLine(BaseModel):
     hsn_code: Mapped[str | None] = mapped_column(String(10), nullable=True)
 
     contract: Mapped[Contract] = relationship("Contract", back_populates="lines")
+
 
 class ContractDocument(Base):
     __tablename__ = "contract_documents"
@@ -96,6 +115,7 @@ class ContractDocument(Base):
     created_at: Mapped[datetime] = mapped_column(server_default=func.now(), nullable=False)
 
     contract: Mapped[Contract] = relationship("Contract", back_populates="documents")
+
 
 class ContractAmendment(Base):
     __tablename__ = "contract_amendments"
@@ -116,6 +136,7 @@ class ContractAmendment(Base):
     created_at: Mapped[datetime] = mapped_column(server_default=func.now(), nullable=False)
 
     contract: Mapped[Contract] = relationship("Contract", back_populates="amendments")
+
 
 class ContractMilestone(BaseModel):
     __tablename__ = "contract_milestones"
@@ -161,14 +182,18 @@ class ContractClauseInstance(BaseModel):
 
     contract: Mapped[Contract] = relationship("Contract", back_populates="clause_instances")
     clause: Mapped[ContractClause | None] = relationship("ContractClause")
-    redlines: Mapped[list[ContractRedline]] = relationship("ContractRedline", back_populates="clause_instance", cascade="all, delete-orphan")
+    redlines: Mapped[list[ContractRedline]] = relationship(
+        "ContractRedline", back_populates="clause_instance", cascade="all, delete-orphan"
+    )
 
 
 class ContractRedline(BaseModel):
     __tablename__ = "contract_redlines"
 
     contract_id: Mapped[UUID] = mapped_column(ForeignKey("contracts.id"), nullable=False, index=True)
-    clause_instance_id: Mapped[UUID | None] = mapped_column(ForeignKey("contract_clause_instances.id"), nullable=True, index=True)
+    clause_instance_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("contract_clause_instances.id"), nullable=True, index=True
+    )
     author_id: Mapped[UUID | None] = mapped_column(ForeignKey("users.id"), nullable=True)
     author_type: Mapped[str] = mapped_column(String(20), default="BUYER", nullable=False)
     original_text: Mapped[str] = mapped_column(Text, nullable=False)
@@ -181,7 +206,9 @@ class ContractRedline(BaseModel):
     review_comment: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     contract: Mapped[Contract] = relationship("Contract", back_populates="redlines")
-    clause_instance: Mapped[ContractClauseInstance | None] = relationship("ContractClauseInstance", back_populates="redlines")
+    clause_instance: Mapped[ContractClauseInstance | None] = relationship(
+        "ContractClauseInstance", back_populates="redlines"
+    )
 
 
 class ContractEsignSession(BaseModel):

@@ -30,8 +30,10 @@ async def health():
 
 
 @router.get("/items", response_model=None)
+@router.get("/search", response_model=None)
 async def search_catalog(
     q: str | None = Query(None, description="Keyword search across name, code, brand, specs"),
+    query: str | None = Query(None, description="Keyword search alias across name, code, brand, specs"),
     category_id: UUID | None = Query(None, description="Category filter"),
     brand: str | None = Query(None, description="Brand filter"),
     min_price: float | None = Query(None, ge=0.0, description="Minimum price filter"),
@@ -43,10 +45,11 @@ async def search_catalog(
     current_user: User = Depends(get_current_user),
 ):
     """Parametric faceted search across hosted internal catalog items."""
+    search_term = q or query
     results = await catalog_service.search_catalog(
         db,
         org_id=current_user.org_id,
-        query=q,
+        query=search_term,
         category_id=category_id,
         brand=brand,
         min_price=min_price,

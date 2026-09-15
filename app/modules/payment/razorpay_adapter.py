@@ -2,12 +2,13 @@ from __future__ import annotations
 
 import hashlib
 import hmac
-import json
 from decimal import Decimal
-from typing import Any, Dict, Optional
+from typing import Any
 from uuid import uuid4
+
 import httpx
 from loguru import logger
+
 from app.config import settings
 
 
@@ -19,9 +20,9 @@ class RazorpayPaymentAdapter:
 
     def __init__(
         self,
-        key_id: Optional[str] = None,
-        key_secret: Optional[str] = None,
-        webhook_secret: Optional[str] = None,
+        key_id: str | None = None,
+        key_secret: str | None = None,
+        webhook_secret: str | None = None,
     ) -> None:
         self.key_id = key_id or getattr(settings, "RAZORPAY_KEY_ID", None)
         self.key_secret = key_secret or getattr(settings, "RAZORPAY_KEY_SECRET", None)
@@ -37,9 +38,9 @@ class RazorpayPaymentAdapter:
         currency: str = "INR",
         mode: str = "NEFT",  # NEFT | RTGS | IMPS
         purpose: str = "vendor_payment",
-        reference_id: Optional[str] = None,
-        notes: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        reference_id: str | None = None,
+        notes: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """
         Execute live bank transfer payout via RazorpayX.
         Amount is converted to paise (integer).
@@ -112,7 +113,7 @@ class RazorpayPaymentAdapter:
         self,
         payload_body: bytes,
         signature_header: str,
-        secret: Optional[str] = None,
+        secret: str | None = None,
     ) -> bool:
         """
         Cryptographically verify Razorpay webhook signature using HMAC-SHA256.
@@ -131,7 +132,7 @@ class RazorpayPaymentAdapter:
         return hmac.compare_digest(computed_signature, signature_header.strip())
 
     @staticmethod
-    def parse_webhook_payload(payload: Dict[str, Any]) -> Dict[str, Any]:
+    def parse_webhook_payload(payload: dict[str, Any]) -> dict[str, Any]:
         """
         Extract normalized payout/payment status, reference, and UTR from webhook payload.
         """

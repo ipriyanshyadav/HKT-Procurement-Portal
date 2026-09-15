@@ -1,6 +1,8 @@
 from __future__ import annotations
+
 from functools import lru_cache
 from typing import Literal
+
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -37,7 +39,8 @@ class Settings(BaseSettings):
     # MinIO
     MINIO_ENDPOINT: str = "localhost:9000"
     MINIO_ACCESS_KEY: str = "minioadmin"
-    MINIO_SECRET_KEY: str = "minioadmin"
+    MINIO_SECRET_KEY: str = "minioadmin"  # noqa: S105 — dev default, overridden by env in prod
+
     MINIO_USE_SSL: bool = False
     MINIO_MAX_FILE_SIZE_MB: int = 50
 
@@ -60,6 +63,7 @@ class Settings(BaseSettings):
     MAX_CONCURRENT_SESSIONS: int = 5
     MAX_FAILED_LOGIN_ATTEMPTS: int = 5
     LOGIN_LOCKOUT_MINUTES: int = 30
+    MAX_LIST_LIMIT: int = 200  # Maximum page size for paginated list endpoints
 
     # Cookies
     COOKIE_SECURE: bool = False
@@ -82,6 +86,9 @@ class Settings(BaseSettings):
     SAML_IDP_CERTIFICATE: str = ""
     SAML_SP_ENTITY_ID: str = "https://procurement.portal/api/v1/auth/sso/saml"
     SAML_SP_ACS_URL: str = "http://localhost:8000/api/v1/auth/sso/callback"
+    # SECURITY: Enable SAML simulation bypass ONLY for local developer testing.
+    # MUST remain False in staging and production environments.
+    ENABLE_SSO_MOCK: bool = False
 
     OIDC_ENABLED: bool = False
     OIDC_DISCOVERY_URL: str = ""
@@ -139,15 +146,23 @@ class Settings(BaseSettings):
         "http://localhost:3000",
         "http://localhost:3001",
         "http://localhost:3002",
+        "http://localhost:3004",
+        "http://localhost:3005",
         "http://127.0.0.1:3000",
         "http://127.0.0.1:3001",
         "http://127.0.0.1:3002",
+        "http://127.0.0.1:3004",
+        "http://127.0.0.1:3005",
         "http://0.0.0.0:3000",
         "http://0.0.0.0:3001",
         "http://0.0.0.0:3002",
+        "http://0.0.0.0:3004",
+        "http://0.0.0.0:3005",
         "http://[::1]:3000",
         "http://[::1]:3001",
         "http://[::1]:3002",
+        "http://[::1]:3004",
+        "http://[::1]:3005",
     ]
 
     # Celery
@@ -202,13 +217,10 @@ class Settings(BaseSettings):
     CONTRACT_EXPIRY_ALERT_DAYS: list[int] = [90, 60, 30, 0]
     DEFAULT_ESIGN_PROVIDER: str = "digio"
     DIGIO_API_URL: str = "https://api.digio.in"
-    DIGIO_CLIENT_ID: str = ""
-    DIGIO_CLIENT_SECRET: str = ""
     DOCUSIGN_API_URL: str = "https://demo.docusign.net/restapi"
-    DOCUSIGN_ACCOUNT_ID: str = ""
-    DOCUSIGN_INTEGRATION_KEY: str = ""
     CONTRACT_NUMBER_PREFIX: str = "CNT"
     CELERY_CONTRACT_EXPIRY_CHECK_HOURS: int = 24
+
 
     # ML & Matching Thresholds
     ML_AUTO_MAP_CONFIDENCE_THRESHOLD: float = 0.85
@@ -223,6 +235,12 @@ class Settings(BaseSettings):
     MAVERICK_SPEND_DEFAULT_LIMIT: int = 50
     PARETO_TOP_PERCENTAGE: float = 80.0
     APPROVAL_BOTTLENECK_THRESHOLD_HOURS: float = 24.0
+
+
+    # Indentor Rules
+    INDENT_GRN_CONFIRMATION_SLA_HOURS: int = 48
+    INDENT_AUTO_ASSIGN_BUYER: bool = True
+    INDENT_MAX_CART_ITEMS: int = 50
 
     # Roles & Permissions
     DEFAULT_SSO_ROLE_CODE: str = "REQUESTOR"
@@ -255,6 +273,9 @@ class Settings(BaseSettings):
     AUCTION_DEFAULT_DURATION_MINUTES: int = 30
     DEFAULT_PAYMENT_TERMS_NET_DAYS: int = 30
     IDEMPOTENCY_MEMORY_CACHE_MAX_ENTRIES: int = 10000
+    EARLY_DISCOUNT_DEFAULT_APR: float = 0.18
+    EARLY_DISCOUNT_MIN_DAYS_EARLY: int = 3
+    EARLY_DISCOUNT_MAX_DISCOUNT_PCT: float = 0.05
 
     # Ticket System Rules
     TICKET_COMMENT_EDIT_WINDOW_SECONDS: int = 900
@@ -275,7 +296,21 @@ class Settings(BaseSettings):
     CELERY_AUCTION_REMINDER_SECONDS: float = 60.0
     CELERY_INTEGRATION_JOB_SECONDS: float = 60.0
     CELERY_TICKET_DUE_DATE_CHECK_SECONDS: int = 3600
+
+    @field_validator("FIELD_ENCRYPTION_KEY", mode="after")
+    @classmethod
+    def _validate_encryption_key(cls, v: str) -> str:
+        import os
+        env = os.environ.get("ENVIRONMENT", "local")
+        if v == "default_key_needs_replacement" and env not in ("local", "dev"):
+            raise ValueError(
+                "FIELD_ENCRYPTION_KEY must be set to a secure value in "
+                f"environment '{env}'. The default placeholder is not acceptable for production."
+            )
+        return v
+
 @lru_cache
+
 def get_settings() -> Settings:
     return Settings()
 

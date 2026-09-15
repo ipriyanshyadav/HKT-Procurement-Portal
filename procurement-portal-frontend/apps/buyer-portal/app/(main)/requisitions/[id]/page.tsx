@@ -1,4 +1,5 @@
 "use client";
+import { getErrorMessage } from "@procurement/utils";
 
 import React, { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
@@ -12,6 +13,7 @@ import {
   usePRAuditTrail,
   useSplitRequisition,
 } from "@procurement/hooks";
+import { useAppToast } from "@procurement/hooks";
 import {
   WorkflowTimeline,
   PRLineItemTable,
@@ -21,6 +23,7 @@ import {
   Button,
   Badge,
   Card,
+  useConfirm,
 } from "@procurement/ui";
 import {
   CheckCircle2,
@@ -35,6 +38,8 @@ import {
 } from "lucide-react";
 
 export default function RequisitionDetailPage() {
+  const { toast } = useAppToast();
+  const { confirm } = useConfirm();
   const params = useParams();
   const router = useRouter();
   const id = params?.id as string;
@@ -73,22 +78,34 @@ export default function RequisitionDetailPage() {
   }
 
   const handleSubmit = async () => {
-    if (!confirm("Submit this requisition for approval?")) return;
+    const ok = await confirm({
+      title: "Submit Requisition",
+      description: "Submit this requisition for approval?",
+      confirmLabel: "Submit",
+      variant: "primary",
+    });
+    if (!ok) return;
     try {
       await submitMutation.mutateAsync(pr.id);
       refetch();
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to submit PR");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to submit PR"));
     }
   };
 
   const handleWithdraw = async () => {
-    if (!confirm("Are you sure you want to withdraw this requisition?")) return;
+    const ok = await confirm({
+      title: "Withdraw Requisition",
+      description: "Are you sure you want to withdraw this requisition?",
+      confirmLabel: "Withdraw",
+      variant: "danger",
+    });
+    if (!ok) return;
     try {
       await withdrawMutation.mutateAsync(pr.id);
       refetch();
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to withdraw PR");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to withdraw PR"));
     }
   };
 
@@ -96,8 +113,8 @@ export default function RequisitionDetailPage() {
     try {
       await rfqMutation.mutateAsync(pr.id);
       refetch();
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to convert to RFQ");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to convert to RFQ"));
     }
   };
 
@@ -108,14 +125,14 @@ export default function RequisitionDetailPage() {
       if (res?.po_id) {
         router.push(`/purchase-orders/${res.po_id}`);
       }
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to convert to PO");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to convert to PO"));
     }
   };
 
   const handleSplitSubmit = async () => {
     if (splitLines.length === 0 || !splitCategoryId) {
-      alert("Please select category and lines to split");
+      toast.error("Please select category and lines to split");
       return;
     }
     const remainingLines = pr.lines
@@ -123,7 +140,7 @@ export default function RequisitionDetailPage() {
       .filter((n) => !splitLines.includes(n));
 
     if (remainingLines.length === 0) {
-      alert("Cannot split all lines away without remaining items");
+      toast.error("Cannot split all lines away without remaining items");
       return;
     }
 
@@ -139,10 +156,19 @@ export default function RequisitionDetailPage() {
       });
       setShowSplitModal(false);
       refetch();
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to split PR");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to split PR"));
     }
   };
+
+  const linesSubtotal = (pr.lines || []).reduce((acc, curr) => {
+    const lineTotal =
+      curr.estimated_total !== undefined && curr.estimated_total !== null && !isNaN(Number(curr.estimated_total))
+        ? Number(curr.estimated_total)
+        : (Number(curr.quantity) || 0) * (Number(curr.estimated_unit_price) || 0);
+    return acc + (isNaN(lineTotal) ? 0 : lineTotal);
+  }, 0);
+  const effectiveTotal = Number(pr.estimated_value) > 0 ? Number(pr.estimated_value) : linesSubtotal;
 
   return (
     <div className="w-full space-y-6">
@@ -296,9 +322,14 @@ export default function RequisitionDetailPage() {
             </div>
             <div>
               <span className="text-xs text-slate-500 dark:text-slate-400 block font-medium">Estimated Value</span>
-              <span className="font-semibold text-slate-900 dark:text-slate-100 font-mono">
-                {pr.currency} {Number(pr.estimated_value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              <span className="font-semibold text-slate-900 dark:text-slate-100 font-mono block">
+                {pr.currency} {effectiveTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
+              {effectiveTotal > linesSubtotal + 0.01 && (
+                <span className="text-[11px] text-slate-500 dark:text-slate-400 block">
+                  (Lines: {pr.currency} {linesSubtotal.toLocaleString(undefined, { minimumFractionDigits: 0 })} + Tax)
+                </span>
+              )}
             </div>
             <div>
               <span className="text-xs text-slate-500 dark:text-slate-400 block font-medium">Required By Date</span>
@@ -320,7 +351,7 @@ export default function RequisitionDetailPage() {
         {/* Budget Check Card */}
         <div>
           <BudgetIndicator
-            estimatedTotal={Number(pr.estimated_value)}
+            estimatedTotal={effectiveTotal}
             availableBudget={500000}
             budgetStatus={pr.budget_check_status}
             currency={pr.currency}
@@ -342,7 +373,12 @@ export default function RequisitionDetailPage() {
 
         <div className="p-6">
           {activeTab === "lines" ? (
-            <PRLineItemTable lines={pr.lines || []} currency={pr.currency} editable={false} />
+            <PRLineItemTable
+              lines={pr.lines || []}
+              currency={pr.currency}
+              estimatedTotal={pr.estimated_value}
+              editable={false}
+            />
           ) : (
             <div className="space-y-4">
               {!auditLogs || auditLogs.length === 0 ? (

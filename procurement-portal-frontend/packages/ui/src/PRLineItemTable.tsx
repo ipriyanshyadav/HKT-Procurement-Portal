@@ -26,6 +26,7 @@ export interface PRLineItemTableProps {
   uoms?: Array<{ id: string; code: string; name: string }>;
   editable?: boolean;
   currency?: string;
+  estimatedTotal?: number | string;
   onLinesChange?: (lines: RequisitionLineItem[]) => void;
   onRemoveLine?: (lineNumber: number) => void;
 }
@@ -35,6 +36,7 @@ export const PRLineItemTable: React.FC<PRLineItemTableProps> = ({
   uoms,
   editable = false,
   currency = "INR",
+  estimatedTotal,
   onLinesChange,
   onRemoveLine,
 }) => {
@@ -51,7 +53,21 @@ export const PRLineItemTable: React.FC<PRLineItemTableProps> = ({
     onLinesChange(updated);
   };
 
-  const totalValue = lines.reduce((acc, curr) => acc + (curr.estimated_total || curr.quantity * curr.estimated_unit_price || 0), 0);
+  const calculatedSubtotal = lines.reduce((acc, curr) => {
+    const lineTotal =
+      curr.estimated_total !== undefined && curr.estimated_total !== null && !isNaN(Number(curr.estimated_total))
+        ? Number(curr.estimated_total)
+        : (Number(curr.quantity) || 0) * (Number(curr.estimated_unit_price) || 0);
+    return acc + (isNaN(lineTotal) ? 0 : lineTotal);
+  }, 0);
+
+  const headerTotal =
+    estimatedTotal !== undefined && estimatedTotal !== null && !isNaN(Number(estimatedTotal)) && Number(estimatedTotal) > 0
+      ? Number(estimatedTotal)
+      : calculatedSubtotal;
+
+  const taxOrVariance = headerTotal > calculatedSubtotal + 0.01 ? headerTotal - calculatedSubtotal : 0;
+  const finalTotal = headerTotal > 0 ? headerTotal : calculatedSubtotal;
 
   return (
     <div className="w-full apple-table-container border border-slate-200/80 dark:border-white/10 rounded-xl overflow-hidden bg-white dark:bg-[#1C1C1E] shadow-xs">
@@ -161,7 +177,13 @@ export const PRLineItemTable: React.FC<PRLineItemTableProps> = ({
                     )}
                   </td>
                   <td className="px-4 py-3 text-right font-semibold text-slate-900 dark:text-slate-100 font-mono text-xs">
-                    {(line.estimated_total ?? (line.quantity * line.estimated_unit_price)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    {(
+                      Number(
+                        line.estimated_total !== undefined && line.estimated_total !== null && !isNaN(Number(line.estimated_total))
+                          ? line.estimated_total
+                          : (Number(line.quantity) || 0) * (Number(line.estimated_unit_price) || 0)
+                      ) || 0
+                    ).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </td>
                   <td className="px-4 py-3 text-slate-500 dark:text-slate-400 text-xs">
                     {editable ? (
@@ -197,12 +219,34 @@ export const PRLineItemTable: React.FC<PRLineItemTableProps> = ({
             )}
           </tbody>
           <tfoot className="bg-slate-50/70 dark:bg-[#252529]/80 font-semibold border-t border-slate-200/80 dark:border-white/10">
+            {taxOrVariance > 0 && (
+              <>
+                <tr className="border-b border-slate-200/50 dark:border-white/5">
+                  <td colSpan={6} className="px-4 py-2 text-right text-slate-500 dark:text-slate-400 text-xs font-normal">
+                    Line Items Subtotal:
+                  </td>
+                  <td className="px-4 py-2 text-right text-sm text-slate-800 dark:text-slate-200 font-mono font-medium">
+                    {currency} {calculatedSubtotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </td>
+                  <td colSpan={editable ? 2 : 1}></td>
+                </tr>
+                <tr className="border-b border-slate-200/50 dark:border-white/5">
+                  <td colSpan={6} className="px-4 py-2 text-right text-slate-500 dark:text-slate-400 text-xs font-normal">
+                    Estimated Taxes & Duties (18% GST):
+                  </td>
+                  <td className="px-4 py-2 text-right text-sm text-amber-600 dark:text-amber-400 font-mono font-medium">
+                    + {currency} {taxOrVariance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </td>
+                  <td colSpan={editable ? 2 : 1}></td>
+                </tr>
+              </>
+            )}
             <tr>
-              <td colSpan={editable ? 6 : 5} className="px-4 py-3 text-right text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider">
-                Estimated Total:
+              <td colSpan={6} className="px-4 py-3 text-right text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider">
+                Estimated Total {taxOrVariance > 0 ? "(incl. Taxes)" : ""}:
               </td>
               <td className="px-4 py-3 text-right text-base text-blue-600 dark:text-blue-400 font-bold font-mono">
-                {currency} {totalValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                {currency} {finalTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </td>
               <td colSpan={editable ? 2 : 1}></td>
             </tr>

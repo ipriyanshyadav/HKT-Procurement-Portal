@@ -196,10 +196,8 @@ class VendorRepository(BaseRepository[Vendor]):
         total = (await db.execute(count_stmt)).scalar() or 0
 
         sort_col = getattr(Vendor, sort_by, Vendor.created_at)
-        if sort_dir.lower() == "asc":
-            query = query.order_by(asc(sort_col))
-        else:
-            query = query.order_by(desc(sort_col))
+        query = query.order_by(asc(sort_col)) if sort_dir.lower() == "asc" else query.order_by(desc(sort_col))
+
 
         offset = (page - 1) * page_size
         query = query.offset(offset).limit(page_size)

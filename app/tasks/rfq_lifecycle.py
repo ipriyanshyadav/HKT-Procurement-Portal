@@ -1,15 +1,15 @@
 from __future__ import annotations
-from datetime import datetime, timezone
-from typing import Optional, Any
+
+from datetime import UTC, datetime
+from typing import Any
+
 from loguru import logger
 
-from app.config import settings
 from app.db.enums import RFQStatus
 from app.db.session import async_session
 from app.events.publisher import OutboxPublisher
-from app.modules.sourcing.models import Rfq
-from app.modules.sourcing.repository import rfq_repository
 from app.modules.bid.repository import bid_repository
+from app.modules.sourcing.repository import rfq_repository
 from app.tasks.async_runner import run_async
 from app.tasks.celery_app import celery_app
 
@@ -23,12 +23,12 @@ def check_bid_windows() -> None:
     run_async(_async_check_bid_windows())
 
 
-async def _async_check_bid_windows(session_factory: Optional[Any] = None) -> dict:
+async def _async_check_bid_windows(session_factory: Any | None = None) -> dict:
     factory = session_factory or async_session
     processed = 0
 
     async with factory() as db:
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         past_deadline = await rfq_repository.get_published_past_deadline(db, now)
 
         for rfq in past_deadline:

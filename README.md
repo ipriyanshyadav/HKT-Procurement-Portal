@@ -13,8 +13,11 @@ All three portals run simultaneously with seeded test roles. Access them directl
 | **👑 Universal Super Admin** | **Any Portal** (`:3000`, `:3001`, `:3002`) | Universal Omnipotent Access & 1-Click Persona Switching | Alexander Vance | `superadmin@procurement.com` | `SuperAdmin123456!@#` | `SUPERADMIN` (All System & Org Roles, Omnipotent Bypass) |
 | **Buyer Portal** | [http://localhost:3000](http://localhost:3000) | Procurement Team (PRs, RFQs, Bids, Tickets) | Sarah Jenkins | `buyer@procurement.com` | `Buyer123456!@#` | `REQUESTOR`, `BUYER`, `PROCUREMENT_OFFICER` |
 | **Buyer Portal (Approver)** | [http://localhost:3000](http://localhost:3000) | Approvers & Leadership (Sign-offs) | Robert Taylor | `approver@procurement.com` | `Approver123!@#` | `APPROVER`, `PROCUREMENT_HEAD`, `FINANCE_CONTROLLER` |
+| **Buyer Portal (Indentor)** | [http://localhost:3000](http://localhost:3000) | Department Requisitioners (Catalog, Demand Cart, Buyer Hand-off, Consignee) | Priya Mehta | `indentor@procurement.com` | `Indentor123!@#` | `INDENTOR` |
 | **Supplier Portal** | [http://localhost:3001](http://localhost:3001) | External Vendors (Bids, Invoices, Queries) | Rajesh Kumar | `supplier@acme.com` | `Supplier123456!@#` | `SUPPLIER`, `SUPPLIER_ADMIN` (Acme Tech Solutions) |
 | **Admin Portal** | [http://localhost:3002](http://localhost:3002) | System Administrators (Master Data, SLAs, Tickets) | David Miller | `admin@procurement.com` | `Admin123456!@#` | `ORG_ADMIN`, `PROCUREMENT_MANAGER`, `PROCUREMENT_ADMIN` |
+| **Support Portal** | [http://localhost:3004](http://localhost:3004) | Helpdesk Agents & Customer Requisitioners (Tickets, SLA, CSAT, KB) | Customer Support | `support@procurement.com` | `Admin123456!@#` | `ORG_ADMIN`, `BUYER`, `SUPPLIER` |
+| **Developer Portal** | [http://localhost:3005](http://localhost:3005) | API Integrators & Technical Developers (Keys, Webhooks, Docs, Sandbox Console) | Platform Developer | `developer@procurement.com` | `Admin123456!@#` | `ORG_ADMIN`, `SUPERADMIN` |
 
 > 🔑 **Organization ID for all logins:** `00000000-0000-0000-0000-000000000001` (Default Organization)
 >
@@ -24,12 +27,14 @@ All three portals run simultaneously with seeded test roles. Access them directl
 > - **Interactive Persona Deck:** Click the `👑 Super Admin` header pill to switch views and deep link directly into any of the 8 enterprise personas.
 >
 > 🚪 **API Gateway (Kong):** [http://localhost:8000](http://localhost:8000) &nbsp;•&nbsp; **Direct Backend API:** [http://localhost:8080](http://localhost:8080)
->
-> 📘 **Git & CI/CD Guide:** [Complete Beginner Guide to Git, GitHub & Branching](docs/GIT_AND_CICD_GUIDE.md)
+> 📘 **Git & CI/CD Guide:** [Complete Beginner Guide to Git, GitHub & Branching](docs/GIT_AND_CICD_GUIDE.md)  
+> 📊 **Cross-Portal Workflow & Audit Report:** [Enterprise Synchronicity & Workflow Verification](docs/CROSS_PORTAL_WORKFLOW_REPORT.md)  
+> 📖 **Enterprise Handover Manual:** [Complete Technical, Managerial & Operations Manual](docs/ENTERPRISE_HANDOVER_MANUAL.md)  
+> 🌐 **Zero-Cost Deployment Guide:** [Deploying Entire S2P Portal 100% Free Forever](docs/FREE_DEPLOYMENT_GUIDE.md)
 
 ---
 
-### 🎭 Full Enterprise Role Demonstration (8 Personas)
+### 🎭 Full Enterprise Role Demonstration (10 Personas)
 
 The platform supports strict enterprise role separation (where each user only sees their own siloed screen) as well as an omnipotent **Super Admin** who can embody any persona on demand. Every persona is seeded as a real user in the database:
 
@@ -44,6 +49,7 @@ The platform supports strict enterprise role separation (where each user only se
 | **7** | **💳 Accounts Payable** | Claire Redfield | Buyer Portal (Invoice processing, 2-way / 3-way match, payment holds) | `ap@procurement.com` | `Accounts123!@#` | `http://localhost:3000/invoices` |
 | **8** | **🏭 Supplier Partner** | Rajesh Kumar | Supplier Portal (RFQ bids, PO acknowledgment, ASN, invoices) | `supplier@acme.com` | `Supplier123456!@#` | `http://localhost:3001/rfqs` |
 | **9** | **🌐 Global Cloud Vendor** | Priya Sharma | Supplier Portal (Bids, rate cards, SLAs, disputes) | `supplier@globalcloud.com` | `Supplier123456!@#` | `http://localhost:3001/rfqs` |
+| **10** | **🛒 Indentor / Consignee** | Priya Mehta | Buyer Portal (Catalog search, Demand cart, Buyer transfer, Consignee GRN) | `indentor@procurement.com` | `Indentor123!@#` | `http://localhost:3000/indents` |
 
 #### 🛡️ Sidebar Navigation & In-Page Authorization Policy
 - **Universal Sidebar Visibility**: All sidebar navigation tabs and sub-tabs remain **100% visible and clickable** for every user across all three portals (Buyer `:3000`, Supplier `:3001`, Admin `:3002`).
@@ -65,10 +71,16 @@ The platform supports strict enterprise role separation (where each user only se
 
 
 ## Current Session State
-- **Planned**: Comprehensive database seeding with realistic production-grade data across all 145 tables and all modules/tabs/sub-tabs for all 8 enterprise personas and Super Admin Alexander Vance.
-- **Implemented**: Created `scripts/seed_enterprise_extensions.py` (idempotent seed across ASNs, E-Invoices, E-Way bills, Service Entry Sheets, Quality Inspections, Contract templates/clauses/redlines/eSign, DR checkpoints/drills, Webhooks, Maverick spend, ESG, User scopes/COI/MFA, Negotiation sessions, Communication threads, and tenant configurations). Wired into `seed_demo_user.py` and `clear_and_seed_all.py`.
-- **Verified**: Executed `clear_and_seed_all.py`: all 145 database tables seeded with 0 empty tables remaining. 445/445 backend unit tests passing; frontend turbo typecheck passing on all packages; graphify knowledge graph updated.
-- **Next**: Docker compose build, Git commit & push to GitHub `develop` branch, and CI/CD verification.
+- **Planned**: Enterprise transformation across 5 dimensions (Backend architecture, Frontend UX, Docker infrastructure, Quality & reliability, and Persona verification).
+- **Implemented**: Completed end-to-end audit and remediation: restored router->service->repository layer discipline in GRN, Requisition, and Analytics; resolved runtime NameErrors and outbox side effects; eliminated false-positive Docker healthcheck bypasses (`|| exit 1`); resolved frontend ESLint configuration gaps, unescaped JSX characters, and memo dependencies across Admin, Developer, and Support portals; added Priya Mehta (Indentor/Consignee) into enterprise personas and route authorization rules; enforced strict Segregation of Duties (SoD) on Invoices and Payments.
+- **Tested**: Full verification: 528 backend unit tests (100% pass), 56 workflow tests (100% pass), 71 security tests (100% pass), 0 backend lint errors (`ruff check app`), frontend TypeScript compilation (11/11 packages pass), frontend ESLint (5/5 portals pass), and store persona unit tests (100% pass).
+- **Next**: Final production readiness checkpoint, knowledge graph AST synchronization, and release sign-off.
+
+
+---
+
+
+
 
 ---
 
@@ -76,7 +88,7 @@ The platform supports strict enterprise role separation (where each user only se
 
 ### Mode 1: Complete Docker Stack (Fastest)
 
-Start all services (PostgreSQL, Redis, RabbitMQ, MinIO, Kong, FastAPI, Celery, and all 3 Next.js Portals) in Docker:
+Start all services (PostgreSQL, Redis, RabbitMQ, MinIO, Kong, FastAPI, Celery, and all 5 Next.js Portals) in Docker:
 
 ```bash
 docker compose -f docker/docker-compose.yml up -d
@@ -678,16 +690,78 @@ docker compose logs -f -t
 | A-FLOW-3 | Active delegation matrix authorizes runtime delegates to act on pending tasks at execution time if validity dates, BU, financial threshold, and Maker-Checker constraints are satisfied | LOW |
 | A-FLOW-4 | Sourcing RFQ creation linked to source_pr_id transitions PR to IN_SOURCING, and PO creation from award transitions PR to CONVERTED, preserving bidirectional relational state | LOW |
 | A-FLOW-5 | Full synchronous end-to-end flow from Requisition through Approval, RFQ, Bidding, CS/Award, Contract, PO, ASN, Fast GRN, 3-Way Invoice, Payment, Scorecard, ESG, Maverick AI, and Multi-ERP Gateway operates atomically with 0 broken linkages | LOW |
+| A-DISC-1 | Early payment sliding-scale discount rate defaults to 18% annual APR (settings.EARLY_DISCOUNT_DEFAULT_APR), with a minimum 3 days early window and a maximum 5% discount cap | LOW |
+| A-DISC-2 | Early payment requests can only be initiated by suppliers for invoices in SUBMITTED, MATCHED, or PARTIALLY_MATCHED statuses with remaining days to due date >= 3 | LOW |
+| A-DISC-3 | Buyer acceptance of early payment updates the invoice payable amount and schedules immediate or accelerated payment on the requested date | LOW |
+| A-OPT-5 | Sourcing award optimization generates 3 canonical industry scenarios: WINNER_TAKE_ALL (Single Source), LINE_ITEM_BEST (Cherry Pick), and DUAL_SOURCING_70_30 (Volume Split) | LOW |
+| A-OPT-6 | Dual sourcing 70/30 scenario requires at least 2 qualified bids; if fewer than 2 exist, it falls back gracefully to winner-take-all with an explanatory note | LOW |
+| A-PO-1 | PO amendments cannot reduce ordered quantity below already received quantity (received_quantity). Attempting to do so raises ValidationError | LOW |
+| A-PO-2 | PO amendment captures complete line-level diffs in PoAmendment.field_changes and recalculates line total prices and PO total value atomically | LOW |
+| A-HARDEN-1 | Requisition schemas PRDetailResponse and PRListResponse coerce is_indent=None to False for unpersisted models and legacy fixtures | LOW |
+| A-HARDEN-2 | Celery Beat schedule file is stored at /tmp/celerybeat-schedule so non-root container user 10001 has reliable write permissions without volume permission errors | LOW |
+| A-HARDEN-3 | Workflow get_my_tasks and entity queries encapsulate DB operations cleanly and support mocked DB result sets in unit/integration tests | LOW |
+| A-INDENT-SEED-1 | Seed script scripts/seed_indents.py creates 7 realistic enterprise indents spanning SUBMITTED, PENDING_APPROVAL, APPROVED, IN_SOURCING, CONVERTED (PO/GRN in-transit), CONVERTED (delivered & confirmed), and WITHDRAWN for Priya Mehta (INDENTOR) and Sarah Jenkins (BUYER) | LOW |
 
 ---
 
 ### Current Session State
-- **Completed**: Cross-Portal Synchronous Flow verification across Admin, Buyer, and Supplier Portals.
-- **Fixed Gateway**: Added missing routing definitions to `kong/kong.yml` for `/api/v1/asns`, `/api/v1/developer`, `/api/v1/audit`, `/api/v1/compliance`, and `/api/v1/einvoicing`.
-- **Fixed Core**: Loop-safe Redis connection pool caching in `app/core/redis_client.py` and mock-safe row unpacking in `app/modules/workflow/service.py`.
-- **Verified Cross-Portal Test**: `test_cross_portal_synchronous_flow.py` (Admin master data/rules -> Buyer PR -> Workflow Approval -> RFQ -> Supplier Bid -> Unseal/Award -> Contract e-Sign -> PO -> ASN -> Fast GRN -> Invoice -> 3-Way Match -> Settlement -> Remittance -> Ticket -> ERP Sync).
-- **Tested**: All 964 backend tests passed (100% pass rate in 65s); frontend Turbo typecheck 7/7 packages clean with 0 errors; graphify updated (10,499 nodes, 28,359 edges, 582 communities).
-- **Artifacts & Docs**: Saved comprehensive markdown specification to `docs/CROSS_PORTAL_ARCHITECTURE_AND_WORKFLOW_GUIDE.md` and compiled publication-grade interactive PDF with vector Mermaid diagrams and document bookmarks to `docs/CROSS_PORTAL_ARCHITECTURE_AND_WORKFLOW_GUIDE.pdf` via `scripts/generate_interactive_pdf.js`.
+- **Completed**: SPEC_27 Batch 3 (Export Center 27-G, Buyer Activity & Velocity Dashboard 27-H, Online Payment Gateway 27-J).
+- **Backend Architecture & Services**:
+  - `ExportCenterService` (`app/modules/export/service.py`) supporting asynchronous queued exports across 17 entity types, 7-day retention, presigned and streaming download URLs.
+  - `BuyerActivityService` (`app/modules/analytics/buyer_activity_service.py`) providing 7×24 hourly activity matrix, buyer performance league table, PR-to-PO velocity distribution histogram, approval bottlenecks, and session security telemetry.
+  - `PaymentGatewayService` (`app/modules/payment/gateway_service.py`) providing Razorpay/Stripe checkout order creation, HMAC-SHA256 signature verification, and invoice status updates.
+- **Database & Migrations**:
+  - Alembic migration `0060_batch3_portal_enhancements.py` creating `export_jobs` and `payment_gateway_config` tables and adding gateway tracking columns to `payment_records`.
+- **Frontend Architecture & Components**:
+  - Hooks: `useExportCenter.ts`, `useBuyerActivity.ts`, `usePaymentGateway.ts` exported in `@procurement/hooks`.
+  - Reusable `<ExportButton />` with format dropdown (CSV/Excel) wired into Requisitions, Purchase Orders, and Invoices listings.
+  - Dedicated pages: `/export-center` across Buyer, Admin, and Supplier portals; `/analytics/buyer-activity` in Buyer portal; `/settings/payment-gateway` in Admin portal; Interactive "Pay Online" checkout dialog on Invoice detail page.
+- **Verification**:
+  - Monorepo TypeScript check (`pnpm run typecheck`): 11/11 packages successful (0 errors).
+  - Unit tests: 25/25 passing in `test_export_center_service.py`, `test_payment_gateway_service.py`, `test_buyer_activity_service.py`, `test_indent_cart_service.py`.
+  - Knowledge graph updated via `graphify update .`.
+
+### 📊 SPEC Audit: Portal Enhancements Batch 3 — SPEC_27-G, 27-H, 27-J (2026-09-14)
+```
+MODULE | SPEC REQUIREMENT | STATUS | ARTIFACT / CODE
+27-G.1 | Database Migration & Models for Export Center (export_jobs) | [DONE] | 0060_batch3_portal_enhancements.py, export/models.py
+27-G.2 | Async Export Queue & 17 Entity Tabular Extraction Service | [DONE] | export/service.py, schemas.py, router.py
+27-G.3 | Reusable ExportButton & Format Dropdown Component (CSV/Excel) | [DONE] | ExportButton.tsx, packages/ui/src/index.ts
+27-G.4 | Export Center Portal Page & 7-Day Download Retention Manager | [DONE] | ExportCenterDashboard.tsx, /export-center
+27-H.1 | Buyer Activity & 7x24 Action Intensity Heatmap Analytics | [DONE] | buyer_activity_service.py, router.py, schemas.py
+27-H.2 | PR-to-PO Velocity Histogram & Approval Bottleneck Diagnostics | [DONE] | buyer_activity_service.py, BuyerActivityDashboard.tsx
+27-H.3 | Buyer Performance League Table & Session Security Telemetry | [DONE] | buyer_activity_service.py, /analytics/buyer-activity
+27-J.1 | Database Migration & Encrypted Gateway Configuration Model | [DONE] | 0060_batch3_portal_enhancements.py, payment/models.py
+27-J.2 | Razorpay & Stripe Order Creation & HMAC Verification Engine | [DONE] | gateway_service.py, gateway_router.py, schemas.py
+27-J.3 | Invoice Detail "Pay Online" Checkout Flow & Settlement Badge | [DONE] | buyer-portal/invoices/[id]/page.tsx, usePaymentGateway.ts
+27-J.4 | Admin Portal Payment Gateway Credentials Configuration Console| [DONE] | admin-portal/settings/payment-gateway/page.tsx
+OVERALL: 11/11 (100%) | BACKEND 100% | FRONTEND 100% | TESTS 100%
+```
+
+### 📊 SPEC Audit: Enterprise Production Hardening & Full Resilience (2026-09-13)
+```
+MODULE | SPEC REQUIREMENT | STATUS | ARTIFACT / CODE
+HRD.1 | Celery Beat Non-Root Schedule Write Permissions | [DONE] | docker/docker-compose.yml
+HRD.2 | Requisition & Unmapped PR Schema Defensiveness   | [DONE] | app/modules/requisition/schemas.py
+HRD.3 | Workflow Layer Discipline & Instance Repository  | [DONE] | workflow/repository.py, router.py
+HRD.4 | Universal Layout ErrorBoundary Fallback Shield   | [DONE] | buyer, supplier & admin layout.tsx
+HRD.5 | Source-to-Pay E2E Dialog Confirmation Hardening | [DONE] | full_procurement_cycle.spec.ts
+HRD.6 | Complete 17-Test Cross-Portal E2E Suite Pass     | [DONE] | tests/e2e/playwright/*.spec.ts (17/17)
+HRD.7 | Complete 987-Test Backend Test Suite Pass       | [DONE] | pytest tests/ (987/987 passed, 100%)
+OVERALL: 7/7 (100%) | BACKEND 100% | FRONTEND 100% | TESTS 100% | INFRA 100%
+```
+
+### 📊 SPEC Audit: Enterprise S2P Hardening, Anti-Sniping Concurrency & 1-Click PO Flip (2026-09-11)
+```
+MODULE | SPEC REQUIREMENT | STATUS | ARTIFACT / CODE
+OPT.1 | Live Reverse Auction Anti-Sniping Pessimistic Locking | [DONE] | app/modules/bid/live_bid_service.py
+OPT.2 | Contract Rate Card Drawdown Thread Safety (Row-Lock) | [DONE] | app/modules/contract/service.py
+OPT.3 | 1-Click PO Flip to Invoice Backend Engine & REST API | [DONE] | app/modules/invoice/service.py & router.py
+OPT.4 | 1-Click PO Flip Frontend Hook & Supplier Portal Modal | [DONE] | apps/supplier-portal/.../purchase-orders/[id]
+OPT.5 | High-Volume Foreign Key Indexes Migration (0052) | [DONE] | alembic/versions/0052_foreign_key_line_indexes.py
+OPT.6 | Frontend React Hook Dependency Hardening & Lint Cleanliness | [DONE] | buyer-portal, supplier-portal, admin-portal
+OVERALL: 6/6 (100%) | BACKEND 100% | FRONTEND 100% | TESTS 100% | DATABASE 100%
+```
 
 ### 📊 SPEC Audit: Cross-Portal Synchronous Workflows & Gateway Routing (2026-09-10)
 ```
@@ -858,4 +932,34 @@ PR.5 | Bidirectional PR <-> PO Linkage & Navigation   | [DONE] | POResponse.sour
 PO.1 | Vendor Acknowledgement / Rejection / Amendment | [DONE] | supplier-portal/purchase-orders/[id]/page.tsx
 OVERALL: 6/6 (100%) | BACKEND 100% | FRONTEND 100% | TESTS 100%
 ```
+
+### 📊 SPEC Audit: Dynamic Early Payment Discounting, Sourcing Optimization & PO Change Orders (2026-09-11)
+```
+MODULE | SPEC REQUIREMENT | STATUS | ARTIFACT / CODE
+DISC.1 | Alembic Migration & Early Discount Schema (Invoice + Payment) | [DONE] | 0053_early_payment_discounting.py, models.py
+DISC.2 | Dynamic Sliding-Scale APR Options Calculator Engine            | [DONE] | invoice/service.py, app/config.py
+DISC.3 | Supplier Early Payout Request & AP 1-Click Acceptance Engine   | [DONE] | invoice/router.py, useInvoices.ts, supplier & buyer portals
+OPT.1  | Sourcing Award Optimization Scenarios Engine (Ariba/Coupa)    | [DONE] | evaluation/service.py, test_award_optimization_scenarios.py
+OPT.2  | Winner-Take-All vs Cherry-Picking vs 70/30 Dual Sourcing Deck   | [DONE] | evaluation/page.tsx, useEvaluation.ts
+OPT.3  | 1-Click Optimization Scenario Application to CS Rankings      | [DONE] | evaluation/router.py, evaluation/service.py
+PO.2   | Line-Level PO Amendment / Change Orders Engine                | [DONE] | purchase_order/service.py, test_po_amendment_line_updates.py
+PO.3   | Over-Receipt Reduction Prevention & Before/After Line Diffs   | [DONE] | purchase_order/service.py, buyer-portal/purchase-orders/[id]
+PO.4   | Auto Re-Approval Triggering on >10% PO Value Delta            | [DONE] | purchase_order/service.py, test_po_amendment_line_updates.py
+OVERALL: 9/9 (100%) | BACKEND 100% | FRONTEND 100% | TESTS 100%
+```
+
+### 📊 SPEC Audit: Enterprise Platform Transformation & Production Hardening (2026-09-15)
+```
+MODULE | SPEC REQUIREMENT | STATUS | ARTIFACT / CODE
+ARCH.1 | Layer Discipline (router -> service -> repo -> model) in GRN, Requisitions & Analytics | [DONE] | grn/service.py, requisition/service.py, analytics/router.py
+ARCH.2 | Runtime Exception Safety, UUID & Outbox Encapsulation                               | [DONE] | core/exceptions.py, grn/router.py, webhook_management_service.py
+INFRA.1| Docker Healthcheck Hardening (fail-close validation without || exit 0)               | [DONE] | docker/docker-compose.yml
+UX.1   | Persona Deck Alignment & Indentor/Consignee (Priya Mehta) Integration                | [DONE] | personas.ts, personas.test.ts, Navbar.tsx
+UX.2   | Segregation of Duties (SoD) Enforcement on Invoices & Payments Route Access           | [DONE] | personas.ts, personas.test.ts
+LINT.1 | Monorepo Frontend Clean ESLint & Typecheck (11/11 packages, 5/5 portals)             | [DONE] | developer-portal/.eslintrc.json, support-portal/.eslintrc.json
+QA.1   | Automated Test Suite Verification (528 unit, 56 workflow, 71 security = 655 tests)   | [DONE] | tests/unit/, tests/workflow/, tests/security/
+OVERALL: 7/7 (100%) | BACKEND 100% | FRONTEND 100% | INFRA 100% | TESTS 100%
+```
+
+
 

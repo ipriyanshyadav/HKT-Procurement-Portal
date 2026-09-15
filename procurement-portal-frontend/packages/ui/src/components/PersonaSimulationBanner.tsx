@@ -16,20 +16,23 @@ export function PersonaSimulationBanner({
   onSwitchPersona,
 }: PersonaSimulationBannerProps) {
   return (
-    <div className="w-full bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-neutral-950 px-4 py-2 text-xs font-medium shadow-md flex items-center justify-between border-b border-amber-600/30 sticky top-14 z-30 transition-all">
+    <div className="w-full bg-gradient-to-r from-purple-950/95 via-indigo-950/95 to-slate-950/95 text-white px-4 sm:px-6 py-2 text-xs font-medium shadow-lg flex items-center justify-between border-b border-purple-500/30 backdrop-blur-xl sticky top-[52px] z-30 transition-all">
       <div className="flex items-center gap-2.5 min-w-0">
-        <span className="w-6 h-6 rounded-lg bg-neutral-950/10 flex items-center justify-center text-sm flex-shrink-0">
+        <span className="w-6 h-6 rounded-lg bg-white/10 flex items-center justify-center text-sm flex-shrink-0 shadow-inner">
           {persona.icon || "🎭"}
         </span>
         <div className="flex items-center gap-2 flex-wrap min-w-0">
-          <span className="font-bold text-neutral-950 tracking-tight">
-            Active Persona Simulation: {persona.name}
+          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-300 font-mono border border-purple-500/30">
+            SIMULATION
           </span>
-          <span className="px-2 py-0.5 rounded-full bg-neutral-950/15 text-neutral-900 text-[10px] font-mono font-bold">
+          <span className="font-semibold text-neutral-100 tracking-tight">
+            {persona.name}
+          </span>
+          <span className="px-2 py-0.5 rounded-full bg-white/10 text-purple-200 text-[10px] font-medium border border-white/10">
             {persona.title}
           </span>
-          <span className="hidden md:inline text-neutral-800 text-[11px]">
-            &bull; Scoped Roles: {persona.roles.join(", ")}
+          <span className="hidden md:inline text-neutral-400 text-[11px]">
+            &bull; Roles: {persona.roles.join(", ")}
           </span>
         </div>
       </div>
@@ -39,19 +42,19 @@ export function PersonaSimulationBanner({
           <button
             type="button"
             onClick={onSwitchPersona}
-            className="hidden sm:inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-neutral-950/10 hover:bg-neutral-950/20 text-neutral-900 font-semibold text-[11px] transition-colors cursor-pointer"
+            className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/15 text-neutral-200 font-medium text-xs transition-colors cursor-pointer border border-white/10"
           >
-            <UserCheck className="w-3 h-3" />
+            <UserCheck className="w-3.5 h-3.5 text-purple-300" />
             <span>Switch Persona</span>
           </button>
         )}
         <button
           type="button"
           onClick={onExitPersona}
-          className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-neutral-950 hover:bg-neutral-900 text-amber-300 font-bold text-[11px] shadow-sm transition-transform active:scale-95 cursor-pointer"
+          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-semibold text-xs shadow-md transition-all active:scale-95 cursor-pointer ring-1 ring-amber-400/30"
           title="Restore full Super Admin access (Alexander Vance)"
         >
-          <Crown className="w-3.5 h-3.5 text-amber-400" />
+          <Crown className="w-3.5 h-3.5 text-amber-200" />
           <span>Exit to Super Admin</span>
         </button>
       </div>

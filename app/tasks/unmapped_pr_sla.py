@@ -1,7 +1,7 @@
 from __future__ import annotations
-from datetime import datetime, timezone
-from typing import Optional, Any
-from loguru import logger
+
+from datetime import UTC, datetime
+from typing import Any
 
 from app.config import settings
 from app.core.constants import RoleCode
@@ -18,8 +18,8 @@ def check_unmapped_pr_sla() -> None:
     run_async(async_check_unmapped_sla())
 
 
-async def async_check_unmapped_sla(session_factory: Optional[Any] = None) -> dict:
-    now = datetime.now(timezone.utc)
+async def async_check_unmapped_sla(session_factory: Any | None = None) -> dict:
+    now = datetime.now(UTC)
     factory = session_factory or async_session
     escalations = 0
 
@@ -43,7 +43,7 @@ async def async_check_unmapped_sla(session_factory: Optional[Any] = None) -> dic
         for exc in pending:
             created_at = exc.created_at
             if created_at.tzinfo is None:
-                created_at = created_at.replace(tzinfo=timezone.utc)
+                created_at = created_at.replace(tzinfo=UTC)
             elapsed_hours = (now - created_at).total_seconds() / 3600
 
             if elapsed_hours >= tier_4_h and exc.sla_breach_level < 4:

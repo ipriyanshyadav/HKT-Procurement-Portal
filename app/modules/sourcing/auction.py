@@ -1,34 +1,31 @@
 from __future__ import annotations
 
-import asyncio
-from datetime import datetime, timezone, timedelta
-from typing import Dict, List, Any, Optional
+from datetime import UTC, datetime, timedelta
+from typing import Any
 from uuid import UUID
-from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect, HTTPException
+
+from fastapi import APIRouter, Depends, HTTPException, WebSocket, WebSocketDisconnect
 from pydantic import BaseModel
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.dependencies import get_current_user, get_current_user_ws
 from app.config import settings
 from app.core.responses import success_response
-from app.db.session import get_db
 from app.modules.user.models import User
-from app.modules.sourcing.repository import rfq_repository
 
 
 class AuctionBidRequest(BaseModel):
     amount: float
-    remarks: Optional[str] = None
+    remarks: str | None = None
 
 
 class AuctionRoomManager:
     """Manages active live WebSocket connections and auction states per RFQ."""
 
     def __init__(self) -> None:
-        self.active_connections: Dict[str, List[WebSocket]] = {}
-        self.auction_states: Dict[str, Dict[str, Any]] = {}
+        self.active_connections: dict[str, list[WebSocket]] = {}
+        self.auction_states: dict[str, dict[str, Any]] = {}
 
-    def get_or_create_state(self, rfq_id: str, initial_price: Optional[float] = None) -> Dict[str, Any]:
+    def get_or_create_state(self, rfq_id: str, initial_price: float | None = None) -> dict[str, Any]:
         if rfq_id not in self.auction_states:
             init_price = initial_price if initial_price is not None else settings.AUCTION_DEFAULT_CEILING_PRICE
             self.auction_states[rfq_id] = {
@@ -41,7 +38,7 @@ class AuctionRoomManager:
                 "leading_bidder_name": "Reserve Ceiling Price",
                 "status": "LIVE",
                 "bids": [],
-                "ends_at": (datetime.now(timezone.utc) + timedelta(minutes=settings.AUCTION_DEFAULT_DURATION_MINUTES)).isoformat(),
+                "ends_at": (datetime.now(UTC) + timedelta(minutes=settings.AUCTION_DEFAULT_DURATION_MINUTES)).isoformat(),
             }
         return self.auction_states[rfq_id]
 
@@ -60,7 +57,7 @@ class AuctionRoomManager:
             if not self.active_connections[rfq_id]:
                 self.active_connections.pop(rfq_id, None)
 
-    async def broadcast(self, rfq_id: str, message: Dict[str, Any]):
+    async def broadcast(self, rfq_id: str, message: dict[str, Any]):
         if rfq_id in self.active_connections:
             for conn in list(self.active_connections[rfq_id]):
                 try:
@@ -74,13 +71,13 @@ class AuctionRoomManager:
         bidder_id: str,
         bidder_name: str,
         amount: float,
-        remarks: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        remarks: str | None = None,
+    ) -> dict[str, Any]:
         state = self.get_or_create_state(rfq_id)
         current_lowest = state["current_lowest_bid"]
-        min_dec = state["min_decrement"]
+        min_dec = state.get("min_decrement", 0.0) or 0.0
 
-        if amount >= current_lowest:
+        if amount >= current_lowest or (min_dec > 0 and amount > (current_lowest - min_dec)):
             raise HTTPException(
                 status_code=400,
                 detail=f"Bid ({amount}) must be lower than the current leading bid ({current_lowest})",
@@ -97,7 +94,7 @@ class AuctionRoomManager:
             "bidder_name": bidder_name,
             "amount": amount,
             "remarks": remarks,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
         state["bids"].insert(0, bid_entry)
 

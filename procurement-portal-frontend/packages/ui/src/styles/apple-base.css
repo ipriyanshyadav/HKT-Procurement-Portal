@@ -1,5 +1,7 @@
 /* Apple Base Global Styles */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+/* NOTE: Inter font is loaded via next/font/google in each portal's root layout.tsx
+   This avoids render-blocking network requests and CSP violations. */
+
 
 *,
 *::before,
@@ -584,9 +586,25 @@ body {
   border-color: rgba(255, 255, 255, 0.12) !important;
 }
 
-/* === SMOOTH SCROLL === */
+/* === SMOOTH SCROLL & SCROLL CONTAINMENT === */
 html {
   scroll-behavior: smooth;
+}
+
+/* Modal and popup table scroll containment (prevents lag and scroll chaining) */
+.apple-scroll-container,
+.apple-table-scroll,
+.apple-modal,
+[role="dialog"] [class*="overflow-y-auto"],
+[data-radix-dialog-content] [class*="overflow-y-auto"] {
+  overscroll-behavior: contain !important;
+  -webkit-overflow-scrolling: touch !important;
+  scrollbar-gutter: stable;
+}
+
+.apple-table-container,
+.apple-modal {
+  transform: translateZ(0); /* Hardware accelerated composite layer */
 }
 
 /* === SELECTION === */

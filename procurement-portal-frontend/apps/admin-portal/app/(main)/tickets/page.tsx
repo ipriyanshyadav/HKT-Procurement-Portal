@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import Link from "next/link";
 import {
   LifeBuoy,
-  Search,
   User,
   ExternalLink,
   RefreshCw,
@@ -17,8 +16,9 @@ import {
   FormInput,
   Kanban,
 } from "lucide-react";
-import { useTickets, useBulkStatusTickets, useBulkAssignTickets } from "@procurement/hooks";
-import { TicketSLAIndicator } from "@procurement/ui";
+import { useTickets, useBulkStatusTickets, useBulkAssignTickets, useAssignTicket, useAppToast } from "@procurement/hooks";
+import { useAuthStore } from "@procurement/stores";
+import { TicketSLAIndicator, SearchInput, TableSkeleton, EmptyState } from "@procurement/ui";
 import type { TicketStatus, TicketPriority, TicketType, TicketListResponse } from "@procurement/types";
 
 export default function AdminTicketsPage() {
@@ -36,8 +36,30 @@ export default function AdminTicketsPage() {
     page_size: 100,
   });
 
+  const { toast } = useAppToast();
+  const currentUser = useAuthStore((state) => state.user);
+  const currentUserId = currentUser?.id;
+  const assignMutation = useAssignTicket();
   const bulkStatus = useBulkStatusTickets();
   const bulkAssign = useBulkAssignTickets();
+
+  const handleAssignToMe = async (ticketId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!currentUserId) {
+      toast.error("User not identified");
+      return;
+    }
+    try {
+      await assignMutation.mutateAsync({
+        id: ticketId,
+        data: { user_id: currentUserId },
+      });
+      toast.success("Ticket assigned to you successfully");
+      refetch();
+    } catch {
+      toast.error("Failed to assign ticket");
+    }
+  };
 
   const handleSelectAll = () => {
     if (selectedIds.length === tickets.length) {
@@ -68,7 +90,7 @@ export default function AdminTicketsPage() {
   };
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6">
+    <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
@@ -129,16 +151,12 @@ export default function AdminTicketsPage() {
 
       {/* Filter Bar */}
       <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-wrap items-center gap-3">
-        <div className="relative flex-1 min-w-[240px]">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search tickets, titles, or authors..."
-            className="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50/50"
-          />
-        </div>
+        <SearchInput
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search tickets, titles, or authors..."
+          className="flex-1 min-w-[240px]"
+        />
 
         <select
           value={status}
@@ -208,12 +226,13 @@ export default function AdminTicketsPage() {
       {/* Tickets Table */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
         {isLoading ? (
-          <div className="py-20 text-center text-slate-400 text-sm">Loading tickets...</div>
+          <TableSkeleton rows={8} columns={7} />
         ) : tickets.length === 0 ? (
-          <div className="py-20 text-center space-y-2">
-            <AlertCircle className="w-8 h-8 text-slate-300 mx-auto" />
-            <p className="text-sm font-semibold text-slate-700">No tickets found</p>
-          </div>
+          <EmptyState
+            icon={<LifeBuoy className="w-6 h-6" />}
+            title="No tickets found"
+            description="All clear — no support tickets match the current filters."
+          />
         ) : (
           <table className="w-full text-left border-collapse text-sm">
             <thead>
@@ -270,8 +289,15 @@ export default function AdminTicketsPage() {
                     <td className="p-3.5 font-mono text-xs font-semibold text-blue-600">
                       {t.ticket_number}
                     </td>
-                    <td className="p-3.5 font-medium text-slate-900 max-w-xs truncate">
-                      {t.title}
+                    <td className="p-3.5 max-w-xs">
+                      <div className="flex flex-col">
+                        <span className="font-medium text-slate-900 truncate">{t.title}</span>
+                        {t.raised_by_name ? (
+                          <span className="text-[11px] text-slate-500 truncate">
+                            Raised by {t.raised_by_name}
+                          </span>
+                        ) : null}
+                      </div>
                     </td>
                     <td className="p-3.5 text-xs text-slate-600 uppercase font-medium">{t.ticket_type}</td>
                     <td className="p-3.5 text-xs font-semibold">{t.priority}</td>
@@ -286,15 +312,37 @@ export default function AdminTicketsPage() {
                         compact
                       />
                     </td>
-                    <td className="p-3.5 text-xs text-slate-500">
-                      {t.assigned_to ? (
-                        <span className="flex items-center gap-1 text-slate-800 font-medium">
-                          <User className="w-3.5 h-3.5 text-slate-400" />
-                          <span>{t.assigned_to.slice(0, 8)}</span>
-                        </span>
-                      ) : (
-                        <span className="text-slate-400 italic">Unassigned</span>
-                      )}
+                    <td className="p-3.5 text-xs text-slate-500 whitespace-nowrap">
+                      <div className="flex items-center gap-2 group/assignee">
+                        {t.assigned_to ? (
+                          <div className="flex flex-col">
+                            <span className="flex items-center gap-1.5 text-slate-800 font-medium">
+                              <User className="w-3.5 h-3.5 text-slate-400" />
+                              <span>{t.assigned_to === currentUserId ? "Assigned to You" : (t.assigned_to_name || "Manager")}</span>
+                            </span>
+                            {t.assigned_to !== currentUserId && (
+                              <button
+                                type="button"
+                                onClick={(e) => handleAssignToMe(t.id, e)}
+                                className="text-[11px] text-blue-600 hover:text-blue-800 font-semibold opacity-0 group-hover/assignee:opacity-100 transition-opacity text-left underline mt-0.5"
+                              >
+                                Assign to me
+                              </button>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            <span className="text-slate-400 italic">Unassigned</span>
+                            <button
+                              type="button"
+                              onClick={(e) => handleAssignToMe(t.id, e)}
+                              className="px-2 py-0.5 rounded text-[11px] font-semibold bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors"
+                            >
+                              Assign to me
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </td>
                     <td className="p-3.5 text-right" onClick={(e) => e.stopPropagation()}>
                       <Link
@@ -372,11 +420,40 @@ export default function AdminTicketsPage() {
 
               <div>
                 <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">
-                  Assignee
+                  Raised By &amp; Assignee
                 </span>
-                <span className="text-xs text-slate-700 font-medium">
-                  {drawerTicket.assigned_to ? drawerTicket.assigned_to : "Unassigned"}
-                </span>
+                <div className="bg-slate-50 rounded-xl p-3 border border-slate-200 space-y-2 text-xs">
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Raised By:</span>
+                    <span className="font-medium text-slate-800">{drawerTicket.raised_by_name || "Procurement User"}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-500">Assigned To:</span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-slate-800">
+                        {drawerTicket.assigned_to === currentUserId
+                          ? "You"
+                          : (drawerTicket.assigned_to_name || "Manager")}
+                      </span>
+                      {drawerTicket.assigned_to !== currentUserId && (
+                        <button
+                          type="button"
+                          onClick={async (e) => {
+                            await handleAssignToMe(drawerTicket.id, e);
+                            setDrawerTicket({
+                              ...drawerTicket,
+                              assigned_to: currentUserId || null,
+                              assigned_to_name: currentUser?.full_name || currentUser?.email || "You",
+                            });
+                          }}
+                          className="px-2 py-0.5 text-[11px] font-semibold bg-blue-50 text-blue-700 hover:bg-blue-100 rounded"
+                        >
+                          Assign to me
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
               </div>
 
               {drawerTicket.entity_type && (

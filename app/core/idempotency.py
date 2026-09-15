@@ -1,22 +1,23 @@
 from __future__ import annotations
+
 import json
 import time
-from typing import Optional, Dict, Any
-from starlette.responses import JSONResponse, Response
+from typing import Any
+
+import redis.asyncio as redis
 from loguru import logger
 
-from app.core.redis_client import RedisKeys, get_redis
 from app.config import settings
-import redis.asyncio as redis
+from app.core.redis_client import RedisKeys, get_redis
 
 # In-memory fallback dictionary for when Redis is unavailable or during tests
-_memory_cache: Dict[str, Dict[str, Any]] = {}
+_memory_cache: dict[str, dict[str, Any]] = {}
 
 
 async def check_idempotency(
-    redis_client: Optional[redis.Redis] = None,
+    redis_client: redis.Redis | None = None,
     key: str = "",
-) -> Optional[Dict[str, Any]]:
+) -> dict[str, Any] | None:
     """Check if an idempotency key exists in Redis (or in-memory fallback)."""
     if not key:
         return None
@@ -44,16 +45,15 @@ async def check_idempotency(
     if entry:
         if time.time() < entry.get("expires_at", 0):
             return entry.get("data")
-        else:
-            _memory_cache.pop(key, None)
+        _memory_cache.pop(key, None)
 
     return None
 
 
 async def store_idempotency(
-    redis_client: Optional[redis.Redis] = None,
+    redis_client: redis.Redis | None = None,
     key: str = "",
-    response: Dict[str, Any] = None,
+    response: dict[str, Any] = None,
     ttl_seconds: int = settings.IDEMPOTENCY_KEY_TTL_SECONDS,
 ) -> None:
     """Store idempotency key result in Redis (and in-memory fallback)."""

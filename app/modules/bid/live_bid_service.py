@@ -1,9 +1,11 @@
 from __future__ import annotations
+
 import json
-from datetime import datetime, timezone, timedelta
+from datetime import UTC, datetime, timedelta
 from decimal import Decimal
-from typing import Optional, List, Any, Tuple
+from typing import Any
 from uuid import UUID
+
 from loguru import logger
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -11,34 +13,34 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.encryption import encrypt_field
 from app.core.exceptions import AppException, ForbiddenError, NotFoundError, ValidationError
 from app.core.redis_client import RedisKeys, get_redis_client
-from app.db.enums import AuditEntityType, BiddingMode, RFQStatus, BidStatus
+from app.db.enums import AuditEntityType, BiddingMode, BidStatus, RFQStatus
 from app.events.publisher import OutboxPublisher
 from app.modules.audit.service import audit_service
 from app.modules.bid.auction_fsm import validate_auction_transition
+from app.modules.bid.live_bid_repository import LiveBidRepository
 from app.modules.bid.models import (
-    LiveAuction,
-    LiveBid,
     AuctionParticipant,
     AuctionRankSnapshot,
-    BidResponse,
     BidLineResponse,
+    BidResponse,
+    LiveAuction,
+    LiveBid,
 )
-from app.modules.bid.live_bid_repository import LiveBidRepository
 from app.modules.bid.schemas import AuctionConfig, AuctionCreateRequest
 from app.modules.sourcing.models import Rfq, RfqLine
-from app.modules.sourcing.repository import rfq_repository, rfq_participant_repository
+from app.modules.sourcing.repository import rfq_participant_repository, rfq_repository
 from app.modules.vendor.repository import vendor_repository
 
 
 class LiveBidService:
     def __init__(
         self,
-        live_bid_repo: Optional[LiveBidRepository] = None,
+        live_bid_repo: LiveBidRepository | None = None,
         rfq_repo=None,
         participant_repo=None,
         vendor_repo=None,
         audit=None,
-        publisher: Optional[OutboxPublisher] = None,
+        publisher: OutboxPublisher | None = None,
         redis_client=None,
     ):
         self.live_bid_repo = live_bid_repo or LiveBidRepository()
@@ -75,13 +77,20 @@ class LiveBidService:
             raise AppException("INVALID_BIDDING_MODE", "RFQ must be set to LIVE_AUCTION or HYBRID", 400)
 
         rfq_status_val = rfq.status.value if hasattr(rfq.status, "value") else str(rfq.status)
-        valid_rfq_states = (RFQStatus.PUBLISHED.value, RFQStatus.BIDS_OPENED.value, RFQStatus.BID_OPEN.value, "PUBLISHED", "BIDS_OPENED", "BID_OPEN")
+        valid_rfq_states = (
+            RFQStatus.PUBLISHED.value,
+            RFQStatus.BIDS_OPENED.value,
+            RFQStatus.BID_OPEN.value,
+            "PUBLISHED",
+            "BIDS_OPENED",
+            "BID_OPEN",
+        )
         if rfq_status_val not in valid_rfq_states:
             raise AppException("INVALID_RFQ_STATE", "RFQ must be PUBLISHED or BIDS_OPENED for HYBRID mode", 400)
 
         start_at = data.config.auction_start_at
         if start_at.tzinfo is None:
-            start_at = start_at.replace(tzinfo=timezone.utc)
+            start_at = start_at.replace(tzinfo=UTC)
         close_at = start_at + timedelta(minutes=data.config.auction_duration_minutes)
 
         auction = LiveAuction(
@@ -126,9 +135,7 @@ class LiveBidService:
         auction.rfq_title = rfq.title
         return auction
 
-    async def get_auction(
-        self, db: AsyncSession, auction_id: UUID, org_id: Optional[UUID] = None
-    ) -> Optional[LiveAuction]:
+    async def get_auction(self, db: AsyncSession, auction_id: UUID, org_id: UUID | None = None) -> LiveAuction | None:
         auction = await self.live_bid_repo.get(db, auction_id, org_id)
         if not auction:
             return None
@@ -147,12 +154,12 @@ class LiveBidService:
         self,
         db: AsyncSession,
         org_id: UUID,
-        vendor_id: Optional[UUID] = None,
-        rfq_id: Optional[UUID] = None,
-        status: Optional[str] = None,
+        vendor_id: UUID | None = None,
+        rfq_id: UUID | None = None,
+        status: str | None = None,
         skip: int = 0,
         limit: int = 20,
-    ) -> Tuple[List[LiveAuction], int]:
+    ) -> tuple[list[LiveAuction], int]:
         auctions, total = await self.live_bid_repo.list_auctions(
             db, org_id, vendor_id=vendor_id, rfq_id=rfq_id, status=status, skip=skip, limit=limit
         )
@@ -182,7 +189,7 @@ class LiveBidService:
             raise NotFoundError(f"Auction {auction_id} not found")
 
         await self._fsm_validate(auction.status, "OPEN")
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         auction.status = "OPEN"
         auction.actual_start_at = now
         await self.audit.log(db, AuditEntityType.AUCTION, auction_id, "AUCTION_OPENED", None, org_id)
@@ -202,16 +209,16 @@ class LiveBidService:
         self,
         db: AsyncSession,
         auction_id: UUID,
-        lot_id: Optional[UUID],
+        lot_id: UUID | None,
         bid_amount_inr: Decimal,
         actor: Any,
         org_id: UUID,
         is_proxy: bool = False,
         cascade_count: int = 0,
-        client_ip: Optional[str] = None,
-        session_id: Optional[str] = None,
+        client_ip: str | None = None,
+        session_id: str | None = None,
     ) -> LiveBid:
-        auction = await self.live_bid_repo.get(db, auction_id, org_id)
+        auction = await self.live_bid_repo.get(db, auction_id, org_id, for_update=True)
         if not auction:
             raise NotFoundError(f"Auction {auction_id} not found")
 
@@ -220,10 +227,10 @@ class LiveBidService:
             raise AppException("AUCTION_NOT_OPEN", f"Auction status is {auction.status}", 400)
 
         # --- Guard 2: deadline (authoritative server time) ---
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         close_at = auction.current_close_at
         if close_at.tzinfo is None:
-            close_at = close_at.replace(tzinfo=timezone.utc)
+            close_at = close_at.replace(tzinfo=UTC)
         if now > close_at:
             raise AppException("AUCTION_CLOSED", "Auction has already closed", 400)
 
@@ -380,9 +387,7 @@ class LiveBidService:
 
         # --- Proxy bidding trigger ---
         if config.allow_proxy_bid and not is_proxy:
-            await self.execute_proxy_bids(
-                db, auction_id, lot_id, live_bid, org_id, cascade_count=cascade_count
-            )
+            await self.execute_proxy_bids(db, auction_id, lot_id, live_bid, org_id, cascade_count=cascade_count)
 
         return live_bid
 
@@ -391,7 +396,7 @@ class LiveBidService:
         db: AsyncSession,
         auction_id: UUID,
         *args: Any,
-        org_id: Optional[UUID] = None,
+        org_id: UUID | None = None,
         **kwargs: Any,
     ) -> LiveAuction:
         """Called by Celery task when current_close_at is reached or admin closes."""
@@ -424,7 +429,7 @@ class LiveBidService:
         # Persist winning bids as bid_line_responses for downstream CS generation (SPEC_12 bridge)
         await self._persist_winning_bids_to_sealed_table(db, auction, final_ranks, actual_org_id)
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         await self._broadcast(
             auction_id,
             actual_org_id,
@@ -453,9 +458,7 @@ class LiveBidService:
         )
         return auction
 
-    async def release_results(
-        self, db: AsyncSession, auction_id: UUID, actor: Any, org_id: UUID
-    ) -> LiveAuction:
+    async def release_results(self, db: AsyncSession, auction_id: UUID, actor: Any, org_id: UUID) -> LiveAuction:
         auction = await self.live_bid_repo.get(db, auction_id, org_id)
         if not auction:
             raise NotFoundError(f"Auction {auction_id} not found")
@@ -479,7 +482,7 @@ class LiveBidService:
                 org_id,
             )
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         await self._broadcast(
             auction_id,
             org_id,
@@ -502,7 +505,7 @@ class LiveBidService:
 
         await self._fsm_validate(auction.status, "CANCELLED")
         auction.status = "CANCELLED"
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         await self.audit.log(
             db,
             AuditEntityType.AUCTION,
@@ -525,7 +528,7 @@ class LiveBidService:
         return auction
 
     async def send_closing_warning(self, db: AsyncSession, auction: LiveAuction, org_id: UUID):
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         await self.audit.log(
             db,
             AuditEntityType.AUCTION,
@@ -550,7 +553,7 @@ class LiveBidService:
         self,
         db: AsyncSession,
         auction_id: UUID,
-        lot_id: Optional[UUID],
+        lot_id: UUID | None,
         floor_amount_inr: Decimal,
         actor: Any,
         org_id: UUID,
@@ -583,7 +586,7 @@ class LiveBidService:
         self,
         db: AsyncSession,
         auction_id: UUID,
-        lot_id: Optional[UUID],
+        lot_id: UUID | None,
         triggering_bid: LiveBid,
         org_id: UUID,
         cascade_count: int = 0,
@@ -595,6 +598,7 @@ class LiveBidService:
         if cascade_count >= 5:
             try:
                 from app.tasks.celery_app import celery_app
+
                 celery_app.send_task(
                     "tasks.execute_proxy_bids",
                     args=[str(auction_id), str(lot_id) if lot_id else None, str(triggering_bid.id), str(org_id), 0],
@@ -660,9 +664,7 @@ class LiveBidService:
             except Exception as exc:
                 logger.info(f"Proxy bid stopped: {exc}")
 
-    async def get_leaderboard(
-        self, db: AsyncSession, auction_id: UUID, actor: Any, org_id: UUID
-    ) -> List[dict]:
+    async def get_leaderboard(self, db: AsyncSession, auction_id: UUID, actor: Any, org_id: UUID) -> list[dict]:
         auction = await self.live_bid_repo.get(db, auction_id, org_id)
         if not auction:
             raise NotFoundError(f"Auction {auction_id} not found")
@@ -670,9 +672,7 @@ class LiveBidService:
             raise ForbiddenError("VENDOR_NOT_PERMITTED", "Vendors cannot view the full auction leaderboard")
         return await self._compute_ranks(db, auction_id, None, org_id)
 
-    async def get_my_rank(
-        self, db: AsyncSession, auction_id: UUID, actor: Any, org_id: UUID
-    ) -> dict:
+    async def get_my_rank(self, db: AsyncSession, auction_id: UUID, actor: Any, org_id: UUID) -> dict:
         auction = await self.live_bid_repo.get(db, auction_id, org_id)
         if not auction:
             raise NotFoundError(f"Auction {auction_id} not found")
@@ -701,54 +701,50 @@ class LiveBidService:
             res["your_bid_inr"] = vendor_entry["bid_amount_inr"]
         return res
 
-    async def get_bid_history(
-        self, db: AsyncSession, auction_id: UUID, actor: Any, org_id: UUID
-    ) -> List[LiveBid]:
+    async def get_bid_history(self, db: AsyncSession, auction_id: UUID, actor: Any, org_id: UUID) -> list[LiveBid]:
         auction = await self.live_bid_repo.get(db, auction_id, org_id)
         if not auction:
             raise NotFoundError(f"Auction {auction_id} not found")
         return await self.live_bid_repo.get_bid_history(db, auction_id, org_id)
 
-    async def _compute_ranks(
-        self, db: AsyncSession, auction_id: UUID, lot_id: Optional[UUID], org_id: UUID
-    ) -> List[dict]:
+    async def _compute_ranks(self, db: AsyncSession, auction_id: UUID, lot_id: UUID | None, org_id: UUID) -> list[dict]:
         """Get best (lowest) valid bid per vendor for this lot, sorted ascending."""
         best_bids = await self.live_bid_repo.get_best_per_vendor(db, auction_id, lot_id, org_id)
         ranks = []
         for idx, b in enumerate(best_bids):
             vendor = await self.vendor_repo.find_by_id(db, b.vendor_id, org_id)
             vendor_name = vendor.company_name if vendor else f"Vendor {idx + 1}"
-            ranks.append({
-                "rank": idx + 1,
-                "vendor_id": str(b.vendor_id),
-                "vendor_name": vendor_name,
-                "bid_amount_inr": float(b.bid_amount_inr),
-                "lot_id": str(b.lot_id) if b.lot_id else (str(lot_id) if lot_id else None),
-                "submitted_at": b.submitted_at.isoformat() if b.submitted_at else datetime.now(timezone.utc).isoformat(),
-            })
+            ranks.append(
+                {
+                    "rank": idx + 1,
+                    "vendor_id": str(b.vendor_id),
+                    "vendor_name": vendor_name,
+                    "bid_amount_inr": float(b.bid_amount_inr),
+                    "lot_id": str(b.lot_id) if b.lot_id else (str(lot_id) if lot_id else None),
+                    "submitted_at": b.submitted_at.isoformat() if b.submitted_at else datetime.now(UTC).isoformat(),
+                }
+            )
         return ranks
 
-    async def _compute_final_ranks(self, db: AsyncSession, auction_id: UUID, org_id: UUID) -> List[dict]:
+    async def _compute_final_ranks(self, db: AsyncSession, auction_id: UUID, org_id: UUID) -> list[dict]:
         return await self._compute_ranks(db, auction_id, None, org_id)
 
     async def _get_current_best_bid(
-        self, db: AsyncSession, auction_id: UUID, lot_id: Optional[UUID], org_id: UUID
-    ) -> Optional[Decimal]:
+        self, db: AsyncSession, auction_id: UUID, lot_id: UUID | None, org_id: UUID
+    ) -> Decimal | None:
         return await self.live_bid_repo.get_auction_best_bid(db, auction_id, lot_id, org_id)
 
     async def _persist_winning_bids_to_sealed_table(
-        self, db: AsyncSession, auction: LiveAuction, final_ranks: List[dict], org_id: UUID
+        self, db: AsyncSession, auction: LiveAuction, final_ranks: list[dict], org_id: UUID
     ):
         """
         Write winning live bids into bid_responses + bid_line_responses so SPEC_12 CS generation works unchanged.
         Sets normalized_price_inr = winning bid_amount_inr and exchange_rate_used = 1.0.
         """
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         for entry in final_ranks:
             v_id = UUID(entry["vendor_id"])
-            best_bid = await self.live_bid_repo.get_best_for_vendor_lot(
-                db, auction.id, v_id, None, org_id
-            )
+            best_bid = await self.live_bid_repo.get_best_for_vendor_lot(db, auction.id, v_id, None, org_id)
             if not best_bid:
                 continue
 
@@ -796,7 +792,9 @@ class LiveBidService:
                     if existing_blr:
                         existing_blr.normalized_price_inr = best_bid.bid_amount_inr
                         existing_blr.unit_price_encrypted = encrypt_field(str(best_bid.bid_amount_inr))
-                        existing_blr.total_price_encrypted = encrypt_field(str(best_bid.bid_amount_inr * (line.quantity or Decimal("1.0"))))
+                        existing_blr.total_price_encrypted = encrypt_field(
+                            str(best_bid.bid_amount_inr * (line.quantity or Decimal("1.0")))
+                        )
                         existing_blr.exchange_rate_used = Decimal("1.0")
                         existing_blr.remarks = "source=LIVE_AUCTION"
                     else:
@@ -807,7 +805,9 @@ class LiveBidService:
                                 rfq_line_id=line.id,
                                 lot_id=best_bid.lot_id or line.lot_id,
                                 unit_price_encrypted=encrypt_field(str(best_bid.bid_amount_inr)),
-                                total_price_encrypted=encrypt_field(str(best_bid.bid_amount_inr * (line.quantity or Decimal("1.0")))),
+                                total_price_encrypted=encrypt_field(
+                                    str(best_bid.bid_amount_inr * (line.quantity or Decimal("1.0")))
+                                ),
                                 normalized_price_inr=best_bid.bid_amount_inr,
                                 exchange_rate_used=Decimal("1.0"),
                                 currency="INR",
@@ -842,7 +842,7 @@ class LiveBidService:
         self,
         auction: LiveAuction,
         live_bid: LiveBid,
-        new_ranks: List[dict],
+        new_ranks: list[dict],
         config: AuctionConfig,
         now: datetime,
         org_id: UUID,

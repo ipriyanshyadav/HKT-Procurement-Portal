@@ -1,4 +1,5 @@
 "use client";
+import { getErrorMessage } from "@procurement/utils";
 
 import React, { useState } from "react";
 import Link from "next/link";
@@ -9,6 +10,7 @@ import {
   useSimulateRuleMatching,
   useApprovalSimulate,
 } from "@procurement/hooks";
+import { useAppToast } from "@procurement/hooks";
 import {
   PageHeader,
   Card,
@@ -54,6 +56,7 @@ interface ConditionRow {
 }
 
 export default function CreateApprovalRulePage() {
+  const { toast } = useAppToast();
   const router = useRouter();
   const createMutation = useCreateApprovalRule();
   const activateMutation = useActivateApprovalRule();
@@ -132,8 +135,11 @@ export default function CreateApprovalRulePage() {
         entity_context: parsedContext,
       });
       setSimResult(matchRes);
-    } catch (err: any) {
-      setSimError(err.message || "Failed to run simulation");
+    } catch (err: unknown) {
+
+      
+
+
     }
   };
 
@@ -157,8 +163,8 @@ export default function CreateApprovalRulePage() {
       }
 
       router.push("/approval-rules");
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to create approval rule");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to create approval rule"));
     }
   };
 

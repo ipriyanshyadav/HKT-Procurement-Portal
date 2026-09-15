@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { useIntegrationConfig, useUpdateIntegrationConfig } from "@procurement/hooks";
+import { useIntegrationConfig, useUpdateIntegrationConfig, getErrorMessage } from "@procurement/hooks";
 import {
   ArrowLeft,
   Save,
@@ -74,10 +74,10 @@ export default function IntegrationSettingsPage() {
       });
       setApiKey("");
       setTimeout(() => setFeedback(null), 6000);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setFeedback({
         type: "error",
-        text: err?.response?.data?.error?.message || "Failed to update integration settings.",
+        text: getErrorMessage(err, "Failed to update integration settings."),
       });
     }
   };

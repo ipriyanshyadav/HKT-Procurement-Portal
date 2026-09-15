@@ -1,9 +1,9 @@
 "use client";
 
-import React, { ReactNode } from "react";
+import React, { ReactNode, useEffect } from "react";
 import { useAuthInit, useCurrentUser, useLogout } from "@procurement/hooks";
 import { useAuthStore } from "@procurement/stores";
-import { AppShell, NotificationBell } from "@procurement/ui";
+import { AppShell, ErrorBoundary, NotificationBell, UATOverlay } from "@procurement/ui";
 import { Building2, FileCheck, UserPlus, Gavel, Package, Receipt, CreditCard, AlertCircle, LifeBuoy, FileText, Truck } from "lucide-react";
 
 export default function SupplierMainLayout({ children }: { children: ReactNode }) {
@@ -13,7 +13,14 @@ export default function SupplierMainLayout({ children }: { children: ReactNode }
   const user = currentUser || storeUser;
   const logoutMutation = useLogout();
 
-  if (isInitializing) {
+  useEffect(() => {
+    if (!isInitializing && !user) {
+      const pathname = window.location.pathname + window.location.search;
+      window.location.href = `/login?redirect=${encodeURIComponent(pathname)}`;
+    }
+  }, [isInitializing, user]);
+
+  if (isInitializing || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-neutral-900">
         <div className="flex flex-col items-center gap-3">
@@ -116,7 +123,10 @@ export default function SupplierMainLayout({ children }: { children: ReactNode }
       onLogout={() => logoutMutation.mutate()}
       actions={<NotificationBell />}
     >
-      {children}
+      <ErrorBoundary>
+        <UATOverlay />
+        {children}
+      </ErrorBoundary>
     </AppShell>
   );
 }

@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any
 from uuid import UUID
 
-from sqlalchemy import select, update
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.enums import ApprovalTaskStatusEnum, UserStatusEnum
@@ -32,8 +32,8 @@ class HRMSConsumer:
         db: AsyncSession,
         employee_id: str,
         org_id: UUID,
-        reassign_to_user_id: Optional[UUID] = None,
-    ) -> Dict[str, Any]:
+        reassign_to_user_id: UUID | None = None,
+    ) -> dict[str, Any]:
         """
         Handle employee termination from HRMS:
         1. Set user status to TERMINATED
@@ -96,7 +96,7 @@ class HRMSConsumer:
         db: AsyncSession,
         user_id: UUID,
         org_id: UUID,
-        reassign_to_user_id: Optional[UUID] = None,
+        reassign_to_user_id: UUID | None = None,
     ) -> int:
         """Find pending workflow tasks assigned to the terminated user and reassign them."""
         stmt = select(WorkflowTask).where(
@@ -122,9 +122,9 @@ class HRMSConsumer:
     async def handle_employee_created(
         self,
         db: AsyncSession,
-        employee_data: Dict[str, Any],
+        employee_data: dict[str, Any],
         org_id: UUID,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Create new portal user from HRMS employee profile."""
         email = employee_data.get("email", "").lower().strip()
         employee_id = employee_data.get("employee_id")

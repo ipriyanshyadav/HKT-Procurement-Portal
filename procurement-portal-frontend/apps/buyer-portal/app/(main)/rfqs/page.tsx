@@ -88,29 +88,31 @@ export default function RfqListPage() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm text-slate-600 dark:text-slate-300">
-              <thead className="bg-slate-50 dark:bg-[#252529] text-xs uppercase font-semibold text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-white/10">
+              <thead className="bg-slate-50 dark:bg-[#252529] text-xs uppercase font-semibold text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-white/10 tracking-wider">
                 <tr>
-                  <th className="px-6 py-3.5">RFQ Number</th>
-                  <th className="px-6 py-3.5">Title</th>
-                  <th className="px-6 py-3.5">Type & Mode</th>
-                  <th className="px-6 py-3.5">Status</th>
-                  <th className="px-6 py-3.5">Est. Value</th>
-                  <th className="px-6 py-3.5">Deadline</th>
-                  <th className="px-6 py-3.5 text-right">Actions</th>
+                  <th className="px-4 py-3.5 w-36 whitespace-nowrap">RFQ Number</th>
+                  <th className="px-4 py-3.5">Title</th>
+                  <th className="px-4 py-3.5 w-36 whitespace-nowrap">Type & Mode</th>
+                  <th className="px-4 py-3.5 w-32 whitespace-nowrap">Status</th>
+                  <th className="px-4 py-3.5 w-36 text-right whitespace-nowrap">Est. Value</th>
+                  <th className="px-4 py-3.5 w-32 whitespace-nowrap">Deadline</th>
+                  <th className="px-4 py-3.5 w-48 text-right whitespace-nowrap">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-white/10">
                 {rfqs.map((rfq) => (
                   <tr key={rfq.id} className="hover:bg-slate-50 dark:hover:bg-white/[0.04] transition-colors">
-                    <td className="px-6 py-4 font-mono font-medium text-slate-900 dark:text-slate-100">
+                    <td className="px-4 py-3 font-mono font-medium text-slate-900 dark:text-slate-100 whitespace-nowrap">
                       <Link href={`/rfqs/${rfq.id}`} className="hover:text-blue-600 dark:hover:text-blue-400 hover:underline">
                         {rfq.rfq_number}
                       </Link>
                     </td>
-                    <td className="px-6 py-4 font-medium text-slate-900 dark:text-slate-100 max-w-[280px] truncate">
-                      {rfq.title}
+                    <td className="px-4 py-3 font-medium text-slate-900 dark:text-slate-100">
+                      <span className="line-clamp-2" title={rfq.title}>
+                        {rfq.title}
+                      </span>
                     </td>
-                    <td className="px-6 py-4 text-xs">
+                    <td className="px-4 py-3 text-xs whitespace-nowrap">
                       <div className="flex flex-col gap-1 items-start">
                         {rfq.rfq_type === "EMERGENCY" ? (
                           <span className="px-2 py-0.5 bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-900/50 rounded font-semibold text-[11px] flex items-center gap-1">
@@ -128,18 +130,18 @@ export default function RfqListPage() {
                         )}
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-4 py-3 whitespace-nowrap">
                       <Badge variant={rfq.status}>
                         {rfq.status}
                       </Badge>
                     </td>
-                    <td className="px-6 py-4 font-medium font-mono text-slate-900 dark:text-slate-100">
+                    <td className="px-4 py-3 font-medium font-mono text-slate-900 dark:text-slate-100 text-right whitespace-nowrap">
                       ₹{Number(rfq.estimated_value).toLocaleString("en-IN")}
                     </td>
-                    <td className="px-6 py-4 text-xs text-slate-500 dark:text-slate-400">
+                    <td className="px-4 py-3 text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">
                       {rfq.bid_close_at ? new Date(rfq.bid_close_at).toLocaleDateString() : "—"}
                     </td>
-                    <td className="px-6 py-4 text-right">
+                    <td className="px-4 py-3 text-right whitespace-nowrap">
                       <div className="flex items-center justify-end gap-2">
                         {rfq.bidding_mode === "LIVE_AUCTION" && (
                           <Link href={`/rfqs/${rfq.id}/auction`}>

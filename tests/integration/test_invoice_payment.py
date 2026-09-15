@@ -12,9 +12,10 @@ Integration tests for SPEC_15 Invoice & Payment:
 - S15-14: Invoice aging alerts (Celery task)
 - S15-15: Financial Year computation (April 1 boundary)
 """
+
 from __future__ import annotations
 
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, timedelta
 from decimal import Decimal
 from uuid import uuid4
 
@@ -25,26 +26,21 @@ from sqlalchemy.pool import NullPool
 
 import app.main  # noqa: F401
 from app.config import settings
-from app.core.exceptions import ConflictError, ValidationError
-from app.db.enums import InvoiceStatusEnum, PaymentStatusEnum, POStatus
-from app.modules.invoice.models import Invoice, InvoiceLine, InvoiceMatchResult
+from app.core.exceptions import ConflictError
+from app.db.enums import InvoiceStatusEnum, PaymentStatusEnum
+from app.modules.invoice.models import Invoice
 from app.modules.invoice.schemas import (
-    InvoiceDisputeRequest,
     InvoiceLineCreate,
-    InvoiceRejectRequest,
     InvoiceSubmitRequest,
 )
-from app.modules.invoice.service import QUANTITY_TOLERANCE, invoice_service
+from app.modules.invoice.service import invoice_service
 from app.modules.master_data.models import HolidayMaster, PaymentTerm
-from app.modules.payment.models import Dispute, DisputeMessage, PaymentRecord
 from app.modules.payment.schemas import (
     DisputeMessageCreateRequest,
     DisputeResolveRequest,
-    ErpPaymentWebhookRequest,
     PaymentProcessRequest,
 )
 from app.modules.payment.service import payment_service
-from app.modules.purchase_order.models import PoLine, PurchaseOrder
 from app.tasks.invoice_aging import async_check_invoice_aging
 
 test_engine = create_async_engine(settings.DATABASE_URL, poolclass=NullPool)
@@ -390,7 +386,7 @@ async def test_payment_due_date_skips_weekends_and_holidays():
     """Payment due date landing on weekend or active holiday advances to next business day."""
     org_id = uuid4()
     async with TestSession() as db:
-        f = await create_invoice_fixtures(db, org_id)
+        _ = await create_invoice_fixtures(db, org_id)
 
         # Invoice Date: Friday 2026-05-01
         # Payment term with 1 net day -> lands on Saturday 2026-05-02
@@ -460,13 +456,16 @@ async def test_tds_deduction_computed():
         )
 
         # Approve invoice -> triggers scheduled payment with TDS
-        approved_inv = await invoice_service.approve(
-            db, invoice.id, actor_id=f["buyer_id"], org_id=org_id
-        )
+        approved_inv = await invoice_service.approve(db, invoice.id, actor_id=f["buyer_id"], org_id=org_id)
         assert approved_inv.status.value == "APPROVED"
 
         payments = await payment_service.list_payments(
-            db, org_id, filters=None or type("F", (), {"invoice_id": invoice.id, "vendor_id": None, "status": None, "page": 1, "page_size": 10})()
+            db,
+            org_id,
+            filters=None
+            or type(
+                "F", (), {"invoice_id": invoice.id, "vendor_id": None, "status": None, "page": 1, "page_size": 10}
+            )(),
         )
         payment = payments[0][0]
 
@@ -508,9 +507,7 @@ async def test_duplicate_invoice_rejected_same_fy():
             ],
         )
 
-        await invoice_service.submit_invoice(
-            db, req, actor_id=f["buyer_id"], vendor_id=f["vendor_id"], org_id=org_id
-        )
+        await invoice_service.submit_invoice(db, req, actor_id=f["buyer_id"], vendor_id=f["vendor_id"], org_id=org_id)
 
         # Attempt duplicate submission
         with pytest.raises(ConflictError) as exc_info:
@@ -687,3 +684,33 @@ async def test_invoice_aging_celery_task():
         # Run aging scanner
         result = await async_check_invoice_aging(session_factory=TestSession)
         assert result["alerts_sent"] >= 1
+
+
+@pytest.mark.asyncio
+async def test_po_flip_draft_generation():
+    """Enterprise PO Flip: Generates pre-populated invoice draft from PO receipts (Ariba/Coupa standard)."""
+    org_id = uuid4()
+    async with TestSession() as db:
+        f = await create_invoice_fixtures(db, org_id)
+
+        # Generate PO Flip draft
+        draft = await invoice_service.generate_po_flip_draft(
+            db, po_id=f["po_id"], org_id=org_id, vendor_id=f["vendor_id"]
+        )
+
+        assert draft.po_id == f["po_id"]
+        expected_po_number = f"PO-{org_id.hex[:4]}-001"
+        assert draft.po_number == expected_po_number
+        assert draft.vendor_id == f["vendor_id"]
+        assert draft.currency == "INR"
+        assert len(draft.lines) == 1
+        line = draft.lines[0]
+        assert line.po_quantity == Decimal("100.0000")
+        assert line.received_quantity == Decimal("100.0000")
+        assert line.invoiceable_quantity == Decimal("100.0000")
+        assert line.unit_price == Decimal("500.00")
+        assert draft.subtotal == Decimal("50000.00")
+        assert draft.tax_amount == Decimal("9000.00")
+        assert draft.total_amount == Decimal("59000.00")
+        assert draft.can_invoice is True
+        assert draft.suggested_vendor_invoice_number.startswith(f"INV-{expected_po_number}-")

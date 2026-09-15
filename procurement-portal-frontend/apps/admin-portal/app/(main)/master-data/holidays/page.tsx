@@ -1,4 +1,5 @@
 "use client";
+import { getErrorMessage } from "@procurement/utils";
 
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
@@ -8,10 +9,13 @@ import {
   useDeleteHoliday,
   type HolidayMaster,
 } from "@procurement/hooks";
-import { Badge, Button, PermissionGuard } from "@procurement/ui";
-import { Calendar, Plus, Search, Trash2, ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
+import { useAppToast } from "@procurement/hooks";
+import { Badge, Button, PermissionGuard, useConfirm, SearchInput, TableSkeleton, EmptyState } from "@procurement/ui";
+import { Calendar, Plus, Trash2, ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function HolidayCalendarPage() {
+  const { toast } = useAppToast();
+  const { confirm } = useConfirm();
   const currentYear = new Date().getFullYear();
   const [selectedYear, setSelectedYear] = useState<number>(currentYear);
 
@@ -64,24 +68,25 @@ export default function HolidayCalendarPage() {
         plant_id: plantId.trim() || null,
       });
       setShowModal(false);
-    } catch (err: any) {
-      setFormError(
-        err?.response?.data?.error?.message ||
-          err?.response?.data?.message ||
-          err?.message ||
-          "Failed to save holiday"
-      );
+    } catch (err: unknown) {
+      setFormError(getErrorMessage(err, "Failed to save holiday"));
     }
   };
 
   const handleDelete = async (item: HolidayMaster) => {
-    if (!window.confirm(`Are you sure you want to remove holiday "${item.name}" on ${item.holiday_date}?`)) {
+    const ok = await confirm({
+      title: "Remove Holiday",
+      description: `Are you sure you want to remove holiday "${item.name}" on ${item.holiday_date}?`,
+      confirmLabel: "Remove",
+      variant: "danger",
+    });
+    if (!ok) {
       return;
     }
     try {
       await deleteMutation.mutateAsync(item.id);
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || err?.message || "Failed to remove holiday");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to remove holiday"));
     }
   };
 
@@ -124,16 +129,14 @@ export default function HolidayCalendarPage() {
         </div>
 
         <div className="flex items-center gap-3">
-          <PermissionGuard permission="master.create">
-            <Button
-              variant="primary"
-              size="sm"
-              icon={<Plus className="w-4 h-4" />}
-              onClick={openCreateModal}
-            >
-              Add Holiday
-            </Button>
-          </PermissionGuard>
+          <Button
+            variant="primary"
+            size="sm"
+            icon={<Plus className="w-4 h-4" />}
+            onClick={openCreateModal}
+          >
+            Add Holiday
+          </Button>
         </div>
       </div>
 
@@ -174,43 +177,45 @@ export default function HolidayCalendarPage() {
           </button>
         </div>
 
-        <div className="text-xs text-gray-500 dark:text-neutral-400 font-mono">
-          Calendar Year {selectedYear}
-        </div>
+        <span className="text-xs text-gray-500 dark:text-neutral-400">
+          {filteredHolidays.length} configured {filteredHolidays.length === 1 ? "day" : "days"} in {selectedYear}
+        </span>
       </div>
 
-      {/* Search and Main Table */}
+      {/* Search Bar */}
       <div className="flex items-center justify-between gap-4 bg-white dark:bg-neutral-900 p-3 rounded-lg border border-gray-200 dark:border-neutral-800 shadow-sm">
-        <div className="relative flex-1 max-w-md">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search by name, date (YYYY-MM-DD), or plant..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-4 py-1.5 text-xs rounded-md border border-gray-200 dark:border-neutral-700 bg-gray-50 dark:bg-neutral-800 text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-          />
-        </div>
+        <SearchInput
+          placeholder="Search by name, date (YYYY-MM-DD), or plant..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="flex-1 max-w-md"
+        />
         <div className="text-xs text-gray-500 font-mono">
           {filteredHolidays.length} holidays scheduled
         </div>
       </div>
 
+      {/* Holidays Table Container */}
       <div className="bg-white dark:bg-neutral-900 rounded-lg border border-gray-200 dark:border-neutral-800 overflow-hidden shadow-sm">
         {isLoading ? (
-          <div className="p-12 text-center text-sm text-gray-500">
-            <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-cyan-600 mb-2"></div>
-            <p>Loading holidays for {selectedYear}...</p>
-          </div>
+          <TableSkeleton rows={6} columns={5} />
         ) : error ? (
-          <div className="p-8 text-center text-sm text-red-600">
-            Failed to load holidays. Please verify backend connection.
-          </div>
+          <EmptyState
+            icon={<Calendar className="w-6 h-6" />}
+            title="Failed to load holidays"
+            description="Verify the backend connection and try again."
+          />
         ) : filteredHolidays.length === 0 ? (
-          <div className="p-12 text-center text-gray-500">
-            <p className="text-sm font-medium">No holidays found for {selectedYear}</p>
-            <p className="text-xs text-gray-400 mt-1">Add holidays to factor into procurement SLAs.</p>
-          </div>
+          <EmptyState
+            icon={<Calendar className="w-6 h-6" />}
+            title={`No holidays found for ${selectedYear}`}
+            description="Add holidays to factor into procurement SLAs."
+            action={
+              <Button size="sm" icon={<Plus className="w-4 h-4" />} onClick={openCreateModal}>
+                Add Holiday
+              </Button>
+            }
+          />
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
@@ -253,17 +258,15 @@ export default function HolidayCalendarPage() {
                     </td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex items-center justify-end gap-1">
-                        <PermissionGuard permission="master.delete">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-red-600 hover:text-red-700"
-                            icon={<Trash2 className="w-3.5 h-3.5" />}
-                            onClick={() => handleDelete(item)}
-                          >
-                            Remove
-                          </Button>
-                        </PermissionGuard>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/20"
+                          icon={<Trash2 className="w-3.5 h-3.5" />}
+                          onClick={() => handleDelete(item)}
+                        >
+                          Remove
+                        </Button>
                       </div>
                     </td>
                   </tr>

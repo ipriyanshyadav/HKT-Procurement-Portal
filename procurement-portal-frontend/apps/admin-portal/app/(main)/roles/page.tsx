@@ -1,4 +1,5 @@
 "use client";
+import { getErrorMessage } from "@procurement/utils";
 
 import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
@@ -11,6 +12,7 @@ import {
   useToggleRolePermission,
   RoleItem,
 } from "@procurement/hooks";
+import { useAppToast } from "@procurement/hooks";
 import { PageHeader, HeroKPIStrip, Card, Badge, Button, Tabs } from "@procurement/ui";
 import {
   Shield,
@@ -27,6 +29,7 @@ import {
 } from "lucide-react";
 
 export default function RolesManagementPage() {
+  const { toast } = useAppToast();
   const [activeTab, setActiveTab] = useState<"roles" | "matrix">("roles");
 
   // Read ?tab=matrix from URL on mount
@@ -72,6 +75,18 @@ export default function RolesManagementPage() {
   const [newSelectedPerms, setNewSelectedPerms] = useState<string[]>([]);
   const [permSearch, setPermSearch] = useState("");
   const [createError, setCreateError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const isAnyModalOpen = Boolean(inspectRole || editRole || showCreateModal);
+    if (isAnyModalOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [inspectRole, editRole, showCreateModal]);
 
   const roleList = useMemo(() => {
     const list = roles || [];
@@ -126,8 +141,8 @@ export default function RolesManagementPage() {
         },
       });
       setEditRole(null);
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to update role");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to update role"));
     }
   };
 
@@ -148,8 +163,11 @@ export default function RolesManagementPage() {
       setNewDescription("");
       setNewIsSupplier(false);
       setNewSelectedPerms([]);
-    } catch (err: any) {
-      setCreateError(err?.response?.data?.error?.message || "Failed to create role");
+    } catch (err: unknown) {
+
+      
+
+
     }
   };
 
@@ -236,8 +254,8 @@ export default function RolesManagementPage() {
         permission_code: permissionCode,
         granted: !currentlyGranted,
       });
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to update permission");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to update permission"));
     }
   };
 
@@ -475,8 +493,8 @@ export default function RolesManagementPage() {
 
       {/* === MODAL: INSPECT ROLE PERMISSIONS === */}
       {inspectRole && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <Card className="max-w-2xl w-full p-6 space-y-5 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-xl max-h-[90vh] flex flex-col">
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 overscroll-contain">
+          <Card className="max-w-2xl w-full p-6 space-y-5 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-xl max-h-[90vh] flex flex-col overscroll-contain">
             <div className="flex items-center justify-between pb-3 border-b border-neutral-200 dark:border-neutral-800">
               <div>
                 <h3 className="text-lg font-bold text-neutral-900 dark:text-neutral-100 flex items-center gap-2">
@@ -499,7 +517,7 @@ export default function RolesManagementPage() {
               {inspectRole.description || "No description provided for this role."}
             </div>
 
-            <div className="flex-1 overflow-y-auto space-y-2 pr-1">
+            <div className="flex-1 overflow-y-auto space-y-2 pr-1 overscroll-contain">
               <span className="text-xs font-bold text-neutral-400 uppercase tracking-wider block mb-1">
                 Granted System Permissions:
               </span>
@@ -542,10 +560,10 @@ export default function RolesManagementPage() {
 
       {/* === MODAL: EDIT ROLE === */}
       {editRole && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 overscroll-contain">
           <form
             onSubmit={handleSaveEdit}
-            className="max-w-md w-full p-6 space-y-4 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl shadow-xl"
+            className="max-w-md w-full p-6 space-y-4 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl shadow-xl overscroll-contain"
           >
             <div className="flex items-center justify-between pb-3 border-b border-neutral-200 dark:border-neutral-800">
               <h3 className="text-lg font-bold text-neutral-900 dark:text-neutral-100 flex items-center gap-2">
@@ -613,10 +631,10 @@ export default function RolesManagementPage() {
 
       {/* === MODAL: CREATE CUSTOM ROLE === */}
       {showCreateModal && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 overscroll-contain">
           <form
             onSubmit={handleCreateRole}
-            className="max-w-xl w-full p-6 space-y-4 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl shadow-xl max-h-[90vh] flex flex-col"
+            className="max-w-xl w-full p-6 space-y-4 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl shadow-xl max-h-[90vh] flex flex-col overscroll-contain"
           >
             <div className="flex items-center justify-between pb-3 border-b border-neutral-200 dark:border-neutral-800">
               <h3 className="text-lg font-bold text-neutral-900 dark:text-neutral-100 flex items-center gap-2">
@@ -638,7 +656,7 @@ export default function RolesManagementPage() {
               </div>
             )}
 
-            <div className="space-y-3 overflow-y-auto flex-1 pr-1">
+            <div className="space-y-3 overflow-y-auto flex-1 pr-1 overscroll-contain">
               <div>
                 <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300 block mb-1">
                   Role Code * (e.g. INVENTORY_CLERK)

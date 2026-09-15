@@ -1,7 +1,9 @@
 from __future__ import annotations
+
 import csv
 import io
-from typing import Any, Dict, List, Union
+from typing import Any
+
 from fastapi.responses import StreamingResponse
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4, landscape
@@ -9,7 +11,7 @@ from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 
 
-def stream_csv(headers: List[str], rows: List[Dict[str, Any]], filename: str) -> StreamingResponse:
+def stream_csv(headers: list[str], rows: list[dict[str, Any]], filename: str) -> StreamingResponse:
     """Stream tabular rows as a downloadable CSV file."""
     def generate():
         output = io.StringIO()
@@ -58,8 +60,8 @@ def stream_pdf(pdf_bytes: bytes, filename: str) -> StreamingResponse:
 
 def generate_table_pdf(
     title: str,
-    headers: List[str],
-    rows: List[Union[Dict[str, Any], List[Any]]],
+    headers: list[str],
+    rows: list[dict[str, Any] | list[Any]],
     orientation: str = "portrait",
 ) -> bytes:
     """Generate professional PDF bytes from tabular data using ReportLab."""

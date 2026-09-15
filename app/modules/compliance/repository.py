@@ -65,6 +65,7 @@ class ComplianceScanRepository(BaseRepository[ComplianceScan]):
     async def list_by_org(self, db: AsyncSession, org_id: UUID, limit: int = 20) -> list[ComplianceScan]:
         stmt = (
             select(ComplianceScan)
+            .options(selectinload(ComplianceScan.findings))
             .where(ComplianceScan.org_id == org_id)
             .order_by(desc(ComplianceScan.created_at))
             .limit(limit)

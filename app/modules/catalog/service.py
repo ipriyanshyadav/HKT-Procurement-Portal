@@ -66,8 +66,8 @@ class CatalogService:
     ) -> CatalogSearchResponse:
         stmt = (
             select(ItemMaster, Category.name.label("category_name"), UomMaster.code.label("uom_code"))
-            .join(Category, ItemMaster.category_id == Category.id)
-            .join(UomMaster, ItemMaster.uom_id == UomMaster.id)
+            .outerjoin(Category, ItemMaster.category_id == Category.id)
+            .outerjoin(UomMaster, ItemMaster.uom_id == UomMaster.id)
             .where(ItemMaster.org_id == org_id, ItemMaster.is_active.is_(True))
         )
 

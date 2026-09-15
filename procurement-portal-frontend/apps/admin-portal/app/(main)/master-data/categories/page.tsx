@@ -1,4 +1,5 @@
 "use client";
+import { getErrorMessage } from "@procurement/utils";
 
 import React, { useState } from "react";
 import Link from "next/link";
@@ -8,10 +9,13 @@ import {
   useDeleteCategory,
   type CategoryTreeNode,
 } from "@procurement/hooks";
-import { CategoryTreeSelect, PermissionGuard, Badge, Button } from "@procurement/ui";
+import { useAppToast } from "@procurement/hooks";
+import { CategoryTreeSelect, PermissionGuard, Badge, Button, useConfirm } from "@procurement/ui";
 import { ArrowRight, Trash2 } from "lucide-react";
 
 export default function CategoriesPage() {
+  const { toast } = useAppToast();
+  const { confirm } = useConfirm();
   const { data: categories = [], isLoading, error, refetch } = useCategoryTree();
   const createMutation = useCreateCategory();
   const deleteMutation = useDeleteCategory();
@@ -66,18 +70,24 @@ export default function CategoriesPage() {
       setNewParentId(null);
       setNewUnspsc("");
       refetch();
-    } catch (err: any) {
-      setFormError(err?.response?.data?.error?.message || err?.message || "Failed to create category");
+    } catch (err: unknown) {
+      setFormError(getErrorMessage(err, "Failed to create category"));
     }
   };
 
   const handleDelete = async (id: string, name: string) => {
-    if (!window.confirm(`Are you sure you want to delete category "${name}"?`)) return;
+    const ok = await confirm({
+      title: "Delete Category",
+      description: `Are you sure you want to delete category "${name}"?`,
+      confirmLabel: "Delete",
+      variant: "danger",
+    });
+    if (!ok) return;
     try {
       await deleteMutation.mutateAsync(id);
       refetch();
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || err?.message || "Failed to delete category");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to delete category"));
     }
   };
 

@@ -15,6 +15,7 @@ import {
   TrendingUp,
   FileSignature,
 } from "lucide-react";
+import { TableSkeleton, EmptyState, PageHeader, SearchInput } from "@procurement/ui";
 
 export default function SupplierContractsPage() {
   const [search, setSearch] = useState("");
@@ -133,16 +134,14 @@ export default function SupplierContractsPage() {
       {/* Filters Bar */}
       <div className="bg-white dark:bg-[#1C1C1F] p-4 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm flex flex-wrap items-center gap-3">
         <div className="flex-1 min-w-[240px] relative">
-          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-          <input
-            type="text"
-            placeholder="Search by contract number or title..."
+          <SearchInput
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
               setPage(1);
             }}
-            className="w-full text-sm border border-slate-300 dark:border-white/15 bg-white dark:bg-[#252529] text-slate-900 dark:text-slate-100 rounded-xl pl-9 pr-3.5 py-2 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+            placeholder="Search by contract number or title..."
+            className="w-full"
           />
         </div>
 
@@ -182,19 +181,17 @@ export default function SupplierContractsPage() {
       {/* Contracts Table */}
       <div className="bg-white dark:bg-[#1C1C1F] rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm overflow-hidden">
         {isLoading ? (
-          <div className="p-16 text-center text-slate-500 dark:text-slate-400 text-sm">
-            <Clock className="w-6 h-6 animate-spin mx-auto mb-2 text-emerald-600" />
-            Loading your contracts...
-          </div>
+          <TableSkeleton rows={8} columns={6} />
         ) : isError ? (
           <div className="p-16 text-center text-rose-500 text-sm">
             Failed to load contracts. Please check your network connection.
           </div>
         ) : contracts.length === 0 ? (
-          <div className="p-16 text-center text-slate-500 dark:text-slate-400 text-sm">
-            <FileText className="w-8 h-8 mx-auto mb-2 text-slate-400" />
-            No contracts found matching your filters.
-          </div>
+          <EmptyState
+            icon={<FileText className="w-6 h-6" />}
+            title="No contracts found"
+            description="No contracts found matching your filters."
+          />
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm text-slate-600 dark:text-slate-300">

@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from typing import Optional
+from datetime import datetime
 from uuid import UUID
 
 from loguru import logger
-from pydantic import BaseModel as PydanticBaseModel, Field, model_validator
+from pydantic import BaseModel as PydanticBaseModel
+from pydantic import Field, model_validator
 from sqlalchemy import and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -27,7 +27,7 @@ class UomCreateRequest(PydanticBaseModel):
 
     code: str = Field(..., min_length=1, max_length=20, description="Unique UoM code within the organisation.")
     name: str = Field(..., min_length=1, max_length=100, description="Human-readable name of the UoM.")
-    iso_code: Optional[str] = Field(default=None, max_length=10, description="ISO 80000 or similar standard code.")
+    iso_code: str | None = Field(default=None, max_length=10, description="ISO 80000 or similar standard code.")
 
 
 class UomUpdateRequest(PydanticBaseModel):
@@ -36,9 +36,9 @@ class UomUpdateRequest(PydanticBaseModel):
     All fields are optional; only supplied fields are applied.
     """
 
-    name: Optional[str] = Field(default=None, min_length=1, max_length=100)
-    iso_code: Optional[str] = Field(default=None, max_length=10)
-    is_active: Optional[bool] = Field(default=None)
+    name: str | None = Field(default=None, min_length=1, max_length=100)
+    iso_code: str | None = Field(default=None, max_length=10)
+    is_active: bool | None = Field(default=None)
 
     @model_validator(mode="after")
     def at_least_one_field_set(self) -> UomUpdateRequest:
@@ -56,7 +56,7 @@ class UomResponse(PydanticBaseModel):
     org_id: UUID
     code: str
     name: str
-    iso_code: Optional[str]
+    iso_code: str | None
     is_active: bool
     version: int
     created_at: datetime
@@ -79,7 +79,7 @@ class UomRepository(BaseRepository[UomMaster]):
         db: AsyncSession,
         code: str,
         org_id: UUID,
-    ) -> Optional[UomMaster]:
+    ) -> UomMaster | None:
         """Return an active (non-deleted) UoM row matching *code* within *org_id*, or None."""
         stmt = select(UomMaster).where(
             and_(
@@ -161,7 +161,7 @@ class UomService:
         db: AsyncSession,
         org_id: UUID,
         include_inactive: bool = False,
-        active_only: Optional[bool] = None,
+        active_only: bool | None = None,
     ) -> list[UomMaster]:
         """Return all UoM records visible to *org_id*.
 

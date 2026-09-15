@@ -1,4 +1,5 @@
 "use client";
+import { getErrorMessage } from "@procurement/utils";
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
@@ -8,6 +9,7 @@ import {
   useUpdateWorkflowTemplate,
   WorkflowStepConfig,
 } from "@procurement/hooks";
+import { useAppToast } from "@procurement/hooks";
 import { PageHeader, Card, Button, Badge } from "@procurement/ui";
 import {
   GitFork,
@@ -38,6 +40,7 @@ const STANDARD_ROLES = [
 ];
 
 export default function WorkflowTemplateDetailPage() {
+  const { toast } = useAppToast();
   const params = useParams();
   const router = useRouter();
   const templateId = params?.id as string;
@@ -84,7 +87,7 @@ export default function WorkflowTemplateDetailPage() {
 
   const handleDeleteStep = (index: number) => {
     if (steps.length <= 1) {
-      alert("A workflow must have at least one step.");
+      toast.error("A workflow must have at least one step.");
       return;
     }
     const filtered = steps.filter((_, idx) => idx !== index);
@@ -126,12 +129,11 @@ export default function WorkflowTemplateDetailPage() {
       });
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 4000);
-    } catch (err: any) {
-      setErrorMessage(
-        err?.response?.data?.error?.message || err.message || "Failed to update workflow template."
-      );
+    } catch (err: unknown) {
+      setErrorMessage(getErrorMessage(err, "Failed to update workflow template."));
     }
   };
+
 
   if (isLoading) {
     return (

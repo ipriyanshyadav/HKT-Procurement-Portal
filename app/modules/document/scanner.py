@@ -1,7 +1,8 @@
 from __future__ import annotations
+
 import asyncio
 import struct
-from typing import Optional, Tuple
+
 from loguru import logger
 
 try:
@@ -12,12 +13,12 @@ except (ImportError, OSError):
     MAGIC_AVAILABLE = False
     logger.info("python-magic or libmagic not found on host — using content-type header fallback")
 
-from app.config import settings
-from app.core.exceptions import ValidationError
-
 import re
 import subprocess
 import unicodedata
+
+from app.config import settings
+from app.core.exceptions import ValidationError
 
 ALLOWED_MIME_TYPES: dict[str, list[str]] = {
     "GSTIN_CERTIFICATE": ["application/pdf", "image/jpeg", "image/png"],
@@ -111,10 +112,8 @@ def validate_mime_type(
             "docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
             "zip": "application/zip",
         }
-        if ext in ext_map:
-            detected_mime = ext_map[ext]
-        else:
-            detected_mime = detected_mime or "application/octet-stream"
+        detected_mime = ext_map.get(ext, detected_mime or "application/octet-stream")
+
 
     if detected_mime in DISALLOWED_MIME_TYPES:
         raise ValidationError(
@@ -174,12 +173,13 @@ async def scan_with_clamav(file_path: str) -> tuple[bool, str]:
     """
     try:
         def _run():
-            return subprocess.run(
-                ["clamscan", "--no-summary", file_path],
+            return subprocess.run(  # noqa: S603
+                ["clamscan", "--no-summary", file_path],  # noqa: S607
                 capture_output=True,
                 timeout=30,
             )
         result = await asyncio.to_thread(_run)
+
         if result.returncode == 0:
             return True, ""
         stdout = result.stdout.decode("utf-8", errors="replace")
@@ -198,10 +198,10 @@ class ClamAVScanner:
 
     def __init__(
         self,
-        host: Optional[str] = None,
-        port: Optional[int] = None,
-        timeout: Optional[int] = None,
-        enabled: Optional[bool] = None,
+        host: str | None = None,
+        port: int | None = None,
+        timeout: int | None = None,
+        enabled: bool | None = None,
     ) -> None:
         self.host = host or settings.CLAMAV_HOST
         self.port = port or settings.CLAMAV_PORT
@@ -227,7 +227,7 @@ class ClamAVScanner:
             logger.debug(f"ClamAV ping failed: {exc}")
             return False
 
-    async def scan_bytes(self, data: bytes) -> Tuple[bool, str]:
+    async def scan_bytes(self, data: bytes) -> tuple[bool, str]:
         """
         Scan a byte payload for malware.
         Returns:
@@ -265,25 +265,25 @@ class ClamAVScanner:
             response_str = response_str.replace(chr(0), "").strip()
             if "OK" in response_str:
                 return True, "CLEAN"
-            elif "FOUND" in response_str:
+            if "FOUND" in response_str:
                 logger.warning(f"Malware detected by ClamAV: {response_str}")
                 return False, f"INFECTED: {response_str}"
-            else:
-                logger.error(f"Unexpected ClamAV scan response: {response_str}")
-                return False, f"SCAN_ERROR: {response_str}"
+            logger.error(f"Unexpected ClamAV scan response: {response_str}")
+            return False, f"SCAN_ERROR: {response_str}"
 
-        except (ConnectionRefusedError, OSError, asyncio.TimeoutError) as exc:
+        except (TimeoutError, ConnectionRefusedError, OSError) as exc:
             if settings.ENVIRONMENT in ("local", "dev"):
                 logger.warning(f"ClamAV daemon offline at {self.host}:{self.port} ({exc}); skipping scan in {settings.ENVIRONMENT} mode.")
                 return True, "SKIPPED_UNAVAILABLE"
             logger.error(f"ClamAV scanner unavailable in production: {exc}")
-            raise ValidationError("VIRUS_SCAN_UNAVAILABLE", "Antivirus scanning service is currently unavailable")
+            raise ValidationError("VIRUS_SCAN_UNAVAILABLE", "Antivirus scanning service is currently unavailable") from exc
+
 
 
 def validate_file_magic(
     file_bytes: bytes,
     declared_content_type: str,
-    allowed_types: Optional[set[str]] = None,
+    allowed_types: set[str] | None = None,
 ) -> str:
     """
     Validates file magic bytes against disallowed executable types and declared MIME type.

@@ -1,20 +1,30 @@
 from __future__ import annotations
-from datetime import datetime, timedelta, timezone
-from typing import Optional
+
+from datetime import UTC, datetime, timedelta
+from functools import lru_cache
 from uuid import UUID
-from jose import jwt, JWTError
+
+from jose import JWTError, jwt
+
 from app.config import settings
 from app.core.exceptions import AuthenticationError
+
 
 def _read_key(path: str) -> str:
     """Read PEM key from file path."""
     with open(path) as f:
         return f.read()
 
+
+@lru_cache(maxsize=1)
 def _load_private_key() -> str:
+    """Load and cache the RSA private key (read once per process)."""
     return _read_key(settings.JWT_PRIVATE_KEY_PATH)
 
+
+@lru_cache(maxsize=1)
 def _load_public_key() -> str:
+    """Load and cache the RSA public key (read once per process)."""
     return _read_key(settings.JWT_PUBLIC_KEY_PATH)
 
 def create_access_token(
@@ -26,12 +36,12 @@ def create_access_token(
     category_scope: list[str],
     plant_scope: list[str],
     is_supplier_user: bool,
-    vendor_id: Optional[UUID],
+    vendor_id: UUID | None,
     jti: str,
     portal: str = "buyer",
-    active_legal_entity_id: Optional[UUID] = None,
+    active_legal_entity_id: UUID | None = None,
 ) -> str:
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     expire = now + timedelta(minutes=settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES)
     payload = {
         "sub": str(user_id),
@@ -53,7 +63,7 @@ def create_access_token(
     return jwt.encode(payload, _load_private_key(), algorithm=settings.JWT_ALGORITHM)
 
 def create_refresh_token(user_id: UUID, org_id: UUID, jti: str) -> str:
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     expire = now + timedelta(hours=settings.JWT_REFRESH_TOKEN_EXPIRE_HOURS)
     payload = {
         "sub": str(user_id),
@@ -68,7 +78,7 @@ def create_refresh_token(user_id: UUID, org_id: UUID, jti: str) -> str:
 
 def create_mfa_token(user_id: UUID, jti: str) -> str:
     """Short-lived token for MFA challenge. Contains NO roles/permissions."""
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     expire = now + timedelta(minutes=5)
     payload = {
         "sub": str(user_id),
@@ -85,4 +95,5 @@ def decode_jwt(token: str) -> dict:
     try:
         return jwt.decode(token, _load_public_key(), algorithms=[settings.JWT_ALGORITHM])
     except JWTError as e:
-        raise AuthenticationError(f"Token validation failed: {e}")
+        raise AuthenticationError(f"Token validation failed: {e}") from e
+

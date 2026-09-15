@@ -1,4 +1,5 @@
 "use client";
+import { getErrorMessage } from "@procurement/utils";
 
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
@@ -9,10 +10,13 @@ import {
   useDeletePaymentTerm,
   type PaymentTerm,
 } from "@procurement/hooks";
-import { Badge, Button, PermissionGuard } from "@procurement/ui";
-import { CreditCard, Plus, Search, Edit2, Trash2, ArrowLeft } from "lucide-react";
+import { useAppToast } from "@procurement/hooks";
+import { Badge, Button, PermissionGuard, useConfirm, SearchInput, TableSkeleton, EmptyState } from "@procurement/ui";
+import { CreditCard, Plus, Edit2, Trash2, ArrowLeft } from "lucide-react";
 
 export default function PaymentTermsManagementPage() {
+  const { toast } = useAppToast();
+  const { confirm } = useConfirm();
   const { data: paymentTerms = [], isLoading, error } = usePaymentTerms({ active_only: false });
   const createMutation = useCreatePaymentTerm();
   const updateMutation = useUpdatePaymentTerm();
@@ -108,24 +112,24 @@ export default function PaymentTermsManagementPage() {
         });
       }
       setShowModal(false);
-    } catch (err: any) {
-      setFormError(
-        err?.response?.data?.error?.message ||
-          err?.response?.data?.message ||
-          err?.message ||
-          "Failed to save Payment Term"
-      );
+    } catch (err: unknown) {
+      setFormError(getErrorMessage(err, "Failed to save Payment Term"));
     }
   };
 
   const handleDelete = async (item: PaymentTerm) => {
-    if (!window.confirm(`Are you sure you want to deactivate payment term "${item.code}"?`)) {
-      return;
-    }
+    const ok = await confirm({
+      title: "Deactivate Payment Term",
+      description: `Are you sure you want to deactivate payment term "${item.code}"?`,
+      confirmLabel: "Deactivate",
+      variant: "danger",
+    });
+    if (!ok) return;
     try {
       await deleteMutation.mutateAsync(item.id);
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || err?.message || "Failed to delete Payment Term");
+      toast.success("Payment term deactivated successfully");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to delete Payment Term"));
     }
   };
 
@@ -168,16 +172,12 @@ export default function PaymentTermsManagementPage() {
 
       {/* Filter and Search Bar */}
       <div className="flex items-center justify-between gap-4 bg-white dark:bg-neutral-900 p-3 rounded-lg border border-gray-200 dark:border-neutral-800 shadow-sm">
-        <div className="relative flex-1 max-w-md">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search by code, name, or description..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-4 py-1.5 text-xs rounded-md border border-gray-200 dark:border-neutral-700 bg-gray-50 dark:bg-neutral-800 text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-          />
-        </div>
+        <SearchInput
+          placeholder="Search by code, name, or description..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="flex-1 max-w-md"
+        />
         <div className="text-xs text-gray-500 font-mono">
           Showing {filteredTerms.length} of {paymentTerms.length} records
         </div>
@@ -186,19 +186,20 @@ export default function PaymentTermsManagementPage() {
       {/* Main Table */}
       <div className="bg-white dark:bg-neutral-900 rounded-lg border border-gray-200 dark:border-neutral-800 overflow-hidden shadow-sm">
         {isLoading ? (
-          <div className="p-12 text-center text-sm text-gray-500">
-            <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-purple-600 mb-2"></div>
-            <p>Loading payment terms...</p>
-          </div>
+          <TableSkeleton rows={6} columns={6} />
         ) : error ? (
-          <div className="p-8 text-center text-sm text-red-600">
-            Failed to load payment terms. Please verify the backend connection.
-          </div>
+          <EmptyState
+            icon={<CreditCard className="w-6 h-6" />}
+            title="Failed to load payment terms"
+            description="Verify the backend connection and try again."
+          />
         ) : filteredTerms.length === 0 ? (
-          <div className="p-12 text-center text-gray-500">
-            <p className="text-sm font-medium">No payment terms found</p>
-            <p className="text-xs text-gray-400 mt-1">Add your standard settlement terms (e.g. Net 30).</p>
-          </div>
+          <EmptyState
+            icon={<CreditCard className="w-6 h-6" />}
+            title="No payment terms found"
+            description="Add your standard settlement terms (e.g. Net 30)."
+            action={<PermissionGuard permission="master.create"><Button size="sm" onClick={openCreateModal}>Add Payment Term</Button></PermissionGuard>}
+          />
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">

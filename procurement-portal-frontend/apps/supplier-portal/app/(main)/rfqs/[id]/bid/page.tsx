@@ -10,11 +10,16 @@ import {
   useWithdrawBid,
   useAddClarification,
   useIncoterms,
+  getErrorMessage,
+  useAppToast,
 } from "@procurement/hooks";
-import { ClarificationThread, Button, Badge } from "@procurement/ui";
+import { ClarificationThread, Button, Badge, useConfirm } from "@procurement/ui";
 import { ShieldCheck, Lock, Zap, Clock, ArrowLeft, AlertCircle, KeyRound, CheckCircle2 } from "lucide-react";
 
 export default function SupplierBidSubmissionPage() {
+  const { toast } = useAppToast();
+  const confirm = useConfirm();
+
   const params = useParams();
   const router = useRouter();
   const rfqId = params?.id as string;
@@ -81,7 +86,7 @@ export default function SupplierBidSubmissionPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isClosed) {
-      alert("Submission deadline has passed.");
+      toast.error("Submission deadline has passed.");
       return;
     }
 
@@ -119,25 +124,32 @@ export default function SupplierBidSubmissionPage() {
 
     try {
       await submitBidMutation.mutateAsync({ rfqId, payload });
-      alert("Bid submitted successfully! Prices have been encrypted at rest.");
+      toast.success("Bid submitted successfully! Prices have been encrypted at rest.");
       router.push("/rfqs");
-    } catch (err: any) {
-      // If already submitted, offer revision
-      if (err?.response?.data?.error?.code === "BID_ALREADY_SUBMITTED") {
-        if (confirm("You have already submitted a bid for this RFQ. Would you like to submit this as a Revision?")) {
+    } catch (err: unknown) {
+      const errCode = (err as { response?: { data?: { error?: { code?: string } } } })?.response?.data?.error?.code;
+      if (errCode === "BID_ALREADY_SUBMITTED") {
+        const ok = await confirm({
+          title: "Submit as Bid Revision?",
+          description: "You have already submitted a bid for this RFQ. Would you like to submit this as a Revision?",
+          confirmLabel: "Submit Revision",
+          variant: "info",
+        });
+        if (ok) {
           try {
             await reviseBidMutation.mutateAsync({ rfqId, payload });
-            alert("Bid revised successfully! New version snapshot created.");
+            toast.success("Bid revised successfully! New version snapshot created.");
             router.push("/rfqs");
-          } catch (revErr: any) {
-            alert(revErr?.response?.data?.error?.message || "Revision failed");
+          } catch (revErr: unknown) {
+            toast.error(getErrorMessage(revErr, "Revision failed"));
           }
         }
       } else {
-        alert(err?.response?.data?.error?.message || "Failed to submit bid");
+        toast.error(getErrorMessage(err, "Failed to submit bid"));
       }
     }
   };
+
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 pb-16">

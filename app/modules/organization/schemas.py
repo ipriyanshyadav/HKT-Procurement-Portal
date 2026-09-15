@@ -2,11 +2,10 @@ from __future__ import annotations
 
 from datetime import date, datetime
 from decimal import Decimal
-from typing import Any, Dict, Optional, Union
+from typing import Any
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
-
 
 # ============================================================================
 # Organization Schemas
@@ -18,37 +17,37 @@ class OrganizationResponse(BaseModel):
     id: UUID
     name: str
     legal_name: str
-    registration_number: Optional[str] = None
-    tax_id: Optional[str] = None
+    registration_number: str | None = None
+    tax_id: str | None = None
     country_code: str = "IN"
     base_currency: str = "INR"
     cost_of_capital_rate: Decimal = Decimal("0.1200")
-    logo_url: Optional[str] = None
-    settings: Dict[str, Any] = Field(default_factory=dict)
-    version: Optional[int] = 1
-    created_at: Optional[datetime] = None
-    updated_at: Optional[datetime] = None
+    logo_url: str | None = None
+    settings: dict[str, Any] = Field(default_factory=dict)
+    version: int | None = 1
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
 
 
 class OrganizationUpdateRequest(BaseModel):
-    name: Optional[str] = Field(default=None, min_length=1, max_length=200)
-    legal_name: Optional[str] = Field(default=None, min_length=1, max_length=300)
-    registration_number: Optional[str] = Field(default=None, max_length=50)
-    tax_id: Optional[str] = Field(default=None, max_length=50)
-    country_code: Optional[str] = Field(default=None, min_length=2, max_length=2)
-    base_currency: Optional[str] = Field(default=None, min_length=3, max_length=3)
-    cost_of_capital_rate: Optional[Decimal] = None
-    logo_url: Optional[str] = None
-    settings: Optional[Dict[str, Any]] = None
+    name: str | None = Field(default=None, min_length=1, max_length=200)
+    legal_name: str | None = Field(default=None, min_length=1, max_length=300)
+    registration_number: str | None = Field(default=None, max_length=50)
+    tax_id: str | None = Field(default=None, max_length=50)
+    country_code: str | None = Field(default=None, min_length=2, max_length=2)
+    base_currency: str | None = Field(default=None, min_length=3, max_length=3)
+    cost_of_capital_rate: Decimal | None = None
+    logo_url: str | None = None
+    settings: dict[str, Any] | None = None
 
     @field_validator("country_code", mode="before")
     @classmethod
-    def _uppercase_country_code(cls, v: Optional[str]) -> Optional[str]:
+    def _uppercase_country_code(cls, v: str | None) -> str | None:
         return v.strip().upper() if isinstance(v, str) else v
 
     @field_validator("base_currency", mode="before")
     @classmethod
-    def _uppercase_base_currency(cls, v: Optional[str]) -> Optional[str]:
+    def _uppercase_base_currency(cls, v: str | None) -> str | None:
         return v.strip().upper() if isinstance(v, str) else v
 
 
@@ -59,14 +58,14 @@ class OrganizationUpdateRequest(BaseModel):
 class LegalEntityCreateRequest(BaseModel):
     name: str = Field(..., min_length=1, max_length=200)
     registration_number: str = Field(..., min_length=1, max_length=50)
-    gstin: Optional[str] = Field(default=None, max_length=15)
-    pan: Optional[str] = Field(default=None, max_length=10)
-    cin: Optional[str] = Field(default=None, max_length=21)
-    address_line1: Optional[str] = Field(default=None, max_length=300)
-    address_line2: Optional[str] = Field(default=None, max_length=300)
-    city: Optional[str] = Field(default=None, max_length=100)
-    state: Optional[str] = Field(default=None, max_length=100)
-    postal_code: Optional[str] = Field(default=None, max_length=10)
+    gstin: str | None = Field(default=None, max_length=15)
+    pan: str | None = Field(default=None, max_length=10)
+    cin: str | None = Field(default=None, max_length=21)
+    address_line1: str | None = Field(default=None, max_length=300)
+    address_line2: str | None = Field(default=None, max_length=300)
+    city: str | None = Field(default=None, max_length=100)
+    state: str | None = Field(default=None, max_length=100)
+    postal_code: str | None = Field(default=None, max_length=10)
     country_code: str = Field(default="IN", min_length=2, max_length=2)
 
     @field_validator("country_code", mode="before")
@@ -76,21 +75,21 @@ class LegalEntityCreateRequest(BaseModel):
 
 
 class LegalEntityUpdateRequest(BaseModel):
-    name: Optional[str] = Field(default=None, min_length=1, max_length=200)
-    registration_number: Optional[str] = Field(default=None, min_length=1, max_length=50)
-    gstin: Optional[str] = Field(default=None, max_length=15)
-    pan: Optional[str] = Field(default=None, max_length=10)
-    cin: Optional[str] = Field(default=None, max_length=21)
-    address_line1: Optional[str] = Field(default=None, max_length=300)
-    address_line2: Optional[str] = Field(default=None, max_length=300)
-    city: Optional[str] = Field(default=None, max_length=100)
-    state: Optional[str] = Field(default=None, max_length=100)
-    postal_code: Optional[str] = Field(default=None, max_length=10)
-    country_code: Optional[str] = Field(default=None, min_length=2, max_length=2)
+    name: str | None = Field(default=None, min_length=1, max_length=200)
+    registration_number: str | None = Field(default=None, min_length=1, max_length=50)
+    gstin: str | None = Field(default=None, max_length=15)
+    pan: str | None = Field(default=None, max_length=10)
+    cin: str | None = Field(default=None, max_length=21)
+    address_line1: str | None = Field(default=None, max_length=300)
+    address_line2: str | None = Field(default=None, max_length=300)
+    city: str | None = Field(default=None, max_length=100)
+    state: str | None = Field(default=None, max_length=100)
+    postal_code: str | None = Field(default=None, max_length=10)
+    country_code: str | None = Field(default=None, min_length=2, max_length=2)
 
     @field_validator("country_code", mode="before")
     @classmethod
-    def _uppercase_country_code(cls, v: Optional[str]) -> Optional[str]:
+    def _uppercase_country_code(cls, v: str | None) -> str | None:
         return v.strip().upper() if isinstance(v, str) else v
 
 
@@ -101,18 +100,18 @@ class LegalEntityResponse(BaseModel):
     org_id: UUID
     name: str
     registration_number: str
-    gstin: Optional[str] = None
-    pan: Optional[str] = None
-    cin: Optional[str] = None
-    address_line1: Optional[str] = None
-    address_line2: Optional[str] = None
-    city: Optional[str] = None
-    state: Optional[str] = None
-    postal_code: Optional[str] = None
+    gstin: str | None = None
+    pan: str | None = None
+    cin: str | None = None
+    address_line1: str | None = None
+    address_line2: str | None = None
+    city: str | None = None
+    state: str | None = None
+    postal_code: str | None = None
     country_code: str = "IN"
-    version: Optional[int] = 1
-    created_at: Optional[datetime] = None
-    updated_at: Optional[datetime] = None
+    version: int | None = 1
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
 
 
 # ============================================================================
@@ -123,7 +122,7 @@ class BusinessUnitCreateRequest(BaseModel):
     code: str = Field(..., min_length=1, max_length=20)
     name: str = Field(..., min_length=1, max_length=200)
     legal_entity_id: UUID
-    erp_company_code: Optional[str] = Field(default=None, max_length=20)
+    erp_company_code: str | None = Field(default=None, max_length=20)
     default_currency: str = Field(default="INR", min_length=3, max_length=3)
     is_active: bool = True
 
@@ -139,15 +138,15 @@ class BusinessUnitCreateRequest(BaseModel):
 
 
 class BusinessUnitUpdateRequest(BaseModel):
-    name: Optional[str] = Field(default=None, min_length=1, max_length=200)
-    legal_entity_id: Optional[UUID] = None
-    erp_company_code: Optional[str] = Field(default=None, max_length=20)
-    default_currency: Optional[str] = Field(default=None, min_length=3, max_length=3)
-    is_active: Optional[bool] = None
+    name: str | None = Field(default=None, min_length=1, max_length=200)
+    legal_entity_id: UUID | None = None
+    erp_company_code: str | None = Field(default=None, max_length=20)
+    default_currency: str | None = Field(default=None, min_length=3, max_length=3)
+    is_active: bool | None = None
 
     @field_validator("default_currency", mode="before")
     @classmethod
-    def _uppercase_currency(cls, v: Optional[str]) -> Optional[str]:
+    def _uppercase_currency(cls, v: str | None) -> str | None:
         return v.strip().upper() if isinstance(v, str) else v
 
 
@@ -159,12 +158,12 @@ class BusinessUnitResponse(BaseModel):
     code: str
     name: str
     legal_entity_id: UUID
-    erp_company_code: Optional[str] = None
+    erp_company_code: str | None = None
     default_currency: str = "INR"
     is_active: bool = True
-    version: Optional[int] = 1
-    created_at: Optional[datetime] = None
-    updated_at: Optional[datetime] = None
+    version: int | None = 1
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
 
 
 # ============================================================================
@@ -176,15 +175,15 @@ class PlantCreateRequest(BaseModel):
     name: str = Field(..., min_length=1, max_length=200)
     business_unit_id: UUID
     plant_type: str = Field(default="MANUFACTURING", max_length=50)
-    erp_plant_code: Optional[str] = Field(default=None, max_length=20)
-    address_line1: Optional[str] = Field(default=None, max_length=300)
-    city: Optional[str] = Field(default=None, max_length=100)
-    state: Optional[str] = Field(default=None, max_length=100)
-    postal_code: Optional[str] = Field(default=None, max_length=10)
+    erp_plant_code: str | None = Field(default=None, max_length=20)
+    address_line1: str | None = Field(default=None, max_length=300)
+    city: str | None = Field(default=None, max_length=100)
+    state: str | None = Field(default=None, max_length=100)
+    postal_code: str | None = Field(default=None, max_length=10)
     country_code: str = Field(default="IN", min_length=2, max_length=2)
-    latitude: Optional[Decimal] = None
-    longitude: Optional[Decimal] = None
-    default_delivery_location_id: Optional[UUID] = None
+    latitude: Decimal | None = None
+    longitude: Decimal | None = None
+    default_delivery_location_id: UUID | None = None
     is_active: bool = True
 
     @field_validator("code", mode="before")
@@ -199,23 +198,23 @@ class PlantCreateRequest(BaseModel):
 
 
 class PlantUpdateRequest(BaseModel):
-    name: Optional[str] = Field(default=None, min_length=1, max_length=200)
-    business_unit_id: Optional[UUID] = None
-    plant_type: Optional[str] = Field(default=None, max_length=50)
-    erp_plant_code: Optional[str] = Field(default=None, max_length=20)
-    address_line1: Optional[str] = Field(default=None, max_length=300)
-    city: Optional[str] = Field(default=None, max_length=100)
-    state: Optional[str] = Field(default=None, max_length=100)
-    postal_code: Optional[str] = Field(default=None, max_length=10)
-    country_code: Optional[str] = Field(default=None, min_length=2, max_length=2)
-    latitude: Optional[Decimal] = None
-    longitude: Optional[Decimal] = None
-    default_delivery_location_id: Optional[UUID] = None
-    is_active: Optional[bool] = None
+    name: str | None = Field(default=None, min_length=1, max_length=200)
+    business_unit_id: UUID | None = None
+    plant_type: str | None = Field(default=None, max_length=50)
+    erp_plant_code: str | None = Field(default=None, max_length=20)
+    address_line1: str | None = Field(default=None, max_length=300)
+    city: str | None = Field(default=None, max_length=100)
+    state: str | None = Field(default=None, max_length=100)
+    postal_code: str | None = Field(default=None, max_length=10)
+    country_code: str | None = Field(default=None, min_length=2, max_length=2)
+    latitude: Decimal | None = None
+    longitude: Decimal | None = None
+    default_delivery_location_id: UUID | None = None
+    is_active: bool | None = None
 
     @field_validator("country_code", mode="before")
     @classmethod
-    def _uppercase_country_code(cls, v: Optional[str]) -> Optional[str]:
+    def _uppercase_country_code(cls, v: str | None) -> str | None:
         return v.strip().upper() if isinstance(v, str) else v
 
 
@@ -228,19 +227,19 @@ class PlantResponse(BaseModel):
     code: str
     name: str
     plant_type: str = "MANUFACTURING"
-    erp_plant_code: Optional[str] = None
-    address_line1: Optional[str] = None
-    city: Optional[str] = None
-    state: Optional[str] = None
-    postal_code: Optional[str] = None
+    erp_plant_code: str | None = None
+    address_line1: str | None = None
+    city: str | None = None
+    state: str | None = None
+    postal_code: str | None = None
     country_code: str = "IN"
-    latitude: Optional[Decimal] = None
-    longitude: Optional[Decimal] = None
-    default_delivery_location_id: Optional[UUID] = None
+    latitude: Decimal | None = None
+    longitude: Decimal | None = None
+    default_delivery_location_id: UUID | None = None
     is_active: bool = True
-    version: Optional[int] = 1
-    created_at: Optional[datetime] = None
-    updated_at: Optional[datetime] = None
+    version: int | None = 1
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
 
 
 # ============================================================================
@@ -251,7 +250,7 @@ class DepartmentCreateRequest(BaseModel):
     code: str = Field(..., min_length=1, max_length=20)
     name: str = Field(..., min_length=1, max_length=200)
     business_unit_id: UUID
-    head_user_id: Optional[UUID] = None
+    head_user_id: UUID | None = None
     is_active: bool = True
 
     @field_validator("code", mode="before")
@@ -261,10 +260,10 @@ class DepartmentCreateRequest(BaseModel):
 
 
 class DepartmentUpdateRequest(BaseModel):
-    name: Optional[str] = Field(default=None, min_length=1, max_length=200)
-    business_unit_id: Optional[UUID] = None
-    head_user_id: Optional[UUID] = None
-    is_active: Optional[bool] = None
+    name: str | None = Field(default=None, min_length=1, max_length=200)
+    business_unit_id: UUID | None = None
+    head_user_id: UUID | None = None
+    is_active: bool | None = None
 
 
 class DepartmentResponse(BaseModel):
@@ -275,11 +274,11 @@ class DepartmentResponse(BaseModel):
     business_unit_id: UUID
     code: str
     name: str
-    head_user_id: Optional[UUID] = None
+    head_user_id: UUID | None = None
     is_active: bool = True
-    version: Optional[int] = 1
-    created_at: Optional[datetime] = None
-    updated_at: Optional[datetime] = None
+    version: int | None = 1
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
 
 
 # ============================================================================
@@ -290,12 +289,12 @@ class CostCenterCreateRequest(BaseModel):
     code: str = Field(..., min_length=1, max_length=20)
     name: str = Field(..., min_length=1, max_length=200)
     business_unit_id: UUID
-    gl_account: Optional[str] = Field(default=None, max_length=20)
-    erp_cost_center_code: Optional[str] = Field(default=None, max_length=20)
+    gl_account: str | None = Field(default=None, max_length=20)
+    erp_cost_center_code: str | None = Field(default=None, max_length=20)
     annual_budget: Decimal = Field(default=Decimal("0.0"))
     available_budget: Decimal = Field(default=Decimal("0.0"))
-    budget_period_start: Optional[date] = None
-    budget_period_end: Optional[date] = None
+    budget_period_start: date | None = None
+    budget_period_end: date | None = None
     is_active: bool = True
 
     @field_validator("code", mode="before")
@@ -305,15 +304,15 @@ class CostCenterCreateRequest(BaseModel):
 
 
 class CostCenterUpdateRequest(BaseModel):
-    name: Optional[str] = Field(default=None, min_length=1, max_length=200)
-    business_unit_id: Optional[UUID] = None
-    gl_account: Optional[str] = Field(default=None, max_length=20)
-    erp_cost_center_code: Optional[str] = Field(default=None, max_length=20)
-    annual_budget: Optional[Decimal] = None
-    available_budget: Optional[Decimal] = None
-    budget_period_start: Optional[date] = None
-    budget_period_end: Optional[date] = None
-    is_active: Optional[bool] = None
+    name: str | None = Field(default=None, min_length=1, max_length=200)
+    business_unit_id: UUID | None = None
+    gl_account: str | None = Field(default=None, max_length=20)
+    erp_cost_center_code: str | None = Field(default=None, max_length=20)
+    annual_budget: Decimal | None = None
+    available_budget: Decimal | None = None
+    budget_period_start: date | None = None
+    budget_period_end: date | None = None
+    is_active: bool | None = None
 
 
 class CostCenterResponse(BaseModel):
@@ -324,16 +323,16 @@ class CostCenterResponse(BaseModel):
     code: str
     name: str
     business_unit_id: UUID
-    gl_account: Optional[str] = None
-    erp_cost_center_code: Optional[str] = None
+    gl_account: str | None = None
+    erp_cost_center_code: str | None = None
     annual_budget: Decimal = Decimal("0.0")
     available_budget: Decimal = Decimal("0.0")
-    budget_period_start: Optional[Union[date, datetime]] = None
-    budget_period_end: Optional[Union[date, datetime]] = None
+    budget_period_start: date | datetime | None = None
+    budget_period_end: date | datetime | None = None
     is_active: bool = True
-    version: Optional[int] = 1
-    created_at: Optional[datetime] = None
-    updated_at: Optional[datetime] = None
+    version: int | None = 1
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
 
 
 # ============================================================================
@@ -346,23 +345,24 @@ class CompanyContextResponse(BaseModel):
     id: UUID
     org_id: UUID
     name: str
-    code: Optional[str] = None
+    code: str | None = None
     registration_number: str
     country_code: str
     currency: str = "INR"
-    gstin: Optional[str] = None
+    gstin: str | None = None
     business_unit_count: int = 0
     is_active_context: bool = False
 
 
 class SwitchCompanyContextRequest(BaseModel):
     target_legal_entity_id: UUID
-    target_org_id: Optional[UUID] = None
+    target_org_id: UUID | None = None
 
 
 class SwitchCompanyContextResponse(BaseModel):
     access_token: str
-    token_type: str = "bearer"
+    token_type: str = "bearer"  # noqa: S105
+
     active_company: CompanyContextResponse
     user_id: UUID
     email: str

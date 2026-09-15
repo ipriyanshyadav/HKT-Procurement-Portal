@@ -1,26 +1,25 @@
 from __future__ import annotations
+
 import hashlib
 import io
 import uuid
-from datetime import date, datetime, timedelta, timezone
-from typing import Optional, List
+from datetime import UTC, date, datetime, timedelta
 from uuid import UUID
 
-from minio import Minio
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
 from loguru import logger
+from minio import Minio
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
 from app.core.exceptions import AppException, ForbiddenError, NotFoundError, ValidationError
 from app.db.enums import DocumentCategory
 from app.modules.document.models import Document, DocumentVersion
-from app.modules.document.repository import document_repository, DocumentRepository
+from app.modules.document.repository import DocumentRepository, document_repository
 from app.modules.document.scanner import (
-    ALLOWED_MIME_TYPES,
     BUCKET_MAPPING,
-    scanner,
     sanitize_filename,
+    scanner,
     validate_file_magic,
     validate_mime_type,
 )
@@ -47,9 +46,9 @@ DOCUMENT_TYPE_TO_CATEGORY: dict[str, DocumentCategory] = {
 
 
 class DocumentService:
-    def __init__(self, repo: Optional[DocumentRepository] = None) -> None:
+    def __init__(self, repo: DocumentRepository | None = None) -> None:
         self.repo = repo or document_repository
-        self._minio_client: Optional[Minio] = None
+        self._minio_client: Minio | None = None
 
     def _get_minio(self) -> Minio:
         if self._minio_client is None:
@@ -69,10 +68,10 @@ class DocumentService:
         document_type: str,
         entity_type: str,
         entity_id: UUID,
-        actor_id: Optional[UUID] = None,
-        org_id: Optional[UUID] = None,
-        compliance_expiry: Optional[date] = None,
-        content_type: Optional[str] = None,
+        actor_id: UUID | None = None,
+        org_id: UUID | None = None,
+        compliance_expiry: date | None = None,
+        content_type: str | None = None,
     ) -> Document:
         """
         Uploads document, enforces file size & magic bytes validation,
@@ -120,7 +119,7 @@ class DocumentService:
             doc.sha256_hash = sha256_hash
             doc.scan_status = "PENDING"
             doc.scan_result = None
-            doc.updated_at = datetime.now(timezone.utc)
+            doc.updated_at = datetime.now(UTC)
         else:
             version_number = 1
             doc = Document(
@@ -159,7 +158,8 @@ class DocumentService:
         except Exception as exc:
             logger.error(f"MinIO storage failure: {exc}")
             if settings.ENVIRONMENT not in ("local", "dev"):
-                raise ValidationError("STORAGE_ERROR", "Failed to save document to storage")
+                raise ValidationError("STORAGE_ERROR", "Failed to save document to storage") from exc
+
 
         # 7. Record DocumentVersion
         version = DocumentVersion(
@@ -213,7 +213,7 @@ class DocumentService:
         entity_id: UUID,
         category: DocumentCategory,
         org_id: UUID,
-        actor_id: Optional[UUID] = None,
+        actor_id: UUID | None = None,
     ) -> Document:
         """
         Legacy upload method with inline virus scanning support for existing unit test compatibility.
@@ -254,7 +254,8 @@ class DocumentService:
         except Exception as exc:
             logger.error(f"MinIO storage failure: {exc}")
             if settings.ENVIRONMENT not in ("local", "dev"):
-                raise ValidationError("STORAGE_ERROR", "Failed to save document to storage")
+                raise ValidationError("STORAGE_ERROR", "Failed to save document to storage") from exc
+
 
         doc = Document(
             org_id=org_id,
@@ -295,8 +296,8 @@ class DocumentService:
         db: AsyncSession,
         document_id: UUID,
         org_id: UUID,
-        actor_id: Optional[UUID] = None,
-        expires_seconds: Optional[int] = None,
+        actor_id: UUID | None = None,
+        expires_seconds: int | None = None,
     ) -> str:
         """
         Generates 15-minute presigned download URL for a document.
@@ -356,7 +357,7 @@ class DocumentService:
         db: AsyncSession,
         document_id: UUID,
         org_id: UUID,
-    ) -> List[DocumentVersion]:
+    ) -> list[DocumentVersion]:
         """Returns all versions for a document ordered by version number descending."""
         return await self.repo.get_versions(db, document_id, org_id)
 
@@ -365,7 +366,7 @@ class DocumentService:
         db: AsyncSession,
         document_id: UUID,
         org_id: UUID,
-        actor_id: Optional[UUID] = None,
+        actor_id: UUID | None = None,
     ) -> None:
         """Soft-deletes a document and writes audit log."""
         await self.repo.soft_delete(db, document_id, org_id)
@@ -383,7 +384,7 @@ class DocumentService:
         entity_type: str,
         entity_id: UUID,
         org_id: UUID,
-    ) -> List[Document]:
+    ) -> list[Document]:
         """Lists active documents associated with an entity."""
         return await self.repo.list_by_entity(db, entity_type, entity_id, org_id)
 

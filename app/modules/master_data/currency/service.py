@@ -1,18 +1,17 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime
 from decimal import Decimal
-from typing import Optional
 from uuid import UUID, uuid4
 
 from loguru import logger
 from pydantic import BaseModel, Field
-from sqlalchemy import select, and_
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
 from app.core.constants import AuditAction
-from app.core.exceptions import ConflictError, NotFoundError, ValidationError
+from app.core.exceptions import ConflictError, ValidationError
 from app.core.redis_client import RedisKeys, get_redis_client
 from app.db.repository_base import BaseRepository
 from app.modules.audit.service import audit_service
@@ -30,10 +29,10 @@ class CurrencyCreateRequest(BaseModel):
 
 
 class CurrencyUpdateRequest(BaseModel):
-    name: Optional[str] = Field(default=None, min_length=1, max_length=100)
-    symbol: Optional[str] = Field(default=None, max_length=10)
-    exchange_rate_to_base: Optional[Decimal] = Field(default=None, gt=Decimal("0"))
-    is_active: Optional[bool] = None
+    name: str | None = Field(default=None, min_length=1, max_length=100)
+    symbol: str | None = Field(default=None, max_length=10)
+    exchange_rate_to_base: Decimal | None = Field(default=None, gt=Decimal("0"))
+    is_active: bool | None = None
 
 
 class CurrencyResponse(BaseModel):
@@ -61,7 +60,7 @@ class CurrencyRepository(BaseRepository[CurrencyMaster]):
         db: AsyncSession,
         code: str,
         org_id: UUID,
-    ) -> Optional[CurrencyMaster]:
+    ) -> CurrencyMaster | None:
         stmt = select(CurrencyMaster).where(
             CurrencyMaster.code == code.upper(),
             CurrencyMaster.org_id == org_id,
@@ -74,7 +73,7 @@ class CurrencyRepository(BaseRepository[CurrencyMaster]):
         self,
         db: AsyncSession,
         org_id: UUID,
-    ) -> Optional[CurrencyMaster]:
+    ) -> CurrencyMaster | None:
         stmt = select(CurrencyMaster).where(
             CurrencyMaster.org_id == org_id,
             CurrencyMaster.is_base_currency.is_(True),
@@ -125,7 +124,7 @@ class CurrencyService:
     async def get_by_id(self, db: AsyncSession, id: UUID, org_id: UUID) -> CurrencyMaster:
         return await self._repo.get(db, id, org_id)
 
-    async def get_by_code(self, db: AsyncSession, code: str, org_id: UUID) -> Optional[CurrencyMaster]:
+    async def get_by_code(self, db: AsyncSession, code: str, org_id: UUID) -> CurrencyMaster | None:
         return await self._repo.get_by_code(db, code, org_id)
 
     async def create(
@@ -266,7 +265,7 @@ class CurrencyService:
         """Soft delete (deactivate) a currency."""
         await self.deactivate(db, id, actor_id, org_id)
 
-    async def get_exchange_rate(self, base: str, target: str) -> Optional[Decimal]:
+    async def get_exchange_rate(self, base: str, target: str) -> Decimal | None:
         """Fetch cached exchange rate from Redis."""
         if base == target:
             return Decimal("1.0")

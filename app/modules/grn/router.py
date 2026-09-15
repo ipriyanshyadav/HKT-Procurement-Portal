@@ -11,8 +11,6 @@ Provides endpoints for:
 """
 from __future__ import annotations
 
-import math
-from typing import Any, List, Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query, status
@@ -22,6 +20,7 @@ from app.auth.dependencies import get_current_user, require_any_permission, requ
 from app.core.constants import PermissionCode
 from app.core.responses import APIResponse, PaginationMeta, created_response, success_response
 from app.db.session import get_db
+from app.modules.grn.models import GoodsReceiptNote
 from app.modules.grn.schemas import (
     GrnCreateRequest,
     GrnFilterParams,
@@ -31,7 +30,7 @@ from app.modules.grn.schemas import (
     QualityInspectionResponse,
 )
 from app.modules.grn.service import grn_service
-from app.modules.grn.models import GoodsReceiptNote
+from app.modules.requisition.cart_schemas import ConsigneeConfirmRequest, ConsigneeRejectRequest
 from app.modules.user.models import User
 
 router = APIRouter(tags=["GRN"])
@@ -101,10 +100,10 @@ async def health():
     return {"status": "ok", "module": "grn"}
 
 
-@router.get("", response_model=APIResponse[List[GrnResponse]])
+@router.get("", response_model=APIResponse[list[GrnResponse]])
 async def list_grns(
-    po_id: Optional[UUID] = Query(None),
-    status: Optional[str] = Query(None),
+    po_id: UUID | None = Query(None),
+    status: str | None = Query(None),
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
@@ -203,3 +202,78 @@ async def cancel_grn(
     await db.commit()
     updated = await grn_service.get(db, grn_id, org_id)
     return success_response(data=_to_grn_response(updated))
+
+
+@router.post("/{id}/consignee-confirm", response_model=APIResponse[dict])
+async def consignee_confirm_grn(
+    id: UUID,
+    data: ConsigneeConfirmRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Indentor (consignee) confirms receipt of goods — equivalent to CRAC generation."""
+    await grn_service.consignee_confirm_grn(
+        db,
+        grn_id=id,
+        actor=current_user,
+        org_id=current_user.org_id,
+        confirmation_note=data.confirmation_note,
+    )
+    await db.commit()
+    return success_response({"grn_id": str(id), "consignee_status": "CONFIRMED"})
+
+
+@router.post("/{id}/consignee-reject", response_model=APIResponse[dict])
+async def consignee_reject_grn(
+    id: UUID,
+    data: ConsigneeRejectRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Indentor (consignee) rejects delivery — records rejection reason."""
+    await grn_service.consignee_reject_grn(
+        db,
+        grn_id=id,
+        actor=current_user,
+        org_id=current_user.org_id,
+        rejection_reason=data.rejection_reason,
+    )
+    await db.commit()
+    return success_response(
+        {"grn_id": str(id), "consignee_status": "REJECTED", "reason": data.rejection_reason}
+    )
+
+
+@router.get("/assigned-to-me", response_model=APIResponse[list[dict]])
+async def get_grns_assigned_to_me(
+    status: str | None = Query(None),
+    page: int = Query(1, ge=1),
+    page_size: int = Query(20, ge=1, le=100),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """GRNs where current user is the designated consignee."""
+    records, total = await grn_service.get_grns_assigned_to_consignee(
+        db,
+        user_id=current_user.id,
+        org_id=current_user.org_id,
+        status_filter=status,
+        page=page,
+        page_size=page_size,
+    )
+    total_pages = (total + page_size - 1) // page_size if total > 0 else 1
+    meta = PaginationMeta(
+        page=page,
+        page_size=page_size,
+        total_count=total,
+        total_pages=total_pages,
+        has_next=page < total_pages,
+        has_prev=page > 1,
+        total_records=total,
+        page_number=page,
+        has_next_page=page < total_pages,
+        has_prev_page=page > 1,
+    )
+    return success_response(records, meta=meta)
+
+

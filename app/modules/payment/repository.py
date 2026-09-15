@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from typing import List, Optional, Tuple
 from uuid import UUID
 
 from sqlalchemy import and_, func, select
@@ -21,7 +20,7 @@ class PaymentRepository(BaseRepository[PaymentRecord]):
         db: AsyncSession,
         payment_id: UUID,
         org_id: UUID,
-    ) -> Optional[PaymentRecord]:
+    ) -> PaymentRecord | None:
         stmt = select(PaymentRecord).where(
             and_(
                 PaymentRecord.id == payment_id,
@@ -37,7 +36,7 @@ class PaymentRepository(BaseRepository[PaymentRecord]):
         db: AsyncSession,
         invoice_id: UUID,
         org_id: UUID,
-    ) -> List[PaymentRecord]:
+    ) -> list[PaymentRecord]:
         stmt = (
             select(PaymentRecord)
             .where(
@@ -57,7 +56,7 @@ class PaymentRepository(BaseRepository[PaymentRecord]):
         db: AsyncSession,
         org_id: UUID,
         filters: PaymentFilterParams,
-    ) -> Tuple[List[PaymentRecord], int]:
+    ) -> tuple[list[PaymentRecord], int]:
         conditions = [
             PaymentRecord.org_id == org_id,
             PaymentRecord.deleted_at.is_(None),
@@ -94,7 +93,7 @@ class PaymentRepository(BaseRepository[PaymentRecord]):
         db: AsyncSession,
         dispute_id: UUID,
         org_id: UUID,
-    ) -> Optional[Dispute]:
+    ) -> Dispute | None:
         stmt = (
             select(Dispute)
             .options(selectinload(Dispute.messages))
@@ -113,10 +112,10 @@ class PaymentRepository(BaseRepository[PaymentRecord]):
         self,
         db: AsyncSession,
         org_id: UUID,
-        invoice_id: Optional[UUID] = None,
-        vendor_id: Optional[UUID] = None,
-        status: Optional[str] = None,
-    ) -> List[Dispute]:
+        invoice_id: UUID | None = None,
+        vendor_id: UUID | None = None,
+        status: str | None = None,
+    ) -> list[Dispute]:
         conditions = [
             Dispute.org_id == org_id,
             Dispute.deleted_at.is_(None),

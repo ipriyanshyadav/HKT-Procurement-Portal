@@ -17,7 +17,12 @@ export type GrnLineCreate = components["schemas"]["GrnLineCreate"];
 export type QualityInspectionResponse = components["schemas"]["QualityInspectionResponse"];
 export type QualityInspectionCreate = components["schemas"]["QualityInspectionCreate"];
 
-export type InvoiceResponse = components["schemas"]["InvoiceResponse"];
+export type InvoiceResponse = components["schemas"]["InvoiceResponse"] & {
+  early_discount_status?: string | null;
+  early_discount_amount?: number | null;
+  early_discount_payout_date?: string | null;
+  early_discount_apr?: number | null;
+};
 export type InvoiceLineResponse = components["schemas"]["InvoiceLineResponse"];
 export type InvoiceMatchLineResultResponse = components["schemas"]["InvoiceMatchLineResultResponse"];
 export type InvoiceSubmitRequest = components["schemas"]["InvoiceSubmitRequest"];
@@ -25,6 +30,139 @@ export type InvoiceLineCreate = components["schemas"]["InvoiceLineCreate"];
 export type EligibleLineResponse = components["schemas"]["EligibleLineResponse"];
 export type InvoiceDisputeRequest = components["schemas"]["InvoiceDisputeRequest"];
 export type InvoiceRejectRequest = components["schemas"]["InvoiceRejectRequest"];
+
+export interface PoFlipLineDraft {
+  po_line_id: string;
+  line_number: number;
+  item_description: string;
+  po_quantity: number | string;
+  received_quantity: number | string;
+  invoiced_quantity: number | string;
+  invoiceable_quantity: number | string;
+  unit_price: number | string;
+  tax_rate: number | string;
+  tax_amount: number | string;
+  line_total: number | string;
+}
+
+export interface PoFlipDraftResponse {
+  po_id: string;
+  po_number: string;
+  vendor_id: string;
+  vendor_name?: string | null;
+  currency: string;
+  payment_terms_code?: string | null;
+  suggested_invoice_date: string;
+  suggested_due_date?: string | null;
+  suggested_vendor_invoice_number: string;
+  lines: PoFlipLineDraft[];
+  subtotal: number | string;
+  tax_amount: number | string;
+  total_amount: number | string;
+  can_invoice: boolean;
+  blocking_reason?: string | null;
+}
+
+export interface POLineUpdate {
+  po_line_id: string;
+  ordered_quantity?: number | null;
+  unit_price?: number | null;
+  delivery_date?: string | null;
+  item_description?: string | null;
+}
+
+export interface POAmendRequest {
+  reason: string;
+  amendment_reason?: string;
+  value_change?: number | null;
+  field_changes?: Record<string, unknown>;
+  line_updates?: POLineUpdate[];
+}
+
+export interface EarlyDiscountOption {
+  payout_days_from_now: number;
+  payout_date: string;
+  days_accelerated: number;
+  discount_percentage: number;
+  discount_amount: number;
+  net_payout_amount: number;
+  apr_applied: number;
+}
+
+export interface EarlyDiscountOptionsResponse {
+  invoice_id: string;
+  invoice_number: string;
+  total_amount: number;
+  due_date: string;
+  days_until_due: number;
+  eligible_for_early_discount: boolean;
+  ineligibility_reason?: string | null;
+  current_discount_status?: string | null;
+  apr_annual_rate: number;
+  options: EarlyDiscountOption[];
+}
+
+export interface EarlyDiscountRequest {
+  payout_date: string;
+  discount_percentage: number;
+  notes?: string | null;
+}
+
+export interface EarlyDiscountActionResponse {
+  invoice_id: string;
+  status: string;
+  discount_amount: number;
+  net_payout_amount: number;
+  payout_date?: string | null;
+  message: string;
+}
+
+export interface ScenarioLineItemAllocation {
+  rfq_line_id: string;
+  line_number: number;
+  item_description: string;
+  quantity: number;
+  allocated_vendor_id: string;
+  allocated_vendor_name: string;
+  unit_price: number;
+  line_total: number;
+  is_lowest_price: boolean;
+}
+
+export interface AwardOptimizationScenario {
+  scenario_id: string;
+  scenario_type: 'WINNER_TAKE_ALL' | 'LINE_ITEM_BEST' | 'DUAL_SOURCING_70_30' | 'CUSTOM';
+  title: string;
+  description: string;
+  total_spend: number;
+  projected_savings: number;
+  savings_percentage: number;
+  vendor_count: number;
+  risk_rating: 'LOW' | 'MEDIUM' | 'HIGH';
+  advantages: string[];
+  tradeoffs: string[];
+  allocations: ScenarioLineItemAllocation[];
+}
+
+export interface AwardOptimizationScenariosResponse {
+  cs_id: string;
+  rfq_id: string;
+  rfq_number?: string | null;
+  currency: string;
+  baseline_spend: number;
+  scenarios: AwardOptimizationScenario[];
+}
+
+export interface ApplyOptimizationScenarioRequest {
+  scenario_type: 'WINNER_TAKE_ALL' | 'LINE_ITEM_BEST' | 'DUAL_SOURCING_70_30' | 'CUSTOM';
+  custom_allocations?: Array<{
+    rfq_line_id: string;
+    vendor_id: string;
+    quantity: number;
+    unit_price: number;
+  }> | null;
+  justification?: string | null;
+}
 
 export type PaymentRecordResponse = components["schemas"]["PaymentRecordResponse"];
 export type PaymentProcessRequest = components["schemas"]["PaymentProcessRequest"];
@@ -107,8 +245,14 @@ export type TicketType = "RFQ_QUERY" | "INVOICE_DISPUTE" | "PO_QUERY" | "CONTRAC
 export type TicketPriority = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
 export type TicketStatus = "OPEN" | "IN_PROGRESS" | "PENDING_RESPONSE" | "RESOLVED" | "CLOSED";
 
-export type TicketDetailResponse = components["schemas"]["TicketDetailResponse"];
-export type TicketListResponse = components["schemas"]["TicketListResponse"];
+export type TicketDetailResponse = components["schemas"]["TicketDetailResponse"] & {
+  assigned_to_name?: string | null;
+  raised_by_name?: string | null;
+};
+export type TicketListResponse = components["schemas"]["TicketListResponse"] & {
+  assigned_to_name?: string | null;
+  raised_by_name?: string | null;
+};
 export type TicketCreateRequest = components["schemas"]["TicketCreateRequest"];
 export type TicketUpdateRequest = components["schemas"]["TicketUpdateRequest"];
 export type TicketCommentResponse = components["schemas"]["TicketCommentResponse"];

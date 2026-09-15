@@ -1,4 +1,5 @@
 "use client";
+import { getErrorMessage } from "@procurement/utils";
 
 import React, { useState } from "react";
 import Link from "next/link";
@@ -8,6 +9,7 @@ import {
   useDeactivateApprovalRule,
   ApprovalRule,
 } from "@procurement/hooks";
+import { useAppToast } from "@procurement/hooks";
 import {
   PageHeader,
   HeroKPIStrip,
@@ -31,6 +33,7 @@ import {
 const ENTITY_TABS = ["ALL", "PR", "RFQ", "PO", "VENDOR", "CONTRACT"] as const;
 
 export default function ApprovalRulesListPage() {
+  const { toast } = useAppToast();
   const [selectedEntity, setSelectedEntity] = useState<string>("ALL");
   const [searchQuery, setSearchQuery] = useState<string>("");
 
@@ -69,8 +72,8 @@ export default function ApprovalRulesListPage() {
         await activateMutation.mutateAsync(rule.id);
       }
       refetch();
-    } catch (err: any) {
-      alert(err?.response?.data?.error?.message || "Failed to update rule status");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Failed to update rule status"));
     }
   };
 

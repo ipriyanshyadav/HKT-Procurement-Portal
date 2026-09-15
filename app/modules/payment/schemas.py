@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from datetime import date, datetime
 from decimal import Decimal
-from typing import List, Optional
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -14,19 +13,19 @@ class PaymentRecordResponse(BaseModel):
     id: UUID
     org_id: UUID
     invoice_id: UUID
-    invoice_number: Optional[str] = None
+    invoice_number: str | None = None
     vendor_id: UUID
-    vendor_name: Optional[str] = None
+    vendor_name: str | None = None
     payment_date: date
     amount: Decimal
-    gross_amount: Optional[Decimal] = Decimal("0.0")
-    tds_amount: Optional[Decimal] = Decimal("0.0")
-    net_amount: Optional[Decimal] = Decimal("0.0")
-    payment_due_date: Optional[date] = None
+    gross_amount: Decimal | None = Decimal("0.0")
+    tds_amount: Decimal | None = Decimal("0.0")
+    net_amount: Decimal | None = Decimal("0.0")
+    payment_due_date: date | None = None
     currency: str
-    utr_number: Optional[str] = None
-    payment_method: Optional[str] = None
-    erp_payment_reference: Optional[str] = None
+    utr_number: str | None = None
+    payment_method: str | None = None
+    erp_payment_reference: str | None = None
     status: str
     created_at: datetime
     updated_at: datetime
@@ -37,8 +36,8 @@ class PaymentProcessRequest(BaseModel):
 
     utr_number: str = Field(..., min_length=3, max_length=50)
     payment_method: str = Field(default="NEFT", max_length=30)
-    payment_date: Optional[date] = None
-    erp_payment_reference: Optional[str] = None
+    payment_date: date | None = None
+    erp_payment_reference: str | None = None
 
 
 class PaymentScheduleRequest(BaseModel):
@@ -48,9 +47,9 @@ class PaymentScheduleRequest(BaseModel):
 
 
 class PaymentFilterParams(BaseModel):
-    invoice_id: Optional[UUID] = None
-    vendor_id: Optional[UUID] = None
-    status: Optional[str] = None
+    invoice_id: UUID | None = None
+    vendor_id: UUID | None = None
+    status: str | None = None
     page: int = 1
     page_size: int = 20
 
@@ -62,9 +61,9 @@ class DisputeMessageResponse(BaseModel):
     org_id: UUID
     dispute_id: UUID
     sender_id: UUID
-    sender_name: Optional[str] = None
+    sender_name: str | None = None
     message: str
-    attachments: Optional[List[UUID]] = None
+    attachments: list[UUID] | None = None
     created_at: datetime
 
 
@@ -79,14 +78,14 @@ class DisputeResponse(BaseModel):
     description: str
     status: str
     raised_by: UUID
-    resolved_by: Optional[UUID] = None
-    resolution_notes: Optional[str] = None
-    resolution_action: Optional[str] = None
-    credit_note_amount: Optional[Decimal] = None
-    resolved_at: Optional[datetime] = None
+    resolved_by: UUID | None = None
+    resolution_notes: str | None = None
+    resolution_action: str | None = None
+    credit_note_amount: Decimal | None = None
+    resolved_at: datetime | None = None
     created_at: datetime
     updated_at: datetime
-    messages: List[DisputeMessageResponse] = Field(default_factory=list)
+    messages: list[DisputeMessageResponse] = Field(default_factory=list)
 
 
 class DisputeCreateRequest(BaseModel):
@@ -101,7 +100,7 @@ class DisputeMessageCreateRequest(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     message: str = Field(..., min_length=1)
-    attachments: Optional[List[UUID]] = None
+    attachments: list[UUID] | None = None
 
 
 class DisputeResolveRequest(BaseModel):
@@ -109,7 +108,7 @@ class DisputeResolveRequest(BaseModel):
 
     resolution_notes: str = Field(..., min_length=3)
     resolution_action: str = Field(..., pattern="^(RESOLVED_ACCEPTED|RESOLVED_REJECTED|RESOLVED_CREDIT_NOTE)$")
-    credit_note_amount: Optional[Decimal] = None
+    credit_note_amount: Decimal | None = None
 
 
 class ErpPaymentWebhookRequest(BaseModel):
@@ -119,14 +118,14 @@ class ErpPaymentWebhookRequest(BaseModel):
     utr_number: str
     amount: Decimal
     payment_date: date
-    payment_method: Optional[str] = "NEFT"
-    erp_reference: Optional[str] = None
+    payment_method: str | None = "NEFT"
+    erp_reference: str | None = None
 
 
 class PaymentLiveExecuteRequest(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     method: str = Field(default="RAZORPAY_PAYOUT", description="Payment rail: RAZORPAY_PAYOUT | BANK_NEFT | BANK_RTGS")
-    bank_account_id: Optional[UUID] = None
-    notes: Optional[str] = None
+    bank_account_id: UUID | None = None
+    notes: str | None = None
 

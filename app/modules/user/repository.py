@@ -1,32 +1,35 @@
 from __future__ import annotations
-from typing import Optional, Any
+
+from typing import Any
 from uuid import UUID
+
+from sqlalchemy import and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, and_
-from app.db.repository_base import BaseRepository
-from app.modules.user.models import User, DelegationRule
+
 from app.db.enums import UserStatusEnum
+from app.db.repository_base import BaseRepository
+from app.modules.user.models import DelegationRule, User
 
 
 class UserRepository(BaseRepository[User]):
     def __init__(self) -> None:
         super().__init__(User)
 
-    async def find_by_email(self, db: AsyncSession, email: str, org_id: UUID) -> Optional[User]:
+    async def find_by_email(self, db: AsyncSession, email: str, org_id: UUID) -> User | None:
         stmt = select(User).where(
             and_(User.email == email, User.org_id == org_id, User.deleted_at.is_(None))
         )
         result = await db.execute(stmt)
         return result.scalar_one_or_none()
 
-    async def find_by_email_any_org(self, db: AsyncSession, email: str) -> Optional[User]:
+    async def find_by_email_any_org(self, db: AsyncSession, email: str) -> User | None:
         stmt = select(User).where(
             and_(User.email == email, User.deleted_at.is_(None))
         )
         result = await db.execute(stmt)
         return result.scalars().first()
 
-    async def get_by_id(self, db: AsyncSession, user_id: UUID, org_id: UUID) -> Optional[User]:
+    async def get_by_id(self, db: AsyncSession, user_id: UUID, org_id: UUID) -> User | None:
         stmt = select(User).where(
             and_(User.id == user_id, User.org_id == org_id, User.deleted_at.is_(None))
         )
@@ -36,7 +39,7 @@ class UserRepository(BaseRepository[User]):
     async def get_active_users_with_role(
         self, db: AsyncSession, org_id: UUID, role_code: str
     ) -> list[User]:
-        from app.modules.user.models import UserRoleAssignment, Role
+        from app.modules.user.models import Role, UserRoleAssignment
         stmt = (
             select(User)
             .join(UserRoleAssignment, UserRoleAssignment.user_id == User.id)
@@ -56,7 +59,7 @@ class UserRepository(BaseRepository[User]):
 
     async def find_by_employee_id(
         self, db: AsyncSession, employee_id: str, org_id: UUID
-    ) -> Optional[User]:
+    ) -> User | None:
         stmt = select(User).where(
             and_(
                 User.employee_id == employee_id,
@@ -69,8 +72,8 @@ class UserRepository(BaseRepository[User]):
 
     async def find_by_username_or_email_prefix(
         self, db: AsyncSession, username: str, org_id: UUID
-    ) -> Optional[User]:
-        from sqlalchemy import or_, func
+    ) -> User | None:
+        from sqlalchemy import func, or_
         clean = username.strip()
         stmt = select(User).where(
             User.org_id == org_id,
@@ -115,7 +118,7 @@ class DelegationRepository(BaseRepository[DelegationRule]):
 
     async def get_by_id_and_delegator(
         self, db: AsyncSession, rule_id: UUID, delegator_id: UUID, org_id: UUID
-    ) -> Optional[Any]:
+    ) -> Any | None:
         from app.modules.user.models import DelegationRule
         stmt = select(DelegationRule).where(
             and_(

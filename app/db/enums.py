@@ -1,5 +1,7 @@
 import enum
+
 from sqlalchemy.dialects.postgresql import ENUM as PGENUM
+
 
 class UserStatus(str, enum.Enum):
     ACTIVE = "ACTIVE"
@@ -42,6 +44,7 @@ class PRSource(str, enum.Enum):
     MOBILE = "MOBILE"
     CATALOG = "CATALOG"
     EMAIL = "EMAIL"
+    INDENT_CART = "INDENT_CART"
 
 class RFQStatus(str, enum.Enum):
     DRAFT = "DRAFT"

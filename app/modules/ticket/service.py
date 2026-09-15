@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 from uuid import UUID, uuid4
 
@@ -10,13 +10,13 @@ from sqlalchemy import func, or_, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
-from app.core.exceptions import AppException, ForbiddenError, ValidationError
+from app.core.exceptions import AppException, ForbiddenError, NotFoundError, ValidationError
 from app.core.redis_client import RedisKeys, get_redis_client
 from app.events.publisher import OutboxPublisher
 from app.modules.audit.service import audit_service
+from app.modules.ticket.automation_engine import ticket_automation_engine
 from app.modules.ticket.fsm import validate_ticket_transition
 from app.modules.ticket.mention_parser import MentionParser
-from app.modules.ticket.automation_engine import ticket_automation_engine
 from app.modules.ticket.models import (
     Ticket,
     TicketActivityLog,
@@ -107,8 +107,33 @@ class TicketService:
         portal: str = "buyer",
     ) -> Ticket:
         ticket_number = await self._generate_number(db, org_id)
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         sla_breach_at = await self.sla.compute_breach_at(db, org_id, data.priority, now)
+
+        assigned_to = getattr(data, "assigned_to", None)
+        assigned_team = getattr(data, "assigned_team", None)
+        if not assigned_to:
+            from app.core.constants import RoleCode
+            from app.db.enums import UserStatusEnum
+            from app.modules.user.models import Role, User, UserRoleAssignment
+
+            mgr_stmt = (
+                select(User.id)
+                .join(UserRoleAssignment, UserRoleAssignment.user_id == User.id)
+                .join(Role, Role.id == UserRoleAssignment.role_id)
+                .where(
+                    UserRoleAssignment.org_id == org_id,
+                    User.status == UserStatusEnum.ACTIVE,
+                    Role.code.in_([
+                        RoleCode.PROCUREMENT_MANAGER,
+                        RoleCode.SOURCING_MANAGER,
+                        RoleCode.PROCUREMENT_HEAD,
+                        RoleCode.ORG_ADMIN,
+                    ]),
+                )
+                .limit(1)
+            )
+            assigned_to = (await db.execute(mgr_stmt)).scalar_one_or_none()
 
         ticket = Ticket(
             org_id=org_id,
@@ -122,6 +147,8 @@ class TicketService:
             status="OPEN",
             raised_by=actor_id,
             raised_by_portal=portal,
+            assigned_to=assigned_to,
+            assigned_team=assigned_team,
             entity_type=data.entity_type,
             entity_id=data.entity_id,
             entity_number=data.entity_number,
@@ -261,7 +288,7 @@ class TicketService:
 
         # Track first response
         if ticket.assigned_to == actor_id and not ticket.first_response_at:
-            ticket.first_response_at = datetime.now(timezone.utc)
+            ticket.first_response_at = datetime.now(UTC)
 
         # PENDING_RESPONSE → IN_PROGRESS when raiser replies
         if ticket.status == "PENDING_RESPONSE" and actor_id == ticket.raised_by:
@@ -340,8 +367,8 @@ class TicketService:
 
         created_dt = comment.created_at
         if created_dt.tzinfo is None:
-            created_dt = created_dt.replace(tzinfo=timezone.utc)
-        elapsed = (datetime.now(timezone.utc) - created_dt).total_seconds()
+            created_dt = created_dt.replace(tzinfo=UTC)
+        elapsed = (datetime.now(UTC) - created_dt).total_seconds()
         if elapsed > settings.TICKET_COMMENT_EDIT_WINDOW_SECONDS:
             raise AppException(
                 message="Comments can only be edited within 15 minutes of posting",
@@ -354,7 +381,7 @@ class TicketService:
             )
 
         comment.content = content
-        comment.edited_at = datetime.now(timezone.utc)
+        comment.edited_at = datetime.now(UTC)
         comment.edited_by = actor_id
         return comment
 
@@ -372,7 +399,7 @@ class TicketService:
                 "Only the author or admin can delete a comment",
                 "NOT_COMMENT_AUTHOR",
             )
-        comment.deleted_at = datetime.now(timezone.utc)
+        comment.deleted_at = datetime.now(UTC)
 
     async def get_comments(
         self,
@@ -514,7 +541,7 @@ class TicketService:
         old_status = ticket.status
         ticket.status = "RESOLVED"
         ticket.resolution_note = resolution_note.strip()
-        ticket.resolved_at = datetime.now(timezone.utc)
+        ticket.resolved_at = datetime.now(UTC)
 
         await self._log(
             db,
@@ -634,8 +661,8 @@ class TicketService:
         if ticket.status == "CLOSED" and not await self._is_admin(db, actor_id, org_id):
             updated_dt = ticket.updated_at
             if updated_dt.tzinfo is None:
-                updated_dt = updated_dt.replace(tzinfo=timezone.utc)
-            days_closed = (datetime.now(timezone.utc) - updated_dt).days
+                updated_dt = updated_dt.replace(tzinfo=UTC)
+            days_closed = (datetime.now(UTC) - updated_dt).days
             if days_closed > settings.TICKET_REOPEN_MAX_DAYS:
                 raise AppException(
                     message=f"Tickets can only be reopened within {settings.TICKET_REOPEN_MAX_DAYS} days of closing",
@@ -650,7 +677,7 @@ class TicketService:
         ticket.resolution_note = None
 
         # Reset SLA breach time from now
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         ticket.sla_breach_at = await self.sla.compute_breach_at(db, org_id, ticket.priority, now)
         ticket.sla_status = "WITHIN_SLA"
 
@@ -784,7 +811,7 @@ class TicketService:
         if data.priority is not None and data.priority != ticket.priority:
             old_priority = ticket.priority
             ticket.priority = data.priority
-            now = datetime.now(timezone.utc)
+            now = datetime.now(UTC)
             ticket.sla_breach_at = await self.sla.compute_breach_at(db, org_id, data.priority, now)
             await self._log(
                 db,
@@ -813,7 +840,7 @@ class TicketService:
                     existing_cf.value_text = cf.value_text
                     existing_cf.value_number = cf.value_number
                     existing_cf.value_json = cf.value_json
-                    existing_cf.updated_at = datetime.now(timezone.utc)
+                    existing_cf.updated_at = datetime.now(UTC)
                 else:
                     db.add(
                         TicketCustomFieldValue(
@@ -826,7 +853,7 @@ class TicketService:
                         )
                     )
 
-        ticket.updated_at = datetime.now(timezone.utc)
+        ticket.updated_at = datetime.now(UTC)
 
         # Trigger automation on field changed
         try:
@@ -850,7 +877,7 @@ class TicketService:
         org_id: UUID,
     ) -> None:
         ticket = await self.repo.get(db, ticket_id, org_id)
-        ticket.deleted_at = datetime.now(timezone.utc)
+        ticket.deleted_at = datetime.now(UTC)
         await self._log(db, ticket_id, actor_id, org_id, "TICKET_DELETED")
 
     async def get_list(
@@ -1035,7 +1062,7 @@ class TicketService:
     ) -> None:
         watcher = await self.repo.get_watcher(db, ticket_id, user_id, org_id)
         if watcher:
-            watcher.deleted_at = datetime.now(timezone.utc)
+            watcher.deleted_at = datetime.now(UTC)
             await self._log(
                 db,
                 ticket_id,
@@ -1092,7 +1119,7 @@ class TicketService:
         res = await db.execute(stmt)
         att = res.scalar_one_or_none()
         if att:
-            att.deleted_at = datetime.now(timezone.utc)
+            att.deleted_at = datetime.now(UTC)
             await self._log(
                 db,
                 ticket_id,
@@ -1124,7 +1151,7 @@ class TicketService:
                 existing.escalation_hours = cfg.escalation_hours
                 existing.escalate_to_role = cfg.escalate_to_role
                 existing.version += 1
-                existing.updated_at = datetime.now(timezone.utc)
+                existing.updated_at = datetime.now(UTC)
                 results.append(existing)
             else:
                 new_cfg = TicketSLAConfig(
@@ -1163,7 +1190,12 @@ class TicketService:
             raise ValidationError("Cannot link a ticket to itself", "SELF_LINK_NOT_ALLOWED")
 
         source_ticket = await self.repo.get(db, ticket_id, org_id)
+        if not source_ticket:
+            raise NotFoundError("Source ticket not found")
+
         target_ticket = await self.repo.get(db, target_ticket_id, org_id)
+        if not target_ticket:
+            raise NotFoundError("Target ticket not found")
 
         # Check existing link
         stmt = select(TicketLink).where(
@@ -1220,7 +1252,7 @@ class TicketService:
         link = await self.repo.get_link(db, link_id, org_id)
         if link.source_ticket_id != ticket_id and link.target_ticket_id != ticket_id:
             raise ForbiddenError("Link does not belong to this ticket", "LINK_NOT_FOUND")
-        link.deleted_at = datetime.now(timezone.utc)
+        link.deleted_at = datetime.now(UTC)
         await self._log(
             db,
             ticket_id,
@@ -1253,8 +1285,8 @@ class TicketService:
 
         # Batch fetch all target/source tickets in 1 query to prevent N+1 queries
         other_ids = [
-            l.target_ticket_id if l.source_ticket_id == ticket_id else l.source_ticket_id
-            for l in links
+            link_item.target_ticket_id if link_item.source_ticket_id == ticket_id else link_item.source_ticket_id
+            for link_item in links
         ]
         target_map = {}
         if hasattr(self.repo, "get_by_ids"):
@@ -1264,9 +1296,9 @@ class TicketService:
             except Exception:
                 target_map = {}
 
-        for l in links:
-            is_source = (l.source_ticket_id == ticket_id)
-            target_id = l.target_ticket_id if is_source else l.source_ticket_id
+        for link_item in links:
+            is_source = (link_item.source_ticket_id == ticket_id)
+            target_id = link_item.target_ticket_id if is_source else link_item.source_ticket_id
             target = target_map.get(target_id)
             if target is None:
                 try:
@@ -1274,14 +1306,14 @@ class TicketService:
                 except Exception:
                     target = None
 
-            link_type = l.link_type if is_source else inverse_map.get(l.link_type, l.link_type)
+            link_type = link_item.link_type if is_source else inverse_map.get(link_item.link_type, link_item.link_type)
             results.append({
-                "id": l.id,
-                "source_ticket_id": l.source_ticket_id if is_source else l.target_ticket_id,
-                "target_ticket_id": l.target_ticket_id if is_source else l.source_ticket_id,
+                "id": link_item.id,
+                "source_ticket_id": link_item.source_ticket_id if is_source else link_item.target_ticket_id,
+                "target_ticket_id": link_item.target_ticket_id if is_source else link_item.source_ticket_id,
                 "link_type": link_type,
-                "created_by": l.created_by,
-                "created_at": l.created_at,
+                "created_by": link_item.created_by,
+                "created_at": link_item.created_at,
                 "target_ticket_number": getattr(target, "ticket_number", "UNKNOWN") if target else "UNKNOWN",
                 "target_ticket_title": getattr(target, "title", "Unknown Ticket") if target else "Unknown Ticket",
                 "target_ticket_status": getattr(target, "status", "UNKNOWN") if target else "UNKNOWN",
@@ -1346,7 +1378,7 @@ class TicketService:
             cf_def.options = data.options
         if data.applies_to_ticket_types is not None:
             cf_def.applies_to_ticket_types = data.applies_to_ticket_types
-        cf_def.updated_at = datetime.now(timezone.utc)
+        cf_def.updated_at = datetime.now(UTC)
         return cf_def
 
     async def delete_custom_field_def(
@@ -1357,7 +1389,7 @@ class TicketService:
         org_id: UUID,
     ) -> None:
         cf_def = await self.repo.get_custom_field_def(db, field_def_id, org_id)
-        cf_def.deleted_at = datetime.now(timezone.utc)
+        cf_def.deleted_at = datetime.now(UTC)
 
     async def get_custom_field_defs(
         self,
@@ -1443,7 +1475,7 @@ class TicketService:
             rule.conditions = data.conditions
         if data.actions is not None:
             rule.actions = data.actions
-        rule.updated_at = datetime.now(timezone.utc)
+        rule.updated_at = datetime.now(UTC)
         return rule
 
     async def delete_automation_rule(
@@ -1454,7 +1486,7 @@ class TicketService:
         org_id: UUID,
     ) -> None:
         rule = await self.repo.get_automation_rule(db, rule_id, org_id)
-        rule.deleted_at = datetime.now(timezone.utc)
+        rule.deleted_at = datetime.now(UTC)
 
     async def get_automation_rules(
         self,
@@ -1476,7 +1508,7 @@ class TicketService:
         ticket = await self.repo.get(db, ticket_id, org_id)
         results = await self.automation._execute_actions(db, rule, ticket, org_id)
         rule.execution_count += 1
-        rule.last_executed_at = datetime.now(timezone.utc)
+        rule.last_executed_at = datetime.now(UTC)
         return {"rule_id": str(rule.id), "ticket_id": str(ticket.id), "actions": results}
 
     async def _generate_number(self, db: AsyncSession, org_id: UUID) -> str:
@@ -1485,7 +1517,7 @@ class TicketService:
         raw_name = org.name if org and org.name else "HKT"
         clean_code = "".join(c for c in raw_name.upper() if c.isalpha())[:3]
         code = clean_code.ljust(3, "X") if len(clean_code) < 3 else clean_code[:3]
-        year = datetime.now(timezone.utc).year
+        year = datetime.now(UTC).year
         seq = f"seq_tkt_{code.lower()}_{year}"
 
         for attempt in range(5):

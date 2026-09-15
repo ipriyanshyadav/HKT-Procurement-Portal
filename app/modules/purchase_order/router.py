@@ -13,20 +13,20 @@ Provides endpoints for:
 from __future__ import annotations
 
 import math
-from typing import Any, List, Optional
+from typing import Any
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.auth.dependencies import get_current_user, require_any_permission, require_permission
+from app.auth.dependencies import require_any_permission, require_permission
 from app.core.constants import PermissionCode
 from app.core.responses import APIResponse, PaginationMeta, created_response, success_response
 from app.db.session import get_db
 from app.modules.purchase_order.schemas import (
     POAcknowledgeRequest,
-    POAmendRequest,
     POAmendmentResponse,
+    POAmendRequest,
     POCancelRequest,
     POCreateRequest,
     POFilterParams,
@@ -130,14 +130,14 @@ async def health():
     return {"status": "ok", "module": "purchase_order"}
 
 
-@router.get("", response_model=APIResponse[List[POResponse]])
+@router.get("", response_model=APIResponse[list[POResponse]])
 async def list_purchase_orders(
-    status: Optional[str] = Query(None),
-    vendor_id: Optional[UUID] = Query(None),
-    business_unit_id: Optional[UUID] = Query(None),
-    rfq_id: Optional[UUID] = Query(None),
-    contract_id: Optional[UUID] = Query(None),
-    search: Optional[str] = Query(None),
+    status: str | None = Query(None),
+    vendor_id: UUID | None = Query(None),
+    business_unit_id: UUID | None = Query(None),
+    rfq_id: UUID | None = Query(None),
+    contract_id: UUID | None = Query(None),
+    search: str | None = Query(None),
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
@@ -181,7 +181,7 @@ async def create_purchase_order(
     return created_response(data=_to_po_response(po))
 
 
-@router.post("/from-award", response_model=APIResponse[List[POResponse]], status_code=status.HTTP_201_CREATED)
+@router.post("/from-award", response_model=APIResponse[list[POResponse]], status_code=status.HTTP_201_CREATED)
 async def create_from_award(
     request: POFromAwardRequest,
     db: AsyncSession = Depends(get_db),
@@ -209,7 +209,7 @@ async def approve_purchase_order(
 ):
     org_id = current_user.org_id
     user_id = current_user.id
-    po = await purchase_order_service.approve(db, po_id, user_id, org_id)
+    await purchase_order_service.approve(db, po_id, user_id, org_id)
     await db.commit()
     updated = await purchase_order_service.get(db, po_id, org_id)
     return success_response(data=_to_po_response(updated))
@@ -224,7 +224,7 @@ async def reject_purchase_order(
 ):
     org_id = current_user.org_id
     user_id = current_user.id
-    po = await purchase_order_service.reject(db, po_id, rejection_reason, user_id, org_id)
+    await purchase_order_service.reject(db, po_id, rejection_reason, user_id, org_id)
     await db.commit()
     updated = await purchase_order_service.get(db, po_id, org_id)
     return success_response(data=_to_po_response(updated))
@@ -238,7 +238,7 @@ async def send_to_vendor(
 ):
     org_id = current_user.org_id
     user_id = current_user.id
-    po = await purchase_order_service.send_to_vendor(db, po_id, user_id, org_id)
+    await purchase_order_service.send_to_vendor(db, po_id, user_id, org_id)
     await db.commit()
     updated = await purchase_order_service.get(db, po_id, org_id)
     return success_response(data=_to_po_response(updated))
@@ -253,7 +253,7 @@ async def acknowledge_purchase_order(
 ):
     org_id = current_user.org_id
     user_id = current_user.id
-    po = await purchase_order_service.record_vendor_acknowledgement(
+    await purchase_order_service.record_vendor_acknowledgement(
         db,
         po_id,
         accepted=request.accepted,
@@ -263,6 +263,7 @@ async def acknowledge_purchase_order(
     )
     await db.commit()
     updated = await purchase_order_service.get(db, po_id, org_id)
+
     return success_response(data=_to_po_response(updated))
 
 

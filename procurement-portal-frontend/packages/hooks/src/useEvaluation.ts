@@ -1,5 +1,16 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@procurement/utils";
+import type {
+  AwardOptimizationScenariosResponse,
+  AwardOptimizationScenario,
+  ApplyOptimizationScenarioRequest,
+} from "@procurement/types";
+
+export type {
+  AwardOptimizationScenariosResponse,
+  AwardOptimizationScenario,
+  ApplyOptimizationScenarioRequest,
+};
 
 export interface CSLineRanking {
   id: string;
@@ -317,6 +328,38 @@ export function useSendRegretLetters() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["evaluations"] });
+    },
+  });
+}
+
+export function useAwardOptimizationScenarios(csId?: string | null) {
+  return useQuery({
+    queryKey: ["evaluations", csId, "optimization-scenarios"],
+    queryFn: async () => {
+      const res = await apiClient.get(`/evaluations/${csId}/optimization-scenarios`);
+      return res.data.data as AwardOptimizationScenariosResponse;
+    },
+    enabled: Boolean(csId),
+  });
+}
+
+export function useApplyOptimizationScenario() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      csId,
+      data,
+    }: {
+      csId: string;
+      data: ApplyOptimizationScenarioRequest;
+    }) => {
+      const res = await apiClient.post(`/evaluations/${csId}/apply-scenario`, data);
+      return res.data.data as ComparativeStatement;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["evaluations"] });
+      queryClient.invalidateQueries({ queryKey: ["evaluations", variables.csId] });
+      queryClient.invalidateQueries({ queryKey: ["evaluations", variables.csId, "optimization-scenarios"] });
     },
   });
 }

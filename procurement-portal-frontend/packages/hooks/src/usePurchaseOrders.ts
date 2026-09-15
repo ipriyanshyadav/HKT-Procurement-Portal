@@ -5,9 +5,18 @@ import type {
   POLineResponse,
   POCreateRequest,
   POAmendmentResponse,
+  POAmendRequest,
+  POLineUpdate,
 } from "@procurement/types";
 
-export type { POResponse, POLineResponse, POCreateRequest, POAmendmentResponse };
+export type {
+  POResponse,
+  POLineResponse,
+  POCreateRequest,
+  POAmendmentResponse,
+  POAmendRequest,
+  POLineUpdate,
+};
 
 export interface POFilterParams {
   status?: string;
@@ -28,17 +37,6 @@ export interface POVendorAckRequest {
 export interface POFromAwardRequest {
   arn_id: string;
   deviation_justification?: string | null;
-}
-
-export interface POAmendRequest {
-  amendment_reason: string;
-  lines?: {
-    po_line_id?: string | null;
-    item_description?: string;
-    ordered_quantity?: number | string;
-    unit_price?: number | string;
-    promised_delivery_date?: string | null;
-  }[];
 }
 
 export function usePurchaseOrders(params?: POFilterParams) {
@@ -134,7 +132,13 @@ export function useAmendPO() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, payload }: { id: string; payload: POAmendRequest }) => {
-      const res = await apiClient.post(`/purchase-orders/${id}/amend`, payload);
+      const body = {
+        reason: payload.reason || payload.amendment_reason || "PO Amendment",
+        value_change: payload.value_change ?? 0,
+        field_changes: payload.field_changes ?? {},
+        line_updates: payload.line_updates ?? [],
+      };
+      const res = await apiClient.post(`/purchase-orders/${id}/amend`, body);
       return res.data.data as POResponse;
     },
     onSuccess: (_, variables) => {
