@@ -13,12 +13,11 @@ from datetime import UTC, datetime
 from time import perf_counter
 from uuid import UUID, uuid4
 
-from loguru import logger
 from sqlalchemy import desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.constants import AuditAction
-from app.core.exceptions import AppException, NotFoundError
+from app.core.exceptions import NotFoundError
 from app.modules.audit.service import audit_service
 from app.modules.developer.models import WebhookDelivery, WebhookSubscription
 from app.modules.integration.webhook_schemas import (
@@ -218,6 +217,7 @@ class WebhookManagementService:
             json.dumps(test_payload, sort_keys=True).encode(),
             hashlib.sha256,
         ).hexdigest()
+        test_payload["signature"] = signature
 
         start_time = perf_counter()
         duration_ms = int((perf_counter() - start_time) * 1000) + 38

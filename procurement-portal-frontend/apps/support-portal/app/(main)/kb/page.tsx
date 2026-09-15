@@ -213,7 +213,7 @@ export default function KnowledgeBasePage() {
                 No matching knowledge base articles found
               </h3>
               <p className="text-xs text-neutral-400 mt-1 max-w-sm mx-auto">
-                Could not find any guides matching "{search}". Try searching different terms or raise a ticket directly with our support team.
+                Could not find any guides matching &quot;{search}&quot;. Try searching different terms or raise a ticket directly with our support team.
               </p>
             </div>
             <Link

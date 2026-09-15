@@ -12,6 +12,7 @@ from app.config import settings
 from app.core.responses import success_response
 from app.core.streaming import generate_table_pdf, stream_csv, stream_pdf
 from app.db.session import get_db
+from app.modules.analytics.buyer_activity_service import buyer_activity_service
 from app.modules.analytics.esg_service import carbon_esg_service
 from app.modules.analytics.export_service import analytics_export_service
 from app.modules.analytics.schemas import (
@@ -473,7 +474,6 @@ async def update_supplier_esg_scorecard(
 # ---------------------------------------------------------------------------
 # 14. Buyer Activity & Procurement Velocity Endpoints (SPEC 27-H)
 # ---------------------------------------------------------------------------
-from app.modules.analytics.buyer_activity_service import buyer_activity_service
 
 
 @router.get("/buyer-activity")

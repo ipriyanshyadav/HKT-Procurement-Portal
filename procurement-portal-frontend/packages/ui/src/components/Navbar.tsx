@@ -387,7 +387,9 @@ export function Navbar({
                 <div className="p-2 max-h-[380px] overflow-y-auto space-y-1">
                   <div className="px-2 py-1 flex items-center justify-between text-[10px] font-bold text-neutral-400 uppercase tracking-wider">
                     <span>Select Persona to Emulate</span>
-                    <span className="text-[9px] text-amber-600 dark:text-amber-400 lowercase font-normal">8 personas</span>
+                    <span className="text-[9px] text-amber-600 dark:text-amber-400 lowercase font-normal">
+                      {ENTERPRISE_PERSONAS.length} personas
+                    </span>
                   </div>
 
                   {/* Super Admin Default Option */}
@@ -423,7 +425,7 @@ export function Navbar({
                     </span>
                   </button>
 
-                  {/* 8 Enterprise Personas */}
+                  {/* Enterprise Personas */}
                   {ENTERPRISE_PERSONAS.map((p) => {
                     const isSelected = emulatedPersona?.id === p.id;
                     return (

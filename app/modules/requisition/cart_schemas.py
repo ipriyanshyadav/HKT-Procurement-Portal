@@ -4,6 +4,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
+
 class CartCreateRequest(BaseModel):
     cart_name: str = Field(default='My Cart', min_length=1, max_length=200)
     business_unit_id: UUID
@@ -105,7 +106,7 @@ class CartSummary(BaseModel):
 class ConsigneeConfirmRequest(BaseModel):
     confirmation_note: str | None = Field(None, max_length=2000)
     # line-level acceptances (if None, accepts all as-is)
-    line_acceptances: list['ConsigneeLineAcceptance'] | None = None
+    line_acceptances: list[ConsigneeLineAcceptance] | None = None
 
 class ConsigneeLineAcceptance(BaseModel):
     grn_line_id: UUID

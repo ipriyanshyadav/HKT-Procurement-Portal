@@ -5,9 +5,8 @@ from decimal import Decimal
 from uuid import UUID
 
 from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Numeric, String, Text
-from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
-
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import BaseModel
 

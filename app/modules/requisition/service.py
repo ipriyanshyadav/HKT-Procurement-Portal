@@ -3,14 +3,13 @@ from __future__ import annotations
 import re
 from datetime import UTC, datetime
 from decimal import Decimal
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from loguru import logger
 from sqlalchemy import or_, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
-
 from app.core.constants import AuditAction
 from app.core.exceptions import AppException, ForbiddenError, NotFoundError, ValidationError
 from app.core.metrics import pr_approval_duration_hours, pr_created_total
@@ -27,7 +26,12 @@ from app.modules.requisition.models import Requisition, RequisitionLine
 from app.modules.requisition.repository import RequisitionRepository, requisition_repository
 from app.modules.requisition.schemas import (
     BudgetCheckResult,
+    BuyerSelectionItem,
+    IndentCartTransferRequest,
+    IndentorTrackingResponse,
+    IndentTransferRequest,
     PRCreateRequest,
+    PRLineItemRequest,
     PRSplitRequest,
     PRUpdateRequest,
 )
@@ -1047,7 +1051,7 @@ class RequisitionService:
     async def create_indent(
         self,
         db: AsyncSession,
-        data: "IndentTransferRequest",
+        data: IndentTransferRequest,
         actor: User,
         org_id: UUID,
     ) -> Requisition:
@@ -1082,7 +1086,7 @@ class RequisitionService:
     async def create_indent_from_cart(
         self,
         db: AsyncSession,
-        data: "IndentCartTransferRequest",
+        data: IndentCartTransferRequest,
         actor: User,
         org_id: UUID,
     ) -> Requisition:
@@ -1111,7 +1115,7 @@ class RequisitionService:
                 raise ValidationError("No Category found for organization.")
 
         pr_lines: list[PRLineItemRequest] = []
-        for idx, ci in enumerate(items):
+        for ci in items:
             line_cat_id = None
             uom_id = None
             if ci.item_id:
@@ -1162,10 +1166,9 @@ class RequisitionService:
         org_id: UUID,
         category_id: UUID | None = None,
         business_unit_id: UUID | None = None,
-    ) -> list["BuyerSelectionItem"]:
+    ) -> list[BuyerSelectionItem]:
         from app.core.constants import RoleCode
         from app.db.enums import UserStatusEnum
-        from app.modules.requisition.schemas import BuyerSelectionItem
         from app.modules.user.models import Role, User, UserRoleAssignment
 
         stmt = (
@@ -1174,7 +1177,7 @@ class RequisitionService:
             .join(Role, Role.id == UserRoleAssignment.role_id)
             .where(
                 User.org_id == org_id,
-                Role.code == RoleCode.BUYER,
+                Role.code.in_([RoleCode.BUYER, RoleCode.PROCUREMENT_OFFICER]),
                 User.status == UserStatusEnum.ACTIVE,
                 UserRoleAssignment.is_active.is_(True),
             )
@@ -1183,12 +1186,13 @@ class RequisitionService:
             stmt = stmt.where(User.business_unit_id == business_unit_id)
         res = await db.execute(stmt)
         users = res.scalars().unique().all()
+
         return [
             BuyerSelectionItem(
                 id=u.id,
                 name=f"{u.first_name} {u.last_name}".strip() or u.email,
                 email=u.email,
-                department=str(u.department_id) if u.department_id else None,
+                department=str(u.department_id) if getattr(u, "department_id", None) else None,
                 workload=0,
             )
             for u in users
@@ -1205,12 +1209,12 @@ class RequisitionService:
     ) -> tuple[list[Requisition], int]:
         from sqlalchemy import func
 
+        from app.modules.user.role_repository import role_repository
+
         stmt = select(Requisition).where(
             Requisition.org_id == org_id,
             Requisition.is_indent.is_(True),
         )
-
-        from app.modules.user.role_repository import role_repository
 
         role_codes = await role_repository.get_user_role_codes(db, actor.id, org_id)
         roles = set(role_codes)
@@ -1249,8 +1253,72 @@ class RequisitionService:
             .limit(page_size)
         )
         res = await db.execute(stmt)
-        items = res.scalars().all()
-        return list(items), total
+        items = list(res.scalars().all())
+        return items, total
+
+    async def enrich_indentor_tracking(
+        self,
+        db: AsyncSession,
+        items: list[Requisition],
+        org_id: UUID,
+    ) -> list[IndentorTrackingResponse]:
+        from app.modules.grn.models import GoodsReceiptNote
+        from app.modules.purchase_order.models import PurchaseOrder
+
+        buyer_ids = {
+            item.assigned_buyer_id
+            for item in items
+            if getattr(item, "assigned_buyer_id", None) and isinstance(item.assigned_buyer_id, UUID)
+        }
+        buyer_map: dict[UUID, str] = {}
+        if buyer_ids:
+            b_res = await db.execute(select(User).where(User.id.in_(buyer_ids)))
+            for u in b_res.scalars().all():
+                buyer_map[u.id] = f"{u.first_name} {u.last_name}".strip()
+
+        pr_ids = [item.id for item in items if getattr(item, "id", None) and isinstance(item.id, UUID)]
+        po_by_pr_id: dict[UUID, PurchaseOrder] = {}
+        grn_status_by_po_id: dict[UUID, str] = {}
+        if pr_ids:
+            po_res = await db.execute(
+                select(PurchaseOrder).where(
+                    PurchaseOrder.org_id == org_id,
+                    PurchaseOrder.source_pr_id.in_(pr_ids),
+                )
+            )
+            po_list = po_res.scalars().all()
+            for po in po_list:
+                if po.source_pr_id:
+                    po_by_pr_id[po.source_pr_id] = po
+
+            po_ids = [po.id for po in po_list]
+            if po_ids:
+                grn_res = await db.execute(
+                    select(GoodsReceiptNote).where(
+                        GoodsReceiptNote.org_id == org_id,
+                        GoodsReceiptNote.po_id.in_(po_ids),
+                    )
+                )
+                for grn in grn_res.scalars().all():
+                    grn_status_by_po_id[grn.po_id] = str(grn.status)
+
+        res_items = []
+        for item in items:
+            mapped = IndentorTrackingResponse.model_validate(item)
+            assigned_buyer_id = getattr(item, "assigned_buyer_id", None)
+            if assigned_buyer_id and assigned_buyer_id in buyer_map:
+                mapped.assigned_buyer_name = buyer_map[assigned_buyer_id]
+            po = po_by_pr_id.get(getattr(item, "id", None))
+            if po:
+                mapped.po_id = po.id
+                mapped.po_number = po.po_number
+                mapped.po_status = str(po.status.value if hasattr(po.status, "value") else po.status)
+                if po.id in grn_status_by_po_id:
+                    mapped.grn_status = grn_status_by_po_id[po.id]
+            res_items.append(mapped)
+
+        return res_items
+
 
 
 requisition_service = RequisitionService()

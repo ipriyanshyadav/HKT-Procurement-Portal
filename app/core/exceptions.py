@@ -106,8 +106,9 @@ class NotificationDeliveryError(AppException):
 
 
 def register_exception_handlers(app: FastAPI) -> None:
-    from app.core.telemetry import get_current_trace_id
     from fastapi.exceptions import HTTPException
+
+    from app.core.telemetry import get_current_trace_id
 
     @app.exception_handler(HTTPException)
     async def http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:

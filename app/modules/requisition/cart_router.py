@@ -1,23 +1,24 @@
 from uuid import UUID
+
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.dependencies import get_current_user
-from app.db.session import get_db
 from app.core.exceptions import NotFoundError
-from app.core.responses import APIResponse, success_response, created_response
-from app.modules.user.models import User
+from app.core.responses import APIResponse, created_response, success_response
+from app.db.session import get_db
 from app.modules.requisition.cart_schemas import (
     CartCreateRequest,
     CartItemRequest,
-    CartItemUpdateRequest,
-    CartTransferRequest,
-    CartResponse,
     CartItemResponse,
-    CartSummary
+    CartItemUpdateRequest,
+    CartResponse,
+    CartSummary,
+    CartTransferRequest,
 )
 from app.modules.requisition.cart_service import indent_cart_service
 from app.modules.requisition.schemas import PRDetailResponse
+from app.modules.user.models import User
 
 router = APIRouter(prefix='/indent/cart', tags=['Indent Cart'])
 
@@ -29,12 +30,12 @@ async def get_active_cart(
     cart = await indent_cart_service.get_active_cart(db, current_user.id, current_user.org_id)
     if not cart:
         raise NotFoundError("No active cart found")
-    
+
     # Filter deleted items
     cart.items = [i for i in cart.items if i.deleted_at is None]
     cart.item_count = len(cart.items)
     cart.estimated_total = sum((i.quantity * i.estimated_unit_price for i in cart.items), 0)
-    
+
     return success_response(cart)
 
 @router.post("", response_model=APIResponse[CartResponse])

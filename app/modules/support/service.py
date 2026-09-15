@@ -12,16 +12,14 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.core.exceptions import AppException, NotFoundError
+from app.core.exceptions import NotFoundError
 from app.modules.audit.service import audit_service
 from app.modules.support.models import (
     KnowledgeBaseArticle,
-    SupportAgent,
     SupportTicket,
     SupportTicketMessage,
 )
 from app.modules.support.schemas import (
-    KnowledgeBaseArticleResponse,
     SupportMetricsResponse,
     SupportTicketCreateRequest,
     SupportTicketCSATRequest,

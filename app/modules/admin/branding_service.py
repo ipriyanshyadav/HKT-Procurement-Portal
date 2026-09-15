@@ -8,16 +8,13 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from uuid import UUID
 
-from loguru import logger
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.constants import AuditAction
-from app.core.exceptions import NotFoundError
 from app.modules.admin.branding_models import TenantBranding
 from app.modules.admin.branding_schemas import (
     PublicBrandingResponse,
-    TenantBrandingResponse,
     TenantBrandingUpdateRequest,
 )
 from app.modules.audit.service import audit_service

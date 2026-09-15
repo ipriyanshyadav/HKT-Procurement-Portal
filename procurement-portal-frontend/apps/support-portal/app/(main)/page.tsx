@@ -233,7 +233,7 @@ export default function SupportTicketsPage() {
 
             {filteredTickets.length === 0 && (
               <div className="text-center py-12 text-neutral-400 text-xs">
-                No tickets matching criteria. Click "Raise New Ticket" to create one.
+                No tickets matching criteria. Click &quot;Raise New Ticket&quot; to create one.
               </div>
             )}
           </div>

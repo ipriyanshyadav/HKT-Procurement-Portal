@@ -58,7 +58,7 @@ export default function AdminVendorsListPage() {
     search: search || undefined,
   });
 
-  const vendors = data?.vendors ?? [];
+  const vendors = useMemo(() => data?.vendors ?? [], [data?.vendors]);
   const meta = data?.meta;
   const totalPages = meta?.total_pages ?? 1;
 

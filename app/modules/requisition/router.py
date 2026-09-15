@@ -17,6 +17,11 @@ from app.db.session import get_db
 from app.modules.audit.models import AuditLog
 from app.modules.requisition.schemas import (
     BudgetCheckResult,
+    BuyerSelectionItem,
+    IndentCartTransferRequest,
+    IndentorTrackingResponse,
+    IndentTransferRequest,
+    IndentTransferResponse,
     PRApprovalAction,
     PRConvertToPORequest,
     PRCreateRequest,
@@ -445,8 +450,6 @@ async def reject_requisition(
     await db.commit()
     return success_response(PRDetailResponse.model_validate(pr))
 
-from app.modules.requisition.schemas import IndentTransferRequest, IndentTransferResponse, IndentCartTransferRequest, BuyerSelectionItem, IndentorTrackingResponse
-
 @router.get("/indent/buyers", response_model=APIResponse[list[BuyerSelectionItem]])
 async def list_available_buyers(
     category_id: UUID | None = Query(None),
@@ -459,6 +462,7 @@ async def list_available_buyers(
     )
     return success_response(buyers)
 
+
 @router.post("/indent", response_model=APIResponse[IndentTransferResponse], status_code=status.HTTP_201_CREATED)
 async def transfer_indent(
     data: IndentTransferRequest,
@@ -468,6 +472,7 @@ async def transfer_indent(
     pr = await requisition_service.create_indent(db, data, current_user, current_user.org_id)
     await db.commit()
     return created_response(IndentTransferResponse.model_validate(pr))
+
 
 @router.post("/indent/from-cart", response_model=APIResponse[IndentTransferResponse], status_code=status.HTTP_201_CREATED)
 async def transfer_cart_as_indent(
@@ -479,6 +484,7 @@ async def transfer_cart_as_indent(
     await db.commit()
     return created_response(IndentTransferResponse.model_validate(pr))
 
+
 @router.get("/indent/tracking", response_model=APIResponse[list[IndentorTrackingResponse]])
 async def get_indent_tracking(
     status: str | None = Query(None),
@@ -489,8 +495,11 @@ async def get_indent_tracking(
     db: AsyncSession = Depends(get_db),
 ):
     effective_status = status_filter or status
-    items, total = await requisition_service.get_indentor_tracking(
+    requisitions, total = await requisition_service.get_indentor_tracking(
         db, current_user, current_user.org_id, page, page_size, effective_status
+    )
+    items = await requisition_service.enrich_indentor_tracking(
+        db, requisitions, current_user.org_id
     )
     total_pages = math.ceil(total / page_size) if total > 0 else 1
     meta = PaginationMeta(
@@ -505,58 +514,5 @@ async def get_indent_tracking(
         has_next_page=page < total_pages,
         has_prev_page=page > 1,
     )
-    # Batch resolve buyer names, PO numbers, and GRN statuses
-    buyer_ids = {item.assigned_buyer_id for item in items if item.assigned_buyer_id}
-    buyer_map: dict[UUID, str] = {}
-    if buyer_ids:
-        b_res = await db.execute(select(User).where(User.id.in_(buyer_ids)))
-        for u in b_res.scalars().all():
-            buyer_map[u.id] = f"{u.first_name} {u.last_name}".strip()
+    return success_response(items, meta=meta)
 
-    pr_ids = [item.id for item in items]
-    po_by_pr_id: dict[UUID, Any] = {}
-    grn_status_by_po_id: dict[UUID, str] = {}
-    if pr_ids:
-        from app.modules.purchase_order.models import PurchaseOrder
-        from app.modules.grn.models import GoodsReceiptNote
-
-        po_res = await db.execute(
-            select(PurchaseOrder).where(
-                and_(
-                    PurchaseOrder.org_id == current_user.org_id,
-                    PurchaseOrder.source_pr_id.in_(pr_ids),
-                )
-            )
-        )
-        po_list = po_res.scalars().all()
-        for po in po_list:
-            if po.source_pr_id:
-                po_by_pr_id[po.source_pr_id] = po
-
-        po_ids = [po.id for po in po_list]
-        if po_ids:
-            grn_res = await db.execute(
-                select(GoodsReceiptNote).where(
-                    and_(
-                        GoodsReceiptNote.org_id == current_user.org_id,
-                        GoodsReceiptNote.po_id.in_(po_ids),
-                    )
-                )
-            )
-            for grn in grn_res.scalars().all():
-                grn_status_by_po_id[grn.po_id] = str(grn.status)
-
-    res_items = []
-    for item in items:
-        mapped = IndentorTrackingResponse.model_validate(item)
-        if item.assigned_buyer_id and item.assigned_buyer_id in buyer_map:
-            mapped.assigned_buyer_name = buyer_map[item.assigned_buyer_id]
-        po = po_by_pr_id.get(item.id)
-        if po:
-            mapped.po_id = po.id
-            mapped.po_number = po.po_number
-            mapped.po_status = str(po.status.value if hasattr(po.status, "value") else po.status)
-            if po.id in grn_status_by_po_id:
-                mapped.grn_status = grn_status_by_po_id[po.id]
-        res_items.append(mapped)
-    return success_response(res_items, meta=meta)

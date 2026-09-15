@@ -30,6 +30,7 @@ from app.modules.grn.schemas import (
     QualityInspectionResponse,
 )
 from app.modules.grn.service import grn_service
+from app.modules.requisition.cart_schemas import ConsigneeConfirmRequest, ConsigneeRejectRequest
 from app.modules.user.models import User
 
 router = APIRouter(tags=["GRN"])
@@ -202,13 +203,6 @@ async def cancel_grn(
     updated = await grn_service.get(db, grn_id, org_id)
     return success_response(data=_to_grn_response(updated))
 
-from app.modules.requisition.cart_schemas import ConsigneeConfirmRequest, ConsigneeRejectRequest
-from app.core.exceptions import ForbiddenError, AppException
-from app.core.constants import AuditAction
-from app.modules.audit.service import audit_service
-from app.events.publisher import OutboxPublisher
-from sqlalchemy import select
-from datetime import datetime, timezone
 
 @router.post("/{id}/consignee-confirm", response_model=APIResponse[dict])
 async def consignee_confirm_grn(
@@ -218,42 +212,16 @@ async def consignee_confirm_grn(
     db: AsyncSession = Depends(get_db),
 ):
     """Indentor (consignee) confirms receipt of goods — equivalent to CRAC generation."""
-    stmt = select(GoodsReceiptNote).where(GoodsReceiptNote.id == id, GoodsReceiptNote.deleted_at.is_(None))
-    result = await db.execute(stmt)
-    grn = result.scalars().first()
-    if not grn or grn.org_id != current_user.org_id:
-        raise NotFoundError("GRN not found")
-    
-    if grn.consignee_id != current_user.id:
-        raise ForbiddenError("You are not the designated consignee for this GRN")
-        
-    if grn.consignee_status != 'PENDING':
-        raise AppException(code="ALREADY_PROCESSED", message=f"GRN consignee status is already {grn.consignee_status}")
-
-    grn.consignee_status = 'CONFIRMED'
-    grn.consignee_confirmed_at = datetime.now(timezone.utc)
-    if grn.status == 'DRAFT':
-        grn.status = 'ACCEPTED'
-
-    await audit_service.log(
-        db=db,
-        action=AuditAction.GRN_CONSIGNEE_CONFIRMED,
-        actor_id=current_user.id,
-        org_id=current_user.org_id,
-        target_type='GoodsReceiptNote',
-        target_id=grn.id,
-        details={'note': data.confirmation_note}
-    )
-    
-    await OutboxPublisher.publish(
+    await grn_service.consignee_confirm_grn(
         db,
-        current_user.org_id,
-        "indent.confirmed",
-        {"grn_id": str(id), "consignee_id": str(current_user.id)}
+        grn_id=id,
+        actor=current_user,
+        org_id=current_user.org_id,
+        confirmation_note=data.confirmation_note,
     )
-
     await db.commit()
-    return success_response({'grn_id': str(id), 'consignee_status': 'CONFIRMED'})
+    return success_response({"grn_id": str(id), "consignee_status": "CONFIRMED"})
+
 
 @router.post("/{id}/consignee-reject", response_model=APIResponse[dict])
 async def consignee_reject_grn(
@@ -263,33 +231,18 @@ async def consignee_reject_grn(
     db: AsyncSession = Depends(get_db),
 ):
     """Indentor (consignee) rejects delivery — records rejection reason."""
-    stmt = select(GoodsReceiptNote).where(GoodsReceiptNote.id == id, GoodsReceiptNote.deleted_at.is_(None))
-    result = await db.execute(stmt)
-    grn = result.scalars().first()
-    if not grn or grn.org_id != current_user.org_id:
-        raise NotFoundError("GRN not found")
-    
-    if grn.consignee_id != current_user.id:
-        raise ForbiddenError("You are not the designated consignee for this GRN")
-        
-    if grn.consignee_status != 'PENDING':
-        raise AppException(code="ALREADY_PROCESSED", message=f"GRN consignee status is already {grn.consignee_status}")
-
-    grn.consignee_status = 'REJECTED'
-    grn.consignee_rejection_reason = data.rejection_reason
-
-    await audit_service.log(
-        db=db,
-        action=AuditAction.GRN_CONSIGNEE_REJECTED,
-        actor_id=current_user.id,
+    await grn_service.consignee_reject_grn(
+        db,
+        grn_id=id,
+        actor=current_user,
         org_id=current_user.org_id,
-        target_type='GoodsReceiptNote',
-        target_id=grn.id,
-        details={'reason': data.rejection_reason}
+        rejection_reason=data.rejection_reason,
+    )
+    await db.commit()
+    return success_response(
+        {"grn_id": str(id), "consignee_status": "REJECTED", "reason": data.rejection_reason}
     )
 
-    await db.commit()
-    return success_response({'grn_id': str(id), 'consignee_status': 'REJECTED', 'reason': data.rejection_reason})
 
 @router.get("/assigned-to-me", response_model=APIResponse[list[dict]])
 async def get_grns_assigned_to_me(
@@ -300,27 +253,27 @@ async def get_grns_assigned_to_me(
     db: AsyncSession = Depends(get_db),
 ):
     """GRNs where current user is the designated consignee."""
-    stmt = select(GoodsReceiptNote).where(
-        GoodsReceiptNote.consignee_id == current_user.id,
-        GoodsReceiptNote.org_id == current_user.org_id,
-        GoodsReceiptNote.deleted_at.is_(None)
+    records, total = await grn_service.get_grns_assigned_to_consignee(
+        db,
+        user_id=current_user.id,
+        org_id=current_user.org_id,
+        status_filter=status,
+        page=page,
+        page_size=page_size,
     )
-    if status:
-        stmt = stmt.where(GoodsReceiptNote.consignee_status == status)
-        
-    stmt = stmt.offset((page - 1) * page_size).limit(page_size)
-    result = await db.execute(stmt)
-    grns = result.scalars().all()
-    
-    # Very basic serialization for now as requested
-    res = []
-    for g in grns:
-        res.append({
-            "id": str(g.id),
-            "grn_number": g.grn_number,
-            "consignee_status": g.consignee_status,
-            "vendor_name": "Vendor"  # Dummy for now
-        })
-        
-    return success_response(res, meta={'page': page, 'page_size': page_size, 'total': len(res)})
+    total_pages = (total + page_size - 1) // page_size if total > 0 else 1
+    meta = PaginationMeta(
+        page=page,
+        page_size=page_size,
+        total_count=total,
+        total_pages=total_pages,
+        has_next=page < total_pages,
+        has_prev=page > 1,
+        total_records=total,
+        page_number=page,
+        has_next_page=page < total_pages,
+        has_prev_page=page > 1,
+    )
+    return success_response(records, meta=meta)
+
 

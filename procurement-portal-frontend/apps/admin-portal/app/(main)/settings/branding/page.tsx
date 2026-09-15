@@ -422,6 +422,7 @@ export default function TenantBrandingPage() {
               <div className="flex items-center justify-between border-b border-neutral-100 dark:border-neutral-800 pb-3">
                 <div className="flex items-center gap-2.5">
                   {logoUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={logoUrl}
                       alt="Logo"

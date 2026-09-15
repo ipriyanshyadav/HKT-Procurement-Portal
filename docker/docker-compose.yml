@@ -486,7 +486,7 @@ services:
     networks:
       - procurement_net
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/health || exit 0"]
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/health || exit 1"]
       interval: 15s
       timeout: 5s
       retries: 5
@@ -520,7 +520,7 @@ services:
     networks:
       - procurement_net
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:3001/api/health || exit 0"]
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3001/api/health || exit 1"]
       interval: 15s
       timeout: 5s
       retries: 5
@@ -554,7 +554,7 @@ services:
     networks:
       - procurement_net
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:3002/api/health || exit 0"]
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3002/api/health || exit 1"]
       interval: 15s
       timeout: 5s
       retries: 5
@@ -588,7 +588,7 @@ services:
     networks:
       - procurement_net
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:3004/api/health || exit 0"]
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3004/api/health || exit 1"]
       interval: 15s
       timeout: 5s
       retries: 5
@@ -622,7 +622,7 @@ services:
     networks:
       - procurement_net
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:3005/api/health || exit 0"]
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3005/api/health || exit 1"]
       interval: 15s
       timeout: 5s
       retries: 5

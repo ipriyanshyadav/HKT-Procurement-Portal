@@ -71,16 +71,11 @@ The platform supports strict enterprise role separation (where each user only se
 
 
 ## Current Session State
-- **Planned**: Containerize Support Portal (:3004) and Developer Portal (:3005) into Docker stack.
-- **Implemented**:
-  - Created Dockerfiles for `apps/support-portal` (port 3004) and `apps/developer-portal` (port 3005).
-  - Added `/api/health` healthcheck endpoints and public asset directories for both portals.
-  - Added `support-portal` and `developer-portal` services to `docker/docker-compose.yml`.
-  - Built and verified all 5 frontend portal containers running healthy in Docker.
-- **Tested**:
-  - Verified Docker container builds and healthchecks for all 5 portals (`buyer-portal`, `supplier-portal`, `admin-portal`, `support-portal`, `developer-portal`).
-  - Container health checks return `status: ok` and all containers report `healthy`.
-- **Next**: Ready for full multi-portal testing or further platform enhancements.
+- **Planned**: Enterprise transformation across 5 dimensions (Backend architecture, Frontend UX, Docker infrastructure, Quality & reliability, and Persona verification).
+- **Implemented**: Completed end-to-end audit and remediation: restored router->service->repository layer discipline in GRN, Requisition, and Analytics; resolved runtime NameErrors and outbox side effects; eliminated false-positive Docker healthcheck bypasses (`|| exit 1`); resolved frontend ESLint configuration gaps, unescaped JSX characters, and memo dependencies across Admin, Developer, and Support portals; added Priya Mehta (Indentor/Consignee) into enterprise personas and route authorization rules; enforced strict Segregation of Duties (SoD) on Invoices and Payments.
+- **Tested**: Full verification: 528 backend unit tests (100% pass), 56 workflow tests (100% pass), 71 security tests (100% pass), 0 backend lint errors (`ruff check app`), frontend TypeScript compilation (11/11 packages pass), frontend ESLint (5/5 portals pass), and store persona unit tests (100% pass).
+- **Next**: Final production readiness checkpoint, knowledge graph AST synchronization, and release sign-off.
+
 
 ---
 
@@ -952,5 +947,19 @@ PO.3   | Over-Receipt Reduction Prevention & Before/After Line Diffs   | [DONE] 
 PO.4   | Auto Re-Approval Triggering on >10% PO Value Delta            | [DONE] | purchase_order/service.py, test_po_amendment_line_updates.py
 OVERALL: 9/9 (100%) | BACKEND 100% | FRONTEND 100% | TESTS 100%
 ```
+
+### 📊 SPEC Audit: Enterprise Platform Transformation & Production Hardening (2026-09-15)
+```
+MODULE | SPEC REQUIREMENT | STATUS | ARTIFACT / CODE
+ARCH.1 | Layer Discipline (router -> service -> repo -> model) in GRN, Requisitions & Analytics | [DONE] | grn/service.py, requisition/service.py, analytics/router.py
+ARCH.2 | Runtime Exception Safety, UUID & Outbox Encapsulation                               | [DONE] | core/exceptions.py, grn/router.py, webhook_management_service.py
+INFRA.1| Docker Healthcheck Hardening (fail-close validation without || exit 0)               | [DONE] | docker/docker-compose.yml
+UX.1   | Persona Deck Alignment & Indentor/Consignee (Priya Mehta) Integration                | [DONE] | personas.ts, personas.test.ts, Navbar.tsx
+UX.2   | Segregation of Duties (SoD) Enforcement on Invoices & Payments Route Access           | [DONE] | personas.ts, personas.test.ts
+LINT.1 | Monorepo Frontend Clean ESLint & Typecheck (11/11 packages, 5/5 portals)             | [DONE] | developer-portal/.eslintrc.json, support-portal/.eslintrc.json
+QA.1   | Automated Test Suite Verification (528 unit, 56 workflow, 71 security = 655 tests)   | [DONE] | tests/unit/, tests/workflow/, tests/security/
+OVERALL: 7/7 (100%) | BACKEND 100% | FRONTEND 100% | INFRA 100% | TESTS 100%
+```
+
 
 

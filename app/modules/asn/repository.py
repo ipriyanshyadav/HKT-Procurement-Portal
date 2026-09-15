@@ -222,7 +222,7 @@ class AsnRepository(BaseRepository[AdvanceShippingNotice]):
                 SELECT COALESCE(
                     MAX(CAST(regexp_replace(asn_number, '^ASN-[0-9]+-', '') AS INTEGER)),
                     0
-                ) FROM advance_shipping_notices 
+                ) FROM advance_shipping_notices
                 WHERE org_id = :org_id AND asn_number ~ '^ASN-[0-9]+-[0-9]+$'
                 """),
                 {"org_id": org_id},

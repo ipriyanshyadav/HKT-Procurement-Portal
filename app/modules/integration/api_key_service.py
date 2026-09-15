@@ -10,12 +10,11 @@ import secrets
 from datetime import UTC, datetime, timedelta
 from uuid import UUID, uuid4
 
-from loguru import logger
-from sqlalchemy import desc, func, select
+from sqlalchemy import desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.constants import AuditAction
-from app.core.exceptions import AppException, NotFoundError
+from app.core.exceptions import NotFoundError
 from app.modules.audit.service import audit_service
 from app.modules.developer.models import ApiKey
 from app.modules.integration.api_key_schemas import (

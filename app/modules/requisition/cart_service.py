@@ -5,17 +5,17 @@ Dependencies (inbound): cart_router
 Dependencies (outbound): cart_models, requisition models, audit_service, notification event publisher
 Events published: indent.cart_transferred, indent.cart_abandoned
 """
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from decimal import Decimal
 from uuid import UUID
 
-from sqlalchemy import select, func
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from loguru import logger
 
 from app.core.constants import AuditAction
 from app.core.exceptions import AppException, ForbiddenError, NotFoundError
 from app.db.enums import PrSourceEnum
+from app.events.publisher import OutboxPublisher
 from app.modules.audit.service import audit_service
 from app.modules.requisition.cart_models import IndentCart, IndentCartItem
 from app.modules.requisition.cart_schemas import (
@@ -28,7 +28,7 @@ from app.modules.requisition.cart_schemas import (
 )
 from app.modules.requisition.models import Requisition, RequisitionLine
 from app.modules.requisition.service import requisition_service
-from app.events.publisher import OutboxPublisher
+
 
 class IndentCartService:
     CART_MAX_ITEMS = 50
@@ -167,7 +167,7 @@ class IndentCartService:
         if not item:
             raise NotFoundError("Item not found in cart")
 
-        item.deleted_at = datetime.now(timezone.utc)
+        item.deleted_at = datetime.now(UTC)
         await db.flush()
 
         await audit_service.log(
@@ -192,7 +192,7 @@ class IndentCartService:
 
         for item in cart.items:
             if item.deleted_at is None:
-                item.deleted_at = datetime.now(timezone.utc)
+                item.deleted_at = datetime.now(UTC)
 
         await db.flush()
         return cart
@@ -264,7 +264,7 @@ class IndentCartService:
         db.add(requisition)
 
         cart.status = 'TRANSFERRED'
-        cart.transferred_at = datetime.now(timezone.utc)
+        cart.transferred_at = datetime.now(UTC)
         cart.assigned_buyer_id = data.assigned_buyer_id
         cart.transfer_note = data.transfer_note
 
@@ -321,7 +321,7 @@ class IndentCartService:
                     field="specifications",
                     message="Item missing specifications"
                 ))
-            if item.required_by_date and item.required_by_date < datetime.now(timezone.utc).date():
+            if item.required_by_date and item.required_by_date < datetime.now(UTC).date():
                 warnings.append(CartValidationWarning(
                     line_number=item.line_number,
                     field="required_by_date",
@@ -350,7 +350,7 @@ class IndentCartService:
             raise ForbiddenError("Not authorized to modify this cart")
 
         cart.status = 'ABANDONED'
-        cart.deleted_at = datetime.now(timezone.utc)
+        cart.deleted_at = datetime.now(UTC)
         await db.flush()
 
         await audit_service.log(

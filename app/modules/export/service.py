@@ -7,7 +7,6 @@ from __future__ import annotations
 
 import csv
 import io
-import json
 import os
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -19,10 +18,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import AppException, NotFoundError
 from app.modules.export.models import ExportJob
-from app.modules.export.schemas import ExportJobCreateRequest, SUPPORTED_EXPORT_TYPES
+from app.modules.export.schemas import SUPPORTED_EXPORT_TYPES, ExportJobCreateRequest
 
 # Target export storage directory
-EXPORT_STORAGE_DIR = Path(os.environ.get("EXPORT_STORAGE_DIR", "/tmp/procurement_exports"))
+EXPORT_STORAGE_DIR = Path(os.environ.get("EXPORT_STORAGE_DIR", "/tmp/procurement_exports"))  # noqa: S108
 
 
 class ExportCenterService:

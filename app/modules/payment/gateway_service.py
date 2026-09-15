@@ -7,8 +7,7 @@ from __future__ import annotations
 
 import hashlib
 import hmac
-import json
-from datetime import UTC, date, datetime
+from datetime import date
 from decimal import Decimal
 from uuid import UUID, uuid4
 
@@ -17,13 +16,12 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.constants import AuditAction
-from app.core.exceptions import AppException, NotFoundError
+from app.core.exceptions import NotFoundError
 from app.db.enums import PaymentStatusEnum
 from app.modules.audit.service import audit_service
 from app.modules.invoice.models import Invoice
 from app.modules.payment.gateway_schemas import (
     CreatePaymentOrderRequest,
-    PaymentGatewayConfigResponse,
     PaymentGatewayConfigUpdate,
     PaymentOrderResponse,
     VerifyPaymentRequest,
@@ -179,7 +177,6 @@ class PaymentGatewayService:
         if data.gateway_signature != expected_sig and not data.gateway_signature.startswith("mock_sig"):
             logger.warning(f"Signature mismatch for order {data.gateway_order_id}")
             # Non-blocking for mock/demo dev, but records signature
-            pass
 
         payment.gateway_payment_id = data.gateway_payment_id
         payment.gateway_signature = data.gateway_signature

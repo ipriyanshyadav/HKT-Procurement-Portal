@@ -13,7 +13,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.constants import AuditAction
-from app.core.exceptions import AppException, NotFoundError
+from app.core.exceptions import AppException
 from app.modules.admin.models import OnboardingSession
 from app.modules.admin.schemas import OnboardingChecklistItem, OnboardingChecklistResponse
 from app.modules.audit.service import audit_service

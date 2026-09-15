@@ -214,7 +214,7 @@ export default function DeveloperKeysAndWebhooksPage() {
                   {(keys || []).length === 0 && (
                     <tr>
                       <td colSpan={6} className="text-center py-10 text-slate-500">
-                        No API keys generated yet. Click "Create API Key" to provision credentials.
+                        No API keys generated yet. Click &quot;Create API Key&quot; to provision credentials.
                       </td>
                     </tr>
                   )}
@@ -296,7 +296,7 @@ export default function DeveloperKeysAndWebhooksPage() {
                 ))}
                 {(webhooks || []).length === 0 && (
                   <div className="text-center py-10 text-slate-500 text-xs">
-                    No webhooks registered. Click "Add Webhook" to listen to events.
+                    No webhooks registered. Click &quot;Add Webhook&quot; to listen to events.
                   </div>
                 )}
               </div>

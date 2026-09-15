@@ -15,7 +15,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.auth.jwt import create_access_token, create_refresh_token
 from app.config import settings
 from app.core.constants import AuditAction
-from app.core.exceptions import AppException, ForbiddenError, NotFoundError
+from app.core.exceptions import ForbiddenError, NotFoundError
 from app.core.redis_client import get_redis_client
 from app.modules.admin.company_switcher_models import OrgSwitchAudit, UserOrgMembership
 from app.modules.admin.company_switcher_schemas import (
