@@ -71,10 +71,10 @@ The platform supports strict enterprise role separation (where each user only se
 
 
 ## Current Session State
-- **Planned**: GitHub and CI/CD currency verification, staging deployment alignment for 5 portals, and release PR creation.
-- **Implemented**: Synchronized local and remote branches; updated `.github/workflows/deploy-staging.yml` to build all 5 frontend portals (`buyer`, `supplier`, `admin`, `support`, `developer`); pushed all 21 enterprise hardening commits to `origin/develop`; updated AST knowledge graph; opened release PR from `develop` into `main`.
-- **Tested**: Verified zero dead code (`print()`, `console.log()`), 0 Python syntax errors (`ruff`), Turborepo typecheck and lint (11/11 packages pass), and remote branch parity (`develop...origin/develop` clean).
-- **Next**: Await GitHub Actions CI check completion on the PR, approve, and merge to `main`.
+- **Planned**: Resolve frontend "Network Error" on login and slow connection for Vercel deployment of buyer portal.
+- **Implemented**: Fixed `@procurement/utils` API interceptor to use build-time inlined `NEXT_PUBLIC_API_URL` without replacing baseURL with `${hostname}:8000` on production domains; updated refresh URL and WebSocket hook endpoints; updated `CORS_ORIGINS` and `CORS_ORIGIN_REGEX` in `app/config.py` and `app/main.py` to allow all `*.vercel.app` origins.
+- **Tested**: Verified backend `/health`, `/docs`, CORS preflight OPTIONS, and POST `/api/v1/auth/login` returning 200 OK with JWT tokens; verified clean static build of `buyer-portal` (53 routes, 0 errors).
+- **Next**: Commit and push changes to `develop` and `main` to trigger Vercel deployment; test live login on `https://hkt-procurement-portal.vercel.app`.
 
 
 ---

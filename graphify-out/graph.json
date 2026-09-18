@@ -12250,7 +12250,7 @@
       "file_type": "code",
       "norm_label": "tokenlistener",
       "source_file": "procurement-portal-frontend/packages/utils/src/api.ts",
-      "source_location": "L63"
+      "source_location": "L73"
     },
     {
       "id": "app_modules_analytics_models_carbonemissionfactor",
@@ -12328,7 +12328,7 @@
       "file_type": "code",
       "norm_label": "notificationtemplatesresponse",
       "source_file": "procurement-portal-frontend/packages/hooks/src/useNotifications.ts",
-      "source_location": "L365"
+      "source_location": "L384"
     },
     {
       "id": "procurement_portal_frontend_packages_types_src_index_notificationitem",
@@ -39801,7 +39801,7 @@
       "file_type": "code",
       "norm_label": "usecreatenotificationtemplate()",
       "source_file": "procurement-portal-frontend/packages/hooks/src/useNotifications.ts",
-      "source_location": "L413"
+      "source_location": "L432"
     },
     {
       "id": "procurement_portal_frontend_packages_hooks_src_usenotifications_usedeletenotificationtemplate",
@@ -39813,7 +39813,7 @@
       "file_type": "code",
       "norm_label": "usedeletenotificationtemplate()",
       "source_file": "procurement-portal-frontend/packages/hooks/src/useNotifications.ts",
-      "source_location": "L451"
+      "source_location": "L470"
     },
     {
       "id": "procurement_portal_frontend_packages_hooks_src_usenotifications_usenotificationtemplates",
@@ -39825,7 +39825,7 @@
       "file_type": "code",
       "norm_label": "usenotificationtemplates()",
       "source_file": "procurement-portal-frontend/packages/hooks/src/useNotifications.ts",
-      "source_location": "L375"
+      "source_location": "L394"
     },
     {
       "id": "procurement_portal_frontend_packages_hooks_src_usenotifications_usepreviewnotificationtemplate",
@@ -39837,7 +39837,7 @@
       "file_type": "code",
       "norm_label": "usepreviewnotificationtemplate()",
       "source_file": "procurement-portal-frontend/packages/hooks/src/useNotifications.ts",
-      "source_location": "L467"
+      "source_location": "L486"
     },
     {
       "id": "procurement_portal_frontend_packages_hooks_src_usenotifications_useupdatenotificationtemplate",
@@ -39849,7 +39849,7 @@
       "file_type": "code",
       "norm_label": "useupdatenotificationtemplate()",
       "source_file": "procurement-portal-frontend/packages/hooks/src/useNotifications.ts",
-      "source_location": "L427"
+      "source_location": "L446"
     },
     {
       "id": "procurement_portal_frontend_packages_hooks_src_usepaymentgateway_usepaymentgatewayconfig",
@@ -52149,7 +52149,7 @@
       "file_type": "code",
       "norm_label": "getaccesstoken()",
       "source_file": "procurement-portal-frontend/packages/utils/src/api.ts",
-      "source_location": "L125"
+      "source_location": "L135"
     },
     {
       "id": "procurement_portal_frontend_packages_utils_src_api_geteffectiveapiurl",
@@ -52173,7 +52173,7 @@
       "file_type": "code",
       "norm_label": "getinitialtoken()",
       "source_file": "procurement-portal-frontend/packages/utils/src/api.ts",
-      "source_location": "L24"
+      "source_location": "L34"
     },
     {
       "id": "procurement_portal_frontend_packages_utils_src_api_getportalid",
@@ -52185,7 +52185,7 @@
       "file_type": "code",
       "norm_label": "getportalid()",
       "source_file": "procurement-portal-frontend/packages/utils/src/api.ts",
-      "source_location": "L73"
+      "source_location": "L83"
     },
     {
       "id": "procurement_portal_frontend_packages_utils_src_api_getrefreshtoken",
@@ -52197,7 +52197,7 @@
       "file_type": "code",
       "norm_label": "getrefreshtoken()",
       "source_file": "procurement-portal-frontend/packages/utils/src/api.ts",
-      "source_location": "L40"
+      "source_location": "L50"
     },
     {
       "id": "procurement_portal_frontend_packages_utils_src_api_processqueue",
@@ -52209,7 +52209,7 @@
       "file_type": "code",
       "norm_label": "processqueue()",
       "source_file": "procurement-portal-frontend/packages/utils/src/api.ts",
-      "source_location": "L86"
+      "source_location": "L96"
     },
     {
       "id": "procurement_portal_frontend_packages_utils_src_api_setaccesstoken",
@@ -52221,7 +52221,7 @@
       "file_type": "code",
       "norm_label": "setaccesstoken()",
       "source_file": "procurement-portal-frontend/packages/utils/src/api.ts",
-      "source_location": "L97"
+      "source_location": "L107"
     },
     {
       "id": "procurement_portal_frontend_packages_utils_src_api_setauthheader",
@@ -52233,7 +52233,7 @@
       "file_type": "code",
       "norm_label": "setauthheader()",
       "source_file": "procurement-portal-frontend/packages/utils/src/api.ts",
-      "source_location": "L164"
+      "source_location": "L183"
     },
     {
       "id": "procurement_portal_frontend_packages_utils_src_api_subscribetokenchange",
@@ -52245,7 +52245,7 @@
       "file_type": "code",
       "norm_label": "subscribetokenchange()",
       "source_file": "procurement-portal-frontend/packages/utils/src/api.ts",
-      "source_location": "L66"
+      "source_location": "L76"
     },
     {
       "id": "app_modules_analytics_repository_analyticsrepository_create_maverick_cluster",
@@ -52401,7 +52401,7 @@
       "file_type": "code",
       "norm_label": "usenotificationpreferences()",
       "source_file": "procurement-portal-frontend/packages/hooks/src/useNotifications.ts",
-      "source_location": "L341"
+      "source_location": "L360"
     },
     {
       "id": "procurement_portal_frontend_packages_hooks_src_usenotifications_usenotificationtemplate",
@@ -52413,7 +52413,7 @@
       "file_type": "code",
       "norm_label": "usenotificationtemplate()",
       "source_file": "procurement-portal-frontend/packages/hooks/src/useNotifications.ts",
-      "source_location": "L401"
+      "source_location": "L420"
     },
     {
       "id": "procurement_portal_frontend_packages_hooks_src_usenotifications_useupdatenotificationpreferences",
@@ -52425,7 +52425,7 @@
       "file_type": "code",
       "norm_label": "useupdatenotificationpreferences()",
       "source_file": "procurement-portal-frontend/packages/hooks/src/useNotifications.ts",
-      "source_location": "L351"
+      "source_location": "L370"
     },
     {
       "id": "procurement_portal_frontend_apps_buyer_portal_app_main_indents_cart_page_indentcartpage",
@@ -55113,7 +55113,7 @@
       "file_type": "code",
       "norm_label": "usemarkallnotificationsread()",
       "source_file": "procurement-portal-frontend/packages/hooks/src/useNotifications.ts",
-      "source_location": "L325"
+      "source_location": "L344"
     },
     {
       "id": "procurement_portal_frontend_packages_hooks_src_usenotifications_usemarknotificationread",
@@ -55125,7 +55125,7 @@
       "file_type": "code",
       "norm_label": "usemarknotificationread()",
       "source_file": "procurement-portal-frontend/packages/hooks/src/useNotifications.ts",
-      "source_location": "L309"
+      "source_location": "L328"
     },
     {
       "id": "procurement_portal_frontend_packages_hooks_src_usenotifications_usenotificationslist",
@@ -55137,7 +55137,7 @@
       "file_type": "code",
       "norm_label": "usenotificationslist()",
       "source_file": "procurement-portal-frontend/packages/hooks/src/useNotifications.ts",
-      "source_location": "L235"
+      "source_location": "L254"
     },
     {
       "id": "procurement_portal_frontend_packages_ui_src_components_notificationbell_formatrelativetime",
@@ -63297,7 +63297,7 @@
       "file_type": "code",
       "norm_label": "get_settings()",
       "source_file": "app/config.py",
-      "source_location": "L314"
+      "source_location": "L316"
     },
     {
       "id": "app_config_settings_normalize_key_paths",
@@ -63321,7 +63321,7 @@
       "file_type": "code",
       "norm_label": "._validate_encryption_key()",
       "source_file": "app/config.py",
-      "source_location": "L302"
+      "source_location": "L304"
     },
     {
       "id": "tests_unit_test_config_env_setup",
@@ -110669,7 +110669,7 @@
       "file_type": "code",
       "norm_label": "accesstoken",
       "source_file": "procurement-portal-frontend/packages/utils/src/api.ts",
-      "source_location": "L56"
+      "source_location": "L66"
     },
     {
       "id": "procurement_portal_frontend_packages_utils_src_api_failedqueue",
@@ -110680,7 +110680,7 @@
       "file_type": "code",
       "norm_label": "failedqueue",
       "source_file": "procurement-portal-frontend/packages/utils/src/api.ts",
-      "source_location": "L58"
+      "source_location": "L68"
     },
     {
       "id": "procurement_portal_frontend_packages_utils_src_api_tokenlisteners",
@@ -110691,7 +110691,7 @@
       "file_type": "code",
       "norm_label": "tokenlisteners",
       "source_file": "procurement-portal-frontend/packages/utils/src/api.ts",
-      "source_location": "L64"
+      "source_location": "L74"
     },
     {
       "id": "docs_cross_portal_architecture_and_workflow_guide",
@@ -140797,7 +140797,7 @@
       "file_type": "code",
       "norm_label": "api_url",
       "source_file": "procurement-portal-frontend/packages/utils/src/api.ts",
-      "source_location": "L20"
+      "source_location": "L30"
     },
     {
       "id": "procurement_portal_frontend_packages_utils_src_errors",
@@ -140984,7 +140984,7 @@
       "file_type": "code",
       "norm_label": "apiclient",
       "source_file": "procurement-portal-frontend/packages/utils/src/api.ts",
-      "source_location": "L132"
+      "source_location": "L142"
     },
     {
       "id": "app_modules_master_data_item_init",
@@ -149777,7 +149777,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/config.py",
-      "source_location": "L315",
+      "source_location": "L317",
       "weight": 1.0
     },
     {
@@ -150281,7 +150281,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/main.py",
-      "source_location": "L198",
+      "source_location": "L199",
       "weight": 1.0
     },
     {
@@ -150293,7 +150293,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/main.py",
-      "source_location": "L199",
+      "source_location": "L200",
       "weight": 1.0
     },
     {
@@ -150305,7 +150305,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/main.py",
-      "source_location": "L241",
+      "source_location": "L242",
       "weight": 1.0
     },
     {
@@ -184709,7 +184709,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "procurement-portal-frontend/packages/hooks/src/useNotifications.ts",
-      "source_location": "L327",
+      "source_location": "L346",
       "weight": 1.0
     },
     {
@@ -184721,7 +184721,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "procurement-portal-frontend/packages/hooks/src/useNotifications.ts",
-      "source_location": "L311",
+      "source_location": "L330",
       "weight": 1.0
     },
     {
@@ -184757,7 +184757,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "procurement-portal-frontend/packages/hooks/src/useNotifications.ts",
-      "source_location": "L110",
+      "source_location": "L129",
       "weight": 1.0
     },
     {
@@ -184769,7 +184769,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "procurement-portal-frontend/packages/hooks/src/useNotifications.ts",
-      "source_location": "L240",
+      "source_location": "L259",
       "weight": 1.0
     },
     {
@@ -184781,7 +184781,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "procurement-portal-frontend/packages/hooks/src/useNotifications.ts",
-      "source_location": "L295",
+      "source_location": "L314",
       "weight": 1.0
     },
     {
@@ -187229,7 +187229,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "procurement-portal-frontend/packages/utils/src/api.ts",
-      "source_location": "L127",
+      "source_location": "L137",
       "weight": 1.0
     },
     {
@@ -209033,7 +209033,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "app/config.py",
-      "source_location": "L300",
+      "source_location": "L302",
       "weight": 1.0
     },
     {
@@ -228474,7 +228474,7 @@
       "confidence_score": 1.0,
       "context": "field",
       "source_file": "procurement-portal-frontend/packages/hooks/src/useNotifications.ts",
-      "source_location": "L366",
+      "source_location": "L385",
       "weight": 1.0
     },
     {
@@ -236378,18 +236378,6 @@
     },
     {
       "source": "app_main",
-      "target": "app_core_redis_client_get_redis_client",
-      "relation": "imports",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "app/main.py",
-      "source_location": "L239",
-      "weight": 1.0
-    },
-    {
-      "source": "app_main",
       "target": "app_modules_master_data_models",
       "relation": "imports",
       "_origin": "ast",
@@ -236398,6 +236386,18 @@
       "context": "import",
       "source_file": "app/main.py",
       "source_location": "L24",
+      "weight": 1.0
+    },
+    {
+      "source": "app_main",
+      "target": "app_core_redis_client_get_redis_client",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "app/main.py",
+      "source_location": "L240",
       "weight": 1.0
     },
     {
@@ -395241,7 +395241,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/config.py",
-      "source_location": "L314",
+      "source_location": "L316",
       "weight": 1.0
     },
     {
@@ -436386,17 +436386,6 @@
     },
     {
       "source": "procurement_portal_frontend_packages_hooks_src_usenotifications",
-      "target": "procurement_portal_frontend_packages_hooks_src_usenotifications_usenotificationslist",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "procurement-portal-frontend/packages/hooks/src/useNotifications.ts",
-      "source_location": "L235",
-      "weight": 1.0
-    },
-    {
-      "source": "procurement_portal_frontend_packages_hooks_src_usenotifications",
       "target": "procurement_portal_frontend_packages_hooks_src_usenotifications_toastednotificationids",
       "relation": "contains",
       "_origin": "ast",
@@ -436404,6 +436393,17 @@
       "confidence_score": 1.0,
       "source_file": "procurement-portal-frontend/packages/hooks/src/useNotifications.ts",
       "source_location": "L25",
+      "weight": 1.0
+    },
+    {
+      "source": "procurement_portal_frontend_packages_hooks_src_usenotifications",
+      "target": "procurement_portal_frontend_packages_hooks_src_usenotifications_usenotificationslist",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "procurement-portal-frontend/packages/hooks/src/useNotifications.ts",
+      "source_location": "L254",
       "weight": 1.0
     },
     {
@@ -436425,7 +436425,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "procurement-portal-frontend/packages/hooks/src/useNotifications.ts",
-      "source_location": "L309",
+      "source_location": "L328",
       "weight": 1.0
     },
     {
@@ -436436,7 +436436,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "procurement-portal-frontend/packages/hooks/src/useNotifications.ts",
-      "source_location": "L325",
+      "source_location": "L344",
       "weight": 1.0
     },
     {
@@ -436447,7 +436447,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "procurement-portal-frontend/packages/hooks/src/useNotifications.ts",
-      "source_location": "L341",
+      "source_location": "L360",
       "weight": 1.0
     },
     {
@@ -436458,7 +436458,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "procurement-portal-frontend/packages/hooks/src/useNotifications.ts",
-      "source_location": "L351",
+      "source_location": "L370",
       "weight": 1.0
     },
     {
@@ -436469,7 +436469,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "procurement-portal-frontend/packages/hooks/src/useNotifications.ts",
-      "source_location": "L365",
+      "source_location": "L384",
       "weight": 1.0
     },
     {
@@ -436480,7 +436480,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "procurement-portal-frontend/packages/hooks/src/useNotifications.ts",
-      "source_location": "L375",
+      "source_location": "L394",
       "weight": 1.0
     },
     {
@@ -436491,7 +436491,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "procurement-portal-frontend/packages/hooks/src/useNotifications.ts",
-      "source_location": "L401",
+      "source_location": "L420",
       "weight": 1.0
     },
     {
@@ -436502,7 +436502,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "procurement-portal-frontend/packages/hooks/src/useNotifications.ts",
-      "source_location": "L413",
+      "source_location": "L432",
       "weight": 1.0
     },
     {
@@ -436513,7 +436513,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "procurement-portal-frontend/packages/hooks/src/useNotifications.ts",
-      "source_location": "L427",
+      "source_location": "L446",
       "weight": 1.0
     },
     {
@@ -436524,7 +436524,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "procurement-portal-frontend/packages/hooks/src/useNotifications.ts",
-      "source_location": "L451",
+      "source_location": "L470",
       "weight": 1.0
     },
     {
@@ -436535,7 +436535,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "procurement-portal-frontend/packages/hooks/src/useNotifications.ts",
-      "source_location": "L467",
+      "source_location": "L486",
       "weight": 1.0
     },
     {
@@ -447067,13 +447067,24 @@
     },
     {
       "source": "procurement_portal_frontend_packages_utils_src_api",
+      "target": "procurement_portal_frontend_packages_utils_src_api_setaccesstoken",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "procurement-portal-frontend/packages/utils/src/api.ts",
+      "source_location": "L107",
+      "weight": 1.0
+    },
+    {
+      "source": "procurement_portal_frontend_packages_utils_src_api",
       "target": "procurement_portal_frontend_packages_utils_src_api_getaccesstoken",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "procurement-portal-frontend/packages/utils/src/api.ts",
-      "source_location": "L125",
+      "source_location": "L135",
       "weight": 1.0
     },
     {
@@ -447084,7 +447095,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "procurement-portal-frontend/packages/utils/src/api.ts",
-      "source_location": "L132",
+      "source_location": "L142",
       "weight": 1.0
     },
     {
@@ -447095,7 +447106,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "procurement-portal-frontend/packages/utils/src/api.ts",
-      "source_location": "L164",
+      "source_location": "L183",
       "weight": 1.0
     },
     {
@@ -447106,7 +447117,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "procurement-portal-frontend/packages/utils/src/api.ts",
-      "source_location": "L20",
+      "source_location": "L30",
       "weight": 1.0
     },
     {
@@ -447117,7 +447128,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "procurement-portal-frontend/packages/utils/src/api.ts",
-      "source_location": "L24",
+      "source_location": "L34",
       "weight": 1.0
     },
     {
@@ -447128,29 +447139,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "procurement-portal-frontend/packages/utils/src/api.ts",
-      "source_location": "L40",
-      "weight": 1.0
-    },
-    {
-      "source": "procurement_portal_frontend_packages_utils_src_api",
-      "target": "procurement_portal_frontend_packages_utils_src_api_accesstoken",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "procurement-portal-frontend/packages/utils/src/api.ts",
-      "source_location": "L56",
-      "weight": 1.0
-    },
-    {
-      "source": "procurement_portal_frontend_packages_utils_src_api",
-      "target": "procurement_portal_frontend_packages_utils_src_api_failedqueue",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "procurement-portal-frontend/packages/utils/src/api.ts",
-      "source_location": "L58",
+      "source_location": "L50",
       "weight": 1.0
     },
     {
@@ -447166,29 +447155,7 @@
     },
     {
       "source": "procurement_portal_frontend_packages_utils_src_api",
-      "target": "procurement_portal_frontend_packages_utils_src_api_tokenlistener",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "procurement-portal-frontend/packages/utils/src/api.ts",
-      "source_location": "L63",
-      "weight": 1.0
-    },
-    {
-      "source": "procurement_portal_frontend_packages_utils_src_api",
-      "target": "procurement_portal_frontend_packages_utils_src_api_tokenlisteners",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "procurement-portal-frontend/packages/utils/src/api.ts",
-      "source_location": "L64",
-      "weight": 1.0
-    },
-    {
-      "source": "procurement_portal_frontend_packages_utils_src_api",
-      "target": "procurement_portal_frontend_packages_utils_src_api_subscribetokenchange",
+      "target": "procurement_portal_frontend_packages_utils_src_api_accesstoken",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -447199,7 +447166,18 @@
     },
     {
       "source": "procurement_portal_frontend_packages_utils_src_api",
-      "target": "procurement_portal_frontend_packages_utils_src_api_getportalid",
+      "target": "procurement_portal_frontend_packages_utils_src_api_failedqueue",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "procurement-portal-frontend/packages/utils/src/api.ts",
+      "source_location": "L68",
+      "weight": 1.0
+    },
+    {
+      "source": "procurement_portal_frontend_packages_utils_src_api",
+      "target": "procurement_portal_frontend_packages_utils_src_api_tokenlistener",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -447210,24 +447188,46 @@
     },
     {
       "source": "procurement_portal_frontend_packages_utils_src_api",
+      "target": "procurement_portal_frontend_packages_utils_src_api_tokenlisteners",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "procurement-portal-frontend/packages/utils/src/api.ts",
+      "source_location": "L74",
+      "weight": 1.0
+    },
+    {
+      "source": "procurement_portal_frontend_packages_utils_src_api",
+      "target": "procurement_portal_frontend_packages_utils_src_api_subscribetokenchange",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "procurement-portal-frontend/packages/utils/src/api.ts",
+      "source_location": "L76",
+      "weight": 1.0
+    },
+    {
+      "source": "procurement_portal_frontend_packages_utils_src_api",
+      "target": "procurement_portal_frontend_packages_utils_src_api_getportalid",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "procurement-portal-frontend/packages/utils/src/api.ts",
+      "source_location": "L83",
+      "weight": 1.0
+    },
+    {
+      "source": "procurement_portal_frontend_packages_utils_src_api",
       "target": "procurement_portal_frontend_packages_utils_src_api_processqueue",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "procurement-portal-frontend/packages/utils/src/api.ts",
-      "source_location": "L86",
-      "weight": 1.0
-    },
-    {
-      "source": "procurement_portal_frontend_packages_utils_src_api",
-      "target": "procurement_portal_frontend_packages_utils_src_api_setaccesstoken",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "procurement-portal-frontend/packages/utils/src/api.ts",
-      "source_location": "L97",
+      "source_location": "L96",
       "weight": 1.0
     },
     {
@@ -470508,7 +470508,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/config.py",
-      "source_location": "L302",
+      "source_location": "L304",
       "weight": 1.0
     },
     {
@@ -506899,7 +506899,7 @@
       "confidence_score": 0.85,
       "context": "argument",
       "source_file": "app/main.py",
-      "source_location": "L336",
+      "source_location": "L337",
       "weight": 1.0
     },
     {
@@ -506911,7 +506911,7 @@
       "confidence_score": 0.85,
       "context": "argument",
       "source_file": "app/main.py",
-      "source_location": "L337",
+      "source_location": "L338",
       "weight": 1.0
     },
     {
@@ -538611,5 +538611,5 @@
       "source_file": "specs/SPEC_04_AUTH_SECURITY.md"
     }
   ],
-  "built_at_commit": "83b61732afa10b50b43aa033bdc886aa2c6718ab"
+  "built_at_commit": "33ee71752f81ec34cca92462123ffdc6a4bd28db"
 }

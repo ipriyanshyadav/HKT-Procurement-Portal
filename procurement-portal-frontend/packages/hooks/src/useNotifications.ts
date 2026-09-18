@@ -52,12 +52,31 @@ export function useNotifications() {
     function connect() {
       if (isUnmounted) return;
 
-      let wsBaseUrl =
-        typeof window !== "undefined"
-          ? `${window.location.protocol === "https:" ? "wss:" : "ws:"}//${window.location.hostname.includes(":") && !window.location.hostname.startsWith("[") ? `[${window.location.hostname}]` : window.location.hostname}:8000`
-          : (typeof process !== "undefined" && process.env.NEXT_PUBLIC_WS_URL
-              ? process.env.NEXT_PUBLIC_WS_URL.replace(/^http/, "ws")
-              : null) || "ws://localhost:8000";
+      const configuredWsUrl = process.env.NEXT_PUBLIC_WS_URL;
+      const configuredApiUrl = process.env.NEXT_PUBLIC_API_URL;
+      let wsBaseUrl = configuredWsUrl;
+      if (!wsBaseUrl && configuredApiUrl) {
+        wsBaseUrl = configuredApiUrl.replace(/^http/, "ws");
+      }
+      if (!wsBaseUrl) {
+        if (typeof window !== "undefined") {
+          const hostname = window.location.hostname;
+          const isLocal =
+            hostname === "localhost" ||
+            hostname === "127.0.0.1" ||
+            hostname.startsWith("192.168.") ||
+            hostname.startsWith("10.") ||
+            hostname.endsWith(".local");
+          if (isLocal) {
+            const host = hostname.includes(":") && !hostname.startsWith("[") ? `[${hostname}]` : hostname;
+            wsBaseUrl = `${window.location.protocol === "https:" ? "wss:" : "ws:"}//${host}:8000`;
+          } else {
+            wsBaseUrl = `${window.location.protocol === "https:" ? "wss:" : "ws:"}//${window.location.host}`;
+          }
+        } else {
+          wsBaseUrl = "ws://localhost:8000";
+        }
+      }
 
       const url = `${wsBaseUrl}/ws/notifications?token=${encodeURIComponent(token!)}`;
 
