@@ -71,10 +71,10 @@ The platform supports strict enterprise role separation (where each user only se
 
 
 ## Current Session State
-- **Planned**: Resolve frontend "Network Error" on login and slow connection for Vercel deployment of buyer portal.
-- **Implemented**: Fixed `@procurement/utils` API interceptor to use build-time inlined `NEXT_PUBLIC_API_URL` without replacing baseURL with `${hostname}:8000` on production domains; updated refresh URL and WebSocket hook endpoints; updated `CORS_ORIGINS` and `CORS_ORIGIN_REGEX` in `app/config.py` and `app/main.py` to allow all `*.vercel.app` origins.
-- **Tested**: Verified backend `/health`, `/docs`, CORS preflight OPTIONS, and POST `/api/v1/auth/login` returning 200 OK with JWT tokens; verified clean static build of `buyer-portal` (53 routes, 0 errors).
-- **Next**: Commit and push changes to `develop` and `main` to trigger Vercel deployment; test live login on `https://hkt-procurement-portal.vercel.app`.
+- **Planned**: Implement a unified portal gateway landing page and quick-fill credentials across Buyer, Admin, and Supplier login pages.
+- **Implemented**: Created responsive Enterprise Gateway Hub at `apps/buyer-portal/app/page.tsx` with direct launch cards, capability lists, and copyable credentials for all 3 portals; added 1-click credential autofill buttons and portal switcher navigation to login pages of `buyer-portal`, `admin-portal`, and `supplier-portal`.
+- **Tested**: Verified zero build/type errors across all 3 portals (`buyer-portal` 53 routes, `admin-portal` 62 routes, `supplier-portal` 24 routes pass static and dynamic generation); updated AST knowledge graph.
+- **Next**: Commit and push to `develop` and `main` to deploy to Vercel.
 
 
 ---

@@ -1,6 +1,7 @@
 "use client";
 import { getErrorMessage } from "@procurement/utils";
 
+import Link from "next/link";
 import React, { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useLogin } from "@procurement/hooks";
@@ -22,6 +23,29 @@ function AdminLoginForm() {
 
   const requireCaptcha = failedAttempts >= 2;
 
+  const handleAutoFill = (emailVal: string, passVal: string) => {
+    setEmail(emailVal);
+    setPassword(passVal);
+    setFieldErrors({});
+  };
+
+  const buyerUrl =
+    process.env.NEXT_PUBLIC_BUYER_PORTAL_URL ||
+    (typeof window !== "undefined" && window.location.hostname.includes("localhost")
+      ? "http://localhost:3000/login"
+      : "https://hkt-procurement-portal.vercel.app/login");
+
+  const supplierUrl =
+    process.env.NEXT_PUBLIC_SUPPLIER_PORTAL_URL ||
+    (typeof window !== "undefined" && window.location.hostname.includes("localhost")
+      ? "http://localhost:3001/login"
+      : "https://hkt-supplier-portal.vercel.app/login");
+
+  const gatewayUrl =
+    process.env.NEXT_PUBLIC_BUYER_PORTAL_URL ||
+    (typeof window !== "undefined" && window.location.hostname.includes("localhost")
+      ? "http://localhost:3000"
+      : "https://hkt-procurement-portal.vercel.app");
 
   const redirectParam = searchParams.get("redirect");
   const targetUrl =
@@ -71,11 +95,36 @@ function AdminLoginForm() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-black p-4 transition-colors">
-      <div className="max-w-md w-full space-y-8 p-8 bg-white dark:bg-slate-900/80 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-800">
+      <div className="max-w-md w-full space-y-6 p-8 bg-white dark:bg-slate-900/80 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-800">
+        {/* Navigation Switcher */}
+        <div className="flex items-center justify-between text-xs pb-3 border-b border-gray-100 dark:border-slate-800">
+          <a
+            href={gatewayUrl}
+            className="text-gray-500 hover:text-purple-600 dark:text-gray-400 dark:hover:text-purple-400 flex items-center gap-1 font-semibold transition-colors"
+          >
+            ← Gateway Hub
+          </a>
+          <div className="flex items-center gap-1.5">
+            <span className="text-gray-400 text-[10px] uppercase font-bold tracking-wider">Switch:</span>
+            <a
+              href={buyerUrl}
+              className="px-2 py-0.5 rounded-md bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/60 dark:hover:bg-blue-900/60 text-blue-700 dark:text-blue-300 font-semibold text-[11px] transition-colors"
+            >
+              Buyer
+            </a>
+            <a
+              href={supplierUrl}
+              className="px-2 py-0.5 rounded-md bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/60 dark:hover:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 font-semibold text-[11px] transition-colors"
+            >
+              Supplier
+            </a>
+          </div>
+        </div>
+
         <div>
           <div className="flex justify-center mb-4">
             <span className="flex items-center gap-2 font-bold tracking-tight">
-              <span className="px-2.5 py-1 text-xs font-black tracking-wider bg-gradient-to-r from-blue-600 via-indigo-600 to-sky-500 text-white rounded-lg shadow-sm ring-1 ring-blue-500/20">
+              <span className="px-2.5 py-1 text-xs font-black tracking-wider bg-gradient-to-r from-purple-600 via-indigo-600 to-pink-500 text-white rounded-lg shadow-sm ring-1 ring-purple-500/20">
                 HKT
               </span>
               <span className="bg-gradient-to-r from-neutral-900 via-neutral-800 to-neutral-600 dark:from-white dark:via-neutral-100 dark:to-neutral-300 bg-clip-text text-transparent font-semibold tracking-tight text-[19px]">
@@ -84,7 +133,42 @@ function AdminLoginForm() {
             </span>
           </div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white text-center">Admin Portal</h1>
-          <h2 className="mt-1 text-center text-sm text-gray-600 dark:text-slate-400">Sign in to your account</h2>
+          <h2 className="mt-1 text-center text-sm text-gray-600 dark:text-slate-400">Sign in to administrative console</h2>
+        </div>
+
+        {/* Demo Credentials Quick-Fill Box */}
+        <div className="bg-purple-50/70 dark:bg-purple-950/40 border border-purple-200/80 dark:border-purple-900/50 rounded-xl p-3.5 space-y-2.5">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-purple-900 dark:text-purple-200 flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
+              Demo Accounts (1-Click Fill)
+            </span>
+            <span className="text-[10px] text-purple-600 dark:text-purple-400 font-medium">Click to select</span>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => handleAutoFill("admin@procurement.com", "Admin123456!@#")}
+              className="text-left p-2.5 rounded-lg bg-white dark:bg-slate-800/90 border border-purple-100 dark:border-slate-700 hover:border-purple-400 dark:hover:border-purple-500 hover:shadow-xs transition-all group cursor-pointer"
+            >
+              <div className="text-[11px] font-bold text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400">
+                ⚙️ Admin
+              </div>
+              <div className="text-[10px] text-gray-500 dark:text-gray-400 truncate">admin@procurement.com</div>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleAutoFill("superadmin@procurement.com", "SuperAdmin123456!@#")}
+              className="text-left p-2.5 rounded-lg bg-white dark:bg-slate-800/90 border border-purple-100 dark:border-slate-700 hover:border-purple-400 dark:hover:border-purple-500 hover:shadow-xs transition-all group cursor-pointer"
+            >
+              <div className="text-[11px] font-bold text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400">
+                👑 Super Admin
+              </div>
+              <div className="text-[10px] text-gray-500 dark:text-gray-400 truncate">superadmin@procurement.com</div>
+            </button>
+          </div>
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit} noValidate>

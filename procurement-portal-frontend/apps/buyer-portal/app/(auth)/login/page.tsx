@@ -1,6 +1,7 @@
 "use client";
 import { getErrorMessage } from "@procurement/utils";
 
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -39,6 +40,7 @@ function LoginForm() {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
@@ -46,6 +48,11 @@ function LoginForm() {
       org_id: process.env.NEXT_PUBLIC_DEFAULT_ORG_ID ?? "00000000-0000-0000-0000-000000000001",
     },
   });
+
+  const handleAutoFill = (email: string, pass: string) => {
+    setValue("email", email, { shouldValidate: true });
+    setValue("password", pass, { shouldValidate: true });
+  };
 
   const onSubmit = (data: LoginForm) => {
     if (requireCaptcha && !captchaVerified) {
@@ -73,9 +80,46 @@ function LoginForm() {
     });
   };
 
+  const adminUrl =
+    process.env.NEXT_PUBLIC_ADMIN_PORTAL_URL ||
+    (typeof window !== "undefined" && window.location.hostname.includes("localhost")
+      ? "http://localhost:3002/login"
+      : "https://hkt-admin-portal.vercel.app/login");
+
+  const supplierUrl =
+    process.env.NEXT_PUBLIC_SUPPLIER_PORTAL_URL ||
+    (typeof window !== "undefined" && window.location.hostname.includes("localhost")
+      ? "http://localhost:3001/login"
+      : "https://hkt-supplier-portal.vercel.app/login");
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-black p-4 transition-colors">
-      <div className="max-w-md w-full space-y-8 p-8 bg-white dark:bg-slate-900/80 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-800">
+      <div className="max-w-md w-full space-y-6 p-8 bg-white dark:bg-slate-900/80 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-800">
+        {/* Navigation Switcher */}
+        <div className="flex items-center justify-between text-xs pb-3 border-b border-gray-100 dark:border-slate-800">
+          <Link
+            href="/"
+            className="text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 flex items-center gap-1 font-semibold transition-colors"
+          >
+            ← Gateway Hub
+          </Link>
+          <div className="flex items-center gap-1.5">
+            <span className="text-gray-400 text-[10px] uppercase font-bold tracking-wider">Switch:</span>
+            <a
+              href={adminUrl}
+              className="px-2 py-0.5 rounded-md bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/60 dark:hover:bg-purple-900/60 text-purple-700 dark:text-purple-300 font-semibold text-[11px] transition-colors"
+            >
+              Admin
+            </a>
+            <a
+              href={supplierUrl}
+              className="px-2 py-0.5 rounded-md bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/60 dark:hover:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 font-semibold text-[11px] transition-colors"
+            >
+              Supplier
+            </a>
+          </div>
+        </div>
+
         <div>
           <div className="flex justify-center mb-4">
             <span className="flex items-center gap-2 font-bold tracking-tight">
@@ -89,6 +133,41 @@ function LoginForm() {
           </div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white text-center">Buyer Portal</h1>
           <h2 className="mt-1 text-center text-sm text-gray-600 dark:text-slate-400">Sign in to your account</h2>
+        </div>
+
+        {/* Demo Credentials Quick-Fill Box */}
+        <div className="bg-blue-50/70 dark:bg-blue-950/40 border border-blue-200/80 dark:border-blue-900/50 rounded-xl p-3.5 space-y-2.5">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-blue-900 dark:text-blue-200 flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+              Demo Accounts (1-Click Fill)
+            </span>
+            <span className="text-[10px] text-blue-600 dark:text-blue-400 font-medium">Click to select</span>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => handleAutoFill("buyer@procurement.com", "Buyer123456!@#")}
+              className="text-left p-2.5 rounded-lg bg-white dark:bg-slate-800/90 border border-blue-100 dark:border-slate-700 hover:border-blue-400 dark:hover:border-blue-500 hover:shadow-xs transition-all group cursor-pointer"
+            >
+              <div className="text-[11px] font-bold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400">
+                🛒 Buyer
+              </div>
+              <div className="text-[10px] text-gray-500 dark:text-gray-400 truncate">buyer@procurement.com</div>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleAutoFill("approver@procurement.com", "Approver123!@#")}
+              className="text-left p-2.5 rounded-lg bg-white dark:bg-slate-800/90 border border-blue-100 dark:border-slate-700 hover:border-blue-400 dark:hover:border-blue-500 hover:shadow-xs transition-all group cursor-pointer"
+            >
+              <div className="text-[11px] font-bold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400">
+                ✍️ Approver
+              </div>
+              <div className="text-[10px] text-gray-500 dark:text-gray-400 truncate">approver@procurement.com</div>
+            </button>
+          </div>
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)} noValidate>
