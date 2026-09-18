@@ -83,7 +83,7 @@ WORKERS="${UVICORN_WORKERS:-4}"
 echo "[entrypoint] Starting API server with ${WORKERS} worker(s)..."
 exec uvicorn app.main:app \
   --host 0.0.0.0 \
-  --port 8000 \
+  --port "${PORT:-8000}" \
   --workers "${WORKERS}" \
   --loop uvloop \
   --http httptools \

@@ -207,7 +207,7 @@ def create_app() -> FastAPI:
         return Response(content=generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
     # Root & Health endpoints
-    @app.get("/")
+    @app.api_route("/", methods=["GET", "HEAD"])
     async def root():
         return {
             "name": "Procurement Portal API",
@@ -217,7 +217,7 @@ def create_app() -> FastAPI:
             "health": "/health",
         }
 
-    @app.get("/health")
+    @app.api_route("/health", methods=["GET", "HEAD"])
     async def health_check():
         return {"status": "ok", "version": settings.APP_VERSION, "timestamp": datetime.now(UTC).isoformat()}
 
