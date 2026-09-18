@@ -1589,6 +1589,18 @@
     "ast_hash": "bbdd2468474d00de147415fc6a7ffa2d",
     "semantic_hash": ""
   },
+  "procurement-portal-frontend/apps/buyer-portal/middleware.ts": {
+    "mtime": 1789465348.5353138,
+    "seen": 1789465481.161052,
+    "ast_hash": "b30cb1f55405f76fef762d245c999d07",
+    "semantic_hash": ""
+  },
+  "procurement-portal-frontend/apps/supplier-portal/middleware.ts": {
+    "mtime": 1789465348.543022,
+    "seen": 1789465481.161365,
+    "ast_hash": "55584d27cefe8a29380758e0e7e38bb1",
+    "semantic_hash": ""
+  },
   "procurement-portal-frontend/packages/hooks/src/useAuth.ts": {
     "mtime": 1789465348.5470507,
     "seen": 1789465481.162303,
@@ -2367,6 +2379,12 @@
     "mtime": 1789465348.3506863,
     "seen": 1789465481.159776,
     "ast_hash": "53df6d7a8c8c44ac2740a6162d3ed989",
+    "semantic_hash": ""
+  },
+  "procurement-portal-frontend/apps/admin-portal/middleware.ts": {
+    "mtime": 1789465348.5273886,
+    "seen": 1789465481.160671,
+    "ast_hash": "70da8e96b713a671ec45ee89dd130a8f",
     "semantic_hash": ""
   },
   "procurement-portal-frontend/packages/hooks/src/useOrganization.ts": {
