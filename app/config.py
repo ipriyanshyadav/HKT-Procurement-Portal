@@ -163,7 +163,9 @@ class Settings(BaseSettings):
         "http://[::1]:3002",
         "http://[::1]:3004",
         "http://[::1]:3005",
+        "https://hkt-procurement-portal.vercel.app",
     ]
+    CORS_ORIGIN_REGEX: str | None = r"^https://.*\.vercel\.app$"
 
     # Celery
     CELERY_OUTBOX_INTERVAL_SECONDS: float = 5.0

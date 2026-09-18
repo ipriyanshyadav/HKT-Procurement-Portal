@@ -4,17 +4,27 @@ declare const process: { env: Record<string, string | undefined> };
 
 const isServer = typeof window === "undefined";
 export function getEffectiveApiUrl(): string {
+  const envUrl =
+    process.env.NEXT_PUBLIC_API_URL ||
+    (typeof process !== "undefined" ? process.env.INTERNAL_API_URL : undefined);
+  if (envUrl) {
+    return envUrl.replace(/\/+$/, "");
+  }
   if (!isServer) {
     const hostname = window.location.hostname;
-    const protocol = window.location.protocol;
-    const host = hostname.includes(":") && !hostname.startsWith("[") ? `[${hostname}]` : hostname;
-    return `${protocol}//${host}:8000`;
+    const isLocal =
+      hostname === "localhost" ||
+      hostname === "127.0.0.1" ||
+      hostname.startsWith("192.168.") ||
+      hostname.startsWith("10.") ||
+      hostname.endsWith(".local");
+    if (isLocal) {
+      const protocol = window.location.protocol;
+      const host = hostname.includes(":") && !hostname.startsWith("[") ? `[${hostname}]` : hostname;
+      return `${protocol}//${host}:8000`;
+    }
   }
-  return (
-    (typeof process !== "undefined" &&
-      (process.env?.INTERNAL_API_URL || process.env?.NEXT_PUBLIC_API_URL)) ||
-    "http://localhost:8000"
-  );
+  return "http://localhost:8000";
 }
 
 export const API_URL = getEffectiveApiUrl();
@@ -139,13 +149,22 @@ export const apiClient: AxiosInstance = axios.create({
 
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    if (!isServer) {
+    const configuredApiUrl = process.env.NEXT_PUBLIC_API_URL;
+    if (!isServer && !configuredApiUrl) {
       const hostname = window.location.hostname;
-      const protocol = window.location.protocol;
-      const host = hostname.includes(":") && !hostname.startsWith("[") ? `[${hostname}]` : hostname;
-      const currentOrigin = `${protocol}//${host}:8000`;
-      if (config.baseURL && !config.baseURL.startsWith(currentOrigin)) {
-        config.baseURL = config.baseURL.replace(/^https?:\/\/[^/]+(:[0-9]+)?/, currentOrigin);
+      const isLocal =
+        hostname === "localhost" ||
+        hostname === "127.0.0.1" ||
+        hostname.startsWith("192.168.") ||
+        hostname.startsWith("10.") ||
+        hostname.endsWith(".local");
+      if (isLocal) {
+        const protocol = window.location.protocol;
+        const host = hostname.includes(":") && !hostname.startsWith("[") ? `[${hostname}]` : hostname;
+        const currentOrigin = `${protocol}//${host}:8000`;
+        if (config.baseURL && !config.baseURL.startsWith(currentOrigin)) {
+          config.baseURL = config.baseURL.replace(/^https?:\/\/[^/]+(:[0-9]+)?/, currentOrigin);
+        }
       }
     }
     const token = accessToken || getAccessToken();
@@ -210,9 +229,21 @@ apiClient.interceptors.response.use(
       if (tabRefreshToken) {
         headers["X-Refresh-Token"] = tabRefreshToken;
       }
-      const refreshBaseUrl = !isServer
-        ? `${window.location.protocol}//${window.location.hostname.includes(":") && !window.location.hostname.startsWith("[") ? `[${window.location.hostname}]` : window.location.hostname}:8000`
-        : API_URL;
+      const configuredApiUrl = process.env.NEXT_PUBLIC_API_URL;
+      let refreshBaseUrl = API_URL;
+      if (!isServer && !configuredApiUrl) {
+        const hostname = window.location.hostname;
+        const isLocal =
+          hostname === "localhost" ||
+          hostname === "127.0.0.1" ||
+          hostname.startsWith("192.168.") ||
+          hostname.startsWith("10.") ||
+          hostname.endsWith(".local");
+        if (isLocal) {
+          const host = hostname.includes(":") && !hostname.startsWith("[") ? `[${hostname}]` : hostname;
+          refreshBaseUrl = `${window.location.protocol}//${host}:8000`;
+        }
+      }
       const { data } = await axios.post<{ data: { access_token: string; refresh_token?: string } }>(
         `${refreshBaseUrl}/api/v1/auth/refresh`,
         tabRefreshToken ? { refresh_token: tabRefreshToken } : {},
