@@ -81,6 +81,9 @@ export function subscribeTokenChange(listener: TokenListener): () => void {
 }
 
 export function getPortalId(): string | null {
+  if (process.env.NEXT_PUBLIC_PORTAL_ID) {
+    return process.env.NEXT_PUBLIC_PORTAL_ID;
+  }
   if (typeof window === "undefined") return null;
   const port = window.location.port;
   if (port === "3001") return "supplier";
